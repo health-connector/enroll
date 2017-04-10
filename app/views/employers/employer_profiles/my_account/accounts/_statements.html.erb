@@ -3,13 +3,14 @@
 <table class="table">
   <thead>
     <tr>
-      <th>Date</th>
-      <th>Size</th>
-      <th>Open/Save PDF</th>
+      <th>Year</th>
+      <th>Statement Date</th>
+      <th>Coverage Period</th>
+      <th>Download</th>
+      <th>View</th>
     </tr>
   </thead>
   <tbody>
-
     <% @invoice_years.each do |invoice_year| %>
     <tr data-toggle="collapse" data-target="#collapse2" id="<%= invoice_year %>" class="invoice_years">
       <td><i class='glyphicon glyphicon-plus' data-toggle='tooltip'></i> <%= invoice_year %></td>
@@ -26,39 +27,35 @@
           <td></td>
           <td></td>
         </tr>
-      </tr>
+      <% else %>
+        <% invoices_2.each do |invoice| %>
+          <tr class="invoices <%= invoice_year %>">
+            <td></td>
+            <td><%= invoice_formated_date(invoice.date) %></td>
+            <td><%= invoice_coverage_date(invoice.date) %></td>
+            <td><%= link_to "<i class='fa fa-cloud-download' aria-hidden='true' title='Download' data-toggle='tooltip'></i>".html_safe, download_invoice_employers_employer_profile_path(@employer_profile, :invoice_id => invoice.id), :target => "_blank" , :type => "pdf", :disposition =>  "inline" %></td>
+            <td><%= link_to "<i class='glyphicon glyphicon-open-file' aria-hidden='true' data-toggle='tooltip'></i>".html_safe, show_invoice_employers_employer_profile_path(@employer_profile, :invoice_id => invoice.id), :target => "_blank"%></td>
+          </tr>
+        <% end %>
+      <% end %>
     </tr>
-    <tr>
-      <td>2016</td>
-      <td>14 Mb</td>
-      <td>Open Me</td>
-    </tr>
+    <% end %>
   </tbody>
 </table>
 
-<% if @invoices.present? %>
-<div class="table-responsive module employer-invoices">
-  <table class="table table-striped table-hover panel panel-default">
-    <thead class="thead-default">
-      <tr>
-        <th>
-          <span class='sorter'><%= link_to "Statement Date <span class='fa-stack fa-lg'><i class='fa fa-caret-up fa-stack-1x' aria-hidden='true'></i><i class='fa fa-caret-down fa-stack-1x' aria-hidden='true'></i></i></span>".html_safe,employers_employer_profile_path(@employer_profile, :tab => 'billing', :sort_order =>@sort_order)%></span>
-        </th>
-        <th>Open in new window</th>
-        <th>Coverage Period</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <% @invoices.each do |invoice|%>
-        <td><%= link_to "#{invoice_formated_date(invoice.date)} <i class='fa fa-cloud-download' aria-hidden='true' title='Download' data-toggle='tooltip'></i>".html_safe, download_invoice_employers_employer_profile_path(@employer_profile, :invoice_id => invoice.id), :target => "_blank" , :type => "pdf", :disposition =>  "inline" %></td>
-        <td><%= link_to "Open in new window", show_invoice_employers_employer_profile_path(@employer_profile, :invoice_id => invoice.id), :target => "_blank"%></td>
-        <td><%=invoice_coverage_date(invoice.date)%></td>
-      <tr/>
-      <%end%>
-    </tbody>
-  </table>
-</div>
-<% else %>
-  <h4>You don't have any invoices. When you do, they will be displayed here.</h4>
-<% end %>
+<script>
+  $('td i').click(function() {
+    $(this).toggleClass("glyphicon glyphicon-plus glyphicon glyphicon-minus");
+  });
+
+  $(document).ready(function() {
+    $('tr.invoices').hide();
+
+    $('.invoice_years').each(function() {
+      $(this).click(function() {
+        $('tr.' + $(this).attr('id')).toggle();
+      })
+    });
+
+  });
+</script>
