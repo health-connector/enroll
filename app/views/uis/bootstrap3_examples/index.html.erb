@@ -80,9 +80,6 @@
 <% content_for :main do %>
 
   <h1 id="home"><%= l10n('.typography') %></h1>
-  <h3><%= l10n('.headings') %></h3>
-
-  <h1><%= l10n('.heading_1') %></h1>
   <h2><%= l10n('.heading_2') %></h2>
   <h3><%= l10n('.heading_3') %></h3>
   <h4><%= l10n('.heading_4') %></h4>
@@ -93,70 +90,70 @@
   <p><%= l10n('.body_copy_text') %></p>
 
   <h3>Lead Body Copy</h3>
-  <p class="lead">
-    Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.
-  </p>
+<p class="lead">
+Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.
+</p>
 
-  <h3>Alignment</h3>
-  <p class="text-left">Left aligned text.</p>
-  <p class="text-center">Center aligned text.</p>
-  <p class="text-right">Right aligned text.</p>
-  <p class="text-justify">Justified text.</p>
-  <p class="text-nowrap">No wrap text.</p>
+<h3>Alignment</h3>
+<p class="text-left">Left aligned text.</p>
+<p class="text-center">Center aligned text.</p>
+<p class="text-right">Right aligned text.</p>
+<p class="text-justify">Justified text.</p>
+<p class="text-nowrap">No wrap text.</p>
 
-  <h3>Text Transforms</h3>
-  <p class="text-lowercase">Lowercased text.</p>
-  <p class="text-uppercase">Uppercased text.</p>
-  <p class="text-capitalize">Capitalized text.</p>
+<h3>Text Transforms</h3>
+<p class="text-lowercase">Lowercased text.</p>
+<p class="text-uppercase">Uppercased text.</p>
+<p class="text-capitalize">Capitalized text.</p>
+<h3>Addresses</h3>
+<address>
+  <strong>Twitter, Inc.</strong><br>
+  1355 Market Street, Suite 900<br>
+  San Francisco, CA 94103<br>
+  <abbr title="Phone">P:</abbr> (123) 456-7890
+</address>
 
-  <h3>Addresses</h3>
-  <address>
-    <strong>Twitter, Inc.</strong><br>
-    1355 Market Street, Suite 900<br>
-    San Francisco, CA 94103<br>
-    <abbr title="Phone">P:</abbr> (123) 456-7890
-  </address>
+<address>
+  <strong>Full Name</strong><br>
+  <a href="mailto:#">first.last@example.com</a>
+</address>
 
-  <address>
-    <strong>Full Name</strong><br>
-    <a href="mailto:#">first.last@example.com</a>
-  </address>
+<h3>Unordered Lists</h3>
+<ul>
+  <li>First Item</li>
+  <li>Second Item</li>
+  <li>Third Item</li>
+  <li>Fourth Item</li>
+</ul>
 
-  <h3>Unordered Lists</h3>
-  <ul>
-    <li>First Item</li>
-    <li>Second Item</li>
-    <li>Third Item</li>
-    <li>Fourth Item</li>
-  </ul>
+<h3>Ordered Lists</h3>
+<ol>
+  <li>First Item</li>
+  <li>Second Item</li>
+  <li>Third Item</li>
+  <li>Fourth Item</li>
+</ol>
 
-  <h3>Ordered Lists</h3>
-  <ol>
-    <li>First Item</li>
-    <li>Second Item</li>
-    <li>Third Item</li>
-    <li>Fourth Item</li>
-  </ol>
+<h3>Description Lists</h3>
+<dl>
+  <dt>Description Lists</dt>
+  <dd>A description list is perfect for defining terms</dd>
+  <dt>Term 2</dt>
+  <dd>This is the definition</dd>
+  <dt>This is a very long term to be defined</dt>
+  <dd>This is the definition</dd>
+</dl>
 
-  <h3>Description Lists</h3>
-  <dl>
-    <dt>Description Lists</dt>
-    <dd>A description list is perfect for defining terms</dd>
-    <dt>Term 2</dt>
-    <dd>This is the definition</dd>
-    <dt>This is a very long term to be defined</dt>
-    <dd>This is the definition</dd>
-  </dl>
+<h3>Horizontal Description</h3>
+<dl class="dl-horizontal">
+  <dt>Description Lists</dt>
+  <dd>A description list is perfect for defining terms</dd>
+  <dt>Term 2</dt>
+  <dd>This is the definition</dd>
+  <dt>This is a very long term to be defined</dt>
+  <dd>This is the definition</dd>
+</dl>
 
-  <h3>Horizontal Description</h3>
-  <dl class="dl-horizontal">
-    <dt>Description Lists</dt>
-    <dd>A description list is perfect for defining terms</dd>
-    <dt>Term 2</dt>
-    <dd>This is the definition</dd>
-    <dt>This is a very long term to be defined</dt>
-    <dd>This is the definition</dd>
-  </dl>
 
     <h3 id="buttons">Button Classes</h3>
 
@@ -206,6 +203,7 @@
     </p>
 
     <h3>Button States</h3>
+    <p>
       <button type="button" class="btn btn-primary btn-lg active">Active Primary button</button>
       <button type="button" class="btn btn-default btn-lg active">Active Default Button</button>
     </p>
@@ -230,7 +228,6 @@
       <h3>Dropdowns</h3>
 
       <!-- Single button -->
-      <p>
         <div class="btn-group">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Default Button <span class="caret"></span>
@@ -259,7 +256,6 @@
             <li><a href="#">Separated link</a></li>
           </ul>
         </div>
-      </p>
     </div>
 
     <h3>Button Groups</h3>
@@ -553,498 +549,16 @@
     </form>
   </div>
 
-
     <h3>Pagination</h3>
-    <div>
-      <h3>Pagination</h3>
-      <p>Default pagination</p>
-        <nav aria-label="Page navigation">
-          <ul class="pagination">
-            <li>
-              <a href="#" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-              <li><a href="#">1</a></li>
-              <li><a href="#">2</a></li>
-              <li><a href="#">3</a></li>
-              <li><a href="#">4</a></li>
-              <li><a href="#">5</a></li>
-            <li>
-              <a href="#" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-        <p>Disabled and active states</p>
-
-         <nav aria-label="Page navigation">
-          <ul class="pagination">
-          <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-          <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
-          <li class="disabled"><a href="#">2 <span class="sr-only">(current)</span></a></li>
-          <li class="disabled"><a href="#">3 <span class="sr-only">(current)</span></a></li>
-          </ul>
-        </nav>
-
-
-        <p>Sizing</p>
-
-        <nav aria-label="Page navigation">
-          <ul class="pagination pagination-lg">
-            <li>
-            <a href="#">1</a>
-            <a href="#">2</a>
-            <a href="#">3</a>
-            <a href="#">4</a>
-            <a href="#">5</a>
-            </li>
-          </ul>
-        </nav>
-
-
-        <nav aria-label="Page navigation">
-          <ul class="pagination">
-            <li>
-              <a href="#">1</a>
-              <a href="#">2</a>
-              <a href="#">3</a>
-              <a href="#">4</a>
-              <a href="#">5</a>
-            </li>
-          </ul>
-        </nav>
-
-
-        <nav aria-label="Page navigation">
-          <ul class="pagination pagination-sm">
-            <li>
-              <a href="#">1</a>
-              <a href="#">2</a>
-              <a href="#">3</a>
-              <a href="#">4</a>
-              <a href="#">5</a>
-            </li>
-          </ul>
-        </nav>
-
-
-    <h3>Pager</h3>
-      <p>Default</p>
-
-        <nav aria-label="Page navigation">
-          <ul class="pager">
-            <li><a href="#">Previous</a></li>
-            <li><a href="#">Next</a></li>
-          </ul>
-        </nav>
-
-      <p>Aligned links</p>
-        <nav aria-label="Page navigation">
-          <ul class="pager">
-            <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span> Older</a></li>
-            <li class="next"><a href="#">Newer <span aria-hidden="true">&rarr;</span></a></li>
-          </ul>
-        </nav>
-
-       <p>Optional disabled state</p>
-
-          <nav aria-label="Page navigation">
-            <ul class="pager">
-              <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Older</a></li>
-              <li class="next"><a href="#">Newer <span aria-hidden="true">&rarr;</span></a></li>
-            </ul>
-          </nav>
-
-    </div>
     <h3>Navigation</h3>
-      <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-              <img alt="Brand" src="https://mahealthconnector.optum.com/individual/images/logo.png">
-            </a>
-          </div>
-        </div>
-      </nav><br>
-
-      <nav class="navbar navbar-default">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">
-              <img alt="Brand" src="https://mahealthconnector.optum.com/individual/images/logo.png">
-            </a>
-          </div>
-
-          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-              <li><a href="#">Link</a></li>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li><a href="#">Separated link</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li><a href="#">One more separated link</a></li>
-                </ul>
-              </li>
-            </ul>
-            <form class="navbar-form navbar-left">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search">
-              </div>
-              <button type="submit" class="btn btn-default">Submit</button>
-            </form>
-            <ul class="nav navbar-nav navbar-right">
-              <li><a href="#">Link</a></li>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li><a href="#">Separated link</a></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav><br>
-
-      <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">WebSiteName</a>
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">Link</a></li>
-            <li><a href="#">Link</a></li>
-          </ul>
-          <button class="btn btn-danger navbar-btn">Button</button>
-        </div>
-      </nav><br>
-
-      <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">WebSiteName</a>
-          </div>
-
-          <div class="collapse navbar-collapse" id="myNavbar">
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#">Page 1</a></li>
-              <li><a href="#">Page 2</a></li>
-              <li><a href="#">Page 3</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-              <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-      <div class="demo-row demo-tabs">
-        <div class="demo-title">
-          <h3 class="demo-panel-title">Tabs</h3>
-        </div>
-        <div class="demo-content">
-          <ul class="nav nav-tabs nav-append-content" role="tablist">
-            <li role="presentation" class="active"><a href="#tab1" aria-controls="tab1" role="tab" data-toggle="tab">Popular</a></li>
-            <li role="presentation"><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">Newest</a></li>
-            <li role="presentation"><a href="#tab3" aria-controls="tab3" role="tab" data-toggle="tab">Bestselling</a></li>
-            <li role="presentation" class="disabled"><a href="#tab4">Disabled Tab</a></li>
-          </ul> <!-- /tabs -->
-
-          <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="tab1">
-              <p>I'm in Section 1.</p>
-            </div>
-
-            <!-- /tabs -->
-            <div role="tabpanel" class="tab-pane" id="tab2">
-              <p>Howdy, I'm in Section 2.</p>
-            </div>
-
-            <!-- /tabs -->
-            <div role="tabpanel" class="tab-pane" id="tab3">
-              <p>Howdy, I'm in Section 3.</p>
-            </div>
-
-            <div role="tabpanel" class="tab-pane" id="tab4">
-              <p>This section is disabled.</p>
-            </div>
-          </div> <!-- /tab-content -->
-
-          <br>
-          <p> Tab with Dropdown </p>
-          <ul class="nav nav-tabs">
-            <li role="presentation" class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                Home<span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Sub Options</a></li>
-                <li><a href="#">Sub Options</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">Sub Option below a divider</a></li>
-              </ul>
-            </li>
-            <li role="presentation"><a href="#">Profile</a></li>
-            <li role="presentation"><a href="#">Messages</a></li>
-          </ul>
-        </div> <!-- /demo-content -->
-      </div> <!-- /row -->
-
-    <h3> Breadcrumbs </h3>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Home</li>
-      </ol>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Library</li>
-      </ol>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item"><a href="#">Library</a></li>
-        <li class="breadcrumb-item active">Data</li>
-      </ol>
-
+    <h3>Tabs</h3>
+    <h3>Breadcrumbs</h3>
     <h3>Progress Bars and Sliders</h3>
-<div>
-
-
-
-<h3>Default progress bar</h3>
-  <div class="progress">
-    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-    <span class="sr-only">60% Complete</span>
-  </div>
-  </div>
-
-<h3>With label</h3>
-  <div class="progress">
-    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-    60%
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
-    0%
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: 2%;">
-    2%
-  </div>
-  </div>
-<h3>Contextual alternatives</h3>
-  <div class="progress">
-    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-    <span class="sr-only">40% Complete (success)</span>
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-    <span class="sr-only">20% Complete</span>
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-    <span class="sr-only">60% Complete (warning)</span>
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-    <span class="sr-only">80% Complete (danger)</span>
-  </div>
-  </div>
-<h3>Striped</h3>
-  <div class="progress">
-    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-    <span class="sr-only">40% Complete (success)</span>
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-    <span class="sr-only">20% Complete</span>
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-    <span class="sr-only">60% Complete (warning)</span>
-  </div>
-  </div>
-  <div class="progress">
-    <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-    <span class="sr-only">80% Complete (danger)</span>
-  </div>
-  </div>
-<h3>Animated</h3>
-  <div class="progress">
-    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
-    <span class="sr-only">45% Complete</span>
-  </div>
-  </div>
-<h3>Stacked</h3>
-  <div class="progress">
-    <div class="progress-bar progress-bar-success" style="width: 35%">
-    <span class="sr-only">35% Complete (success)</span>
-  </div>
-  <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 20%">
-    <span class="sr-only">20% Complete (warning)</span>
-  </div>
-  <div class="progress-bar progress-bar-danger" style="width: 10%">
-    <span class="sr-only">10% Complete (danger)</span>
-  </div>
-  </div>
-  </div>
-
-
-
-
     <h3>Tooltips and Popovers</h3>
-    <div>
-      <h3>Tooltip Four directions</h3>
-        <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Tooltip on left">Tooltip on left</button>
-
-        <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Tooltip on top</button>
-
-        <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="bottom" title="Tooltip on bottom">Tooltip on bottom</button>
-
-        <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Tooltip on right">Tooltip on right</button>
-
-      <h3>Click To toggle Popover</h3>
-        <button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?">Click to toggle popover</button>
-
-      <h3>Four directions Popover</h3>
-        <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="left" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
-        Popover on left
-        </button>
-
-        <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="top" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
-        Popover on top
-        </button>
-
-        <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Vivamus
-        sagittis lacus vel augue laoreet rutrum faucibus.">
-        Popover on bottom
-        </button>
-
-        <button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
-        Popover on right
-        </button>
-
-      <h3>Dismissal Popover</h3>
-        <a tabindex="0" class="btn btn-lg btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="And here's some amazing content. It's very engaging. Right?">Dismissible popover</a>
-    </div>
-
-    <div class="demo-row">
-      <h3 class="demo-title">Alerts</h3>
-      <div class="demo-content">
-        <!-- Alert Success -->
-        <div class="alert alert-success" role="alert">Create a div with class 'alert alert-success'</div>
-        <div class="alert alert-success">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
-        </div>
-
-        <div class="alert alert-success">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          <h4>Disc Space was extended twice. It’s ok?</h4>
-          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
-          <a href="#fakelink" class="btn btn-primary btn-wide"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;Hurray!</a>
-          <a href="#fakelink" class="btn btn-default btn-info btn-wide">Share on twitter</a>
-        </div>
-
-        <!-- Alert Info -->
-        <div class="alert alert-info" role="alert">Create a div with class 'alert alert-info'</div>
-        <div class="alert alert-info">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
-        </div>
-
-        <div class="alert alert-info">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          <h4>Information Label</h4>
-          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
-          <a href="#fakelink" class="btn btn-info btn-wide">Turn it off now</a>
-          <a href="#fakelink" class="btn btn-default btn-wide">It’s ok</a>
-        </div>
-
-        <!-- Alert Warning -->
-        <div class="alert alert-warning" role="alert">Create a div with class 'alert alert-warning'</div>
-        <div class="alert alert-warning">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
-        </div>
-
-        <div class="alert alert-warning">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          <h4>Error: The change you wanted was rejected.</h4>
-          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
-          <a href="#fakelink" class="btn btn-warning btn-wide">Turn it off now</a>
-          <a href="#fakelink" class="btn btn-default btn-wide">It’s ok</a>
-        </div>
-
-        <!-- Alert Danger -->
-        <div class="alert alert-danger" role="alert">Create a div with class 'alert alert-danger'</div>
-        <div class="alert alert-danger">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
-        </div>
-
-        <div class="alert alert-danger">
-          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
-          <h4>Error: The change you wanted was rejected.</h4>
-          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
-          <a href="#fakelink" class="btn btn-danger btn-wide">Turn it off now</a>
-          <a href="#fakelink" class="btn btn-default btn-wide">It’s ok</a>
-        </div>
-        <p> Dismissible alerts</p>
-        <div class="alert alert-warning alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <strong>Warning!</strong> Better check yourself, you're not looking too good.
-        </div>
-
-      </div> <!-- /demo-content -->
-    </div> <!-- /row -->
-
-    <h2>Badges</h2>
-    <a href="#">News <span class="badge">5</span></a><br>
-    <a href="#">Comments <span class="badge">10</span></a><br>
-    <a href="#">Updates <span class="badge">2</span></a>
-
-    <h3>Badges on Buttons</h3>
-    <button type="button" class="btn btn-primary">Primary <span class="badge">7</span></button><br>
-    <button type="button" class="btn btn-success">Success <span class="badge">3</span></button><br>
-    <button type="button" class="btn btn-danger">Danger <span class="badge">5</span></button><br>
-
-    <h3>Badges nav-pills</h3>
-    <ul class="nav nav-pills" role="tablist">
-      <li role="presentation" class="active"><a href="#">Home <span class="badge">42</span></a></li>
-      <li role="presentation"><a href="#">Profile</a></li>
-      <li role="presentation"><a href="#">Messages <span class="badge">3</span></a></li>
-    </ul>
-    <br>
-
+    <h3>Alerts</h3>
+    <h3>Tabs</h3>
+    <h3>Badges</h3>
+    <h3>Tabs</h3>
     <h3>Wells</h3>
 
       <h3>Default well</h3>
@@ -1059,101 +573,132 @@
         <div class="well well-sm"> A small Well</div>
 
     <h3>Carousel</h3>
-      <h3>Slides only</h3>
-      <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+    <h3> Slides only </h3>
+    <div id="carousel-example-slides" class="carousel-example" align= "center">
+      <div id="carousel-slides-only" class="carousel slide" data-ride="carousel">
+        <!-- Wrapper for slides -->
         <div class="carousel-inner" role="listbox">
-          <div class="carousel-item item active">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/individual-family.jpg">
+          <div class="item active">
+            <%= image_tag "logo-bg.jpg", alt: "First Image" %>
           </div>
-          <div class="carousel-item item">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/small-business.jpg" alt="Second slide">
+          <div class="item">
+            <%= image_tag "living.png", alt: "Second Image" %>
           </div>
-          <div class="carousel-item item">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/employee.jpg" alt="Third slide">
+          <div class="item">
+            <%= image_tag "logo.png", alt: "Third Image" %>
           </div>
         </div>
       </div>
+    </div>
 
-      <h3>With controls</h3>
-      <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+    <h3>With controls</h3>
+    <div id="carousel-example-controls" class="carousel-example" align= "center">
+      <div id="carousel-controls" class="carousel slide" data-ride="carousel">
+        <!-- Wrapper for slides -->
         <div class="carousel-inner" role="listbox">
-          <div class="carousel-item item active">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/individual-family.jpg" alt="First slide">
+          <div class="item active">
+            <%= image_tag "logo-bg.jpg", alt: "First Image" %>
           </div>
-          <div class="carousel-item item">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/small-business.jpg" alt="Second slide">
+          <div class="item">
+            <%= image_tag "living.png", alt: "Second Image" %>
           </div>
-          <div class="carousel-item item">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/employee.jpg" alt="Third slide">
+          <div class="item">
+            <%= image_tag "logo.png", alt: "Third Image" %>
           </div>
         </div>
-        <a class="left carousel-control carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-          <span class="icon-prev" aria-hidden="true"></span>
+
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-controls" role="button" data-slide="prev">
+          <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
           <span class="sr-only">Previous</span>
         </a>
-        <a class="right carousel-control carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-          <span class="icon-next" aria-hidden="true"></span>
+        <a class="right carousel-control" href="#carousel-controls" role="button" data-slide="next">
+          <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
           <span class="sr-only">Next</span>
         </a>
       </div>
+    </div>
 
-      <p> To initialize $("#carouselExampleControls").carousel(); </p>
-
-      <h3>With indicators</h3>
-      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    <h3>With indicators</h3>
+    <div id="carousel-example-indicators" class="carousel-example" >
+      <div id="carousel-indicators" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators" align= "center">
+          <li data-target="#carousel-indicators" data-slide-to="0" class="active"></li>
+          <li data-target="#carousel-indicators" data-slide-to="1"></li>
+          <li data-target="#carousel-indicators" data-slide-to="2"></li>
         </ol>
+
+        <!-- Wrapper for slides -->
         <div class="carousel-inner" role="listbox">
-          <div class="carousel-item active carousel-item item ">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/individual-family.jpg" alt="First slide">
+          <div class="item active">
+            <%= image_tag "logo-bg.jpg", alt: "First Image" %>
           </div>
-          <div class="carousel-item carousel-item item ">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/small-business.jpg" alt="Second slide">
+          <div class="item">
+            <%= image_tag "living.png", alt: "Second Image" %>
           </div>
-          <div class="carousel-item carousel-item item ">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/employee.jpg" alt="Third slide">
+          <div class="item">
+            <%= image_tag "logo.png", alt: "Third Image" %>
           </div>
         </div>
-        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-          <span class="icon-prev carousel-control-prev-icon" aria-hidden="true"></span>
+
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-indicators" role="button" data-slide="prev">
+          <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
           <span class="sr-only">Previous</span>
         </a>
-        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-          <span class="icon-next carousel-control-next-icon" aria-hidden="true"></span>
+        <a class="right carousel-control" href="#carousel-indicators" role="button" data-slide="next">
+          <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
           <span class="sr-only">Next</span>
         </a>
       </div>
+    </div>
 
-      <h3>With captions</h3>
-      <div id="carouselWithCaptions" class="carousel slide" data-ride="carousel">
+    <h3>With captions</h3>
+    <div id="carousel-example-captions" class="carousel-example" >
+      <div id="carousel-captions" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators" align= "center">
+          <li data-target="#carousel-captions" data-slide-to="0" class="active"></li>
+          <li data-target="#carousel-captions" data-slide-to="1"></li>
+          <li data-target="#carousel-captions" data-slide-to="2"></li>
+        </ol>
+
+        <!-- Wrapper for slides -->
         <div class="carousel-inner" role="listbox">
-          <div class="carousel-item active carousel-item item ">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/individual-family.jpg" alt="First slide">
+          <div class="item active">
+            <%= image_tag "logo-bg.jpg", alt: "First Image" %>
             <div class="carousel-caption">
-              <h3>Picture One Title</h3>
-              <p>Picture One Caption</p>
-             </div>
-          </div>
-          <div class="carousel-item carousel-item item ">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/small-business.jpg" alt="Second slide">
-            <div class="carousel-caption">
-              <h3>Picture Two Title</h3>
-              <p>Picture Two Caption</p>
+              <p>First Image</p>
             </div>
           </div>
-          <div class="carousel-item carousel-item item ">
-            <img class="d-block img-fluid" src="https://dchealthlink.com/sites/all/themes/dchl/img/stock/employee.jpg" alt="Third slide">
+          <div class="item">
+            <%= image_tag "living.png", alt: "Second Image" %>
             <div class="carousel-caption">
-              <h3>Picture Three Title</h3>
-              <p>Picture Three Caption</p>
+              <p>Second Image</p>
+            </div>
+          </div>
+          <div class="item">
+            <%= image_tag "logo.png", alt: "Third Image" %>
+            <div class="carousel-caption">
+              <p>Third Image</p>
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-captions" role="button" data-slide="prev">
+          <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#carousel-captions" role="button" data-slide="next">
+          <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+
+  </div> <!-- /container -->
 
     <div>
     <div class="demo-row">
@@ -1258,22 +803,22 @@
         </div>
         <div class="form-group">
 
-          <div class="input-group input-group-rounded">
+<div class="input-group input-group-rounded">
             <input type="search" class="form-control" placeholder="Search" id="search-query-4">
             <button type="submit" class="btn"><span class="fa fa-search"></span></button>
-          </div>
+</div>
 
-      <form class="form-inline">
-        <div class="form-group">
-          <label for="exampleInputName2">Name</label>
-          <input type="text" class="form-control" id="exampleInputName2" placeholder="Jane Doe">
-        </div>
-        <div class="form-group">
-          <label for="exampleInputEmail2">Email</label>
-          <input type="email" class="form-control" id="exampleInputEmail2" placeholder="jane.doe@example.com">
-        </div>
-        <button type="submit" class="btn btn-default">Send invitation</button>
-      </form>
+<form class="form-inline">
+  <div class="form-group">
+    <label for="exampleInputName2">Name</label>
+    <input type="text" class="form-control" id="exampleInputName2" placeholder="Jane Doe">
+  </div>
+  <div class="form-group">
+    <label for="exampleInputEmail2">Email</label>
+    <input type="email" class="form-control" id="exampleInputEmail2" placeholder="jane.doe@example.com">
+  </div>
+  <button type="submit" class="btn btn-default">Send invitation</button>
+</form>
 
         </div>
         <div class="form-group">
@@ -1796,6 +1341,62 @@
       </div>
     </div>
 
+    <div class="demo-row demo-tabs">
+      <div class="demo-title">
+        <h3 class="demo-panel-title">Tabs</h3>
+      </div>
+      <div class="demo-content">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#">Popular</a></li>
+          <li><a href="#">Newest</a></li>
+          <li><a href="#">Bestselling</a></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              Dropdown
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="#tab2">Newest</a></li>
+              <li><a href="#tab3">Bestselling</a></li>
+            </ul>
+          </li>
+        </ul> <!-- /tabs -->
+
+        <ul class="nav nav-tabs nav-append-content">
+          <li class="active"><a href="#tab1">Popular</a></li>
+          <li><a href="#tab2">Newest</a></li>
+          <li><a href="#tab3">Bestselling</a></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              Dropdown
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="#tab2">Newest</a></li>
+              <li><a href="#tab3">Bestselling</a></li>
+            </ul>
+          </li>
+        </ul> <!-- /tabs -->
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab1">
+            <p>I'm in Section 1.</p>
+          </div>
+
+          <!-- /tabs -->
+          <div class="tab-pane" id="tab2">
+            <p>Howdy, I'm in Section 2.</p>
+          </div>
+
+          <!-- /tabs -->
+          <div class="tab-pane" id="tab3">
+            <p>Howdy, I'm in Section 3.</p>
+          </div>
+        </div> <!-- /tab-content -->
+
+      </div>
+    </div> <!-- /row -->
+
     <div class="demo-row">
       <div class="demo-title">
         <h3 class="demo-panel-title">Icon Bars</h3>
@@ -2157,8 +1758,72 @@
     </div> <!-- /row -->
 
     <div class="demo-row">
+      <h3 class="demo-title">Alerts</h3>
+      <div class="demo-content">
+        <!-- Alert Success -->
+        <div class="alert alert-success">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
+        </div>
+
+        <div class="alert alert-success">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          <h4>Disc Space was extended twice. It’s ok?</h4>
+          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
+          <a href="#fakelink" class="btn btn-primary btn-wide"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;Hurray!</a>
+          <a href="#fakelink" class="btn btn-default btn-info btn-wide">Share on twitter</a>
+        </div>
+
+        <!-- Alert Info -->
+        <div class="alert alert-info">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
+        </div>
+
+        <div class="alert alert-info">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          <h4>Information Label</h4>
+          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
+          <a href="#fakelink" class="btn btn-info btn-wide">Turn it off now</a>
+          <a href="#fakelink" class="btn btn-default btn-wide">It’s ok</a>
+        </div>
+
+        <!-- Alert Error -->
+        <div class="alert alert-warning">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
+        </div>
+
+        <div class="alert alert-warning">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          <h4>Error: The change you wanted was rejected.</h4>
+          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
+          <a href="#fakelink" class="btn btn-warning btn-wide">Turn it off now</a>
+          <a href="#fakelink" class="btn btn-default btn-wide">It’s ok</a>
+        </div>
+
+        <!-- Alert Danger -->
+        <div class="alert alert-danger">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          Your computer restarted <a href="#fakelink">because of a problem</a>. Sorry for any inconvenience and appreciate your patient.
+        </div>
+
+        <div class="alert alert-danger">
+          <button type="button" class="close fa fa-cross" data-dismiss="alert"></button>
+          <h4>Error: The change you wanted was rejected.</h4>
+          <p>An error message is information displayed when an <a href="#fakelink">unexpected condition occurs</a>, usually on a computer or other device. On modern operating systems with graphical user interfaces, error messages are often displayed using dialog boxes.</p>
+          <a href="#fakelink" class="btn btn-danger btn-wide">Turn it off now</a>
+          <a href="#fakelink" class="btn btn-default btn-wide">It’s ok</a>
+        </div>
+      </div> <!-- /demo-content -->
+    </div> <!-- /row -->
+  </div> <!-- /.container -->
+
+  <div class="container">
+    <div class="demo-row">
       <h3 class="demo-title">Modals</h3>
     </div>
+  </div><!-- /.container -->
 
   <div class="static-modal-backdrop">
     <div class="modal">
@@ -2180,6 +1845,7 @@
     </div>
   </div><!-- /.static-modal-backdrop -->
 
+  <div class="container">
     <div class="demo-row">
       <h3 class="demo-title">Glyphs <small>(70)</small></h3>
       <div class="demo-content demo-icons">
@@ -2599,6 +2265,7 @@
         <h3 class="demo-panel-title">Dialog</h3>
       </div>
     </div><!-- /row -->
+  </div><!-- /.container -->
 
   <div class="dialog dialog-success">
     Activation link was sent to <span class="text-primary">m***@gmail.com</span>
@@ -2629,7 +2296,42 @@
     </form>
   </div> <!-- /dialog -->
 
-<% end %>
+  <div class="container ptl">
+    <div class="demo-row menu-row">
+      <h3 class="demo-title">Bottom Menu</h3>
+    </div><!-- /.demo-row -->
+  </div><!-- /.container -->
+
+  <div class="mtl pbl">
+    <div class="bottom-menu bottom-menu-inverse">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-2 col-sm-2">
+            <a href="#fakelink" class="bottom-menu-brand">Flat UI</a>
+          </div>
+          <div class="col-md-8 col-sm-8">
+            <ul class="bottom-menu-list">
+              <li><a href="#fakelink">About Us</a></li>
+              <li><a href="#fakelink">Store</a></li>
+              <li class="active"><a href="#fakelink">Jobs</a></li>
+              <li><a href="#fakelink">Privacy</a></li>
+              <li><a href="#fakelink">Terms</a></li>
+              <li><a href="#fakelink">Follow Us</a></li>
+              <li><a href="#fakelink">Support</a></li>
+              <li><a href="#fakelink">Links</a></li>
+            </ul>
+          </div>
+          <div class="col-md-2 col-sm-2">
+            <ul class="bottom-menu-iconic-list">
+              <li><a href="#fakelink" class="fa fa-pinterest"></a></li>
+              <li><a href="#fakelink" class="fa fa-facebook"></a></li>
+              <li><a href="#fakelink" class="fa fa-twitter"></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div> <!-- /bottom-menu-inverse -->
+  </div>
 
 <% content_for :additional_scripts do %>
   <% javascript_tag do %>
