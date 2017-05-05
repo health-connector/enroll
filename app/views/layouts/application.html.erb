@@ -3,7 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%= favicon_link_tag 'favicon.ico', :rel => 'shortcut icon', :type => 'image/vnd.microsoft.icon' %>
+
+    <title><%= content_for?(:title) ? yield(:title) : "Welcome to #{site_short_name} | #{site_short_name}" %></title>
+    <%= stylesheet_link_tag "application", :media => "all" %>
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
 
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800">
 
@@ -38,22 +44,22 @@
           </div>
 
           <!-- Main Content -->
-          <main>
-            <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10">
+          <div class="col-xs-12 col-sm-9 col-md-10 col-lg-10">
+            <main>
               <div class="flash_message"><%= flash_messages %></div>
               <div class="breadcrumbs"><%= yield(:breadcrumbs) if content_for?(:breadcrumbs) %></div>
-              <%= content_for?(:main) ? yield(:main) : "Provide content for :main" %>
-            </div>
-          </main>
+              <%= content_for?(:main) ? yield(:main) : "Provide content for :main" %>
+            </main>
+          </div>
         </div>
       </div>
     <% else %>
       <!-- Default is top navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" aria-label="main navigation">
-      <div class="container">
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" aria-label="main navigation">
+        <div class="container">
           <%= content_for?(:top_navigation) ? yield(:top_navigation) : "Provide content for :top_navigation" %>
-      </div>
-        </nav>
+        </div>
+      </nav>
 
       <!-- Main Content -->
       <div class="container">
@@ -67,7 +73,7 @@
 
     <%= render 'layouts/application_footer' %>
     <%= render 'layouts/application_script' %>
-    
+
     <% if content_for?(:additional_scripts) %>
       <%= yield(:additional_scripts) %>
     <% end %>
