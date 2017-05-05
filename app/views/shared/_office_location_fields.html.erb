@@ -1,5 +1,6 @@
-<fieldset>
-  <h4> <% if !@row && !params[:child_index] %> Primary <% end %> Office Location </h4>
+<% primary_office_location = !@row && !params[:child_index] %>
+<fieldset class="<%= 'primary-office-location' if primary_office_location %>">
+  <h4> <% if primary_office_location %> Primary <% end %> Office Location </h4>
   <div id="address_info" class="row no-buffer focus_effect personal-info-row">
     <div class="col-md-12 no-pd col-sm-12 col-xs-12">
       <%= f.fields_for :address, errors: {}, fieldset: false do |address| %>
