@@ -524,7 +524,7 @@ end
 
 When(/^(.*) creates an HBX account$/) do |named_person|
   screenshot("start")
-  click_button 'Create account'
+  find('.btn', text: 'Create Account').click
 
   person = people[named_person]
 
@@ -532,7 +532,8 @@ When(/^(.*) creates an HBX account$/) do |named_person|
   fill_in "user[password_confirmation]", :with => person[:password]
   fill_in "user[password]", :with => person[:password]
   screenshot("create_account")
-  click_button "Create account"
+
+  find(:xpath, '//*[@id="new_user"]/div[8]/input').click
 end
 
 When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
