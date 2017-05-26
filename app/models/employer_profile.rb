@@ -845,9 +845,12 @@ class EmployerProfile
     self.profile_source == "conversion"
   end
 
-
   def trigger_notices(event)
     ShopNoticesNotifierJob.perform_later(self.id.to_s, event)
+  end
+
+  def rating_region
+    RateReference.where(county_name: self.organization.primary_office_location.address.county).first.rating_region
   end
 
 private
