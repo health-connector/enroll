@@ -14,7 +14,8 @@ translations = [
   LAYOUT_TRANSLATIONS,
   MAIN_TRANSLATIONS,
   USERS_ORPHANS_TRANSLATIONS,
-  WELCOME_INDEX_TRANSLATIONS
+  WELCOME_INDEX_TRANSLATIONS,
+  INSURED_TRANSLATIONS
 ].reduce({}, :merge)
 
 translations.keys.each do |k|
@@ -23,3 +24,4 @@ end
 
 puts "::: English Translations Complete :::"
 puts "*"*80
+
