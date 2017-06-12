@@ -27,12 +27,12 @@ end
 
 Given /(\w+) is a user with no person who goes to the Employer Portal/ do |name|
   SicCode.where(sic_code: '0111').first || FactoryGirl.create(:sic_code, sic_code: "0111")
-  
+
   email = Forgery('email').address
   visit '/'
   portal_class = '.interaction-click-control-employer-portal'
   find(portal_class).click
-  find('.interaction-click-control-create-account').click
+  find('.btn', text: 'Create Account').click
   @pswd = 'aA1!aA1!aA1!'
   fill_in "user[oim_id]", :with => email
   fill_in "user[password]", :with => @pswd
@@ -107,6 +107,8 @@ When(/(\w+) accesses the Employer Portal/) do |name|
   visit '/'
   portal_class = 'interaction-click-control-employer-portal'
   find("a.#{portal_class}").click
+  find('.interaction-click-control-sign-in').click
+
   step "#{name} signs in to portal"
 end
 

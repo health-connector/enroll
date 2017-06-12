@@ -316,10 +316,10 @@ Given(/(.*) Employer for (.*) exists with active and renewing plan year/) do |ki
   renewal_plan = FactoryGirl.create(:plan, :with_premium_tables, market: 'shop', metal_level: 'gold', active_year: (start_on + 3.months).year, hios_id: "11111111122302-01", csr_variant_id: "01")
   plan = FactoryGirl.create(:plan, :with_premium_tables, market: 'shop', metal_level: 'gold', active_year: (start_on + 3.months - 1.year).year, hios_id: "11111111122302-01", csr_variant_id: "01", renewal_plan_id: renewal_plan.id)
 
-  plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, start_on: start_on - 1.year, end_on: end_on - 1.year, 
-    open_enrollment_start_on: open_enrollment_start_on - 1.year, open_enrollment_end_on: open_enrollment_end_on - 1.year - 3.days, 
+  plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, start_on: start_on - 1.year, end_on: end_on - 1.year,
+    open_enrollment_start_on: open_enrollment_start_on - 1.year, open_enrollment_end_on: open_enrollment_end_on - 1.year - 3.days,
     fte_count: 2, aasm_state: :published, is_conversion: (kind.downcase == 'conversion' ? true : false)
-    
+
   benefit_group = FactoryGirl.create :benefit_group, plan_year: plan_year, reference_plan_id: plan.id
   employee.add_benefit_group_assignment benefit_group, benefit_group.start_on
 
@@ -537,15 +537,16 @@ end
 
 When(/^(.*) creates an HBX account$/) do |named_person|
   screenshot("start")
-  #click_button 'Create account'
-  visit '/users/sign_up'
+  find('.btn', text: 'Create Account').click
+
   person = people[named_person]
 
   fill_in "user[oim_id]", :with => person[:email]
   fill_in "user[password_confirmation]", :with => person[:password]
   fill_in "user[password]", :with => person[:password]
   screenshot("create_account")
-  click_button "Create account"
+
+  find(:xpath, '//*[@id="new_user"]/div[8]/input').click
 end
 
 When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
@@ -955,4 +956,3 @@ Given(/^a Hbx admin with read and write permissions and employers$/) do
   org2 = FactoryGirl.create(:organization, legal_name: 'Chase & Assoc', hbx_id: "67890")
   employer_profile = FactoryGirl.create :employer_profile, organization: org2
 end
-
