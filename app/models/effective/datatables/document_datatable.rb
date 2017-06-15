@@ -1,16 +1,17 @@
-
 module Effective
   module Datatables
     class DocumentDatatable < Effective::MongoidDatatable
       datatable do
-
-
+        
         bulk_actions_column do
-          bulk_action 'Download'
-          bulk_action 'Delete', data: {  confirm: 'Are you sure?', no_turbolink: true }
+          bulk_action 'Download', download_documents_documents_path, data: {  confirm: 'Do you want to Download?', no_turbolink: true }
+          bulk_action 'Delete', delete_documents_documents_path, data: {  confirm: 'Are you sure?', no_turbolink: true }
         end
-        table_column :status, :proc => Proc.new { |row| '<i class="fa fa-file-text-o" style="margin-right:20px;"></i> status' }, :filter => false, :sortable => false
-        table_column :employer, :proc => Proc.new { |row| link_to row.creator,"" }, :filter => false, :sortable => false
+        table_column :status, :proc => Proc.new { |row| '<i class="fa fa-file-text-o" style="margin-right:20px;"></i>'+row.status }, :filter => false, :sortable => false
+        table_column :employer, :proc => Proc.new { |row|
+          @employer_profile = Organization.all_employer_profiles.where(legal_name: row.creator).last.employer_profile
+          (link_to row.creator, employers_employer_profile_path(@employer_profile, :tab=>'home'))
+        }, :sortable => false, :filter => false
         table_column :doc_type, :proc => Proc.new { |row| link_to "Employer Attestation","", "data-toggle" => "modal", 'data-target' => "#employeeModal_#{row.id}" }, :filter => false, :sortable => false
         table_column :effective_date, :proc => Proc.new { |row| row.date }, :filter => false, :sortable => false
         table_column :submitted_date, :proc => Proc.new { |row| row.created_at }, :filter => false, :sortable => false
@@ -21,6 +22,10 @@ module Effective
       end
 
       def collection
+
+        documents = Document.all
+        documents = Document.send(attributes[:status]) if attributes[:status].present?
+        documents
         Document.all
       end
 
@@ -42,17 +47,14 @@ module Effective
       end
 
     def nested_filter_definition
-
-      status_tab =  [
-          {label: 'Submitted'},
-          { label: 'Approved'},
-          { label: 'Rejected'},
-          { label: 'All'}     
-           ]
-
       {
-          status: status_tab,
-          top_scope: :status
+          top_scope:  :status,
+          status: [
+              {scope: 'submitted',label: 'Submitted'},
+              {scope: 'approved', label: 'Approved'},
+              {scope: 'rejected', label: 'Rejected'},
+              {scope: 'all',  label: 'All'}
+          ],
       }
       end
     end

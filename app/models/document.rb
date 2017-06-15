@@ -13,7 +13,7 @@ class Document
   field :title, type: String, default: "untitled"
 
   # Entity responsible for making the resource - person, organization or service
-  field :creator, type: String, default: "dchl"
+  field :creator, type: String
 
   # Controlled vocabulary w/classification codes. Mapped to ConsumerRole::VLP_DOCUMENT_KINDS
   field :subject, type: String
@@ -56,10 +56,20 @@ class Document
 
   field :tags, type: Array, default: []
 
+  field :status, type: String, default: "Submitted"
+
+  field :reason_for_rejection, type: String
+
+
   validates_presence_of :title, :creator, :publisher, :type, :format, :source, :language
 
   validates :rights,
     allow_blank: true,
     inclusion: { in: ACCESS_RIGHTS, message: "%{value} is not a valid access right" }
+
+  scope :submitted,           ->{ where(:"status" => "Submitted") }
+  scope :approved,           ->{ where(:"status" => "Approved") }
+  scope :rejected,           ->{ where(:"status" => "Rejected") }
+
 
 end
