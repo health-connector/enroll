@@ -231,13 +231,24 @@
                       <% if bg.is_offering_dental? %>Health
                       <% end %>Contribution</th>
                   </tr>
+                  <%binding.pry%>
                   <% bg.relationship_benefits.each_with_index do |rb, i| %>
-                  <tr>
-                    <td><%= rb.offered ? raw("<i class='fa fa-check-square-o fa-lg'></i>") : raw("<i class='fa fa-square-o fa-lg'></i>") %><%= rb.relationship.try(:humanize) %></td>
-                    <td id="pct">
-                      <strong><%= number_to_percentage rb.premium_pct.ceil, precision: 0 %></strong>
-                    </td>
-                  </tr>
+                    <%if (bg.plan_option_kind == "single_plan" && ["employee","employee_and_spouse","employee_and_child","family"].include?(rb.relationship))%>
+                      <tr>
+                        <td><%= rb.offered ? raw("<i class='fa fa-check-square-o fa-lg'></i>") : raw("<i class='fa fa-square-o fa-lg'></i>") %><%= rb.relationship.try(:humanize) %></td>
+                        <td id="pct">
+                          <strong><%= number_to_percentage rb.premium_pct.ceil, precision: 0 %></strong>
+                        </td>
+                      </tr>
+                    <% elsif (bg.plan_option_kind != "single_plan" && ["employee","spouse","domestic_partner","child_under_26"].include?(rb.relationship)) %>
+                      <tr>
+                        <td><%= rb.offered ? raw("<i class='fa fa-check-square-o fa-lg'></i>") : raw("<i class='fa fa-square-o fa-lg'></i>") %><%= rb.relationship.try(:humanize) %></td>
+                        <td id="pct">
+                          <strong><%= number_to_percentage rb.premium_pct.ceil, precision: 0 %></strong>
+                        </td>
+                      </tr>
+                    <% end %>
+                    <tr></tr>
                   <% end %>
                 </table>
               </div>
