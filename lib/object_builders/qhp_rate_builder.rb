@@ -57,7 +57,8 @@ class QhpRateBuilder
         age: assign_age,
         start_on: @rate[:effective_date],
         end_on: @rate[:expiration_date],
-        cost: @rate[:primary_enrollee]
+        cost: @rate[:primary_enrollee],
+        rating_area: @rate[:rate_area_id]
       }
     end
   end
@@ -97,6 +98,7 @@ class QhpRateBuilder
           pts = plan.premium_tables
           premium_table_hash.each do |value|
             pt = pts.where(age: value[:age], start_on: value[:start_on], end_on: value[:end_on]).first
+            pt.rating_area = value[:rating_area]
             pt.cost = value[:cost]
             pt.save
           end
