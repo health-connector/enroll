@@ -14,6 +14,7 @@ class BenefitGroup
   TERMINATE_ON_KINDS = %w(end_of_month)
   PERSONAL_RELATIONSHIP_KINDS = [
     :employee,
+    :employee_and_dependents,
     :spouse,
     :domestic_partner,
     :child_under_26,

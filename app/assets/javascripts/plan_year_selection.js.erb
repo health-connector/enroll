@@ -383,6 +383,24 @@ ready = function() {
       });
 
     $(document).on('change', '.nav-tabs li input', function() {
+    <%(0..4).each do |i|%>
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_<%=i%>_premium_pct").val(0);
+      var mySlider = $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_<%=i%>_premium_pct").closest('.form-group').find('input.slider');
+      mySlider.bootstrapSlider('setValue', 0);
+      $(mySlider).closest('.form-group').find('input.slider').attr('value', 0).attr('data-slider-value', 0);
+      $(mySlider).closest('.form-group').find('.slide-label').text(0 + "%");
+    <%end%>
+    if(this.value === "single_plan"){
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_1_offered").parent().closest('fieldset').parent().show();
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_2_offered").parent().closest('fieldset').parent().hide();
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_3_offered").parent().closest('fieldset').parent().hide();
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_4_offered").parent().closest('fieldset').parent().hide();
+    } else {
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_1_offered").parent().closest('fieldset').parent().hide();
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_2_offered").parent().closest('fieldset').parent().show();
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_3_offered").parent().closest('fieldset').parent().show();
+      $("#plan_year_benefit_groups_attributes_0_relationship_benefits_attributes_4_offered").parent().closest('fieldset').parent().show();
+    }
       if (window.location.href.indexOf("edit") > -1 && window.location.href.indexOf("plan_years") > -1) {
         EmployerProfile.validateEditPlanYear();
 
