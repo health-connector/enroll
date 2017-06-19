@@ -5,3 +5,11 @@
 		<%= render 'shared/tab_panel' %>
 	</div>
 </div>
+<script>
+  <% if params[:tab] == "documents" %>
+    $(function(){
+      document.getElementById('documents').click();
+    })
+  <% end %>
+</script>
+

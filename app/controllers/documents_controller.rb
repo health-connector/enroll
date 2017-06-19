@@ -25,7 +25,7 @@ class DocumentsController < ApplicationController
         uri = documents.find(relation_id).identifier
         send_data Aws::S3Storage.find(uri), get_options(params)
       else
-       raise "Sorry! You are not authorized to download this document."
+        raise "Sorry! You are not authorized to download this document."
       end
     rescue => e
       redirect_to(:back, :flash => {error: e.message})
@@ -46,26 +46,26 @@ class DocumentsController < ApplicationController
   end
 
   def enrollment_verification
-     family = @person.primary_family
-     if family.try(:active_household).try(:hbx_enrollments).try(:verification_needed).any?
-       family.active_household.hbx_enrollments.verification_needed.each do |enrollment|
-         enrollment.evaluate_individual_market_eligiblity
-       end
-       family.save!
-       respond_to do |format|
-         format.html {
-           flash[:success] = "Enrollment group was completely verified."
-           redirect_to :back
-         }
-       end
-     else
-       respond_to do |format|
-         format.html {
-           flash[:danger] = "Family does not have any active Enrollment to verify."
-           redirect_to :back
-         }
-       end
-     end
+    family = @person.primary_family
+    if family.try(:active_household).try(:hbx_enrollments).try(:verification_needed).any?
+      family.active_household.hbx_enrollments.verification_needed.each do |enrollment|
+        enrollment.evaluate_individual_market_eligiblity
+      end
+      family.save!
+      respond_to do |format|
+        format.html {
+          flash[:success] = "Enrollment group was completely verified."
+          redirect_to :back
+        }
+      end
+    else
+      respond_to do |format|
+        format.html {
+          flash[:danger] = "Family does not have any active Enrollment to verify."
+          redirect_to :back
+        }
+      end
+    end
   end
 
   def fed_hub_request
@@ -100,18 +100,18 @@ class DocumentsController < ApplicationController
 
   def extend_due_date
     family = Family.find(params[:family_id])
-      if family.any_unverified_enrollments?
-        if family.enrollments.verification_needed.first.special_verification_period
-          new_date = family.enrollments.verification_needed.first.special_verification_period += 30.days
-          family.enrollments.verification_needed.first.update_attributes!(:special_verification_period => new_date)
-          flash[:success] = "Special verification period was extended for 30 days."
-        else
-          family.enrollments.verification_needed.first.update_attributes!(:special_verification_period => TimeKeeper.date_of_record + 30.days)
-          flash[:success] = "You set special verification period for this Enrollment. Verification due date now is #{family.active_household.hbx_enrollments.verification_needed.first.special_verification_period}"
-        end
+    if family.any_unverified_enrollments?
+      if family.enrollments.verification_needed.first.special_verification_period
+        new_date = family.enrollments.verification_needed.first.special_verification_period = 30.days
+        family.enrollments.verification_needed.first.update_attributes!(:special_verification_period => new_date)
+        flash[:success] = "Special verification period was extended for 30 days."
       else
-        flash[:danger] = "Family does not have any active Enrollment to extend verification due date."
+        family.enrollments.verification_needed.first.update_attributes!(:special_verification_period => TimeKeeper.date_of_record + 30.days)
+        flash[:success] = "You set special verification period for this Enrollment. Verification due date now is #{family.active_household.hbx_enrollments.verification_needed.first.special_verification_period}"
       end
+    else
+      flash[:danger] = "Family does not have any active Enrollment to extend verification due date."
+    end
     redirect_to :back
   end
 
@@ -137,16 +137,20 @@ class DocumentsController < ApplicationController
     end
   end
 
-    def new
+
+  def new
     @document = Document.new
     respond_to do |format|
-      format.js { render "documents/new" }
+      format.js
     end
   end
 
   def create
-    @document = Document.create(:title=>"Doc1",:creator=>params[:document][:creator],:publisher=>"dchl",:type=>"text",:format=>"application/octet-stream",:source=>params[:file],:language=>"en",:rights=>"public",:date=>DateTime.now)
-    redirect_to :back
+    @employer_profile = Organization.all_employer_profiles.where(legal_name: params[:document][:creator]).last.employer_profile
+    document = @employer_profile.upload_document(file_path(params[:file]),file_name(params[:file]),params[:subject],params[:file].size)
+    #document = Document.new(:title=>params[:file].original_filename,:creator=>params[:document][:creator],:publisher=>"dchl",:type=>"text",:format=>"application/octet-stream",:source=>params[:file],:language=>"en",:rights=>"public",:date=>DateTime.now)
+    document.save!
+    redirect_to exchanges_hbx_profiles_path+'?tab=documents'
   end
 
   def document_reader
@@ -155,6 +159,34 @@ class DocumentsController < ApplicationController
       send_data content, type: @document.source.file.content_type, disposition: "inline"
       expires_in 0, public: true
     end
+  end
+
+  def download_employer_document
+    send_file params[:path]
+  end
+
+  def download_documents
+    docs = Document.find(params[:ids])
+    docs.each do |doc|
+      send_file "#{Rails.root}"+"/tmp" + doc.source.url, file_name: doc.title, :type=>"application/pdf"
+    end
+
+  end
+
+  def delete_documents
+    begin
+      Document.any_in(:_id =>params[:ids]).destroy_all
+      render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
+    rescue => e
+      render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
+    end
+  end
+
+  def update_document
+    @document = Document.find(params[:document_id])
+    #@reason = params[:reason_for_rejection] == "nil"? params[:other_reason] : params[:reason_for_rejection]
+    #@document.update_attributes(status: params[:status],reason_for_rejection: @reason)
+    redirect_to exchanges_hbx_profiles_path+'?tab=documents'
   end
 
 
@@ -189,6 +221,14 @@ class DocumentsController < ApplicationController
     OpenStruct.new({:determined_at => TimeKeeper.datetime_of_record,
                     :authority => "hbx"
                    })
+  end
+
+  def file_path(file)
+    file.tempfile.path
+  end
+
+  def file_name(file)
+    file.original_filename
   end
 
 end

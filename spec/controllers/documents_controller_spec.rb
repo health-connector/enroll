@@ -132,4 +132,42 @@ RSpec.describe DocumentsController, :type => :controller do
       end
     end
   end
+
+  describe "POST Upload Document" do
+    organization = FactoryGirl.create(:organization)
+    let(:employer_profile) { FactoryGirl.create(:employer_profile,organization: organization) }
+    #let(:params) { { id: employer_profile.id, file:'test/JavaScript.pdf', subject: 'JavaScript.pdf' } }
+
+    let(:subject){"Employee Attestation"}
+    let(:file) { double }
+    let(:temp_file) { double }
+    let(:file_path) { Rails.root+'test/JavaScript.pdf' }
+
+    before(:each) do
+      @controller = DocumentsController.new
+      #allow(file).to receive(:original_filename).and_return("some-filename")
+      allow(file).to receive(:tempfile).and_return(temp_file)
+      allow(temp_file).to receive(:path)
+      allow(@controller).to receive(:file_path).and_return(file_path)
+      allow(@controller).to receive(:file_name).and_return("sample-filename")
+      #allow(@controller).to receive(:file_content_type).and_return("application/pdf")
+    end
+
+    context "upload document" do
+      it "redirects to document list page" do
+        post :create, {:creator => organization.legal_name, :file => file, :subject=> subject}
+        expect(response).to have_http_status(:redirect)
+      end
+    end
+  end
+
+  describe "Delete Document" do
+    organization = FactoryGirl.create(:organization)
+    let(:employer_profile) { FactoryGirl.create(:employer_profile,organization: organization) }
+
+    it "should delete documents" do
+      xhr :post, :delete_documents, { ids:[1]}
+      expect(response).to have_http_status(:success)
+    end
+  end
 end

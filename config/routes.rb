@@ -491,6 +491,7 @@ Rails.application.routes.draw do
   resources :documents, only: [ :new, :create, :update, :destroy, :update] do
     get :document_reader,on: :member
     get :autocomplete_organization_legal_name, :on => :collection
+    put 'update_document'
     collection do
       put :change_person_aasm_state
       get :show_docs
@@ -499,7 +500,12 @@ Rails.application.routes.draw do
       put :enrollment_docs_state
       put :extend_due_date
       get :fed_hub_request
+      post 'download_documents'
+      post 'delete_documents'      
     end
+    member do
+      get :download_employer_document
+    end    
   end
 
   # Temporary for Generic Form Template
