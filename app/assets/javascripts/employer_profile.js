@@ -3,7 +3,7 @@ var EmployerProfile = ( function( window, undefined ) {
   function changeCensusEmployeeStatus($thisObj) {
     $('.injected-edit-status').html('<br/><h3 class="no-buffer">'+$thisObj.text()+'</h3><div class="module change-employee-status hbx-panel panel panel-default"><div class="panel-body"><div class="vertically-aligned-row"><div><label class="enroll-label">Enter Date of '+$thisObj.text()+':</label><input title="&#xf073; &nbsp;" placeholder="&#xf073; &nbsp;'+$thisObj.text()+' Date" type="text" class="date-picker date-field form-control"/></div><div class="text-center"><span class="btn btn-primary btn-sm disabled">'+$thisObj.text()+'</span></div></div></div></div>');
     if ( $thisObj.text() == 'Terminate' ) {
-      $('.injected-edit-status .change-employee-status label').text('Enter Date of Termination:')
+        $('.injected-edit-status .change-employee-status label').text('Enter Date of Termination:')
       $('.injected-edit-status .change-employee-status .date-picker').attr('placeholder', $('.injected-edit-status .change-employee-status .date-picker').attr('title')+'Termination Date (must be within the past 60 days)');
       $('.injected-edit-status .change-employee-status label').text('Enter Date of Termination:')
     }
@@ -93,10 +93,15 @@ var EmployerProfile = ( function( window, undefined ) {
             editvalidatedbgemployeepremiums = true
             editvalidated = true;
           } else {
+	    if ($('.composite-offerings').is(":visible")) {
+              editvalidatedbgemployeepremiums = true
+              editvalidated = true;
+	    } else {
             $('.interaction-click-control-save-plan-year').attr('data-original-title', 'Employee premium must be atleast 50%');
             editvalidatedbgemployeepremiums = false;
             editvalidated = false;
             return false;
+	    }
           }
         }
       });
@@ -113,10 +118,15 @@ var EmployerProfile = ( function( window, undefined ) {
           editvalidatedbgemployeepremiums = true
           editvalidated = true;
         } else {
-          $('.interaction-click-control-save-plan-year').attr('data-original-title', 'Employee premium for Health must be atleast 50%');
-          editvalidatedbgemployeepremiums = false;
-          editvalidated = false;
-          return false;
+	  if ($('.composite-offerings').is(":visible")) {
+            editvalidatedbgemployeepremiums = true
+            editvalidated = true;
+	  } else {
+            $('.interaction-click-control-save-plan-year').attr('data-original-title', 'Employee premium for Health must be atleast 50%');
+            editvalidatedbgemployeepremiums = false;
+            editvalidated = false;
+            return false;
+	  }
         }
       }
       });
@@ -248,10 +258,15 @@ var EmployerProfile = ( function( window, undefined ) {
           validatedbgemployeepremiums = true;
           validated = true;
         } else {
+          if ($('.composite-offerings').is(":visible")) {
+              validatedbgemployeepremiums = true;
+              validated = true;
+          } else {
           $('.interaction-click-control-create-plan-year').attr('data-original-title', 'Employee premium for Health must be atleast 50%');
           validatedbgemployeepremiums = false;
           validated = false;
           return false;
+          }
         }
       });
     }
@@ -445,6 +460,18 @@ $(function() {
   })
 })
 
+$(document).on('click', "a.terminate.cancel", function(){
+    $('tr.child-row:visible').remove();
+    $("li>a:contains('Collapse Form')").addClass('disabled');
+});
+
+$(document).on('click', "a.interaction-click-control-terminate", function(){
+  event.preventDefault();
+  console.log('hey')
+    $('tr.child-row:visible').remove();
+    $("li>a:contains('Collapse Form')").addClass('disabled');
+});
+
 $(document).on('click', ".delete_confirm", function(){
   var termination_date = $(this).closest('div').find('input').val();
   var link_to_delete = $(this).data('link');
@@ -558,6 +585,12 @@ $(document).on('change', '#address_info .office_kind_select select', function() 
     $(this).parents('fieldset').find('#phone_info input.area_code').attr('required', true);
     $(this).parents('fieldset').find('#phone_info input.phone_number7').attr('required', true);
   };
+  if ($(this).val() == 'primary') {
+    $(this).parents('fieldset').find(".county-select").addClass('primary-office-location');
+  }
+  else {
+    $(this).parents('fieldset').find(".county-select").removeClass('primary-office-location');
+  }
 })
 
 function checkPhone(textbox) {
@@ -573,16 +606,53 @@ function checkPhone(textbox) {
 }
 
 function checkZip(textbox) {
-  var phoneRegex = /^\d{5}$/;
+  var zipRegex = /^\d{5}$/;
   if (textbox.value == '') {
     textbox.setCustomValidity('Please fill out this zipcode field.');
-  } else if(!phoneRegex.test(textbox.value)){
+  } else if(!zipRegex.test(textbox.value)){
     textbox.setCustomValidity('please enter a valid zipcode.');
   } else {
     textbox.setCustomValidity('');
+    if ($('.county-select').length > 0) {
+      var child_index = $(textbox).data('child-index');
+      $.ajax({
+        type: 'get',
+        datatype: 'js',
+        url: '/employers/employer_profiles/counties_for_zip_code',
+        data: { zip_code: textbox.value },
+        success: function (response) {
+          $('#county-select-' + child_index + " select").html(response);
+          $('#organization_office_locations_attributes_0_address_attributes_county').get(0).setCustomValidity('');
+          if (!$('#organization_office_locations_attributes_0_address_attributes_county').val() &&
+                  $("#organization_office_locations_attributes_0_address_attributes_county option[value='Zip code outside MA']").length === 0)
+          {
+              $('#organization_office_locations_attributes_0_address_attributes_county').get(0).setCustomValidity('Please select county.');
+          }
+        }
+      });
+    }
   }
   return true;
 }
+
+function validateCounty(selectField) {
+    if (!$('#organization_office_locations_attributes_0_address_attributes_county').val())
+    {
+        $('#organization_office_locations_attributes_0_address_attributes_county').get(0).setCustomValidity('Please select county.');
+    } else {
+        $('#organization_office_locations_attributes_0_address_attributes_county').get(0).setCustomValidity('');
+    }
+}
+
+$(document).on('submit', '#new_organization', function() {
+  var retVal = true;
+  if ($("#organization_sic_code").length && !$("#organization_sic_code option:selected").val())
+  {
+    $("#sic_warning").html('Please fill Standard Indusry Code');
+    retVal = false;
+  }
+  return retVal;
+});
 
 function checkAreaCode(textbox) {
   var phoneRegex = /^\d{3}$/;

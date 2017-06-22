@@ -1,4 +1,5 @@
 class EmployerProfile
+  include Config::AcaModelConcern
   include Mongoid::Document
   include SetCurrentUser
   include Mongoid::Timestamps
@@ -6,6 +7,8 @@ class EmployerProfile
   include Acapi::Notifiers
   extend Acapi::Notifiers
   include StateTransitionPublisher
+  include ScheduledEventService
+  include Config::AcaModelConcern
 
   embedded_in :organization
   attr_accessor :broker_role_id
@@ -64,6 +67,7 @@ class EmployerProfile
   accepts_nested_attributes_for :plan_years, :inbox, :employer_profile_account, :broker_agency_accounts, :general_agency_accounts
 
   validates_presence_of :entity_kind
+  validates_presence_of :sic_code
 
   validates :profile_source,
     inclusion: { in: EmployerProfile::PROFILE_SOURCE_KINDS },
@@ -360,9 +364,9 @@ class EmployerProfile
   end
 
   def is_primary_office_local?
-    organization.primary_office_location.address.state.to_s.downcase == Settings.aca.state_abbreviation.to_s.downcase
+    organization.primary_office_location.address.state.to_s.downcase == aca_state_abbreviation.to_s.downcase
   end
-  
+
   def build_plan_year_from_quote(quote_claim_code, import_census_employee=false)
     quote = Quote.where("claim_code" => quote_claim_code, "aasm_state" => "published").first
 
@@ -582,7 +586,7 @@ class EmployerProfile
           employer_enroll_factory.end
         end
 
-        if new_date.day == Settings.aca.shop_market.renewal_application.force_publish_day_of_month
+        if new_date.day == EmployerProfile.shop_market_renewal_application_force_publish_day_of_month
           organizations_for_force_publish(new_date).each do |organization|
             plan_year = organization.employer_profile.plan_years.where(:aasm_state => 'renewing_draft').first
             plan_year.force_publish!
@@ -842,7 +846,7 @@ class EmployerProfile
   def conversion_employer?
     !self.converted_from_carrier_at.blank?
   end
-  
+
   def self.by_hbx_id(an_hbx_id)
     org = Organization.where(hbx_id: an_hbx_id, employer_profile: {"$exists" => true})
     return nil unless org.any?
@@ -851,6 +855,29 @@ class EmployerProfile
 
   def trigger_notices(event)
     ShopNoticesNotifierJob.perform_later(self.id.to_s, event)
+  end
+
+  def rating_area
+    if use_simple_employer_calculation_model?
+      return nil
+    end
+    primary_office_location = organization.primary_office_location
+    RatingArea.rating_area_for(primary_office_location.address)
+  end
+
+  def service_areas
+    if use_simple_employer_calculation_model?
+      return nil
+    end
+    primary_office_location = organization.primary_office_location
+    CarrierServiceArea.service_areas_for(office_location: primary_office_location)
+  end
+
+  def service_area_ids
+    if use_simple_employer_calculation_model?
+      return nil
+    end
+    service_areas.collect { |service_area| service_area.service_area_id }.uniq
   end
 
 private
@@ -881,7 +908,7 @@ private
   def initialize_account
     if employer_profile_account.blank?
       self.build_employer_profile_account
-      employer_profile_account.next_premium_due_on = (published_plan_year.start_on.last_month) + (Settings.aca.shop_market.binder_payment_due_on).days
+      employer_profile_account.next_premium_due_on = (published_plan_year.start_on.last_month) + (EmployerProfile.shop_market_binder_payment_due_on).days
       employer_profile_account.next_premium_amount = 100
       # census_employees.covered
       save
@@ -907,6 +934,6 @@ private
   end
 
   def plan_year_publishable?
-    !published_plan_year.is_application_unpublishable? 
+    !published_plan_year.is_application_unpublishable?
   end
 end

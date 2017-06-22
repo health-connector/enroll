@@ -24,6 +24,7 @@ def people_for_cobra
       legal_name: "BestLife",
       dba: "BestLife",
       fein: "050000000",
+      sic_code: "1111",
       ssn: "197810118",
       email: "jack@dc.gov",
       password: 'aA1!aA1!aA1!'
@@ -32,6 +33,7 @@ def people_for_cobra
 end
 
 When(/^(.*) create a new account for employer$/) do |named_person|
+  find('.interaction-click-control-create-account').click
   person = people_for_cobra[named_person]
   fill_in "user[oim_id]", :with => person[:email]
   fill_in "user[password]", :with => person[:password]
@@ -70,7 +72,7 @@ Then(/^Employer should see a form to enter information about employee, address a
   find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
   find(:xpath, "//li[contains(., 'GA')]").click
 
-  fill_in 'census_employee[address_attributes][zip]', :with => "30228"
+  fill_in 'census_employee[address_attributes][zip]', :with => "01002"
 
   find(:xpath, "//p[contains(., 'SELECT KIND')]").click
   find(:xpath, "//li[@data-index='1'][contains(., 'home')]").click
@@ -163,7 +165,7 @@ Then(/employer should see the message Your employee was successfully added to yo
   expect(page).to have_content('Your employee was successfully added to your roster')
   person = people_for_cobra['Jack Employee']
   expect(page).to have_content(person[:first_name])
-  expect(page).to have_content(person[:last_name])  
+  expect(page).to have_content(person[:last_name])
   expect(page).to have_content((TimeKeeper.date_of_record + 1.days).to_s)
 end
 
@@ -201,7 +203,7 @@ Then(/^Jack Employee should see the receipt page and verify employer contributio
 end
 
 Then(/^.+ should see my account page$/) do
-  expect(page).to have_content('My DC Health Link')
+  expect(page).to have_content("My #{Settings.site.short_name}")
   expect(page).to have_content('My Account')
 end
 
@@ -235,7 +237,7 @@ Then(/Set Date back to two months ago/) do
 end
 
 When(/^.+ terminate one employee$/) do
-  element = all('.census-employees-table tr.top').detect{|ele| ele.all('a', :text => 'Employee Jr.').present?}  
+  element = all('.census-employees-table tr.top').detect{|ele| ele.all('a', :text => 'Employee Jr.').present?}
   element.find('i.fa-trash-o').click
   find('input.date-picker').set((TimeKeeper.date_of_record - 1.days).to_s)
   find('.employees-section').click
@@ -311,16 +313,16 @@ And(/^.+ should be able to enter plan year, benefits, relationship benefits for 
   find('.interaction-choice-control-plan-year-start-on').click
   find('li.interaction-choice-control-plan-year-start-on-1').click
 
-  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][0][premium_pct]", :with => 50
-  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][1][premium_pct]", :with => 50
-  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][2][premium_pct]", :with => 50
-  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][3][premium_pct]", :with => 50
-
   find(:xpath, '//li/label[@for="plan_year_benefit_groups_attributes_0_plan_option_kind_single_carrier"]').click
   wait_for_ajax
   find('.carriers-tab a').click
   wait_for_ajax
   find('.reference-plans label').click
+  wait_for_ajax
+  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][0][premium_pct]", :with => 50
+  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][1][premium_pct]", :with => 50
+  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][2][premium_pct]", :with => 50
+  fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][3][premium_pct]", :with => 50
   wait_for_ajax
   find('.interaction-click-control-create-plan-year').trigger('click')
 end

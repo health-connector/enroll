@@ -4,6 +4,8 @@ class PlanYear
   include Mongoid::Timestamps
   include AASM
   include Acapi::Notifiers
+  include ScheduledEventService
+  include Config::AcaModelConcern
 
   embedded_in :employer_profile
 
@@ -46,6 +48,13 @@ class PlanYear
 
   # Workflow attributes
   field :aasm_state, type: String, default: :draft
+
+  # SIC code, frozen when the plan year is published,
+  # otherwise comes from employer_profile
+  field :recorded_sic_code, type: String
+  field :recorded_rating_area, type: String
+
+  validates_inclusion_of :recorded_rating_area, :in => market_rating_areas, :allow_nil => true
 
   embeds_many :benefit_groups, cascade_callbacks: true
   embeds_many :workflow_state_transitions, as: :transitional
@@ -290,10 +299,14 @@ class PlanYear
   def minimum_employer_contribution
     unless benefit_groups.size == 0
       benefit_groups.map do |benefit_group|
-        benefit_group.relationship_benefits.select do |relationship_benefit|
-          relationship_benefit.relationship == "employee"
-        end.min_by do |relationship_benefit|
-          relationship_benefit.premium_pct
+        if benefit_group.sole_source?
+          OpenStruct.new(:premium_pct => 100)
+        else
+          benefit_group.relationship_benefits.select do |relationship_benefit|
+            relationship_benefit.relationship == "employee"
+          end.min_by do |relationship_benefit|
+            relationship_benefit.premium_pct
+          end
         end
       end.map(&:premium_pct).first
     end
@@ -325,9 +338,9 @@ class PlanYear
 
   def due_date_for_publish
     if employer_profile.plan_years.renewing.any?
-      Date.new(start_on.prev_month.year, start_on.prev_month.month, Settings.aca.shop_market.renewal_application.publish_due_day_of_month)
+      Date.new(start_on.prev_month.year, start_on.prev_month.month, PlanYear.shop_market_renewal_application_publish_due_day_of_month)
     else
-      Date.new(start_on.prev_month.year, start_on.prev_month.month, Settings.aca.shop_market.initial_application.publish_due_day_of_month)
+      Date.new(start_on.prev_month.year, start_on.prev_month.month, PlanYear.shop_market_initial_application_publish_due_day_of_month)
     end
   end
 
@@ -341,10 +354,10 @@ class PlanYear
 
     if is_renewing?
       minimum_length = Settings.aca.shop_market.renewal_application.open_enrollment.minimum_length.days
-      enrollment_end = Settings.aca.shop_market.renewal_application.monthly_open_enrollment_end_on
+      enrollment_end = PlanYear.shop_market_renewal_application_monthly_open_enrollment_end_on
     else
       minimum_length = Settings.aca.shop_market.open_enrollment.minimum_length.days
-      enrollment_end = Settings.aca.shop_market.open_enrollment.monthly_end_on
+      enrollment_end = PlanYear.shop_market_open_enrollment_monthly_end_on
     end
 
     if (open_enrollment_end_on - (open_enrollment_start_on - 1.day)).to_i < minimum_length
@@ -474,32 +487,32 @@ class PlanYear
   # Any employee who selected or waived coverage
   def enrolled
     calc_active_health_assignments_for(eligible_to_enroll)
-#    eligible_to_enroll.select{ |ce| ce.has_active_health_coverage?(self) }
+    #    eligible_to_enroll.select{ |ce| ce.has_active_health_coverage?(self) }
   end
 
   def enrolled_by_bga
-     candidate_benefit_group_assignments = eligible_to_enroll.map{|ce| enrolled_bga_for_ce(ce)}.compact
-     enrolled_benefit_group_assignment_ids = HbxEnrollment.enrolled_shop_health_benefit_group_ids(candidate_benefit_group_assignments.map(&:id).uniq)
-     bgas = candidate_benefit_group_assignments.select do |bga|
-       enrolled_benefit_group_assignment_ids.include?(bga.id)
-     end
+    candidate_benefit_group_assignments = eligible_to_enroll.map{|ce| enrolled_bga_for_ce(ce)}.compact
+    enrolled_benefit_group_assignment_ids = HbxEnrollment.enrolled_shop_health_benefit_group_ids(candidate_benefit_group_assignments.map(&:id).uniq)
+    bgas = candidate_benefit_group_assignments.select do |bga|
+      enrolled_benefit_group_assignment_ids.include?(bga.id)
+    end
   end
 
   def enrolled_bga_for_ce ce
-     if is_renewing?
-       ce.renewal_benefit_group_assignment
-     else
-       ce.active_benefit_group_assignment
-     end
+    if is_renewing?
+      ce.renewal_benefit_group_assignment
+    else
+      ce.active_benefit_group_assignment
+    end
   end
 
   def calc_active_health_assignments_for(employee_pool)
     benefit_group_ids = self.benefit_groups.map(&:id)
     candidate_benefit_group_assignments = employee_pool.map do |ce|
-        bg_assignment = nil
-        bg_assignment = ce.active_benefit_group_assignment if benefit_group_ids.include?(ce.active_benefit_group_assignment.try(:benefit_group_id))
-        bg_assignment = ce.renewal_benefit_group_assignment if benefit_group_ids.include?(ce.renewal_benefit_group_assignment.try(:benefit_group_id))
-        bg_assignment ? [ce, bg_assignment] : nil
+      bg_assignment = nil
+      bg_assignment = ce.active_benefit_group_assignment if benefit_group_ids.include?(ce.active_benefit_group_assignment.try(:benefit_group_id))
+      bg_assignment = ce.renewal_benefit_group_assignment if benefit_group_ids.include?(ce.renewal_benefit_group_assignment.try(:benefit_group_id))
+      bg_assignment ? [ce, bg_assignment] : nil
     end
     benefit_group_assignment_pairs = candidate_benefit_group_assignments.compact
     benefit_group_assignment_ids = benefit_group_assignment_pairs.map do |bgap|
@@ -606,8 +619,8 @@ class PlanYear
       employer_initial_application_latest_submit_on   = ("#{prior_month.year}-#{prior_month.month}-#{HbxProfile::ShopPlanYearPublishedDueDayOfMonth}").to_date
       open_enrollment_earliest_start_on     = effective_date - Settings.aca.shop_market.open_enrollment.maximum_length.months.months
       open_enrollment_latest_start_on       = ("#{prior_month.year}-#{prior_month.month}-#{HbxProfile::ShopOpenEnrollmentBeginDueDayOfMonth}").to_date
-      open_enrollment_latest_end_on         = ("#{prior_month.year}-#{prior_month.month}-#{Settings.aca.shop_market.open_enrollment.monthly_end_on}").to_date
-      binder_payment_due_date               = first_banking_date_prior ("#{prior_month.year}-#{prior_month.month}-#{Settings.aca.shop_market.binder_payment_due_on}")
+      open_enrollment_latest_end_on         = ("#{prior_month.year}-#{prior_month.month}-#{PlanYear.shop_market_open_enrollment_monthly_end_on}").to_date
+      binder_payment_due_date               = first_banking_date_prior ("#{prior_month.year}-#{prior_month.month}-#{PlanYear.shop_market_binder_payment_due_on}")
 
 
       timetable = {
@@ -736,9 +749,9 @@ class PlanYear
         "2018-11-01" => '2018,10,12',
         "2018-12-01" => '2018,11,13',
         "2019-01-01" => '2018,12,12',
-        }.each_pair do |k, v|
-          dates_map[k] = Date.strptime(v, '%Y,%m,%d')
-        end
+      }.each_pair do |k, v|
+        dates_map[k] = Date.strptime(v, '%Y,%m,%d')
+      end
 
       dates_map[start_on.strftime('%Y-%m-%d')] || shop_enrollment_timetable(start_on)[:binder_payment_due_date]
     end
@@ -770,7 +783,7 @@ class PlanYear
 
     state :enrolling, :after_enter => [:send_employee_invites, :initial_employer_open_enrollment_begins] # Published plan has entered open enrollment
     state :enrolled,  :after_enter => [:ratify_enrollment, :initial_employer_open_enrollment_completed] # Published plan open enrollment has ended and is eligible for coverage,
-                                                                      #   but effective date is in future
+    #   but effective date is in future
     state :application_ineligible, :after_enter => :deny_enrollment   # Application is non-compliant for enrollment
     state :expired              # Non-published plans are expired following their end on date
     state :canceled             # Published plan open enrollment has ended and is ineligible for coverage
@@ -780,7 +793,7 @@ class PlanYear
     state :renewing_published
     state :renewing_publish_pending
     state :renewing_enrolling, :after_enter => [:trigger_passive_renewals, :send_employee_invites]
-    state :renewing_enrolled
+    state :renewing_enrolled, :after_enter => [:renewal_successful]
     state :renewing_application_ineligible, :after_enter => :deny_enrollment  # Renewal application is non-compliant for enrollment
     state :renewing_canceled
 
@@ -820,13 +833,13 @@ class PlanYear
     # Submit plan year application
     event :publish, :after => :record_transition do
       transitions from: :draft, to: :draft,     :guard => :is_application_unpublishable?
-      transitions from: :draft, to: :enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :initial_employer_approval_notice, :zero_employees_on_roster]
-      transitions from: :draft, to: :published, :guard => :is_application_eligible?, :after => [:initial_employer_approval_notice, :zero_employees_on_roster]
+      transitions from: :draft, to: :enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :initial_employer_approval_notice, :zero_employees_on_roster, :record_sic_and_rating_area]
+      transitions from: :draft, to: :published, :guard => :is_application_eligible?, :after => [:initial_employer_approval_notice, :zero_employees_on_roster, :record_sic_and_rating_area]
       transitions from: :draft, to: :publish_pending
 
       transitions from: :renewing_draft, to: :renewing_draft,     :guard => :is_application_unpublishable?
-      transitions from: :renewing_draft, to: :renewing_enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :trigger_renewal_notice, :zero_employees_on_roster]
-      transitions from: :renewing_draft, to: :renewing_published, :guard => :is_application_eligible? , :after => [:trigger_renewal_notice, :zero_employees_on_roster]
+      transitions from: :renewing_draft, to: :renewing_enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :trigger_renewal_notice, :zero_employees_on_roster, :record_sic_and_rating_area]
+      transitions from: :renewing_draft, to: :renewing_published, :guard => :is_application_eligible? , :after => [:trigger_renewal_notice, :zero_employees_on_roster, :record_sic_and_rating_area]
       transitions from: :renewing_draft, to: :renewing_publish_pending
     end
 
@@ -841,13 +854,13 @@ class PlanYear
       transitions from: :publish_pending, to: :published_invalid
 
       transitions from: :draft, to: :draft,     :guard => :is_application_invalid?
-      transitions from: :draft, to: :enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :zero_employees_on_roster]
-      transitions from: :draft, to: :published, :guard => :is_application_eligible?, :after => :zero_employees_on_roster
+      transitions from: :draft, to: :enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :zero_employees_on_roster, :record_sic_and_rating_area]
+      transitions from: :draft, to: :published, :guard => :is_application_eligible?, :after => [:zero_employees_on_roster, :record_sic_and_rating_area]
       transitions from: :draft, to: :publish_pending, :after => :initial_employer_denial_notice
 
       transitions from: :renewing_draft, to: :renewing_draft,     :guard => :is_application_invalid?
-      transitions from: :renewing_draft, to: :renewing_enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :trigger_renewal_notice, :zero_employees_on_roster]
-      transitions from: :renewing_draft, to: :renewing_published, :guard => :is_application_eligible?, :after => [:trigger_renewal_notice, :zero_employees_on_roster]
+      transitions from: :renewing_draft, to: :renewing_enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :trigger_renewal_notice, :zero_employees_on_roster, :record_sic_and_rating_area]
+      transitions from: :renewing_draft, to: :renewing_published, :guard => :is_application_eligible?, :after => [:trigger_renewal_notice, :zero_employees_on_roster, :record_sic_and_rating_area]
       transitions from: :renewing_draft, to: :renewing_publish_pending
     end
 
@@ -858,7 +871,7 @@ class PlanYear
 
     # Upon review, application ineligible status overturned and deemed eligible
     event :grant_eligibility, :after => :record_transition do
-      transitions from: :eligibility_review, to: :published
+      transitions from: :eligibility_review, to: :published, :after => :record_sic_and_rating_area
     end
 
     # Upon review, submitted application ineligible status verified ineligible
@@ -886,16 +899,16 @@ class PlanYear
     end
 
     event :renew_publish, :after => :record_transition do
-      transitions from: :renewing_draft, to: :renewing_published
+      transitions from: :renewing_draft, to: :renewing_published, :after => :record_sic_and_rating_area
     end
 
     # Admin ability to reset plan year application
     event :revert_application, :after => :revert_employer_profile_application do
       transitions from: [
-                            :enrolled, :enrolling, :active, :application_ineligible,
-                            :renewing_application_ineligible, :published_invalid,
-                            :eligibility_review, :published, :publish_pending
-                          ], to: :draft
+        :enrolled, :enrolling, :active, :application_ineligible,
+        :renewing_application_ineligible, :published_invalid,
+        :eligibility_review, :published, :publish_pending
+      ], to: :draft
     end
 
     # Admin ability to accept application and successfully complete enrollment
@@ -906,7 +919,7 @@ class PlanYear
     # Admin ability to reset renewing plan year application
     event :revert_renewal, :after => :record_transition do
       transitions from: [:active, :renewing_published, :renewing_enrolling,
-        :renewing_application_ineligible, :renewing_enrolled], to: :renewing_draft
+                         :renewing_application_ineligible, :renewing_enrolled], to: :renewing_draft
     end
 
     event :cancel_renewal, :after => :record_transition do
@@ -957,13 +970,13 @@ class PlanYear
 
   def is_eligible_to_match_census_employees?
     (benefit_groups.size > 0) and
-    (published? or enrolling? or enrolled? or active?)
+      (published? or enrolling? or enrolled? or active?)
   end
 
   def is_within_review_period?
     published_invalid? and
-    (latest_workflow_state_transition.transition_at >
-      (TimeKeeper.date_of_record - Settings.aca.shop_market.initial_application.appeal_period_after_application_denial.days))
+      (latest_workflow_state_transition.transition_at >
+       (TimeKeeper.date_of_record - Settings.aca.shop_market.initial_application.appeal_period_after_application_denial.days))
   end
 
   def latest_workflow_state_transition
@@ -980,6 +993,37 @@ class PlanYear
   end
 
   alias_method :external_plan_year?, :can_be_migrated?
+
+  def estimate_group_size?
+    [
+      "draft",
+      "publish_pending",
+      "eligibility_review",
+      "published",
+      "published_invalid",
+      "enrolling",
+      "application_ineligible",
+      "canceled",
+      "renewing_draft",
+      "renewing_published",
+      "renewing_publish_pending",
+      "renewing_enrolling",
+      "renewing_application_ineligible",
+      "renewing_canceled"
+    ].include?(aasm_state)
+  end
+
+  def sic_code
+    recorded_sic_code.blank? ? employer_profile.sic_code : recorded_sic_code
+  end
+
+  def rating_area
+    recorded_rating_area.blank? ? employer_profile.rating_area : recorded_rating_area
+  end
+
+  def service_area
+    recorded_service_area.blank? ? employer_profile.service_area : recorded_service_area
+  end
 
   private
 
@@ -1007,23 +1051,33 @@ class PlanYear
   def is_event_date_valid?
     today = TimeKeeper.date_of_record
     valid = case aasm_state
-    when "published", "draft", "renewing_published", "renewing_draft"
-      today >= open_enrollment_start_on
-    when "enrolling", "renewing_enrolling"
-      today > open_enrollment_end_on
-    when "enrolled", "renewing_enrolled"
-      today >= start_on
-    when "active"
-      today > end_on
-    else
-      false
-    end
+            when "published", "draft", "renewing_published", "renewing_draft"
+              today >= open_enrollment_start_on
+            when "enrolling", "renewing_enrolling"
+              today > open_enrollment_end_on
+            when "enrolled", "renewing_enrolled"
+              today >= start_on
+            when "active"
+              today > end_on
+            else
+              false
+            end
 
     valid
   end
 
   def is_plan_year_end?
     TimeKeeper.date_of_record.end_of_day == end_on
+  end
+
+  # When publishing happens, 'freeze' the sic code and rating area
+  # Also do any composite estimation needed
+  def record_sic_and_rating_area
+    self.recorded_sic_code = employer_profile.sic_code
+    self.recorded_rating_area = employer_profile.rating_area
+    self.benefit_groups.each do |bg|
+      bg.estimate_composite_rates
+    end
   end
 
   def trigger_renewal_notice
@@ -1072,8 +1126,17 @@ class PlanYear
 
   def initial_employer_open_enrollment_completed
     #also check if minimum participation and non owner conditions are met by ER.
+    benefit_groups.each do |bg|
+      bg.finalize_composite_rates
+    end
     return true if benefit_groups.any?{|bg| bg.is_congress?}
     self.employer_profile.trigger_notices("initial_employer_open_enrollment_completed")
+  end
+
+  def renewal_successful
+    benefit_groups.each do |bg|
+      bg.finalize_composite_rates
+    end
   end
 
   def record_transition
@@ -1149,7 +1212,7 @@ class PlanYear
 
     if (start_on + Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.months.months) > TimeKeeper.date_of_record
       errors.add(:start_on, "may not start application before " \
-        "#{(start_on + Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.months.months).to_date} with #{start_on} effective date")
+                 "#{(start_on + Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.months.months).to_date} with #{start_on} effective date")
     end
 
     if !['canceled', 'suspended', 'terminated'].include?(aasm_state)

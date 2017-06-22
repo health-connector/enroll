@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  require 'resque/server' 
+  require 'resque/server'
   mount Resque::Server, at: '/jobs'
   devise_for :users, :controllers => { :registrations => "users/registrations", :sessions => 'users/sessions' }
 
@@ -41,6 +41,14 @@ Rails.application.routes.draw do
       get :find_sep, on: :collection
     end
 
+    resources :scheduled_events do
+      collection do
+        get 'current_events'
+        get 'delete_current_event'
+        get 'list'
+      end
+    end
+
     resources :hbx_profiles do
       root 'hbx_profiles#show'
 
@@ -55,7 +63,7 @@ Rails.application.routes.draw do
         post :employer_invoice_datatable
         post :generate_invoice
         get :broker_agency_index
-        get :general_agency_index
+        get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
         get :product_index
         get :configuration
@@ -80,6 +88,8 @@ Rails.application.routes.draw do
         get :add_sep_form
         get :hide_form
         get :show_sep_history
+        get :calender_index
+        get :user_account_index
       end
 
       member do
@@ -206,7 +216,7 @@ Rails.application.routes.draw do
       get :edit_resident_dependent, on: :member
       get :show_resident_dependent, on: :member
     end
-    
+
     resources :group_selections, controller: "group_selection", only: [:new, :create] do
       collection do
         post :terminate
@@ -254,6 +264,8 @@ Rails.application.routes.draw do
         get 'search'
         post 'match'
         get 'inbox'
+        get 'counties_for_zip_code'
+        get 'generate_sic_tree'
       end
       resources :plan_years do
         get 'reference_plans'
@@ -287,6 +299,10 @@ Rails.application.routes.draw do
         get :terminate
         get :rehire
         get :cobra
+        collection do
+          get :confirm_effective_date
+          post :change_expected_selection
+        end
         get :cobra_reinstate
         get :benefit_group, on: :member
       end
@@ -294,6 +310,7 @@ Rails.application.routes.draw do
   end
 
   # match 'thank_you', to: 'broker_roles#thank_you', via: [:get]
+
   match 'broker_registration', to: 'broker_agencies/broker_roles#new_broker_agency', via: [:get]
 
   namespace :carriers do
@@ -318,7 +335,9 @@ Rails.application.routes.draw do
         get :assign_history
       end
       member do
-        get :general_agency_index
+        if Settings.aca.general_agency_enabled
+          get :general_agency_index
+        end
         get :manage_employers
         post :clear_assign_for_employer
         get :assign
@@ -390,31 +409,32 @@ Rails.application.routes.draw do
     end
   end
 
-  match 'general_agency_registration', to: 'general_agencies/profiles#new_agency', via: [:get]
-  namespace :general_agencies do
-    root 'profiles#new'
-    resources :profiles do
-      collection do
-        get :new_agency_staff
-        get :search_general_agency
-        get :new_agency
-        get :messages
-        get :agency_messages
-        get :inbox
-        get :edit_staff
-        post :update_staff
+  if Settings.aca.general_agency_enabled
+    match 'general_agency_registration', to: 'general_agencies/profiles#new_agency', via: [:get]
+    namespace :general_agencies do
+      root 'profiles#new'
+      resources :profiles do
+        collection do
+          get :new_agency_staff
+          get :search_general_agency
+          get :new_agency
+          get :messages
+          get :agency_messages
+          get :inbox
+          get :edit_staff
+          post :update_staff
+        end
+        member do
+          get :employers
+          get :families
+          get :staffs
+        end
       end
-      member do
-        get :employers
-        get :families
-        get :staffs
+      resources :inboxes, only: [:new, :create, :show, :destroy] do
+        get :msg_to_portal
       end
-    end
-    resources :inboxes, only: [:new, :create, :show, :destroy] do
-      get :msg_to_portal
     end
   end
-
   resources :translations
 
   namespace :api, :defaults => {:format => 'xml'} do
@@ -485,8 +505,8 @@ Rails.application.routes.draw do
   get "document/download/:bucket/:key" => "documents#download", as: :document_download
   get "document/authorized_download/:model/:model_id/:relation/:relation_id" => "documents#authorized_download", as: :authorized_document_download
 
+  resources :documents, only: [ :new, :create, :destroy, :update] do
 
-  resources :documents, only: [:update, :destroy, :update] do
     collection do
       put :change_person_aasm_state
       get :show_docs

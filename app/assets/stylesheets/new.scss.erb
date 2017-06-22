@@ -296,7 +296,13 @@
         }
       }
     }
+    .county-select {
+      display: none;
+    }
 
+    .county-select.primary-office-location {
+      display: inline-block;
+    }
   }
   .planyear-add-tab {
     .row-form-wrapper {
@@ -620,14 +626,23 @@
 
     }
     .health {
-      .offerings {
+      .offerings, .composite-offerings {
         .heading {
           border-top: solid 1px #d5d5d5;
         }
       }
     }
     .offerings {
-
+      .benefits-fields {
+        .row-form-wrapper {
+          padding: 15px 0;
+          &:last-of-type {
+            display: none;
+          }
+        }
+      }
+    }
+    .offerings, .composite-offerings {
       .storage-input {
         max-width: 100%;
       }
@@ -671,11 +686,15 @@
           }
 
         }
+        .composite_offering_slider_header div.col-xs-12 {
+          border-bottom: solid 1px #d5d5d5;
+          padding: 15px 0 25px;
+          text-align: center;
+        }
         .col-xs-6 {
           border-bottom: solid 1px #d5d5d5;
           padding: 15px 0 25px;
           text-align: center;
-
         }
         .row-form-wrapper {
           border: none;
@@ -688,14 +707,11 @@
 
 
         }
-      }
       .benefits-fields {
         .row-form-wrapper {
           padding: 15px 0;
-          &:last-of-type {
-            display: none;
-          }
         }
+      }
       }
     .row-form-wrapper {
       border: none;
