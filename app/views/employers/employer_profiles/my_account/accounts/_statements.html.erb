@@ -9,15 +9,22 @@
     </tr>
   </thead>
   <tbody>
-    <tr data-toggle="collapse" data-target="#collapse2">
-      <td>2017</td>
-      <td>14 Mb</td>
-      <td>Open Me</td>
-      <tr class="collapse" id="collapse2">
-        <td>Jan 15</td>
-        <td>4 pages</td>
-        <td>Im a document Image</td>
-        <tr>
+
+    <% @invoice_years.each do |invoice_year| %>
+    <tr data-toggle="collapse" data-target="#collapse2" id="<%= invoice_year %>" class="invoice_years">
+      <td><i class='glyphicon glyphicon-plus' data-toggle='tooltip'></i> <%= invoice_year %></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <% invoices_2 = get_invoices_for_year(@invoices, invoice_year) %>
+      <% if invoices_2.empty? %>
+        <tr class="invoices <%= invoice_year %>">
+          <td></td>
+          <td>You have no invoices for this year</td>
+          <td></td>
+          <td></td>
+          <td></td>
         </tr>
       </tr>
     </tr>
