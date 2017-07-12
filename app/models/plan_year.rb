@@ -954,7 +954,7 @@ class PlanYear
 
     # Termination pending due to attestation document rejection
     event :schedule_termination, :after => :record_transition do
-      transitions from: :active, to: :termination_pending, :after => :schedule_employee_terminations
+      transitions from: :active, to: :termination_pending, :after => [:schedule_employee_terminations, :cancel_renewal_application]
     end
 
     event :renew_plan_year, :after => :record_transition do
@@ -1014,26 +1014,19 @@ class PlanYear
     end
   end
 
-  def coverages_under_plan_year
-    bg_ids = benefit_groups.pluck(:id)
-
-    families = Family.where(:"households.hbx_enrollments.benefit_group_id".in => id_list)
-    families.inject([]) do |enrollments, family|
-      enrollments += family.active_household.hbx_enrollments.where(:benefit_group_id.in => id_list).non_expired_and_non_terminated.to_a
+  def schedule_employee_terminations
+    hbx_enrollments.each do |hbx_enrollment|
+      if hbx_enrollment.may_schedule_coverage_termination?
+        hbx_enrollment.schedule_coverage_termination!
+        hbx_enrollment.update_attributes!({
+          terminated_on: TimeKeeper.date_of_record.end_of_month, 
+          termination_submitted_on: TimeKeeper.date_of_record
+        })
+      end
     end
   end
 
-  def schedule_employee_terminations
-
-  end
-
-  def terminate_employee_enrollments
-
-  end
-
   def terminate_application
-    cancel_renewal_application
-    terminate_employee_enrollments
     employer_profile.benefit_terminated! if employer_profile.may_benefit_terminated?
   end
 
@@ -1051,8 +1044,12 @@ class PlanYear
   end
 
   def cancel_employee_enrollments
-    coverages_under_plan_year.each do |en|
-      en.cancel_coverage! if en.may_cancel_coverage?
+    id_list = benefit_groups.pluck(:id)
+    families = Family.where(:"households.hbx_enrollments.benefit_group_id".in => id_list)
+    families.each do |family|
+      family.active_household.hbx_enrollments.where(:benefit_group_id.in => id_list).non_expired_and_non_terminated.each do |en|
+        en.cancel_coverage! if en.may_cancel_coverage?
+      end
     end
   end
 
