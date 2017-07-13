@@ -66,12 +66,12 @@ namespace :load_service_reference do
         end
       end
     rescue => e
-      puts e.inspect
-      puts " --------- "
-      puts e.backtrace
+      puts e.inspect unless Rails.env.test?
+      puts " --------- " unless Rails.env.test?
+      puts e.backtrace unless Rails.env.test?
     end
 
-    puts "created #{count} service areas"
+    puts "created #{count} service areas" unless Rails.env.test?
   end
 
 
