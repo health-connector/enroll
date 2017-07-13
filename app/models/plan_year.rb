@@ -1015,7 +1015,12 @@ class PlanYear
   end
 
   def terminate_employee_enrollments
-    # TODO
+    hbx_enrollments.each do |hbx_enrollment|
+      if hbx_enrollment.may_schedule_coverage_termination?
+        hbx_enrollment.schedule_coverage_termination!
+        hbx_enrollment.update_attributes!(terminated_on: TimeKeeper.date_of_record.end_of_month, termination_submitted_on: TimeKeeper.date_of_record)
+      end
+    end
   end
 
   def cancel_renewal_application
