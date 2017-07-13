@@ -1014,14 +1014,10 @@ class PlanYear
     end
   end
 
-  def schedule_employee_terminations
+  def schedule_employee_terminations(terminated_on=TimeKeeper.date_of_record.end_of_month)
     hbx_enrollments.each do |hbx_enrollment|
       if hbx_enrollment.may_schedule_coverage_termination?
-        hbx_enrollment.schedule_coverage_termination!
-        hbx_enrollment.update_attributes!({
-          terminated_on: TimeKeeper.date_of_record.end_of_month, 
-          termination_submitted_on: TimeKeeper.date_of_record
-        })
+        hbx_enrollment.schedule_coverage_termination!(terminated_on)
       end
     end
   end
