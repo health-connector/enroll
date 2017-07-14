@@ -49,7 +49,7 @@ class EmployerAttestationDocument < Document
       else
         employer_attestation.deny! if employer_attestation.may_deny?
       end
-
+      
       add_reason_for_rejection(params)
     elsif params[:status].to_sym == :accepted
       self.accept! if self.may_accept?
