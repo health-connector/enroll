@@ -59,7 +59,7 @@
                 </div>
                 <div class="col-sm-9">
                   <div class="form-group rejection_reason hidden">
-                    <%= select_tag "reason_for_rejection", options_for_select(EmployerAttestationDocument::REASON_KINDS), prompt: "Reason for rejection" %>
+                    <%= select_tag "reason_for_rejection", options_for_select(EmployerAttestationDocument::REASON_KINDS), prompt: "Reason for rejection",onchange: "rejectReason()" %>
                   </div>
                 </div>
               </div>
@@ -82,7 +82,7 @@
               <div class="row">
                 <div class="col-sm-12">
                    <div class="form-group pull-right">
-                    <button type="submit" class="btn <%= @document.may_accept? ? 'btn-primary' : 'disabled' %>">Submit</button>
+                    <button type="submit" id="attestation_submit" class="btn <%= @document.may_accept? ? 'btn-primary' : 'disabled' %>">Submit</button>
                     <button type="button" class="btn btn-default" id="reviewClose">Cancel</button>
                   </div>
                 </div>
