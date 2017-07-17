@@ -42,7 +42,7 @@
 <%= render partial: 'notices/shared/unordered_list', :locals => { listings:
   ["Email: 	<a href=“#{Settings.contact_center.appeals}”>#{Settings.contact_center.appeals}</a>",
     "Mail:  <br>
-        Health connector Appeals<br>
+        Health Connector Appeals<br>
         Unit, PO Box 960189<br>
         Boston, MA 02196"] } %>
 
@@ -56,7 +56,7 @@
   { contents: ["Please contact your broker for further assistance. You can also contact #{Settings.site.short_name} with any questions:"], heading: 'For Questions or Assistance:', sub_heading: ''} %>
 
 <%= render partial: 'notices/shared/unordered_list', :locals => { listings:
-                                                                   ["By calling #{Settings.contact_center.ma_phone_number}.","TTY : #{Settings.contact_center.tty}","Online at <a href='#{Settings.site.ma_webiste}'>#{Settings.site.ma_website}</a>." ] } %>
+                                                                   ["By calling #{Settings.contact_center.ma_phone_number}","TTY : #{Settings.contact_center.tty}","Online at <a href='#{Settings.site.ma_webiste}'>#{Settings.site.ma_website}</a>" ] } %>
 
 <% if notice.broker.present? %>
   <%= render partial: 'notices/shared/broker_contact_info', :locals => {broker: notice.broker} %>
