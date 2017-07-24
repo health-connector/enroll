@@ -30,7 +30,7 @@ class ShopEmployerNotices::RenewalEmployerIneligibilityNotice < ShopEmployerNoti
     notice.plan_year = PdfTemplates::PlanYear.new({
         :start_on => renewing_plan_year.start_on,
         :open_enrollment_end_on => renewing_plan_year.open_enrollment_end_on,
-        :end_on => 12/20/2017,
+        :end_on => active_plan_year.end_on,
         :warnings => plan_year_warnings
       })
   end
