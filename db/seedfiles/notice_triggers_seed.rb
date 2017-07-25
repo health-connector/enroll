@@ -225,7 +225,7 @@ shop_notice_triggers = [
         name: 'Zero Employees on Rotser',
         notice_template: 'notices/shop_employer_notices/notice_for_employers_with_zero_employees_on_roster',
         notice_builder: 'ShopEmployerNotices::ZeroEmployeesOnRoster',
-        mpi_indicator: 'MPI_SHOP6',
+        mpi_indicator: 'SHOP_M006',
         notice_trigger_element_group: {
           market_places: ['shop'],
           primary_recipients: ["employer"],
