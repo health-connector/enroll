@@ -15,10 +15,10 @@ class User
          :recoverable, :rememberable, :trackable, :timeoutable, :authentication_keys => {email: false, login: true}
 
   validates_presence_of :oim_id
-  validates_uniqueness_of :oim_id, :case_sensitive => false
+  validates_uniqueness_of :oim_id, :case_sensitive => false, :message => "is already taken, click Have an account"
   validate :password_complexity
   validate :oim_id_rules
-  validates_uniqueness_of :email,:case_sensitive => false
+  validates_uniqueness_of :email,:case_sensitive => false, :message => "is already taken, click Have an account"
   validates_presence_of     :password, if: :password_required?
   validates_confirmation_of :password, if: :password_required?
   validates_length_of       :password, within: Devise.password_length, allow_blank: true

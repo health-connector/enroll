@@ -205,7 +205,7 @@ And(/I click on log out link$/) do
   find('.interaction-click-control-logout').click
 end
 
-And(/I click on sign in existing account$/) do
+And(/I click on Have an account$/) do
   expect(page).to have_content "Welcome to the District's Health Insurance Marketplace"
   find('.interaction-click-control-sign-in-existing-account').click
 end
@@ -435,7 +435,7 @@ When(/^\w+ visits the Consumer portal$/i) do
 end
 
 When(/^(\w+) signs in$/) do |person|
-  click_link 'Sign In Existing Account'
+  click_link 'Have an account?'
   fill_in 'user[login]', with: (@u.find 'email' + person)
   find('#user_email').set(@u.find 'email' + person)
   fill_in 'user[password]', with: "aA1!aA1!aA1!"

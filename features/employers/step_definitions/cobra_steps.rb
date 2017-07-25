@@ -222,7 +222,7 @@ When(/^(.*) login in for (.*)$/) do |named_person, role|
   email_address = person[:email]
   password = person[:password]
 
-  click_link "Sign In Existing Account"
+  click_link "Have an account?"
   expect(page).to have_content('Sign In')
 
   fill_in "user[login]", with: email_address

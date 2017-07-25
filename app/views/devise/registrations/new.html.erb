@@ -70,12 +70,10 @@
           <div class="recaptcha-error"></div>
           <div class="recaptcha" id="captcha-widget"></div>
           <div class="actions text-center">
+              <%= link_to "Have an account?", new_user_session_path,  class: "interaction-click-control-sign-in-existing-account btn btn-primary btn-lg" %>
               <%= f.submit "Create account", class: "btn btn-primary btn-lg" %>
               <br/>
               <br/>
-            <span>
-              <%= link_to "Sign In Existing Account", new_user_session_path unless Rails.env.production?%>
-            </span>
           </div>
           <br/>
           <div>

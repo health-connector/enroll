@@ -56,7 +56,7 @@ Feature: Insured Plan Shopping on Individual market
     Then I should land on home page
     And I click on log out link
     Then Individual resumes enrollment
-    And I click on sign in existing account
+    And I click on Have an account
     And I signed in
     Then I should land on home page
     Then Individual logs out
@@ -86,7 +86,7 @@ Feature: Insured Plan Shopping on Individual market
     Then I should land on home page
     When I click on log out link
     Then Individual resumes enrollment
-    And I click on sign in existing account
+    And I click on Have an account
     And I signed in
     Then I should land on home page
     Then Individual logs out
