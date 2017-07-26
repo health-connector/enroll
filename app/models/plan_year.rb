@@ -18,6 +18,7 @@ class PlanYear
   OPEN_ENROLLMENT_STATE   = %w(enrolling renewing_enrolling)
   INITIAL_ENROLLING_STATE = %w(publish_pending eligibility_review published published_invalid enrolling enrolled)
   INITIAL_ELIGIBLE_STATE  = %w(published enrolling enrolled)
+  ENROLLED_STATE  = %w(enrolled)
 
   # Plan Year time period
   field :start_on, type: Date
@@ -76,32 +77,32 @@ class PlanYear
   scope :by_date_range,     ->(begin_on, end_on) { where(:"start_on".gte => begin_on, :"start_on".lte => end_on) }
   scope :published_plan_years_within_date_range, ->(begin_on, end_on) {
     where(
-      "$and" => [
-        {:aasm_state.in => PUBLISHED },
-        {"$or" => [
-          { :start_on => {"$gte" => begin_on, "$lte" => end_on }},
-          { :end_on => {"$gte" => begin_on, "$lte" => end_on }}
+        "$and" => [
+            {:aasm_state.in => PUBLISHED },
+            {"$or" => [
+                { :start_on => {"$gte" => begin_on, "$lte" => end_on }},
+                { :end_on => {"$gte" => begin_on, "$lte" => end_on }}
+            ]
+            }
         ]
-      }
-    ]
     )
   }
 
   scope :published_plan_years_by_date, ->(date) {
     where(
-      "$and" => [
-        {:aasm_state.in => PUBLISHED },
-        {:"start_on".lte => date, :"end_on".gte => date}
-      ]
+        "$and" => [
+            {:aasm_state.in => PUBLISHED },
+            {:"start_on".lte => date, :"end_on".gte => date}
+        ]
     )
   }
 
   scope :published_and_expired_plan_years_by_date, ->(date) {
     where(
-      "$and" => [
-        {:aasm_state.in => PUBLISHED + ['expired'] },
-        {:"start_on".lte => date, :"end_on".gte => date}
-      ]
+        "$and" => [
+            {:aasm_state.in => PUBLISHED + ['expired'] },
+            {:"start_on".lte => date, :"end_on".gte => date}
+        ]
     )
   }
 
@@ -137,45 +138,45 @@ class PlanYear
   def filter_active_enrollments_by_date(date)
     id_list = benefit_groups.collect(&:_id).uniq
     enrollment_proxies = Family.collection.aggregate([
-      # Thin before expanding to make better use of indexes
-      {"$match" => { "households.hbx_enrollments" => {
-        "$elemMatch" => {
-        "benefit_group_id" => {
-          "$in" => id_list
-        },
-        "aasm_state" => { "$in" => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES + HbxEnrollment::WAIVED_STATUSES)},
-        "effective_on" =>  {"$lte" => date.end_of_month, "$gte" => self.start_on}
-      }}}},
-      {"$unwind" => "$households"},
-      {"$unwind" => "$households.hbx_enrollments"},
-      {"$match" => {
-        "households.hbx_enrollments.benefit_group_id" => {
-          "$in" => id_list
-        },
-        "households.hbx_enrollments.aasm_state" => { "$in" => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES + HbxEnrollment::WAIVED_STATUSES)},
-        "households.hbx_enrollments.effective_on" =>  {"$lte" => date.end_of_month, "$gte" => self.start_on},
-        "$or" => [
-         {"households.hbx_enrollments.terminated_on" => {"$eq" => nil} },
-         {"households.hbx_enrollments.terminated_on" => {"$gte" => date.end_of_month}}
-        ]
-      }},
-      {"$sort" => {
-        "households.hbx_enrollments.submitted_at" => 1
-      }},
-      {"$group" => {
-        "_id" => {
-          "bga_id" => "$households.hbx_enrollments.benefit_group_assignment_id",
-          "coverage_kind" => "$households.hbx_enrollments.coverage_kind"
-        },
-        "hbx_enrollment_id" => {"$last" => "$households.hbx_enrollments._id"},
-        "aasm_state" => {"$last" => "$households.hbx_enrollments.aasm_state"},
-        "plan_id" => {"$last" => "$households.hbx_enrollments.plan_id"},
-        "benefit_group_id" => {"$last" => "$households.hbx_enrollments.benefit_group_id"},
-        "benefit_group_assignment_id" => {"$last" => "$households.hbx_enrollments.benefit_group_assignment_id"},
-        "family_members" => {"$last" => "$family_members"}
-      }},
-      {"$match" => {"aasm_state" => {"$nin" => HbxEnrollment::WAIVED_STATUSES}}}
-    ])
+                                                         # Thin before expanding to make better use of indexes
+                                                         {"$match" => { "households.hbx_enrollments" => {
+                                                             "$elemMatch" => {
+                                                                 "benefit_group_id" => {
+                                                                     "$in" => id_list
+                                                                 },
+                                                                 "aasm_state" => { "$in" => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES + HbxEnrollment::WAIVED_STATUSES)},
+                                                                 "effective_on" =>  {"$lte" => date.end_of_month, "$gte" => self.start_on}
+                                                             }}}},
+                                                         {"$unwind" => "$households"},
+                                                         {"$unwind" => "$households.hbx_enrollments"},
+                                                         {"$match" => {
+                                                             "households.hbx_enrollments.benefit_group_id" => {
+                                                                 "$in" => id_list
+                                                             },
+                                                             "households.hbx_enrollments.aasm_state" => { "$in" => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES + HbxEnrollment::WAIVED_STATUSES)},
+                                                             "households.hbx_enrollments.effective_on" =>  {"$lte" => date.end_of_month, "$gte" => self.start_on},
+                                                             "$or" => [
+                                                                 {"households.hbx_enrollments.terminated_on" => {"$eq" => nil} },
+                                                                 {"households.hbx_enrollments.terminated_on" => {"$gte" => date.end_of_month}}
+                                                             ]
+                                                         }},
+                                                         {"$sort" => {
+                                                             "households.hbx_enrollments.submitted_at" => 1
+                                                         }},
+                                                         {"$group" => {
+                                                             "_id" => {
+                                                                 "bga_id" => "$households.hbx_enrollments.benefit_group_assignment_id",
+                                                                 "coverage_kind" => "$households.hbx_enrollments.coverage_kind"
+                                                             },
+                                                             "hbx_enrollment_id" => {"$last" => "$households.hbx_enrollments._id"},
+                                                             "aasm_state" => {"$last" => "$households.hbx_enrollments.aasm_state"},
+                                                             "plan_id" => {"$last" => "$households.hbx_enrollments.plan_id"},
+                                                             "benefit_group_id" => {"$last" => "$households.hbx_enrollments.benefit_group_id"},
+                                                             "benefit_group_assignment_id" => {"$last" => "$households.hbx_enrollments.benefit_group_assignment_id"},
+                                                             "family_members" => {"$last" => "$family_members"}
+                                                         }},
+                                                         {"$match" => {"aasm_state" => {"$nin" => HbxEnrollment::WAIVED_STATUSES}}}
+                                                     ])
     return [] if (enrollment_proxies.count > 100)
     enrollment_proxies.map do |ep|
       OpenStruct.new(ep)
@@ -185,16 +186,16 @@ class PlanYear
   def hbx_enrollments_by_month(date)
     id_list = benefit_groups.collect(&:_id).uniq
     families = Family.where({
-      :"households.hbx_enrollments.benefit_group_id".in => id_list,
-      :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
-      }).limit(100)
+                                :"households.hbx_enrollments.benefit_group_id".in => id_list,
+                                :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
+                            }).limit(100)
 
     families.inject([]) do |enrollments, family|
       valid_enrollments = family.active_household.hbx_enrollments.where({
-        :benefit_group_id.in => id_list,
-        :effective_on.lte => date.end_of_month,
-        :aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
-      }).order_by(:'submitted_at'.desc)
+                                                                            :benefit_group_id.in => id_list,
+                                                                            :effective_on.lte => date.end_of_month,
+                                                                            :aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
+                                                                        }).order_by(:'submitted_at'.desc)
 
       health_enrollments = valid_enrollments.where({:coverage_kind => 'health'})
       dental_enrollments = valid_enrollments.where({:coverage_kind => 'dental'})
@@ -320,13 +321,13 @@ class PlanYear
 
   def open_enrollment_contains?(compare_date)
     (open_enrollment_start_on.beginning_of_day <= compare_date.beginning_of_day) &&
-    (compare_date.end_of_day <= open_enrollment_end_on.end_of_day)
+        (compare_date.end_of_day <= open_enrollment_end_on.end_of_day)
   end
 
   def coverage_period_contains?(compare_date)
     return (start_on <= compare_date) if (end_on.blank?)
     (start_on.beginning_of_day <= compare_date.beginning_of_day) &&
-    (compare_date.end_of_day <= end_on.end_of_day)
+        (compare_date.end_of_day <= end_on.end_of_day)
   end
 
   def is_renewing?
@@ -683,17 +684,17 @@ class PlanYear
 
 
       timetable = {
-        effective_date: effective_date,
-        plan_year_start_on: plan_year_start_on,
-        plan_year_end_on: plan_year_end_on,
-        employer_initial_application_earliest_start_on: employer_initial_application_earliest_start_on,
-        employer_initial_application_earliest_submit_on: employer_initial_application_earliest_submit_on,
-        employer_initial_application_latest_submit_on: employer_initial_application_latest_submit_on,
-        open_enrollment_earliest_start_on: open_enrollment_earliest_start_on,
-        open_enrollment_latest_start_on: open_enrollment_latest_start_on,
-        open_enrollment_latest_end_on: open_enrollment_latest_end_on,
-        binder_payment_due_date: binder_payment_due_date,
-        advertised_due_date_of_month: advertised_due_date_of_month
+          effective_date: effective_date,
+          plan_year_start_on: plan_year_start_on,
+          plan_year_end_on: plan_year_end_on,
+          employer_initial_application_earliest_start_on: employer_initial_application_earliest_start_on,
+          employer_initial_application_earliest_submit_on: employer_initial_application_earliest_submit_on,
+          employer_initial_application_latest_submit_on: employer_initial_application_latest_submit_on,
+          open_enrollment_earliest_start_on: open_enrollment_earliest_start_on,
+          open_enrollment_latest_start_on: open_enrollment_latest_start_on,
+          open_enrollment_latest_end_on: open_enrollment_latest_end_on,
+          binder_payment_due_date: binder_payment_due_date,
+          advertised_due_date_of_month: advertised_due_date_of_month
       }
 
       timetable
@@ -760,31 +761,31 @@ class PlanYear
     def map_binder_payment_due_date_by_start_on(start_on)
       dates_map = {}
       {
-        "2017-01-01" => '2016,12,23',
-        "2017-02-01" => '2017,1,23',
-        "2017-03-01" => '2017,2,23',
-        "2017-04-01" => '2017,3,23',
-        "2017-05-01" => '2017,4,24',
-        "2017-06-01" => '2017,5,23',
-        "2017-07-01" => '2017,6,23',
-        "2017-08-01" => '2017,7,24',
-        "2017-09-01" => '2017,8,23',
-        "2017-10-01" => '2017,9,25',
-        "2017-11-01" => '2017,10,23',
-        "2017-12-01" => '2017,11,24',
-        "2018-01-01" => '2017,12,26',
-        "2018-02-01" => '2018,1,23',
-        "2018-03-01" => '2018,2,23',
-        "2018-04-01" => '2018,3,23',
-        "2018-05-01" => '2018,4,23',
-        "2018-06-01" => '2018,5,23',
-        "2018-07-01" => '2018,6,25',
-        "2018-08-01" => '2018,7,23',
-        "2018-09-01" => '2018,8,23',
-        "2018-10-01" => '2018,9,24',
-        "2018-11-01" => '2018,10,23',
-        "2018-12-01" => '2018,11,23',
-        "2019-01-01" => '2018,12,24',
+          "2017-01-01" => '2016,12,23',
+          "2017-02-01" => '2017,1,23',
+          "2017-03-01" => '2017,2,23',
+          "2017-04-01" => '2017,3,23',
+          "2017-05-01" => '2017,4,24',
+          "2017-06-01" => '2017,5,23',
+          "2017-07-01" => '2017,6,23',
+          "2017-08-01" => '2017,7,24',
+          "2017-09-01" => '2017,8,23',
+          "2017-10-01" => '2017,9,25',
+          "2017-11-01" => '2017,10,23',
+          "2017-12-01" => '2017,11,24',
+          "2018-01-01" => '2017,12,26',
+          "2018-02-01" => '2018,1,23',
+          "2018-03-01" => '2018,2,23',
+          "2018-04-01" => '2018,3,23',
+          "2018-05-01" => '2018,4,23',
+          "2018-06-01" => '2018,5,23',
+          "2018-07-01" => '2018,6,25',
+          "2018-08-01" => '2018,7,23',
+          "2018-09-01" => '2018,8,23',
+          "2018-10-01" => '2018,9,24',
+          "2018-11-01" => '2018,10,23',
+          "2018-12-01" => '2018,11,23',
+          "2019-01-01" => '2018,12,24',
       }.each_pair do |k, v|
         dates_map[k] = Date.strptime(v, '%Y,%m,%d')
       end
@@ -946,10 +947,10 @@ class PlanYear
     # Admin ability to reset plan year application
     event :revert_application, :after => :revert_employer_profile_application do
       transitions from: [
-        :enrolled, :enrolling, :active, :application_ineligible,
-        :renewing_application_ineligible, :published_invalid,
-        :eligibility_review, :published, :publish_pending
-      ], to: :draft
+                      :enrolled, :enrolling, :active, :application_ineligible,
+                      :renewing_application_ineligible, :published_invalid,
+                      :eligibility_review, :published, :publish_pending
+                  ], to: :draft
     end
 
     # Admin ability to accept application and successfully complete enrollment
@@ -1042,13 +1043,13 @@ class PlanYear
 
   def is_eligible_to_match_census_employees?
     (benefit_groups.size > 0) and
-      (published? or enrolling? or enrolled? or active?)
+        (published? or enrolling? or enrolled? or active?)
   end
 
   def is_within_review_period?
     published_invalid? and
-      (latest_workflow_state_transition.transition_at >
-       (TimeKeeper.date_of_record - Settings.aca.shop_market.initial_application.appeal_period_after_application_denial.days))
+        (latest_workflow_state_transition.transition_at >
+            (TimeKeeper.date_of_record - Settings.aca.shop_market.initial_application.appeal_period_after_application_denial.days))
   end
 
   def latest_workflow_state_transition
@@ -1068,20 +1069,20 @@ class PlanYear
 
   def estimate_group_size?
     [
-      "draft",
-      "publish_pending",
-      "eligibility_review",
-      "published",
-      "published_invalid",
-      "enrolling",
-      "application_ineligible",
-      "canceled",
-      "renewing_draft",
-      "renewing_published",
-      "renewing_publish_pending",
-      "renewing_enrolling",
-      "renewing_application_ineligible",
-      "renewing_canceled"
+        "draft",
+        "publish_pending",
+        "eligibility_review",
+        "published",
+        "published_invalid",
+        "enrolling",
+        "application_ineligible",
+        "canceled",
+        "renewing_draft",
+        "renewing_published",
+        "renewing_publish_pending",
+        "renewing_enrolling",
+        "renewing_application_ineligible",
+        "renewing_canceled"
     ].include?(aasm_state)
   end
 
@@ -1134,16 +1135,16 @@ class PlanYear
   def is_event_date_valid?
     today = TimeKeeper.date_of_record
     valid = case aasm_state
-            when "published", "draft", "renewing_published", "renewing_draft"
-              today >= open_enrollment_start_on
-            when "enrolling", "renewing_enrolling"
-              today > open_enrollment_end_on
-            when "enrolled", "renewing_enrolled"
-              today >= start_on
-            when "active"
-              today > end_on
-            else
-              false
+              when "published", "draft", "renewing_published", "renewing_draft"
+                today >= open_enrollment_start_on
+              when "enrolling", "renewing_enrolling"
+                today > open_enrollment_end_on
+              when "enrolled", "renewing_enrolled"
+                today >= start_on
+              when "active"
+                today > end_on
+              else
+                false
             end
 
     valid
@@ -1227,20 +1228,33 @@ class PlanYear
     self.employer_profile.trigger_notices("initial_employer_open_enrollment_completed")
   end
 
+  def initial_employee_plan_selection_confirmation
+    return true if (benefit_groups.any?{|bg| bg.is_congress?})
+    self.employer_profile.census_employees.non_terminated.each do |ce|
+      begin
+        ShopNoticesNotifierJob.perform_later(ce.id.to_s, "initial_employee_plan_selection_confirmation")
+      rescue Exception => e
+        puts "Unable to send Employee Open Enrollment begin notice to #{ce.full_name}" unless Rails.env.test?
+      end
+    end
+  end
+
+
   def renewal_successful
     benefit_groups.each do |bg|
       bg.finalize_composite_rates
     end
-    if transmit_employers_immediately? 
+    if transmit_employers_immediately?
       employer_profile.transmit_renewal_eligible_event
     end
   end
 
   def record_transition
     self.workflow_state_transitions << WorkflowStateTransition.new(
-      from_state: aasm.from_state,
-      to_state: aasm.to_state
+        from_state: aasm.from_state,
+        to_state: aasm.to_state
     )
+    initial_employee_plan_selection_confirmation if aasm_state == 'enrolled'
   end
 
   def send_employee_invites
