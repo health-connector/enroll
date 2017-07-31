@@ -12,6 +12,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   around_action :wrap_in_benefit_group_cache, only: [:show]
   skip_before_action :verify_authenticity_token, only: [:show], if: :check_origin?
   before_action :updateable?, only: [:create, :update]
+  after_action :create_notice, only: [:create, :update]
   layout "two_column", except: [:new]
 
   def link_from_quote
@@ -165,6 +166,10 @@ class Employers::EmployerProfilesController < Employers::EmployersController
         format.js { render 'employers/employer_profiles/inbox' }
       end
     end
+  end
+
+  def create_notice
+     @organization.employer_profile.send_denial_notice
   end
 
   def new
