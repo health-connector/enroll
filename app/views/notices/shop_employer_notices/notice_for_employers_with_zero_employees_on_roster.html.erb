@@ -17,8 +17,9 @@
 <%= render partial: 'notices/shared/paragraph', locals: {
                                                            content: "Please note that your group will only obtain coverage if:" } %>
 
-<table class="total_table" border="0">
-  <tbody>
+<div style="display:block; page-break-inside: avoid;">
+  <table class="total_table" border="0">
+    <tbody>
     <tr>
       <td>
         <ul style="list-style: circle solid;">
@@ -87,7 +88,7 @@
             The Health Connector offers small businesses the option to make their premium payments online through secure electronic check payment. Follow the instructions in our <strong>Employer guide to paying premiums</strong>, which can be found in our online Business Resource Center.
             <br/><br/>
             <strong>To make a secure electronic check payment by phone</strong>
-            <br/>Call 1-888-813-9220
+            <br/>Call <%= contact_center_phone_number %>
             <br/>Select your language (1 for English, 2 for Spanish, additional language options available)
           </li>
         </ul>
@@ -99,6 +100,7 @@
 
 <%= render partial: 'notices/shared/paragraph_with_headers', :locals =>
   { contents: ["Please contact your broker for further assistance. You can also contact #{site_short_name} with any questions:"], heading: 'For Questions or Assistance:', sub_heading: ''} %>
+
 <table class="total_table" border="0">
   <tbody>
     <tr>
