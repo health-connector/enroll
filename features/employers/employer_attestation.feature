@@ -1,7 +1,6 @@
 Feature: Employer Profile
   In order for initial employers to submit application
   Employer Staff should upload attestation document
-
   Background:
     Given shop health plans exist for both last and this year
     When I visit the Employer portal
@@ -89,7 +88,7 @@ Feature: Employer Profile
     When Employer goes to the benefits tab I should see plan year information
     When Employer clicks on publish plan year
     Then Plan Year should be moved to Enrolling
-    
+
     Then I click on log out link
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
@@ -149,3 +148,28 @@ Feature: Employer Profile
     Then Employer Staff should see attestation status Rejected
     When Employer goes to the benefits tab I should see plan year information
 
+  Scenario: Employer Deletes submitted documents
+    Then Employer uploads an attestation document
+    And Employer clicks delete in actions
+    Then Employer should not see submitted document
+
+  Scenario: Employer should not be allowed to delete a document which is not in 'submitted' state. i.e, accepted, rejected or info needed
+    Then Employer uploads an attestation document
+    Then I click on log out link
+    Given a Hbx admin with read and write permissions exists
+    When Hbx Admin logs on to the Hbx Portal
+    When Admin click all employers link
+    When Admin clicks employer attestation filter
+    And Admin clicks submitted filter in employer attestation
+    Then Admin should see Employer with Submitted status
+    When Admin clicks attestation action
+    Then Admin should see attestation document
+    When Admin clicks view attestation document
+    Then Admin should see preview and attestation form
+    When Admin clicks submit in employer attestation form
+    Then Admin should see attestation updated message
+    Then I click on log out link
+    When I visit the Employer portal
+    When Jack Doe logs on to the Employer portal
+    Then Employer Staff clicks documents tab
+    And Employer should see disabled delete button in actions

@@ -1,7 +1,10 @@
 Rails.application.routes.draw do
+
+  mount TransportGateway::Engine, at: "/transport_gateway"
+
   require 'resque/server'
   mount Resque::Server, at: '/jobs'
-  devise_for :users, :controllers => { :registrations => "users/registrations", :sessions => 'users/sessions' }
+  devise_for :users, :controllers => { :passwords => 'users/passwords', :registrations => "users/registrations", :sessions => 'users/sessions' }
 
   get 'check_time_until_logout' => 'session_timeout#check_time_until_logout', :constraints => { :only_ajax => true }
   get 'reset_user_clock' => 'session_timeout#reset_user_clock', :constraints => { :only_ajax => true }
@@ -17,9 +20,9 @@ Rails.application.routes.draw do
 
   resources :users do
     member do
+      get :reset_password, :lockable, :confirm_lock
+      put :confirm_reset_password
       post :unlock
-      get :lockable
-      get :confirm_lock
     end
   end
 
@@ -258,6 +261,7 @@ Rails.application.routes.draw do
     resources :employer_attestations do 
        get 'authorized_download'
        get 'verify_attestation'
+       delete 'delete_attestation_documents'
        #get 'revert_attestation'
     end
     resources :inboxes, only: [:new, :create, :show, :destroy]
@@ -277,7 +281,6 @@ Rails.application.routes.draw do
         post 'download_documents'
         post 'delete_documents'
         post 'upload_document'
-
       end
 
       collection do

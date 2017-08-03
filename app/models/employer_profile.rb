@@ -41,6 +41,7 @@ class EmployerProfile
 
 
   field :profile_source, type: String, default: "self_serve"
+  field :contact_method, type: String, default: "Only Electronic communications"
   field :registered_on, type: Date, default: ->{ TimeKeeper.date_of_record }
   field :xml_transmitted_timestamp, type: DateTime
 
@@ -73,6 +74,7 @@ class EmployerProfile
 
   validates_presence_of :entity_kind
   validates_presence_of :sic_code
+  validates_presence_of :contact_method
 
   validates :profile_source,
     inclusion: { in: EmployerProfile::PROFILE_SOURCE_KINDS },
@@ -369,7 +371,7 @@ class EmployerProfile
   end
 
   def is_primary_office_local?
-    organization.primary_office_location.address.state.to_s.downcase == aca_state_abbreviation.to_s.downcase
+    (organization.primary_office_location.address.state.to_s.downcase == aca_state_abbreviation.to_s.downcase)
   end
 
   def build_plan_year_from_quote(quote_claim_code, import_census_employee=false)
@@ -571,7 +573,7 @@ class EmployerProfile
         :'employer_profile.plan_years' => {
           :$elemMatch => {
             :aasm_state => 'termination_pending',
-            :terminate_on.lt => new_date
+            :terminated_on.lt => new_date
           }
         }
       })
@@ -627,36 +629,15 @@ class EmployerProfile
 
         #initial employer reminder notices to publish plan year.
         start_on = (new_date+2.months).beginning_of_month
-        start_on_1 = (new_date+1.month).beginning_of_month
-        if new_date+2.days == start_on.last_month
-          initial_employer_reminder_to_publish(start_on).each do|organization|
-            begin
-              organization.employer_profile.trigger_notices("initial_employer_reminder_to_publish_plan_year")
-            rescue Exception => e
-              puts "Unable to send first reminder notice to publish plan year to #{organization.legal_name} due to following error {e}"
-            end
-          end
-        elsif new_date+1.days == start_on.last_month
+        if new_date.next_day == start_on.last_month
           initial_employer_reminder_to_publish(start_on).each do |organization|
             begin
-              organization.employer_profile.trigger_notices("initial_employer_reminder_to_publish_plan_year")
+              organization.employer_profile.trigger_notices("initial_employer_final_reminder_to_publish_plan_year")
             rescue Exception => e
               puts "Unable to send second reminder notice to publish plan year to #{organization.legal_name} due to following errors {e}"
             end
           end
-        else 
-          plan_year_due_date = Date.new(start_on_1.prev_month.year, start_on_1.prev_month.month, Settings.aca.initial_application.publish_due_date_of_month)
-          if (start_on +2.days == plan_year_due_date)
-            initial_employer_reminder_to_publish(start_on_1).each do |organization|
-              begin
-                organization.employee_profile.trigger_notices("initial_employer_reminder_to_publish_plan_year")
-              rescue Exception => e
-                puts "Unable to send final reminder notice to publish plan year to #{organization.legal_name} due to following errors {e}"
-              end
-            end
-          end
         end     
-
       end
 
       # Employer activities that take place monthly - on first of month
@@ -1006,6 +987,12 @@ class EmployerProfile
   def is_attestation_eligible?
     return true unless enforce_employer_attestation?
     employer_attestation.present? && employer_attestation.is_eligible?
+  end
+
+  def validate_and_send_denial_notice
+    if !is_primary_office_local? || !(RatingArea.all.pluck(:zip_code).include? organization.primary_office_location.address.zip)
+      self.trigger_notices('initial_employer_denial')
+    end
   end
 
   def terminate(termination_date)

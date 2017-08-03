@@ -1,4 +1,4 @@
-@individual_enabled
+@individual_disabled
 Feature: Create Primary Broker and Broker Agency
   In order for Brokers to help SHOP employees only
   The Primary Broker must create and manage an account on the HBX for their organization.
@@ -11,6 +11,7 @@ Feature: Create Primary Broker and Broker Agency
   The Broker should be able to select a family covered by that Employer
   The Broker should be able to purchase insurance for that family
 
+  @more_than_sole_source
   Scenario: Primary Broker has not signed up on the HBX
     When Primary Broker visits the HBX Broker Registration form
 

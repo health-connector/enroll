@@ -16,6 +16,9 @@ Given /(\w+) is a person who has not logged on$/ do |name|
 end
 
 Then  /(\w+) signs in to portal/ do |name|
+  if page.has_link? 'Sign In Existing Account'
+    find('.interaction-click-control-sign-in-existing-account').click
+  end
   person = Person.where(first_name: name).first
   fill_in "user[login]", :with => person.user.email
   find('#user_login').set(person.user.email)
@@ -92,6 +95,13 @@ Given(/^Sarh is the staff person for an organization with employer profile and b
   broker_agency_profile = FactoryGirl.create(:broker_agency_profile, organization: organization)
 end
 
+Then /he should have an option to select paper or electronic notice option/ do
+  expect(page).to have_content("Please indicate preferred method to receive notices (OPTIONAL)")
+  find(:xpath, '//*[@id="new_organization"]/div/div[4]/div/div[4]/div[2]/div/div/div/div[2]/b').click
+  expect(page).to have_content("Only Electronic communications")
+  expect(page).to have_content("Paper and Electronic communications")
+end
+
 Then(/(\w+) is the staff person for an existing employer$/) do |name|
   person = Person.where(first_name: name).first
   employer_staff_role = FactoryGirl.create(:employer_staff_role, person: person, employer_profile_id: @employer_profile.id)
@@ -107,7 +117,7 @@ When(/(\w+) accesses the Employer Portal/) do |name|
   visit '/'
   portal_class = 'interaction-click-control-employer-portal'
   find("a.#{portal_class}").click
-  find("a.interaction-click-control-sign-in-existing-account").click
+
   step "#{name} signs in to portal"
 end
 
@@ -175,7 +185,7 @@ Given /Admin accesses the Employers tab of HBX portal/ do
   visit '/'
   portal_class = '.interaction-click-control-hbx-portal'
   find(portal_class).click
-  find('a.interaction-click-control-sign-in-existing-account').click
+
   step "Admin signs in to portal"
   tab_class = '.interaction-click-control-employers'
   find(tab_class, wait: 10).click

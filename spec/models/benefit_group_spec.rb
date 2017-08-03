@@ -261,6 +261,7 @@ describe BenefitGroup, type: :model do
 
     context "should build some basic composite tier benefits" do
       subject { create(:benefit_group) }
+      let!(:employee) { create(:census_employee, create_with_spouse: true) }
 
       before do
         subject.build_composite_tier_contributions
@@ -279,7 +280,36 @@ describe BenefitGroup, type: :model do
         expect(dependent_tiers).to match_array([50.0,50.0])
       end
 
+      context "with family tier disabled" do
+        it "returns the correct effective_composite_tier" do
+          family_tier = subject.composite_tier_contributions.last
+          family_tier.offered = false
+          subject.save!
+          expect(subject.effective_composite_tier(employee)).to eq("employee_only")
+        end
+      end
+
+      context "with family tier enabled" do
+        it "returns the correct effective_composite_tier" do
+          expect(subject.effective_composite_tier(employee)).to eq("employee_and_spouse")
+        end
+      end
     end
+
+    context 'sorted composite tiers' do
+      subject { create(:benefit_group) }
+      before do
+        subject.build_composite_tier_contributions
+      end
+      it "should return sorted composite tier contributions" do
+        composite_tier_contributions = subject.sorted_composite_tier_contributions
+        expect(composite_tier_contributions[0].composite_rating_tier).to eq 'employee_only'
+        expect(composite_tier_contributions[1].composite_rating_tier).to eq 'employee_and_spouse'
+        expect(composite_tier_contributions[2].composite_rating_tier).to eq 'employee_and_one_or_more_dependents'
+        expect(composite_tier_contributions[3].composite_rating_tier).to eq 'family'
+      end
+    end
+
     context "with no arguments" do
       let(:params) {{}}
 

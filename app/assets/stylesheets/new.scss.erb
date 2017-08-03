@@ -402,6 +402,14 @@
       padding: 0 2%;
       margin: auto;
       table-layout: fixed;
+      tr.offered {
+
+      }
+
+      tr.not-offered {
+        opacity: 0.35;
+      }
+
       tr:first-of-type {
         border-top: none;
         th {
@@ -632,6 +640,15 @@
         }
       }
     }
+
+    .composite-offerings .benefits-fields .row-form-wrapper {
+      padding: 15px 0;
+
+      .slide-label {
+        position: absolute;
+      }
+    }
+
     .offerings {
       .benefits-fields {
         .row-form-wrapper {
@@ -1227,8 +1244,8 @@
     }
   }
   .add-new-employees{
-    text-align: right; 
-    top: 80px; 
+    text-align: right;
+    top: 80px;
     margin-left: 15%;
   }
   .upload-document{
@@ -1418,6 +1435,40 @@
   padding-bottom: 50px;
   &:last-of-type {
     padding-bottom: 0;
+  }
+
+  .health .starter {
+    display: inline-block;
+
+    .starter-descriptor {
+      padding-left: 0px;
+    }
+  }
+  div#edit_employer_cost_info_btn {
+    padding-top: 12px;
+  }
+
+  .reference_plan_info {
+    clear: both;
+  }
+
+  .select-dental-plan {
+
+    div#edit_employer_cost_info_btn {
+      padding-top: 10px;
+
+      .btn {
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+    }
+    .dental-plan-helper {
+      padding-left: 0px;
+
+      .starter {
+        display: inline-block;
+      }
+    }
   }
 }
 

@@ -1614,16 +1614,18 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
   end
 
   context "map binder_payment_due_date" do
-    it "in interval of map" do
+    it "in interval of map using shop_enrollment_timetable" do
       binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2015,9,1))
       expect(binder_payment_due_date).to eq Date.new(2015,8,12)
-      binder_payment_due_date_1 = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2017,9,1))
-      expect(binder_payment_due_date_1).to eq Date.new(2017,8,14)
+    end
+
+    it "interval map using existing specified key values" do
+      binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2017,9,1))
+      expect(binder_payment_due_date).to eq Date.new(2017,8,23)
     end
 
     it "out of map" do
       binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2019,9,1))
-
       expect(binder_payment_due_date).to eq PlanYear.shop_enrollment_timetable(Date.new(2019,9,1))[:binder_payment_due_date]
     end
   end
@@ -2182,6 +2184,7 @@ describe PlanYear, "which has the concept of export eligibility" do
           })
 
         py.aasm_state = "draft"
+        py.fte_count = 3
         py.benefit_groups = [benefit_group]
         py.save
         py

@@ -1,8 +1,11 @@
 source 'https://rubygems.org'
 
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.3'
+
+# Mount Enroll App component engines
+gem "transport_gateway",  path: "components/transport_gateway"
+
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
@@ -150,6 +153,7 @@ group :test do
   gem 'simplecov', '0.14.1', :require => false
   gem 'mongoid-rspec', '3.0.0'
   gem 'watir'
+  gem 'webmock'
   gem 'cucumber-rails', '~> 1.4.2', :require => false
   gem 'poltergeist'
   gem 'capybara-screenshot'

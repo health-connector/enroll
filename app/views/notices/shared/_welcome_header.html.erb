@@ -1,0 +1,24 @@
+<div style="display:block; page-break-inside: avoid;">
+  <table class="total_table" border="0">
+    <tbody>
+      <tr>
+        <td></br></td>
+      </tr>
+      <% if heading.present? %>
+      <tr>
+        <td><strong><h2 style="color:rgb(255,0,0);"><%= heading.html_safe %></h2></strong></td>
+      </tr>
+    <% end %>
+      <% if sub_heading.present? %>
+      <tr>
+        <td><h3 style="color:black;"><%= sub_heading.html_safe %></h3></td>
+      </tr>
+      <% end %>
+      <% contents.each do |para| %>
+      <tr>
+        <td><%= para.html_safe %></td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
