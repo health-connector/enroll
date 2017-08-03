@@ -809,7 +809,7 @@ class HbxEnrollment
       if benefit_group.is_congress
         PlanCostDecoratorCongress.new(qhp_plan, self, benefit_group)
       elsif self.composite_rated?
-        CompositeRatedPlanCostDecorator.new(qhp_plan, benefit_group, self.composite_rating_tier, is_cobra_status?)
+        CompositeRatedPlanCostDecorator.new(qhp_plan, benefit_group, self.composite_rating_tier)
       else
         reference_plan = (coverage_kind == "health") ? benefit_group.reference_plan : benefit_group.dental_reference_plan
         PlanCostDecorator.new(qhp_plan, self, benefit_group, reference_plan)
