@@ -18,9 +18,15 @@
 
       <div class="panel-footer">
 
+        <% if !@employer_profile.employer_attestation.editable? %>
+        <div class="alert alert-warning" role="alert">
+          This Employer Attestation is already <%= @employer_profile.employer_attestation.aasm_state.camelcase %>. It can't be modified.
+        </div>
+        <% end %>
+
         <div class="row employer_attestation_fields">
           <div class="col-md-12">
-
+            
             <%= form_tag employers_employer_attestation_path(@employer_profile),:method => :put do |f| %>
               <%= hidden_field_tag :employer_attestation_id, @document.id %>
               <%= hidden_field_tag :prev_status, @document.aasm_state %>
@@ -82,7 +88,7 @@
               <div class="row">
                 <div class="col-sm-12">
                    <div class="form-group pull-right">
-                    <%if @document.may_accept? %>
+                    <%if @document.may_accept? && @employer_profile.employer_attestation.editable? %>
                        <button type="submit" id = "attestation_submit" class='btn btn-primary'>Submit</button>
                     <%else%>
                        <button type="button" class="btn disabled"> Submit </button>
