@@ -13,6 +13,11 @@ class PlanCostDecorator < SimpleDelegator
     @plan = plan
     @multiple_rating_areas = multiple_market_rating_areas?
   end
+  
+  def sole_source?
+    binding.pry
+    @benefit_group.sole_source?
+  end
 
   def sole_source?
     @benefit_group.sole_source?
