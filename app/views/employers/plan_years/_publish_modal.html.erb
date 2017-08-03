@@ -28,9 +28,8 @@
       
       </div>
       <div class="modal-footer">
-        <% if plan_year.no_documents_uploaded? %>
             <%= link_to 'Go Back', employers_employer_profile_path(@employer_profile.id, :tab=>'benefits'), :class => 'btn btn-default' %>
-        <% else %>        
+        <% unless plan_year.no_documents_uploaded? %>
                 <%= link_to 'Force Publish', employers_employer_profile_plan_year_force_publish_path(@employer_profile,plan_year), method: :post, :class => 'btn btn-danger' %>
         <% end %>
                   <% error_page = plan_year.application_eligibility_warnings[:primary_office_location].present? ? edit_employers_employer_profile_path(@employer_profile, plan_year_id: plan_year.id) : edit_employers_employer_profile_plan_year_path(@employer_profile,plan_year, publish: true) %>
