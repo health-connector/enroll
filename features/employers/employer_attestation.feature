@@ -18,6 +18,7 @@ Feature: Employer Profile
     When Employer goes to the benefits tab I should see plan year information
     When Employer clicks on publish plan year
     Then Employer Staff should see dialog with Attestation warning
+    Then There is no force publish button in the dialog
     When Employer Staff clicks cancel button in Attestation warning dialog
     Then Employer Staff should redirect to plan year edit page
 

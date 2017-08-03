@@ -455,7 +455,9 @@ class PlanYear
     errors
   end
 
-
+  def documents_uploaded?
+    employer_profile.employer_attestation.blank? || employer_profile.employer_attestation.unsubmitted? 
+  end  
   # Check plan year application for regulatory compliance
   def application_eligibility_warnings
     warnings = {}

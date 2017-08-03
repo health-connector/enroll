@@ -1,7 +1,13 @@
 Then (/^Employer Staff should see dialog with Attestation warning$/) do
   wait_for_ajax(3,2)
-  expect(page).to have_content('Force Publish')
+  #expect(page).to have_content('Force Publish')
   expect(page).to have_content('Cancel')
+end
+
+Then (/^There is no force publish button in the dialog$/) do
+  wait_for_ajax(3,2)
+  expect(page).to have_content('Go Back')
+  expect(page).not_to have_content('Force Publish')
 end
 
 Then (/^Employer Staff clicks cancel button in Attestation warning dialog$/) do
