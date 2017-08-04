@@ -65,15 +65,11 @@ class BenefitGroup
   embeds_many :composite_tier_contributions, cascade_callbacks: true
   accepts_nested_attributes_for :composite_tier_contributions, reject_if: :all_blank, allow_destroy: true
 
-
   embeds_many :relationship_benefits, cascade_callbacks: true
   accepts_nested_attributes_for :relationship_benefits, reject_if: :all_blank, allow_destroy: true
 
   embeds_many :dental_relationship_benefits, cascade_callbacks: true
   accepts_nested_attributes_for :dental_relationship_benefits, reject_if: :all_blank, allow_destroy: true
-
-  embeds_many :composite_tier_contributions, cascade_callbacks: true
-  accepts_nested_attributes_for :composite_tier_contributions, reject_if: :all_blank, allow_destroy: true
 
   field :carrier_for_elected_dental_plan, type: BSON::ObjectId
 
@@ -118,6 +114,10 @@ class BenefitGroup
   # end
 
   alias_method :is_congress?, :is_congress
+
+  def sorted_composite_tier_contributions
+    self.composite_tier_contributions.sort{|a,b| a.sort_val <=> b.sort_val}
+  end
 
   def reference_plan=(new_reference_plan)
     raise ArgumentError.new("expected Plan") unless new_reference_plan.is_a? Plan
@@ -263,7 +263,7 @@ class BenefitGroup
     if is_congress
       PlanCostDecoratorCongress.new(plan, member_provider, self, max_contribution_cache)
     elsif self.sole_source? && (!plan.dental?)
-      CompositeRatedPlanCostDecorator.new(plan, self, member_provider.composite_rating_tier)
+      CompositeRatedPlanCostDecorator.new(plan, self, member_provider.composite_rating_tier, member_provider.is_cobra_status?)
     else
       PlanCostDecorator.new(plan, member_provider, self, ref_plan, max_contribution_cache)
     end
@@ -275,6 +275,11 @@ class BenefitGroup
 
   def census_employees
     CensusEmployee.find_all_by_benefit_group(self)
+  end
+
+  def effective_composite_tier(ce)
+    employer_offered_family_benefits = composite_tier_contributions.find_by(composite_rating_tier: 'family').offered?
+    employer_offered_family_benefits ? ce.composite_rating_tier : 'employee_only'
   end
 
   def assignable_to?(census_employee)
@@ -305,7 +310,7 @@ class BenefitGroup
 
   def build_composite_tier_contributions
     self.composite_tier_contributions = CompositeRatingTier::NAMES.map do |rating_tier|
-      self.composite_tier_contributions.build(composite_rating_tier: rating_tier)
+      self.composite_tier_contributions.build(composite_rating_tier: rating_tier, offered: true)
     end
   end
 
@@ -356,7 +361,7 @@ class BenefitGroup
     end
     targeted_census_employees.active.collect do |ce|
       if plan_option_kind == 'sole_source'
-        pcd = CompositeRatedPlanCostDecorator.new(plan, self, ce.composite_rating_tier)
+        pcd = CompositeRatedPlanCostDecorator.new(plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         if plan.coverage_kind == 'dental'
           pcd = PlanCostDecorator.new(plan, ce, self, dental_reference_plan)
@@ -372,7 +377,7 @@ class BenefitGroup
     return 0 if targeted_census_employees.count > 100
     targeted_census_employees.active.collect do |ce|
       if plan_option_kind == 'sole_source'
-        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, ce.composite_rating_tier)
+        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         if coverage_kind == 'dental'
           pcd = PlanCostDecorator.new(dental_reference_plan, ce, self, dental_reference_plan)
@@ -388,7 +393,7 @@ class BenefitGroup
     return 0 if targeted_census_employees.count > 100
     targeted_census_employees.active.collect do |ce|
       if plan_option_kind == 'sole_source'
-        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, ce.composite_rating_tier)
+        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         if coverage_kind == 'dental'
           pcd = PlanCostDecorator.new(dental_reference_plan, ce, self, dental_reference_plan)
@@ -409,7 +414,7 @@ class BenefitGroup
     pcd = if @is_congress
       decorated_plan(plan, ce)
     elsif(plan_option_kind == 'sole_source')
-      CompositeRatedPlanCostDecorator.new(reference_plan, self, ce.composite_rating_tier)
+      CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
     else
       PlanCostDecorator.new(plan, ce, self, reference_plan)
     end
@@ -669,12 +674,14 @@ class BenefitGroup
 
     contribution = family_tier.first.employer_contribution_percent
     estimated_tier_premium = family_tier.first.estimated_tier_premium
+    offered = family_tier.first.offered
 
     (CompositeRatingTier::NAMES - CompositeRatingTier::VISIBLE_NAMES).each do |crt|
       tier = self.composite_tier_contributions.find_or_initialize_by(
         composite_rating_tier: crt
       )
       tier.employer_contribution_percent = contribution
+      tier.offered = offered
     end
   end
 
@@ -738,9 +745,26 @@ class BenefitGroup
     # all employee contribution < 50% for 1/1 employers
     if start_on.month == 1 && start_on.day == 1
     else
-      if relationship_benefits.present? && (relationship_benefits.find_by(relationship: "employee").try(:premium_pct) || 0) < Settings.aca.shop_market.employer_contribution_percent_minimum
-        unless self.sole_source?
-          self.errors.add(:relationship_benefits, "Employer contribution must be ≥ 50% for employee")
+      if self.sole_source?
+        unless composite_tier_contributions.present?
+          self.errors.add(:composite_rating_tier, "Employer must set contribution percentages")
+        else
+          employee_tier = composite_tier_contributions.find_by(composite_rating_tier: 'employee_only')
+
+          if aca_shop_market_employer_contribution_percent_minimum > (employee_tier.try(:employer_contribution_percent) || 0)
+            self.errors.add(:composite_tier_contributions,
+            "Employer contribution for employee must be ≥ #{aca_shop_market_employer_contribution_percent_minimum}%")
+          else
+            family_tier = composite_tier_contributions.find_by(composite_rating_tier: 'family')
+            if family_tier.offered? &&
+              (family_tier.try(:employer_contribution_percent) || 0) < aca_shop_market_employer_family_contribution_percent_minimum
+                self.errors.add(:composite_tier_contributions, "Employer contribution for family plans must be ≥ #{aca_shop_market_employer_family_contribution_percent_minimum}")
+            end
+          end
+        end
+      else
+        if relationship_benefits.present? && (relationship_benefits.find_by(relationship: "employee").try(:premium_pct) || 0) < aca_shop_market_employer_contribution_percent_minimum
+          self.errors.add(:relationship_benefits, "Employer contribution must be ≥ #{aca_shop_market_employer_contribution_percent_minimum}% for employee")
         end
       end
     end

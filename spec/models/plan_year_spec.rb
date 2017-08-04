@@ -1614,16 +1614,18 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
   end
 
   context "map binder_payment_due_date" do
-    it "in interval of map" do
+    it "in interval of map using shop_enrollment_timetable" do
       binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2015,9,1))
       expect(binder_payment_due_date).to eq Date.new(2015,8,12)
-      binder_payment_due_date_1 = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2017,9,1))
-      expect(binder_payment_due_date_1).to eq Date.new(2017,8,14)
+    end
+
+    it "interval map using existing specified key values" do
+      binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2017,9,1))
+      expect(binder_payment_due_date).to eq Date.new(2017,8,23)
     end
 
     it "out of map" do
       binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2019,9,1))
-
       expect(binder_payment_due_date).to eq PlanYear.shop_enrollment_timetable(Date.new(2019,9,1))[:binder_payment_due_date]
     end
   end
@@ -2182,6 +2184,7 @@ describe PlanYear, "which has the concept of export eligibility" do
           })
 
         py.aasm_state = "draft"
+        py.fte_count = 3
         py.benefit_groups = [benefit_group]
         py.save
         py
@@ -2422,4 +2425,60 @@ describe PlanYear, "given a recored rating area value" do
     subject.valid?
     expect(subject.errors.keys).to include(:recorded_rating_area)
   end
+end
+
+describe PlanYear, '.schedule_employee_terminations', type: :model, dbclean: :after_all do
+
+  let(:start_on) { TimeKeeper.date_of_record.beginning_of_month }
+  let!(:person) { FactoryGirl.create(:person)}
+  let!(:shop_family)       { FactoryGirl.create(:family, :with_primary_family_member, :person => person) }
+  let!(:employer_profile) { create(:employer_with_planyear, plan_year_state: 'active', start_on: start_on)}
+  let!(:plan_year) { employer_profile.published_plan_year}
+  let!(:hbx_enrollment) {FactoryGirl.create(:hbx_enrollment,household: shop_family.latest_household,aasm_state:'coverage_selected')}
+  let!(:renewing_hbx_enrollment) {FactoryGirl.create(:hbx_enrollment,household: shop_family.latest_household,aasm_state:'coverage_canceled')}
+
+  context 'should terminate active enrollment' do
+
+    before do
+      allow(plan_year).to receive(:hbx_enrollments).and_return([hbx_enrollment])
+    end
+
+    it "enrollemnt should be in coverage_termination_pending state " do
+      expect(plan_year.schedule_employee_terminations.first.aasm_state).to eq "coverage_termination_pending"
+    end
+
+  end 
+
+  context 'should not terminate inactive enrollment' do
+
+    before do
+      allow(plan_year).to receive(:hbx_enrollments).and_return([renewing_hbx_enrollment])
+    end
+
+    it "enrollemnt should not be in coverage_termination_pending state" do
+      expect(plan_year.schedule_employee_terminations.first.aasm_state).to eq "coverage_canceled"
+    end
+  end 
+end
+
+
+describe PlanYear, '.schedule_termination', type: :model, dbclean: :after_all do
+
+  let(:start_on) { TimeKeeper.date_of_record.beginning_of_month}
+  let!(:person) { FactoryGirl.create(:person)}
+  let!(:shop_family)       { FactoryGirl.create(:family, :with_primary_family_member, :person => person) }
+  let!(:employer_profile) { create(:employer_with_planyear, plan_year_state: 'active', start_on: start_on)}
+  let!(:plan_year) { employer_profile.published_plan_year}
+  let!(:benefit_group) { employer_profile.published_plan_year.benefit_groups.first}
+  let!(:hbx_enrollment) {FactoryGirl.create(:hbx_enrollment,household: shop_family.latest_household,benefit_group_id: benefit_group.id,aasm_state:'coverage_selected')}
+
+  context 'schedule_termination with active plan year' do
+
+    it "should termiante plan year and enrollments" do
+      plan_year.schedule_termination!
+      expect(plan_year.aasm_state).to eq "termination_pending"
+      expect(plan_year.hbx_enrollments.first.aasm_state).to eq "coverage_termination_pending"
+      expect(plan_year.hbx_enrollments.first.terminated_on).to eq  TimeKeeper.date_of_record.end_of_month
+    end
+  end 
 end

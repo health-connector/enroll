@@ -11,7 +11,7 @@ $("#<%= @location_id %> .dental .reference-steps div:first").hide()
 $("#<%= @location_id %> <%= @coverage_type %> .col-md-12.top-pd").hide();
 
 //unbind checkbox handlers
-$('#<%= @location_id %> <%= @coverage_type %> .checkbox label input[type="checkbox"]').unbind();
+//$('#<%= @location_id %> <%= @coverage_type %> .checkbox label input[type="checkbox"]').unbind();
 //$('#<%#= @location_id %> .dental-benefits-fields .col-xs-6.form-group.form-group-lg label > input').attr('disabled', 'disabled');
 
 // show dental config links
@@ -92,6 +92,7 @@ if (window.location.href.indexOf("edit") > -1 && window.location.href.indexOf("p
       $(this).closest('.select-dental-plan').find('.edit-offering').show();
       $(this).closest('.select-dental-plan').find('.nav-tabs').show();
     } else {
+      $(".nav-tabs li label").first().trigger('click')
       $('#<%= @location_id %>').find('.reference-steps:first').show();
       $('#<%= @location_id %> <%= @coverage_type %>').find('.health').find('.nav-tabs').show();
     }

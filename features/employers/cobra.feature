@@ -1,5 +1,6 @@
 Feature: COBRA basic
 
+  @more_than_sole_source
   Scenario: An Employer is new to the Exchange and needs to enter COBRA enrollees
     Given shop health plans exist for both last and this year
     Given Employer has not signed up as an HBX user
@@ -15,8 +16,12 @@ Feature: COBRA basic
     And Employer should see a success message after clicking on create plan year button
     Then Employer uploads an attestation document
     When Employer goes to the benefits tab I should see plan year information
+    Then Employer can see the plan information
     Then Employer clicks on publish plan year
     Then Employer should see a published success message without employee
+    
+    When I go to MY Health Connector tab
+    Then Employer can see the plan information on home tab
 
     When Employer clicks on the Employees tab
     When Employer clicks to add the first employee
@@ -28,7 +33,8 @@ Feature: COBRA basic
     When Employer clicks on the add employee button
     Then Employer should see a form to enter information about employee, address and dependents details for Jack Employee
     And Employer should see census employee created success message for Jack Employee
-    And Employer should see the status of eligible
+    When Employer click active employee filter
+    Then Employer should see the status of eligible
     Then Employer logs out
 
     When Jack Cobra visits the employee portal

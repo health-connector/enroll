@@ -121,13 +121,15 @@ class Employers::EmployerProfilesController < Employers::EmployersController
       case @tab
       when 'benefits'
         @current_plan_year = @employer_profile.renewing_plan_year || @employer_profile.active_plan_year
-        @current_plan_year.ensure_benefit_group_is_valid if @current_plan_year 
+        @current_plan_year.ensure_benefit_group_is_valid if @current_plan_year
         sort_plan_years(@employer_profile.plan_years)
       when 'documents'
         @datatable = Effective::Datatables::EmployerDocumentDatatable.new({employer_profile_id: params[:id]})
         @documents = []
         if @employer_profile.employer_attestation.present?
           @documents = @employer_profile.employer_attestation.employer_attestation_documents
+        else
+          @employer_profile.build_employer_attestation
         end
       when 'employees'
         @current_plan_year = @employer_profile.show_plan_year
@@ -341,9 +343,9 @@ class Employers::EmployerProfilesController < Employers::EmployersController
     @employer_profile = EmployerProfile.find(params[:id])
     begin
       @employer_profile.documents.any_in(:_id =>params[:ids]).destroy_all
-      render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
+      render json: { status: 200, message: 'Successfully deleted the employer attestation documents' }
     rescue => e
-      render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
+      render json: { status: 500, message: 'An error occured while deleting the employer attestation documents' }
     end
   end
 
@@ -500,7 +502,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
   def employer_profile_params
     params.require(:organization).permit(
-      :employer_profile_attributes => [ :entity_kind, :dba, :legal_name, :sic_code],
+      :employer_profile_attributes => [ :entity_kind, :dba, :legal_name, :sic_code, :contact_method],
       :office_locations_attributes => [
         {:address_attributes => [:kind, :address_1, :address_2, :city, :state, :zip, :county]},
         {:phone_attributes => [:kind, :area_code, :number, :extension]},

@@ -28,9 +28,10 @@ class Employers::EmployerAttestationsController < ApplicationController
   def create
     @errors = []
     if params[:file]
-      @employer_profile.build_employer_attestation unless @employer_profile.employer_attestation
+      #@employer_profile.build_employer_attestation unless @employer_profile.employer_attestation
       file = params[:file]
       doc_uri = Aws::S3Storage.save(file.tempfile.path, 'attestations')
+      @employer_profile.build_employer_attestation unless @employer_profile.employer_attestation.present?
       if doc_uri.present?
         attestation_document = @employer_profile.employer_attestation.employer_attestation_documents.new
         success = attestation_document.update_attributes({:identifier => doc_uri, :subject => file.original_filename, :title=>file.original_filename, :size => file.size, :format => "application/pdf"})
@@ -43,13 +44,13 @@ class Employers::EmployerAttestationsController < ApplicationController
           flash[:error] = "Could not save file. " + errors.join(". ")
         end
       else
-        flash[:error] = "Could not save file"
+        flash[:error] = "Could not save the file in S3 storage"
       end
     else
       flash[:error] = "Please upload file"
     end
 
-    redirect_to "/employers/employer_profiles/#{@employer_profile.id}"+'?tab=documents'
+    redirect_to employers_employer_profile_path(@employer_profile.id, :tab=>'documents')
   end
 
   def update
@@ -77,6 +78,16 @@ class Employers::EmployerAttestationsController < ApplicationController
       end
     rescue => e
       redirect_to(:back, :flash => {error: e.message})
+    end
+  end
+
+  def delete_attestation_documents
+    begin
+      @employer_profile.employer_attestation.employer_attestation_documents.where(:id =>params[:employer_attestation_id],:aasm_state => "submitted").destroy_all
+      @employer_profile.employer_attestation.revert! if @employer_profile.employer_attestation.may_revert?
+      redirect_to employers_employer_profile_path(@employer_profile.id, :tab=>'documents')
+    rescue => e
+      render json: { status: 500, message: 'An error occured while deleting the employer attestation' }
     end
   end
 

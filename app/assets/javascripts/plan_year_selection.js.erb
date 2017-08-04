@@ -18,7 +18,6 @@ ready = function() {
     }
   });
 
-
   // get all dental plan options for all plans option or for elected dental plans
   $('span:contains("Select Reference Plan"), label.elected_plan:contains("Custom")').on('click', function() {
     // $(this).closest('.reference-steps').find('div:first').hide();
@@ -320,6 +319,7 @@ ready = function() {
       if ( $(this).hasClass('slider') ) {
         $(this).on("slideStop", function(slideEvt) {
           var data = $(this).val();
+
           $(this).closest('.form-group').find('input').val(data);
           $(this).closest('.form-group').find('.slide-label').text(data + "%");
           if (window.location.href.indexOf("edit") > -1 && window.location.href.indexOf("plan_years") > -1) {
@@ -338,11 +338,16 @@ ready = function() {
         });
       } else if ( $(this).hasClass('hidden-param') )  {
         var hidden = parseInt($(this).val());
+        if (hidden < 0) {
+          hidden = 0;
+        } else if (hidden > 100) {
+          hidden = 100;
+        }
         var mySlider = $(this).closest('.form-group').find('input.slider');
         mySlider.bootstrapSlider('setValue', hidden);
         $(this).closest('.form-group').find('input.slider').attr('value', hidden).attr('data-slider-value', hidden);
         $(this).closest('.form-group').find('.slide-label').text(hidden + "%");
-
+        $(this).val(hidden);
       }
     });
 
@@ -360,7 +365,6 @@ ready = function() {
         if ( $(this).is(':contains("By carrier")') ) {
           $(this).closest('.reference-steps').find('.elected-plans-continue').hide();
         }
-
       }
       $(this).closest('.benefit-group-fields').find(nav+' .nav-tabs li').removeClass('active');
       $(this).closest('.benefit-group-fields').find(nav+' .plan-options > * input, '+nav+' .reference-plans > * input').prop('checked', false);
@@ -374,6 +378,11 @@ ready = function() {
         $(this).closest('.benefit-group-fields').find(nav+' .plan-options > *').hide();
         $(this).closest('.benefit-group-fields').find(nav+' .plan-options > * input, '+nav+' .reference-plans > * input').prop('checked', 0);
         $(this).closest('.benefit-group-fields').find('.loading-container').html("<div class=\'col-xs-12 loading\'><i class=\'fa fa-spinner fa-spin fa-2x\'></i></div>");
+      }
+      var nav_tabs = $('.nav-tabs li input');
+
+      if (nav_tabs.first().val() == 'sole_source') {
+        nav_tabs.first().trigger('change');
       }
 
       });
@@ -572,7 +581,10 @@ function calcEmployerContributions(url, location, coverage_type) {
 
       var reference_plan_id = $('#'+location+' '+ coverage_type +' .ref-plan').val();
       var premium_pcts = $('#'+location+' '+ coverage_type +' .enabled .benefits-fields input.hidden-param').map(function() {
-        return $(this).val();
+        var input_val = parseInt($(this).val());
+        var not_greater_than_one_hundred = Math.min(100,input_val);
+        var not_less_than_zero = Math.max(0,not_greater_than_one_hundred);
+        return not_less_than_zero;
       }).get();
       var is_offered = $('#'+location+' '+ coverage_type +' .enabled .benefits-fields .checkbox label > input[type=checkbox]').map(function() {
         return $(this).is(":checked");
@@ -608,7 +620,7 @@ function calcEmployerContributions(url, location, coverage_type) {
     return
   }
 
-  var composite_rating_tier_types = [ 'employee_only', 'employee_and_spouse', 'employee_and_one_or_more_dependents', 'family']
+  var composite_rating_tier_types = [ 'employee_only', 'family', 'employee_and_spouse', 'employee_and_one_or_more_dependents']
   var relationship_benefit_types = [ 'employee', 'spouse', 'domestic_partner', 'child_under_26', 'child_26_and_over']
 
   relation_benefits = {};
@@ -620,7 +632,8 @@ function calcEmployerContributions(url, location, coverage_type) {
     composite_rating_tier_types.forEach(function(compositeTierType, index, composite_tier_types) {
       relation_benefits[index] = {
         "composite_rating_tier": compositeTierType,
-        "employer_contribution_percent": premium_pcts[index]
+        "employer_contribution_percent": premium_pcts[index],
+        "offered":  is_offered[index]
       }
     });
   } else {
@@ -628,7 +641,7 @@ function calcEmployerContributions(url, location, coverage_type) {
       relation_benefits[index] = {
         "relationship": relationshipType,
         "premium_pct": premium_pcts[index],
-        "offered":  is_offered[0]
+        "offered":  is_offered[index]
       }
     });
   }

@@ -1,4 +1,3 @@
-
 module Effective
   module Datatables
     class EmployerDatatable < Effective::MongoidDatatable
@@ -11,7 +10,7 @@ module Effective
 
         table_column :legal_name, :proc => Proc.new { |row|
           @employer_profile = row.employer_profile
-          (link_to row.legal_name.titleize, employers_employer_profile_path(@employer_profile, :tab=>'home')) + raw("<br>") + truncate(row.id.to_s, length: 8, omission: '' )
+          (link_to row.legal_name.titleize, employers_employer_profile_path(@employer_profile, :tab=>'home'))
 
           }, :sortable => false, :filter => false
         #table_column :hbx_id, :label => 'HBX ID', :proc => Proc.new { |row| truncate(row.id.to_s, length: 8, omission: '' ) }, :sortable => false, :filter => false
@@ -38,6 +37,7 @@ module Effective
           [@latest_plan_year.try(:enrolled_summary), @latest_plan_year.try(:waived_summary)].compact.join("/")
           }, :filter => false, :sortable => false
         table_column :xml_submitted, :label => 'XML Submitted', :proc => Proc.new {|row| format_time_display(@employer_profile.xml_transmitted_timestamp)}, :filter => false, :sortable => false
+        table_column :attestation_status, :label => 'Attestation Status', :proc => Proc.new {|row| row.employer_profile.employer_attestation.aasm_state.titleize if row.employer_profile.employer_attestation }, :filter => false, :sortable => false
         table_column :actions, :width => '50px', :proc => Proc.new { |row|
           dropdown = [
            # Link Structure: ['Link Name', link_path(:params), 'link_type'], link_type can be 'ajax', 'static', or 'disabled'
@@ -145,10 +145,10 @@ module Effective
          attestations:
           [
             {scope: 'employer_attestations', label: 'All'},
-            {scope: 'employer_attestations_submitted', label: 'Submited'},
+            {scope: 'employer_attestations_submitted', label: 'Submitted'},
             {scope: 'employer_attestations_pending', label: 'Pending'},
             {scope: 'employer_attestations_approved', label: 'Approved'},
-            # {scope: 'employer_attestations_denied', label: 'Denied'},
+            {scope: 'employer_attestations_denied', label: 'Denied'},
           ],  
         employers:
          [

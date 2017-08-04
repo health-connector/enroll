@@ -1,4 +1,3 @@
-@individual_enabled
 Feature: User Account page
   In order for the Hbx admin to acsess user accounts
 
