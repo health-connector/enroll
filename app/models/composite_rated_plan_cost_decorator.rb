@@ -1,9 +1,14 @@
 class CompositeRatedPlanCostDecorator < SimpleDelegator
-  def initialize(plan, benefit_group, composite_rating_tier)
+  def initialize(plan, benefit_group, composite_rating_tier, cobra_status)
     super(plan)
     @plan = plan
     @benefit_group = benefit_group
     @composite_rating_tier = composite_rating_tier
+    @cobra_status = cobra_status
+  end
+
+  def sole_source?
+    @benefit_group.sole_source?
   end
 
   def sole_source?
@@ -45,6 +50,7 @@ class CompositeRatedPlanCostDecorator < SimpleDelegator
   end
 
   def total_employer_contribution
+    return 0.00 if @cobra_status
     (total_premium * employer_contribution_factor).round(2)
   end
 
@@ -89,7 +95,7 @@ class CompositeRatedPlanCostDecorator < SimpleDelegator
       "great_grandchild" => nil,
     }[person_relationship]
   end
-
+  
   def employer_contribution_factor
     @benefit_group.composite_employer_contribution_factor_for(@composite_rating_tier)
   end

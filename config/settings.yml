@@ -17,6 +17,7 @@ site:
   create_routes: ['/insured/employee/privacy','/employers/employer_profiles/new']
   sign_in_routes: ['/families/home']
 
+
   social_media:
     facebook_url: ""
 
@@ -30,7 +31,7 @@ contact_center:
   tty_number: "711"
   alt_phone_number: "1-888-813-9220"
   email_address: "smallbusiness@mahealthconnector.org"
-  small_business_email: "smallbusiness@mahealthconnector.org"
+  small_business_email: "smallbusiness@MAhealthconnector.org"
 
   appeals: "connector-appeals@state.ma.us"
 
@@ -60,6 +61,7 @@ aca:
   sole_source_only_enabled: false
   minimum_primary_contribution_percentage: 50
   minimum_family_contribution_percentage: 30
+
 #
   qle:
     with_in_sixty_days: 60

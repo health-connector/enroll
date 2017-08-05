@@ -834,3 +834,5 @@ puts "::: created Shop notice triggers ApplicationEventKinds Successfully :::"
 # ivl_notice_triggers.each do |trigger_params|
 #   ApplicationEventKind.create(trigger_params)
 # end
+
+
