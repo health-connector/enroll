@@ -11,10 +11,6 @@ class CompositeRatedPlanCostDecorator < SimpleDelegator
     @benefit_group.sole_source?
   end
 
-  def sole_source?
-    @benefit_group.sole_source?
-  end
-
   def employer_contribution_for(member)
     member_family_size = member.family.family_members.count
     return contribution_for_subscriber(member_family_size) if member.is_subscriber?
