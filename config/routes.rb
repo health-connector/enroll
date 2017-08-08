@@ -488,7 +488,9 @@ Rails.application.routes.draw do
   get "document/authorized_download/:model/:model_id/:relation/:relation_id" => "documents#authorized_download", as: :authorized_document_download
 
 
-  resources :documents, only: [:update, :destroy, :update] do
+  resources :documents, only: [ :new, :create, :update, :destroy, :update] do
+    get :document_reader,on: :member
+    get :autocomplete_organization_legal_name, :on => :collection
     collection do
       put :change_person_aasm_state
       get :show_docs

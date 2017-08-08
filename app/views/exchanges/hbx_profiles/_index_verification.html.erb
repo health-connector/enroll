@@ -1,14 +1,19 @@
 <div class="container">
-  <button class="btn btn-default" style="float: right"><span class="glyphicons glyphicons-cloud-upload"></span> Upload</button>
+  <%= link_to "<i class='fa fa-cloud-upload' aria-hidden='true'></i> Upload".html_safe, '/documents/new', remote: 'true', class: "btn btn-default ",style: "float: right" %>
 </div>
 <%= render_datatable(@datatable) %>
-<div class="modal fade" id="employeeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<% @documents.each do |doc| %>
+<div class="modal fade" id="employeeModal_<%= doc.id %>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div style="margin:1em; border: 1px solid;padding: 1em;">
         <h4>MA DOR FORM-X</h4>
         <p>
-          There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text.
+                   <% reader = PDF::Reader.new("#{Rails.root}"+"/tmp"+doc.source.url) %>
+          <% reader.pages.each do |page| %>
+            <%= page.text %>
+          <% end %>
+
         </p>
         <p style="text-align: right">
           <button class="btn btn-default"><span class="glyphicons glyphicons-cloud-download"></span> Download</button>
@@ -16,8 +21,8 @@
         </p>
         <hr/>
         <p class="row">
-          <span class="col-md-6">Employer Name: ACME Widgets</span>
-          <span class="col-md-6" style="text-align: right">Effective date: July 1, 2007</span>
+          <span class="col-md-6">Employer Name: <%= doc.creator %></span>
+          <span class="col-md-6" style="text-align: right">Effective date: <%= doc.date %></span>
         </p>
         <form>
           <div class="row">
@@ -48,6 +53,7 @@
   </div>
 </div>
 </div>
+<% end %>
 <script type="text/javascript" charset="utf-8">
     initializeDataTables();
     jQuery('.buttons-csv').hide()

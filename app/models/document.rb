@@ -2,11 +2,12 @@ class Document
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  mount_uploader :source, DocumentUploader
 
   ACCESS_RIGHTS = %w(public pii_restricted)
 
   # Enable polymorphic associations
-  embedded_in :documentable, polymorphic: true
+  #embedded_in :documentable, polymorphic: true
 
   # Dublin Core metadata elements
   field :title, type: String, default: "untitled"

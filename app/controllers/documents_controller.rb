@@ -4,6 +4,8 @@ class DocumentsController < ApplicationController
   before_action :set_person, only: [:enrollment_docs_state, :fed_hub_request, :enrollment_verification, :update_verification_type]
   respond_to :html, :js
 
+  autocomplete :organization, :legal_name, :full => true, :scopes => [:all_employer_profiles]
+
   def download
     bucket = params[:bucket]
     key = params[:key]
@@ -134,6 +136,27 @@ class DocumentsController < ApplicationController
       format.js
     end
   end
+
+    def new
+    @document = Document.new
+    respond_to do |format|
+      format.js { render "documents/new" }
+    end
+  end
+
+  def create
+    @document = Document.create(:title=>"Doc1",:creator=>params[:document][:creator],:publisher=>"dchl",:type=>"text",:format=>"application/octet-stream",:source=>params[:file],:language=>"en",:rights=>"public",:date=>DateTime.now)
+    redirect_to :back
+  end
+
+  def document_reader
+    content = @document.source.read
+    if stale?(etag: content, last_modified: @user.updated_at.utc, public: true)
+      send_data content, type: @document.source.file.content_type, disposition: "inline"
+      expires_in 0, public: true
+    end
+  end
+
 
   private
   def updateable?
