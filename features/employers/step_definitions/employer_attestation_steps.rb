@@ -4,7 +4,7 @@ Then (/^Employer Staff should see dialog with Attestation warning$/) do
   expect(page).to have_content('Cancel')
 end
 
-Then (/^Employer Staff should not see force publish $/) do
+Then (/^Employer Staff should not see force publish$/) do
   wait_for_ajax(3,2)
   expect(page).not_to have_content('Force Publish')
   expect(page).to have_content('Go Back')
