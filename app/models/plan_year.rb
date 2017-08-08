@@ -398,9 +398,10 @@ class PlanYear
     event_name == "force_publish" ? true : (TimeKeeper.datetime_of_record <= due_date_for_publish.end_of_day)
   end
 
+
+
   def open_enrollment_date_errors
     errors = {}
-
     if is_renewing?
       minimum_length = Settings.aca.shop_market.renewal_application.open_enrollment.minimum_length.days
       enrollment_end = PlanYear.shop_market_renewal_application_monthly_open_enrollment_end_on
@@ -408,7 +409,7 @@ class PlanYear
       minimum_length = Settings.aca.shop_market.open_enrollment.minimum_length.days
       enrollment_end = PlanYear.shop_market_open_enrollment_monthly_end_on
     end
-
+    
     if (open_enrollment_end_on - (open_enrollment_start_on - 1.day)).to_i < minimum_length
       log_message(errors) {{open_enrollment_period: "Open Enrollment period is shorter than minimum (#{minimum_length} days)"}}
     end
@@ -1331,5 +1332,17 @@ class PlanYear
         errors.add(:end_on, "plan year period should be: #{duration_in_days(Settings.aca.shop_market.benefit_period.length_minimum.year.years - 1.day)} days")
       end
     end
-  end
-end
+
+    if (open_enrollment_end_on - (open_enrollment_start_on - 1.day)).to_i < Settings.aca.shop_market.open_enrollment.  minimum_length.days 
+          errors.add(:end_on, "Open Enrollment period is shorter than minimum (#{Settings.aca.shop_market.open_enrollment.minimum_length.days} days)")
+      end
+
+     if open_enrollment_end_on > Date.new(start_on.prev_month.year, start_on.prev_month.month, 20)
+         errors.add(:end_on, "Open Enrollment must end on or before the 20th day of the month prior to effective date")
+     end
+
+     if open_enrollment_start_on > start_on.prev_month.beginning_of_month + 14
+         errors.add(:start_on, "Open Enrollment period must be begin on or before the 15th of the month prior to coverage start")
+     end
+    end
+   end

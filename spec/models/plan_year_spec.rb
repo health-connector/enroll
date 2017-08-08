@@ -285,6 +285,54 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
           end
         end
 
+
+        context "and the plan year start and end date difference is too short" do
+          let(:start_on)  { TimeKeeper.date_of_record.end_of_month + 1 }
+          let(:end_on)    { start_on + 4.days }
+
+          before do
+            plan_year.start_on = start_on
+            plan_year.end_on = end_on
+          end
+
+          it "should fail validation" do
+            expect(plan_year.valid?).to be_falsey
+            expect(plan_year.errors[:end_on].any?).to be_truthy
+          end
+        end
+
+        context "and the plan year end date should before the 20th day of the month prior to effective date" do
+          let(:start_on)  { TimeKeeper.date_of_record.end_of_month + 1 }
+          let(:end_on)    { start_on + 21.days }
+
+          before do
+            plan_year.start_on = start_on
+            plan_year.end_on = end_on
+          end
+
+          it "should fail validation" do
+            expect(plan_year.valid?).to be_falsey
+            expect(plan_year.errors[:end_on].any?).to be_truthy
+          end
+        end
+
+        context "and the plan year start date must be begin on or before the 15th of the month prior to coverage start" do
+          let(:start_on)  { TimeKeeper.date_of_record.end_of_month + 16.days }
+          let(:end_on)    { start_on + 6.days }
+
+          before do
+            plan_year.start_on = start_on
+            plan_year.end_on = end_on
+          end
+
+          it "should fail validation" do
+            expect(plan_year.valid?).to be_falsey
+            expect(plan_year.errors[:start_on].any?).to be_truthy
+          end
+        end
+
+
+
         context "and the effective date is too far in the future" do
           let(:invalid_initial_application_date)  { TimeKeeper.date_of_record - Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.months.months + 1.month }
           let(:schedule)  { PlanYear.shop_enrollment_timetable(invalid_initial_application_date) }
@@ -383,7 +431,6 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
       end
     end
 
-
     context "when open enrollment period end date not satisfy business rule" do
       before do
         plan_year.open_enrollment_end_on = plan_year.open_enrollment_end_on + 3.day
@@ -396,6 +443,7 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
         expect(plan_year.open_enrollment_date_errors.values.flatten).to include("Open Enrollment must end on or before the #{Settings.aca.shop_market.renewal_application.monthly_open_enrollment_end_on.ordinalize} day of the month prior to effective date")
       end
     end
+
   end
 
   context "an employer with renewal plan year application" do
@@ -2367,7 +2415,7 @@ describe PlanYear, "plan year schedule changes" do
     context 'on force publish date' do
 
       before do
-        TimeKeeper.set_date_of_record_unprotected!(Date.new(2016, 10, Settings.aca.shop_market.renewal_application.force_publish_day_of_month))
+        TimeKeeper.set_date_of_record_unprotected!(Date.new(2016, 10, 15))
       end
 
       it 'should be force publishable' do
