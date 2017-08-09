@@ -1,14 +1,14 @@
 class Employers::EmployerProfilesController < Employers::EmployersController
   include Config::AcaConcern
 
-  before_action :find_employer, only: [:show, :show_profile, :destroy, :inbox,
-                                       :bulk_employee_upload, :bulk_employee_upload_form, :download_invoice, :export_census_employees, :link_from_quote, :new_document, :upload_document]
+  before_action :find_employer, only: [:show, :show_profile, :destroy, :inbox, :bulk_employee_upload, :bulk_employee_upload_form, :download_invoice, :export_census_employees, :link_from_quote, :new_document, :upload_document, :show_invoice]
+
 
   before_action :check_show_permissions, only: [:show, :show_profile, :destroy, :inbox, :bulk_employee_upload, :bulk_employee_upload_form]
   before_action :check_index_permissions, only: [:index]
   before_action :check_employer_staff_role, only: [:new]
   before_action :check_access_to_organization, only: [:edit]
-  before_action :check_and_download_invoice, only: [:download_invoice]
+  before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
   around_action :wrap_in_benefit_group_cache, only: [:show]
   skip_before_action :verify_authenticity_token, only: [:show], if: :check_origin?
   before_action :updateable?, only: [:create, :update]
@@ -131,6 +131,9 @@ class Employers::EmployerProfilesController < Employers::EmployersController
         else
           @employer_profile.build_employer_attestation
         end
+      when 'accounts'
+        collect_and_sort_invoices(params[:sort_order])
+        @sort_order = params[:sort_order].nil? || params[:sort_order] == "ASC" ? "DESC" : "ASC"
       when 'employees'
         @current_plan_year = @employer_profile.show_plan_year
         paginate_employees
@@ -285,6 +288,18 @@ class Employers::EmployerProfilesController < Employers::EmployersController
     options[:content_type] = @invoice.type
     options[:filename] = @invoice.title
     send_data Aws::S3Storage.find(@invoice.identifier) , options
+  end
+
+  def show_invoice
+    options={}
+    #options[:content_type] = @invoice.type
+    options[:filename] = @invoice.title
+    #options[:type] = @invoice.format
+    options[:type] = 'application/pdf'
+    options[:disposition] = 'inline'
+    #binding.pry
+    send_data Aws::S3Storage.find(@invoice.identifier) , options
+    #render text: Aws::S3Storage.find(@invoice.identifier), content_type=>'application/pdf'
   end
 
   def bulk_employee_upload
