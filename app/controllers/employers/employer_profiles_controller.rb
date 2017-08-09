@@ -292,14 +292,10 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
   def show_invoice
     options={}
-    #options[:content_type] = @invoice.type
     options[:filename] = @invoice.title
-    #options[:type] = @invoice.format
     options[:type] = 'application/pdf'
     options[:disposition] = 'inline'
-    #binding.pry
     send_data Aws::S3Storage.find(@invoice.identifier) , options
-    #render text: Aws::S3Storage.find(@invoice.identifier), content_type=>'application/pdf'
   end
 
   def bulk_employee_upload
@@ -398,7 +394,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
     @invoices = @employer_profile.organization.try(:documents)
 
     #@invoice_years = (Settings.aca.shop_market.employer_profiles.minimum_invoice_display_year..TimeKeeper.date_of_record.year).to_a.reverse
-    @invoice_years = (2015..TimeKeeper.date_of_record.year).to_a.reverse
+    @invoice_years = (Settings.aca.shop_market.minimum_invoice_display_year..TimeKeeper.date_of_record.year).to_a.reverse
 
     sort_order == 'ASC' ? @invoices.sort_by!(&:date) : @invoices.sort_by!(&:date).reverse! unless @documents
   end
