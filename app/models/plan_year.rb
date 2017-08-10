@@ -472,7 +472,7 @@ class PlanYear
       end
     end
 
-    unless employer_profile.is_primary_office_local?
+    unless employer_profile.is_primary_office_local? || employer_profile.is_zip_outside?
       warnings.merge!({primary_office_location: "Has its principal business address in the #{Settings.aca.state_name} and offers coverage to all full time employees through #{Settings.site.short_name} or Offers coverage through #{Settings.site.short_name} to all full time employees whose Primary worksite is located in the #{Settings.aca.state_name}"})
     end
 
@@ -495,7 +495,6 @@ class PlanYear
         warnings.merge!({ minimum_employer_contribution:  "Employer contribution percent toward employee premium (#{minimum_employer_contribution.to_i}%) is less than minimum allowed (#{Settings.aca.shop_market.employer_contribution_percent_minimum.to_i}%)" })
       end
     end
-
     warnings
   end
 
