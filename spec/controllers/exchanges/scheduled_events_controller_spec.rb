@@ -20,7 +20,7 @@ RSpec.describe Exchanges::ScheduledEventsController do
 
   describe "GET new" do
 	it "should render the new template" do
-	  get :new
+	  xhr :get, :new, format: :js
       expect(response).to have_http_status(:success)
     end
   end
