@@ -14,6 +14,7 @@ class ShopEmployerNotice < Notice
     args[:recipient_document_store]= employer_profile
     self.key = args[:key]
     self.header = "notices/shared/header_with_page_numbers.html.erb"
+    @check_shop_employer = true
     super(args)
   end
 

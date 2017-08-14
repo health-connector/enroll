@@ -23,7 +23,7 @@
 
 <%= render partial: 'notices/shared/ordered_list', locals: {
   previous: "To complete the enrollment process, please complete the following steps:",
-  listings: ["Go to <a href= ""#{site_main_web_address}"">#{site_website_name}</a>",
+  listings: ["Go to <a href = '#{site_main_web_address_url}'>#{site_website_name}</a>",
              "Log-in or create an account",
              "If necessary, update your household information add any dependents",
              "Select your health plan"] } %>
@@ -49,7 +49,7 @@
             By calling <%=contact_center_phone_number%>   &nbsp; TTY: <%=contact_center_tty_number%><br>
         </li>
         <li class="notice-font">
-            By email: <a mail_to= "#{small_businesss_email}"> <%=small_businesss_email%></a> 
+            By email: <%= mail_to "#{small_businesss_email}", "#{small_businesss_email}"%> 
         </li>
         </ul>
       </td>

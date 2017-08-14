@@ -543,6 +543,27 @@ shop_notice_triggers = [
             }
         ]
     },
+    {
+    hbx_id: 'SHOP14',
+    title: 'REMINDER: Your Open Enrollment Period Ends Soon',
+    description: 'This notices goes to all the employees in the open enrollment period',
+    resource_name: 'employee_role',
+    event_name: 'employee_open_enrollment_reminder',
+    notice_triggers: [
+      {
+        name: 'Employee Open Enrollment Reminder Notice',
+        notice_template: 'notices/shop_employee_notices/14_employee_open_enrollment_reminder',
+        notice_builder: 'ShopEmployeeNotices::EmployeeOpenEnrollmentReminderNotice',
+        mpi_indicator: 'SHOP_M014',
+        notice_trigger_element_group: {
+          market_places: ['shop'],
+          primary_recipients: ["employee"],
+          primary_recipient_delivery_method: ["secure_message"],
+          secondary_recipients: []
+        }
+      }
+    ]
+  },
 ]
 
 ivl_notice_triggers = [

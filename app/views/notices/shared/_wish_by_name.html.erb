@@ -1,7 +1,12 @@
 <table class="total_table" border="0">
   <tbody>
   <tr>
+  <% if @check_shop_employer %>
+
     <td>Dear <%= notice.employer_name %>:  </td>
+    <% else %>
+    <td>Dear <%= notice.primary_fullname %>:  </td>
+    <% end %>
   </tr>
   </tbody>
 </table>

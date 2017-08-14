@@ -43,6 +43,10 @@ module Config::SiteHelper
     Settings.site.short_name
   end
 
+  def site_main_web_address_url
+    Settings.site.main_web_address_url
+  end
+
   def site_broker_quoting_enabled?
     Settings.site.broker_quoting_enabled
   end
