@@ -14,8 +14,9 @@
 <%= render partial: 'notices/shared/paragraph', :locals =>
                                                       { content: "All eligible employees must create an employee account on MAhealthconnector.org and enroll in or waive coverage by 8pm Eastern on #{notice.plan_year.open_enrollment_end_on}. Please share our <strong>Employee guide to enrolling</strong> with your employees to help them with the steps needed to enroll. You can Download this guide from our online Bussiness Resource Center. If you wish to cancel your #{site_short_name} account, please contact #{site_short_name} at #{contact_center_phone_number}."} %>
 <br>
-<%= render partial: 'notices/shared/paragraph', locals: {
-                                                           content: "Please note that your group will only obtain coverage if:" } %>
+<%= render partial: 'notices/shared/unordered_list', locals: {
+                                                           previous: "Please note that your group will only obtain coverage if:",
+                                                           listings: [""] } %>
 
 <div style="display:block; page-break-inside: avoid;">
   <table class="total_table" border="0">
@@ -88,7 +89,7 @@
             The Health Connector offers small businesses the option to make their premium payments online through secure electronic check payment. Follow the instructions in our <strong>Employer guide to paying premiums</strong>, which can be found in our online Business Resource Center.
             <br/><br/>
             <strong>To make a secure electronic check payment by phone</strong>
-            <br/>Call <%= contact_center_phone_number %>
+            <br/>Call 1-888-813-9220
             <br/>Select your language (1 for English, 2 for Spanish, additional language options available)
           </li>
         </ul>
@@ -121,12 +122,11 @@
   </tbody>
 </table>
 
-
 <% if notice.broker.present? %>
   <%= render partial: 'notices/shared/broker_contact_info', :locals => {broker: notice.broker} %>
 <% else %>
-  <%= render partial: 'notices/shared/paragraph', :locals => { content: "If you do not currently have a broker, you can reach out to one of our many trained experts by clicking on the “Find a Broker” link in your employer account or calling #{contact_center_phone_number}."} %>
+<%= render partial: 'notices/shared/paragraph', :locals => { content: "If you do not currently have a broker, you can reach out to one of our many trained experts by clicking on the “Find a Broker” link in your employer account or calling #{contact_center_phone_number}."} %>
 <% end %>
 
-<%= render partial: 'notices/shared/paragraph', :locals =>
-  { content: "This notice is being provided in accordance with 45 C.F.R. 155.715(e)."} %>
+<%= render partial: 'notices/shared/paragraph', :locals => {
+                                                      content: "This notice is being provided in accordance with 45 C.F.R. 155.715(e)"} %>
