@@ -1,5 +1,5 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: "no-reply@shop.dchealthlink.com"
+  default from: "noreply@mahealthconnector.org"
 
   if Rails.env.production?
     self.delivery_method = :soa_mailer
