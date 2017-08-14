@@ -55,6 +55,10 @@ module Config::SiteHelper
     Settings.site.main_web_address
   end
 
+  def site_main_web_address_url
+    Settings.site.main_web_address_url
+  end
+
   def site_main_web_link
     link_to site_main_web_address, site_main_web_address
   end
