@@ -67,10 +67,6 @@ module Config::SiteHelper
     Settings.site.use_default_devise_path
   end
 
-  def site_check
-    Settings.site.site_check
-  end
-
   def find_your_doctor_url
     Settings.site.shop_find_your_doctor_url
   end
