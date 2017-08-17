@@ -93,6 +93,10 @@ module Config::SiteHelper
 
   def site_check
     Settings.site.site_check
+  end 
+
+  def site_main_web_address_text
+    Settings.site.main_web_address_text
   end
 
   def find_your_doctor_url
