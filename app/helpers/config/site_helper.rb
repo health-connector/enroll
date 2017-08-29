@@ -115,6 +115,10 @@ module Config::SiteHelper
    Settings.site.main_web_address_text
   end
 
+  def site_employer_application_deadline_link
+    Settings.site.employer_application_deadline_link
+  end
+
   def site_website_address
     link_to site_website_name, site_main_web_address_url
   end

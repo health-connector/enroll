@@ -631,6 +631,28 @@ shop_notice_triggers = [
      ]
    },
 
+   {
+        hbx_id: 'SHOP_M058',
+        title: 'Notice to employer no binder payment received',
+        description: 'When an initial employer misses the binder payment deadline, this is sent the day after the binder payment deadline.',
+        resource_name: 'employer',
+        event_name: 'select_plan_year_during_oe',
+        notice_triggers: [
+            {
+                name: 'Notice to employee after they select a plan during Annual Open Enrollment',
+                notice_template: 'notices/shop_employer_notices/notice_to_employer_no_binder_payment_received.html.erb',
+                notice_builder: 'ShopEmployerNotices::NoticeToEmployerNoBinderPaymentReceived',
+                mpi_indicator: 'SHOP_M058',
+                notice_trigger_element_group: {
+                    market_places: ['shop'],
+                    primary_recipients: ["employer"],
+                    primary_recipient_delivery_method: ["secure_message"],
+                    secondary_recipients: []
+                }
+            }
+        ]
+    },
+
     {
         hbx_id: 'SHOP45',
         title: 'You have been Hired as a Broker',
@@ -716,6 +738,7 @@ shop_notice_triggers = [
             }
         ]
     },
+
 
 
     {

@@ -682,9 +682,23 @@ class EmployerProfile
               end
             end
           end
-        end     
+        end
 
+        if TimeKeeper.date_of_record == PlanYear.calculate_open_enrollment_date(active_plan_year.start_on[:binder_payment_due_date] + 1.day)
+          Organization.where(:"employer_profile.plan_years" => { :$elemMatch => { :aasm_state => "enrolled"}}).each do |org|
+            if !org.employer_profile.binder_paid?
+                begin
+                  self.trigger_notices(event)
+                rescue Exception => e
+                  (Rails.logger.error {"Unable to deliver Notice to EE's that ER's plan year will not be written to #{ce.full_name} due to #{e}"}) unless Rails.env.test?
+                end
+            end
+          end
+        end     
       end
+
+
+
 
       # Employer activities that take place monthly - on first of month
       if new_date.day == 1
