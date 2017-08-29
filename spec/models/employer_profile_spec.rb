@@ -1208,6 +1208,17 @@ describe EmployerProfile, ".terminate", dbclean: :after_each do
   end
 end
 
+describe EmployerProfile, "initial employers misses binder payment due date", dbclean: :after_each do
+  let!(:new_plan_year){ FactoryGirl.build(:plan_year, :aasm_state => "enrolled") }
+  let!(:employer_profile){ FactoryGirl.create(:employer_profile, plan_years: [new_plan_year]) }
+  it "should return employers" do
+    expect(EmployerProfile.initial_employers_misses_binder_payment_due_date.size).to eq 1
+  end
+
+end
+
+
+
 # describe "#advance_day" do
 #   let(:start_on) { (TimeKeeper.date_of_record + 60).beginning_of_month }
 #   let(:end_on) {start_on + 1.year - 1 }

@@ -14,11 +14,12 @@ class ShopEmployerNotices::NoticeToEmployerNoBinderPaymentReceived < ShopEmploye
     plan_year = employer_profile.show_plan_year
     #plan = plan_year.reference_plan
     notice.plan_year = PdfTemplates::PlanYear.new({
-          :open_enrollment_end_on => plan_year.open_enrollment_end_on,
+          :start_on => plan_year.start_on
         })
     #binder payment deadline
     notice.plan_year.binder_payment_due_date = PlanYear.calculate_open_enrollment_date(plan_year.start_on)[:binder_payment_due_date]
 
-    notice.plan_year.binder_payment_total = plan_year.benefit_groups[0].monthly_employer_contribution_amount
+    notice.plan_year.binder_payment_total = employer_profile.show_plan_year.benefit_groups.last.monthly_employer_contribution_amount
+
   end
 end

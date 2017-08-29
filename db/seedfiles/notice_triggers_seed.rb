@@ -636,7 +636,7 @@ shop_notice_triggers = [
         title: 'Notice to employer no binder payment received',
         description: 'When an initial employer misses the binder payment deadline, this is sent the day after the binder payment deadline.',
         resource_name: 'employer',
-        event_name: 'select_plan_year_during_oe',
+        event_name: 'employer_no_binder_payment_received',
         notice_triggers: [
             {
                 name: 'Notice to employee after they select a plan during Annual Open Enrollment',

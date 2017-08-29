@@ -570,6 +570,14 @@ class EmployerProfile
       }
     })
     end
+
+    def initial_employers_misses_binder_payment_due_date
+      Organization.where(:"employer_profile.plan_years" => 
+        { :$elemMatch => { 
+          :aasm_state => "enrolled"
+          }
+        })
+    end
   
 
     def organizations_eligible_for_renewal(new_date)
@@ -683,12 +691,14 @@ class EmployerProfile
             end
           end
         end
-
-        if TimeKeeper.date_of_record == PlanYear.calculate_open_enrollment_date(active_plan_year.start_on[:binder_payment_due_date] + 1.day)
-          Organization.where(:"employer_profile.plan_years" => { :$elemMatch => { :aasm_state => "enrolled"}}).each do |org|
+        #notice to employer no binder payment received
+        binder_next_day = PlanYear.calculate_open_enrollment_date(TimeKeeper.date_of_record.next_month.beginning_of_month)[:binder_payment_due_date].next_day
+        if new_date == binder_next_day
+          initial_employers_misses_binder_payment_due_date.each do |org|
             if !org.employer_profile.binder_paid?
+              binding.pry
                 begin
-                  self.trigger_notices(event)
+                  self.trigger_notices("employer_no_binder_payment_received")
                 rescue Exception => e
                   (Rails.logger.error {"Unable to deliver Notice to EE's that ER's plan year will not be written to #{ce.full_name} due to #{e}"}) unless Rails.env.test?
                 end
@@ -975,7 +985,7 @@ class EmployerProfile
 
 
   def trigger_notices(event)
-    ShopNoticesNotifierJob.perform_later(self.id.to_s, event)
+    ShopNoticesNotifierJob.perform(self.id.to_s, event)
   end
 
   def rating_area
