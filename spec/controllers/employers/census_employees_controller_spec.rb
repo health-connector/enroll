@@ -356,7 +356,7 @@ RSpec.describe Employers::CensusEmployeesController do
   end
 
   describe "GET delink" do
-    let(:census_employee) { double(id: "test", :delink_employee_role => "test", employee_role: nil, benefit_group_assignments: [benefit_group_assignment], save: true) }
+    let(:census_employee) { double(id: "test", :delink_employee_role => "test", employee_role: nil, benefit_group_assignments: [benefit_group_assignment], save: true, save!: true) }
     let(:benefit_group_assignment) { double(hbx_enrollment: hbx_enrollment, delink_coverage: true, save: true) }
     let(:hbx_enrollment) { double(destroy: true) }
 
@@ -505,7 +505,7 @@ RSpec.describe Employers::CensusEmployeesController do
       end
 
       context "when has new_census employee" do
-        let(:new_census_employee) { double("test") }
+        let(:new_census_employee) { double("test", save!: true) }
         before do
           allow(@hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_employer: true))
           sign_in @user
@@ -533,6 +533,7 @@ RSpec.describe Employers::CensusEmployeesController do
         it "when success should return new_census_employee" do
           allow(new_census_employee).to receive(:valid?).and_return(true)
           allow(new_census_employee).to receive(:save).and_return(true)
+          allow(new_census_employee).to receive(:save!).and_return(true)
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
