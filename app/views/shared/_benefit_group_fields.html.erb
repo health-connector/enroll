@@ -46,7 +46,7 @@
 			<p class="twenty">Let's start by creating a benefit package. As you complete the fields below, you can scroll up or down to change your choices at any time to see how it impacts your costs.</p>
 		  <% if @plan_year.new_record? == false %>
 				  <span class="pull-right">
-					  <div id="edit_employer_cost_info_btn" style="padding-top:12px">
+					  <div id="edit_employer_cost_info_btn">
 						  <div class="btn btn-default">
 							  Employee Detail Costs
 						  </div>
@@ -92,7 +92,7 @@
   		  <% end %>
   	  </div>
     </div>
-  </div>
+  </div> <!-- end offerings-slider -->
   <br class="clear"/>
   <br/>
   <div class="col-xs-12">
@@ -122,17 +122,17 @@
 			  <div class="col-xs-12">
 				  <h1>
 					  <%= @plan_year.new_record? ? 'Dental - Set Up Benefit Package' : 'Dental - Edit Benefit Package' %>
-					  <i class="fa fa-trash-o pull-right" style="margin-top: 10px;" data-toggle="tooltip" title="Remove"></i>
+					  <i class="fa fa-trash-o pull-right" data-toggle="tooltip" title="Remove"></i>
 				  </h1>
-				  <div class="col-xs-9" style="padding-left:0px !important;">
-					  <span class="starter" style="display: inline-block;">
+				  <div class="dental-plan-helper col-xs-9">
+					  <span class="starter">
 						  Let's start by creating a benefit package. As you complete the fields below, you can scroll up or down to change your choices at any time to see how it impacts your costs.
 					  </span>
 				  </div>
 				  <div class="col-xs-3">
 					  <span class="pull-right">
-						  <div id="edit_employer_cost_info_btn" style="padding-top: 10px;">
-							  <div class="btn btn-default btn-right pull-right" style="margin-right: 0; margin-bottom: 15px;">
+						  <div id="edit_employer_cost_info_btn">
+							  <div class="btn btn-default btn-right pull-right">
 								  Employee Detail Costs
 							  </div>
 							  <%= link_to "Employee Costs", employee_costs_employers_employer_profile_plan_years_path(@employer_profile), id: "edit_employee_costs_link", class: "hidden" %>

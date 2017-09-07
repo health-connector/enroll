@@ -9,4 +9,5 @@ $(document).on('change', '#selected_scheduled_event_type', function(){
       $('#scheduled_event').html(response);
     }
   });
+
 });
