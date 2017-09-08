@@ -32,7 +32,13 @@ RSpec.describe "insured/families/_qles_panel.html.erb" do
     end
 
     it "should have image" do
-      expect(rendered).to have_selector('img[alt="Life event"]')
+      site_key = Settings.site.key.to_s
+
+      if site_key.blank? || site_key.to_sym == :dchbx
+        expect(rendered).to have_selector('img[alt="Life event"]')
+      else
+        expect(rendered).to have_selector("img[alt='#{site_key.camelcase} life event']")
+      end
     end
 
     it "should not have links blocked" do

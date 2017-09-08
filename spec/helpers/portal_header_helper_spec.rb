@@ -2,6 +2,8 @@ require 'rails_helper'
 
 RSpec.describe PortalHeaderHelper, :type => :helper do
 
+  include ApplicationHelper
+
   describe "portal_display_name" do
 
     let(:signed_in?){ true }
@@ -20,18 +22,24 @@ RSpec.describe PortalHeaderHelper, :type => :helper do
         expect(portal_display_name(controller)).to eq "<a class=\"portal\" href=\"/employers/employer_profiles/"+ emp_id.to_s + "\"><img src=\"/images/icons/icon-business-owner.png\" alt=\"Icon business owner\" /> &nbsp; I'm an Employer</a>"
       end
 
-        it "should have I'm an Employee link when user has active employee_staff_role" do
-
-          allow(current_user.person).to receive(:active_employee_roles).and_return [employee_role]
-          expect(portal_display_name('')).to eq  "<a class=\"portal\" href=\"/families/home\"><img src=\"/images/icons/icon-individual.png\" alt=\"Icon individual\" /> &nbsp; I'm an Employee</a>"
+      it "should have I'm an Employee link when user has active employee_staff_role" do
+        site_key = Settings.site.key.to_s
+        if site_key.blank? || site_key.to_sym == :dchbx
+          icon_name = "icon-individual.png"
+          icon_alt = "icon-individual.png"
+        else
+          icon_name = "#{site_key}-icon-individual.png"
+          icon_alt = "#{site_key.camelcase} icon individual"
         end
+
+        allow(current_user.person).to receive(:active_employee_roles).and_return [employee_role]
+        expect(portal_display_name('')).to eq  "<a class=\"portal\" href=\"/families/home\"><img src=\"/images/icons/#{icon_name}\" alt=\"#{icon_alt}\" /> &nbsp; I'm an Employee</a>"
+      end
 
       it "should have Welcome prompt when user has no active role" do
         allow(current_user).to receive(:has_employer_staff_role?).and_return(false)
         expect(portal_display_name(controller)).to eq "<a class='portal'>#{Settings.site.byline}</a>"
       end
-
-
     end
 
     context "has_consumer_role?" do
