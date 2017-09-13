@@ -33,7 +33,6 @@ site:
   curam_enabled: false
   document_verification_checklist_url: "https://www.mahealthconnector.org/business/business-resource-center/employer-verification-checklist"
   registration_path: "https://www.mahealthconnector.org/business/create-a-business-account"
-
   social_media:
     facebook_url: ""
 
