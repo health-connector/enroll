@@ -724,7 +724,7 @@ class EmployerProfile
               end
             end
           end
-        end     
+        end
 
         #initial Employer's missing binder payment due date notices to Employer's and active Employee's.
         binder_next_day = PlanYear.calculate_open_enrollment_date(TimeKeeper.date_of_record.next_month.beginning_of_month)[:binder_payment_due_date].next_day
