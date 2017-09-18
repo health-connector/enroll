@@ -70,6 +70,9 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :employers 
+
+
     resources :hbx_profiles do
       root 'hbx_profiles#show'
 

@@ -1,0 +1,32 @@
+<div class="container content-bottom">
+	<div class="col-xs-12 col-sm-9 row">
+		<%= link_to "Go Back", employer_invoice_exchanges_hbx_profiles_path, remote: true %>
+	<h2>
+		Create a paper enrollment for a <%= site_short_name %> employer account.
+	</h2>
+	<br />
+	<p>
+		An admin-defined user will be created and assigned as the primary point of contact
+	</p>
+	<br/>
+</div>
+	<%= render "shared/organization_staff_search", f: f, paper_application: paper_application || false %>
+	<%= render "shared/person_contact", f:f, paper_application: paper_application || false %>
+	<br>
+	<div class="row">
+		<div class="col-md-9 col-sm-9 col-xs-12">
+            <h4>
+                <div class="col-md-4 col-sm-12 col-xs-12 col-4" >Employer Information
+                </div>
+              </h4>
+            <br/> <br/>
+            <%= render "shared/organizations/entity_name_and_type_fields_autofill", f: f, entity_kinds: Organization::ENTITY_KINDS %>
+            <br>
+            <%= render "shared/office_locations", f: f %>
+            <div class="row no-buffer pull-right sm_full_width">
+            	<button type="submit" class="btn btn-primary pull-right sm_full_width">Confirm</button>
+            </div>
+		</div>
+	</div><br>
+</div>
+<input type="hidden" name="employer_id" id="employer_id" />

@@ -90,7 +90,6 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-
 def employer_poc
 
     # Dynamic Filter values for upcoming 30, 60, 90 days renewals
