@@ -269,7 +269,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :employer_attestations do
+    resources :employer_attestations do 
        get 'authorized_download'
        get 'verify_attestation'
        delete 'delete_attestation_documents'
@@ -292,7 +292,6 @@ Rails.application.routes.draw do
         post 'download_documents'
         post 'delete_documents'
         post 'upload_document'
-        get "show_invoice"
       end
 
       collection do
