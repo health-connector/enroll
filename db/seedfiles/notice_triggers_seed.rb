@@ -520,22 +520,23 @@ shop_notice_triggers = [
     # },
 
   {
-    hbx_id: 'SHOP_M015',
-    title: 'Notice of Low Enrollment - Action Needed',
-    description: 'Notifies all the employers who doesnt meet minimum participation requirement',
+    hbx_id: 'SHOP27',
+    title: 'Action Required to Complete Employer Application – Deadline Extended',
+    description: 'All the initial employers with draft plan years will be notified to publish their plan year 1 day prior to soft deadline of 1st.',
     resource_name: 'employer',
-    event_name: 'low_enrollment_notice_for_employer',
+    event_name: 'initial_employer_second_reminder_to_publish_plan_year',
     notice_triggers: [
       {
-        name: 'Low Enrollment Notice',
-        notice_template: 'notices/shop_employer_notices/low_enrollment_notice_for_employer',
-        notice_builder: 'ShopEmployerNotices::LowEnrollmentNotice',
-        mpi_indicator: 'SHOP_M015',
+        name: 'Initial Employer Application, Deadline Extended - Reminder to publish',
+        notice_template: 'notices/shop_employer_notices/initial_employer_reminder_to_publish_plan_year',
+        notice_builder: 'ShopEmployerNotices::InitialEmployerReminderToPublishPlanYear',
+        mpi_indicator: 'SHOP_M027',
         notice_trigger_element_group: {
           market_places: ['shop'],
           primary_recipients: ["employer"],
           primary_recipient_delivery_method: ["secure_message"],
           secondary_recipients: []
+
         }
       }
     ]
@@ -562,7 +563,6 @@ shop_notice_triggers = [
     #     }
     #   ]
     # },
-
 
    {
     hbx_id: 'SHOP26',
@@ -784,7 +784,6 @@ shop_notice_triggers = [
      ]
    },
 
-
     {
         hbx_id: 'SHOP45',
         title: 'You have been Hired as a Broker',
@@ -892,7 +891,6 @@ shop_notice_triggers = [
             }
         ]
     },
-
 
     {
         hbx_id: 'SHOP_M068',

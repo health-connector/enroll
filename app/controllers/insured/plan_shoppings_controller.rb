@@ -65,7 +65,6 @@ class Insured::PlanShoppingsController < ApplicationController
        @employee_role = @person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id }
        sep_qle_request_accept_notice_ee(@employee_role.census_employee.id.to_s, @enrollment)
     end
-    
     send_receipt_emails if @person.emails.first
   end
 
@@ -85,7 +84,7 @@ class Insured::PlanShoppingsController < ApplicationController
     @enrollment.reset_dates_on_previously_covered_members(@plan)
     @plan = @enrollment.build_plan_premium(qhp_plan: @plan, apply_aptc: can_apply_aptc?(@plan), elected_aptc: @elected_aptc, tax_household: @shopping_tax_household)
     @family = @person.primary_family
-    
+
     #FIXME need to implement can_complete_shopping? for individual
     @enrollable = @market_kind == 'individual' ? true : @enrollment.can_complete_shopping?(qle: @enrollment.is_special_enrollment?)
     @waivable = @enrollment.can_complete_shopping?
@@ -155,17 +154,17 @@ class Insured::PlanShoppingsController < ApplicationController
     end
   end  
 
-    def employee_mid_year_plan_change(person,change_plan)
-     begin
-      employee_role_id = person.active_employee_roles.first.census_employee.id
-      if employee_role_id.present?
-        if change_plan.present? or person.active_employee_roles.first.census_employee.new_hire_enrollment_period.present?
-          ShopNoticesNotifierJob.perform_later(employee_role_id.to_s, "employee_mid_year_plan_change")
-        end
+  def employee_mid_year_plan_change(person,change_plan)
+   begin
+    employee_role_id = person.active_employee_roles.first.census_employee.id
+    if employee_role_id.present?
+      if change_plan.present? or person.active_employee_roles.first.census_employee.new_hire_enrollment_period.present?
+        ShopNoticesNotifierJob.perform_later(employee_role_id.to_s, "employee_mid_year_plan_change")
       end
-     rescue Exception => e
-       log("#{e.message}; person_id: #{person.id}")
-     end
+    end
+   rescue Exception => e
+     log("#{e.message}; person_id: #{person.id}")
+   end
   end
 
   def terminate
@@ -310,7 +309,7 @@ class Insured::PlanShoppingsController < ApplicationController
       else
         @enrolled_plans = same_plan_enrollment.calculate_costs_for_plans(enrolled_plans)
       end
-    
+
       @enrolled_plans.each do |enrolled_plan|
         if plan_index = @plans.index{|e| e.id == enrolled_plan.id}
           @plans[plan_index] = enrolled_plan

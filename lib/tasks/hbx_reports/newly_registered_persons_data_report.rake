@@ -7,7 +7,6 @@ require 'csv'
      desc "List of all new people registered in enroll"
      task :total_new_people_list => :environment do
 
-      start_date = TimeKeeper.date_of_record - 7.days
       end_date = TimeKeeper.date_of_record + 1.day
  
        field_names  = %w(
@@ -46,7 +45,7 @@ require 'csv'
       CSV.open(file_name, "w", force_quotes: true) do |csv|
          csv << field_names
 
-         families = Family.where(:"created_at" => { "$gte" => start_date, "$lt" => end_date})
+         families = Family.where(:"created_at" => { "$lt" => end_date})
          families.each do |family|
           primary_fm = family.primary_family_member
           family.family_members.each do |fm|
