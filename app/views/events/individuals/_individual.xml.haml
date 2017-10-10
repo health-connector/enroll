@@ -30,4 +30,10 @@
             - office_location = broker_agency_profile.organization.primary_office_location
             %office_locations
               = render :partial => "events/organizations/office_location", :object => office_location
+        - if  broker_agency_profile.ach_routing_number && broker_agency_profile.ach_account_number
+          %broker_payment_accounts
+            %broker_payment_account
+              %routing_number= broker_agency_profile.ach_routing_number
+              %account_number= broker_agency_profile.ach_account_number
+              %account_active_on= broker_role.latest_transition_time.strftime("%Y-%m-%d")
         = render :partial => "events/shared/versioned_resource", :object => broker_role
