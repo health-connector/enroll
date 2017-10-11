@@ -21,6 +21,7 @@ class BrokerAgencies::BrokerRolesController < ApplicationController
 
   def new_broker_agency
     @organization = Forms::BrokerAgencyProfile.new
+    @broker_agency = 'true'
 
     respond_to do |format|
       format.html { render 'new' }

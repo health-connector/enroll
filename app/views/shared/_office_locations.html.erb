@@ -2,5 +2,5 @@
 	<%= render partial: 'shared/office_location_fields', locals: {f: office_location, child_index: f.object.office_locations.length - 1} %>
 <% end %>
 <div class="form-inputs" id="office_locations_buttons">
-	<%= link_to('Add Office Location', new_office_location_path(:child_index => f.object.office_locations.length, :parent_object => f.object_name), remote: true, class: 'btn btn-default pull-left') %>
+	<%= link_to('Add Office Location', new_office_location_path(:child_index => f.object.office_locations.length, broker_agency: (@broker_agency_profile.present? || @broker_agency == 'true'), :parent_object => f.object_name), remote: true, class: 'btn btn-default pull-left') %>
 </div>
