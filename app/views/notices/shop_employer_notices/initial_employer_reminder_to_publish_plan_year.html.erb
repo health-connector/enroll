@@ -46,7 +46,7 @@
           <li class="notice-font-padding">
             <strong>Log in to your <%= site_website_name%> Account</strong><br><br>
             You will need to submit proof of your eligibility as a <%= aca_state_name %> small business to the <%= site_short_name %> before you or your employees can shop for coverage. You can find a list of documents that can be submitted as proof 
-            <%= link_to "on our website", site_document_verification_checklist_url %>. You can submit your documents by uploading them to our website or faxing to <%= contact_center_alt_fax_number%>.
+            <%= link_to "on our website", site_document_verification_checklist_url %>. You can submit your documents by uploading to our website or faxing to <%= contact_center_alt_fax_number%>.
           </li>
           </ul>
         </td>
@@ -81,8 +81,8 @@
            <li class="notice-font">
             <strong>Finalize Coverage and Pay First Month’s Premium</strong><br><br>
             Your coverage will only be finalized upon payment of your first month’s premium.  Your first month’s premium payment must be received no later than 5:00 p.m. Eastern on <%= notice.plan_year.binder_payment_due_date %> in order for your coverage to take effect on <%= notice.plan_year.start_on %>.  Payments over the phone or online are required, as they can be processed immediately and will ensure your coverage will not be delayed. Checks are not accepted for the first month of coverage as they cannot be processed in time for your group’s enrollments to be transmitted to your health insurance company.<br></br>
-            If your first month’s premium is not received and cleared by 5:00 p.m. Eastern on <%= notice.plan_year.binder_payment_due_date %>, your group’s coverage will be delayed and your employees may experience a gap in coverage. Once enrollments have been processed by the health insurance company, employees will receive information about their health plan directly from the health insurance company, including their ID cards.
-             <% unless notice.notification_type == "initial_employer_first_reminder_to_publish_plan_year" %>
+            If your first month’s premium is not received and cleared by 5:00 p.m. Eastern on <%= notice.plan_year.binder_payment_due_date %>, your group’s coverage will be delayed and your employees may experience a gap in coverage. Once enrollments have been processed by the health insurance company, employees will receive information about their health plan directly from the health insurance company, including their ID cards. 
+             <% unless notice.notification_type == "initial_employer_first_reminder_to_publish_plan_year" %> 
                 You may need to submit correct documentation if you did not when you submitted your initial application.
              <%end%>
           </li>
@@ -108,7 +108,7 @@
             By calling <%=contact_center_phone_number%>  &nbsp;TTY: <%=contact_center_tty_number%><br>
         </li>
         <li class="notice-font">
-            By email: <%= mail_to "#{small_businesss_email}", "#{small_businesss_email}"%>
+            By email: <%= mail_to "#{small_businesss_email}", "#{small_businesss_email}"%> 
         </li>
         </ul>
       </td>
@@ -117,7 +117,7 @@
 </table>
 
 <%= render partial: 'notices/shared/paragraph', :locals =>
-  { content: "You can also find more information on our website at <a href = '#{site_main_web_address_url}'>#{site_website_name}</a>"}%>
+  { content: "You can also find more information on our website at <a href = '#{site_main_web_address_url}'>#{site_website_name}</a>"}%> 
 <br>
 
 <% if notice.broker.present? %>
@@ -128,3 +128,4 @@
 <% end %>
 <%= render partial: 'notices/shared/paragraph', :locals => {
  content: "This notice is being provided in accordance with 45 C.F.R. 155.720."} %>
+

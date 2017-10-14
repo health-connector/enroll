@@ -114,7 +114,7 @@ require 'csv'
       pubber = Publishers::Legacy::NewPeopleApplicationReportPublisher.new
       pubber.publish URI.join("file://", file_name)
 
-      puts "Total persons created through #{end_date - 1.day} is #{count}"
+      puts "Total person's that are created in a time frame of #{start_date}-#{end_date - 1.day} count is #{count}"
      end
    end
  end

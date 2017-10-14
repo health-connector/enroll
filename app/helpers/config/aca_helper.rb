@@ -80,4 +80,8 @@ module Config::AcaHelper
    Settings.site.broker_quoting_enabled
   end
 
+  def site_broker_enabled?
+   Settings.site.broker_enabled
+  end
+
 end

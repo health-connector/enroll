@@ -263,7 +263,7 @@ class BenefitGroup
     if is_congress
       PlanCostDecoratorCongress.new(plan, member_provider, self, max_contribution_cache)
     elsif self.sole_source? && (!plan.dental?)
-      CompositeRatedPlanCostDecorator.new(plan, self, member_provider.composite_rating_tier)
+      CompositeRatedPlanCostDecorator.new(plan, self, member_provider.composite_rating_tier, member_provider.is_cobra_status?)
     else
       PlanCostDecorator.new(plan, member_provider, self, ref_plan, max_contribution_cache)
     end
@@ -361,7 +361,7 @@ class BenefitGroup
     end
     targeted_census_employees.active.collect do |ce|
       if plan_option_kind == 'sole_source'
-        pcd = CompositeRatedPlanCostDecorator.new(plan, self, effective_composite_tier(ce))
+        pcd = CompositeRatedPlanCostDecorator.new(plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         if plan.coverage_kind == 'dental'
           pcd = PlanCostDecorator.new(plan, ce, self, dental_reference_plan)
@@ -377,7 +377,7 @@ class BenefitGroup
     return 0 if targeted_census_employees.count > 100
     targeted_census_employees.active.collect do |ce|
       if plan_option_kind == 'sole_source'
-        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce))
+        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         if coverage_kind == 'dental'
           pcd = PlanCostDecorator.new(dental_reference_plan, ce, self, dental_reference_plan)
@@ -393,7 +393,7 @@ class BenefitGroup
     return 0 if targeted_census_employees.count > 100
     targeted_census_employees.active.collect do |ce|
       if plan_option_kind == 'sole_source'
-        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce))
+        pcd = CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         if coverage_kind == 'dental'
           pcd = PlanCostDecorator.new(dental_reference_plan, ce, self, dental_reference_plan)
@@ -414,7 +414,7 @@ class BenefitGroup
     pcd = if @is_congress
       decorated_plan(plan, ce)
     elsif(plan_option_kind == 'sole_source')
-      CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce))
+      CompositeRatedPlanCostDecorator.new(reference_plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
     else
       PlanCostDecorator.new(plan, ce, self, reference_plan)
     end

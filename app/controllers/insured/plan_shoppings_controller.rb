@@ -143,19 +143,6 @@ class Insured::PlanShoppingsController < ApplicationController
     end
   end
 
-    def employee_mid_year_plan_change(person,change_plan)
-     begin
-      employee_role_id = person.active_employee_roles.first.census_employee.id
-      if employee_role_id.present?
-        if change_plan.present? or person.active_employee_roles.first.census_employee.new_hire_enrollment_period.present?
-          ShopNoticesNotifierJob.perform_later(employee_role_id.to_s, "employee_mid_year_plan_change")
-        end
-      end
-     rescue Exception => e
-       log("#{e.message}; person_id: #{person.id}")
-     end
-    end
-     
   def sep_qle_request_accept_notice_ee(employee_id, enrollment)
     sep = enrollment.special_enrollment_period
     options = { :sep_qle_end_on => sep.end_on.to_s, :sep_qle_title => sep.title, :sep_qle_on => sep.qle_on.to_s }
@@ -165,15 +152,19 @@ class Insured::PlanShoppingsController < ApplicationController
       logger.debug("Exception raised in %s" % e.backtrace)
       raise "Unable to trigger sep_qle_request_accept_notice_ee"
     end
-  end
+  end  
 
-  def employee_waiver_notice(hbx_enrollment)
-    begin
-      census_employee = CensusEmployee.find(hbx_enrollment.employee_role.census_employee_id.to_s)
-      ShopNoticesNotifierJob.perform_later(census_employee.id.to_s, "employee_waiver_notice")
-    rescue Exception => e
-      puts "Unable to send Employee Waiver notice to #{census_employee.full_name}" unless Rails.env.test?
+  def employee_mid_year_plan_change(person,change_plan)
+   begin
+    employee_role_id = person.active_employee_roles.first.census_employee.id
+    if employee_role_id.present?
+      if change_plan.present? or person.active_employee_roles.first.census_employee.new_hire_enrollment_period.present?
+        ShopNoticesNotifierJob.perform_later(employee_role_id.to_s, "employee_mid_year_plan_change")
+      end
     end
+   rescue Exception => e
+     log("#{e.message}; person_id: #{person.id}")
+   end
   end
 
   def terminate
