@@ -23,10 +23,18 @@ module Observers
         end
 
         if new_model_event.event_key == :ineligible_initial_application_submitted
+          if application_eligibility_warnings.include?(:primary_office_location)
+            self.employer_profile.census_employees.non_terminated.each do |ce|
+              trigger_notice(ce.id.to_s, "termination_of_employers_health_coverage")
+            end
+          end
+        end
+
+        if new_model_event.event_key == :ineligible_initial_application_submitted
           eligibility_warnings = plan_year.application_eligibility_warnings
 
           # if (eligibility_warnings.include?(:primary_office_location) || eligibility_warnings.include?(:fte_count))
-            trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "initial_employer_denial")
+            trigger_notice(plan_year.employer_profile, "initial_employer_denial")
           # end
         end
       end

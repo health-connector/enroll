@@ -20,6 +20,8 @@ module Notifier
     attribute :binder_due_date, Date
     attribute :renewal_binder_due_data, Date
 
+    attribute :ivl_open_enrollment_start_on, Date
+    attribute :ivl_open_enrollment_end_on, Date
 
     def self.stubbed_object
       Notifier::MergeDataModels::PlanYear.new({
@@ -34,7 +36,9 @@ module Notifier
         carrier_name: 'Kaiser',
         renewal_carrier_name: 'Kaiser',
         binder_due_date: '09/25/2017',
-        renewal_binder_due_data: '09/25/2017'
+        renewal_binder_due_data: '09/25/2017',
+        ivl_open_enrollment_start_on: '11/01/2017',
+        ivl_open_enrollment_end_on: '01/31/2018'
       })
     end
   end
