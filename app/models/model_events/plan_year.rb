@@ -51,6 +51,10 @@ module ModelEvents
         if is_transition_matching?(to: :application_ineligible, from: :enrolling, event: :advance_date)
           is_application_denied = true
         end
+
+        if is_transition_matching?(to: :renewing_application_ineligible, from: :renewing_enrolling, event: :advance_date)
+          is_ineligible_renewal_application_submitted = true
+        end  
       
         # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
         EMPLOYER_APPLICATION_EVENTS.each do |event|
