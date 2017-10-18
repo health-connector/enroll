@@ -10,7 +10,8 @@ module Observers
       :ineligible_renewal_application_submitted,
       :open_enrollment_began,
       :open_enrollment_ended,
-      :application_denied
+      :application_denied,
+      :is_ineligible_renewal_application_submitted
     ]
   
     def plan_year_update(new_model_event)
@@ -20,6 +21,10 @@ module Observers
         plan_year = new_model_event.klass_instance
 
         if new_model_event.event_key == :intial_application_submitted
+        end
+
+        if new_model_event.event_key == :is_ineligible_renewal_application_submitted  && plan_year.application_eligibility_warnings.include?(:primary_office_location)
+          trigger_notice(plan_year.employer_profile, "employer_renewal_eligibility_denial_notice")
         end
 
         if new_model_event.event_key == :ineligible_initial_application_submitted
