@@ -1,18 +1,18 @@
 namespace :load_rating_factors do
   desc "load rating factors from xlsx file"
   task :update_factor_sets, [:file_name] => :environment do |t,args|
-    CURRENT_ACTIVE_YEAR = 2017
-    NUMBER_OF_CARRIERS = 4
-    ROW_DATA_BEGINS_ON = 3
-    RATING_FACTOR_PAGES = {
+    CURRENT_ACTIVE_YEAR ||= 2017
+    NUMBER_OF_CARRIERS ||= 4
+    ROW_DATA_BEGINS_ON ||= 3
+    RATING_FACTOR_PAGES ||= {
       'SicCodeRatingFactorSet': { page: 0, max_integer_factor_key: nil },
       'EmployerGroupSizeRatingFactorSet': { page: 1, max_integer_factor_key: 50 },
       'EmployerParticipationRateRatingFactorSet': { page: 2, max_integer_factor_key: nil },
       'CompositeRatingTierFactorSet': { page: 3, max_integer_factor_key: nil }
     }
-    RATING_FACTOR_DEFAULT = 1.0
+    RATING_FACTOR_DEFAULT ||= 1.0
 
-    COMPOSITE_TIER_TRANSLATIONS = {
+    COMPOSITE_TIER_TRANSLATIONS ||= {
       'Employee': 'employee_only',
       'Employee + Spouse': 'employee_and_spouse',
       'Employee + Dependent(s)': 'employee_and_one_or_more_dependents',
@@ -24,6 +24,8 @@ namespace :load_rating_factors do
       xlsx = Roo::Spreadsheet.open(file_path)
       RATING_FACTOR_PAGES.each do |rating_factor_class, sheet_info|
         rating_factor_set = Object.const_get(rating_factor_class)
+        ## WARNING THIS DESTROYS ALL CURRENT YEAR FACTOR SETS
+        rating_factor_set.where(active_year: CURRENT_ACTIVE_YEAR).destroy_all
         sheet = xlsx.sheet(sheet_info[:page])
         max_integer_factor_key = sheet_info[:max_integer_factor_key]
         (2..NUMBER_OF_CARRIERS+1).each do |carrier_column|

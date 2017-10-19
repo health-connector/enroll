@@ -7,6 +7,7 @@ require 'csv'
      desc "List of all new people registered in enroll"
      task :total_new_people_list => :environment do
 
+      start_date = TimeKeeper.date_of_record - 7.days
       end_date = TimeKeeper.date_of_record + 1.day
  
        field_names  = %w(
@@ -45,7 +46,7 @@ require 'csv'
       CSV.open(file_name, "w", force_quotes: true) do |csv|
          csv << field_names
 
-         families = Family.where(:"created_at" => { "$lt" => end_date})
+         families = Family.where(:"created_at" => { "$gte" => start_date, "$lt" => end_date})
          families.each do |family|
           primary_fm = family.primary_family_member
           family.family_members.each do |fm|
@@ -114,7 +115,7 @@ require 'csv'
       pubber = Publishers::Legacy::NewPeopleApplicationReportPublisher.new
       pubber.publish URI.join("file://", file_name)
 
-      puts "Total persons created through #{end_date - 1.day} is #{count}"
+      puts "Total person's that are created in a time frame of #{start_date}-#{end_date - 1.day} count is #{count}"
      end
    end
  end

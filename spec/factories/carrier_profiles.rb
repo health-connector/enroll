@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :carrier_profile do
-    organization  { FactoryGirl.create(:organization, legal_name: "BMC HealthNet Plan", dba: "Boston Medical Center HealthNet Plan") }
+    organization  { FactoryGirl.create(:organization, legal_name: "BMC HealthNet Plan", dba: "BMC HealthNet Plan") }
     abbrev        "UHIC"
     offers_sole_source false
     issuer_hios_ids ['11111']
@@ -15,6 +15,7 @@ FactoryGirl.define do
           create(:carrier_service_area, issuer_hios_id: hios_id)
         end
       end
+      create(:composite_rating_tier_factor_set, carrier_profile: carrier_profile)
     end
   end
 end
