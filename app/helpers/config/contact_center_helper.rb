@@ -39,6 +39,10 @@ module Config::ContactCenterHelper
     Settings.contact_center.mailing_address.zip_code
   end
 
+  def contact_center_mailing_address_name
+    Settings.contact_center.mailing_address.name
+  end
+
   def contact_center_name
     Settings.contact_center.name
   end
@@ -71,6 +75,26 @@ module Config::ContactCenterHelper
     link_to contact_center_appeals,contact_center_appeals
   end
 
+  def contact_center_appeal_name
+    Settings.contact_center.appeal_center.name
+  end
+
+  def contact_center_appeal_address_one
+    Settings.contact_center.appeal_center.address_1
+  end
+
+  def contact_center_appeal_city
+    Settings.contact_center.appeal_center.city
+  end
+
+  def contact_center_appeal_state
+     Settings.contact_center.appeal_center.state
+  end
+
+  def contact_center_appeal_zip
+    Settings.contact_center.appeal_center.zip_code
+  end  
+
   def non_discrimination_email
     Settings.contact_center.non_discrimination.email
   end
@@ -90,5 +114,4 @@ module Config::ContactCenterHelper
   def non_discrimination_complaint_url
     Settings.contact_center.non_discrimination.complaint_url
   end
-
 end
