@@ -180,7 +180,7 @@ class EmployerProfile
       puts "Unable to send broker fired confirmation to broker. Broker's old employer - #{self.legal_name}"
     end
   end
-  
+
   alias_method :broker_agency_profile=, :hire_broker_agency
 
   def broker_agency_profile
@@ -595,8 +595,8 @@ class EmployerProfile
     end
 
     def initial_employers_enrolled_plan_year_state
-      Organization.where(:"employer_profile.plan_years" => 
-        { :$elemMatch => { 
+      Organization.where(:"employer_profile.plan_years" =>
+        { :$elemMatch => {
           :aasm_state => "enrolled"
           }
         })
@@ -705,7 +705,7 @@ class EmployerProfile
               puts "Unable to send first reminder notice to publish plan year to #{organization.legal_name} due to following error {e}"
             end
           end
-        elsif (new_date.next_day).day == Settings.aca.shop_market.initial_application.advertised_deadline_of_month 
+        elsif (new_date.next_day).day == Settings.aca.shop_market.initial_application.advertised_deadline_of_month
           initial_employers_reminder_to_publish(start_on_1).each do |organization|
             begin
               organization.employer_profile.trigger_notices("initial_employer_second_reminder_to_publish_plan_year")
@@ -713,7 +713,7 @@ class EmployerProfile
               puts "Unable to send second reminder notice to publish plan year to #{organization.legal_name} due to following errors {e}"
             end
           end
-        else 
+        else
           plan_year_due_date = Date.new(start_on_1.prev_month.year, start_on_1.prev_month.month, Settings.aca.shop_market.initial_application.publish_due_day_of_month)
           if (new_date + 2.days == plan_year_due_date)
             initial_employers_reminder_to_publish(start_on_1).each do |organization|
@@ -724,7 +724,7 @@ class EmployerProfile
               end
             end
           end
-        end     
+        end
 
         #initial employers misses binder payment due date deadline on next day notice
         binder_next_day = PlanYear.calculate_open_enrollment_date(TimeKeeper.date_of_record.next_month.beginning_of_month)[:binder_payment_due_date].next_day
@@ -976,11 +976,11 @@ class EmployerProfile
   end
 
   def transmit_initial_eligible_event
-    notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: self.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG}) 
+    notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: self.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG})
   end
 
   def transmit_renewal_eligible_event
-    notify(RENEWAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: self.hbx_id, event_name: RENEWAL_APPLICATION_ELIGIBLE_EVENT_TAG}) 
+    notify(RENEWAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: self.hbx_id, event_name: RENEWAL_APPLICATION_ELIGIBLE_EVENT_TAG})
   end
 
   def notify_broker_added
@@ -1116,7 +1116,7 @@ class EmployerProfile
   end
 
   private
-  
+
   def has_ineligible_period_expired?
     ineligible? and (latest_workflow_state_transition.transition_at.to_date + 90.days <= TimeKeeper.date_of_record)
   end
