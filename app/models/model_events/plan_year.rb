@@ -5,6 +5,7 @@ module ModelEvents
       :renewal_application_created,
       :initial_application_submitted,
       :renewal_application_submitted,
+      :renewal_application_enrolling,
       :renewal_application_autosubmitted,
       :ineligible_initial_application_submitted,
       :ineligible_renewal_application_submitted,
@@ -33,6 +34,10 @@ module ModelEvents
 
         if is_transition_matching?(to: [:published, :enrolling], from: :draft, event: :publish)
           is_initial_application_submitted = true
+        end
+
+        if is_transition_matching?(to: :renewing_enrolling, from: [:renewing_draft, :renewing_published], event: [:publish, :force_publish, :advance_date] )
+          is_renewal_application_enrolling = true
         end
 
         if is_transition_matching?(to: [:renewing_published, :renewing_enrolling], from: :renewing_draft, event: :publish)

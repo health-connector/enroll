@@ -6,6 +6,7 @@ module Observers
       :initial_application_submitted,
       :renewal_application_submitted,
       :renewal_application_autosubmitted,
+      :renewal_application_enrolling,
       :ineligible_initial_application_submitted,
       :ineligible_renewal_application_submitted,
       :open_enrollment_began,
@@ -38,6 +39,16 @@ module Observers
 
         if new_model_event.event_key == :renewal_application_created
           trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_application_created")
+        end
+
+        if new_model_event.event_key == :renewal_application_enrolling
+          plan_year.employer_profile.census_employees.non_terminated.each do |ce|
+            ce.renewal_benefit_group_assignment.each do |bg|
+              if bg.hbx_enrollment.aasm_state.include?('renewing_waived')
+                trigger_notice(recipient: ce.employee_role, event_object: plan_year, notice_event: "renewal_employee_open_enrollment_unenrolled")
+              end
+            end
+          end
         end
 
         if new_model_event.event_key == :ineligible_renewal_application_submitted
