@@ -8,10 +8,27 @@ $('#reviewClose').click(function() {
 });
 
 $("input[name='status']").click(function(){
+    $("input[name='other_reason']").addClass('hidden');
     if ($(this).val() === 'rejected' || $(this).val() === 'info_needed') {
         $('.rejection_reason').removeClass('hidden');
-        $('#attestation_submit').addClass('disabled');
-        $("input[name='other_reason']").val('');
+        if ($(this).val() === 'rejected')
+        {
+          reason_for_reject = true
+          $('#reason_for_reject').removeClass('hidden');
+          $('#reason_for_extra_info').addClass('hidden');
+          if ($('select#reason_for_rejection').val() == "")
+            $('#attestation_submit').addClass('disabled');
+          rejectReason('select#reason_for_rejection')
+        }
+        else if ($(this).val() === 'info_needed')
+        {
+          reason_for_reject = false
+          $('#reason_for_reject').addClass('hidden');
+          $('#reason_for_extra_info').removeClass('hidden');
+          if ($('select#reason_for_info_needed').val() == "")
+            $('#attestation_submit').addClass('disabled');
+          rejectReason('select#reason_for_info_needed')
+        }
     }
     else {
         $('.rejection_reason').addClass('hidden');
@@ -20,12 +37,12 @@ $("input[name='status']").click(function(){
     }
 });
 
-function rejectReason() {
-    var x = $('select#reason_for_rejection').val();
+function rejectReason(name) {
+    var x = $(name).val();
     if (x == "Other Reason") {
         $("input[name='other_reason']").removeClass('hidden');
         $('#attestation_submit').addClass('disabled');
-    } else if (x == "Reason for rejection") {
+    } else if (x == "") {
         $("input[name='other_reason']").addClass('hidden');
         $('#attestation_submit').addClass('disabled');
     } else {
@@ -44,6 +61,11 @@ $("input[name='other_reason']").on('change keydown paste input', function(){
 });
 
 $('select#reason_for_rejection').on('selectric-init', function(event, element, selectric) {
+   $('.employer_attestation_fields .selectric-wrapper').css({'width': '315px'});
+   $("input[name='other_reason']").css({'margin-top': '8px'})
+});
+
+$('select#reason_for_info_needed').on('selectric-init', function(event, element, selectric) {
    $('.employer_attestation_fields .selectric-wrapper').css({'width': '315px'});
    $("input[name='other_reason']").css({'margin-top': '8px'})
 });

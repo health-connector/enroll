@@ -63,7 +63,13 @@
                 </div>
                 <div class="col-sm-9">
                   <div class="form-group rejection_reason hidden">
-                    <%= select_tag "reason_for_rejection", options_for_select(EmployerAttestationDocument::REASON_KINDS), prompt: "Reason for rejection",onchange: "rejectReason()" %>                  </div>
+                    <span id = "reason_for_reject" class="hidden">
+                      <%= select_tag "reason_for_rejection", options_for_select(EmployerAttestationDocument::REASON_KINDS), prompt: "Reason for rejection",onchange: "rejectReason(reason_for_rejection)" %>
+                    </span>
+                    <span id = "reason_for_extra_info" class="hidden">
+                      <%= select_tag "reason_for_info_needed", options_for_select(EmployerAttestationDocument::REASON_KINDS), prompt: "Reason for additional information",onchange: "rejectReason(reason_for_info_needed)" %>
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -95,7 +101,7 @@
                 </div>
               </div>
               <% end %>
-            </div> 
+            </div>
         </div>
       </div>
     </div>
