@@ -14,7 +14,16 @@ module Notifier
       builder.payload = payload
       builder.append_contact_details
       template.data_elements.each do |element|
-        element_retriver = element.split('.').reject{|ele| ele == recipient_klass_name.to_s}.join('_')
+        elements = element.split('.')
+        date_element = elements.detect{|ele| Notifier::MergeDataModels::EmployerProfile::DATE_ELEMENTS.any?{|date| ele.match(/#{date}/i).present?}}
+
+        if date_element.present?
+          date_ele_index = elements.index(date_element)
+          elements = elements[0..date_ele_index]
+          elements[date_ele_index] = date_element.scan(/[a-zA-Z_]+/).first
+        end
+      
+        element_retriver = elements.reject{|ele| ele == recipient_klass_name.to_s}.join('_')
         builder.instance_eval(element_retriver)
       end
       builder.merge_model
@@ -119,13 +128,21 @@ module Notifier
 
     def recipient_name
       if resource.is_a?(EmployerProfile)
-        resource.staff_roles.first.full_name.titleize
+        return resource.staff_roles.first.full_name.titleize
+      end
+      
+      if resource.is_a?(EmployeeRole)
+        return resource.person.full_name.titleize
       end
     end
 
     def recipient_to
       if resource.is_a?(EmployerProfile)
-        resource.staff_roles.first.work_email_or_best
+        return resource.staff_roles.first.work_email_or_best
+      end
+
+      if resource.is_a?(EmployeeRole)
+        return resource.person.work_email_or_best
       end
     end
 
@@ -174,8 +191,8 @@ module Notifier
       receiver = resource.person if resource.is_a?(EmployeeRole)
 
       body = "<br>You can download the notice by clicking this link " +
-             "<a href=" + "#{Rails.application.routes.url_helpers.authorized_document_download_path(resource.class.to_s, 
-      resource.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + notice.title + "</a>"
+             "<a href=" + "#{Rails.application.routes.url_helpers.authorized_document_download_path(receiver.class.to_s, 
+      receiver.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + notice.title + "</a>"
     
       message = receiver.inbox.messages.build({ subject: subject, body: body, from: site_short_name })
       message.save!
