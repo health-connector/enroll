@@ -68,6 +68,14 @@ module Observers
           trigger_notice(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "renewal_open_enrollment_employee_unenrolled")
         end
 
+        if new_model_event.event_key == :renewal_oe_employee_no_auto_renewal
+          trigger_notice(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "renewal_open_enrollment_employee_no_auto_renewal")
+        end
+
+        if new_model_event.event_key == :renewal_oe_employee_auto_renewal
+          trigger_notice(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "renewal_open_enrollment_employee_auto_renewal")
+        end
+
       end
     end
   end
