@@ -127,7 +127,7 @@ if (window.location.href.indexOf("edit") > -1 && window.location.href.indexOf("p
                           scrollTop: position
                       }, 500);
       $(this).closest('.benefit-group-fields').find('.health .carriers-tab').show();
-      var selected_carrier_level = $('.health .nav li:visible input').val()
+      var selected_carrier_level = $('.health .nav li input:checked').val();
 
       loadCarrierNames();
       $('.tab-container').hide();
