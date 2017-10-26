@@ -27,16 +27,6 @@ module Observers
           trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_application_created")
         end
 
-        if new_model_event.event_key == :renewal_application_enrolling
-          plan_year.employer_profile.census_employees.non_terminated.each do |ce|
-            ce.renewal_benefit_group_assignment.each do |bg|
-              if bg.hbx_enrollment.aasm_state.include?('renewing_waived')
-                trigger_notice(recipient: ce.employee_role, event_object: plan_year, notice_event: "renewal_employee_open_enrollment_unenrolled")
-              end
-            end
-          end
-        end
-
         if new_model_event.event_key == :ineligible_renewal_application_submitted
           if plan_year.application_eligibility_warnings.include?(:primary_office_location)
             trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "employer_renewal_eligibility_denial_notice")
@@ -70,7 +60,20 @@ module Observers
     def census_employee_update
       raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent) 
 
-      if  CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)
+      if  CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)  
+        census_employee = new_model_event.klass_instance
+
+        if new_model_event.event_key == :renewal_oe_employee_not_enrolled
+          trigger_notice(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: "renewal_open_enrollment_employee_unenrolled")
+        end
+
+        if new_model_event.event_key == :renewal_oe_employee_no_auto_renewal
+          trigger_notice(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: "renewal_open_enrollment_employee_no_auto_renewal")
+        end
+
+        if new_model_event.event_key == :renewal_oe_employee_auto_renewal
+          trigger_notice(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: "renewal_open_enrollment_employee_auto_renewal")
+        end
 
       end
     end
