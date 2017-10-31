@@ -8,7 +8,7 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
   let!(:rating_area) { RatingArea.first || FactoryGirl.create(:rating_area)  }
   subject { ChangeRenewingPlanYearAasmState.new(given_task_name, double(:current_scope => nil)) }
 
-  describe "given a task name" do
+  describe "given a task name", dbclean: :after_each do
     it "has the given task name" do
       expect(subject.name).to eql given_task_name
     end

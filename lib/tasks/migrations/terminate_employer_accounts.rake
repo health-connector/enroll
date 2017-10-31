@@ -54,7 +54,6 @@ namespace :migrations do
             send_notice_to_employer(organization)
             send_notice_to_employees(organization)
           end
-
         end
     end
 

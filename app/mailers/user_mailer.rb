@@ -32,24 +32,28 @@ class UserMailer < ApplicationMailer
     end
   end
 
+  #Email will sent to census employees as soon as they are added to the roster
   def send_employee_open_enrollment_invitation(email, census_employee, invitation)
-    plan_years = census_employee.employer_profile.plan_years.published_or_renewing_published.select{|py| py.coverage_period_contains?(census_employee.earliest_eligible_date)}
-    if email.present?
-      mail({to: email, subject: "Invitation from your Employer to Sign up for Health Insurance at #{Settings.site.short_name} "}) do |format|
-        if census_employee.hired_on > TimeKeeper.date_of_record
-          format.html { render "invitation_email", :locals => { :person_name => census_employee.full_name, :invitation => invitation }}
-        elsif census_employee.hired_on <= TimeKeeper.date_of_record && plan_years.any?{|py| py.employees_are_matchable?}
+    plan_years = census_employee.employer_profile.plan_years.published_or_renewing_published.select{|py| py.coverage_period_contains?(census_employee.earliest_effective_date)}
+    if email.present? && plan_years.any?{|py| py.employees_are_matchable?}
+      if (census_employee.hired_on > TimeKeeper.date_of_record)
+        mail({to: email, subject: "You Have Been Invited to Sign Up for Employer-Sponsored Coverage through the #{Settings.site.long_name}"}) do |format|
+          format.html { render "invite_future_employee_for_open_enrollment", :locals => { :census_employee => census_employee, :invitation => invitation }}
+        end
+      else
+        mail({to: email, subject: "Enroll Now: Your Health Plan Open Enrollment Period has Begun"}) do |format|
           format.html { render "invite_initial_employee_for_open_enrollment", :locals => { :census_employee => census_employee, :invitation => invitation }}
         end
       end
     end
   end
 
+  #Email will be sent to census employees when they reach the DOH.
   def send_future_employee_open_enrollment_invitation(email, census_employee, invitation)
-    plan_years = census_employee.employer_profile.plan_years.published_or_renewing_published.select{|py| py.coverage_period_contains?(census_employee.earliest_eligible_date)}
+    plan_years = census_employee.employer_profile.plan_years.published_or_renewing_published.select{|py| py.coverage_period_contains?(census_employee.earliest_effective_date)}
     if email.present? && plan_years.any?{|py| py.employees_are_matchable?}
-      mail({to: email, subject: "Invitation from your Employer to Sign up for Health Insurance at #{Settings.site.short_name} "}) do |format|
-        format.html { render "invite_future_employee_for_open_enrollment", :locals => { :census_employee => census_employee, :invitation => invitation }}
+      mail({to: email, subject: "Enroll Now: Your Health Plan Open Enrollment Period has Begun"}) do |format|
+        format.html { render "invite_initial_employee_for_open_enrollment", :locals => { :census_employee => census_employee, :invitation => invitation }}
       end
     end
   end
@@ -153,7 +157,7 @@ class UserMailer < ApplicationMailer
 
   def broker_pending_notification(broker_role,unchecked_carriers)
     subject_sufix = unchecked_carriers.present? ? ", missing carrier appointments" : ", has all carrier appointments"
-    subject_prefix = broker_role.training || broker_role.training == true ? "Action Needed - Broker License for #{site_short_name} for Business" : "Action Needed - Complete Broker Training for #{site_short_name} for Business"
+    subject_prefix = !broker_role.training ? "Action Needed - Broker License for #{site_short_name} for Business" : "Action Needed - Complete Broker Training for #{site_short_name} for Business"
     subject="#{subject_prefix}"
     mail({to: broker_role.email_address, subject: subject}) do |format|
       if broker_role.training && unchecked_carriers.present?

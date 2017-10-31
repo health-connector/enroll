@@ -1,4 +1,16 @@
 <div class="benefits-tab">
+
+  <% if TimeKeeper.date_of_record < Date.new(2017,11,06) %>
+    <div class='row'>
+      <div class="col-xs-12">
+        <div class="alert alert-info alert-dismissible" role=“alert”>
+          Shopping for 2018 Plans will begin effective November 6, 2018
+          <button type = "button" class="close" data-dismiss = "alert">x</button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="row">
     <div class="col-xs-8">
       <h1>Benefits - Coverage You Offer</h1>
@@ -34,7 +46,7 @@
   <% @plan_years.each_with_index do |plan_year, pi| %>
   <div class="row no-buffer module plan-year">
     <div class="col-xs-6">
-      <h2 class="no-buffer">
+      <h3 class="no-buffer">
           <span data-toggle="tooltip" title="<%= plan_year.aasm_state.to_s.humanize.titleize %>">
             <% if plan_year.draft? || plan_year.renewing_draft? %>
             <i class="fa fa-file"></i>
@@ -325,7 +337,7 @@
                   <td>
                     <p>
                       <% if bg.dental_plan_option_kind == "single_carrier" %>
-                        All Plans From A Single Carrier
+                        All Plans From A <%= fetch_plan_title_for_single_carrier %>
                       <% elsif bg.dental_plan_option_kind == "single_plan" %>
                         <% if bg.elected_dental_plan_ids.count < 13 %>
                             Custom (<%= bg.elected_dental_plans.count %> Plans)

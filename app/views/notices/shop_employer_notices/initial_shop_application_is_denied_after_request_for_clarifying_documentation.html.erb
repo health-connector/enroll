@@ -7,13 +7,14 @@
 <table class="total_table" border="0">
   <tbody>
   <tr>
-    <td> Dear <%= notice.primary_fullname %>,  </td>
+    <td> Dear <%= notice.employer_name %>:  </td>
   </tr>
   </tbody>
 </table>
 
 <%= render partial: 'notices/shared/paragraph', :locals =>
                                                   { content: "You recently applied to offer employer-sponsored health insurance through the #{site_short_name}. Based on your failure to submit documentation sufficient to establish your eligibility and the information in the #{site_short_name} system, your application has been denied." }%>
+
 <%= render partial: 'notices/shared/paragraph', :locals =>
                                                   { content: "This means that you are not eligible to offer employer-sponsored health insurance to your employees through the #{site_short_name} at this time." }%>
 

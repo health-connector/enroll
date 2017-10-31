@@ -46,6 +46,7 @@ class EmployerProfile
   field :xml_transmitted_timestamp, type: DateTime
 
   delegate :hbx_id, to: :organization, allow_nil: true
+  delegate :issuer_assigned_id, to: :organization, allow_nil: true
   delegate :legal_name, :legal_name=, to: :organization, allow_nil: true
   delegate :dba, :dba=, to: :organization, allow_nil: true
   delegate :fein, :fein=, to: :organization, allow_nil: true
@@ -169,7 +170,7 @@ class EmployerProfile
     begin
       trigger_notices("broker_agency_fired_confirmation")
     rescue Exception => e
-      puts "Unable to deliver broker agency fired confirmation notice to #{@employer_profile.broker_agency_profile.legal_name} due to #{e}" unless Rails.env.test?
+      puts "Unable to deliver broker agency fired confirmation notice to #{active_broker_agency_account.legal_name} due to #{e}" unless Rails.env.test?
     end
   end
 
@@ -296,7 +297,7 @@ class EmployerProfile
   end
 
   def plan_year_drafts
-    plan_years.reduce([]) { |set, py| set << py if py.aasm_state == "draft" }
+    plan_years.reduce([]) { |set, py| set << py if py.aasm_state == "draft"; set }
   end
 
   def is_conversion?
@@ -398,7 +399,7 @@ class EmployerProfile
   end
 
   def renewing_plan_year_drafts
-    plan_years.reduce([]) { |set, py| set << py if py.aasm_state == "renewing_draft" }
+    plan_years.reduce([]) { |set, py| set << py if py.aasm_state == "renewing_draft"; set }
   end
 
   def is_primary_office_local?
@@ -536,6 +537,16 @@ class EmployerProfile
       CensusEmployee.matchable(person.ssn, person.dob)
     end
 
+    def organizations_for_low_enrollment_notice(new_date)
+      Organization.where(:"employer_profile.plan_years" =>
+        { :$elemMatch => {
+          :"aasm_state".in => ["enrolling", "renewing_enrolling"],
+          :"open_enrollment_end_on" => new_date+2.days
+          }
+      })
+
+    end
+
     def organizations_for_open_enrollment_begin(new_date)
       Organization.where(:"employer_profile.plan_years" =>
           { :$elemMatch => {
@@ -585,16 +596,15 @@ class EmployerProfile
     end
 
     def initial_employers_enrolled_plan_year_state
-      Organization.where(:"employer_profile.plan_years" => 
-        { :$elemMatch => { 
+      Organization.where(:"employer_profile.plan_years" =>
+        { :$elemMatch => {
           :aasm_state => "enrolled"
           }
         })
     end
 
     def organizations_eligible_for_renewal(new_date)
-      months_prior_to_effective = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.months * -1
-
+      months_prior_to_effective = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.months.abs
       Organization.where(:"employer_profile.plan_years" =>
         { :$elemMatch => {
           :"start_on" => (new_date + months_prior_to_effective.months) - 1.year,
@@ -646,6 +656,19 @@ class EmployerProfile
           open_enrollment_factory.end_open_enrollment
         end
 
+        organizations_for_low_enrollment_notice(new_date).each do |organization|
+          begin
+            plan_year = organization.employer_profile.plan_years.where(:aasm_state.in => ["enrolling", "renewing_enrolling"]).first
+            #exclude congressional employees
+            next if ((plan_year.benefit_groups.any?{|bg| bg.is_congress?}) || (plan_year.effective_date.yday == 1))
+            if plan_year.enrollment_ratio < Settings.aca.shop_market.employee_participation_ratio_minimum
+              organization.employer_profile.trigger_notices("low_enrollment_notice_for_employer")
+            end
+          rescue Exception => e
+            puts "Unable to deliver Low Enrollment Notice to #{organization.legal_name} due to #{e}"
+          end
+        end
+
         employer_enroll_factory = Factories::EmployerEnrollFactory.new
         employer_enroll_factory.date = new_date
 
@@ -682,7 +705,7 @@ class EmployerProfile
               puts "Unable to send first reminder notice to publish plan year to #{organization.legal_name} due to following error {e}"
             end
           end
-        elsif (new_date.next_day).day == Settings.aca.shop_market.initial_application.advertised_deadline_of_month 
+        elsif (new_date.next_day).day == Settings.aca.shop_market.initial_application.advertised_deadline_of_month
           initial_employers_reminder_to_publish(start_on_1).each do |organization|
             begin
               organization.employer_profile.trigger_notices("initial_employer_second_reminder_to_publish_plan_year")
@@ -690,18 +713,18 @@ class EmployerProfile
               puts "Unable to send second reminder notice to publish plan year to #{organization.legal_name} due to following errors {e}"
             end
           end
-        else 
+        else
           plan_year_due_date = Date.new(start_on_1.prev_month.year, start_on_1.prev_month.month, Settings.aca.shop_market.initial_application.publish_due_day_of_month)
           if (new_date + 2.days == plan_year_due_date)
             initial_employers_reminder_to_publish(start_on_1).each do |organization|
               begin
-                organization.employee_profile.trigger_notices("initial_employer_final_reminder_to_publish_plan_year")
+                organization.employer_profile.trigger_notices("initial_employer_final_reminder_to_publish_plan_year")
               rescue Exception => e
                 puts "Unable to send final reminder notice to publish plan year to #{organization.legal_name} due to following errors {e}"
               end
             end
           end
-        end     
+        end
 
         #initial employers misses binder payment due date deadline on next day notice
         binder_next_day = PlanYear.calculate_open_enrollment_date(TimeKeeper.date_of_record.next_month.beginning_of_month)[:binder_payment_due_date].next_day
@@ -1014,7 +1037,7 @@ class EmployerProfile
 
   def service_areas_available_on(date)
     if use_simple_employer_calculation_model?
-      return nil
+      return []
     end
     primary_office_location = organization.primary_office_location
     CarrierServiceArea.service_areas_available_on(primary_office_location.address, date.year)
