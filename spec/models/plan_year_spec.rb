@@ -28,7 +28,6 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
   end
 
   before do
-    TimeKeeper.set_date_of_record_unprotected!(Date.current)
   end
 
   context ".new" do
