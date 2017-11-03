@@ -38,6 +38,10 @@ module Observers
           trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_application_published")
         end
 
+        if new_model_event.event_key == :renewal_application_denied
+          trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_employer_open_enrollment_completed")
+        end
+
         if new_model_event.event_key == :renewal_application_created
           trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_application_created")
         end

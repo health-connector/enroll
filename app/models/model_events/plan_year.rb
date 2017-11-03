@@ -43,6 +43,10 @@ module ModelEvents
           is_renewal_application_submitted = true
         end
 
+        if is_transition_matching?(to: :renewing_enrolled, from: :renewing_enrolling, event: :advance_date)
+          is_renewal_application_submitted = true
+        end
+
         if is_transition_matching?(to: [:renewing_published, :renewing_enrolling], from: :renewing_draft, event: :force_publish)
           is_renewal_application_autosubmitted = true
         end
