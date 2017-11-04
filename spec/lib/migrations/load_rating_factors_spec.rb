@@ -17,7 +17,7 @@ RSpec.describe 'Load Rate Factors Task', :type => :task, :dbclean => :after_each
     CompositeRatingTierFactorSet.destroy_all
   end
   context "rate_reference:load_rating_factors" do
-    before :all do
+    before :each do
       ['82569','88806','34484','73331'].each do |hios_id|
         carrier_profile = FactoryGirl.create(:carrier_profile, issuer_hios_ids: [hios_id])
       end
