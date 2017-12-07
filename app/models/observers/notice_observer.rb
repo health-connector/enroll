@@ -9,9 +9,9 @@ module Observers
       :ineligible_initial_application_submitted,
       :ineligible_renewal_application_submitted,
       :open_enrollment_began,
-      :open_enrollment_ended,
       :application_denied,
-      :renewal_application_denied
+      :renewal_application_denied,
+      :renewal_enrollment_confirmation
     ]
 
     HBXENROLLMENT_NOTICE_EVENTS = [
@@ -57,9 +57,19 @@ module Observers
             end
           end
         end
-      end
 
-      if PlanYear::DATA_CHANGE_EVENTS.include?(new_model_event.event_key)
+        if new_model_event.event_key == :renewal_enrollment_confirmation
+          errors = plan_year.enrollment_errors
+          unless errors.include?(:non_business_owner_enrollment_count) || errors.include?(:eligible_to_enroll_count)
+            plan_year.employer_profile.census_employees.non_terminated.each do |ce|
+              trigger_notice(recipient: ce.employee_role, event_object: plan_year, notice_event: "renewal_employee_enrollment_confirmation")
+            end
+          end
+        end
+
+        if PlanYear::DATA_CHANGE_EVENTS.include?(new_model_event.event_key)
+        end
+
       end
     end
 
