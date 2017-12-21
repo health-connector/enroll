@@ -198,6 +198,7 @@ end
 When(/(.*) click the button of new hire badge for 2st ER/) do |named_person|
   #py =Person.last.active_employee_roles.last.census_employee.renewal_benefit_group_assignment.benefit_group.plan_year
   #py.publish!
+  wait_for_ajax
   find_all('#shop_for_employer_sponsored_coverage').last.click
 end
 
