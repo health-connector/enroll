@@ -124,7 +124,7 @@ def enrollments_for_plan_year(plan_year)
 end
 
 def send_notice_to_employer(org)
-  puts "Notification generated for employer"
+  puts "group_advance_termination_confirmation:Notification generated for employer"
   begin
     ShopNoticesNotifierJob.perform_later(org.employer_profile.id.to_s, "group_advance_termination_confirmation")
   rescue Exception => e

@@ -52,10 +52,6 @@ module Config::AcaHelper
     @offer_metal_level ||= Settings.aca.plan_options_available.include?("metal_level")
   end
 
-  def enabled_metal_level_years
-    @enabled_metal_level_years ||= Settings.aca.plan_option_years.metal_level_carriers_available
-  end
-
   def metal_levels_explaned
     response = ""
     metal_level_contributions = {

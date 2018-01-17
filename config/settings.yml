@@ -3,13 +3,13 @@ site:
   subdomain: "mhc"
   domain_name: "hbxshop.org"
   home_url: "https://enroll.mhc.hbxshop.org"
+  main_web_address_url: "https://www.MAhealthconnector.org"
   home_business_url: "https://www.mahealthconnector.org/business/"
   business_resource_center_url: "https://www.mahealthconnector.org/business/business-resource-center"
   nondiscrimination_notice_url: "https://www.MAhealthconnector.org/site-policies/nondiscrimination-notice"
-  main_web_address_url: "https://www.MAhealthconnector.org"
-  policies_url: "https://www.mahealthconnector.org/about/policy-center/policies"
   help_url: "https://www.mahealthconnector.org/business/help-center"
   faqs_url: "https://www.mahealthconnector.org/business/help-center/faqs"
+  policies_url: "https://www.mahealthconnector.org/about/policy-center/policies"
   invoice_bill_url: "https://ww2.e-billexpress.com/ebpp/maconnector/"
   website_name: "MAhealthconnector.org"
   main_web_address: "www.MAhealthconnector.org"
@@ -107,11 +107,6 @@ aca:
   ## acceptable options are ["sole_source", "single_carrier", "metal_level", "single_plan"]
   reference_carriers_for_metal_level: ["silver", "gold", "dental"]
     ## acceptable options are ["sole_source", "single_carrier", "metal_level", "single_plan"]
-
-  plan_option_years:
-    single_carriers_available: ['2018']
-    sole_source_carriers_available: ['2017','2018']
-    metal_level_carriers_available: ['2018']
 
   plan_option_years:
     single_carriers_available: ['2018']

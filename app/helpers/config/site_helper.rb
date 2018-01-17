@@ -16,10 +16,6 @@ module Config::SiteHelper
     Settings.site.website_name
   end
 
-  def site_website_link
-    link_to site_website_name, site_website_name
-  end
-
   def site_find_expert_link
     link_to site_find_expert_url, site_find_expert_url
   end
@@ -148,10 +144,6 @@ module Config::SiteHelper
     mail_to non_discrimination_email, non_discrimination_email
   end
     
-  def site_employer_application_deadline_link
-    Settings.site.employer_application_deadline_link
-  end
-
   def site_employer_application_deadline_link
     Settings.site.employer_application_deadline_link
   end
