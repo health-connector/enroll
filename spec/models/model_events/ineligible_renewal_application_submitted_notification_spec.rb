@@ -85,6 +85,14 @@ describe 'ModelEvents::InEligibleRenewalApplicationSubmittedNotification' do
          employer_profile.broker.phone employer_profile.broker.email employer_profile.broker_present?)
      }
 
+    let(:employee_data_elements) {
+      %w(employee_profile.employer_name
+          employee_profile.broker.primary_fullname employee_profile.broker.organization
+         employee_profile.broker.phone employee_profile.broker.email employee_profile.broker_present?)
+    }
+    let(:employee_recipient) { "Notifier::MergeDataModels::EmployeeProfile" }
+    let(:employee_template)  { Notifier::Template.new(data_elements: employee_data_elements) }
+
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
 
@@ -116,6 +124,25 @@ describe 'ModelEvents::InEligibleRenewalApplicationSubmittedNotification' do
         expect(merge_model.plan_year.renewal_py_start_date).to eq model_instance.start_on.strftime('%m/%d/%Y')
         expect(merge_model.broker_present?).to be_falsey
         expect(merge_model.plan_year.renewal_py_start_on).to eq model_instance.start_on
+      end
+    end
+
+    context "when notice event received" do
+      subject { Notifier::NoticeKind.new(template: employee_template, recipient: employee_recipient) }
+      before do
+        allow(subject).to receive(:payload).and_return(payload)
+        model_instance.publish
+        model_instance.save
+      end
+
+      it "should build the data elements for the notice" do
+        employer.census_employees.non_terminated.each do |ce|
+          allow(subject).to receive(:resource).and_return (ce.employee_role)
+          merge_model = subject.construct_notice_object
+          expect(merge_model).to be_a(employee_recipient.constantize)
+          expect(merge_model.employer_name).to eq employer.legal_name
+          expect(merge_model.broker_present?).to be_falsey
+        end
       end
     end
   end
