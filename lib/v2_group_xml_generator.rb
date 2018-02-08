@@ -17,8 +17,8 @@ class V2GroupXmlGenerator
 
   CARRIER_ABBREVIATIONS = {
       "CareFirst": "GHMSI", "Aetna": "AHI", "Kaiser": "KFMASI", "United Health Care": "UHIC", "Delta Dental": "DDPA",
-      "Dentegra": "DTGA", "Dominion": "DMND", "Guardian": "GARD", "BestLife": "BLHI", "MetLife": "META", "Health New England, Inc.": "HNE", "Boston Medical Center HealthNet Plan": "BMCHP", "Fallon Community Health Plan, Inc.": "FCHP",
-      "Minuteman Health, Inc.": "MHI"}
+      "Dentegra": "DTGA", "Dominion": "DMND", "Guardian": "GARD", "BestLife": "BLHI", "MetLife": "META",
+      "Minuteman Health, Inc.": "MHI", "BMC HealthNet Plan": "BMCHP", "Fallon Health": "FCHP", "Tufts Health Plan": "THPD", "Blue Cross Blue Shield MA": "BCBS", "Neighborhood Health Plan": "NHP", "Harvard Pilgrim Health Care": "HPHC", "Health New England": "HNE"}
 
   # Inputs
   # 1 Array of FEINS
