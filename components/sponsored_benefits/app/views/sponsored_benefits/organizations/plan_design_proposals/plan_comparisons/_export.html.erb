@@ -1,6 +1,17 @@
-<%= stylesheet_link_tag  wicked_pdf_asset_base64("pdf") %>
+<% if @pdf_loaded.nil? %>
+  <%= stylesheet_link_tag wicked_pdf_asset_base64("pdf") %>
+  <style>
+    table.compare-table {
+      width: 100%;
+    }
+  </style>
+<% end %>
 <div class="container-fluid">
-  <h3 style='text-align:center'>Plan Comparison Chart</h3>
+  <% if qhps.length > 1 %>
+    <h3 style='text-align:center'>Plan Comparison Chart</h3>
+  <% else %>
+    <h3 style='text-align:center'>Plan Details Chart</h3>
+  <% end %>
   <div class="mygrid-wrapper-div">
    <table class="table bordered compare-table", border = "1", style="font-size:11px;" id="compare_plans_table">
         <tr>
@@ -18,7 +29,7 @@
         <tr>
           <th></th>
           <% qhps.each do |qhp|%>
-            <th class="fourteen lg" colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;"><span class="<%= qhp.plan.metal_level.humanize.downcase %>-icon"><%= display_dental_metal_level qhp.plan %></span> &nbsp;&#149;&nbsp;
+            <th class="fourteen lg" colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;"><span><%= display_dental_metal_level qhp.plan %></span> &nbsp;&#149;&nbsp;
             <%= qhp.plan.plan_type.upcase %>
             </th>
           <% end %>

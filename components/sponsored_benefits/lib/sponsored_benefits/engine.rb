@@ -10,5 +10,10 @@ module SponsoredBenefits
       g.assets false
       g.helper false
     end
+
+
+    initializer "sponsored_benefits.assets.precompile" do |app|
+      app.config.assets.precompile += %w( plan_design_proposals.js pdf.scss )
+    end
   end
 end

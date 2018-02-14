@@ -1,11 +1,164 @@
 @import "variables";
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700');
 
-@import "bootstrap";
 @import "dragtable";
-@import "custom";
 
-.compare-table {
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff;
+}
+
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 1170px;
+}
+
+.row {
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: none;
+}
+
+.col-xs-12 {
+    width: 100%;
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 5%;
+  border-spacing: 0;
+  border-collapse: collapse;
+
+  tbody {
+    tr {
+      td, th {
+        padding: 8px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+      }
+    }
+  }
+}
+
+th {
+  text-align: left;
+  padding-bottom: 2%;
+}
+
+td {
+  padding-bottom: 1%;
+}
+
+h3 {
+  color: $mhc-orange;
+  font-weight: 300;
+  line-height: 1.6em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-family: inherit;
+  font-size: 2em;
+}
+
+.plan-details-export {
+  table {
+    width: 80%;
+  }
+  table.employees-table {
+    tr.dependent {
+      td:first-of-type {
+        padding-left: 3%;
+        font-style: italic;
+      }
+    }
+    th, td {
+      border: none;
+    }
+  }
+
+  h1.main-title {
+    color: $mhc-orange;
+    font-weight: 300;
+    line-height: 1.6em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-family: inherit;
+    font-size: 2.5em;
+  }
+
+  h5 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+
+    span.coverage-range {
+      color: $mhc-orange;
+    }
+  }
+
+  table.plan-details {
+    padding-top: 3%;
+    th {
+      border-top: none;
+    }
+  }
+
+  table.benefit-group-contribution-table {
+    padding: 0px;
+    width: 80%;
+    margin: 0px;
+    margin-bottom: 0%;
+    tr:first-of-type {
+      th:first-of-type {
+        padding-left: 0px;
+        text-align: left;
+      }
+    }
+    tr {
+      td:first-of-type {
+        padding-left: 3%;
+      }
+    }
+    tr, td, th {
+      border: none;
+    }
+  }
+
+  table.monthly-cost-totals {
+    margin-top: -2%;
+    th, td {
+      text-align: right;
+      border: none;
+    }
+  }
+
+  table.monthly-cost-totals.traditional-costs {
+    width: 52%;
+  }
+
+}
+table.compare-table {
+  width: 90%;
   tr {
     td:first-of-type, th:first-of-type {
       background-color: #E8E8E8;
@@ -45,11 +198,27 @@ table.benefit-group-contribution-table {
   padding: 0 2%;
   margin: auto;
   table-layout: fixed;
+  width: 100%;
 
   tr.not-offered {
     opacity: 0.35;
   }
 
+  th:first-of-type {
+    text-align: left;
+  }
+
+  th {
+    text-align: right;
+  }
+
+  td:first-of-type {
+    text-align: left;
+  }
+
+  td {
+    text-align: right;
+  }
   tr:first-of-type {
     border-top: none;
     th:first-of-type {
@@ -82,3 +251,61 @@ table.benefit-group-contribution-table {
     }
   }
 }
+
+table.benefit-group-contribution-table.traditional-costs {
+  width: 50%;
+}
+
+.plan_design_proposals {
+  h3 {
+    color:$mhc-orange;
+    font-weight: 300;
+    line-height: 1.6em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  .col-md-3 {
+    display:none;
+  }
+  .toggle-text {
+    display:none;
+  }
+  .compare-table tr th:first-of-type.row-title {
+      font-size: 24px;
+      color: #414141;
+      font-weight: 600;
+  }
+  .compare-table tr th:first-of-type {
+      background-color: #E8E8E8;
+      border: none;
+      text-align: left;
+      vertical-align: center;
+      font-size: 12px;
+  }
+  .compare-table .row-title {
+      font-size: 24px;
+      color: #414141;
+      font-weight: 600;
+  }
+  .sq-btn-grp {
+    display:none;
+  }
+  table.benefit-group-contribution-table {
+      padding: 0 2%;
+      margin: auto;
+      table-layout: auto;
+  }
+  table.benefit-group-contribution-table tr td {
+      padding: 15px 0;
+      font-size: 16px;
+  }
+  table {
+      background-color: transparent;
+  }
+  table {
+      border-spacing: 0;
+      border-collapse: collapse;
+  }
+}
+
+.page-break { display:block; clear:both; page-break-after:always; }

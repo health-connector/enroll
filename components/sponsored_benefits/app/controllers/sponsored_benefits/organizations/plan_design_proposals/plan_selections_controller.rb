@@ -4,6 +4,7 @@ module SponsoredBenefits
       before_action :published_plans_are_view_only
 
       def new
+        plan_design_proposal
         plan_design_form.build_benefit_group
       end
 
