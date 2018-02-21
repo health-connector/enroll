@@ -206,5 +206,8 @@ require File.join(File.dirname(__FILE__),'seedfiles', 'security_questions_seed')
 puts "importing security questions complete"
 puts "*"*80
 
+puts "*"*80
+system "bundle exec rake seed:translations[db/seedfiles/english_translations_seed.rb]"
+puts "*"*80
 
 puts "End of Seed Data"
