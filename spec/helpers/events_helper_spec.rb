@@ -33,9 +33,11 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup renewal application"
 
+    let(:threshold_day) { Settings.aca.shop_market.employer_transmission_day_of_month }
+
     context "initial employer" do
-      context "day is after open enrollment of this month" do
-        let(:current_date_of_record) { TimeKeeper.date_of_record.at_beginning_of_month + 21.days }
+      context "day is after threshold day of this month" do
+        let(:current_date_of_record) { TimeKeeper.date_of_record.at_beginning_of_month + threshold_day.days }
 
         before do
           predecessor_application.update_attributes({:aasm_state => "enrollment_eligible"})
@@ -63,12 +65,12 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
 
     context "renewal employer" do
 
-      context "day is after open enrollment this month" do
+      context "day is after open enrollment(threshold day) this month" do
 
         before do
           predecessor_application.update_attributes({:aasm_state => "active"})
           renewal_application.update_attributes({:aasm_state => "enrollment_eligible"})
-          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 21.days)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month + threshold_day.days)
         end
 
         it "should return active and renewal plan year" do
@@ -76,8 +78,7 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
         end
       end
 
-      context "day is before open enrollment this month" do
-
+      context "day is on or before threshold day of this month" do
         before do
           predecessor_application.update_attributes({:aasm_state => "active"})
           renewal_application.update_attributes({:aasm_state => "draft"})
@@ -93,7 +94,7 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
     context "conversion employer with no external plan year" do
 
       before do
-        allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 21.days)
+        allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
         predecessor_application.update_attributes({:aasm_state => "enrollment_eligible"})
       end
 
@@ -106,7 +107,7 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
         end
       end
 
-      context "day is before open enrollment this month" do
+      context "day is on or before threshold day of this month" do
 
         before do
           allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month)
@@ -125,7 +126,7 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
 
       context "day is after open enrollment this month" do
         before do
-          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 21.days)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
           predecessor_application.update_attributes({:aasm_state => "active"})
           renewal_application.update_attributes({:aasm_state => "enrollment_eligible"})
         end
@@ -137,7 +138,9 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
         end
       end
 
-      context "day is before open enrollment this month" do
+      context "day is on or before threshold day of this month" do
+
+        let(:is_conversion) { true }
 
         before do
           allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month)
@@ -157,7 +160,7 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
       context "day is after open enrollment this month" do
 
         before do
-          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 21.days)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
           predecessor_application.update_attributes({:aasm_state => "active"})
           renewal_application.update_attributes({:aasm_state => "enrollment_eligible"})
         end
@@ -169,7 +172,7 @@ describe EventsHelper, "given an address_kind", dbclean: :after_each do
         end
       end
 
-      context "day is before open enrollment this month" do
+      context "day is on or before threshold day of this month" do
 
         before do
           allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month)
