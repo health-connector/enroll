@@ -43,7 +43,7 @@ module AuthorizationConcern
     validates_presence_of     :password, if: :password_required?
     validates_confirmation_of :password, if: :password_required?
     validates_length_of       :password, within: Devise.password_length, allow_blank: true
-    validates_format_of :email, with: Devise::email_regexp , allow_blank: true, :message => "(optional) is invalid"
+    validates_format_of :email, with: Devise::email_regexp , allow_blank: true, :message => "is invalid"
 
     scope :locked, ->{ where(:locked_at.ne => nil) }
     scope :unlocked, ->{ where(locked_at: nil) }
@@ -66,6 +66,10 @@ module AuthorizationConcern
 
     def lockable_notice
       self.locked_at.nil? ? 'unlocked' : 'locked'
+    end
+
+    def locked?
+      self.locked_at.present?
     end
 
     def password_required?

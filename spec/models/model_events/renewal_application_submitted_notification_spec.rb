@@ -21,7 +21,6 @@ describe 'ModelEvents::RenewalApplicationSubmittedNotification' do
           end
         end
         model_instance.publish!
-        model_instance.save
       end
     end
   end

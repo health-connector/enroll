@@ -9,6 +9,8 @@ class EmployerProfile
   include StateTransitionPublisher
   include ScheduledEventService
   include Config::AcaModelConcern
+  include Concerns::Observable
+  include ModelEvents::EmployerProfile
 
   embedded_in :organization
   attr_accessor :broker_role_id
@@ -759,6 +761,19 @@ class EmployerProfile
         #   end
         # end
 
+        organizations_for_low_enrollment_notice(new_date).each do |organization|
+          begin
+            plan_year = organization.employer_profile.plan_years.where(:aasm_state.in => ["enrolling", "renewing_enrolling"]).first
+            #exclude congressional employees
+            next if ((plan_year.benefit_groups.any?{|bg| bg.is_congress?}) || (plan_year.effective_date.yday == 1))
+            if plan_year.enrollment_ratio < Settings.aca.shop_market.employee_participation_ratio_minimum
+              organization.employer_profile.trigger_notices("low_enrollment_notice_for_employer")
+            end
+          rescue Exception => e
+            puts "Unable to deliver Low Enrollment Notice to #{organization.legal_name} due to #{e}"
+          end
+        end
+
         employer_enroll_factory = Factories::EmployerEnrollFactory.new
         employer_enroll_factory.date = new_date
 
@@ -832,7 +847,7 @@ class EmployerProfile
           if (new_date + 2.days == plan_year_due_date)
             initial_employers_reminder_to_publish(start_on_1).each do |organization|
               begin
-                organization.employee_profile.trigger_notices("initial_employer_final_reminder_to_publish_plan_year")
+                organization.employer_profile.trigger_notices("initial_employer_final_reminder_to_publish_plan_year")
               rescue Exception => e
                 Rails.logger.error { "Unable to send final reminder notice to publish plan year to #{organization.legal_name} due to following error #{e}" }
               end
@@ -1080,7 +1095,23 @@ class EmployerProfile
     organization_ids.each do |id|
       if org = Organization.find(id)
         org.employer_profile.update_attribute(:aasm_state, "binder_paid")
+        self.initial_employee_plan_selection_confirmation(org)
       end
+    end
+  end
+
+  def self.initial_employee_plan_selection_confirmation(org)
+    begin
+      if org.employer_profile.is_new_employer?
+        census_employees = org.employer_profile.census_employees.non_terminated
+        census_employees.each do |ce|
+          if ce.active_benefit_group_assignment.hbx_enrollment.present? && ce.active_benefit_group_assignment.hbx_enrollment.effective_on == org.employer_profile.plan_years.where(:aasm_state.in => ["enrolled", "enrolling"]).first.start_on
+            ShopNoticesNotifierJob.perform_later(ce.id.to_s, "initial_employee_plan_selection_confirmation")
+          end
+        end
+      end
+    rescue Exception => e
+      Rails.logger.error {"Unable to deliver initial_employee_plan_selection_confirmation to employees of #{org.legal_name} due to #{e.backtrace}"}
     end
   end
 
@@ -1258,7 +1289,7 @@ class EmployerProfile
 
   def validate_and_send_denial_notice
     if !is_primary_office_local? || !(is_zip_outside?)
-      self.trigger_notices('initial_employer_denial')
+      self.trigger_model_event(:initial_employer_denial)
     end
   end
 

@@ -115,6 +115,10 @@ When(/^Admin choose (.*)$/) do |state|
   find_field(state).trigger('click')
 end
 
+Then(/^Admin should see default option text Reason For Additional Information$/) do
+  expect(page).to have_content "Reason For Additional Information"
+end
+
 When(/^Admin enters the information needed$/) do
   select "Unable To Open Document", :from => "reason_for_rejection"
 end

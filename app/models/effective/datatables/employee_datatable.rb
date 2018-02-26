@@ -16,11 +16,11 @@ module Effective
         }, :sortable => false, :filter => false
 
         table_column :dob, :label => 'DOB', :proc => Proc.new { |row|
-          row.dob
+          row.dob.strftime("%m/%d/%Y") if row.dob.present?
         }, :sortable => false, :filter => false
 
         table_column :hired_on, :proc => Proc.new { |row|
-          row.hired_on
+          row.hired_on.strftime("%m/%d/%Y") if row.hired_on.present?
         }, :sortable => false, :filter => false
 
         table_column :terminated_on, :proc => Proc.new { |row|

@@ -667,7 +667,7 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
 
         it "and should provide relevent warning message" do
           expect(workflow_plan_year_with_benefit_group.application_eligibility_warnings[:fte_count].present?).to be_truthy
-          expect(workflow_plan_year_with_benefit_group.application_eligibility_warnings[:fte_count]).to match(/Has 1 -50 full time equivalent employees/)
+          expect(workflow_plan_year_with_benefit_group.application_eligibility_warnings[:fte_count]).to match(/You do not have 1 -50 full time equivalent employees/)
         end
 
         it "and plan year should be in publish pending state" do
@@ -1636,8 +1636,8 @@ describe PlanYear, :type => :model, :dbclean => :after_each do
     end
 
     it "interval map using existing specified key values" do
-      binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2017,9,1))
-      expect(binder_payment_due_date).to eq Date.new(2017,8,23)
+      binder_payment_due_date = PlanYear.map_binder_payment_due_date_by_start_on(Date.new(2018,9,1))
+      expect(binder_payment_due_date).to eq Date.new(2018,8,23)
     end
 
     it "out of map" do
@@ -2255,7 +2255,46 @@ describe PlanYear, "which has the concept of export eligibility" do
       end
     end
   end
+  describe PlanYear, "zero_employees_on_roster" do
 
+    context "an initial employer publishes a valid application" do
+
+      let(:benefit_group) { FactoryGirl.build(:benefit_group) }
+      let!(:employer_profile) { FactoryGirl.build(:employer_profile)}
+
+      let(:valid_plan_year_start_on)        { Date.new(2016, 11, 1) }
+      let(:valid_plan_year_end_on)          { valid_plan_year_start_on + 1.year - 1.day }
+      let(:valid_open_enrollment_start_on)  { valid_plan_year_start_on.prev_month }
+      let(:valid_open_enrollment_end_on)    { valid_open_enrollment_start_on + 9.days }
+
+      let!(:plan_year) do
+        py = PlanYear.new({
+          employer_profile: employer_profile,
+          start_on: valid_plan_year_start_on,
+          end_on: valid_plan_year_end_on,
+          open_enrollment_start_on: valid_open_enrollment_start_on,
+          open_enrollment_end_on: valid_open_enrollment_end_on
+          })
+
+        py.aasm_state = "draft"
+        py.fte_count = 3
+        py.benefit_groups = [benefit_group]
+        py.save
+        py
+      end
+
+      before do
+        allow(EmployerProfile).to receive(:enforce_employer_attestation?).and_return(false)
+        TimeKeeper.set_date_of_record_unprotected!(valid_open_enrollment_start_on)
+      end
+
+      it "should trigger zero_employees_on_roster notice" do
+        expect(plan_year).to receive(:zero_employees_on_roster)
+        plan_year.publish!
+      end
+
+    end
+  end
 end
 
 describe PlanYear, "filter_active_enrollments_by_date" do

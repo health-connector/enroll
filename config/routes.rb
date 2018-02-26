@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     resources :orphans, only: [:index, :show, :destroy]
     post :challenge, controller: 'security_question_responses', action: 'challenge'
     post :authenticate, controller: 'security_question_responses', action: 'authenticate'
+    get :filter, controller: 'security_question_responses', action: 'filter'
   end
 
   resources :users do

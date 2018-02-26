@@ -36,6 +36,12 @@ FactoryGirl.define do
       zip ' '
     end
 
+    trait :add do
+      state "DC"
+      zip '21001'
+      county 'Zip code outside supported area'
+    end
+
     factory :invalid_address, traits: [:without_kind, :without_address_1,
       :without_city, :without_state, :without_zip]
   end

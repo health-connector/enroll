@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :email do
     kind 'home'
-    sequence(:address) { |n| "example#{n}@example.com" }
+    sequence(:address) { |n| "#{Forgery(:name).first_name}#{n}@example.com" }
 
     trait :without_email_type do
       kind ' '

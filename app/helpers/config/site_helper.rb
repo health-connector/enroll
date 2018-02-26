@@ -16,10 +16,6 @@ module Config::SiteHelper
     Settings.site.website_name
   end
 
-  def site_website_link
-    link_to site_website_name, site_website_name
-  end
-
   def site_find_expert_link
     link_to site_find_expert_url, site_find_expert_url
   end
@@ -36,12 +32,12 @@ module Config::SiteHelper
     Settings.site.home_url
   end
 
-  def site_curam_enabled?
-    Settings.site.curam_enabled
-  end
-
   def site_brokers_agreement_path
     link_to "#{Settings.aca.state_name} #{Settings.site.short_name} Broker Agreement", Settings.site.terms_and_conditions_url
+  end
+
+  def site_curam_enabled?
+    Settings.site.curam_enabled
   end
 
   def site_home_link
@@ -64,6 +60,10 @@ module Config::SiteHelper
     Settings.site.nondiscrimination_notice_url
   end
 
+  def site_privacy_policy_url
+    Settings.site.privacy_policy_url
+  end
+
   def site_policies_url
     Settings.site.policies_url
   end
@@ -76,16 +76,16 @@ module Config::SiteHelper
     Settings.site.short_name
   end
 
+  def site_long_name
+    Settings.site.long_name
+  end
+
   def site_registration_path(resource_name, params)
     if Settings.site.registration_path.present? && ENV['AWS_ENV'] == 'prod'
        Settings.site.registration_path
     else
       new_registration_path(resource_name, :invitation_id => params[:invitation_id])
     end
-  end
-
-  def site_long_name
-    Settings.site.long_name
   end
 
   def site_broker_quoting_enabled?
@@ -102,6 +102,10 @@ module Config::SiteHelper
 
   def site_make_their_premium_payments_online
     Settings.site.make_their_premium_payments_online
+  end
+
+  def link_to_make_their_premium_payments_online
+    link_to "make your premium payments online", site_make_their_premium_payments_online
   end
 
   def health_care_website
@@ -143,7 +147,7 @@ module Config::SiteHelper
   def mail_non_discrimination_email
     mail_to non_discrimination_email, non_discrimination_email
   end
-
+    
   def site_employer_application_deadline_link
     Settings.site.employer_application_deadline_link
   end

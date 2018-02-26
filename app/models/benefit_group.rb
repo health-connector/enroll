@@ -182,7 +182,7 @@ class BenefitGroup
       plans = [reference_plan]
     else
       if plan_option_kind == "single_carrier"
-        plans = Plan.shop_health_by_active_year(reference_plan.active_year).by_carrier_profile(reference_plan.carrier_profile)
+        plans = Plan.shop_health_by_active_year(reference_plan.active_year).by_carrier_profile(reference_plan.carrier_profile).with_enabled_metal_levels
       else
         plans = Plan.shop_health_by_active_year(reference_plan.active_year).by_health_metal_levels([reference_plan.metal_level])
       end
@@ -362,7 +362,7 @@ class BenefitGroup
       build_composite_tier_contributions
       estimate_composite_rates
     end
-    targeted_census_employees.active.collect do |ce|
+    targeted_census_employees.active.expected_to_enroll.reject { |ce| !ce.is_included_in_participation_rate? }.collect do |ce|
 
       if plan_option_kind == 'sole_source'
         pcd = CompositeRatedPlanCostDecorator.new(plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
@@ -645,6 +645,53 @@ class BenefitGroup
     else
       all_active_health_enrollments.length
     end
+  end
+
+  def export_group_size_count
+    group_size_count if !use_simple_employer_calculation_model?
+  end
+
+  def export_rate_basis_type
+    rating_area  if multiple_market_rating_areas? && !rating_area.blank?
+  end
+
+  def export_ctc_calculated
+    temp = {}
+    composite_tier_contributions.map{|ctc| temp[ctc.composite_rating_tier] = ctc.estimated_tier_premium}
+    composite_premium(temp)
+
+  end
+
+  def export_ctc_final
+    temp = {}
+    composite_tier_contributions.map{|ctc| temp[ctc.composite_rating_tier] = ctc.final_tier_premium}
+    composite_premium(temp)
+  end
+
+  def composite_premium(temp)
+    result = []
+    if temp.has_key?("employee_only")
+      result << temp["employee_only"]
+    else
+      result << " "
+    end
+    if temp.has_key?("employee_and_spouse")
+      result << temp["employee_and_spouse"]
+    else
+      result << " "
+    end
+    if temp.has_key?("employee_and_one_or_more_dependents")
+      result << temp["employee_and_one_or_more_dependents"]
+    else
+      result << " "
+    end
+    if temp.has_key?("family")
+      result << temp["family"]
+    else
+      result << " "
+    end
+    
+    result
   end
 
   def composite_rating_enrollment_objects

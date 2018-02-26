@@ -15,10 +15,12 @@ class V2GroupXmlGenerator
 
   XML_NS = "http://openhbx.org/api/terms/1.0"
 
+  # Currently we do not have plans with other carrier profiles for future reference we are adding Abbrivations later we have to update
   CARRIER_ABBREVIATIONS = {
       "CareFirst": "GHMSI", "Aetna": "AHI", "Kaiser": "KFMASI", "UnitedHealthCare": "UHIC", "Delta Dental": "DDPA",
       "Dentegra": "DTGA", "Dominion": "DMND", "Guardian": "GARD", "BestLife": "BLHI", "MetLife": "META", "Health New England, Inc.": "HNE", "Boston Medical Center HealthNet Plan": "BMCHP", "Fallon Community Health Plan, Inc.": "FCHP",
-      "Minuteman Health, Inc.": "MHI"}
+      "Minuteman Health, Inc.": "MHI", "Altus Dental": "ALT","Blue Cross Blue Shield of MA": "BCBS", "Delta Dental":"DDA", "Guardian-MA": "GUARD", "Harvard Piligrim Health care": "HPHC", "Neighborhood Health Plan": "NHP",
+      "Tufts Health Plan Direct":"THPD", "Tufts Health Plan Premier": "THPP"}
 
   # Inputs
   # 1 Array of FEINS

@@ -87,7 +87,7 @@ class EmployerInvoice
   def save_and_notify_with_clean_up
     save
     save_to_cloud
-    send_to_print_vendor
+    # send_to_print_vendor #Do not send notices to print vendor
     send_email_notice
     send_first_invoice_available_notice
     clear_tmp(invoice_absolute_file_path)
@@ -96,7 +96,7 @@ class EmployerInvoice
   def save_and_notify
     save
     save_to_cloud
-    send_to_print_vendor
+    # send_to_print_vendor
     send_email_notice
     send_first_invoice_available_notice
   end

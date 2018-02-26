@@ -233,8 +233,8 @@ class PlanYear
   def past_transmission_threshold?
     return false if start_on.blank?
     return true if transmit_employers_immediately?
-    t_threshold_date = (start_on - 1.month).beginning_of_month + 14.days
-    (TimeKeeper.date_of_record > t_threshold_date)
+    t_threshold_date = Date.new(start_on.prev_month.year, start_on.prev_month.month, Settings.aca.shop_market.employer_transmission_day_of_month)
+    (TimeKeeper.date_of_record >= t_threshold_date)
   end
 
   def eligible_for_export?
@@ -534,7 +534,7 @@ class PlanYear
 
     # Maximum company size at time of initial registration on the HBX
     if fte_count < 1 || fte_count > Settings.aca.shop_market.small_market_employee_count_maximum
-      warnings.merge!({ fte_count: "Has 1 -#{Settings.aca.shop_market.small_market_employee_count_maximum} full time equivalent employees" })
+      warnings.merge!({ fte_count: "You do not have 1 -#{Settings.aca.shop_market.small_market_employee_count_maximum} full time equivalent employees" })
     end
 
     # Exclude Jan 1 effective date from certain checks
@@ -814,31 +814,20 @@ class PlanYear
     def map_binder_payment_due_date_by_start_on(start_on)
       dates_map = {}
       {
-        "2017-01-01" => '2016,12,23',
-        "2017-02-01" => '2017,1,23',
-        "2017-03-01" => '2017,2,23',
-        "2017-04-01" => '2017,3,23',
-        "2017-05-01" => '2017,4,24',
-        "2017-06-01" => '2017,5,23',
-        "2017-07-01" => '2017,6,23',
-        "2017-08-01" => '2017,7,24',
-        "2017-09-01" => '2017,8,23',
-        "2017-10-01" => '2017,9,25',
-        "2017-11-01" => '2017,10,23',
         "2017-12-01" => '2017,11,24',
         "2018-01-01" => '2017,12,26',
-        "2018-02-01" => '2018,1,23',
+        "2018-02-01" => '2018,1,24',
         "2018-03-01" => '2018,2,23',
         "2018-04-01" => '2018,3,23',
-        "2018-05-01" => '2018,4,23',
+        "2018-05-01" => '2018,4,25',
         "2018-06-01" => '2018,5,23',
         "2018-07-01" => '2018,6,25',
-        "2018-08-01" => '2018,7,23',
+        "2018-08-01" => '2018,7,25',
         "2018-09-01" => '2018,8,23',
-        "2018-10-01" => '2018,9,24',
-        "2018-11-01" => '2018,10,23',
-        "2018-12-01" => '2018,11,23',
-        "2019-01-01" => '2018,12,24',
+        "2018-10-01" => '2018,9,25',
+        "2018-11-01" => '2018,10,24',
+        "2018-12-01" => '2018,11,26',
+        "2019-01-01" => '2018,12,26',
       }.each_pair do |k, v|
         dates_map[k] = Date.strptime(v, '%Y,%m,%d')
       end
@@ -914,7 +903,6 @@ class PlanYear
       transitions from: :published, to: :enrolling,               :guard  => :is_event_date_valid?
       transitions from: :enrolling, to: :enrolled,                :guards => [:is_open_enrollment_closed?, :is_enrollment_valid?]
       transitions from: :enrolling, to: :application_ineligible,  :guard => :is_open_enrollment_closed?, :after => [:initial_employer_ineligibility_notice, :notify_employee_of_initial_employer_ineligibility]
-
       # transitions from: :enrolling, to: :canceled,  :guard  => :is_open_enrollment_closed?, :after => :deny_enrollment  # Talk to Dan
 
       transitions from: :active, to: :terminated, :guard => :is_event_date_valid?
@@ -956,7 +944,7 @@ class PlanYear
       transitions from: :draft, to: :draft,     :guard => :is_application_invalid?
       transitions from: :draft, to: :enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :zero_employees_on_roster, :record_sic_and_rating_area]
       transitions from: :draft, to: :published, :guard => :is_application_eligible?, :after => [:zero_employees_on_roster, :record_sic_and_rating_area]
-      transitions from: :draft, to: :publish_pending, :after => :initial_employer_denial_notice
+      transitions from: :draft, to: :publish_pending
 
       transitions from: :renewing_draft, to: :renewing_draft,     :guard => :is_application_invalid?
       transitions from: :renewing_draft, to: :renewing_enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :record_sic_and_rating_area]
@@ -1319,16 +1307,6 @@ class PlanYear
     end
   end
 
-  def initial_employer_denial_notice
-    return true if benefit_groups.any?{|bg| bg.is_congress?}
-    if (application_eligibility_warnings.include?(:primary_office_location) || application_eligibility_warnings.include?(:fte_count))
-      begin
-        self.employer_profile.trigger_notices("initial_employer_denial")
-      rescue Exception => e
-        Rails.logger.error { "Unable to deliver employer initial denial notice for #{self.employer_profile.organization.legal_name} due to #{e}" }
-      end
-    end
-  end
 
   def initial_employer_open_enrollment_completed
     #also check if minimum participation and non owner conditions are met by ER.

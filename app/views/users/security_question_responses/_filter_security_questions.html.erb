@@ -1,0 +1,6 @@
+<select class="security-question-select-<%= index %>" name="security_question_responses[][security_question_id]" required="true" >
+  <option name="id" value="">Please Select A Question</option>
+  <% security_questions.each do |question| %>
+      <option name="id" value=<%= question.id %> data-question-number='<%= index %>'><%= question.title %></option>
+  <% end %>
+</select>

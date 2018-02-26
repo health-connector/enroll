@@ -31,12 +31,20 @@ module Config::ContactCenterHelper
     Settings.contact_center.phone_number
   end
 
+  def contact_center_ivl_phone_number
+    Settings.contact_center.ivl_phone_number
+  end
+
   def contact_center_fax_number
     Settings.contact_center.fax
   end
 
   def contact_center_postal_code
     Settings.contact_center.mailing_address.zip_code
+  end
+
+  def contact_center_mailing_address_name
+    Settings.contact_center.mailing_address.name
   end
 
   def contact_center_name
@@ -84,7 +92,7 @@ module Config::ContactCenterHelper
   end
 
   def contact_center_appeal_state
-     Settings.contact_center.appeal_center.state
+    Settings.contact_center.appeal_center.state
   end
 
   def contact_center_appeal_zip
@@ -110,5 +118,4 @@ module Config::ContactCenterHelper
   def non_discrimination_complaint_url
     Settings.contact_center.non_discrimination.complaint_url
   end
-
 end

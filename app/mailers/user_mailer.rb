@@ -170,7 +170,7 @@ class UserMailer < ApplicationMailer
 
   def broker_pending_notification(broker_role,unchecked_carriers)
     subject_sufix = unchecked_carriers.present? ? ", missing carrier appointments" : ", has all carrier appointments"
-    subject_prefix = broker_role.training || broker_role.training == true ? "Action Needed - Broker License for #{site_short_name} for Business" : "Action Needed - Complete Broker Training for #{site_short_name} for Business"
+    subject_prefix = !broker_role.training ? "Action Needed - Broker License for #{site_short_name} for Business" : "Action Needed - Complete Broker Training for #{site_short_name} for Business"
     subject="#{subject_prefix}"
     mail({to: broker_role.email_address, subject: subject}) do |format|
       if broker_role.training && unchecked_carriers.present?

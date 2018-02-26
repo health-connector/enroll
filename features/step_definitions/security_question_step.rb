@@ -67,9 +67,11 @@ Then(/^I can(not)? see the security modal dialog$/) do |negate|
 end
 
 Then(/^I select the all security question and give the answer$/) do
-  (0..2).each do |num|
-    page.all('.security-question-select')[num].set("Security Question #{num + 1}")
-    page.all('.interaction-field-control-security-question-response-question-answer')[num].set("Answer #{num+1}")
+  (1..3).each do |num|
+    page.all(".security-question-select-#{num}").first.set("Security Question #{num}")
+    page.all('.interaction-field-control-security-question-response-question-answer')[num-1].set("Answer #{num}")
+    wait_for_ajax
+    sleep 2
   end
 end
 

@@ -33,7 +33,11 @@ You're successfully enrolled in <%= @plan.name %>.
 <%= site_short_name %> <br>
 PHONE: <%= contact_center_phone_number %> <% contact_center_alt_phone_number %><br>
 TTY/TDD 711-1-532-5465<br>
-Monday-Saturday 8:00am - 8:00pm <br>
+<% if @enrollment.effective_on > TimeKeeper.date_of_record %>
+Monday-Friday 8:00am - 8:00pm, Saturday 10:00am - 5.00pm<br>
+<% else %>
+Monday-Friday 8:00am - 6:00pm <br>
+<%end%>
 E-Mail: <%= contact_center_email_address %>
 <br>
 <br>

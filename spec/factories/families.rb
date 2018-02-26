@@ -11,8 +11,7 @@ FactoryGirl.define do
     end
 
     trait :with_primary_family_member do
-      family_members { [FactoryGirl.build(:family_member, family: self,
-          is_primary_applicant: true, is_active: true, person: person)] }
+      family_members { [FactoryGirl.build(:family_member, :primary, family: self, is_active: true, person: person)] }
     end
 
     trait :with_family_members do

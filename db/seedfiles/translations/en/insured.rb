@@ -109,6 +109,7 @@ INSURED_TRANSLATIONS = {
   "en.insured.aptc_or_csr" => "APTC/CSR",
   "en.members" => "Members",
   "en.plan_contact_info" => "Plan Contact Info",
+  "en.carrier_contact_info" => "Carrier Contact Info",
   "en.insured.switch_to_all_families" => "Switch to All Families",
   "en.insured.families_selected" => "families selected",
   "en.total" => "total",

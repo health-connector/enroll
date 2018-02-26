@@ -287,6 +287,7 @@ When(/^.+ terminate one employee$/) do
 end
 
 Then(/^.+ should see terminate successful msg$/) do
+  wait_for_ajax(3,2)
   expect(page).to have_content('Successfully terminated Census Employee.')
 end
 

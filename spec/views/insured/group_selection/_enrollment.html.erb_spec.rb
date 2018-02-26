@@ -50,6 +50,10 @@ RSpec.describe "insured/group_selection/_enrollment.html.erb" do
       expect(rendered).to include dollar_amount
     end
 
+    it "should show the text carrier contact info" do
+      expect(rendered).to match /Carrier Contact Info/
+    end
+
     it "should have terminate confirmation modal" do
       expect(rendered).to have_selector('h4', text: 'Select Terminate Reason')
     end

@@ -17,32 +17,27 @@ describe Queries::FamilyDatatableQuery, "Filter Scopes for families Index", dbcl
   end
 
   it "filters: by_enrollment_renewing" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "by_enrollment_renewing"})
-    expect(fdq.build_scope.selector).to eq ({"households.hbx_enrollments.aasm_state"=>{"$in"=>HbxEnrollment::RENEWAL_STATUSES}})
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "by_enrollment_renewing"})
+    expect(fdq.build_scope.selector).to eq ({"households.hbx_enrollments.aasm_state"=>{"$in"=>HbxEnrollment::RENEWAL_STATUSES}, "households.hbx_enrollments.kind" => {"$in"=>["employer_sponsored", "employer_sponsored_cobra"] }})
   end
 
   it "filters: sep_eligible" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "sep_eligible"})
-    expect(fdq.build_scope.selector).to eq ({"active_seps.count"=>{"$gt"=>0}})
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "sep_eligible"})
+    expect(fdq.build_scope.selector).to eq ({"active_seps.count"=>{"$gt"=>0}, "households.hbx_enrollments.kind" => {"$in"=>["employer_sponsored", "employer_sponsored_cobra"] } })
   end
 
   it "filters: coverage_waived" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "coverage_waived"})
-    expect(fdq.build_scope.selector).to eq ({"households.hbx_enrollments.aasm_state"=>{"$in"=>HbxEnrollment::WAIVED_STATUSES}})
-  end
-
-  it "filters: coverage_waived" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "coverage_waived"})
-    expect(fdq.build_scope.selector).to eq ({"households.hbx_enrollments.aasm_state"=>{"$in"=>HbxEnrollment::WAIVED_STATUSES}})
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "coverage_waived"})
+    expect(fdq.build_scope.selector).to eq ({"households.hbx_enrollments.aasm_state"=>{"$in"=>HbxEnrollment::WAIVED_STATUSES}, "households.hbx_enrollments.kind" => {"$in"=>["employer_sponsored", "employer_sponsored_cobra"] }})
   end
 
   it "filters: all_assistance_receiving" do
-    fdq = Queries::FamilyDatatableQuery.new({"individual_options" => "all_assistance_receiving"})
-    expect(fdq.build_scope.selector).to eq ({"households.tax_households.eligibility_determinations.max_aptc.cents"=>{"$gt"=>0}})
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_individual_market", "individual_options" => "all_assistance_receiving"})
+    expect(fdq.build_scope.selector).to eq ({"households.tax_households.eligibility_determinations.max_aptc.cents"=>{"$gt"=>0}, "households.hbx_enrollments.kind"=>{"$in"=>["individual", "unassisted_qhp", "insurance_assisted_qhp", "streamlined_medicaid", "emergency_medicaid", "hcr_chip"]}})
   end
 
   it "filters: all_unassisted" do
-    fdq = Queries::FamilyDatatableQuery.new({"individual_options" => "all_unassisted"})
-    expect(fdq.build_scope.selector).to eq ({"households.tax_households.eligibility_determinations"=>{"$exists"=>false}})
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_individual_market", "individual_options" => "all_unassisted"})
+    expect(fdq.build_scope.selector).to eq ({"households.tax_households.eligibility_determinations"=>{"$exists"=>false}, "households.hbx_enrollments.kind"=>{"$in"=>["individual", "unassisted_qhp", "insurance_assisted_qhp", "streamlined_medicaid", "emergency_medicaid", "hcr_chip"]}})
   end
 end

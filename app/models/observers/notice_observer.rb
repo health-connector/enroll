@@ -59,13 +59,31 @@ module Observers
               end
             end
         end
+        
+        if new_model_event.event_key == :initial_employer_denial
+          return true if plan_year.benefit_groups.any?{|bg| bg.is_congress?}
+          if (plan_year.application_eligibility_warnings.include?(:primary_office_location) || plan_year.application_eligibility_warnings.include?(:fte_count))
+            begin
+              trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "initial_employer_denial")
+            rescue Exception => e
+              Rails.logger.error { "Unable to deliver employer initial denial notice for #{plan_year.employer_profile.organization.legal_name} due to #{e}" }
+            end
+          end
+        end
 
         if PlanYear::DATA_CHANGE_EVENTS.include?(new_model_event.event_key)
         end
       end
     end
 
-    def employer_profile_update; end
+    def employer_profile_update(new_model_event)
+      employer_profile = new_model_event.klass_instance
+      if EmployerProfile::REGISTERED_EVENTS.include?(new_model_event.event_key)
+        if new_model_event.event_key == :initial_employer_denial
+          trigger_notice(recipient: employer_profile, event_object: employer_profile, notice_event: "initial_employer_denial")
+        end
+      end
+    end
 
     def hbx_enrollment_update(new_model_event)
       raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
@@ -79,6 +97,15 @@ module Observers
             end
           end
         end
+      end
+    end
+
+    def census_employee_update(new_model_event)
+      raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent) 
+
+      if  CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)  
+        census_employee = new_model_event.klass_instance
+        trigger_notice(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: new_model_event.event_key.to_s)
       end
     end
 
@@ -100,25 +127,16 @@ module Observers
       end
     end
 
-    def employer_profile_date_change; end
-    def hbx_enrollment_date_change; end
-    def census_employee_date_change; end
-
-    def census_employee_update(new_model_event)
-      raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
-
-      if  CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)
-        census_employee = new_model_event.klass_instance
-        trigger_notice(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: new_model_event.event_key.to_s)
-      end
-    end
-
     def trigger_on_queried_records(event_name)
       current_date = TimeKeeper.date_of_record
       organizations_for_force_publish(current_date).each do |organization|
         plan_year = organization.employer_profile.plan_years.where(:aasm_state => 'renewing_draft').first
-        trigger_notice(recipient: organization.employer_profile, event_object: plan_year, notice_event:event_name)
+        trigger_notice(recipient: organization.employer_profile, event_object: plan_year, notice_event: event_name)
       end
     end
+
+    def employer_profile_date_change(model_event); end
+    def hbx_enrollment_date_change(model_event); end
+    def census_employee_date_change(model_event); end
   end
 end

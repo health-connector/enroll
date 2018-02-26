@@ -112,4 +112,26 @@ RSpec.describe Users::SecurityQuestionResponsesController do
     end
   end
 
+  describe 'Filter action' do
+    before do
+      get :filter, question_ids: security_question_ids, index: 2
+    end
+
+    context "when question_id is Nil then " do
+      let(:security_question_ids) { '' }
+
+      it { expect(assigns(:questions)).to be_empty }
+      it { expect(response).to render_template(:partial => 'users/security_question_responses/_filter_security_questions') }
+    end
+
+    context "when question_id is not Nil then " do
+      let(:security_question_ids) { "#{security_question_one.id}, #{security_question_two.id}" }
+
+      it { expect(assigns(:questions)).not_to be_empty }
+      it { expect(assigns(:questions).to_a).not_to include(security_question_one, security_question_two) }
+      it { expect(response).to render_template(:partial => 'users/security_question_responses/_filter_security_questions') }
+    end
+
+  end
+
 end

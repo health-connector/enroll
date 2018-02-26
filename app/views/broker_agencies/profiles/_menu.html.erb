@@ -41,7 +41,7 @@
         <% if general_agency_enabled? %>
           <li role="presentation" id="general-agency-tab" <%= menu_tab_class(active_tab, "general-agency-tab") %>>
             <%= link_to(main_app.general_agency_index_broker_agencies_profile_path(id: @id), "aria-expanded" => "true", :remote => true, "aria-controls" => "general-agency", "role" => "tab" ) do  %>
-              <span class="hidden-xs">General Agencies</span>
+              <span class="hidden-xs"><%= l10n("general_agencies")%></span>
               <span class="glyphicon glyphicon-user hidden-md hidden-sm hidden-lg" title="General Agencies"></span>
             <% end %>
           </li>

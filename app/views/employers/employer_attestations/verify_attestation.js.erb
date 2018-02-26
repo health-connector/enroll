@@ -12,6 +12,14 @@ $("input[name='status']").click(function(){
         $('.rejection_reason').removeClass('hidden');
         $('#attestation_submit').addClass('disabled');
         $("input[name='other_reason']").val('');
+        $("input[name='other_reason']").addClass('hidden');
+        if ($(this).val() === 'rejected') {
+          $("select[name=reason_for_rejection] option:first").text("Reason For Rejection");
+        }
+        else if ($(this).val() === 'info_needed'){
+           $("select[name=reason_for_rejection] option:first").text("Reason For Additional Information");  
+        };
+       $('#reason_for_rejection').prop('selectedIndex', 0).selectric('refresh');
     }
     else {
         $('.rejection_reason').addClass('hidden');

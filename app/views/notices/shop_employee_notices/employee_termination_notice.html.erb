@@ -38,7 +38,7 @@
 <%= render partial: 'notices/shared/paragraph', :locals => { content: "If you are not a resident of Massachusetts, you should contact the Health Insurance Marketplace located in your state of residence to inquire about eligibility for a Special Enrollment Period and premium assistance programs. To find the Health Insurance Marketplace in your state, go to <a href= '#{health_care_website_url}'>#{health_care_website}</a>."} %>
 
 <%= render partial: 'notices/shared/paragraph_with_headers', :locals =>
-  { contents: [""], heading: 'For Questions or Assistance:', sub_heading: '', col_styles: ['margin-bottom: 0px']} %>
+  { contents: [""], heading: 'For Questions or Assistance:', col_styles: ['margin-bottom: 0px']} %>
 <% if notice.broker.present? %>
   <%= render partial: 'notices/shared/paragraph', :locals => { content: "Contact your employer or your broker for further assistance."}, col_styles: ['0px'] %>
 <% else %>

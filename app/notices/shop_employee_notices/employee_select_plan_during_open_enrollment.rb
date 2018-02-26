@@ -34,4 +34,4 @@ class ShopEmployeeNotices::EmployeeSelectPlanDuringOpenEnrollment < ShopEmployee
         :employee_cost => enrollment.total_employee_cost,
         })
   end
-end 
+end

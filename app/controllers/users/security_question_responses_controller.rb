@@ -44,6 +44,16 @@ class Users::SecurityQuestionResponsesController < ApplicationController
     end
   end
 
+  def filter
+    question_ids = params[:question_ids].split(',').map(&:strip)
+    @questions = if question_ids.blank?
+                   []
+                 else
+                   SecurityQuestion.visible.not_in(:_id => question_ids)
+                 end
+    render partial: 'users/security_question_responses/filter_security_questions', locals: { security_questions: @questions, index: params[:index] }
+  end
+
   private
   helper_method :user_from_email, :challenge_question
 

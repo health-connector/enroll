@@ -14,5 +14,10 @@ FactoryGirl.define do
       address { FactoryGirl.build(:address, kind: "primary") }
     end
 
+    trait :add do
+      is_primary true
+      address { FactoryGirl.build(:address, :add,  kind: "primary") }
+    end
+
   end
 end

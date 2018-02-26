@@ -95,7 +95,7 @@ module Effective
           {scope: 'all', label: 'All'},
           {scope: 'enrolled', label: 'Enrolled'},
           {scope: 'by_enrollment_renewing', label: 'Renewing'},
-          {scope: 'waived', label: 'Waived'},
+          {scope: 'coverage_waived', label: 'Waived'},
           {scope: 'sep_eligible', label: 'SEP Eligible'}
         ],
         individual_options: [

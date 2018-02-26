@@ -12,7 +12,6 @@ $("#<%= @location_id %> <%= @coverage_type %> .col-md-12.top-pd").hide();
 $('.benefits-fields').css('pointer-events','');
 $('.composite-offerings').css('opacity','1');
 
-
 $(document).ready(function(){
   $("input#jq_datepicker_ignore_plan_year_open_enrollment_end_on").datepicker( "option", "maxDate", "<%= @plan_year.start_on.prev_day %>");
   setOpenEnrollmentDatePicker();
@@ -157,6 +156,8 @@ if (window.location.href.indexOf("edit") > -1 && window.location.href.indexOf("p
                           scrollTop: position
                       }, 500);
       $(this).closest('.benefit-group-fields').find('.health .carriers-tab').show();
+      var selected_carrier_level = $('.health .nav li input:checked').val();
+//      loadCarrierNames();
       var start_on = $("#plan_year_start_on").val().substr(0,4);
       var selected_carrier_level = $('.health .nav li input:checked').val();
       var employer_profile_id = $('#employerProfileId').data('value');

@@ -561,13 +561,13 @@ Then /^employer sees termination date column$/ do
 end
 
 And /^employer clicks on terminated employee$/ do
-  expect(page).to have_content "Eddie Vedder"
+  expect(page).to have_content CensusMember.all.where(aasm_state: "employment_terminated").first.first_name
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
 end
 
 And /^employer clicks on linked employee with address$/ do
   employees.first.update_attributes(aasm_state: "employee_role_linked")
-  expect(page).to have_content "Eddie Vedder"
+  expect(page).to have_content employees.first.first_name
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
 end
 
@@ -612,7 +612,7 @@ end
 
 And /^employer clicks on linked employee without address$/ do
   employees.first.address.delete
-  expect(page).to have_content "Eddie Vedder"
+  expect(page).to have_content employees.first.first_name
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
 end
 

@@ -76,6 +76,7 @@ Feature: Employer Profile
     When Admin clicks view attestation document
     Then Admin should see preview and attestation form
     When Admin choose Request Additional Information
+    Then Admin should see default option text Reason For Additional Information
     And Admin enters the information needed
     And Admin clicks submit in employer attestation form
     Then Admin should see attestation updated message
