@@ -65,6 +65,7 @@ RSpec.describe ShopEmployerNotices::InitialEmployerIneligibilityNotice do
 
   describe "append_data" do
     before do
+      allow(plan_year).to receive_message_chain("effective_date.yday").and_return(2)
       allow(employer_profile).to receive_message_chain("staff_roles.first").and_return(person)
       TimeKeeper.set_date_of_record_unprotected!(plan_year.open_enrollment_end_on.next_day)
       plan_year.advance_date!
