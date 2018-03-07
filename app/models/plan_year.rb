@@ -735,7 +735,6 @@ class PlanYear
       binder_payment_due_date               = first_banking_date_prior ("#{prior_month.year}-#{prior_month.month}-#{PlanYear.shop_market_binder_payment_due_on}")
       advertised_due_date_of_month          = ("#{prior_month.year}-#{prior_month.month}-#{HbxProfile::ShopOpenEnrollmentAdvBeginDueDayOfMonth}").to_date
 
-
       timetable = {
         effective_date: effective_date,
         plan_year_start_on: plan_year_start_on,
