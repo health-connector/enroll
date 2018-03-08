@@ -26,12 +26,12 @@ RSpec.describe PortalHeaderHelper, :type => :helper do
           expect(portal_display_name('')).to eq "<a class=\"portal\" href=\"/families/home\"><img src=\"/images/icons/mhc-icon-individual.png\" alt=\"Mhc icon individual\" /> &nbsp; I'm an Employee</a>"
         end
 
-      it "should have Welcome prompt when user has no active role" do
-        allow(current_user).to receive(:has_employer_staff_role?).and_return(false)
-        expect(portal_display_name(controller)).to eq "<a class='portal'>#{Settings.site.byline}</a>"
+      if Settings.aca.state_abbreviation == "MA"
+        it "should have Welcome prompt when user has no active role" do
+          allow(current_user).to receive(:has_employer_staff_role?).and_return(false)
+          expect(portal_display_name(controller)).to eq "<a class='portal'>#{Settings.site.byline}</a>"
+        end
       end
-
-
     end
 
     context "has_consumer_role?" do
