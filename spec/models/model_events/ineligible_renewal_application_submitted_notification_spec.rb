@@ -32,17 +32,17 @@ describe 'ModelEvents::InEligibleRenewalApplicationSubmittedNotification' do
      allow(model_instance).to receive(:open_enrollment_date_errors).and_return(nil)
     end
 
-    context "when In eligible renewal application created" do
-
-      it "should trigger model event" do
-        model_instance.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:plan_year_update) do |model_event|
-            expect(model_event).to be_an_instance_of(ModelEvents::ModelEvent)
-            expect(model_event).to have_attributes(:event_key => :ineligible_renewal_application_submitted, :klass_instance => model_instance, :options => {})
+    if Settings.aca.state_abbreviation == "MA"
+      context "when In eligible renewal application created" do
+        it "should trigger model event" do
+          model_instance.observer_peers.keys.each do |observer|
+            expect(observer).to receive(:plan_year_update) do |model_event|
+              expect(model_event).to be_an_instance_of(ModelEvents::ModelEvent)
+              expect(model_event).to have_attributes(:event_key => :ineligible_renewal_application_submitted, :klass_instance => model_instance, :options => {})
+            end
           end
+          model_instance.publish!
         end
-
-        model_instance.publish!
       end
     end
   end

@@ -17,10 +17,13 @@ describe 'ModelEvents::RenewalEmployerReminderToPublishPlanYearNotification' do
     after(:each) do
      DatabaseCleaner.clean_with(:truncation, :except => %w[translations])
     end
-    context "when renewal employer 2 days prior to publish due date" do
-      it "should trigger model event" do
-        expect_any_instance_of(Observers::Observer).to receive(:trigger_notice).with(recipient: organization.employer_profile, event_object: model_instance, notice_event: model_event).and_return(true)
-        PlanYear.date_change_event(date_mock_object)
+
+    if Settings.aca.state_abbreviation == "MA"
+      context "when renewal employer 2 days prior to publish due date" do
+        it "should trigger model event" do
+          expect_any_instance_of(Observers::Observer).to receive(:trigger_notice).with(recipient: organization.employer_profile, event_object: model_instance, notice_event: model_event).and_return(true)
+          PlanYear.date_change_event(date_mock_object)
+        end
       end
     end
   end
