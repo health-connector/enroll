@@ -19,6 +19,7 @@ module Config::AcaModelConcern
     delegate :non_owner_participation_count_minimum, to: :class
     delegate :aca_shop_market_small_market_employee_count_maximum, to: :class
     delegate :enrollment_shopping_start_day_offset, to: :class
+    delegate :aca_shop_market_census_employee_data_table_is_enabled?, to: :class
   end
 
   class_methods do
@@ -44,6 +45,10 @@ module Config::AcaModelConcern
 
     def aca_shop_market_employer_contribution_percent_minimum
       @@aca_shop_market_employer_contribution_percent_minimum ||= Settings.aca.shop_market.employer_contribution_percent_minimum
+    end
+
+    def aca_shop_market_census_employee_data_table_is_enabled?
+      @@aca_shop_market_census_employee_data_table ||= Settings.aca.shop_market.census_employee_data_table
     end
 
     def individual_market_is_enabled?
