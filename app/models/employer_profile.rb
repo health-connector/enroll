@@ -9,6 +9,8 @@ class EmployerProfile
   include StateTransitionPublisher
   include ScheduledEventService
   include Config::AcaModelConcern
+  include Concerns::Observable
+  include ModelEvents::EmployerProfile
 
   embedded_in :organization
   attr_accessor :broker_role_id
@@ -1258,7 +1260,7 @@ class EmployerProfile
 
   def validate_and_send_denial_notice
     if !is_primary_office_local? || !(is_zip_outside?)
-      self.trigger_notices('initial_employer_denial')
+      self.trigger_model_event(:initial_employer_denial)
     end
   end
 

@@ -59,13 +59,31 @@ module Observers
               end
             end
         end
+        
+        if new_model_event.event_key == :initial_employer_denial
+          return true if plan_year.benefit_groups.any?{|bg| bg.is_congress?}
+          if (plan_year.application_eligibility_warnings.include?(:primary_office_location) || plan_year.application_eligibility_warnings.include?(:fte_count))
+            begin
+              trigger_notice(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "initial_employer_denial")
+            rescue Exception => e
+              Rails.logger.error { "Unable to deliver employer initial denial notice for #{plan_year.employer_profile.organization.legal_name} due to #{e}" }
+            end
+          end
+        end
 
         if PlanYear::DATA_CHANGE_EVENTS.include?(new_model_event.event_key)
         end
       end
     end
 
-    def employer_profile_update; end
+    def employer_profile_update(new_model_event)
+      employer_profile = new_model_event.klass_instance
+      if EmployerProfile::REGISTERED_EVENTS.include?(new_model_event.event_key)
+        if new_model_event.event_key == :initial_employer_denial
+          trigger_notice(recipient: employer_profile, event_object: employer_profile, notice_event: "initial_employer_denial")
+        end
+      end
+    end
 
     def hbx_enrollment_update(new_model_event)
       raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
