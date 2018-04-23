@@ -81,20 +81,21 @@
 
 <script>
   <% flag = rates_available?(@employer_profile) %>
-  <% if flag == 'blocking' || '' %>
+  <% if flag == 'blocking' || flag == '' %>
     $(document).ready(function() {
       setTimeout(function() {
         $('.interaction-click-control-save-plan-year').removeClass('disabled');
-        var date = $("input#jq_datepicker_ignore_plan_year_open_enrollment_end_on").val();
+        var date = $('#plan_year_start_on').val();
         plansForDate(date);
       },50);
     });
   <% end %>
-  $("input#jq_datepicker_ignore_plan_year_open_enrollment_end_on").change(function(){
-    var date = $(this).val();
-    plansForDate(date);
-  });
-  
+
+  $('#plan_year_start_on').change(function() {
+    var date = $(this).val().split('-');
+    plansForDate(date[1]+'/'+date[2]+'/'+date[0]);
+  })
+
   function plansForDate(date) {
     $.ajax({
       type: "GET",
@@ -103,10 +104,17 @@
       },
       success: function(res) {
         if (res != true) { // late rate scenario
+          $("form").attr('novalidate', 'novalidate');
           $('.benefit-group-fields').hide();
           $('.interaction-click-control-add-benefit-group').hide();
           $('.alert-info').removeClass('hide');
           $('.interaction-click-control-save-plan-year').removeClass('disabled');
+          <% if @plan_year.new_record? %>
+          setTimeout(function() {
+            $('.interaction-click-control-continue').hide();
+            $('.col-xs-3.pull-right').append('<button class="btn btn-primary btn-lg plan-year-primary btn-lg" type="submit" data-toggle="tooltip" title="<%= button_tooltip %>"><%= "#{button_name}".html_safe %></button>')
+          },800);
+          <% end %>
         } else if (res == true) {
           $('.benefit-group-fields').show();
           $('.interaction-click-control-add-benefit-group').show();

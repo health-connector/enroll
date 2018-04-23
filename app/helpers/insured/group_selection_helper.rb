@@ -2,8 +2,11 @@ module Insured
   module GroupSelectionHelper
 
     def can_employee_shop?(date)
-      PlanYear.calculate_start_on_dates[-1] == date
+      return false if date.blank?
+      date = Date.strptime(date.to_s,"%m/%d/%Y")
+      Plan.has_rates_for_all_carriers?(date) == false
     end
+
     def can_shop_individual?(person)
       person.try(:has_active_consumer_role?)
     end
@@ -85,9 +88,9 @@ module Insured
 
     def selected_enrollment(family, employee_role)
       employer_profile = employee_role.employer_profile
-      py = employer_profile.plan_years.detect { |py| is_covered_plan_year?(py, family.current_sep.effective_on)} || employer_profile.published_plan_year
+      plan_year = employer_profile.plan_years.detect { |py| is_covered_plan_year?(py, family.current_sep.effective_on)} || employer_profile.published_plan_year
       enrollments = family.active_household.hbx_enrollments
-      if py.present? && py.is_renewing?
+      if plan_year.present? && plan_year.is_renewing?
         renewal_enrollment(enrollments, employee_role)
       else
         active_enrollment(enrollments, employee_role)
