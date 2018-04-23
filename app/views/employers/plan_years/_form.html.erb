@@ -103,12 +103,14 @@
       },
       success: function(res) {
         if (res != true) { // late rate scenario
+          $("form").attr('novalidate', 'novalidate');
           $('.benefit-group-fields').hide();
           $('.interaction-click-control-add-benefit-group').hide();
           $('.alert-info').removeClass('hide');
           $('.interaction-click-control-save-plan-year').removeClass('disabled');
           <% if @plan_year.new_record? %>
           $('.interaction-click-control-continue').hide();
+          $(["input:hidden, textarea:hidden, select:hidden"]).attr("disabled", true);
           $('.col-xs-3.pull-right').append('<button class="btn btn-primary btn-lg plan-year-primary btn-lg" type="submit" data-toggle="tooltip" title="<%= button_tooltip %>"><%= "#{button_name}".html_safe %></button>')
           $()
           <% end %>
