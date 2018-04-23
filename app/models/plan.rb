@@ -478,7 +478,7 @@ class Plan
     def has_rates_for_all_carriers?(date=nil)
       date = (date || PlanYear.calculate_start_on_dates[0]).beginning_of_quarter
 
-      carrier_count = Plan.where(active_year: date.year).map(&:carrier_profile).uniq.size
+      carrier_count = Plan.where(active_year: date.year).pluck(:carrier_profile_id).uniq.size
       result = Plan.collection.aggregate([
         {"$match" => {"active_year" => date.year}},
         {"$unwind" => '$premium_tables'},
@@ -490,7 +490,7 @@ class Plan
       ],
       :allow_disk_use => true).map{|a| a["count"]}
 
-      carrier_count != result.size
+      carrier_count == result.size
     end
 
     def monthly_premium(plan_year, hios_id, insured_age, coverage_begin_date)
