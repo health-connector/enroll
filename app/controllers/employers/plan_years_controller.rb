@@ -13,6 +13,12 @@ class Employers::PlanYearsController < ApplicationController
     end
   end
 
+  def late_rates_check
+    date = params[:start_on_date].split('/')
+    formatted_date = date.present? ? (Date.new(date[2].to_i,date[0].to_i,date[1].to_i)) : nil
+    render json: !Plan.has_rates_for_all_carriers?(formatted_date)
+  end
+
   def dental_reference_plans
     @location_id = params[:location_id]
     @carrier_profile = params[:carrier_id]
@@ -276,6 +282,10 @@ class Employers::PlanYearsController < ApplicationController
 
   def update
     plan_year = @employer_profile.plan_years.where(id: params[:id]).last
+    if !Plan.has_rates_for_all_carriers?(plan_year_params[:start_on].to_date) == false
+      params["plan_year"]["benefit_groups_attributes"] = {}
+      plan_year.benefit_groups.each{|a| a.delete}
+    end
     @plan_year = ::Forms::PlanYearForm.rebuild(plan_year, plan_year_params)
     @plan_year.benefit_groups.each_with_index do |benefit_group, i|
       benefit_group.elected_plans = benefit_group.elected_plans_by_option_kind
@@ -531,7 +541,7 @@ class Employers::PlanYearsController < ApplicationController
     ]
     )
 
-    plan_year_params["benefit_groups_attributes"].delete_if {|k, v| v.count < 2 }
+    plan_year_params["benefit_groups_attributes"].delete_if {|k, v| v.count < 2 } if plan_year_params["benefit_groups_attributes"].present?
     plan_year_params
   end
 
