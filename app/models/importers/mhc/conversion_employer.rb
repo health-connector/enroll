@@ -16,7 +16,8 @@ module Importers::Mhc
       :sic_code,
       :primary_location_county_fips,
       :primary_location_zip,
-      :mailing_location_zip
+      :mailing_location_zip,
+      :mid_year_conversion
 
     def primary_location_zip=(val='')
       @primary_location_zip= prepend_zeros(val.to_i.to_s,5)

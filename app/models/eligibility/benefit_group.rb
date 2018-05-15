@@ -44,7 +44,7 @@ module Eligibility
     end
 
     ## Conversion employees are not allowed to buy coverage through off-exchange plan year
-    def valid_plan_year    
+    def valid_plan_year
       if employer_profile.is_conversion?
         plan_year.is_conversion ? plan_year.employer_profile.renewing_plan_year : plan_year
       else

@@ -138,7 +138,7 @@ class PlanYear
         bg.estimate_composite_rates
       end
     end
-    self.save!
+    self.save(validate: false)
   end
 
   def filter_active_enrollments_by_date(date)

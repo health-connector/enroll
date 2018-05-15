@@ -3,6 +3,7 @@ FactoryGirl.define do
     organization            { FactoryGirl.build(:organization) }
     entity_kind             "c_corporation"
     sic_code "1111"
+    mid_year_conversion false
 
     transient do
       employee_roles []
@@ -19,6 +20,7 @@ FactoryGirl.define do
     organization            { FactoryGirl.build(:organization) }
     entity_kind             "c_corporation"
     sic_code "1111"
+    mid_year_conversion false
 
     transient do
       employee_roles []
@@ -57,6 +59,7 @@ FactoryGirl.define do
     organization { FactoryGirl.build(:organization) }
     entity_kind "c_corporation"
     sic_code '1111'
+    mid_year_conversion false
     transient do
       start_on TimeKeeper.date_of_record.beginning_of_month
       plan_year_state 'draft'

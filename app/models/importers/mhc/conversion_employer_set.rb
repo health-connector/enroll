@@ -100,17 +100,18 @@ module Importers::Mhc
 
     include ::Importers::RowSet
 
-    def initialize(file_name, o_stream, conversion_date)
+    def initialize(file_name, o_stream, conversion_date, mid_year_conversion_employer)
       @spreadsheet = Roo::Spreadsheet.open(file_name)
       @out_stream = o_stream
       @out_csv = CSV.new(o_stream)
       @conversion_date = conversion_date
+      @mid_year_conversion_employer = mid_year_conversion_employer
     end
 
     def create_model(record_attrs)
       row_action = record_attrs[:action].blank? ? "add" : record_attrs[:action].to_s.strip.downcase
       if row_action == 'add'
-        ::Importers::Mhc::ConversionEmployerCreate.new(record_attrs.merge({:registered_on => @conversion_date}))
+        ::Importers::Mhc::ConversionEmployerCreate.new(record_attrs.merge({:registered_on => @conversion_date, :mid_year_conversion => @mid_year_conversion_employer}))
       elsif row_action == 'update'
         ::Importers::Mhc::ConversionEmployerUpdate.new(record_attrs.merge({:registered_on => @conversion_date}))
       else

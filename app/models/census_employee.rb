@@ -457,7 +457,9 @@ class CensusEmployee < CensusMember
     @construct_role = true
 
     if active_benefit_group_assignment.present?
-      send_invite! if _id_changed?
+      # mid_year_conversion_employer has flag mid_year_conversion on employer profile which is default to false
+      # when conversion data loading we will set to true and we do not want to send invitation
+      send_invite! if _id_changed? && !self.employer_profile.is_mid_year_conversion_employer?
 
       if employee_role.present?
         self.link_employee_role! if may_link_employee_role?

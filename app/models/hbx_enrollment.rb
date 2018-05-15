@@ -1436,6 +1436,7 @@ class HbxEnrollment
   end
 
   def new_hire_enrollment_for_shop?
+    return false if external_enrollment
     return false if is_special_enrollment?
     return false unless is_shop?
     shopping_plan_year = benefit_group.plan_year
