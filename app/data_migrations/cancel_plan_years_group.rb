@@ -12,7 +12,7 @@ class CancelPlanYearsGroup < MongoidMigrationTask
       else  
         plan_year=EmployerProfile.find_by_fein(row['FEIN']).plan_years.where(start_on: date, aasm_state: aasm_state).first
         if plan_year.present?
-            if ["application_ineligible","renewing_application_ineligible"].include? plan_year.aasm_state
+            if ["application_ineligible","renewing_application_ineligible", "publish_pending"].include? plan_year.aasm_state
               enrollments = all_enrollments(plan_year.benefit_groups)
               enrollments.each { |enr| enr.cancel_coverage! if enr.may_cancel_coverage? }
               puts "canceled enrollments for ineligible plan year" unless Rails.env.test?
