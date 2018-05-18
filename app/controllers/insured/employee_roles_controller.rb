@@ -107,6 +107,7 @@ class Insured::EmployeeRolesController < ApplicationController
         end
       else
         # set_employee_bookmark_url
+        # @employee_role.census_employee.trigger_notices("employee_eligibility_notice")
         redirect_path = insured_family_members_path(employee_role_id: @employee_role.id)
         if @person.primary_family && @person.primary_family.active_household
           if @person.primary_family.active_household.hbx_enrollments.any?
@@ -222,4 +223,5 @@ class Insured::EmployeeRolesController < ApplicationController
       current_user.save!
     end
   end
+
 end

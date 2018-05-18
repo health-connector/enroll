@@ -79,7 +79,8 @@ class EmployerProfile
   accepts_nested_attributes_for :plan_years, :inbox, :employer_profile_account, :broker_agency_accounts, :general_agency_accounts
 
   validates_presence_of :entity_kind
-  validates_presence_of :sic_code
+
+  validates_presence_of :sic_code if EmployerProfile.sic_field_exists_for_employer?
   validates_presence_of :contact_method
 
   validates :profile_source,
@@ -147,6 +148,7 @@ class EmployerProfile
     if active_broker_agency_account.present?
       terminate_on = (start_on - 1.day).end_of_day
       fire_broker_agency(terminate_on)
+      fire_general_agency!(terminate_on)
     end
     broker_agency_accounts.build(broker_agency_profile: new_broker_agency, writing_agent_id: broker_role_id, start_on: start_on)
     @broker_agency_profile = new_broker_agency
@@ -252,6 +254,7 @@ class EmployerProfile
     return if active_general_agency_account.blank?
     general_agency_accounts.active.update_all(aasm_state: "inactive", end_on: terminate_on)
     notify_general_agent_terminated
+    self.trigger_notices("general_agency_terminated")
   end
   alias_method :general_agency_profile=, :hire_general_agency
 
@@ -300,8 +303,8 @@ class EmployerProfile
 
   def active_and_renewing_published
     result = []
-    result <<active_plan_year  if active_plan_year.present?
-    result <<renewing_published_plan_year  if renewing_published_plan_year.present?
+    result << active_plan_year  if active_plan_year.present?
+    result << renewing_published_plan_year  if renewing_published_plan_year.present?
     result
   end
 
@@ -575,16 +578,6 @@ class EmployerProfile
       CensusEmployee.matchable(person.ssn, person.dob)
     end
 
-    def organizations_for_low_enrollment_notice(new_date)
-      Organization.where(:"employer_profile.plan_years" =>
-        { :$elemMatch => {
-          :"aasm_state".in => ["enrolling", "renewing_enrolling"],
-          :"open_enrollment_end_on" => new_date+2.days
-          }
-      })
-
-    end
-
     def organizations_for_open_enrollment_begin(new_date)
       Organization.where(:"employer_profile.plan_years" =>
           { :$elemMatch => {
@@ -734,7 +727,6 @@ class EmployerProfile
         #     end
         #   end
         # end
-
         employer_enroll_factory = Factories::EmployerEnrollFactory.new
         employer_enroll_factory.date = new_date
 
@@ -1199,12 +1191,6 @@ class EmployerProfile
   def is_attestation_eligible?
     return true unless enforce_employer_attestation?
     employer_attestation.present? && employer_attestation.is_eligible?
-  end
-
-  def validate_and_send_denial_notice
-    if !is_primary_office_local? || !(is_zip_outside?)
-      self.trigger_notices('initial_employer_denial')
-    end
   end
 
   def terminate(termination_date)
