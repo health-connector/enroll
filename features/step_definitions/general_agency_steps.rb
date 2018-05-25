@@ -152,7 +152,7 @@ When(/^.+ registers with valid information for ga flow$/) do
 end
 
 Then(/^.+ should receive an invitation email for ga flow$/) do
-  open_email("broker.martin@example.com", :with_subject => "Welcome! You've Submitted a Broker Application on the #{Settings.site.short_name} for Business")
+  open_email("broker.martin@example.com", :with_subject => "Congratulations! Your Broker Application for the #{Settings.site.short_name} for Business has been Approved!")
   expect(current_email.to).to eq(["broker.martin@example.com"])
 end
 
@@ -173,15 +173,13 @@ Then(/^.+ should see list of employers and assign portal$/) do
   expect(page).to have_content('Employers')
   expect(page).to have_content('Acmega LLC')
   expect(page).to have_content('General Agencies')
-  expect(page).to have_css("#general_agency_id")
 end
 
 When(/^.+ assign employer to general agency$/) do
-  find("input[id^='broker_dt_employer_ids_']").click
+  find(:xpath, "//*[@id='datatable_filter_bulk_actions']").click
   find(:xpath, "//p[@class='label'][contains(., 'Select General Agency')]").click
   find(:xpath, "//li[contains(., 'Housecare Inc')]").click
   find("#assign_general_agency").trigger('click')
-
 end
 
 Then(/^.+ should see assign successful message$/) do

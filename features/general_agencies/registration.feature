@@ -10,8 +10,9 @@ Feature: Create a General Agency Profile
     And a pending approval status
 
   Scenario: A General Agency is Approved
-    Given an HBX admin exists
-    When HBX admin clicks on Brokers dropdown
+    Given Hbx Admin exists
+    When Hbx Admin logs on to the Hbx Portal  
+    And HBX admin clicks on Brokers dropdown
     And HBX admin clicks on General Agencies option
     And a general agency, pending approval, exists
     When the HBX admin visits the general agency list
