@@ -19,17 +19,20 @@ When(/HBX Admin goes to register an user as individual$/) do
   fill_in 'person[first_name]', :with => "Carlos"
   fill_in 'person[last_name]', :with => "Devina"
   fill_in 'jq_datepicker_ignore_person[dob]', :with => (@u.adult_dob :adult_dob)
+  fill_in 'person[ssn]', :with => "918273645"
   find(:xpath, '//label[@for="radio_male"]').trigger('click')
   find('.btn', text: 'CONTINUE').click
 end
 
 Then(/^HBX Admin clicks on continue button$/) do
-  find('.btn', text: 'CONTINUE').click
+  find('.btn', text: 'Continue').click
 end
 
 Then(/HBX Admin should see a form to enter personal information$/) do
   find(:xpath, '//label[@for="radio_incarcerated_no"]').click
-
+  find(:xpath, '//label[@for="indian_tribe_member_no"]').click
+  find(:xpath, '//label[@for="person_us_citizen_true"]').click
+  find(:xpath, '//label[@for="person_naturalized_citizen_false"]').click
   fill_in "person_addresses_attributes_0_address_1", :with => "4900 USAA BLVD"
   fill_in "person_addresses_attributes_0_address_2", :with => "212"
   fill_in "person_addresses_attributes_0_city", :with=> "Washington"
@@ -43,7 +46,7 @@ Then(/^Hbx Admin should see text Household Info$/) do
   expect(page).to have_content('Household Info')
   expect(page).to have_content('get insurance coverage for other members of your household')
   find_link('Add Member').visible?
-  find('.btn', text: 'CONTINUE').click
+  find('.btn', text: 'Continue').click
 end
 
 Then(/^Hbx Admin should see text Special Enrollment Period$/) do
@@ -85,7 +88,7 @@ When(/HBX Admin clicks on Confirm button on the summary page of plan selection/)
   find(:xpath, '//*[@id="terms_check_thank_you"]').click
   fill_in 'first_name_thank_you', :with => "Carlos"
   fill_in 'last_name_thank_you', :with => "Devina"
-  find('.btn', text: 'CONFIRM').click
+  find('.btn', text: 'Confirm').click
 end
 
 Then(/HBX Admin should see the enrollment receipt page/) do

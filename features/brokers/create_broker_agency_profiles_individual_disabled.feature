@@ -98,7 +98,7 @@ Feature: Create Primary Broker and Broker Agency
     And Primary Broker clicks on the Employers tab
     Then Primary Broker should see Employer and click on legal name
     Then Primary should see the Employer Profile page as Broker
-    When Primary Broker clicks on the Families tab
+    When Primary Broker clicks on the Families tab in csr page
     Then Broker Assisted is a family
     Then Primary Broker goes to the Consumer page
     # Then Primary Broker is on the consumer home page
