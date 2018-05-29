@@ -304,7 +304,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
   end
 
   def assign
-
     page_string = params.permit(:employers_page)[:employers_page]
     page_no = page_string.blank? ? nil : page_string.to_i
     if current_user.has_broker_agency_staff_role? || current_user.has_hbx_staff_role?
