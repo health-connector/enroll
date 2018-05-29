@@ -77,9 +77,9 @@ When(/^HBX admin clicks on General Agencies option$/) do
 end
 
 When /^the HBX admin visits the general agency list$/ do
-  login_as hbx_admin, scope: :user
   visit exchanges_hbx_profiles_root_path
-  click_link 'General Agencies'
+  find(:xpath, "//*[@id='myTab']/li[6]/a").click
+  find(:xpath, "//*[@id='myTab']/li[6]/ul/li[3]/a/span[1]").click
 end
 
 Then /^they should see the pending general agency$/ do
@@ -88,7 +88,7 @@ Then /^they should see the pending general agency$/ do
 end
 
 When /^they click the link of general agency$/ do
-  click_link general_agency.legal_name
+  page.find('a', text: general_agency.legal_name).trigger('click')
 end
 
 Then /^they should see the home of general agency$/ do

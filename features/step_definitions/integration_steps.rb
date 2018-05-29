@@ -902,32 +902,24 @@ When(/^.+ clicks? to add the first employee$/) do
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab_name|
-  if !(Settings.aca.state_abbreviation == "DC" && tab_name == "User Accounts")
-    find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
+  find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
   wait_for_ajax
-
-  elsif Settings.aca.state_abbreviation == "DC" && tab_name == "Families"
-    find(:xpath, "//*[@id='myTab']/li[2]/ul/li[1]/a/span[1]", :wait => 10).click
+  if Settings.aca.state_abbreviation == "DC" && tab_name == "Families"
     wait_for_ajax
-
-  else Settings.aca.state_abbreviation == "DC" && tab_name == "Broker Agencies"
-    find(".interaction-click-control-broker-agencies").click
+    if find(:xpath, "//*[@id='myTab']/li[2]/ul/li[1]/a/span[1]")
+      find(:xpath, "//*[@id='myTab']/li[2]/ul/li[1]/a/span[1]", :wait => 10).click
+    end
     wait_for_ajax
   end
+end
 
-  # if Settings.aca.state_abbreviation == "DC"
-  #   find(:xpath, "//*[@id='myTab']/li[2]/ul/li[1]/a/span[1]", :wait => 10).click
-  #   wait_for_ajax
-  # end
+When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab in CSR page$/) do |tab_name|
+  find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
-  if Settings.aca.state_abbreviation == "MA"
-    find(".#{tab_name.downcase}-dropdown").click
-    wait_for_ajax
-  else
-    find(".interaction-click-control-brokers").click
-  end
+  find(".#{tab_name.downcase}-dropdown").click
+  wait_for_ajax
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) option$/) do |tab_name|

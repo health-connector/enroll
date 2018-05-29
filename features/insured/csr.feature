@@ -28,7 +28,7 @@ Feature: CSR finishes shopping for Individual
       Then CSR should see the dependents form
       And I click on the header link to return to CSR page
       Then CSR should see the Agent Portal
-      Then CSR should click on the Families tab
+      Then CSR should click on the Families tab in CSR page
       Then CSR clicks on New Consumer Paper Application
       Then CSR starts a new enrollment
       Then CSR logs out
