@@ -894,7 +894,7 @@ When(/^.+ should see a published success message without employee$/) do
 end
 
 When(/^.+ clicks? on the add employee button$/) do
-  find('.interaction-click-control-add-new-employee', :wait => 10).click
+  find('.interaction-click-control-add-employee', :wait => 10).click
 end
 
 When(/^.+ clicks? to add the first employee$/) do
@@ -916,6 +916,7 @@ end
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab in CSR page$/) do |tab_name|
   find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
 end
+
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
   find(".#{tab_name.downcase}-dropdown").click

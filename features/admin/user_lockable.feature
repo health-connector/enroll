@@ -6,6 +6,8 @@ Feature: Lock and Unlock user account
   Scenario: Admin can change the locked status of the user
     Given Hbx Admin exists
     When Hbx Admin logs on to the Hbx Portal
+    And I select the all security question and give the answer
+    When I have submit the security questions
     Then there are 1 preloaded locked user accounts
     When Hbx Admin clicks on the User Accounts tab
     Then Hbx Admin should see the list of user accounts and an Action button
@@ -19,6 +21,8 @@ Feature: Lock and Unlock user account
   Scenario: Admin can change the locked status of the user
     Given Hbx Admin exists
     When Hbx Admin logs on to the Hbx Portal
+    And I select the all security question and give the answer
+    When I have submit the security questions
     Then there are 1 preloaded unlocked user accounts
     When Hbx Admin clicks on the User Accounts tab
     Then Hbx Admin should see the list of user accounts and an Action button

@@ -75,6 +75,8 @@
           page.all('.security-question-select')[num].set("Security Question #{num + 1}")
           page.all('.interaction-field-control-security-question-response-question-answer')[num].set("Answer #{num+1}")
         end
+      else
+        true
       end
     end
 
@@ -84,6 +86,8 @@
       else
         screenshot("group_selection")
         find('.interaction-click-control-save-responses').click
+      else
+        true
       end
     end
 

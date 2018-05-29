@@ -383,10 +383,9 @@ end
 
 And(/^.+ should be able to enter sole source plan year, benefits, relationship benefits for cobra$/) do
   enter_plan_year_info
-
   find(:xpath, '//li/label[@for="plan_year_benefit_groups_attributes_0_plan_option_kind_sole_source"]').click
   wait_for_ajax
-  find('.sole-source-plan-tab a').click
+  first('.sole-source-plan-tab a').click
   wait_for_ajax
 
   find('.reference-plans label').click
@@ -424,7 +423,7 @@ And(/^.+ should be able to enter single carrier plan year, benefits, relationshi
 
   find(:xpath, '//li/label[@for="plan_year_benefit_groups_attributes_0_plan_option_kind_single_carrier"]').click
   wait_for_ajax
-  find('.carriers-tab a').click
+  first('.carriers-tab a').click
   wait_for_ajax
   find('.reference-plans label').click
   wait_for_ajax
