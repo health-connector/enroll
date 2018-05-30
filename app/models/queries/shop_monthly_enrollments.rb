@@ -121,7 +121,7 @@ module Queries
       {
         "households.hbx_enrollments.benefit_group_id" => {"$in" => collect_benefit_group_ids},
         "households.hbx_enrollments.aasm_state" => {"$in" => new_enrollment_statuses},
-        "households.hbx_enrollments.effective_on" => @effective_on,
+        "households.hbx_enrollments.effective_on" => {"$gte" => @effective_on},
         # Exclude COBRA, for now
         "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]}
       }

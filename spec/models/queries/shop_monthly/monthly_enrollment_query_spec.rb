@@ -187,6 +187,11 @@ describe "a monthly shop enrollment query" do
       let!(:enrollment_8) {
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.renewal_benefit_group_assignment, employee_role: employee_C, submitted_at: effective_on - 22.days)
       }
+  
+      let!(:enrollment_9) {
+        benefit_group_assignment = employee_C.census_employee.renewal_benefit_group_assignment
+        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: benefit_group_assignment, employee_role: employee_C, submitted_at: effective_on - 22.days, effective_date: benefit_group_assignment.benefit_group.start_on.next_month)
+      }
 
 
       let(:feins) {
@@ -232,6 +237,11 @@ describe "a monthly shop enrollment query" do
       it "includes enrollment 8" do
         result = Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on)
         expect(result).to include(enrollment_8.hbx_id)
+      end
+
+      it "includes enrollment 9 (with effective date later than plan year begin date)" do 
+        result = Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on)
+        expect(result).to include(enrollment_9.hbx_id)
       end
     end
   end
