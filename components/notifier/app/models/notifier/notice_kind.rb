@@ -46,14 +46,18 @@ module Notifier
     end
 
     def execute_notice(event_name, payload)
+      puts "#{event_name} #{payload}"
       finder_mapping = Notifier::ApplicationEventMapper.lookup_resource_mapping(event_name)
       if finder_mapping.nil?
         raise ArgumentError.new("BOGUS EVENT...could n't find resoure mapping for event #{event_name}.")
       end
 
       @payload = payload
+      puts "#{payload}"
       @resource = finder_mapping.mapped_class.send(finder_mapping.search_method, payload[finder_mapping.identifier_key.to_s])
+      puts "resource present"
       if @resource.blank?
+        puts "resource blank"
         raise ArgumentError.new("Bad Payload...could n't find resoure with #{payload[finder_mapping.identifier_key.to_s]}.")
       end
 
