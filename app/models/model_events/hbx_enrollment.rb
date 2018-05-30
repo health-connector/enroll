@@ -3,9 +3,9 @@ module ModelEvents
 
     REGISTERED_EVENTS = [
       :application_coverage_selected,
+      :notify_employee_of_plan_selection_in_open_enrollment,
       :employee_waiver_confirmation,
-      :employee_coverage_termination,
-      :notify_employee_of_plan_selection_in_open_enrollment
+      :employee_coverage_termination
     ]
 
     def notify_on_save

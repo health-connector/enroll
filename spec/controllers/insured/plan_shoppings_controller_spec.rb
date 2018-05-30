@@ -600,13 +600,16 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller do
     let(:family) { person.primary_family }
     let(:household) { family.active_household }
     let(:individual_plans) { FactoryGirl.create_list(:plan, 5, :with_premium_tables, market: 'individual') }
-    let(:plan) { individual_plans.first }
+    let!(:plan) { individual_plans.first }
+    let!(:previous_age) {
+        person.age_on(previous_hbx_enrollment.effective_on)
+      }
     let!(:previous_hbx_enrollment) {
       FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, enrollment_members: family.family_members, household: household, plan: plan, effective_on: TimeKeeper.date_of_record.beginning_of_year, kind: 'individual')
     }
 
     let!(:new_hbx_enrollment) {
-      FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, enrollment_members: family.family_members, household: household, plan: plan, effective_on: Date.new(TimeKeeper.date_of_record.year, 5, 1), kind: 'individual', aasm_state: 'shopping')
+      FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, enrollment_members: family.family_members, household: household, plan: plan, effective_on: Date.new(TimeKeeper.date_of_record.year, (plan.premium_tables.where(:age => previous_age).first.start_on.month), 1), kind: 'individual', aasm_state: 'shopping')
     }
 
     let(:benefit_coverage_period) { hbx_profile.benefit_sponsorship.current_benefit_period }
@@ -620,10 +623,6 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller do
     end
 
     context "when plan is same as existing coverage plan" do
-
-      let(:previous_age) {
-        person.age_on(previous_hbx_enrollment.effective_on)
-      }
 
       it "should calculate premium from previous enrollment effective date" do
         Caches::PlanDetails.load_record_cache!
