@@ -11,9 +11,9 @@ module ModelEvents
       :ineligible_renewal_application_submitted,
       :initial_employer_open_enrollment_completed,
       :application_denied,
-      :zero_employees_on_roster,
       :renewal_application_denied,
-      :group_advance_termination_confirmation
+      :group_advance_termination_confirmation,
+      :zero_employees_on_roster
     ]
 
     DATA_CHANGE_EVENTS = [
@@ -77,16 +77,16 @@ module ModelEvents
           is_renewal_application_denied = true
         end
 
-        if is_transition_matching?(to: :published, from: :draft, event: :force_publish)
-          is_zero_employees_on_roster = true
-        end
-
         if is_transition_matching?(to: :termination_pending, from: :active, event: :schedule_termination)
           is_group_advance_termination_confirmation = true
         end
         
         if is_transition_matching?(to: :terminated, from: [:active, :suspended], event: :terminate)
           is_group_advance_termination_confirmation = true
+        end
+
+        if is_transition_matching?(to: :published, from: :draft, event: :force_publish)
+          is_zero_employees_on_roster = true
         end
 
         # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
