@@ -6,6 +6,7 @@ RSpec.describe "broker_agencies/profiles/_menu.html.erb" do
 
   before :each do
     sign_in(user)
+    allow(view).to receive(:general_agency_enabled?).and_return(false)
     assign(:broker_agency_profile, broker_agency_profile)
     assign(:id, broker_agency_profile.id)
     assign(:provider, broker_agency_profile)
@@ -21,9 +22,6 @@ RSpec.describe "broker_agencies/profiles/_menu.html.erb" do
     end
 
     context "with general agency disabled" do
-      before :each do
-        allow(view).to receive(:general_agency_enabled?).and_return(false)
-      end
       it "does not show general agency related links" do
         render partial: 'broker_agencies/profiles/menu', locals: {active_tab: "home-tab" }
         expect(view.content_for(:horizontal_menu)).not_to match /General Agencies/
