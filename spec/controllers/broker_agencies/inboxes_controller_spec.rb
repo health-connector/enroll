@@ -6,10 +6,13 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller do
   let(:person) { double(:employer_staff_roles => [double("person", :employer_profile_id => double)])}
 
   describe "Get new" do
-    let(:inbox_provider){double(id: double("id"),legal_name: double("inbox_provider"), inbox: double(messages: double(build: double("inbox"))))}
+    let(:person_inbox_provider) { double(id: '123abc',legal_name: double("inbox_provider"), inbox: double(messages: double(build: double("inbox"))))}
+    let(:inbox_provider){double(id: '789xyz',legal_name: double("inbox_provider"), inbox: double(messages: double(build: double("inbox"))))}
+
     before do
       sign_in user
-      allow(Person).to receive(:find).and_return(inbox_provider)
+      allow(Person).to receive(:find).and_return(person_inbox_provider)
+      allow(BrokerAgencyProfile).to receive(:find).and_return(inbox_provider)
       allow(BrokerAgencyProfile).to receive(:where).and_return(inbox_provider)
       allow(HbxProfile).to receive(:find).and_return(hbx_profile)
       allow(user).to receive(:person).and_return(person)
@@ -25,13 +28,14 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller do
 
   describe "POST create" do
     let(:inbox){Inbox.new}
-    let(:inbox_provider){double(id: double("id"),legal_name: double("inbox_provider"))}
+    let(:person_inbox_provider) { double(id: '123abc',legal_name: double("inbox_provider"), inbox: double(messages: double(build: double("inbox"))))}
+    let(:inbox_provider){double(id: '789xyz',legal_name: double("inbox_provider"), inbox: double(messages: double(build: double("inbox"))))}
     let(:valid_params){{"message"=>{"subject"=>"test", "body"=>"test", "sender_id"=>"558b63ef4741542b64290000", "from"=>"HBXAdmin", "to"=>"Acme Inc."}}}
     before do
       allow(user).to receive(:person).and_return(person)
       sign_in(user)
-      allow(Person).to receive(:find).and_return(inbox_provider)
-      allow(BrokerAgencyProfile).to receive(:where).and_return(inbox_provider)
+      allow(Person).to receive(:find).and_return(person_inbox_provider)
+      allow(BrokerAgencyProfile).to receive(:find).and_return(inbox_provider)
       allow(HbxProfile).to receive(:find).and_return(hbx_profile)
       allow(inbox_provider).to receive(:inbox).and_return(inbox)
       allow(inbox_provider.inbox).to receive(:post_message).and_return(inbox)
@@ -67,7 +71,7 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller do
     let(:organization){ FactoryGirl.create(:organization) }
     let(:hbx_profile){ double("HbxProfile") }
     it "renders" do
-      sign_in
+      sign_in user
       allow(BrokerAgencyProfile).to receive(:find).and_return(broker_agency_profile)
       allow(broker_agency_profile).to receive(:inbox).and_return(inbox)
       allow(inbox).to receive(:messages).and_return(messages)
@@ -110,7 +114,7 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller do
       allow(user).to receive(:person).and_return(person)
       allow(user).to receive(:has_hbx_staff_role?).and_return(false)
       sign_in(user)
-      allow(BrokerAgencyProfile).to receive(:where).and_return(nil)
+      allow(BrokerAgencyProfile).to receive(:find).and_return(nil)
       allow(controller).to receive(:find_message)
       controller.instance_variable_set(:@message, message)
       allow(message).to receive(:update_attributes).and_return(true)

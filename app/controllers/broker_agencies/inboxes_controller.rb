@@ -47,19 +47,14 @@ class BrokerAgencies::InboxesController < InboxesController
   end
 
  def find_inbox_provider
-    id = params["id"]||params['profile_id']
-    if Person.find(params["id"]).id.to_s == id
-      @inbox_provider = Person.find(params["id"])
-    else
-      @broker_agency_provider = BrokerAgencyProfile.where(:_id => params["id"]||params['profile_id'])
-      if @broker_agency_provider.present?
-        @inbox_provider = @broker_agency_provider
-      else
-        @inbox_provider = Person.where(:_id => id).first
-      end
-
-    end
-
+    id = params["id"] || params['profile_id']
+    person = Person.where(_id: id).first
+    @inbox_provider = if person.present?
+                        person
+                      else
+                        @broker_agency_provider = BrokerAgencyProfile.find(id)
+                        @broker_agency_provider
+                      end
   end
 
   def successful_save_path
