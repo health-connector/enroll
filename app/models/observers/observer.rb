@@ -5,16 +5,20 @@ module Observers
     def trigger_notice(recipient:, event_object:, notice_event:, notice_params: nil)
       puts "enter observer"
       return if recipient.blank? || event_object.blank?
+      @logger = Logger.new("#{Rails.root}/log/observer.log")
+      @logger.info "enter trigger notice method #{recipient}"
       resource_mapping = Notifier::ApplicationEventMapper.map_resource(recipient.class)
+      @logger.info "enter resource mapping #{resource_mapping}"
       event_name = Notifier::ApplicationEventMapper.map_event_name(resource_mapping, notice_event)
       log("OBSERVER NOTICE EVENT: #{event_name}, event_object_kind: #{event_object.class.to_s}, event_object_id: #{event_object.id.to_s}", {:severity => 'info'})
-      puts "notify params"
+      @logger.info "enter notify #{event_name}"
       notify(event_name, {
         resource_mapping.identifier_key => recipient.send(resource_mapping.identifier_method).to_s,
         :event_object_kind => event_object.class.to_s,
         :event_object_id => event_object.id.to_s,
         :notice_params => notice_params
       })
+      @logger.info "end notify"
     end
 
     def organizations_for_force_publish(new_date)

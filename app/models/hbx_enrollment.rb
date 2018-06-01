@@ -1538,7 +1538,10 @@ class HbxEnrollment
   # end
 
   def any_dependent_members_age_above_26?
+    @logger = Logger.new("#{Rails.root}/log/hbx_enrollment.log")
+    @logger.info "enter dep age check"
     hbx_enrollment_members.where(is_subscriber: false).map(&:family_member).map(&:person).each do |person|
+       @logger.info "person #{person}"
       return true if person.age_on(TimeKeeper.date_of_record) >= 26
     end
     return false

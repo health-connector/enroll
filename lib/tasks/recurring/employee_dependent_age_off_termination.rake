@@ -6,6 +6,7 @@ namespace :recurring do
     if new_date.mday == TimeKeeper.date_of_record
       Family.all_with_multiple_family_members.by_enrollment_shop_market.each do |family|
         begin
+
           primary_person = family.primary_applicant.person
           employee_roles = primary_person.active_employee_roles
           employee_roles.each do |employee_role|
@@ -58,10 +59,13 @@ namespace :recurring do
   # RAILS_ENV=production bundle exec rake recurring:dependent_age_off_termination_notification_manual['48574857']
   desc "Manual rake task used to send dependent age off termination notifications to employees"
   task :dependent_age_off_termination_notification_manual, [:hbx_id] => :environment do |task, args|
+
     return unless args[:hbx_id].present?
     begin
+      puts "enter rake task"
       primary_person = Person.where(:hbx_id => args[:hbx_id].to_s).first
-      puts "person record"
+      @logger = Logger.new("#{Rails.root}/log/employee_dependent_age_off_termination.log")
+      @logger.info "person data "
       trigger_dep_age_off_notice(primary_person)
     rescue Exception => e
       Rails.logger.error {"Unable to deliver employee_dependent_age_off_termination notice to: #{primary_person.hbx_id} due to #{e.backtrace}"}
@@ -69,37 +73,39 @@ namespace :recurring do
   end
 
   def trigger_dep_age_off_notice(person)
-    puts "enter trigger"
-    new_date = TimeKeeper.date_of_record.next_month
+      @logger = Logger.new("#{Rails.root}/log/employee_dependent_age_off_termination.log")
+      @logger.info "enter trigger dep age off notice method"
+    new_date = TimeKeeper.date_of_record
     employee_roles = person.active_employee_roles
-    puts " employee roles"
     employee_roles.each do |employee_role|
+      @logger.info "employee roles present #{employee_role}"
       next if (employee_role.benefit_group.nil?)
       ben_grp = employee_role.benefit_group.is_congress
+      @logger.info "benefit group present #{ben_grp}"
       hbx_enrollments = employee_role.census_employee.active_benefit_group_assignment.hbx_enrollments
       enrollments = hbx_enrollments.select{|e| (HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES).include?(e.aasm_state)}
       if enrollments.present?
-        puts "enrollment success"
+         @logger.info "enrollments present"
         covered_members = enrollments.inject([]) do |covered_members, enrollment|
-          puts "#{covered_members} covered members"
+          @logger.info "covered members present" 
           covered_members += enrollment.hbx_enrollment_members.map(&:family_member).map(&:person)
         end.uniq
         covered_members_ids = covered_members.flat_map(&:_id)
         relations = person.person_relationships.select{ |rel| (covered_members_ids.include? rel.relative_id) && (rel.kind == "child")}
         if relations.present?
-          puts "relations present"
+          @logger.info "relations present"
           aged_off_dependents = relations.select{|dep| (new_date.month == (dep.relative.dob.month)) && (dep.relative.age_on(new_date.end_of_month) >= 26)}.flat_map(&:relative)
           next if aged_off_dependents.empty?
-            puts "#{aged_off_dependents} : age of dependents"
+           @logger.info "aged off dependents"
             dep_hbx_ids = aged_off_dependents.map(&:hbx_id)
+            @logger.info "dependent present #{dep_hbx_ids}"
             event_name = ben_grp ? "employee_notice_dependent_age_off_termination_congressional" : "employee_notice_dependent_age_off_termination_non_congressional"
             puts "event name"
             observer = Observers::Observer.new
-            puts "instance created"
+            @logger.info "instance created"
             observer.trigger_notice(recipient: employee_role, event_object: employee_role.census_employee, notice_event: event_name,  notice_params: {dep_hbx_ids: dep_hbx_ids})
-            puts "notice generated"
+            @logger.info "notice end"
             puts "Delivered employee_dependent_age_off_termination notice to #{employee_role.census_employee.full_name}" unless Rails.env.test?
-
         end
       end
     end
