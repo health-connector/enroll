@@ -7,7 +7,7 @@ FactoryGirl.define do
     expected_selection "enroll"
     employee_relationship "self"
     hired_on "2015-04-01".to_date
-    sequence(:ssn) { |n| "7"+SecureRandom.random_number.to_s[2..8][0..-((Math.log(n+1,10))+1)]+"#{n+1}"}
+    sequence(:ssn) { |n| 222222220 + n }
     is_business_owner  false
     association :address, strategy: :build
     association :email, strategy: :build
