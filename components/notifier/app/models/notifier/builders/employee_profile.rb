@@ -1,5 +1,6 @@
 module Notifier
   class Builders::EmployeeProfile
+    @logger.info "enter employer profile" 
     include ActionView::Helpers::NumberHelper
     include Notifier::Builders::PlanYear
     include Notifier::Builders::Broker
@@ -50,6 +51,7 @@ module Notifier
     end
 
     def census_employee
+      @logger.info "#{employee_role}"       
       employee_role.census_employee
     end
 
@@ -74,9 +76,9 @@ module Notifier
     end
 
     def dependents_name
+      @logger.info "enter dependents name" 
       names = []
       payload[:notice_params][:dep_hbx_ids].each do |dep_id|
-        @logger = Logger.new("#{Rails.root}/log/employee_profile.log")
         @logger.info "payload #{dep_hbx_ids}" 
         names << Person.where(hbx_id: dep_id).first.full_name
       end
@@ -85,6 +87,7 @@ module Notifier
     end
 
     def dependent_termination_date
+      @logger.info "payload #{dep_hbx_ids}" 
       merge_model.dependent_termination_date = format_date(TimeKeeper.date_of_record.end_of_month)
     end
   end

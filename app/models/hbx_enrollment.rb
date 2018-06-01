@@ -1,6 +1,7 @@
 require 'ostruct'
 
 class HbxEnrollment
+      @logger = Logger.new("#{Rails.root}/log/hbx_enrollment.log")
   include Mongoid::Document
   include SetCurrentUser
   include Mongoid::Timestamps
