@@ -1,6 +1,6 @@
 module Notifier
   class Builders::EmployeeProfile
-    @logger.info "enter employer profile" 
+    @logger = Logger.new("#{Rails.root}/log/employee_profile.log")
     include ActionView::Helpers::NumberHelper
     include Notifier::Builders::PlanYear
     include Notifier::Builders::Broker
