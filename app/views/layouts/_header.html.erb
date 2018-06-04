@@ -9,9 +9,9 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" id="ma_logo" href= '<%= "#{site_home_business_url}" %>'>
-          <%= image_tag Settings.site.logo_file_name %>
-        </a>
+         <a class="navbar-brand" id="ma_logo" href= '<%= aca_broker_routing_information ?  "#{site_home_business_url}" : "#{site_home_url}" %>' >
+            <%= image_tag Settings.site.logo_file_name %>
+         </a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
