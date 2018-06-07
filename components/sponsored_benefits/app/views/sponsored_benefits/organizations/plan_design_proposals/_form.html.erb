@@ -23,23 +23,21 @@
   </div>
 </div>
 
-<%= render 'employees' %>
-
-<br />
-<div class="row">
-  <div class="col-md-12">
-
-  <div class="pull-left">
-    <%= link_to 'Return to Quote Management', sponsored_benefits.organizations_plan_design_organization_plan_design_proposals_path(@plan_design_proposal.plan_design_organization), class:'btn btn-primary' %>
-  </div>
-
-  <div class="pull-right">
-    <%= link_to "Select Health Benefits", new_organizations_plan_design_proposal_plan_selection_path(@plan_design_proposal.proposal.id), remote: true, class:'btn btn-primary' %>
-  </div>
-</div>
-</div>
-
 <script>
+  $(function() {
+    $('.employee-btns a').each(function(){
+      if(!$(this).hasClass('download-employees')) {
+        $(this).click(function(e){
+          e.preventDefault();
+          if($("#forms_plan_design_proposal_title").val() == "" || $("#forms_plan_design_proposal_effective_date").val() == "") {
+            $('.save-quote-btn').click();
+            e.stopPropagation();
+          }
+        });
+      }
+    })
+  });
+
   $('select').selectric({
     onChange: function(element) {
       var date = $('.interaction-choice-control-forms-plan-design-proposal-effective-date').val().split('-');
