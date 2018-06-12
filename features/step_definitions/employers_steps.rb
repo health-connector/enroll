@@ -579,14 +579,14 @@ Then /^employer sees termination date column$/ do
 end
 
 And /^employer clicks on terminated employee$/ do
-  expect(page).to have_content CensusMember.all.where(aasm_state: "employment_terminated").first.first_name
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  expect(page).to have_content "Eddie Vedder"
+  click_link 'Eddie Vedder1'
 end
 
 And /^employer clicks on linked employee with address$/ do
   employees.first.update_attributes(aasm_state: "employee_role_linked")
-  expect(page).to have_content employees.first.first_name
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  expect(page).to have_content "Eddie Vedder"
+  click_link employees.first.full_name
 end
 
 Then /^ER should land on (.*) EE tab$/ do |val|
@@ -630,8 +630,8 @@ end
 
 And /^employer clicks on linked employee without address$/ do
   employees.first.address.delete
-  expect(page).to have_content employees.first.first_name
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  expect(page).to have_content "Eddie Vedder"
+  click_link employees.first.full_name
 end
 
 Then /^employer should see the address on the roster$/ do
@@ -654,13 +654,13 @@ end
 
 And /^employer clicks on non-linked employee with address$/ do
   employees.first.update_attributes(aasm_state: "eligible")
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link employees.first.full_name
 end
 
 And /^employer clicks on non-linked employee without address$/ do
   employees.first.address.delete
   employees.first.update_attributes(aasm_state: "eligible")
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link employees.first.full_name
 end
 
 Then /^employer should see employee roaster$/ do

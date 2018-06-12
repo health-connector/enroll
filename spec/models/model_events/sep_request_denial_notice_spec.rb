@@ -15,7 +15,7 @@ describe 'ModelEvents::SepRequestDenialNotice', :dbclean => :after_each  do
 
   describe "NoticeTrigger" do
     context "when employee matches er roster" do
-      subject { Observers::Observer.new }
+      subject { Observers::NoticeObserver.new }
       it "should trigger notice event" do
         expect(subject).to receive(:notify) do |event_name, payload|
           expect(event_name).to eq "acapi.info.events.employee.sep_request_denial_notice"
