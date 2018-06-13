@@ -135,9 +135,10 @@ class Insured::PlanShoppingsController < ApplicationController
       ce = person.active_employee_roles.first.census_employee
       if change_plan.present? or ce.new_hire_enrollment_period.present?
         if @enrollment.benefit_group.is_congress?
-        trigger_notice_observer(ce.employer_profile, @enrollment, 'ee_mid_year_plan_change_congressional_notice')
-      else
-        trigger_notice_observer(ce.employer_profile, @enrollment, 'employee_mid_year_plan_change_notice_to_employer')
+          trigger_notice_observer(ce.employer_profile, @enrollment, 'ee_mid_year_plan_change_congressional_notice')
+        else
+          trigger_notice_observer(ce.employer_profile, @enrollment, 'employee_mid_year_plan_change_notice_to_employer')
+        end
       end
      rescue Exception => e
        log("#{e.message}; person_id: #{person.id}")
