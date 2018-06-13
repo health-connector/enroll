@@ -55,11 +55,11 @@ class ShopEnrollmentReport < MongoidMigrationTask
           in_glue = glue_list.include?(id) if glue_list.present?
           csv << [employer_id,fein,legal_name,plan_year_start,plan_year_state,employer_profile_aasm,eg_id,purchase_time,coverage_start,enrollment_state,subscriber_hbx_id,first_name,last_name,subscriber_ssn,plan_hios_id,covered_lives,in_glue]
         rescue Exception => e
-          puts "enrollment not found"
+          puts "Couldnot add the hbx_enrollment's information on to the CSV, because #{e.inspect}" unless Rails.env.test?
         end
       end
     end
 
-    puts "Shop Enrollment Report Generated"
+    puts "Shop Enrollment Report Generated" unless Rails.env.test?
   end
 end
