@@ -21,7 +21,7 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 
 					csv_org << ["#{org.employer_profile.legal_name}", "#{org.fein}", "#{effected_py.start_on}", "#{org.employer_profile.hbx_id}"]
 					
-					effected_bg_ids = effected_py.benefit_groups.where(:"effective_on_offset" => 0).map(&:id)
+					effected_bg_ids = effected_py.benefit_groups.where(:"effective_on_offset" => 30).map(&:id)
 
 					families = Family.where(
 						:"households.hbx_enrollments" => {
