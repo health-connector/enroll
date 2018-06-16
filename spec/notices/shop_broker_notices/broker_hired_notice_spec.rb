@@ -14,7 +14,7 @@ RSpec.describe ShopBrokerNotices::BrokerHiredNotice do
                             :name =>'Broker Hired',
                             :notice_template => 'notices/shop_broker_notices/broker_hired_notice',
                             :notice_builder => 'ShopBrokerNotices::BrokerHiredNotice',
-                            :event_name => 'broker_hired',
+                            :event_name => 'broker_hired_notice_to_broker',
                             :mpi_indicator => 'SHOP_D048',
                             :title => "You have been Hired as a Broker"})
                           }

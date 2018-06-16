@@ -10,7 +10,7 @@ RSpec.describe ShopEmployerNotices::InitialEmployerEligibilityNotice do
                             :name =>'Initial Employer SHOP Approval Notice',
                             :notice_template => 'notices/shop_employer_notices/2_initial_employer_approval_notice',
                             :notice_builder => 'ShopEmployerNotices::InitialEmployerEligibilityNotice',
-                            :event_name => 'initial_employer_approval',
+                            :event_name => 'initial_application_submitted',
                             :mpi_indicator => 'SHOP_D002',
                             :title => "Employer Approval Notice"})
                           }

@@ -29,7 +29,7 @@ RSpec.describe ShopEmployerNotices::EmployerBrokerFiredNotice do
       :notice_template => 'notices/shop_employer_notices/employer_broker_fired_notice',
       :notice_builder => 'ShopEmployerNotices::EmployerBrokerFiredNotice',
       :mpi_indicator => 'MPI_SHOP52',
-      :event_name => 'employer_broker_fired',
+      :event_name => 'broker_fired_confirmation_to_employer',
       :title => "Confirmation of Broker Fired to Employer"})
   }
   let(:valid_params) {{

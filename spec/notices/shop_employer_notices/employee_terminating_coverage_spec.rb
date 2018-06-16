@@ -19,7 +19,7 @@ RSpec.describe ShopEmployerNotices::EmployeeTerminatingCoverage, :dbclean => :af
                             :name =>'Notice to employer when employee terminates coverage',
                             :notice_template => 'notices/shop_employer_notices/employee_terminating_coverage',
                             :notice_builder => 'ShopEmployerNotices::EmployeeTerminatingCoverage',
-                            :event_name => 'notify_employer_when_employee_terminate_coverage',
+                            :event_name => 'employer_notice_for_employee_coverage_termination',
                             :mpi_indicator => 'SHOP_D041',
                             :title => "Employee Terminating coverage"})
                           }

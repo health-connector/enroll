@@ -10,7 +10,7 @@ RSpec.describe ShopEmployerNotices::InitialEmployerIneligibilityNotice do
                             :name =>'Initial Employer ineligible to obtain coverage.',
                             :notice_template => 'notices/shop_employer_notices/initial_employer_ineligibility_notice',
                             :notice_builder => 'ShopEmployerNotices::InitialEmployerIneligibilityNotice',
-                            :event_name => 'initial_employer_ineligibility_notice',
+                            :event_name => 'initial_employer_application_denied',
                             :mpi_indicator => 'SHOP_D020',
                             :title => "Group Ineligible to Obtain Coverage"})
                           }

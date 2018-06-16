@@ -19,8 +19,8 @@ RSpec.describe ShopEmployeeNotices::EeSepRequestAcceptedNotice do
                             :name =>'EE SEP Requested Accepted',
                             :notice_template => 'notices/shop_employee_notices/ee_sep_request_accepted_notice',
                             :notice_builder => 'ShopEmployeeNotices::EeSepRequestAcceptedNotice',
-                            :event_name => 'ee_sep_request_accepted_notice',
-                            :mpi_indicator => 'MPI_SHOP36',
+                            :event_name => 'employee_sep_request_accepted',
+                            :mpi_indicator => 'MPI_SHOP34',
                             :title => "Special Enrollment Period Approval"})
                           }
   let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 04, 14)}

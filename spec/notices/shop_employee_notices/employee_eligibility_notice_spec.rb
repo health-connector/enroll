@@ -12,7 +12,7 @@ RSpec.describe ShopEmployeeNotices::EmployeeEligibilityNotice, :dbclean => :afte
                             :name =>'Employee Eligibility Notice',
                             :notice_template => 'notices/shop_employee_notices/employee_eligibility_notice',
                             :notice_builder => 'ShopEmployeeNotices::EmployeeEligibilityNotice',
-                            :event_name => 'employee_eligibility_notice',
+                            :event_name => 'employee_matches_employer_rooster',
                             :mpi_indicator => 'DAE053',
                             :title => "Employee Eligibility Notice"})
                           }

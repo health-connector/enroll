@@ -16,8 +16,8 @@ RSpec.describe ShopEmployeeNotices::OpenEnrollmentNoticeForAutoRenewal do
                             :name =>'Renewal Open Enrollment available for Employee',
                             :notice_template => 'notices/shop_employee_notices/8a_renewal_open_enrollment_notice_for_employee',
                             :notice_builder => 'ShopEmployeeNotices::OpenEnrollmentNoticeForAutoRenewal',
-                            :mpi_indicator => 'MPI_SHOP8A',
-                            :event_name => 'employee_open_enrollment_auto_renewal',
+                            :mpi_indicator => 'SHOP_D010',
+                            :event_name => 'employee_coverage_passively_renewed',
                             :title => "Your Health Plan Open Enrollment Period has Begun"})
                           }
   let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: family.active_household, effective_on: TimeKeeper.date_of_record.beginning_of_month + 2.month, plan: renewal_plan)}

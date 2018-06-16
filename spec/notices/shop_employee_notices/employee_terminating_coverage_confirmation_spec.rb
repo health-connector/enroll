@@ -19,7 +19,7 @@ RSpec.describe ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation, :db
                             :name =>'Employee must be notified when they successfully match to their employer',
                             :notice_template => 'notices/shop_employee_notices/employee_terminating_coverage_confirmation',
                             :notice_builder => 'ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation',
-                            :event_name => 'notify_employee_confirming_coverage_termination',
+                            :event_name => 'employee_notice_for_employee_coverage_termination',
                             :mpi_indicator => 'SHOP_D042',
                             :title => "Confirmation of Election To Terminate Coverage"})
                           }

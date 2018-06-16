@@ -14,8 +14,8 @@ RSpec.describe ShopEmployerNotices::RenewalEmployerEligibilityNotice do
                             :name =>'PlanYear Renewal',
                             :notice_template => 'notices/shop_employer_notices/3a_employer_plan_year_renewal',
                             :notice_builder => 'ShopEmployerNotices::RenewalEmployerEligibilityNotice',
-                            :mpi_indicator => 'MPI_SHOPRA',
-                            :event_name => 'planyear_renewal_3a',
+                            :mpi_indicator => 'SHOP_D006',
+                            :event_name => 'renewal_application_published',
                             :title => "Plan Offerings Finalized"})
                           }
   let(:valid_parmas) {{

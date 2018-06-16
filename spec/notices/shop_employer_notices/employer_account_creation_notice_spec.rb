@@ -8,7 +8,7 @@ RSpec.describe ShopEmployerNotices::EmployerAccountCreationNotice, :dbclean => :
                             :name =>'Welcome to DC Health Link',
                             :notice_template => 'notices/shop_employer_notices/employer_account_creation_notice',
                             :notice_builder => 'ShopEmployerNotices::EmployerAccountCreationNotice',
-                            :event_name => 'employer_account_creation_notice',
+                            :event_name => 'welcome_notice_to_employer',
                             :mpi_indicator => 'SHOP_D001',
                             :title => "Welcome Notice to Employer"})
                           }
