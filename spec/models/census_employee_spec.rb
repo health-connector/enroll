@@ -571,12 +571,12 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           hired_on: "2014-08-12".to_date
       )}
       let!(:person)                       { Person.create(
-                                              first_name: existing_census_employee.first_name,
-                                              last_name: existing_census_employee.last_name,
-                                              ssn: existing_census_employee.ssn,
-                                              dob: existing_census_employee.dob,
-                                              gender: existing_census_employee.gender
-                                            )}
+          first_name: existing_census_employee.first_name,
+          last_name: existing_census_employee.last_name,
+          ssn: existing_census_employee.ssn,
+          dob: existing_census_employee.dob,
+          gender: existing_census_employee.gender
+      )}
       let!(:user) { create(:user, person: person)}
       let!(:employee_role)                { EmployeeRole.create(
           person: person,
