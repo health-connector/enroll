@@ -611,6 +611,18 @@ describe BenefitGroup, type: :model do
           expect(benefit_group.elected_plans_by_option_kind.size).to eq 4
           expect(benefit_group.elected_plans_by_option_kind.map(&:metal_level).uniq).to eq ["gold", "silver"]
         end
+
+        context "for plans if benefit_group's plan_option_kind is metal_level" do
+          before :each do
+            benefit_group.update_attributes!(:plan_option_kind => :metal_level)
+            allow(Settings.aca).to receive(:offerings_constrained_to_service_areas).and_return(false)
+            allow(benefit_group).to receive(:individual_market_is_enabled?).and_return(false)
+          end
+
+          it "should have plans if individual market is not enabled" do
+            expect(benefit_group.elected_plans_by_option_kind.present?).to eq true
+          end
+        end
       end
 
       context "and the reference plan is not in the elected plan set" do
