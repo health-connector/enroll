@@ -235,7 +235,7 @@ class BrokerAgencies::ProfilesController < ApplicationController
       elsif @general_agency_profile.present?
         @broker_agency_profile.default_general_agency_profile = @general_agency_profile
         @broker_agency_profile.employer_clients.each do |employer_profile|
-          @general_agency_profile.general_agency_hired_notice(employer_profile) # GA notice when broker selects a default GA 
+          @general_agency_profile.trigger_model_event(:general_agency_hired, event_object: employer_profile) # GA notice when broker selects a default GA 
         end
       end
       @broker_agency_profile.save
@@ -329,7 +329,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
       when 'fire'
         params[:employer_ids].each do |employer_id|
           employer_profile = EmployerProfile.find(employer_id) rescue next
-
           employer_profile.fire_general_agency!
           send_general_agency_assign_msg(general_agency_profile, employer_profile, 'Terminate')
         end
@@ -350,7 +349,7 @@ class BrokerAgencies::ProfilesController < ApplicationController
             employer_profile.hire_general_agency(general_agency_profile, broker_role_id)
             employer_profile.save
             send_general_agency_assign_msg(general_agency_profile, employer_profile, 'Hire')
-            general_agency_profile.general_agency_hired_notice(employer_profile) #GA notice when broker Assign a GA to employers
+            # general_agency_profile.general_agency_hired_notice(employer_profile) #GA notice when broker Assign a GA to employers
           end
         end
         flash.now[:notice] ="Assign successful."

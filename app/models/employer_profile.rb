@@ -170,9 +170,9 @@ class EmployerProfile
     trigger_notice_observer(active_broker_agency_account.broker_agency_profile.primary_broker_role, self, "broker_fired_confirmation_to_broker")
   end
 
-  def broker_fired_confirmation_to_broker
-    trigger_notices('broker_fired_confirmation_to_broker')
-  end
+  # def broker_fired_confirmation_to_broker
+  #   trigger_notices('broker_fired_confirmation_to_broker')
+  # end
 
   def employer_broker_fired
     trigger_notices('employer_broker_fired')
@@ -244,6 +244,7 @@ class EmployerProfile
     fire_general_agency!(TimeKeeper.datetime_of_record) if active_general_agency_account.present?
     general_agency_accounts.build(general_agency_profile: new_general_agency, start_on: start_on, broker_role_id: broker_role_id)
     @general_agency_profile = new_general_agency
+    @general_agency_profile.trigger_model_event(:general_agency_hired, event_object: self )
   end
 
   def fire_general_agency!(terminate_on = TimeKeeper.datetime_of_record)

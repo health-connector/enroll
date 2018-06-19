@@ -63,10 +63,29 @@ module Notifier
       end
     end
 
+    def employer
+      return @employer if defined? @employer
+      if payload["event_object_kind"].constantize == EmployerProfile
+        @employer = EmployerProfile.find(payload["event_object_id"])
+      end
+    end
+
+    def employer_name
+      merge_model.employer_name = employer.organization.legal_name
+    end
+
+    def employer_poc_firstname
+      merge_model.employer_poc_firstname = employer.staff_roles.first_name
+    end
+
+    def employer_poc_lastname
+      merge_model.employer_poc_lastname = employer.staff_roles.last_name
+    end
+
     def broker
       return @broker if defined? @broker
-      if payload[:event_object_kind].constantize == BrokerAgencyProfile
-        @broker = BrokerAgencyProfile.find(payload[:event_object_id])
+      if payload["event_object_kind"].constantize == BrokerAgencyProfile
+        @broker = BrokerAgencyProfile.find(payload["event_object_id"])
       end
     end
 

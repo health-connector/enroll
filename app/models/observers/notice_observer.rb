@@ -246,10 +246,27 @@ module Observers
       end
     end
 
+    def general_agency_profile_update(new_model_event)
+      raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
+        general_agency = new_model_event.klass_instance
+
+      if GeneralAgencyProfile::REGISTERED_EVENTS.include?(new_model_event.event_key)
+      end
+
+      if GeneralAgencyProfile::OTHER_EVENTS.include?(new_model_event.event_key)
+        event_object = new_model_event.options[:event_object]
+        if event_object.present?
+          deliver(recipient: general_agency, event_object: event_object, notice_event: new_model_event.event_key.to_s)
+        end
+      end
+    end
+
+
     def employer_profile_date_change; end
     def hbx_enrollment_date_change; end
     def census_employee_date_change; end
     def special_enrollment_period_date_change; end
+    def general_agency_profile_date_change; end
 
     def census_employee_update(new_model_event)
       raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)

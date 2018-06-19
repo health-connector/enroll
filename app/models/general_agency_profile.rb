@@ -3,8 +3,12 @@ class GeneralAgencyProfile
   include SetCurrentUser
   include Mongoid::Timestamps
   include AASM
+  include Acapi::Notifiers
+  extend Acapi::Notifiers
   include AgencyProfile
   include Config::AcaModelConcern
+  include Concerns::Observable
+  include ModelEvents::GeneralAgency
 
   # for market_kind
   MARKET_KINDS = individual_market_is_enabled? ? %W[individual shop both] : %W[shop]
