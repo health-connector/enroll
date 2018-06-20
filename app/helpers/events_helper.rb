@@ -34,6 +34,8 @@ module EventsHelper
                   "drop_family_member_due_to_new_eligibility"
                 when "employer_sponsored_coverage_termination"
                   "eligibility_change_employer_ineligible"
+                when "employer_sponsored_cobra"
+                  "cobra"
                 else
                   eligibility_kind
                 end
@@ -72,10 +74,6 @@ module EventsHelper
     employer.plan_years.select(&:eligible_for_export?)
   end
 
-  def manual_gen_plan_years(employer)
-    employer.plan_years.select{|plan_year| !(PlanYear::INELIGIBLE_FOR_EXPORT_STATES.include? plan_year.aasm_state)}
-  end
-
   def is_initial_or_conversion_employer?(employer)
     (employer.published_plan_year.present? && employer.renewing_published_plan_year.blank?) && (!employer.is_conversion? || (employer.is_conversion? && !employer.published_plan_year.is_conversion))
   end
@@ -94,5 +92,10 @@ module EventsHelper
 
   def is_renewal_or_conversion_employer?(employer)
     is_new_conversion_employer?(employer) || is_renewal_employer?(employer) || is_renewing_conversion_employer?(employer)
+  end
+
+  def plan_years_for_manual_export(employer)
+    plan_year_states = PlanYear::INELIGIBLE_FOR_EXPORT_STATES.delete_if{|py_state| ["renewing_enrolling","enrolling"].include?(py_state)}
+    employer.plan_years.select {|plan_year| !plan_year_states.include?(plan_year.aasm_state)}
   end
 end

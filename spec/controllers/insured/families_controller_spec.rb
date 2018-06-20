@@ -52,7 +52,7 @@ RSpec.describe Insured::FamiliesController do
   # let(:coverage_wavied) { double("CoverageWavied") }
   let(:qle) { FactoryGirl.create(:qualifying_life_event_kind, pre_event_sep_in_days: 30, post_event_sep_in_days: 0) }
   let(:sep) { double("SpecialEnrollmentPeriod") }
-  
+
 
   before :each do
     allow(hbx_enrollments).to receive(:order).and_return(hbx_enrollments)
@@ -79,7 +79,7 @@ RSpec.describe Insured::FamiliesController do
       allow(family).to receive(:enrollments_for_display).and_return(hbx_enrollments)
       allow(family).to receive(:waivers_for_display).and_return(hbx_enrollments)
       allow(family).to receive(:coverage_waived?).and_return(false)
-      allow(family).to receive(:active_admin_seps).and_return([sep])
+      allow(family).to receive(:latest_active_sep).and_return sep
       allow(hbx_enrollments).to receive(:active).and_return(hbx_enrollments)
       allow(hbx_enrollments).to receive(:changing).and_return([])
       allow(user).to receive(:has_employee_role?).and_return(true)
@@ -125,6 +125,41 @@ RSpec.describe Insured::FamiliesController do
         allow(person).to receive(:addresses).and_return []
         get :home
         expect(response).to redirect_to(edit_insured_consumer_role_path(consumer_role))
+      end
+    end
+
+
+
+    context "#init_qle" do
+      before :each do
+        @controller = Insured::FamiliesController.new
+        @qle = FactoryGirl.create(:qualifying_life_event_kind)
+        allow(@controller).to receive(:set_family)
+        @controller.instance_variable_set(:@person, person)
+        allow(person).to receive(:user).and_return(user)
+        allow(user).to receive(:identity_verified?).and_return(false)
+        allow(person).to receive(:has_active_employee_role?).and_return(true)
+        allow(person).to receive(:has_active_consumer_role?).and_return(true)
+        allow(person).to receive(:active_employee_roles).and_return([])
+        allow(person).to receive(:employee_roles).and_return([])
+        allow(user).to receive(:get_announcements_by_roles_and_portal).and_return []
+        allow(family).to receive(:check_for_consumer_role).and_return true
+        allow(family).to receive(:active_family_members).and_return(family_members)
+        sign_in user
+      end
+      after do
+        QualifyingLifeEventKind.destroy_all
+      end
+
+      it "should return qles" do
+        allow(@controller).to receive(:params).and_return({})
+        expect(@controller.instance_eval { init_qualifying_life_events }).to eq ([@qle])
+      end
+
+
+      it "should return qles" do
+        allow(@controller).to receive(:params).and_return({market: "individual_market_events"})
+        expect(@controller.instance_eval { init_qualifying_life_events }).to eq ([])
       end
     end
 
@@ -455,19 +490,21 @@ RSpec.describe Insured::FamiliesController do
     end
   end
 
-  describe "POST record_sep" do
+  describe "POST record_sep", dbclean: :after_each do
+
     before :each do
       date = TimeKeeper.date_of_record - 10.days
       @qle = FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date)
       @family = FactoryGirl.build(:family, :with_primary_family_member)
       special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: date)
-      special_enrollment_period.selected_effective_on = date.strftime('%m/%d/%Y') 
+      special_enrollment_period.selected_effective_on = date.strftime('%m/%d/%Y')
       special_enrollment_period.qualifying_life_event_kind = @qle
       special_enrollment_period.qle_on = date.strftime('%m/%d/%Y')
       special_enrollment_period.save
       allow(person).to receive(:primary_family).and_return(@family)
       allow(person).to receive(:hbx_staff_role).and_return(nil)
     end
+
     context 'when its initial enrollment' do
       before :each do
         post :record_sep, qle_id: @qle.id, qle_date: Date.today
@@ -476,7 +513,7 @@ RSpec.describe Insured::FamiliesController do
       it "should redirect" do
         special_enrollment_period = @family.special_enrollment_periods.last
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), enrollment_kind: 'sep',effective_on_date: special_enrollment_period.effective_on}))
+        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), enrollment_kind: 'sep', effective_on_date: special_enrollment_period.effective_on, qle_id: @qle.id}))
       end
     end
 
@@ -489,12 +526,12 @@ RSpec.describe Insured::FamiliesController do
 
       it "should redirect with change_plan parameter" do
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), change_plan: 'change_plan', enrollment_kind: 'sep'}))
+        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), change_plan: 'change_plan', enrollment_kind: 'sep', qle_id: @qle.id}))
       end
     end
   end
 
-  describe "GET check_move_reason" do
+  describe "qle kinds" do
     before(:each) do
       sign_in(user)
       @qle = FactoryGirl.create(:qualifying_life_event_kind)
@@ -503,14 +540,23 @@ RSpec.describe Insured::FamiliesController do
       allow(person).to receive(:resident_role?).and_return(false)
     end
 
-    it "renders the 'check_move_reason' template" do
-      xhr :get, 'check_move_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
-      expect(response).to have_http_status(:success)
-      expect(response).to render_template(:check_move_reason)
-      expect(assigns(:qle_date_calc)).to eq assigns(:qle_date) - Settings.aca.qle.with_in_sixty_days.days
+    context "#check_marriage_reason" do
+      it "renders the check_marriage reason template" do
+        xhr :get, 'check_marriage_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(:check_marriage_reason)
+        expect(assigns(:qle_date_calc)).to eq assigns(:qle_date) - Settings.aca.qle.with_in_sixty_days.days
+      end
     end
 
-    describe "with valid and invalid params" do
+    context "#check_move_reason" do
+      it "renders the 'check_move_reason' template" do
+        xhr :get, 'check_move_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(:check_move_reason)
+        expect(assigns(:qle_date_calc)).to eq assigns(:qle_date) - Settings.aca.qle.with_in_sixty_days.days
+      end
+
       it "returns qualified_date as true" do
         xhr :get, 'check_move_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
         expect(response).to have_http_status(:success)
@@ -523,24 +569,14 @@ RSpec.describe Insured::FamiliesController do
         expect(assigns['qualified_date']).to eq(false)
       end
     end
-  end
 
-  describe "GET check_insurance_reason" do
-    before(:each) do
-      sign_in(user)
-      @qle = FactoryGirl.create(:qualifying_life_event_kind)
-      @family = FactoryGirl.build(:family, :with_primary_family_member)
-      allow(person).to receive(:primary_family).and_return(@family)
-      allow(person).to receive(:resident_role?).and_return(false)
-    end
+    context "#check_insurance_reason" do
+      it "renders the 'check_insurance_reason' template" do
+        xhr :get, 'check_insurance_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(:check_insurance_reason)
+      end
 
-    it "renders the 'check_insurance_reason' template" do
-      xhr :get, 'check_insurance_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
-      expect(response).to have_http_status(:success)
-      expect(response).to render_template(:check_insurance_reason)
-    end
-
-    describe "with valid and invalid params" do
       it "returns qualified_date as true" do
         xhr :get, 'check_insurance_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
         expect(response).to have_http_status(:success)
@@ -560,6 +596,7 @@ RSpec.describe Insured::FamiliesController do
     before(:each) do
       sign_in(user)
       allow(person).to receive(:resident_role?).and_return(false)
+      allow(controller).to receive(:is_ee_sep_request_accepted?).and_return false
     end
 
     it "renders the 'check_qle_date' template" do
@@ -611,7 +648,8 @@ RSpec.describe Insured::FamiliesController do
         date = TimeKeeper.date_of_record.next_month.strftime("%m/%d/%Y")
         expect(controller).to receive(:sep_request_denial_notice)
         xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
-      end  
+      end
+
 
       it "future_qualified_date should return nil when qle market kind is indiviual" do
         qle = FactoryGirl.build(:qualifying_life_event_kind, market_kind: "individual")
@@ -625,12 +663,12 @@ RSpec.describe Insured::FamiliesController do
       end
 
       it "should not trigger sep_request_denial_notice unqualified date  when qle market kind is individual" do
-         qle = FactoryGirl.build(:qualifying_life_event_kind)
-         allow(QualifyingLifeEventKind).to receive(:find).and_return(qle)
-         date = TimeKeeper.date_of_record.next_month.strftime("%m/%d/%Y")
-         expect(controller).to receive(:sep_request_denial_notice)
-         xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js   
-      end  
+        qle = FactoryGirl.build(:qualifying_life_event_kind, market_kind: "individual")
+        allow(QualifyingLifeEventKind).to receive(:find).and_return(qle)
+        date = TimeKeeper.date_of_record.next_month.strftime("%m/%d/%Y")
+        expect(controller).not_to receive(:sep_request_denial_notice)
+        xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
+      end
     end
 
     context "GET check_qle_date" do

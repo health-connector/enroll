@@ -1,5 +1,8 @@
 class EmployerInvoice
   include InvoiceHelper
+  include Config::AcaHelper
+  include Config::SiteHelper
+  include Config::ContactCenterHelper
 
   attr_reader :errors
 
@@ -21,7 +24,9 @@ class EmployerInvoice
         FileUtils.mkdir_p(invoice_folder_path)
       end
       pdf_doc.render_file(invoice_absolute_file_path) unless File.exist?(invoice_absolute_file_path)
-      join_pdfs [Rails.root.join('tmp', invoice_absolute_file_path), Rails.root.join('lib/pdf_templates', 'ma_non_discrimination_and_language_tags.pdf')]
+      unless fetch_invoices_addendum.blank?
+        join_pdfs [Rails.root.join('tmp', invoice_absolute_file_path), Rails.root.join('lib/pdf_templates', fetch_invoices_addendum)]
+      end
     rescue Exception => e
       @errors << "Unable to create PDF for #{@organization.hbx_id}."
       @errors << e.inspect
@@ -54,26 +59,34 @@ class EmployerInvoice
   end
 
   def send_email_notice
-    subject = "Invoice Now Available"
-    body = "Your Renewal invoice is now available in your employer profile under Billing tab. Thank You"
-    message_params = {
-      sender_id: "admins",
-      parent_message_id: @organization.employer_profile.id,
-      from: Settings.site.short_name,
-      to: "Employer Mailbox",
-      subject: subject,
-      body: body
-    }
-    create_secure_message message_params, @organization.employer_profile, :inbox
+    unless (@organization.employer_profile.is_new_employer? && @organization.invoices.empty?)
+      subject = "Invoice Now Available"
+      body = "Your Renewal invoice is now available in your employer profile under Billing tab. Thank You"
+      message_params = {
+        sender_id: "admins",
+        parent_message_id: @organization.employer_profile.id,
+        from: Settings.site.short_name,
+        to: "Employer Mailbox",
+        subject: subject,
+        body: body
+      }
+      create_secure_message message_params, @organization.employer_profile, :inbox
+    end
   end
 
   def clear_tmp(file)
     File.delete(file)
   end
 
+  # It will trigger initial invoice notice
+  # Should trigger for regular employers but on conversion employers
+  # should not trigger with plan year is in renewal related states
+  # should trigger on conversion employers who has PlanYear::PUBLISHED
   def send_first_invoice_available_notice
-    if @organization.employer_profile.is_new_employer? && !@organization.employer_profile.is_converting? && (@organization.invoices.size < 1)
-      @organization.employer_profile.trigger_notices("initial_employer_invoice_available")
+    if @organization.employer_profile.is_new_employer? && !@organization.employer_profile.is_converting_with_renewal_state? && (@organization.invoices.size < 1)
+      plan_year = @organization.employer_profile.plan_years.where(:aasm_state.in => PlanYear::PUBLISHED).first
+      observer = Observers::NoticeObserver.new
+      observer.deliver(recipient: @organization.employer_profile, event_object: plan_year, notice_event: "initial_employer_invoice_available") if plan_year.present?
     end
   end
 
@@ -115,7 +128,7 @@ class EmployerInvoice
       Rails.root.join('tmp',current_month)
     end
   end
- 
+
   def invoice_absolute_file_path
     "#{invoice_folder_path}/#{invoice_file_name}"
   end

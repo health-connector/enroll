@@ -10,7 +10,9 @@ module Notifier
     RECIPIENTS = {
       "Employer" => "Notifier::MergeDataModels::EmployerProfile",
       "Employee" => "Notifier::MergeDataModels::EmployeeProfile",
-      "Broker" => "Notifier::MergeDataModels::BrokerProfile"
+      "Broker" => "Notifier::MergeDataModels::BrokerProfile",
+      "Broker Agency" => "Notifier::MergeDataModels::BrokerAgencyProfile",
+      "GeneralAgency" => "Notifier::MergeDataModels::GeneralAgency"
     }
 
     field :title, type: String
@@ -49,16 +51,15 @@ module Notifier
       if finder_mapping.nil?
         raise ArgumentError.new("BOGUS EVENT...could n't find resoure mapping for event #{event_name}.")
       end
-
       @payload = payload
       @resource = finder_mapping.mapped_class.send(finder_mapping.search_method, payload[finder_mapping.identifier_key.to_s])
       if @resource.blank?
         raise ArgumentError.new("Bad Payload...could n't find resoure with #{payload[finder_mapping.identifier_key.to_s]}.")
       end
-
       generate_pdf_notice
       upload_and_send_secure_message
       send_generic_notice_alert
+      send_generic_notice_alert_to_broker
     end
 
     def recipient_klass_name

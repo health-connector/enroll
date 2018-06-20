@@ -1,5 +1,6 @@
 module Notifier
   module Builders::PlanYear
+    include ActionView::Helpers::NumberHelper
 
     def plan_year_current_py_start_date
       if current_plan_year.present?
@@ -15,8 +16,16 @@ module Notifier
 
     def plan_year_renewal_py_start_date
       if renewal_plan_year.present?
-        merge_model.plan_year.renewal_py_start_date = format_date(renewal_plan_year.start_on) 
+        merge_model.plan_year.renewal_py_start_date = format_date(renewal_plan_year.start_on)
       end
+    end
+
+    def plan_year_next_available_start_date
+      merge_model.plan_year.next_available_start_date = PlanYear.calculate_start_on_options.first.last.to_date
+    end
+
+    def plan_year_next_application_deadline
+      merge_model.plan_year.next_application_deadline = Date.new(plan_year_next_available_start_date.year, plan_year_next_available_start_date.prev_month.month, Settings.aca.shop_market.initial_application.advertised_deadline_of_month)
     end
 
     def plan_year_renewal_py_end_date
@@ -28,6 +37,19 @@ module Notifier
     def plan_year_current_py_oe_start_date
       if current_plan_year.present?
         merge_model.plan_year.current_py_oe_start_date = format_date(current_plan_year.open_enrollment_start_on)
+      end
+    end
+
+    def plan_year_monthly_employer_contribution_amount
+      if current_plan_year.present?
+        payment = current_plan_year.benefit_groups.map(&:monthly_employer_contribution_amount)
+        merge_model.plan_year.monthly_employer_contribution_amount = number_to_currency(payment.inject(0){ |sum,a| sum+a })
+      end
+    end
+
+    def plan_year_current_py_plus_60_days
+      if current_plan_year.present?
+        merge_model.plan_year.current_py_plus_60_days = format_date(current_plan_year.end_on + 60.days)
       end
     end
 
@@ -46,6 +68,20 @@ module Notifier
     def plan_year_renewal_py_oe_end_date
       if renewal_plan_year.present?
         merge_model.plan_year.renewal_py_oe_end_date = format_date(renewal_plan_year.open_enrollment_end_on)
+      end
+    end
+
+    def plan_year_initial_py_publish_advertise_deadline
+      if current_plan_year.present?
+        prev_month = current_plan_year.start_on.prev_month
+        merge_model.plan_year.initial_py_publish_advertise_deadline = format_date(Date.new(prev_month.year, prev_month.month, Settings.aca.shop_market.initial_application.advertised_deadline_of_month))
+      end
+    end
+
+    def plan_year_initial_py_publish_due_date
+      if current_plan_year.present?
+        prev_month = current_plan_year.start_on.prev_month
+        merge_model.plan_year.initial_py_publish_due_date = format_date(Date.new(prev_month.year, prev_month.month, Settings.aca.shop_market.initial_application.publish_due_day_of_month))
       end
     end
 
@@ -87,6 +123,18 @@ module Notifier
       end
     end
 
+    def plan_year_total_enrolled_count
+      if load_plan_year.present?
+        merge_model.plan_year.total_enrolled_count = load_plan_year.total_enrolled_count
+      end
+    end
+
+    def plan_year_eligible_to_enroll_count
+      if load_plan_year.present?
+        merge_model.plan_year.eligible_to_enroll_count = load_plan_year.eligible_to_enroll_count
+      end
+    end
+
     def plan_year_renewal_py_end_on
       if renewal_plan_year.present?
         merge_model.plan_year.renewal_py_end_on = renewal_plan_year.end_on
@@ -94,11 +142,34 @@ module Notifier
     end
 
     def plan_year_enrollment_errors
-      if renewal_plan_year.present?
-        merge_model.plan_year.enrollment_errors = renewal_plan_year.enrollment_errors
-      elsif current_plan_year.present?
-        merge_model.plan_year.enrollment_errors = current_plan_year.enrollment_errors
+      enrollment_errors = []
+      plan_year = (renewal_plan_year || current_plan_year)
+      if plan_year.present?
+        plan_year.enrollment_errors.each do |k, _|
+          case k.to_s
+          when "enrollment_ratio"
+            enrollment_errors << "At least 75% of your eligible employees enrolled in your group health coverage or waive due to having other coverage"
+          when "non_business_owner_enrollment_count"
+            enrollment_errors << "One non-owner employee enrolled in health coverage"
+          end
+        end
+        merge_model.plan_year.enrollment_errors = enrollment_errors.join(' AND/OR ')
       end
+    end
+
+    def plan_year_warnings
+      plan_year_warnings = []
+      if current_plan_year.present?
+        current_plan_year.application_eligibility_warnings.each do |k, _|
+          case k.to_s
+          when "fte_count"
+            plan_year_warnings << "Full Time Equivalent must be 1-50"
+          when "primary_office_location"
+            plan_year_warnings << "primary business address not located in #{Settings.aca.state_name}"
+          end
+        end
+      end
+      merge_model.plan_year.warnings = plan_year_warnings.join(', ')
     end
 
     def load_plan_year

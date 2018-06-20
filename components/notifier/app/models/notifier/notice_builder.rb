@@ -1,6 +1,7 @@
 module Notifier
   module NoticeBuilder
     include Config::SiteConcern
+    include ApplicationHelper
 
     def to_html(options = {})
       data_object = (resource.present? ? construct_notice_object : recipient.constantize.stubbed_object)
@@ -9,13 +10,14 @@ module Notifier
 
     def notice_recipient
       return OpenStruct.new(hbx_id: "100009") if resource.blank?
-      resource.is_a?(EmployeeRole) ? resource.person : resource
+      (resource.is_a?(EmployeeRole) || resource.is_a?(BrokerRole)) ? resource.person : resource
     end
 
     def construct_notice_object
       builder_klass = ['Notifier', 'Builders', recipient.split('::').last].join('::')
       builder = builder_klass.constantize.new
       builder.resource = resource
+      builder.event_name = event_name if resource.is_a?(EmployeeRole)
       builder.payload = payload
       builder.append_contact_details
       template.data_elements.each do |element|
@@ -27,7 +29,6 @@ module Notifier
           elements = elements[0..date_ele_index]
           elements[date_ele_index] = date_element.scan(/[a-zA-Z_]+/).first
         end
-      
         element_retriver = elements.reject{|ele| ele == recipient_klass_name.to_s}.join('_')
         builder.instance_eval(element_retriver)
       end
@@ -71,7 +72,7 @@ module Notifier
     end
 
     def pdf_options
-      {
+      options = {
         margin:  {
           top: 15,
           bottom: 28,
@@ -91,6 +92,17 @@ module Notifier
             }),
           }
       }
+      #TODO: Add footer partial
+      if dc_exchange?
+        options.merge!({footer: {
+          content: ApplicationController.new.render_to_string({
+            template: "notifier/notice_kinds/footer.html.erb",
+            layout: false,
+            locals: {notice: self}
+          })
+        }})
+      end
+      options
     end
 
     def notice_path
@@ -106,11 +118,11 @@ module Notifier
     end
 
     def non_discrimination_attachment
-      join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'ma_shop_non_discrimination_attachment.pdf')]
+      join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', shop_non_discrimination_attachment)]
     end
 
     def attach_envelope
-      join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'ma_envelope_without_address.pdf')]
+      join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', shop_envelope_without_address)]
     end
 
     def join_pdfs(pdfs)
@@ -156,6 +168,14 @@ module Notifier
       UserMailer.generic_notice_alert(recipient_name,subject,recipient_to).deliver_now
     end
 
+    def send_generic_notice_alert_to_broker
+      if resource.is_a?(EmployerProfile) && resource.broker_agency_profile.present?
+        broker_name = resource.broker_agency_profile.primary_broker_role.person.full_name
+        broker_email = resource.broker_agency_profile.primary_broker_role.email_address
+        UserMailer.generic_notice_alert_to_ba(broker_name, broker_email, resource.legal_name.titleize).deliver_now
+      end
+    end
+
     def store_paper_notice
       bucket_name= Settings.paper_notice
       notice_filename_for_paper_notice = "#{recipient.hbx_id}_#{subject.titleize.gsub(/\s+/, '_')}"
@@ -174,8 +194,7 @@ module Notifier
 
     def create_recipient_document(doc_uri)
       receiver = resource
-      receiver = resource.person if resource.is_a?(EmployeeRole)
-
+      receiver = resource.person if (resource.is_a?(EmployeeRole) || resource.is_a?(BrokerRole))
       notice = receiver.documents.build({
         title: notice_filename, 
         creator: "hbx_staff",
@@ -193,12 +212,10 @@ module Notifier
 
     def create_secure_inbox_message(notice)
       receiver = resource
-      receiver = resource.person if resource.is_a?(EmployeeRole)
-
+      receiver = resource.person if (resource.is_a?(EmployeeRole) || resource.is_a?(BrokerRole))
       body = "<br>You can download the notice by clicking this link " +
              "<a href=" + "#{Rails.application.routes.url_helpers.authorized_document_download_path(receiver.class.to_s, 
-      receiver.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + notice.title + "</a>"
-    
+      receiver.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + notice.title.gsub(/[^0-9a-z]/i,'') + "</a>"
       message = receiver.inbox.messages.build({ subject: subject, body: body, from: site_short_name })
       message.save!
     end

@@ -6,6 +6,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
     let(:start_on){TimeKeeper.date_of_record.beginning_of_year}
     let(:end_on){TimeKeeper.date_of_record.end_of_year}
     let(:end_on_negative){ TimeKeeper.date_of_record.beginning_of_year - 2.years }
+    let(:active_employees) { double("CensusEmployee", count: 10) }
 
 
     def new_organization
@@ -180,7 +181,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         additional_required_participants_count: 5,
         benefit_groups: benefit_groups,
         aasm_state: 'draft',
-        employer_profile: double(census_employees: double(count: 10))
+        employer_profile: double(census_employees: double(active: active_employees))
         )
     end
 
@@ -269,6 +270,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
     end
 
     it "should display a link to download employer guidance pdf" do
+      render partial: "employers/employer_profiles/my_account/employer_welcome"
       expect(rendered).to have_selector(".icon-left-download", text: /Download Step-by-Step Instructions/i)
     end
 

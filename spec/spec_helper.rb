@@ -23,11 +23,13 @@ end
 require File.join(File.dirname(__FILE__), "factories", "wrapping_sequence")
 require 'factory_girl_rails'
 require 'ivl_helper'
+require 'aca_test_helper'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
+  config.include AcaTestHelper
   config.include IvlHelper
   config.expect_with :rspec do |expectations|
     # This option will default to `true` in RSpec 4. It makes the `description`
@@ -47,6 +49,10 @@ RSpec.configure do |config|
     # a real object. This is generally recommended, and will default to
     # `true` in RSpec 4.
     mocks.verify_partial_doubles = true
+  end
+
+  config.before :each, type: :controller do
+    request.env['HTTP_ACCEPT_LANGUAGE'] = "en"
   end
 
 # The settings below are suggested to provide a good initial experience

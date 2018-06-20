@@ -1,4 +1,3 @@
-require "acapi/subscribers/edi"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -47,6 +46,12 @@ Rails.application.configure do
     :host => "127.0.0.1",
     :port => 3000
   }
+
+  #Environment URL stub
+  config.checkbook_services_base_url = Settings.checkbook_services.base_url
+
+  #Queue adapter
+  config.active_job.queue_adapter = :resque
 
   HbxIdGenerator.slug!
   config.ga_tracking_id = ENV['GA_TRACKING_ID'] || "dummy"
