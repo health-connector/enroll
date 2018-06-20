@@ -27,7 +27,8 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 						:"households.hbx_enrollments" => {
 							:"$elemMatch" => {
 								:"benefit_group_id".in => effected_bg_ids,
-								:"effective_on".gt => effected_py.start_on
+								:"effective_on".gt => effected_py.start_on,
+								:"plan_id".ne => nil
 				 			}
 						}
 					)
