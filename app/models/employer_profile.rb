@@ -251,7 +251,7 @@ class EmployerProfile
     return if active_general_agency_account.blank?
     general_agency_accounts.active.update_all(aasm_state: "inactive", end_on: terminate_on)
     notify_general_agent_terminated
-    self.trigger_notices("general_agency_terminated")
+    general_agency_accounts.inactive.last.general_agency_profile.trigger_model_event(:general_agency_fired, event_object: self )
   end
   alias_method :general_agency_profile=, :hire_general_agency
 

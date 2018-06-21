@@ -13,20 +13,23 @@ module Notifier
     attribute :email, String
     attribute :broker, MergeDataModels::Broker
     attribute :legal_name, String
-    attribute :assignment_date, Date
+    attribute :assignment_date, String
+    attribute :termination_date, String
     attribute :employer_name, String
     attribute :employer_poc_firstname, String
     attribute :employer_poc_lastname, String
 
 
     def self.stubbed_object
+      general_agency_account = FactoryGirl.build(GeneralAgencyAccount)
       notice = Notifier::MergeDataModels::GeneralAgency.new({
         notice_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y'),
         first_name: 'Johnny',
         last_name: 'Pepper',
         email: 'johnnypepper@ypomail.com',
-        legal_name: 'Best General Agency LLC',
-        assignment_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y') ,
+        legal_name: general_agency_account.general_agency_profile.organization.legal_name,
+        assignment_date: general_agency_account.start_on,
+        termination_date: general_agency_account.end_on,
         employer_name: 'North America Football Federation',
         employer_poc_firstname: 'David',
         employer_poc_lastname: 'Samules'

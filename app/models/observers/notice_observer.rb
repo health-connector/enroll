@@ -248,7 +248,7 @@ module Observers
 
     def general_agency_profile_update(new_model_event)
       raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
-        general_agency = new_model_event.klass_instance
+      general_agency = new_model_event.klass_instance
 
       if GeneralAgencyProfile::REGISTERED_EVENTS.include?(new_model_event.event_key)
       end

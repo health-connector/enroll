@@ -100,7 +100,11 @@ module Notifier
     end
 
     def assignment_date
-      merge_model.assignment_date = TimeKeeper.date_of_record.strftime('%m/%d/%Y')
+      merge_model.assignment_date = employer.active_general_agency_account.start_on
+    end
+
+    def termination_date
+      merge_model.termination_date = employer.general_agency_accounts.inactive.last.end_on
     end
   end
 end

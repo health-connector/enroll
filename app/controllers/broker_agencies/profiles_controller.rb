@@ -231,12 +231,12 @@ class BrokerAgencies::ProfilesController < ApplicationController
     if @broker_agency_profile.present?
       old_default_ga_id = @broker_agency_profile.default_general_agency_profile.id.to_s rescue nil
       if params[:type] == 'clear'
+        default_general_agency_profile = @broker_agency_profile.default_general_agency_profile
         @broker_agency_profile.default_general_agency_profile = nil
+        ga_notice(:general_agency_fired, default_general_agency_profile) if default_general_agency_profile.present?
       elsif @general_agency_profile.present?
         @broker_agency_profile.default_general_agency_profile = @general_agency_profile
-        @broker_agency_profile.employer_clients.each do |employer_profile|
-          @general_agency_profile.trigger_model_event(:general_agency_hired, event_object: employer_profile) # GA notice when broker selects a default GA 
-        end
+        ga_notice(:general_agency_hired, @general_agency_profile)
       end
       @broker_agency_profile.save
       notify("acapi.info.events.broker.default_ga_changed", {:broker_id => @broker_agency_profile.primary_broker_role.hbx_id, :pre_default_ga_id => old_default_ga_id})
@@ -248,6 +248,12 @@ class BrokerAgencies::ProfilesController < ApplicationController
 
     respond_to do |format|
       format.js
+    end
+  end
+
+  def ga_notice(event_name, general_agency)
+    @broker_agency_profile.employer_clients.each do |employer_profile|
+      general_agency.trigger_model_event(event_name, event_object: employer_profile) # Broker selects/clears Default GA
     end
   end
 

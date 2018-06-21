@@ -74,7 +74,7 @@ class Employers::BrokerAgencyController < ApplicationController
     if params["termination_date"].present?
       termination_date = DateTime.strptime(params["termination_date"], '%m/%d/%Y').try(:to_date)
       @employer_profile.fire_broker_agency(termination_date)
-      @employer_profile.fire_general_agency!(termination_date)
+      @employer_profile.fire_general_agency!(termination_date) # ER terminates broker and broker has default GA
       @fa = @employer_profile.save!(validate: false)
     end
 
