@@ -2,8 +2,14 @@ require 'csv'
 require File.join(Rails.root, "lib/mongoid_migration_task")
 class NewHireEffectiveOnReport< MongoidMigrationTask
 	def migrate
-		CSV.open("organization_report.csv", "w") do |csv_org|
-			CSV.open("employee_report.csv", "w") do |csv_emp|
+		organization_headers = ['Employer Legal Name', 'Employer FEIN', 'Employer Plan Year Start Date', 'Employer HBX ID']
+    	employee_headers = ['Employer Legal Name', 'Employer FEIN', 'Employer Plan Year Start Date', 'Employer HBX ID', 'EE First Name', 'EE Last Name', 'EE HBX ID', 'Enrollment Policy ID', 'Enrollment HIOS ID', 'Enrollment Carrier Name', 'Enrollment Plan Name', 'Enrollment Submitted On Date', 'EE Effective date of coverage', 'EE Date Of Hire','EE Added to roster date']
+    	organization_report = "#{Rails.root}/organization_report.csv"
+    	employee_report = "#{Rails.root}/employee_report.csv"
+    	CSV.open(organization_report, "w",:force_quotes=> true) do |csv_org|
+      	csv_org << organization_headers
+      	CSV.open(employee_report, "w",:force_quotes=> true) do |csv_emp|
+        csv_emp << employee_headers
 				organizations = Organization.where(
 					:"employer_profile.profile_source" => "conversion",
 				  :"employer_profile.plan_years" => {
