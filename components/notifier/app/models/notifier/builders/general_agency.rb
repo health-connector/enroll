@@ -18,10 +18,8 @@ module Notifier
     end
 
     def append_contact_details
-      if general_agency.primary_staff.present?
-        merge_model.first_name = general_agency.primary_staff.person.first_name
-        merge_model.last_name = general_agency.primary_staff.person.last_name
-      end
+      first_name
+      last_name
 
       office_address = general_agency.organization.primary_office_location.address
       if office_address.present?
@@ -40,7 +38,12 @@ module Notifier
     end
 
     def notice_date
-      merge_model.notice_date = TimeKeeper.date_of_record.strftime('%m/%d/%Y')
+      merge_model.notice_date = format_date(TimeKeeper.date_of_record)
+    end
+
+    def format_date(date)
+      return '' if date.blank?
+      date.strftime('%m/%d/%Y')
     end
 
     def legal_name
@@ -75,11 +78,11 @@ module Notifier
     end
 
     def employer_poc_firstname
-      merge_model.employer_poc_firstname = employer.staff_roles.first_name
+      merge_model.employer_poc_firstname = employer.staff_roles.first.first_name
     end
 
     def employer_poc_lastname
-      merge_model.employer_poc_lastname = employer.staff_roles.last_name
+      merge_model.employer_poc_lastname = employer.staff_roles.first.last_name
     end
 
     def broker
@@ -100,11 +103,11 @@ module Notifier
     end
 
     def assignment_date
-      merge_model.assignment_date = employer.active_general_agency_account.start_on
+      merge_model.assignment_date = format_date(employer.active_general_agency_account.start_on)
     end
 
     def termination_date
-      merge_model.termination_date = employer.general_agency_accounts.inactive.last.end_on
+      merge_model.termination_date = format_date(employer.general_agency_accounts.inactive.last.end_on)
     end
   end
 end
