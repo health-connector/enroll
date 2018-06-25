@@ -45,6 +45,7 @@ site:
   irs_url: "https://www.irs.gov/"
   exchange_hbx_id: "MA0"
   mail_address: "noreply@healthconnector.org"
+  privacy_policy: "https://www.mahealthconnector.org/site-policies/privacy-policy"
 
   social_media:
     facebook_url: ""
@@ -108,6 +109,9 @@ notices:
       envelope_without_address: "ma_envelope_without_address.pdf"
       non_discrimination_attachment: "ma_shop_non_discrimination_attachment.pdf"
       employee_appeal_rights: "ma_employee_appeal_rights.pdf"
+    partials:
+      template: "notifier/notice_kinds/template.html.erb"
+      header: "notifier/notice_kinds/header_with_page_numbers.html.erb"
 
 invoices:
   addendum: 'ma_non_discrimination_and_language_tags.pdf'
@@ -119,6 +123,7 @@ aca:
   hbx_abbreviation: "DC Health Benefit Exchange"
   nationwide_markets: false
   general_agency_enabled: false
+  broker_carrier_appointments_enabled: true
   dental_market_enabled: false
   calendar_enabled: true
   dental_plan_years_available: [""]
