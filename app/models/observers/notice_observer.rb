@@ -66,7 +66,7 @@ module Observers
             deliver(recipient: ce.employee_role, event_object: plan_year, notice_event: "notify_employee_of_group_advance_termination")
           end
         end
-        
+
         if new_model_event.event_key == :ineligible_initial_application_submitted
           if (plan_year.application_eligibility_warnings.include?(:primary_office_location) || plan_year.application_eligibility_warnings.include?(:fte_count))
             deliver(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "employer_initial_eligibility_denial_notice")
@@ -289,6 +289,10 @@ module Observers
       if CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)
        if new_model_event.event_key == :employee_notice_for_employee_terminated_from_roster
         deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "employee_notice_for_employee_terminated_from_roster")
+       end
+
+       if new_model_event.event_key == :dental_carriers_exiting_shop_notice_to_ee
+        deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "dental_carriers_exiting_shop_notice_to_ee")
        end
       end
     end

@@ -9,6 +9,7 @@ module ModelEvents
       :employee_coverage_passively_waived,
       :employee_coverage_passively_renewed,
       :employee_coverage_passive_renewal_failed,
+      :dental_carriers_exiting_shop_notice_to_ee
     ]
 
     def notify_on_save
