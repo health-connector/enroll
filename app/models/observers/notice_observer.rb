@@ -41,6 +41,10 @@ module Observers
           deliver(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_employer_open_enrollment_completed")
         end
 
+        if new_model_event.event_key == :notify_employee_of_renewing_employer_ineligibility
+          deliver(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "notify_employee_of_renewing_employer_ineligibility")
+        end
+
         if new_model_event.event_key == :renewal_application_submitted
           trigger_zero_employees_on_roster_notice(plan_year)
           deliver(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "renewal_application_published")

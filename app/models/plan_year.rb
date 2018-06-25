@@ -951,7 +951,7 @@ class PlanYear
       transitions from: :renewing_draft, to: :renewing_draft,     :guard => :is_application_invalid?
       transitions from: :renewing_draft, to: :renewing_enrolling, :guard => [:is_application_eligible?, :is_event_date_valid?], :after => [:accept_application, :record_sic_and_rating_area]
       transitions from: :renewing_draft, to: :renewing_published, :guard => :is_application_eligible?, :after => [:record_sic_and_rating_area]
-      transitions from: :renewing_draft, to: :renewing_publish_pending #:after => :employer_renewal_eligibility_denial_notice, :notify_employee_of_renewing_employer_ineligibility
+      transitions from: :renewing_draft, to: :renewing_publish_pending  #:after => :notify_employee_of_renewing_employer_ineligibility #:employer_renewal_eligibility_denial_notice
     end
 
     # Employer requests review of invalid application determination
@@ -1276,7 +1276,8 @@ class PlanYear
     if application_eligibility_warnings.include?(:primary_office_location)
       self.employer_profile.census_employees.non_terminated.each do |ce|
         begin
-          ShopNoticesNotifierJob.perform_later(ce.id.to_s, "notify_employee_of_renewing_employer_ineligibility")
+
+          #ShopNoticesNotifierJob.perform_later(ce.id.to_s, "notify_employee_of_renewing_employer_ineligibility")
         rescue Exception => e
           Rails.logger.error { "Unable to deliver employee employer renewal denial notice for #{self.employer_profile.organization.legal_name} due to #{e}" }
         end
