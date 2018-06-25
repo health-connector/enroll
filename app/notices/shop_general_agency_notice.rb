@@ -38,11 +38,11 @@ class ShopGeneralAgencyNotice < Notice
   end
 
   def attach_envelope
-    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'taglines.pdf')]
+    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', shop_envelope_without_address)]
   end
 
   def non_discrimination_attachment
-    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'shop_non_discrimination_attachment.pdf')]
+    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', shop_non_discrimination_attachment)]
   end
 
   def append_address(address)
