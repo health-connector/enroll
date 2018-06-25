@@ -9,6 +9,7 @@ module ModelEvents
       :employee_coverage_passively_waived,
       :employee_coverage_passively_renewed,
       :employee_coverage_passive_renewal_failed,
+      :notify_employee_of_renewing_employer_ineligibility,
     ]
 
     def notify_on_save

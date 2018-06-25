@@ -10,7 +10,6 @@ module ModelEvents
       :ineligible_initial_application_submitted,
       :ineligible_renewal_application_submitted,
       :initial_employer_open_enrollment_completed,
-      :notify_employee_of_renewing_employer_ineligibility,
       # :open_enrollment_began, #not being used
       :application_denied,
       :renewal_application_denied,
