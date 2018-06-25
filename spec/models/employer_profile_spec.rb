@@ -1184,13 +1184,6 @@ describe EmployerProfile, ".is_converting?", dbclean: :after_each do
     end
   end
 end
- describe EmployerProfile, "initial employers enrolled plan year state", dbclean: :after_each do
-   let!(:new_plan_year){ FactoryGirl.build(:plan_year, :aasm_state => "enrolled") }
-   let!(:employer_profile){ FactoryGirl.create(:employer_profile, plan_years: [new_plan_year]) }
-  it "should return employers" do
-    expect(EmployerProfile.initial_employers_enrolled_plan_year_state(new_plan_year.start_on).size).to eq 1
-  end
-end
 
 describe EmployerProfile, ".terminate", dbclean: :after_each do
 
