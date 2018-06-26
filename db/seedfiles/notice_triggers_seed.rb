@@ -2160,6 +2160,27 @@ elsif Settings.aca.state_abbreviation == "DC"
       ]
     },
     {
+      hbx_id: 'SHOP_D076',
+      title: 'Employee Enrollment Confirmation',
+      description: 'We will notify renewal EEs that their ER successfully completed open enrollment and they are going to be enrolled in their selected plan for the upcoming PY',
+      resource_name: 'employee_role',
+      event_name: 'renewal_employee_enrollment_confirmation',
+      notice_triggers: [
+        {
+          name: 'Notify Employees Enrollment confirmation',
+          notice_template: 'notices/shop_employee_notices/renewal_employee_enrollment_confirmation',
+          notice_builder: 'ShopEmployeeNotices::RenewalEmployeeEnrollmentConfirmation',
+          mpi_indicator: 'SHOP_D076',
+          notice_trigger_element_group: {
+            market_places: ['shop'],
+            primary_recipients: ["employee"],
+            primary_recipient_delivery_method: ["secure_message"],
+            secondary_recipients: []
+          }
+        }
+      ]
+    },
+    {
       hbx_id: 'SHOP_M040',
       title: 'Termination of Employer’s Health Coverage Offered through DC Health Link',
       description: 'Notification to employees regarding their Employer’s ineligibility.',
