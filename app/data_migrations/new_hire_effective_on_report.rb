@@ -41,7 +41,8 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 					families.each do |family|	
 						family.active_household.hbx_enrollments.where(
 							:"benefit_group_id".in => effected_bg_ids,
-							:"effective_on".gt => effected_py.start_on
+							:"effective_on".gt => effected_py.start_on,
+							:"plan_id".ne => nil
 						).each do |enrollment|
 							employee_role = enrollment.employee_role
 							person = employee_role.person
