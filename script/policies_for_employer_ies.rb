@@ -14,7 +14,7 @@ end
 
 start_on_date = window.end.next_month.beginning_of_month
 
-feins = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where("benefit_applications.effective_period.min" => start_on_date).map(&:organization).map(&:fein)
+feins = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {"$elemMatch" => {"effective_period.min" => start_on_date, :aasm_state => enrollment_eligible}}.map(&:organization).map(&:fein)
 
 clean_feins = feins.map do |f|
   f.gsub(/\D/,"")
@@ -56,6 +56,8 @@ CSV.open("congress_dependent_changes.csv", 'w') do |csv|
 
 csv << ["policy_id", "member_id", "status", "added", "removed", "old_policy_id", "old_policy_member_count"]
 
+f = File.open("policies_to_pull.txt","w")
+
 clean_pol_ids.each do |p_id|
   
   enrollment = HbxEnrollment.by_hbx_id(p_id).first
@@ -78,7 +80,7 @@ clean_pol_ids.each do |p_id|
   end
 
   if !renewal_enrollments.any?
-    puts enrollment.hbx_id
+    f.puts(enrollment.hbx_id)
   end
 end
 end
