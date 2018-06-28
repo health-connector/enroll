@@ -12,9 +12,9 @@ elsif date.day <= 15
   window = (window_start..window_end)
 end
 
-start_on_date = window.end.next_month.beginning_of_month
+start_on_date = window.end.next_month.beginning_of_month.to_time.utc.beginning_of_day
 
-feins = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {"$elemMatch" => {"effective_period.min" => start_on_date, :aasm_state => enrollment_eligible}}.map(&:organization).map(&:fein)
+feins = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {"$elemMatch" => {"effective_period.min" => start_on_date, :aasm_state => {"$in" => ["enrollment_eligible", "approved", "enrollment_eligible", "active"]}}}).map(&:organization).map(&:fein)
 
 clean_feins = feins.map do |f|
   f.gsub(/\D/,"")
