@@ -19,7 +19,7 @@ benefit_sponsorships.each{|bs| benefit_applications << bs.benefit_applications.d
 
 benefit_applications.each do |ba|
   begin
-    ba.force_publish!
+    ba.simulate_provisional_renewal!
   rescue Exception=>e
     puts "Could not force publish #{ba.benefit_sponsorship.organization.legal_name} because of #{e.inspect}"
     next

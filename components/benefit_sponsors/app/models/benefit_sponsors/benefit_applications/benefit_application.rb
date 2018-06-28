@@ -680,11 +680,9 @@ module BenefitSponsors
           to:     :expired
       end
 
-      event :force_publish do 
+      event :simulate_provisional_renewal do 
         transitions from: :draft, to: :draft, guard: :is_application_invalid?
-        transitions from: :imported, to: :imported, guard: :is_application_invalid?, :after => [:accept_application, :refresh_recorded_rating_area, :refresh_recorded_sic_code]
-        transitions from: [:draft, :imported], to: :enrollment_open, guard: :is_application_eligible?
-        transitions from :draft, to: :pending
+        transitions from: [:draft, :approved], to: :enrollment_open, guard: :is_application_eligible?, :after => [:accept_application, :refresh_recorded_rating_area, :refresh_recorded_sic_code]
       end
 
       event :expire do
