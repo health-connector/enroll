@@ -284,6 +284,12 @@ module BenefitSponsors
       super(open_enrollment_range) unless open_enrollment_range.blank?
     end
 
+    def adjust_open_enrollment_date
+      if TimeKeeper.date_of_record > open_enrollment_start_on && TimeKeeper.date_of_record < open_enrollment_end_on
+        open_enrollment_period=((TimeKeeper.date_of_record.to_time.utc.beginning_of_day)..open_enrollment_end_on)
+      end
+    end
+
     def find_census_employees
       return @census_employees if defined? @census_employees
       @census_employees ||= CensusEmployee.benefit_application_assigned(self)
@@ -540,6 +546,23 @@ module BenefitSponsors
       self
     end
 
+    def is_application_invalid?
+      self.valid?
+    end
+
+    def is_application_eligible?
+      return false if no_documents_uploaded?
+      return false unless benefit_sponsorship.has_primary_office_address? && benefit_sponsorship.profile.is_primary_office_local?
+      return false if aasm_state == 'enrollment_ineligible'
+      return false if fte_count < 1 || fte_count > Settings.aca.shop_market.small_market_employee_count_maximum
+      true
+    end
+
+    def accept_application
+      adjust_open_enrollment_date
+      transition_success = benefit_sponsorship.initial_application_approved! if benefit_sponsorship.may_approve_initial_application?
+    end
+
     class << self
 
       def find(id)
@@ -656,6 +679,11 @@ module BenefitSponsors
           to:     :active
         transitions from:   APPLICATION_DRAFT_STATES + ENROLLING_STATES,
           to:     :canceled
+      end
+
+      event :simulate_provisional_renewal do 
+        transitions from: :draft, to: :draft, guard: :is_application_invalid?
+        transitions from: [:draft, :approved], to: :enrollment_open, guard: :is_application_eligible?, :after => [:accept_application, :refresh_recorded_rating_area, :refresh_recorded_sic_code]
       end
 
       event :expire do
