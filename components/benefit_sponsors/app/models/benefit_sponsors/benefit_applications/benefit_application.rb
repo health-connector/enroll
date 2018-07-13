@@ -2,6 +2,7 @@ module BenefitSponsors
   class BenefitApplications::BenefitApplication
     include Mongoid::Document
     include Mongoid::Timestamps
+    include Acapi::Notifiers
     include BenefitSponsors::Concerns::RecordTransition
     include ::BenefitSponsors::Concerns::Observable
     include ::BenefitSponsors::ModelEvents::BenefitApplication
@@ -596,6 +597,34 @@ module BenefitSponsors
       self
     end
 
+    def send_employee_renewal_invites
+      benefit_sponsorship.census_employees.non_terminated.each do |ce|
+        ::Invitation.invite_renewal_employee!(ce)
+      end
+    end
+
+    def send_employee_initial_enrollment_invites
+      benefit_sponsorship.census_employees.non_terminated.each do |ce|
+        ::Invitation.invite_initial_employee!(ce)
+      end
+    end
+
+    def send_active_employee_invites
+      benefit_sponsorship.census_employees.non_terminated.each do |ce|
+        ::Invitation.invite_employee!(ce)
+      end
+    end
+
+    def send_employee_invites
+      if is_renewing?
+        notify("acapi.info.events.plan_year.employee_renewal_invitations_requested", {:benefit_application_id => self.id.to_s})
+      elsif enrollment_open?
+        notify("acapi.info.events.plan_year.employee_initial_enrollment_invitations_requested", {:benefit_application_id => self.id.to_s})
+      else
+        notify("acapi.info.events.plan_year.employee_enrollment_invitations_requested", {:benefit_application_id => self.id.to_s})
+      end
+    end
+
     def accept_application
       adjust_open_enrollment_date
       transition_success = benefit_sponsorship.initial_application_approved! if benefit_sponsorship.may_approve_initial_application?
@@ -641,7 +670,8 @@ module BenefitSponsors
       state :appealing            # request reversal of negative determination
       ## End optional states for exception processing
 
-      state :enrollment_open, after_enter: [:recalc_pricing_determinations, :renew_benefit_package_members] # Approved application has entered open enrollment period
+      # TODO: send_employee_invites - needs to be moved to observer pattern.
+      state :enrollment_open, after_enter: [:recalc_pricing_determinations, :renew_benefit_package_members, :send_employee_invites] # Approved application has entered open enrollment period
       state :enrollment_closed
       state :enrollment_eligible    # Enrollment meets criteria necessary for sponsored members to effectuate selected benefits
       state :enrollment_ineligible  # open enrollment did not meet eligibility criteria
