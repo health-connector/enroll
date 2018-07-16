@@ -5,6 +5,7 @@ class Organization
   include Mongoid::Timestamps
   include Mongoid::Versioning
   include Acapi::Notifiers
+  include Config::AcaModelConcern
   extend Acapi::Notifiers
 
   extend Mongorder
@@ -179,7 +180,7 @@ class Organization
 
   scope :employer_profiles_with_attestation_document, -> { exists(:"employer_profile.employer_attestation.employer_attestation_documents" => true) }
 
-  scope :datatable_search, ->(query) { self.where({"$or" => ([{"legal_name" => Regexp.compile(Regexp.escape(query), true)}, {"fein" => Regexp.compile(Regexp.escape(query), true)}, {"hbx_id" => Regexp.compile(Regexp.escape(query), true)}])}) }
+  scope :datatable_search, ->(query) { self.where({"$or" => ([{"legal_name" => ::Regexp.compile(::Regexp.escape(query), true)}, {"fein" => ::Regexp.compile(::Regexp.escape(query), true)}, {"hbx_id" => ::Regexp.compile(::Regexp.escape(query), true)}])}) }
 
   def self.generate_fein
     loop do
@@ -193,11 +194,15 @@ class Organization
   end
 
   def invoices
-    documents.select{ |document| document.subject == 'invoice' }
+    employer_profile.documents.select{ |document| ["invoice", "initial_invoice"].include? document.subject }
+  end
+
+  def initial_invoices
+    employer_profile.documents.select{ |document| ["initial_invoice"].include? document.subject }
   end
 
   def current_month_invoice
-    documents.select{ |document| document.subject == 'invoice' && document.date.strftime("%Y%m") == TimeKeeper.date_of_record.strftime("%Y%m")}
+    invoices.select{ |document| document.date.strftime("%Y%m") == TimeKeeper.date_of_record.strftime("%Y%m")}
   end
 
   # Strip non-numeric characters
@@ -222,7 +227,7 @@ class Organization
   end
 
   def self.search_hash(s_rex)
-    search_rex = Regexp.compile(Regexp.escape(s_rex), true)
+    search_rex = ::Regexp.compile(::Regexp.escape(s_rex), true)
     {
       "$or" => ([
         {"legal_name" => search_rex},
@@ -397,7 +402,7 @@ class Organization
         document.format = 'application/pdf'
         document.subject = 'invoice'
         document.title = File.basename(file_path)
-        org.documents << document
+        org.employer_profile.documents << document
         logger.debug "associated file #{file_path} with the Organization"
         return document
       else
@@ -460,14 +465,14 @@ class Organization
   end
 
   def self.invoice_exist?(invoice_date,org)
-    docs =org.documents.where("date" => invoice_date)
-    matching_documents = docs.select {|d| d.title.match(Regexp.new("^#{org.hbx_id}"))}
+    docs = org.invoices.select{|doc| doc.date == invoice_date }
+    matching_documents = docs.select {|d| d.title.match(::Regexp.new("^#{org.hbx_id}"))}
     return true if matching_documents.count > 0
   end
 
   def self.commission_statement_exist?(statement_date,org)
     docs =org.documents.where("date" => statement_date)
-    matching_documents = docs.select {|d| d.title.match(Regexp.new("^#{org.hbx_id}_\\d{6,8}_COMMISSION"))}
+    matching_documents = docs.select {|d| d.title.match(::Regexp.new("^#{org.hbx_id}_\\d{6,8}_COMMISSION"))}
     return true if matching_documents.count > 0
   end
 
@@ -554,7 +559,7 @@ class Organization
       query_params = []
 
       if !search_params[:q].blank?
-        q = Regexp.new(Regexp.escape(search_params[:q].strip), true)
+        q = ::Regexp.new(::Regexp.escape(search_params[:q].strip), true)
         query_params << {"legal_name" => q}
       end
 

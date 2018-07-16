@@ -3,18 +3,19 @@ module Notifier
 
     include ActionView::Helpers::NumberHelper
     include Notifier::ApplicationHelper
-    include Notifier::Builders::PlanYear
+    include Notifier::Builders::BenefitApplication
     include Notifier::Builders::Broker
     include Notifier::Builders::Enrollment
 
     attr_accessor :employee_role, :merge_model, :payload, :event_name, :sep_id
+    attr_accessor :qle_title, :qle_event_on, :qle_reporting_deadline
 
     def initialize
       data_object = Notifier::MergeDataModels::EmployeeProfile.new
       data_object.mailing_address = Notifier::MergeDataModels::Address.new
       data_object.broker = Notifier::MergeDataModels::Broker.new
       data_object.enrollment = Notifier::MergeDataModels::Enrollment.new
-      data_object.plan_year = Notifier::MergeDataModels::PlanYear.new
+      data_object.benefit_application = Notifier::MergeDataModels::BenefitApplication.new
       data_object.census_employee = Notifier::MergeDataModels::CensusEmployee.new
       data_object.special_enrollment_period = Notifier::MergeDataModels::SpecialEnrollmentPeriod.new
       @merge_model = data_object
@@ -50,11 +51,11 @@ module Notifier
     end
 
     def ivl_oe_start_date
-      merge_model.ivl_oe_start_date = Settings.aca.individual_market.upcoming_open_enrollment.start_on.strftime('%m/%d/%Y')
+      merge_model.ivl_oe_start_date = format_date(Settings.aca.individual_market.upcoming_open_enrollment.start_on)
     end
 
     def ivl_oe_end_date
-      merge_model.ivl_oe_end_date = Settings.aca.individual_market.upcoming_open_enrollment.end_on.strftime('%m/%d/%Y')
+      merge_model.ivl_oe_end_date = format_date(Settings.aca.individual_market.upcoming_open_enrollment.end_on)
     end
 
     def email
@@ -90,7 +91,7 @@ module Notifier
 
     def enrollment_plan_name
       if enrollment.present?
-        merge_model.enrollment.plan_name = enrollment.plan.name
+        merge_model.enrollment.plan_name = enrollment.product.name
       end
     end
 
@@ -154,13 +155,13 @@ module Notifier
 
     def census_employee_latest_terminated_health_enrollment_plan_name
       if latest_terminated_health_enrollment.present?
-        merge_model.census_employee.latest_terminated_health_enrollment_plan_name = latest_terminated_health_enrollment.plan.name
+        merge_model.census_employee.latest_terminated_health_enrollment_plan_name = latest_terminated_health_enrollment.product.name
       end
     end
 
     def census_employee_latest_terminated_dental_enrollment_plan_name
       if latest_terminated_dental_enrollment.present?
-        merge_model.census_employee.latest_terminated_dental_enrollment_plan_name = latest_terminated_dental_enrollment.plan.name
+        merge_model.census_employee.latest_terminated_dental_enrollment_plan_name = latest_terminated_dental_enrollment.product.name
       end
     end
 
@@ -180,25 +181,35 @@ module Notifier
       merge_model.dependent_termination_date = format_date(TimeKeeper.date_of_record.end_of_month)
     end
     
+    # Using same merge model for special enrollment period and qualifying life event kind.
     def special_enrollment_period
       return @special_enrollment_period if defined? @special_enrollment_period
       if payload['event_object_kind'].constantize == SpecialEnrollmentPeriod
         @special_enrollment_period = employee_role.person.primary_family.special_enrollment_periods.find(payload['event_object_id'])
+      elsif payload['event_object_kind'].constantize == QualifyingLifeEventKind
+        @special_enrollment_period = QualifyingLifeEventKind.find(payload['event_object_id'])
       else
         @special_enrollment_period = employee_role.person.primary_family.current_sep
       end
     end
 
+    def special_enrollment_period_event_on
+      event_on = special_enrollment_period.nil? ? payload['notice_params']['qle_event_on'] : special_enrollment_period.event_on
+      merge_model.special_enrollment_period.event_on = event_on
+    end
+
     def special_enrollment_period_title
-      merge_model.special_enrollment_period.title = special_enrollment_period.title
+      merge_model.special_enrollment_period.title = special_enrollment_period.nil? ? payload['notice_params']['qle_title'] : special_enrollment_period.title
     end
 
     def special_enrollment_period_qle_reported_on
-      merge_model.special_enrollment_period.qle_reported_on = format_date(special_enrollment_period.qle_on)
+      merge_model.special_enrollment_period.qle_reported_on = (special_enrollment_period.present? && special_enrollment_period.qle_on.present?) ? format_date(special_enrollment_period.qle_on) : format_date(TimeKeeper.date_of_record)
     end
 
     def special_enrollment_period_start_on
-      merge_model.special_enrollment_period.start_on = format_date(special_enrollment_period.start_on)
+      if special_enrollment_period.present? && special_enrollment_period.start_on.present?
+        merge_model.special_enrollment_period.start_on = format_date(special_enrollment_period.start_on)
+      end
     end
 
     def special_enrollment_period_end_on
@@ -206,7 +217,12 @@ module Notifier
     end
 
     def special_enrollment_period_submitted_at
-      merge_model.special_enrollment_period.submitted_at = format_date(special_enrollment_period.submitted_at)
+      merge_model.special_enrollment_period.submitted_at = format_date(special_enrollment_period.submitted_at) if special_enrollment_period.submitted_at.present?
+    end
+
+    def special_enrollment_period_reporting_deadline
+      deadline = payload['notice_params']['qle_reporting_deadline']
+      merge_model.special_enrollment_period.reporting_deadline = deadline
     end
 
     def format_date(date)

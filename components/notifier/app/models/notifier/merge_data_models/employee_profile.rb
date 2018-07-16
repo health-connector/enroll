@@ -25,7 +25,7 @@ module Notifier
     attribute :new_hire_oe_end_date, String
     attribute :addresses, Array[MergeDataModels::Address]
     attribute :enrollment, MergeDataModels::Enrollment
-    attribute :plan_year, MergeDataModels::PlanYear
+    attribute :benefit_application, MergeDataModels::BenefitApplication
     attribute :census_employee, MergeDataModels::CensusEmployee
     attribute :special_enrollment_period, MergeDataModels::SpecialEnrollmentPeriod
 
@@ -36,8 +36,8 @@ module Notifier
         last_name: 'Whitmore',
         employer_name: 'MA Health Connector',
         email: 'johnwhitmore@yahoo.com',
-        ivl_oe_start_date: Settings.aca.individual_market.upcoming_open_enrollment.start_on.strftime('%m/%d/%Y'),
-        ivl_oe_end_date: Settings.aca.individual_market.upcoming_open_enrollment.end_on.strftime('%m/%d/%Y'),
+        ivl_oe_start_date: Settings.aca.individual_market.upcoming_open_enrollment.start_on,
+        ivl_oe_end_date: Settings.aca.individual_market.upcoming_open_enrollment.end_on,
         # coverage_begin_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y'),
         date_of_hire: TimeKeeper.date_of_record.strftime('%m/%d/%Y') ,
         earliest_coverage_begin_date: TimeKeeper.date_of_record.next_month.beginning_of_month.strftime('%m/%d/%Y'),
@@ -48,7 +48,7 @@ module Notifier
       notice.broker = Notifier::MergeDataModels::Broker.stubbed_object
       notice.addresses = [ notice.mailing_address ]
       notice.enrollment = Notifier::MergeDataModels::Enrollment.stubbed_object
-      notice.plan_year = Notifier::MergeDataModels::PlanYear.stubbed_object
+      notice.benefit_application = Notifier::MergeDataModels::BenefitApplication.stubbed_object
       notice.census_employee = Notifier::MergeDataModels::CensusEmployee.stubbed_object
       notice.special_enrollment_period = Notifier::MergeDataModels::SpecialEnrollmentPeriod.stubbed_object
       notice
@@ -74,12 +74,24 @@ module Notifier
       census_employee_health_enrollment? && census_employee_dental_enrollment?
     end
 
+    def primary_address
+      mailing_address
+    end
+
     def broker_present?
       self.broker.present?
     end
 
     def employee_notice?
       true
+    end
+
+    def general_agency?
+      false
+    end
+
+    def broker?
+      false
     end
 
     def shop?

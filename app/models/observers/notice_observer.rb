@@ -66,7 +66,7 @@ module Observers
             deliver(recipient: ce.employee_role, event_object: plan_year, notice_event: "notify_employee_of_group_advance_termination")
           end
         end
-        
+
         if new_model_event.event_key == :ineligible_initial_application_submitted
           if (plan_year.application_eligibility_warnings.include?(:primary_office_location) || plan_year.application_eligibility_warnings.include?(:fte_count))
             deliver(recipient: plan_year.employer_profile, event_object: plan_year, notice_event: "employer_initial_eligibility_denial_notice")
@@ -117,9 +117,9 @@ module Observers
 
     def employer_profile_update(new_model_event)
       raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
-
+      employer_profile = new_model_event.klass_instance
       if EmployerProfile::REGISTERED_EVENTS.include?(new_model_event.event_key)
-        employer_profile = new_model_event.klass_instance
+
         if new_model_event.event_key == :initial_employee_plan_selection_confirmation
           if employer_profile.is_new_employer?
             census_employees = employer_profile.census_employees.non_terminated
@@ -133,8 +133,18 @@ module Observers
       end
 
       if EmployerProfile::OTHER_EVENTS.include?(new_model_event.event_key)
-        employer_profile = new_model_event.klass_instance
-        deliver(recipient: employer_profile, event_object: employer_profile, notice_event: new_model_event.event_key.to_s)
+        if new_model_event.event_key == :generate_initial_employer_invoice
+          if employer_profile.is_new_employer?
+            deliver(recipient: employer_profile, event_object: employer_profile.plan_years.where(:aasm_state.in => PlanYear::PUBLISHED - ['suspended']).first, notice_event: "generate_initial_employer_invoice")
+          end
+        end
+
+        if new_model_event.event_key == :broker_hired_confirmation_to_employer
+          deliver(recipient: employer_profile, event_object: employer_profile, notice_event: "broker_hired_confirmation_to_employer")
+        elsif new_model_event.event_key == :welcome_notice_to_employer
+          deliver(recipient: employer_profile, event_object: employer_profile, notice_event: "welcome_notice_to_employer")
+        end
+
       end
     end
 
@@ -145,8 +155,9 @@ module Observers
         hbx_enrollment = new_model_event.klass_instance
 
         if hbx_enrollment.is_shop? && hbx_enrollment.census_employee.is_active?
-          
-          is_valid_employer_py_oe = (hbx_enrollment.benefit_group.plan_year.open_enrollment_contains?(hbx_enrollment.submitted_at) || hbx_enrollment.benefit_group.plan_year.open_enrollment_contains?(hbx_enrollment.created_at))
+
+          #TODO: Need to fix these methods on benefit application while dealing with notices.
+          is_valid_employer_py_oe = true#(hbx_enrollment.sponsored_benefit_package.plan_year.open_enrollment_contains?(hbx_enrollment.submitted_at) || hbx_enrollment.benefit_group.plan_year.open_enrollment_contains?(hbx_enrollment.created_at))
 
           if new_model_event.event_key == :notify_employee_of_plan_selection_in_open_enrollment
             if is_valid_employer_py_oe
@@ -158,7 +169,7 @@ module Observers
             if is_valid_employer_py_oe
               deliver(recipient: hbx_enrollment.employee_role, event_object: hbx_enrollment, notice_event: "notify_employee_of_plan_selection_in_open_enrollment") #initial EE notice
             end
-            
+
             if !is_valid_employer_py_oe && (hbx_enrollment.enrollment_kind == "special_enrollment" || hbx_enrollment.census_employee.new_hire_enrollment_period.cover?(TimeKeeper.date_of_record))
               deliver(recipient: hbx_enrollment.census_employee.employee_role, event_object: hbx_enrollment, notice_event: "employee_plan_selection_confirmation_sep_new_hire")
             end
@@ -170,13 +181,29 @@ module Observers
         end
 
         if new_model_event.event_key == :employee_coverage_termination
-          if hbx_enrollment.is_shop? && (CensusEmployee::EMPLOYMENT_ACTIVE_STATES - CensusEmployee::PENDING_STATES).include?(hbx_enrollment.census_employee.aasm_state) && hbx_enrollment.benefit_group.plan_year.active?
+          if hbx_enrollment.is_shop? && (CensusEmployee::EMPLOYMENT_ACTIVE_STATES - CensusEmployee::PENDING_STATES).include?(hbx_enrollment.census_employee.aasm_state) && hbx_enrollment.sponsored_benefit_package.is_active
             deliver(recipient: hbx_enrollment.employer_profile, event_object: hbx_enrollment, notice_event: "employer_notice_for_employee_coverage_termination")
             deliver(recipient: hbx_enrollment.employee_role, event_object: hbx_enrollment, notice_event: "employee_notice_for_employee_coverage_termination")
           end
         end
       end
     end
+
+    def document_update(new_model_event)
+      raise ArgumentError.new("expected ModelEvents::ModelEvent") unless new_model_event.is_a?(ModelEvents::ModelEvent)
+
+      if Document::REGISTERED_EVENTS.include?(new_model_event.event_key)
+        document = new_model_event.klass_instance
+        if new_model_event.event_key == :initial_employer_invoice_available
+          employer_profile = document.documentable
+          deliver(recipient: employer_profile, event_object: employer_profile.plan_years.where(:aasm_state.in => PlanYear::PUBLISHED - ['suspended']).first, notice_event: "initial_employer_invoice_available")
+        end
+      end
+    end
+
+    def vlp_document_update; end
+    def paper_application_update; end
+    def employer_attestation_document_update; end
 
     def plan_year_date_change(model_event)
       current_date = TimeKeeper.date_of_record
@@ -241,7 +268,7 @@ module Observers
       if special_enrollment_period.is_shop?
         primary_applicant = special_enrollment_period.family.primary_applicant
         if employee_role = primary_applicant.person.active_employee_roles[0]
-          deliver(recipient: employee_role, event_object: special_enrollment_period, notice_event: "employee_sep_request_accepted") 
+          deliver(recipient: employee_role, event_object: special_enrollment_period, notice_event: "employee_sep_request_accepted")
         end
       end
     end
@@ -265,6 +292,7 @@ module Observers
     def employer_profile_date_change; end
     def hbx_enrollment_date_change; end
     def census_employee_date_change; end
+    def document_date_change; end
     def special_enrollment_period_date_change; end
     def general_agency_profile_date_change; end
 
@@ -275,7 +303,7 @@ module Observers
       if CensusEmployee::OTHER_EVENTS.include?(new_model_event.event_key)
         deliver(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: new_model_event.event_key.to_s)
       end
-      
+
       if CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)
        if new_model_event.event_key == :employee_notice_for_employee_terminated_from_roster
         deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "employee_notice_for_employee_terminated_from_roster")

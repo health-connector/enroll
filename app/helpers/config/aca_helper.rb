@@ -43,6 +43,10 @@ module Config::AcaHelper
     Settings.aca.general_agency_enabled
   end
 
+  def broker_carrier_appointments_enabled?
+    Settings.aca.broker_carrier_appointments_enabled
+  end
+
   def dental_market_enabled?
     Settings.aca.dental_market_enabled
   end
@@ -62,6 +66,7 @@ module Config::AcaHelper
   def offers_metal_level?
     @offer_metal_level ||= Settings.aca.plan_options_available.include?("metal_level")
   end
+
 
   def metal_levels_explained
     response = ""

@@ -247,7 +247,7 @@ Given(/^a Hbx admin with read and write permissions exists$/) do
   #Note: creates an enrollment for testing purposes in the UI
   p_staff=Permission.create(name: 'hbx_staff', modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
       send_broker_agency_message: true, approve_broker: true, approve_ga: true,
-      modify_admin_tabs: true, view_admin_tabs: true, can_update_ssn: true)
+      modify_admin_tabs: true, view_admin_tabs: true, can_update_ssn: true, can_add_sep: true)
   person = people['Hbx Admin']
   hbx_profile = FactoryGirl.create :hbx_profile
   user = FactoryGirl.create :user, :with_family, :hbx_staff, email: person[:email], password: person[:password], password_confirmation: person[:password]
@@ -599,6 +599,22 @@ When(/^(.*) creates an HBX account$/) do |named_person|
   click_button "Create account"
 end
 
+And(/^Primary Broker select the all security question and give the answer$/) do
+  step 'I select the all security question and give the answer'
+end
+
+When(/^Primary Broker have submit the security questions$/) do
+  step 'I have submit the security questions'
+end
+
+And(/^Broker Assisted select the all security question and give the answer$/) do
+  step 'I select the all security question and give the answer'
+end
+
+When(/^Broker Assisted have submit the security questions$/) do
+  step 'I have submit the security questions'
+end
+
 When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
   person = people[named_person]
 
@@ -659,7 +675,7 @@ When(/^.+ completes? the matched employee form for (.*)$/) do |named_person|
   # TODO: fix this bombing issue
   wait_for_ajax
   page.evaluate_script("window.location.reload()")
-  wait_for_ajax
+  wait_for_ajax(3,2)
   person = people[named_person]
   screenshot("before modal")
   # find('.interaction-click-control-click-here').click
