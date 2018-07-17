@@ -1,16 +1,20 @@
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 
 module BenefitSponsors
   RSpec.describe BenefitApplications::BenefitApplication, type: :model, :dbclean => :after_each do
-    let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-    let(:benefit_market)          { site.benefit_markets.first }
+    # let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    # let(:benefit_market)          { site.benefit_markets.first }
+    
+    include_context "setup benefit market with market catalogs and product packages"
+
     let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:benefit_sponsorship)    { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
     let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
 
-    let(:rating_area)  { create_default(:benefit_markets_locations_rating_area) }
-    let(:service_area) { create_default(:benefit_markets_locations_service_area) }
-    let(:sic_code)      { "001" }
+    # let(:rating_area)  { create_default(:benefit_markets_locations_rating_area) }
+    # let(:service_area) { create_default(:benefit_markets_locations_service_area) }
+    # let(:sic_code)      { "001" }
 
     let(:effective_period_start_on) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
     let(:effective_period_end_on)   { effective_period_start_on + 1.year - 1.day }
@@ -378,47 +382,7 @@ module BenefitSponsors
 
     end
 
-
-
-    ## TODO: Refactor for BenefitApplication
-    # context "#to_plan_year", dbclean: :after_each do
-    #   let(:benefit_application)       { BenefitSponsors::BenefitApplications::BenefitApplication.new(params) }
-    #   let(:benefit_sponsorship)       { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(benefit_market: :aca_shop_cca) }
-
-    #   let(:address)  { Address.new(kind: "primary", address_1: "609 H St", city: "Washington", state: "DC", zip: "20002", county: "County") }
-    #   let(:phone  )  { Phone.new(kind: "main", area_code: "202", number: "555-9999") }
-    #   let(:office_location) { OfficeLocation.new(
-    #       is_primary: true,
-    #       address: address,
-    #       phone: phone
-    #     )
-    #   }
-
-    #   let(:plan_design_organization)  { BenefitSponsors::Organizations::PlanDesignOrganization.new(legal_name: "xyz llc") }
-    #   let(:plan_design_proposal)      { BenefitSponsors::Organizations::PlanDesignProposal.new(title: "New Proposal") }
-    #   let(:profile) {BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.new}
-
-    #   before(:each) do
-    #     plan_design_organization.plan_design_proposals << [plan_design_proposal]
-    #     plan_design_proposal.profile = profile
-    #     profile.organization.benefit_sponsorships = [benefit_sponsorship]
-    #     benefit_sponsorship.benefit_applications  = [benefit_application]
-    #     benefit_application.benefit_packages.build
-    #     plan_design_organization.save
-    #   end
-
-    #   it "should instantiate a plan year object and must have correct values assigned" do
-    #     plan_year = benefit_application.to_plan_year
-    #     expect(plan_year.class).to eq PlanYear
-    #     expect(plan_year.benefit_groups.present?).to eq true
-    #     expect(plan_year.start_on).to eq benefit_application.effective_period.begin
-    #     expect(plan_year.end_on).to eq benefit_application.effective_period.end
-    #     expect(plan_year.open_enrollment_start_on).to eq benefit_application.open_enrollment_period.begin
-    #     expect(plan_year.open_enrollment_end_on).to eq benefit_application.open_enrollment_period.end
-    #   end
-    # end
-
-    describe ".renew" do
+    describe "Renew a BenefitApplication" do
 
       context "when renewal benefit sponsor catalog available" do
 
@@ -551,6 +515,10 @@ module BenefitSponsors
       end
 
       context "and an effective date is passed to enrollment timetable by effective date method" do
+        let(:rating_area)   { create_default(:benefit_markets_locations_rating_area) }
+        let(:service_areas) { create_default(:benefit_markets_locations_service_area).to_a }
+        let(:sic_code)      { "010"  }
+
         let(:effective_date)                  { TimeKeeper.date_of_record.next_month.end_of_month + 1.day }
 
         let(:prior_month)                     { effective_date - 1.month }
@@ -600,6 +568,10 @@ module BenefitSponsors
     end
 
     describe "Navigating BenefitSponsorship Predecessor/Successor linked list", :dbclean => :after_each do
+      let(:rating_area)   { create_default(:benefit_markets_locations_rating_area) }
+      let(:service_areas) { create_default(:benefit_markets_locations_service_area).to_a }
+      let(:sic_code)      { "010"  }
+      
       let(:node_a)    { described_class.new(benefit_sponsorship: benefit_sponsorship,
                                                 effective_period: effective_period,
                                                 open_enrollment_period: open_enrollment_period,

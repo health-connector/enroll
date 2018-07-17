@@ -149,6 +149,8 @@ module BenefitSponsors
                                                                                               )}
     # TODO
     scope :published,                       ->{ any_in(aasm_state: PUBLISHED_STATES) }
+    scope :is_renewal,                      ->{ exists(:predecessor_id => true) }
+
     # scope :renewing,                        ->{ is_renewing } # Deprecate it in future
 
     # scope :by_effective_date_range,         ->(begin_on, end_on)  { where(:"effective_period.min".gte => begin_on, :"effective_period.min".lte => end_on) }
@@ -236,8 +238,13 @@ module BenefitSponsors
     end
 
     def benefit_sponsor_catalog=(new_benefit_sponsor_catalog)
-      raise ArgumentError.new("expected BenefitSponsorCatalog") unless new_benefit_sponsor_catalog.is_a? BenefitMarkets::BenefitSponsorCatalog
-      write_attribute(:benefit_sponsor_catalog_id, new_benefit_sponsor_catalog._id)
+      if new_benefit_sponsor_catalog.nil?
+        write_attribute(:benefit_sponsor_catalog_id, nil)
+      else
+        raise ArgumentError.new("expected BenefitSponsorCatalog") unless new_benefit_sponsor_catalog.is_a? BenefitMarkets::BenefitSponsorCatalog
+        drop_benefit_sponsor_catalog
+        write_attribute(:benefit_sponsor_catalog_id, new_benefit_sponsor_catalog._id)
+      end
       @benefit_sponsor_catalog = new_benefit_sponsor_catalog
     end
 
@@ -578,24 +585,6 @@ module BenefitSponsors
       benefit_packages.each { |benefit_package| benefit_package.send("#{transition_kind}_member_benefits".to_sym) }
     end
 
-    def refresh(new_benefit_sponsor_catalog)
-      warn "[Deprecated] Instead use refresh_benefit_sponsor_catalog" unless Rails.env.test?
-      refresh_benefit_sponsor_catalog(new_benefit_sponsor_catalog)
-    end
-
-    def refresh_benefit_sponsor_catalog(new_benefit_sponsor_catalog)
-      if benefit_sponsorship_catalog != new_benefit_sponsor_catalog
-
-        benefit_packages.each do |benefit_package|
-          benefit_package.refresh(new_benefit_sponsor_catalog)
-        end
-
-        self.benefit_sponsor_catalog = new_benefit_sponsor_catalog
-      end
-
-      self
-    end
-
     def accept_application
       adjust_open_enrollment_date
       transition_success = benefit_sponsorship.initial_application_approved! if benefit_sponsorship.may_approve_initial_application?
@@ -919,14 +908,30 @@ module BenefitSponsors
 
     # Assign local attributes derived from benefit_sponsorship parent instance
     def pull_benefit_sponsorship_attributes
-      return unless benefit_sponsorship.present?
-      return if self.start_on.blank?
-      refresh_recorded_rating_area   unless recorded_rating_area.present?
-      refresh_recorded_service_areas unless recorded_service_areas.size > 0
-      refresh_recorded_sic_code      unless recorded_sic_code.present?
+      return unless benefit_sponsorship.present? && self.start_on.present?
+
+      refresh_recorded_rating_area    unless recorded_rating_area.present?
+      refresh_recorded_service_areas  unless recorded_service_areas.size > 0
+      refresh_recorded_sic_code       unless recorded_sic_code.present?
+      refresh_benefit_sponsor_catalog unless benefit_sponsor_catalog.present?
     end
 
+
     private
+
+    def refresh_benefit_sponsor_catalog
+      if start_on.present?
+        new_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_on(self.start_on)
+        if new_benefit_sponsor_catalog.present? && new_benefit_sponsor_catalog.save
+          drop_benefit_sponsor_catalog
+          self.benefit_sponsor_catalog = new_benefit_sponsor_catalog
+        end
+      end
+    end
+
+    def drop_benefit_sponsor_catalog
+      benefit_sponsor_catalog.destroy if benefit_sponsor_catalog.present?
+    end
 
     def refresh_recorded_rating_area
       self.recorded_rating_area = benefit_sponsorship.rating_area_on(self.start_on)

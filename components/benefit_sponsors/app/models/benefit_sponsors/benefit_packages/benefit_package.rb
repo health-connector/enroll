@@ -5,7 +5,8 @@ module BenefitSponsors
       include Mongoid::Timestamps
 
 
-      embedded_in :benefit_application, class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication",
+      embedded_in :benefit_application, 
+                  class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication",
                   inverse_of: :benefit_packages
 
       field :title, type: String, default: ""
@@ -27,15 +28,14 @@ module BenefitSponsors
       delegate :benefit_sponsor_catalog, to: :benefit_application
       delegate :rate_schedule_date,      to: :benefit_application
       delegate :effective_period,        to: :benefit_application
-      delegate :recorded_sic_code, to: :benefit_application
-
-      delegate :start_on, :end_on, :open_enrollment_period, to: :benefit_application
+      delegate :recorded_sic_code,       to: :benefit_application
+      delegate :benefit_market,          to: :benefit_application
+      delegate :is_conversion?,          to: :benefit_application
+      delegate :start_on, :end_on, :open_enrollment_period,        to: :benefit_application
       delegate :open_enrollment_start_on, :open_enrollment_end_on, to: :benefit_application
-      delegate :recorded_rating_area, to: :benefit_application
-      delegate :benefit_sponsorship, :sponsor_profile, to: :benefit_application
-      delegate :recorded_service_area_ids, to: :benefit_application
-      delegate :benefit_market, to: :benefit_application
-      delegate :is_conversion?, to: :benefit_application
+      delegate :recorded_rating_area,                              to: :benefit_application
+      delegate :benefit_sponsorship, :sponsor_profile,             to: :benefit_application
+      delegate :recorded_service_area_ids,                         to: :benefit_application
 
       validates_presence_of :title, :probation_period_kind, :is_default, :is_active #, :sponsored_benefits
 
@@ -100,9 +100,28 @@ module BenefitSponsors
         end
       end
 
-      # TODO: there can be only one sponsored benefit of each kind
+      # Only one sponsored benefit of each kind is permitted within a BenefitPackage
       def add_sponsored_benefit(new_sponsored_benefit)
-        new_sponsored_benefit
+        self.sponsored_benefits << new_sponsored_benefit unless sponsored_benefit_for(new_sponsored_benefit.product_kind).present?
+      end
+
+      def drop_sponsored_benefit(sponsored_benefit)
+        sponsored_benefits.delete(sponsored_benefit)
+      end
+
+      def sponsored_benefits=(sponsored_benefits_attrs)
+        sponsored_benefits_attrs.each do |sponsored_benefit_attrs|
+          sponsored_benefit = sponsored_benefits.build
+          sponsored_benefit.assign_attributes(sponsored_benefit_attrs)
+        end
+      end
+
+      def sponsored_benefit_for(benefit_kind)
+        sponsored_benefits.detect { |sponsored_benefit| sponsored_benefit.product_kind == benefit_kind.to_sym }
+      end
+
+      def sponsored_benefit_kinds
+        sponsored_benefits.map(&:product_kind)
       end
 
       def effective_on_kind
@@ -173,16 +192,21 @@ module BenefitSponsors
         sponsored_benefits.delete(sponsored_benefit)
       end
 
-      def predecessor
-        return nil if predecessor_id.blank?
-        return @predecessor if @predecessor
-        @predecessor = predecessor_application.benefit_packages.find(self.predecessor_id)
+      # Set the prior_benefit_package instance that preceded this one
+      def predecessor=(prior_benefit_package)
+        if prior_benefit_package.nil?
+          write_attribute(:predecessor_id, nil)
+        else
+          raise ArgumentError.new("expected BenefitPackage") unless prior_benefit_package.is_a? BenefitSponsors::BenefitPackages::BenefitPackage
+          write_attribute(:predecessor_id, prior_benefit_package._id)
+        end
+        @predecessor = prior_benefit_package
       end
 
-      def predecessor=(old_benefit_package)
-        raise ArgumentError.new("expected BenefitPackage") unless old_benefit_package.kind_of? BenefitSponsors::BenefitPackages::BenefitPackage
-        @predecessor = old_benefit_package
-        self.predecessor_id = old_benefit_package.id
+      def predecessor
+        return nil if predecessor_id.blank?
+        return @predecessor if defined? @predecessor
+        @predecessor = benefit_application.predecessor.find_benefit_package(predecessor_id) # FIX ME
       end
 
       def probation_period_display_name
@@ -401,13 +425,6 @@ module BenefitSponsors
       def set_sponsor_choices(sponsored_benefit)
         # trigger composite
 
-      end
-
-      def sponsored_benefits=(sponsored_benefits_attrs)
-        sponsored_benefits_attrs.each do |sponsored_benefit_attrs|
-          sponsored_benefit = sponsored_benefits.build
-          sponsored_benefit.assign_attributes(sponsored_benefit_attrs)
-        end
       end
 
       # Deprecate below methods in future
