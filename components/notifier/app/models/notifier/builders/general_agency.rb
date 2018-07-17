@@ -68,8 +68,8 @@ module Notifier
 
     def employer
       return @employer if defined? @employer
-      if payload["event_object_kind"].constantize == EmployerProfile
-        @employer = EmployerProfile.find(payload["event_object_id"])
+      if payload['event_object_kind'].constantize == BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
+        employer = BenefitSponsors::Organizations::Profile.find payload['event_object_id']
       end
     end
 

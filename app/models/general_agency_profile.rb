@@ -7,8 +7,8 @@ class GeneralAgencyProfile
   extend Acapi::Notifiers
   include AgencyProfile
   include Config::AcaModelConcern
-  include Concerns::Observable
-  include ModelEvents::GeneralAgency
+  include BenefitSponsors::Concerns::Observable
+  include BenefitSponsors::ModelEvents::GeneralAgency
 
   # for market_kind
   MARKET_KINDS = individual_market_is_enabled? ? %W[individual shop both] : %W[shop]
@@ -59,6 +59,8 @@ class GeneralAgencyProfile
   embeds_one  :inbox, as: :recipient, cascade_callbacks: true
   accepts_nested_attributes_for :inbox
   after_initialize :build_nested_models
+
+  add_observer ::BenefitSponsors::Observers::GeneralAgencyObserver.new, [:notifications_send]
 
   def market_kind=(new_market_kind)
     write_attribute(:market_kind, new_market_kind.to_s.downcase)
