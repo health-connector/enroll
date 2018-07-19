@@ -44,8 +44,11 @@ export default class extends Controller {
         newOption.text = "Zipcode outside of MA";
         newOption.value = "Zipcode outside of MA";
         this.countySelectTarget.add(newOption)
-        event.target.parentElement.classList.add('was-validated')
-        event.target.setCustomValidity("Zipcode outside of MA")
+        // Only add this validation if new employer registration
+        if (window.location.pathname.split('/')[4] == "new") {
+          event.target.parentElement.classList.add('was-validated')
+          event.target.setCustomValidity("Zipcode outside of MA")
+        }
       }
       if (this.countySelectTarget.parentElement.className == 'selectric-hide-select') {
         $(this.countySelectTarget).selectric('refresh')
