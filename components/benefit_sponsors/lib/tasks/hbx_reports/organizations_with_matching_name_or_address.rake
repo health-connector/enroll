@@ -52,6 +52,7 @@ namespace :reports do
         organization_legal_names.compact!
         organization_legal_names.delete("")
         organizations = organization_legal_names.inject([]) do |array, legal_name|
+          legal_name = legal_name.gsub(/[^0-9a-z ]/i, '')
           orgs = BenefitSponsors::Organizations::Organization.all.where(legal_name: /#{legal_name}/i)
           array << orgs if orgs.count > 1
           array.compact
@@ -62,12 +63,20 @@ namespace :reports do
         organization_dbas = BenefitSponsors::Organizations::Organization.all.map(&:dba).uniq
         organization_dbas.compact!
         organization_dbas.delete("")
-        organizations = organization_dbas.inject([]) do |array, dba|
-          orgs = BenefitSponsors::Organizations::Organization.all.where(dba: /#{dba}/i)
-          array << orgs if orgs.count > 1
-          array.compact
-          array.flatten
+        organization_dbas.delete(" ")
+        organizations = []
+        organization_dbas.each do |dba|
+          actual_dba = dba
+          dba = dba.gsub(/[^0-9a-z ]/i, '')
+          if dba.present?
+            dba = /#{dba}/i rescue ""
+            next if dba.blank?
+            orgs = BenefitSponsors::Organizations::Organization.all.where(dba: dba).to_a
+            organizations << orgs if orgs.count > 1
+          end
         end
+        organizations.flatten!
+        organizations.compact!
         organizations.uniq
       when "address_1"
         organization_primary_address1s = BenefitSponsors::Organizations::Organization.all.flat_map(&:profiles).map(&:primary_office_location).map(&:address).map(&:address_1).uniq
