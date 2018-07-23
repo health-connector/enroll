@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["IdeaCrew"]
   s.email       = ["enroll_app@ideacrew.com"]
   s.homepage    = "https://github.com/dchbx"
-  s.summary     = "Create and manage markets that enable benefit sponsors to access products and offer benefits to their members."
-  s.description = "Create and manage markets that enable benefit sponsors to access products and offer benefits to their members."
+  s.summary     = "BenefitMarkets engine enables administrators to create a site, marketplaces define operating policies and load products for a benefits exchange"
+  s.description = "BenefitMarkets engine enables administrators to create a site, marketplaces define operating policies and load products for a benefits exchange"
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]

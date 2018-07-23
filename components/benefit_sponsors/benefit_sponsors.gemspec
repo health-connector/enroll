@@ -7,11 +7,11 @@ require "benefit_sponsors/version"
 Gem::Specification.new do |s|
   s.name        = "benefit_sponsors"
   s.version     = BenefitSponsors::VERSION
-  s.authors     = ["Dan Thomas"]
-  s.email       = ["dan.thomas@dc.gov"]
+  s.authors     = ["IdeaCrew"]
+  s.email       = ["info@ideacrew.com"]
   s.homepage    = "https://github.com/dchbx"
-  s.summary     = "Summary of BenefitSponsors."
-  s.description = "Description of BenefitSponsors."
+  s.summary     = "BenefitSponsors engine provides services for organizations who sponsor benefits, including: registration, eligibility, benefit design, open enrollment and member management"
+  s.description = "BenefitSponsors applies BenefitMarkets policies and matches benefit product offerings to qualified employers and organizations who sponsor benefits for their members."
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
