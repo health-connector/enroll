@@ -8,8 +8,8 @@ FactoryGirl.define do
       office_location_kind :primary
     end
 
-    after(:build) do |office_locations_count, evaluator|
-      create_list(:office_location, evaluator.office_locations_count, evaluator.office_location_kind, office_location: office_location)
+    after(:build) do |profile, evaluator|
+      create_list(:benefit_sponsors_locations_office_location, evaluator.office_locations_count, evaluator.office_location_kind, profile: profile)
     end
 
   end
