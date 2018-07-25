@@ -83,6 +83,7 @@ module BenefitSponsors
         let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
         let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
         let!(:renewal_benefit_package)        { renewal_application.benefit_packages.build }
+        let!(:title) { renewal_application.start_on.year }
 
         before do
           current_benefit_package.renew(renewal_benefit_package)
@@ -97,7 +98,7 @@ module BenefitSponsors
 
         it "should renew benefit package" do
           expect(renewal_benefit_package).to be_present
-          expect(renewal_benefit_package.title).to eq current_benefit_package.title
+          expect(renewal_benefit_package.title).to eq current_benefit_package.title + "(#{title})"
           expect(renewal_benefit_package.description).to eq current_benefit_package.description
           expect(renewal_benefit_package.probation_period_kind).to eq current_benefit_package.probation_period_kind
           expect(renewal_benefit_package.is_default).to eq  current_benefit_package.is_default
@@ -159,6 +160,7 @@ module BenefitSponsors
         let(:hbx_enrollment) { double(product: product_package.products[2]) }
 
         it 'should return false' do
+          allow(hbx_enrollment).to receive(:is_coverage_waived?).and_return(false)
           expect(renewal_benefit_package.is_renewal_benefit_available?(hbx_enrollment)).to be_falsey
         end
       end
@@ -177,6 +179,7 @@ module BenefitSponsors
         end
 
         it 'should return true' do
+          allow(hbx_enrollment).to receive(:is_coverage_waived?).and_return(false)
           expect(renewal_benefit_package.is_renewal_benefit_available?(hbx_enrollment)).to be_truthy
         end
       end
@@ -195,7 +198,8 @@ module BenefitSponsors
           allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(sponsored_benefit) 
         end
 
-        it "should return false" do 
+        it "should return false" do
+          allow(hbx_enrollment).to receive(:is_coverage_waived?).and_return(false)
           expect(renewal_benefit_package.is_renewal_benefit_available?(hbx_enrollment)).to be_falsey
         end
       end
