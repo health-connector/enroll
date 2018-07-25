@@ -132,18 +132,18 @@ describe EventsHelper, "given an address_kind" do
     let(:active_plan_year){ FactoryGirl.build(:plan_year, start_on: TimeKeeper.date_of_record.at_beginning_of_month, aasm_state: "active", is_conversion: is_conversion) }
     let(:renewing_plan_year){ FactoryGirl.build(:plan_year,start_on: TimeKeeper.date_of_record.at_beginning_of_month.next_month, aasm_state: "renewing_enrolled") }
     let(:employer_profile2){ FactoryGirl.create(:employer_profile, plan_years: [renewing_plan_year,active_plan_year]) }
-
     let(:employer_profile1){ FactoryGirl.create(:employer_profile, plan_years: [active_plan_year]) }
+    let(:threshold_day) { Settings.aca.shop_market.employer_transmission_day_of_month }
 
     before :each do
       allow(PlanYear).to receive(:transmit_employers_immediately?).and_return(false)
     end
 
     context "initial employer" do
-      context "day is after 15th of this month" do
+      context "day is after threshold day of this month" do
         let(:active_start_on) { TimeKeeper.date_of_record.at_beginning_of_month.next_month }
         let(:current_date_of_record) {
-          TimeKeeper.date_of_record.at_beginning_of_month + 20.days
+          TimeKeeper.date_of_record.at_beginning_of_month + threshold_day.days
         }
 
         before do
@@ -158,7 +158,7 @@ describe EventsHelper, "given an address_kind" do
         end
       end
 
-      context "day is on or before 15th of this month" do
+      context "day is on or before threshold day of this month" do
         let(:active_start_on) { TimeKeeper.date_of_record.at_beginning_of_month.next_month }
         let(:current_date_of_record) {
           TimeKeeper.date_of_record.at_beginning_of_month
@@ -178,10 +178,10 @@ describe EventsHelper, "given an address_kind" do
 
     context "renewal employer" do
 
-      context "day is after 15th of this month" do
+      context "day is after threshold day of this month" do
 
         before do
-          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 20.days)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
         end
 
         it "should return active and renewal plan year" do
@@ -189,7 +189,7 @@ describe EventsHelper, "given an address_kind" do
         end
       end
 
-      context "day is on or before 15th of this month" do
+      context "day is on or before threshold day of this month" do
 
         before do
           allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month)
@@ -204,10 +204,10 @@ describe EventsHelper, "given an address_kind" do
     context "conversion employer with no external plan year" do
 
       before do
-        allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 20.days)
+        allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
       end
 
-      context "day is after 15th of this month" do
+      context "day is after threshold day of this month" do
 
         it "should return active plan year" do
           employer_profile1.profile_source='conversion'
@@ -217,7 +217,7 @@ describe EventsHelper, "given an address_kind" do
         end
       end
 
-      context "day is on or before 15th of this month" do
+      context "day is on or before threshold day of this month" do
 
         before do
           allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month)
@@ -235,9 +235,9 @@ describe EventsHelper, "given an address_kind" do
 
     context "new conversion employer" do
 
-      context "day is after 15th of this month" do
+      context "day is after threshold day of this month" do
         before do
-          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 20.days)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
         end
 
         it "should return active and renewal plan year" do
@@ -247,7 +247,7 @@ describe EventsHelper, "given an address_kind" do
         end
       end
 
-      context "day is on or before 15th of this month" do
+      context "day is on or before threshold day of this month" do
 
         let(:is_conversion) { true }
 
@@ -266,10 +266,10 @@ describe EventsHelper, "given an address_kind" do
 
     context "conversion employer renewing" do
 
-      context "day is after 15th of this month" do
+      context "day is after threshold day of this month" do
 
         before do
-          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ 20.days)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month+ threshold_day.days)
         end
 
         it "should return active and renewal plan year" do
@@ -278,7 +278,7 @@ describe EventsHelper, "given an address_kind" do
         end
       end
 
-      context "day is on or before 15th of this month" do
+      context "day is on or before threshold day of this month" do
 
         before do
           allow(TimeKeeper).to receive(:date_of_record).and_return(TimeKeeper.date_of_record.at_beginning_of_month)

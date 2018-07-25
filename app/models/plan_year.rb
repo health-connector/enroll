@@ -234,8 +234,8 @@ class PlanYear
   def past_transmission_threshold?
     return false if start_on.blank?
     return true if transmit_employers_immediately?
-    t_threshold_date = (start_on - 1.month).beginning_of_month + 14.days
-    (TimeKeeper.date_of_record > t_threshold_date)
+    t_threshold_date = Date.new(start_on.prev_month.year, start_on.prev_month.month, Settings.aca.shop_market.employer_transmission_day_of_month)
+    (TimeKeeper.date_of_record >= t_threshold_date)
   end
 
   def eligible_for_export?
