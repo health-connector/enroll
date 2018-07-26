@@ -6,7 +6,7 @@ module BenefitSponsors
       attr_accessor :notifier
 
       def notifications_send(model_instance, new_model_event)
-        if new_model_event.present? &&  new_model_event.is_a?(BenefitSponsors::ModelEvents::ModelEvent)
+        if new_model_event.present? && new_model_event.is_a?(BenefitSponsors::ModelEvents::ModelEvent)
           census_employee = new_model_event.klass_instance
 
           if ::CensusEmployee::OTHER_EVENTS.include?(new_model_event.event_key)
