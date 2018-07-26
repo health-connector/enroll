@@ -10,6 +10,7 @@ module BenefitSponsors
         :employee_coverage_passively_waived,
         :employee_coverage_passively_renewed,
         :employee_coverage_passive_renewal_failed,
+        :employee_notice_for_sep_denial
       ]
 
       def notify_on_save
@@ -18,10 +19,13 @@ module BenefitSponsors
         end
 
         REGISTERED_EVENTS.each do |event|
-          if event_fired = instance_eval("is_" + event.to_s)
-            # event_name = ("on_" + event.to_s).to_sym
-            event_options = {} # instance_eval(event.to_s + "_options") || {}
+          begin
+            if event_fired = instance_eval("is_" + event.to_s)
+            event_options = {}
             notify_observers(ModelEvent.new(event, self, event_options))
+          end
+          rescue Exception => e
+            Rails.logger.error { "CensusEmployee REGISTERED_EVENTS: #{event} - unable to notify observers due to #{e}" }
           end
         end
       end
@@ -36,9 +40,14 @@ module BenefitSponsors
       end
 
       def trigger_model_event(event_name, event_options = {})
+        binding.pry
         if OTHER_EVENTS.include?(event_name)
-          ::CensusEmployee.add_observer(BenefitSponsors::Observers::CensusEmployeeObserver.new, [:notifications_send])
-          notify_observers(ModelEvent.new(event_name, self, event_options))
+          begin
+            ::CensusEmployee.add_observer(BenefitSponsors::Observers::CensusEmployeeObserver.new, [:notifications_send])
+            notify_observers(ModelEvent.new(event_name, self, event_options))
+          rescue Exception => e
+            Rails.logger.error { "CensusEmployee OTHER_EVENTS: #{event_name} - unable to notify observers due to #{e}" }
+          end
         end
       end
     end
