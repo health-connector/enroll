@@ -1,4 +1,5 @@
 FactoryGirl.define do
+   open_enrollment_period_end = Settings.aca.shop_market.renewal_application.monthly_open_enrollment_end_on.days - 1.day
   factory :benefit_markets_benefit_sponsor_catalog, class: 'BenefitMarkets::BenefitSponsorCatalog' do
 
     effective_date          {
@@ -6,7 +7,7 @@ FactoryGirl.define do
                                 Date.new(this_year,6,1)
                               }
     effective_period        { effective_date..(effective_date + 1.year - 1.day) }
-    open_enrollment_period  { (effective_date - 1.month)..(effective_date - 1.month + 9.days) }
+    open_enrollment_period  { (effective_date - 1.month)..(effective_date.prev_month + open_enrollment_period_end.days - 1.day) }
     probation_period_kinds  { [:first_of_month, :first_of_month_after_30_days, :first_of_month_after_60_days] }
     service_areas           { [FactoryGirl.build(:benefit_markets_locations_service_area)] }
     sponsor_market_policy   { FactoryGirl.build(:benefit_markets_market_policies_sponsor_market_policy) }

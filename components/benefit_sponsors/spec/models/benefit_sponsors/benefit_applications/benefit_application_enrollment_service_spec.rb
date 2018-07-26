@@ -158,6 +158,7 @@ module BenefitSponsors
           end
 
           it "should transition the benefit_application into :enrollment_open" do
+            renewal_application.update_attributes(aasm_state: :approved)
             scheduled_event.advance_day(TimeKeeper.date_of_record)
             renewal_application.reload
             expect(renewal_application.aasm_state).to eq :enrollment_open
@@ -178,20 +179,8 @@ module BenefitSponsors
     describe '.begin_open_enrollment' do
       context "when initial employer present with valid approved application" do
 
-        let(:open_enrollment_begin) { TimeKeeper.date_of_record - 5.days }
-
         include_context "setup initial benefit application" do
-          let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year, 8, 1) }
-          let(:open_enrollment_period) { open_enrollment_begin..(effective_period.min - 10.days) }
           let(:aasm_state) { :approved }
-        end
-
-        before(:all) do
-          TimeKeeper.set_date_of_record_unprotected!(Date.new(TimeKeeper.date_of_record.year, 6, 10))
-        end
-
-        after(:all) do
-          TimeKeeper.set_date_of_record_unprotected!(Date.today)
         end
 
         subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
@@ -206,7 +195,22 @@ module BenefitSponsors
         end
 
         context "open enrollment start date in the future" do
-          let(:open_enrollment_begin) { TimeKeeper.date_of_record + 5.days }
+          let(:effective_period_end_on) { TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day }
+          let(:effective_period_start) {TimeKeeper.date_of_record.next_month.beginning_of_month}
+          let(:open_enrollment_begin) {TimeKeeper.date_of_record + 2.day}
+          let(:open_enrollment_end_on) { TimeKeeper.date_of_record + 8.day}
+          let(:future_open_enrollment_period) { open_enrollment_begin..open_enrollment_end_on}
+
+          before(:each) do
+            TimeKeeper.set_date_of_record_unprotected!(Date.new(Date.today.year, 8, 12))
+            future_open_enrollment_period = open_enrollment_begin..open_enrollment_end_on
+            effective_period = effective_period_start..effective_period_end_on
+            initial_application.update_attributes(effective_period: effective_period, open_enrollment_period: future_open_enrollment_period)
+          end
+
+          after(:each) do
+            TimeKeeper.set_date_of_record_unprotected!(Date.today)
+          end
 
           it "should do nothing" do
             subject.begin_open_enrollment
