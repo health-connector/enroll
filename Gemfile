@@ -4,7 +4,7 @@ gem "benefit_markets", path: "components/benefit_markets"
 gem "benefit_sponsors", path: "components/benefit_sponsors"
 
 gem 'aasm', '~> 4.8.0'
-gem 'acapi', git: "https://github.com/dchbx/acapi.git", branch: 'development'
+gem 'acapi', git: "https://github.com/dchbx/acapi.git", tag: '1.2.0'
 gem 'addressable', '2.3.8'
 gem 'animate-rails', '~> 1.0.7'
 gem 'aws-sdk', '2.2.4'
@@ -21,7 +21,6 @@ gem 'config', '~> 1.0.0'
 gem 'curl'
 gem 'devise', '>= 3.5.4'
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
-gem 'font-awesome-rails', '4.5.0.1'
 gem 'haml'
 gem 'httparty'
 gem 'interactor', '3.1.0'

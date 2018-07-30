@@ -17,7 +17,7 @@ namespace :employers do
 
     def published_on(application)
       return nil if application.blank? || application.workflow_state_transitions.blank?
-      application.workflow_state_transitions.where(:event => "approve_application").first.try(:transition_at)
+      application.workflow_state_transitions.where(:"event".in => ["approve_application", "approve_application!", "publish", "force_publish", "publish!", "force_publish!"]).first.try(:transition_at)
     end
 
     def import_to_csv(csv, profile, package=nil)
@@ -26,8 +26,8 @@ namespace :employers do
 
       mailing_address = profile.office_locations.where(:"address.kind" => "mailing").first.try(:address)
 
-      if package.present?
-        sb = package.sponsored_benefits[0] # Only Health in CCA
+      if package.present? && package.health_sponsored_benefit.present?
+        sb = package.health_sponsored_benefit # Only Health in CCA
         health_contribution_levels = sb.sponsor_contribution.contribution_levels
         reference_product = sb.reference_product
         application = package.benefit_application
@@ -92,7 +92,7 @@ namespace :employers do
         0, # child_over_26_cl.contribution_pct
         package.try(:title),
         package.try(:plan_option_kind),
-        reference_product.try(:issuer_profile_id),
+        reference_product.try(:issuer_profile).try(:abbrev),
         reference_product.try(:metal_level),
         single_product?(package),
         reference_product.try(:title),
@@ -146,7 +146,7 @@ namespace :employers do
             import_to_csv(csv, profile)
           end
         rescue Exception => e
-          puts "ERROR: #{employer.legal_name} " + e.message
+          puts "ERROR: #{organization.legal_name} " + e.message
         end
       end
 
