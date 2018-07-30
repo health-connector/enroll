@@ -112,7 +112,7 @@ module Notifier
     def benefit_application_binder_payment_due_date
       if current_benefit_application.present?
         schedular = BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new
-        merge_model.benefit_application.binder_payment_due_date = format_date(schedular.map_binder_payment_due_date_by_start_on(current_benefit_application.start_on))
+        merge_model.benefit_application.binder_payment_due_date = format_date(schedular.map_binder_payment_due_date_by_start_on(load_benefit_application.start_on))
       end
     end
 
@@ -219,7 +219,7 @@ module Notifier
       benefit_application = load_benefit_application
       if benefit_application.present?
         if benefit_application.is_renewing? && (benefit_application.pending? || benefit_application.is_submitted? || benefit_application.canceled? || benefit_application.draft? || benefit_application.enrollment_ineligible?)
-          @current_benefit_application = employer_profile.active_benefit_sponsorship.benefit_applications.detect{|ba| ba.is_submitted? && ba.end_on == benefit_application.start_on.to_date.prev_day}
+          @current_benefit_application = benefit_application.predecessor
         else
           @current_benefit_application = benefit_application
         end

@@ -51,14 +51,6 @@ module BenefitSponsors
               trigger_zero_employees_on_roster_notice(benefit_application)
             end
 
-            if new_model_event.event_key == :group_advance_termination_confirmation
-              deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "group_advance_termination_confirmation")
-
-              benefit_application.benefit_sponsorship.census_employees.active.each do |ce|
-                deliver(recipient: ce.employee_role, event_object: benefit_application, notice_event: "notify_employee_of_group_advance_termination")
-              end
-            end
-
             if new_model_event.event_key == :ineligible_application_submitted
               policy = eligibility_policy.business_policies_for(benefit_application, :submit_benefit_application)
               unless policy.is_satisfied?(benefit_application)
@@ -133,11 +125,11 @@ module BenefitSponsors
             end
 
             if new_model_event.event_key == :initial_employer_no_binder_payment_received
-              BenefitSponsors::Queries::NoticeQueries.initial_employers_in_enrolled_state.each do |benefit_sponsorship|
-                if !benefit_sponsorship.initial_enrollment_eligible?
-                  eligible_states = BenefitSponsors::BenefitApplications::BenefitApplication::ENROLLMENT_ELIGIBLE_STATES + BenefitSponsors::BenefitApplications::BenefitApplication::ENROLLING_STATES
-                  benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state.in => eligible_states).first
-                  unless benefit_application.is_renewing?
+              BenefitSponsors::Queries::NoticeQueries.initial_employers_in_ineligible_state.each do |benefit_sponsorship|
+                if benefit_sponsorship.initial_enrollment_ineligible?
+                  benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state => :enrollment_ineligible).first
+
+                  if benefit_application.present? && !benefit_application.is_renewing?
                     deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "initial_employer_no_binder_payment_received")
                     #Notice to employee that there employer misses binder payment
                     benefit_sponsorship.census_employees.active.each do |ce|
@@ -147,6 +139,17 @@ module BenefitSponsors
                     end
                   end
                 end
+              end
+            end
+          end
+
+          if BenefitSponsors::ModelEvents::BenefitApplication::OTHER_EVENTS.include?(new_model_event.event_key)
+            benefit_application = new_model_event.klass_instance
+            if new_model_event.event_key == :group_advance_termination_confirmation
+              deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "group_advance_termination_confirmation")
+
+              benefit_application.benefit_sponsorship.census_employees.non_terminated.each do |ce|
+                deliver(recipient: ce.employee_role, event_object: benefit_application, notice_event: "notify_employee_of_group_advance_termination") if ce.employee_role
               end
             end
           end
