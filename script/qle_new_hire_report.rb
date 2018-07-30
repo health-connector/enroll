@@ -30,7 +30,7 @@ def get_plan_details(enrollment, employer)
   data = [
     employer.legal_name,
     employer.fein,
-    enrollment.benefit_group.start_on.strftime("%m/%d/%Y"),
+    enrollment.benefit_package.start_on.strftime("%m/%d/%Y"),
     enrollment.hbx_id,
     enrollment.time_of_purchase.strftime("%m/%d/%Y"),
     enrollment.effective_on.strftime("%m/%d/%Y"),
@@ -158,7 +158,7 @@ CSV.open("#{Rails.root.to_s}/sep_newhire_enrollment_report.csv", "w") do |csv|
     next if active_enrollments.blank?
 
     active_enrollments.each do |enrollment|
-      employer = enrollment.benefit_group.plan_year.employer_profile
+      employer = enrollment.employer_profile
 
       begin
         data = get_plan_details(enrollment, employer)
@@ -199,7 +199,7 @@ CSV.open("#{Rails.root.to_s}/sep_newhire_enrollment_report.csv", "w") do |csv|
     next if active_enrollments.blank?
 
     active_enrollments.each do |enrollment|
-      employer = enrollment.benefit_group.plan_year.employer_profile
+      employer = enrollment.employer_profile
       next unless enrollment.benefit_group_assignment.census_employee.new_hire_enrollment_period.cover?(enrollment.created_at)
 
       begin
