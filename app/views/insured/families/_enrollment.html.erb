@@ -24,26 +24,27 @@
         </h3>
       </div>
       <div class="col-xs-12 vertically-aligned-row mt-1">
-        <div class="enrollment-premium info vertical-align-top">
+        <div class="col-xs-6 enrollment-premium info vertical-align-top" style="
+        padding-left: 0px;">
           <p class="mb-0">
             <strong><%= l10n("premium") %>:</strong>
             <%= number_to_currency(current_premium(hbx_enrollment), precision: 2) %>/month
           </p>
         </div>
         <% if hbx_enrollment.coverage_terminated? || hbx_enrollment.coverage_expired? %>
-        <div class="enrollment-effective info vertical-align-top">
+        <div class="col-xs-6 enrollment-effective info vertical-align-top">
           <strong><%= l10n("effective_date") %>:
           </strong>
           <%= hbx_enrollment.effective_on %>
         </div>
-        <div class="enrollment-effective info vertical-align-top">
+        <div class="col-xs-6 enrollment-effective info vertical-align-top">
           <strong><%= l10n("coverage_end") %>:
           </strong>
           <%= enrollment_coverage_end(hbx_enrollment) %>
         </div>
         <% else %>
-        <div class="enrollment-effective info vertical-align-top">
-          <strong style="margin-left:220px"><%= l10n("plan_start") %>:</strong>
+        <div class="col-xs-6 enrollment-effective info vertical-align-top">
+          <strong><%= l10n("plan_start") %>:</strong>
           <%= hbx_enrollment.effective_on %>
           <% if read_only == true %>
           <br>
@@ -60,13 +61,14 @@
       </div>
       <div class="col-xs-12 vertically-aligned-row">
         <% unless hide_policy_selected_date?(hbx_enrollment) %>
-        <div class="enrollment-created-at info vertical-align-top">
+        <div class="col-xs-6 enrollment-created-at info vertical-align-top" style="
+        padding-left: 0px;">
           <strong><%= l10n("plan_selected") %>:</strong>
           <%= format_policy_purchase_date(hbx_enrollment) %>
           (<%= format_policy_purchase_time(hbx_enrollment) %>)
         </div>
         <% end %>
-        <div class="enrollment-type info vertical-align-top">
+        <div class="col-xs-6 enrollment-type info vertical-align-top">
           <strong><%= l10n("plan_type") %>:</strong>
           <%= product.health_plan_kind.to_s.titleize %>
         </div>
@@ -173,7 +175,7 @@
     </div>
     <div>
       <a class="vertically-aligned-row" data-target="#<%= product.kind.to_s %>-<%= product.id %>" data-toggle="modal">
-        <i class="fa fa-phone fa-2x pull-right"></i>
+        <i class="fa fa-phone fa-2x pull-right fa-rotate-90"></i>
         <span><%= l10n(".plan_contact_info") %></span>
       </a>
         <%= render partial: "shared/carrier_contact_information", locals: { plan: product } unless product.issuer_profile.blank? %>
