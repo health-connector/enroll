@@ -54,7 +54,7 @@ module BenefitSponsors
 
   context 'rule within_last_day_to_publish' do
     let!(:benefit_application) { double('BenefitApplication', last_day_to_publish: last_day_to_publish, start_on: last_day_to_publish) }
-    let!(:rule) { subject.business_policies.values[1].rules[7] }
+    let!(:rule) { subject.business_policies[:submit_benefit_application].rules.detect{|x| x.name == :within_last_day_to_publish} }
 
     context 'fail' do
       let!(:last_day_to_publish) { Time.now - 1.day }
@@ -63,7 +63,7 @@ module BenefitSponsors
       end
 
       it "should fail rule validation" do
-        expect(rule.fail.call(benefit_application)).to eq "Plan year failed to published, Plan year starting on #{last_day_to_publish.to_date} must be published by #{last_day_to_publish.to_date}"
+        expect(rule.fail.call(benefit_application)).to eq "Plan year starting on #{last_day_to_publish.to_date} must be published by #{last_day_to_publish.to_date}"
       end
     end
 
