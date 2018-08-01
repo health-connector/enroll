@@ -533,6 +533,10 @@ thead {
     padding: 8px;
   }
 
+.pagination > .active > a {
+  background:$mhc-blue;
+}
+
   .module {
     &.broker {
       .panel-body, .panel-footer {
