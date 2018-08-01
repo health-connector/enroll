@@ -327,8 +327,8 @@ fieldset[disabled] .btn-default.active {
 }
 
 thead {
-  background-color:$mhc-dark-blue;
-  color:$primary-white;
+  background-color: $primary-white;
+  color: $primary-black;
 }
 
 .pdf-image {
@@ -439,7 +439,7 @@ thead {
 .rp-plan-info {
   font-size:10px;
   text-transform: uppercase;
-  font-weight:bold;
+  font-weight: normal;
 }
 
 #uic-wrapper {
@@ -527,9 +527,28 @@ thead {
       }
     }
   }
+  
+  .broker-information {
+    word-wrap: break-word;
+  }
 
   .eeTableHeader {
     font-size: 12px;
     padding: 8px;
   }
- 
+
+  .module {
+    &.broker {
+      .panel-body, .panel-footer {
+        .fa {
+          color: $brand-primary;
+        }
+        .vertically-aligned-row {
+          table-layout: fixed;
+          > * {
+            vertical-align: top;
+          }
+        }
+      }
+    }
+  }
