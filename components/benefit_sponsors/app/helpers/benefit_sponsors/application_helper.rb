@@ -85,7 +85,7 @@ module BenefitSponsors
           end
       return employer_contribution + add_on_text
     end
-    
+
     def offered_tool_tip_helper
       "You must offer coverage to all eligible full-time employees who work on average, 30 hours a week. Employers can also offer coverage to other employees. While optional, it doesn’t cost you more to offer coverage to your employees’ families."
     end
