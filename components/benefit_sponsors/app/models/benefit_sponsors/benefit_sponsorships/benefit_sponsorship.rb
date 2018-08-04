@@ -31,6 +31,9 @@ module BenefitSponsors
                         :initial_enrollment_open, :initial_enrollment_closed, :initial_enrollment_ineligible, :binder_reversed, :active].freeze
     INACTIVE_STATES = [:suspended, :ineligible, :teminated].freeze
     ENROLLED_STATES = [:enrolled]
+    APPLICANTS_STATES = [:applicant]
+    ENROLLING_STATES = [:initial_application_under_review, :initial_application_approved, :initial_application_denied]
+
 
     INVOICE_VIEW_INITIAL  ||= %w(published enrolling enrolled active suspended)
     INVOICE_VIEW_RENEWING ||= %w(renewing_published renewing_enrolling renewing_enrolled renewing_draft)
@@ -220,6 +223,46 @@ module BenefitSponsors
     scope :by_profile,                   ->(profile) {
       where(:profile_id => profile._id)
     }
+
+    #Employers Datatable filters Effective::Datatables::BenefitSponsorsEmployerDatatable#collection
+    # :employers filters
+    scope :benefit_sponsorship_applicant, -> {where(:"aasm_state".in => APPLICANTS_STATES) }
+    scope :benefit_sponsorship_enrolling, -> { where(:"aasm_state".in => ENROLLING_STATES )}
+    scope :benefit_sponsorship_enrolled, -> { where(:"aasm_state".in => ENROLLED_STATES )}
+
+    # :enrolling filters
+    scope :enrolling_initial, -> {
+      where(:"benefit_applications.aasm_state".in => BenefitSponsors::BenefitApplications::BenefitApplication::ENROLLING_STATES)
+    }
+    scope :enrolling_renewing, -> {
+      where(:"benefit_applications.aasm_state".in =>
+                BenefitSponsors::BenefitApplications::BenefitApplication::SUBMITTED_STATES)
+    }
+    scope :enrolling_upcoming_dates, -> (date=TimeKeeper.date_of_record){
+      where(
+          :"benefit_applications.effective_period.min".lte => date,
+          :"benefit_applications.effective_period.max".gte => date)
+    }
+
+    scope :enrolling_initial_open_enrollment, -> (compare_date = TimeKeeper.date_of_record) { where(
+        :"opem_enrollment_period.min".lte => compare_date,
+        :"opem_enrollment_period.max".gte => compare_date)
+    }
+
+
+
+
+    #scope :employer_attestations, -> { where("aasm_state".in =>  )}
+
+
+
+    # employer_attestation filters
+    scope :employer_attestation_submitted, -> { where(:"employer_attestation.aasm_state" => 'submitted') }
+    scope :employer_attestation_pending, -> { where(:"employer_attestation.aasm_state" => 'pending') }
+    scope :employer_attestation_approved, -> { where(:"employer_attestation.aasm_state" => 'approved') }
+    scope :employer_attestation_denied, -> { where(:"employer_attestation.aasm_state" => 'denied') }
+
+
 
     index({ hbx_id: 1 })
     index({ aasm_state: 1 })
