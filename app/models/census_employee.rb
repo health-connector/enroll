@@ -1085,8 +1085,8 @@ def self.to_csv
   end
 
   def has_cobra_hbx_enrollment?
-    return false if active_benefit_group_assignment.blank? || active_benefit_group_assignment.hbx_enrollment.blank?
-    active_benefit_group_assignment.hbx_enrollment.is_cobra_status?
+    return false if active_benefit_group_assignment.blank?
+    enrollments_for_display.detect{|enrollment| enrollment.is_cobra_status? && (HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES).include?(enrollment.aasm_state)}
   end
 
   def need_update_hbx_enrollment_effective_on?
@@ -1218,7 +1218,8 @@ def self.to_csv
   end
 
   def benefit_package_for_date(coverage_date)
-    active_benefit_group_assignment.benefit_package.package_for_date(coverage_date)
+    benefit_package = active_benefit_group_assignment.benefit_package.package_for_date(coverage_date)
+    (benefit_package.present? && benefit_package.is_conversion?) ? nil : benefit_package
   end
 
   def earliest_benefit_package_after(coverage_date)

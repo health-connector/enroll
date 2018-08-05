@@ -31,6 +31,7 @@ module BenefitSponsors
       delegate :recorded_sic_code,       to: :benefit_application
       delegate :benefit_market,          to: :benefit_application
       delegate :is_conversion?,          to: :benefit_application
+      delegate :is_renewing?,            to: :benefit_application
       delegate :start_on, :end_on, :open_enrollment_period,        to: :benefit_application
       delegate :open_enrollment_start_on, :open_enrollment_end_on, to: :benefit_application
       delegate :recorded_rating_area,                              to: :benefit_application
@@ -219,16 +220,6 @@ module BenefitSponsors
         probation_period_display_texts[probation_period_kind]
       end
 
-      def activate_benefit_group_assignments
-        CensusEmployee.by_benefit_package_and_assignment_on(self, start_on, false).non_terminated.each do |ce|
-          ce.benefit_group_assignments.each do |bga|
-            if bga.benefit_package_id == self.id
-              bga.make_active
-            end
-          end
-        end
-      end
-
       def renew(new_benefit_package)
         new_benefit_package.assign_attributes({
           title: title + "(#{start_on.year + 1})",
@@ -261,12 +252,13 @@ module BenefitSponsors
         # FIXME: There is no reason to assume that the renewal benefit package assignment
         #        will have is_active == false, I think this may always return an empty set.
         #        Because of this, I have removed the 'false' constraint.
-        census_employees_assigned_on(effective_period.min).each { |member| renew_member_benefit(member) }
+
+        census_employees_assigned_on(effective_period.min, false).each do |member| 
+          renew_member_benefit(member)
+        end
       end
 
       def renew_member_benefit(census_employee)
-        predecessor_benefit_package = predecessor
-
         employee_role = census_employee.employee_role
         return [false, "no employee_role"] unless employee_role
         family = employee_role.primary_family
@@ -276,23 +268,31 @@ module BenefitSponsors
         # family.validate_member_eligibility_policy
         if true #family.is_valid?
           enrollments = family.enrollments.by_benefit_sponsorship(benefit_sponsorship)
-          .by_effective_period(predecessor_benefit_package.effective_period)
+          .by_effective_period(predecessor_application.effective_period)
           .enrolled_and_waived
 
-          sponsored_benefits.map(&:product_kind).each do |product_kind|
-            hbx_enrollment = enrollments.by_coverage_kind(product_kind).first
+          sponsored_benefits.each do |sponsored_benefit|
+            hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
 
             if hbx_enrollment && is_renewal_benefit_available?(hbx_enrollment)
-              hbx_enrollment.renew_benefit(self)
+              renewed_enrollment = hbx_enrollment.renew_benefit(self)
+              if renewed_enrollment.is_coverage_waived?
+                census_employee.trigger_model_event(:employee_coverage_passively_waived, {event_object: self.benefit_application}) if sponsored_benefit.health?
+              else
+                census_employee.trigger_model_event(:employee_coverage_passively_renewed, {event_object: self.benefit_application}) if sponsored_benefit.health?
+              end
+            else
+              census_employee.trigger_model_event(:employee_coverage_passive_renewal_failed, {event_object: self.benefit_application}) if sponsored_benefit.health?
             end
           end
         end
       end
 
       def is_renewal_benefit_available?(enrollment)
+        return true if (enrollment.present? && enrollment.is_coverage_waived?)
         return false if enrollment.blank? || enrollment.product.blank? || enrollment.product.renewal_product.blank?
         sponsored_benefit = sponsored_benefit_for(enrollment.coverage_kind)
-        sponsored_benefit.product_package.products.include?(enrollment.product.renewal_product)
+        sponsored_benefit.products(start_on).include?(enrollment.product.renewal_product)
       end
 
       def enrolled_families
@@ -300,6 +300,8 @@ module BenefitSponsors
       end
 
       def effectuate_member_benefits
+        activate_benefit_group_assignments if predecessor.present?
+
         enrolled_families.each do |family| 
           enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
 
@@ -338,6 +340,7 @@ module BenefitSponsors
 
       def cancel_member_benefits(delete_benefit_package: false)
         deactivate_benefit_group_assignments
+
         enrolled_families.each do |family|
           enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
 
@@ -346,23 +349,39 @@ module BenefitSponsors
             hbx_enrollment.cancel_coverage! if hbx_enrollment && hbx_enrollment.may_cancel_coverage?
           end
         end
-        deactivate if delete_benefit_package
+
+        if delete_benefit_package
+          other_benefit_package = self.benefit_application.benefit_packages.detect{ |bp| bp.id != self.id}
+          assign_other_benefit_package(other_benefit_package) if other_benefit_package.present?
+          deactivate
+        end
+      end
+
+      def assign_other_benefit_package(other_benefit_package)
+        self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
+          if is_renewing?
+            ce.add_renew_benefit_group_assignment([other_benefit_package])
+          else
+            ce.find_or_create_benefit_group_assignment([other_benefit_package])
+          end
+        end
+      end
+
+      def activate_benefit_group_assignments
+        CensusEmployee.by_benefit_package_and_assignment_on(self, start_on, false).non_terminated.each do |ce|
+          ce.benefit_group_assignments.each do |bga|
+            if bga.benefit_package_id == self.id
+              bga.make_active
+            end
+          end
+        end
       end
 
       def deactivate_benefit_group_assignments
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
-          benefit_group_assignments = ce.benefit_group_assignments.where(benefit_group_id: self.id)
+          benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
-            benefit_group_assignment.update(is_active: false) unless self.benefit_application.is_renewing?
-          end
-
-          other_benefit_package = self.benefit_application.benefit_packages.detect{ |bp| bp.id != self.id}
-          if other_benefit_package.present?
-            if self.benefit_application.is_renewing?
-              ce.add_renew_benefit_group_assignment([other_benefit_package])
-            else
-              ce.find_or_create_benefit_group_assignment([other_benefit_package])
-            end
+            benefit_group_assignment.update(is_active: false) unless is_renewing?
           end
         end
       end

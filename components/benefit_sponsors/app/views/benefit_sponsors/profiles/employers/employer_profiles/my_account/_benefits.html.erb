@@ -53,12 +53,12 @@
                 <i class="fa fa-users"></i>
                 <% end %>
               </span>
-              <%= benefit_application.start_on.to_date.year%>
+              <%= benefit_application.start_on.to_date.year %>
               Plan Year (<%= benefit_application_summarized_state(benefit_application) %>)
             </div>
           </h3>
         </div>
-        <div class="row">
+        <div class="row" style="margin-right:1px">
           <%#= pundit_span EmployerProfile, :updateable? %>
           <% if benefit_application.draft? %>
               <%# if benefit_application.overlapping_published_benefit_applications.empty? %>

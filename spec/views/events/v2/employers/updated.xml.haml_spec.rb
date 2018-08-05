@@ -94,6 +94,10 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
         expect(@doc.xpath("//x:shop_transfer/x:hbx_active_on", "x"=>"http://openhbx.org/api/terms/1.0").text).to eq ""
       end
 
+      it "should have benefit group id" do
+        expect(@doc.xpath("//x:benefit_groups/x:benefit_group/x:id/x:id", "x"=>"http://openhbx.org/api/terms/1.0").text).to eq benefit_group.id.to_s
+      end
+
       it "should be schema valid" do
         expect(validate_with_schema(Nokogiri::XML(rendered))).to eq []
       end
@@ -163,14 +167,14 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
     context "when manual gen of cv = true" do
 
       context "non termination case" do
-
-        let!(:renewal_benefit_application){ FactoryGirl.create(:benefit_sponsors_benefit_application,:with_benefit_package, aasm_state: :enrollment_eligible)}
+        let!(:renewal_benefit_application){ FactoryGirl.build(:benefit_sponsors_benefit_application,:with_benefit_package, aasm_state: :enrollment_eligible, benefit_sponsorship: employer_profile.active_benefit_sponsorship)}
         let(:renewal_benefit_package){ renewal_benefit_application.benefit_packages.first}
         let!(:update_renewal){
-          renewal_benefit_application.predecessor_application_id = benefit_application.id
+          renewal_benefit_application.predecessor_id = benefit_application.id
           renewal_benefit_application.benefit_sponsor_catalog.product_packages.first.products.update_all(issuer_profile:issuer_profile, service_area_id: renewal_benefit_application.recorded_service_area_ids.first)
           active_benefit_sponsorship = employer_profile.active_benefit_sponsorship
-          active_benefit_sponsorship.benefit_applications << renewal_benefit_application
+          renewal_benefit_package = renewal_benefit_application.benefit_packages.first
+          renewal_benefit_package.predecessor_id = benefit_package.id
           renewal_benefit_package.health_sponsored_benefit.product_option_choice = product_package.products.first.issuer_profile.id
           renewal_benefit_package.health_sponsored_benefit.reference_product = product_package.products.first
           renewal_benefit_package.health_sponsored_benefit.sponsor_contribution = sponsor_contribution
