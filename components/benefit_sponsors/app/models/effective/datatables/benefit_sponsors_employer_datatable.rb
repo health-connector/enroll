@@ -150,15 +150,17 @@ module Effective
         filters = {
             enrolling_renewing:
                 [
-                    {scope:'all', label: 'All'},
-                    {scope: 'enrolling_renewing_open_enrollment', label: 'Open Enrollment'},
-                    {scope: 'enrolling_renewing_binder_paid', label: 'Binder Paid'}
+                    {scope: 'application_pending', label: 'Application Pending'},
+                    {scope: 'open_enrollment', label: 'Open Enrollment'},
+                    {scope: 'binder_paid', label: 'Binder Paid'}
                 ],
             enrolling_initial:
                 [
                     {scope: 'all', label: 'All'},
-                    {scope: 'enrolling_initial_open_enrollment', label: 'Open Enrollment'},
-                    {scope: 'enrolling_initial_binder_paid', label: 'Binder Paid'}
+                    {scope: 'application_pending', label: 'Application Pending'},
+                    {scope: 'binder_pending', label: 'Binder Pending'},
+                    {scope: 'open_enrollment', label: 'Open Enrollment'},
+                    {scope: 'binder_paid', label: 'Binder Paid'}
                 ],
             enrolled:
                 [
