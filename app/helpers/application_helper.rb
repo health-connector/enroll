@@ -1,4 +1,5 @@
 module ApplicationHelper
+  require 'json'
 
   def can_employee_shop?(date)
     return false if date.blank?
@@ -433,7 +434,7 @@ module ApplicationHelper
     carriers = ::BenefitSponsors::Organizations::Organization.issuer_profiles
     carriers.each do |car|
       if Rails.env == "production"
-        image = "logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
+        image = "/assets/logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
         carrier_logo_hash[car.legal_name] = Rails.application.assets.find_asset(image).digest_path
       else
         image = "/assets/logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
