@@ -12,17 +12,6 @@ module Enrollments::EnrollmentPeriods
       @market_kind            = market_kind  # => BenefitMarkets::BENEFIT_MARKET_KINDS
       @enrollment_date_range  = begin_on..end_on
       @effective_on_dates     = [effective_on_dates]
-
-      case enrollment_period.class
-      when SpecialEnrollmentPeriod
-        SpecialEnrollmentPeriodEnrollmentStatus.new(enrollment_period)
-      when BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
-        EmployerProfileEnrollmentStatus.new(enrollment_period)
-      when BenefitSponsorship
-        BenefitSponsorshipEnrollmentStatus.new(enrollment_period)
-      else
-        raise ArgumentError.new("invalid enrollment_period class: #{enrollment_period.class}")
-      end
     end
 
     def may_enroll_on?(enrollment_date)
