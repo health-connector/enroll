@@ -169,6 +169,7 @@ javascript:
     })
     populateReferencePlans(filteredProducts)
     setTempCL()
+    selectDefaultReferencePlan()
   }
 
   function populateReferencePlans(plans) {
@@ -577,6 +578,25 @@ javascript:
     localStorage.removeItem("title");
     localStorage.removeItem("contributionLevels");
   })();
+
+  // Mouse event needed to enable tooltips css on pageload
+  function selectDefaultReferencePlan() {
+    setTimeout(function() {
+      input = document.querySelectorAll('.reference-plans')[0].querySelector('input');
+      input.click();
+      myplans = document.querySelector('#yourPlans');
+      myplans.onmouseover = function() {
+        myplans.click()
+        document.getElementById('new_benefit_package').click()
+      }
+      contributions = document.querySelector('#yourSponsorContributions');
+      contributions.onmouseover = function() {
+        contributions.click()
+        document.getElementById('new_benefit_package').click()
+      }
+      
+    },300);
+  }
 
 - unless @benefit_package_form.new_record?
   javascript:
