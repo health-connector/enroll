@@ -59,10 +59,39 @@ module BenefitSponsors
     end
 
     def terminate_sponsor_benefit
-      benefit_application = benefit_sponsorship.application_may_terminate_on(new_date)
+      benefit_application = benefit_sponsorship.application_may_terminate_scheduled_on(new_date)
 
       if benefit_application.present?
-        application_service_for(benefit_application).terminate
+        application_service_for(benefit_application).terminate_scheduled_benefit
+      end
+    end
+
+    def suspend_benefit_sponsorship
+      benefit_sponsorship.suspend! if benefit_sponsorship.may_suspend?
+    end
+
+    def terminate_benefit_sponsorship(termination_reason, voluntary = true)
+      if benefit_sponsorship.may_terminate?
+        benefit_sponsorship.update_attributes({
+          effective_end_on:   new_date, 
+          termination_kind:   (voluntary ? :voluntary : :involuntary),
+          termination_reason: termination_reason
+        })
+
+        benefit_sponsorship.terminate!
+        benefit_sponsorship.benefit_applications.terminatable.each do |benefit_application|
+          application_service_for(benefit_application).terminate(new_date) 
+        end
+        
+        benefit_sponsorship.benefit_applications.cancelable.each do |benefit_application|
+          application_service_for(benefit_application).cancel
+        end
+      end
+    end
+
+    def reinstate_benefit_sponsorship(application_effective_date)
+      if benefit_sponsorship.may_reinstate?
+        benefit_sponsorship.reinstate!
       end
     end
 

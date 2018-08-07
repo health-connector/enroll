@@ -29,12 +29,15 @@ module BenefitSponsors
     let(:renewal_sponsorship_state)       { :active }
     let(:renewal_current_application_state) { :active }
 
-    let!(:april_sponsors)                 { create_list(:benefit_sponsors_benefit_sponsorship, 2, :with_organization_cca_profile,
+    let(:no_of_initial_sponsors) { 2 }
+    let(:no_of_renewal_sponsors) { 2 }
+
+    let!(:april_sponsors)                 { create_list(:benefit_sponsors_benefit_sponsorship, no_of_initial_sponsors, :with_organization_cca_profile,
       :with_initial_benefit_application, initial_application_state: initial_application_state,
       default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)), site: site, aasm_state: sponsorship_state)
     }
 
-    let!(:april_renewal_sponsors)         { create_list(:benefit_sponsors_benefit_sponsorship, 2, :with_organization_cca_profile,
+    let!(:april_renewal_sponsors)         { create_list(:benefit_sponsors_benefit_sponsorship, no_of_renewal_sponsors, :with_organization_cca_profile,
       :with_renewal_benefit_application, initial_application_state: renewal_current_application_state,
       renewal_application_state: renewal_application_state,
       default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)), site: site,
@@ -67,7 +70,6 @@ module BenefitSponsors
       end
     end
 
-
     describe '.auto_cancel_ineligible' do 
       let(:sponsorship_state)               { :initial_enrollment_ineligible }
       let(:initial_application_state)       { :enrollment_ineligible }
@@ -94,6 +96,39 @@ module BenefitSponsors
           end
         end
       end
+    end
+
+    describe ".terminate_benefit_sponsorship" do
+
+      before { TimeKeeper.set_date_of_record_unprotected!(Date.new(current_date.year, 3, 23)) }
+
+      context "when invoked on a renewal application benefit sponsorship" do
+
+        let(:sponsorship_state)               { :active }
+        let(:renewal_application_state)       { :enrollment_closed }
+        let(:termination_date)                { Date.new(current_date.year, 3, 31) }
+
+        let(:no_of_initial_sponsors) { 0 }
+        let(:no_of_renewal_sponsors) { 2 }
+
+        let(:sponsorship) { april_renewal_sponsors[0] }
+
+        subject { BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService }
+
+
+        it "should set termination_reason, termination_kind and effective_end_on" do
+
+        end
+
+        it "should terminate sponsorship" do 
+        end
+
+        it "should terminate effectuated benefit applications" do
+        end
+
+        it "should cancel non effectuated benefit applications" do 
+        end
+      end 
     end
   end
 end

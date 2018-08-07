@@ -63,7 +63,7 @@ module BenefitSponsors
       end
 
       def benefit_termination
-        benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_terminate_benefit_coverage?(new_date)
+        benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_terminate_scheduled_benefit_coverage?(new_date)
 
         benefit_sponsorships.each do |benefit_sponsorship|
           execute_sponsor_event(benefit_sponsorship, :terminate_sponsor_benefit)

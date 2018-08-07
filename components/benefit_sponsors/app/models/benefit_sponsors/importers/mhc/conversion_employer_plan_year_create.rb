@@ -114,11 +114,7 @@ module Importers::Mhc
       return false if plan_year_exists?(sponsorship)
 
       record = map_plan_year(employer_profile)
-      if save_result = record.save
-        catalog = record.benefit_sponsor_catalog
-        catalog.benefit_application = record
-        catalog.save
-      end
+      save_result = record.save
       
       propagate_errors(record)
 

@@ -129,22 +129,19 @@ module BenefitSponsors
         valid_according_to_factory = benefit_application_factory.validate(benefit_application)
         if valid_according_to_factory
           benefit_sponsorship = benefit_application.benefit_sponsorship || find_benefit_sponsorship(form)
-          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.resolve_service_areas, benefit_application.effective_period.begin)
+          # benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.resolve_service_areas, benefit_application.effective_period.begin)
           # assign_rating_and_service_area(benefit_application)
         else
           map_errors_for(benefit_application, onto: form)
           return [false, nil]
         end
 
-        if save_successful = benefit_application.save
-          catalog = benefit_application.benefit_sponsor_catalog
-          catalog.benefit_application = benefit_application
-          catalog.save
+        if benefit_application.save
+          [true, benefit_application]
         else
           map_errors_for(benefit_application, onto: form)
           return [false, nil]
         end
-        [true, benefit_application]
       end
 
       # #TODO: FIX this method once countzips are loaded
