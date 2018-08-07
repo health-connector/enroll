@@ -3,8 +3,7 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :benefit_application, class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication"
-
+    field :benefit_application_id,  type: BSON::ObjectId
     field :effective_date,          type: Date
     field :effective_period,        type: Range
     field :open_enrollment_period,  type: Range
@@ -23,6 +22,7 @@ module BenefitMarkets
     embeds_many :product_packages, as: :packagable,
                 class_name: "::BenefitMarkets::Products::ProductPackage"
 
+    index({"benefit_application_id" => 1})
 
     validates_presence_of :effective_date, :probation_period_kinds, :effective_period, :open_enrollment_period,
                           :service_area_ids, :product_packages
@@ -30,13 +30,18 @@ module BenefitMarkets
     # the seed for both of these on benefit market catalog.
 
 
-    def benefit_application=(benefit_application)
-      raise "Expected Benefit Application" unless benefit_application.kind_of?(BenefitSponsors::BenefitApplications::BenefitApplication)
-      self.benefit_application_id = benefit_application._id
-      @benefit_application = benefit_application
+    def benefit_application=(new_benefit_application)
+      if new_benefit_application.nil?
+        write_attribute(:benefit_application_id, nil)
+      else
+        raise ArgumentError.new("expected BenefitApplication") unless new_benefit_application.is_a? BenefitSponsors::BenefitApplications::BenefitApplication
+        write_attribute(:benefit_application_id, new_benefit_application._id)
+      end
+      @benefit_application = new_benefit_application
     end
 
     def benefit_application
+      return nil if benefit_application_id.blank?
       return @benefit_application if defined? @benefit_application
       @benefit_application = BenefitSponsors::BenefitApplications::BenefitApplication.find(benefit_application_id)
     end

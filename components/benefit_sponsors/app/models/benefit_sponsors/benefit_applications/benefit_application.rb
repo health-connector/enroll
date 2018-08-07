@@ -91,9 +91,9 @@ module BenefitSponsors
 
     validate          :validate_termination
     before_validation :pull_benefit_sponsorship_attributes
-    after_create      :renew_benefit_package_assignments
-    after_save        :notify_on_save
-    after_create      :notify_on_create
+    
+    after_create      :renew_benefit_package_assignments, :notify_on_create
+    after_save        :associate_benefit_sponsor_catalog, :notify_on_save
 
     # Use chained scopes, for example: approved.effective_date_begin_on(start, end)
     scope :draft,               ->{ any_in(aasm_state: APPLICATION_DRAFT_STATES) }
@@ -158,7 +158,7 @@ module BenefitSponsors
                                                                                               )}
     # TODO
     scope :published,                       ->{ any_in(aasm_state: PUBLISHED_STATES) }
-    scope :is_renewal,                      ->{ exists(:predecessor_id => true) }
+    scope :has_predecessor,                      ->{ exists(:predecessor_id => true) }
 
     # scope :renewing,                        ->{ is_renewing } # Deprecate it in future
 
@@ -334,6 +334,10 @@ module BenefitSponsors
       @census_employees ||= CensusEmployee.benefit_application_assigned(self)
     end
 
+    def find_benefit_package(id)
+      benefit_packages.find(id)
+    end
+
     def active_census_employees
       find_census_employees.active
     end
@@ -388,9 +392,11 @@ module BenefitSponsors
       last_day_to_publish >= TimeKeeper.date_of_record
     end
 
-    def default_benefit_group
+    def default_benefit_package
       benefit_packages.detect(&:is_default)
     end
+
+    alias_method :default_benefit_group, :default_benefit_package
 
     def is_conversion?
       IMPORTED_STATES.include?(aasm_state)
@@ -547,9 +553,6 @@ module BenefitSponsors
 
       renewal_application.pull_benefit_sponsorship_attributes
 
-      new_benefit_sponsor_catalog.benefit_application = renewal_application
-      new_benefit_sponsor_catalog.save
-
       benefit_packages.each do |benefit_package|
         new_benefit_package = renewal_application.benefit_packages.build
         benefit_package.renew(new_benefit_package)
@@ -590,24 +593,6 @@ module BenefitSponsors
       return if transition_kind.blank?
 
       benefit_packages.each { |benefit_package| benefit_package.send("#{transition_kind}_member_benefits".to_sym) }
-    end
-
-    def refresh(new_benefit_sponsor_catalog)
-      warn "[Deprecated] Instead use refresh_benefit_sponsor_catalog" unless Rails.env.test?
-      refresh_benefit_sponsor_catalog(new_benefit_sponsor_catalog)
-    end
-
-    def refresh_benefit_sponsor_catalog(new_benefit_sponsor_catalog)
-      if benefit_sponsorship_catalog != new_benefit_sponsor_catalog
-
-        benefit_packages.each do |benefit_package|
-          benefit_package.refresh(new_benefit_sponsor_catalog)
-        end
-
-        self.benefit_sponsor_catalog = new_benefit_sponsor_catalog
-      end
-
-      self
     end
 
     def send_employee_renewal_invites
@@ -982,29 +967,79 @@ module BenefitSponsors
       return unless benefit_sponsorship.present? && self.start_on.present?
 
       refresh_recorded_rating_area    unless recorded_rating_area.present?
-      refresh_recorded_service_areas  unless recorded_service_areas.size > 0
+      refresh_recorded_service_areas  unless recorded_service_areas.present?
       refresh_recorded_sic_code       unless recorded_sic_code.present?
       refresh_benefit_sponsor_catalog unless benefit_sponsor_catalog.present?
     end
 
+    def refresh_benefit_sponsor_catalog
+      if start_on.present? && draft?
+        new_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_on(self.start_on)
+        if new_benefit_sponsor_catalog.present?
+          drop_benefit_sponsor_catalog
+          self.benefit_sponsor_catalog = new_benefit_sponsor_catalog
+          if new_benefit_sponsor_catalog.effective_period.cover?(effective_date)
+            benefit_packages.each do 
+          end
+        end
+      end
+    end
+
+    def add_benefit_package(new_benefit_package)
+      self.benefit_packages << new_benefit_package
+    end
+
+    def drop_benefit_package(benefit_package)
+      raise "You must have at least one benefit package" if benefit_packages.size == 1
+      raise "You can't delete a default benefit package" if benefit_package.is_default
+      
+      benefit_package.deactivate
+      assign_to_default_benefit_package(benefit_package)
+    end
+
+    def set_default_benefit_package(new_default_benefit_package)
+      benefit_packages.each do |benefit_package|
+        if new_default_benefit_package == benefit_package
+          benefit_package.write_attribute(is_default: true)
+        else
+          benefit_package.write_attribute(is_default: false)
+        end
+      end
+
+      self.save
+    end
+
+    def assign_members_to_default_benefit_package(from_benefit_package)
+      if default_benefit_package != from_benefit_package
+        move_members_to_benefit_package(from_benefit_package, default_benefit_package)
+      end
+    end
+
+    def move_members_to_benefit_package(from_benefit_package, to_benefit_package)
+      from_benefit_package.census_employees.each do |ce|
+
+        if from_benefit_package.is_renewing?
+          ce.add_renew_benefit_group_assignment([other_benefit_package])
+        else
+          ce.find_or_create_benefit_group_assignment([other_benefit_package])
+        end
+      end
+    end
 
     private
+
+    def associate_benefit_sponsor_catalog
+      if benefit_sponsor_catalog.present? && benefit_sponsor_catalog.benefit_application != self
+        benefit_sponsor_catalog.benefit_application = self
+        benefit_sponsor_catalog.save
+      end
+    end
 
     def validate_termination
       if terminated? || termination_pending?
         terminated_on.present? && effective_period.max == terminated_on
       else
         true
-      end
-    end
-
-    def refresh_benefit_sponsor_catalog
-      if start_on.present?
-        new_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_on(self.start_on)
-        if new_benefit_sponsor_catalog.present? && new_benefit_sponsor_catalog.save
-          drop_benefit_sponsor_catalog
-          self.benefit_sponsor_catalog = new_benefit_sponsor_catalog
-        end
       end
     end
 

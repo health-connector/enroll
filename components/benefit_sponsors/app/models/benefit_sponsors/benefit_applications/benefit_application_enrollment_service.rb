@@ -17,9 +17,7 @@ module BenefitSponsors
 
         if benefit_sponsor_catalog
           new_benefit_application = benefit_application.renew(benefit_sponsor_catalog)
-          if new_benefit_application.save
-            benefit_sponsor_catalog.save
-          end
+          new_benefit_application.save
         end
 
         [true, new_benefit_application, business_policy.success_results]
@@ -139,18 +137,6 @@ module BenefitSponsors
       end
     end
 
-    def cancel
-      if business_policy_satisfied_for?(:cancel_benefit)
-        if benefit_application.may_cancel?
-          benefit_application.cancel!
-        else
-          raise StandardError, "Benefit cancel state transition failed"
-        end
-      else
-        [false, benefit_application, business_policy.fail_results]
-      end
-    end
-
     def end_benefit
       if business_policy_satisfied_for?(:end_benefit)
         if benefit_application.may_expire?
@@ -163,14 +149,36 @@ module BenefitSponsors
       end
     end
 
-    def terminate(end_on, termination_date)
+    def terminate_scheduled_benefit
+      if business_policy_satisfied_for?(:terminate_benefit)
+        if benefit_application.may_terminate?
+          benefit_application.terminate!
+        else
+          raise StandardError, "Benefit terminate state transition failed"
+        end
+      else
+        [false, benefit_application, business_policy.fail_results]
+      end
+    end
+
+    def terminate(termination_date)
       if business_policy_satisfied_for?(:terminate_benefit)
         if benefit_application.may_terminate_enrollment?
-          benefit_application.terminate_enrollment!
-          if benefit_application.terminated?
-            updated_dates = benefit_application.effective_period.min.to_date..end_on
-            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date)
-          end
+          new_effective_period = benefit_application.effective_period.min.to_date..termination_date
+          benefit_application.update_attributes!(:effective_period => new_effective_period, :terminated_on => termination_date)
+          benefit_application.terminate_enrollment!        
+        end
+      else
+        [false, benefit_application, business_policy.fail_results]
+      end
+    end
+
+    def cancel
+      if business_policy_satisfied_for?(:cancel_benefit)
+        if benefit_application.may_cancel?
+          benefit_application.cancel!
+        else
+          raise StandardError, "Benefit cancel state transition failed"
         end
       else
         [false, benefit_application, business_policy.fail_results]

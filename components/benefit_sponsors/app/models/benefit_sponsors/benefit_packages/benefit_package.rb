@@ -103,18 +103,12 @@ module BenefitSponsors
 
       # Only one sponsored benefit of each kind is permitted within a BenefitPackage
       def add_sponsored_benefit(new_sponsored_benefit)
-        self.sponsored_benefits << new_sponsored_benefit unless sponsored_benefit_for(new_sponsored_benefit.product_kind).present?
+        raise StandardError, "#{new_sponsored_benefit.product_kind.to_s.camelcase} SponsoredBenefit already exist" if sponsored_benefit_for(new_sponsored_benefit.product_kind).present?
+        self.sponsored_benefits << new_sponsored_benefit
       end
 
       def drop_sponsored_benefit(sponsored_benefit)
         sponsored_benefits.delete(sponsored_benefit)
-      end
-
-      def sponsored_benefits=(sponsored_benefits_attrs)
-        sponsored_benefits_attrs.each do |sponsored_benefit_attrs|
-          sponsored_benefit = sponsored_benefits.build
-          sponsored_benefit.assign_attributes(sponsored_benefit_attrs)
-        end
       end
 
       def sponsored_benefit_for(benefit_kind)
@@ -207,7 +201,7 @@ module BenefitSponsors
       def predecessor
         return nil if predecessor_id.blank?
         return @predecessor if defined? @predecessor
-        @predecessor = benefit_application.predecessor.find_benefit_package(predecessor_id) # FIX ME
+        @predecessor = predecessor_application.find_benefit_package(predecessor_id) # FIX ME
       end
 
       def probation_period_display_name
@@ -233,6 +227,7 @@ module BenefitSponsors
         sponsored_benefits.each do |sponsored_benefit|
           new_benefit_package.add_sponsored_benefit(sponsored_benefit.renew(new_benefit_package))
         end
+        
         new_benefit_package
       end
 
@@ -378,10 +373,12 @@ module BenefitSponsors
       end
 
       def deactivate_benefit_group_assignments
+        return if is_renewing?
+        
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
-            benefit_group_assignment.update(is_active: false) unless is_renewing?
+            benefit_group_assignment.update(is_active: false)
           end
         end
       end
@@ -437,13 +434,15 @@ module BenefitSponsors
       def build_dental_relationship_benefits
       end
 
-      def self.transform_to_sponsored_benefit_template(product_package)
-        sponsored_benefit = TransformProductPackageToSponsoredBenefit.new(product_package).transform
-      end
-
       def set_sponsor_choices(sponsored_benefit)
         # trigger composite
+      end
 
+      def sponsored_benefits=(sponsored_benefits_attrs)
+        sponsored_benefits_attrs.each do |sponsored_benefit_attrs|
+          sponsored_benefit = sponsored_benefits.build
+          sponsored_benefit.assign_attributes(sponsored_benefit_attrs)
+        end
       end
 
       # Deprecate below methods in future

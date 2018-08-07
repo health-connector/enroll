@@ -173,9 +173,16 @@ module BenefitSponsors
     # Fix Me: verify the state check...probably need to use termination_pending
     scope :may_terminate_benefit_coverage?, -> (compare_date = TimeKeeper.date_of_record) {
       where(:benefit_applications => {
-        :$elemMatch => {:"terminated_on" => compare_date, :aasm_state.in => [:active, :suspended] }}
+        :$elemMatch => {:"terminated_on".lt => compare_date, :aasm_state.in => [:suspended, :active, :termination_pending] }}
       )
     }
+
+    scope :may_terminate_scheduled_benefit_coverage?, -> (compare_date = TimeKeeper.date_of_record) {
+      where(:benefit_applications => {
+        :$elemMatch => {:"terminated_on".lt => compare_date, :aasm_state => :termination_pending }}
+      )
+    }
+
 
     scope :may_transmit_initial_enrollment?, -> (compare_date = TimeKeeper.date_of_record) {
       where(:benefit_applications => {
@@ -227,6 +234,7 @@ module BenefitSponsors
     index({"benefit_application.predecessor_id" => 1}, {sparse: true})
     index({"benefit_application.terminated_on" => 1},  {sparse: true})
     index({"benefit_application.recorded_rating_area_id" => 1})
+    index({"benefit_application.benefit_sponsor_catalog_id" => 1})    
     index({"benefit_application.aasm_state" => 1})
     index({"benefit_application.effective_period.min" => 1,
            "benefit_application.effective_period.max" => 1},
@@ -237,6 +245,8 @@ module BenefitSponsors
             { name: "open_enrollment_period" })
 
     add_observer ::BenefitSponsors::Observers::BenefitSponsorshipObserver.new, [:notifications_send]
+    
+    validate   :validate_termination
     after_save :notify_on_save
     before_create :generate_hbx_id
     before_validation :pull_profile_attributes, :pull_organization_attributes, :validate_profile_organization
@@ -261,8 +271,12 @@ module BenefitSponsors
       benefit_applications.effective_date_end_on(new_date).coverage_effective.first
     end
 
-    def application_may_terminate_on(terminated_on)
-      benefit_applications.benefit_terminate_on(terminated_on).first
+    def application_may_terminate_on(new_date)
+      benefit_applications.benefit_terminate_on(new_date).first
+    end
+
+    def application_may_terminate_scheduled_on(new_date)
+      benefit_applications.benefit_terminate_scheduled_on(new_date).first
     end
 
     def application_may_auto_submit(effective_date)
@@ -484,20 +498,22 @@ module BenefitSponsors
 
     # Workflow for self service
     aasm do
-      state :applicant, initial: true, :after_enter => :publish_benefit_sponsor_event
+      state :applicant, initial: true
       state :initial_application_under_review # Sponsor's first application is submitted invalid and under HBX review
       state :initial_application_denied       # Sponsor's first application is rejected
       state :initial_application_approved     # Sponsor's first application is submitted and approved
       state :initial_enrollment_open          # Sponsor members are under first open enrollment period
       state :initial_enrollment_closed        # Sponsor members' have successfully completed first open enrollment
-      state :initial_enrollment_ineligible, :after_enter => :publish_benefit_sponsor_event  # Sponsor members' first open enrollment has failed to meet eligibility policies
-      state :initial_enrollment_eligible, :after_enter => :publish_benefit_sponsor_event    # Sponsor has paid first premium in-full and authorized to offer benefits
-      state :binder_reversed, :after_enter => :publish_benefit_sponsor_event                # Spnosor's initial payment is returned
+      state :initial_enrollment_ineligible    # Sponsor members' first open enrollment has failed to meet eligibility policies
+      state :initial_enrollment_eligible      # Sponsor has paid first premium in-full and authorized to offer benefits
+      state :binder_reversed                  # Spnosor's initial payment is returned
       state :active                           # Sponsor's members are actively enrolled in coverage
       state :suspended                        # Premium payment is 61-90 days past due and Sponsor's benefit coverage has lapsed
       state :terminated                       # Sponsor's ability to offer benefits under this BenefitSponsorship is permanently terminated
       state :ineligible                       # Sponsor is permanently banned from sponsoring benefits due to regulation or policy
-      
+
+      after_all_transitions :publish_benefit_sponsor_event
+
       event :approve_initial_application do
         transitions from: [:applicant, :initial_application_under_review], to: :initial_application_approved
       end
@@ -584,11 +600,8 @@ module BenefitSponsors
         :applicant
       ].include?(aasm.to_state)
       
-      begin
-        benefit_applications.each do |benefit_application|
-          benefit_application.benefit_sponsorship_event_subscriber(aasm)
-        end
-      rescue
+      benefit_applications.each do |benefit_application|
+        benefit_application.benefit_sponsorship_event_subscriber(aasm)
       end
     end
 
@@ -654,6 +667,14 @@ module BenefitSponsors
         else
           return errors.add(:organization, "must be profile's organization")
         end
+      end
+    end
+
+    def validate_termination
+      if terminated?
+        effective_end_on.present? && termination_kind.present? && termination_reason.present?
+      else
+        true
       end
     end
 
