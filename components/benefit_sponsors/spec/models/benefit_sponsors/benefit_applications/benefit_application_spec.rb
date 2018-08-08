@@ -422,6 +422,11 @@ module BenefitSponsors
 
       context "when renewal benefit sponsor catalog available" do
 
+        before do
+          benefit_sponsorship.aasm_state = :active
+          benefit_sponsorship.save!
+        end
+
         # Create site
         # Create benefit market
 
@@ -523,6 +528,44 @@ module BenefitSponsors
 
           it "should deactivate active benefit group assignment" do
             expect(census_employee.benefit_group_assignments.where(benefit_package_id:benefit_package.id).first.is_active).to eq false
+          end
+
+          context ".publish_state_transition" do
+
+            it "should not update benefit_sponsorship aasm state" do
+              expect(benefit_sponsorship.aasm_state).to eq :active
+            end
+          end
+        end
+
+        context "when renewal application moved to canceled state" do
+
+          before do
+            renewal_application.aasm_state = :enrollment_open
+            renewal_application.save!
+            renewal_application.activate_enrollment!
+          end
+
+          context ".publish_state_transition" do
+
+            it "should update benefit_sponsorship aasm state to applicant state" do
+              expect(renewal_application.aasm_state).to eq :canceled
+              expect(benefit_sponsorship.aasm_state).to eq :applicant
+            end
+          end
+        end
+
+        context "when initial application moved to expired state" do
+
+          before do
+            initial_application.expire!
+            initial_application.reload
+          end
+
+          context ".publish_state_transition" do
+            it "should not update benefit_sponsorship aasm state" do
+              expect(benefit_sponsorship.aasm_state).to eq :active
+            end
           end
         end
       end
