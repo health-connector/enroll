@@ -797,6 +797,7 @@ module BenefitSponsors
     # Notify BenefitSponsorship upon state change
     def publish_state_transition
       return unless benefit_sponsorship.present?
+      return if is_renewing? && !(aasm.to_state == :canceled && aasm.current_event == :activate_enrollment!)
       benefit_sponsorship.application_event_subscriber(aasm)
     end
 
