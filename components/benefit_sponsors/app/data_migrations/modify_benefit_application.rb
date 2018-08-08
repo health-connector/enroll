@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), "..", "..", "lib/mongoid_migration_task")
 
-class ModifyBenefitApplication< MongoidMigrationTask
+class ModifyBenefitApplication < MongoidMigrationTask
 
   def migrate
     action = ENV['action'].to_s
