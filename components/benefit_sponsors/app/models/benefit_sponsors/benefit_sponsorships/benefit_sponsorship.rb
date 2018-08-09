@@ -588,7 +588,7 @@ module BenefitSponsors
       when :active
         begin_coverage! if may_begin_coverage?
       when :expired
-        cancel! if may_cancel?
+        cancel! if may_cancel? && renewal_benefit_application.blank?
       when :canceled
         if aasm.current_event == :activate_enrollment! || aasm.from_state == :enrollment_ineligible
           cancel! if may_cancel?
