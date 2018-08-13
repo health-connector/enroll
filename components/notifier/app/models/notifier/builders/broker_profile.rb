@@ -1,6 +1,6 @@
 module Notifier
   class Builders::BrokerProfile
-    include Notifier::Builders::PlanYear
+    # include Notifier::Builders::PlanYear
     include Notifier::Builders::Broker
 
     attr_accessor :payload, :broker_role, :merge_model
@@ -17,7 +17,7 @@ module Notifier
 
     def append_contact_details
       bap = broker_role.broker_agency_profile
-      office_address = bap.organization.primary_office_location.address
+      office_address = bap.primary_office_location.address
       if office_address.present?
         merge_model.mailing_address = MergeDataModels::Address.new({
           street_1: office_address.address_1,
@@ -33,6 +33,10 @@ module Notifier
       merge_model.notice_date = format_date(TimeKeeper.date_of_record)
     end
 
+    def email
+      merge_model.email = broker_role.email_address
+    end
+
     def first_name
       merge_model.first_name = broker_role.person.first_name
     end
@@ -42,8 +46,8 @@ module Notifier
     end
 
     def employer
-      if payload['event_object_kind'].constantize == EmployerProfile
-        employer = EmployerProfile.find payload['event_object_id']
+      if payload['event_object_kind'].constantize == BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
+        employer = BenefitSponsors::Organizations::Profile.find payload['event_object_id']
       end
     end
 
@@ -60,7 +64,7 @@ module Notifier
     end
 
     def assignment_date
-      merge_model.assignment_date = employer.active_broker_agency_account.start_on if employer.active_broker_agency_account
+      merge_model.assignment_date = employer.active_broker_agency_account.start_on.strftime('%m/%d/%Y') if employer.active_broker_agency_account
     end
 
     def terminated_broker_agency_account

@@ -567,9 +567,6 @@ class ConsumerRole
   end
 
   def update_by_person(*args)
-    person.addresses = []
-    person.phones = []
-    person.emails = []
     person.consumer_role.update_attributes(is_applying_coverage: args[0]["is_applying_coverage"])
     args[0].delete("is_applying_coverage")
     person.update_attributes(args[0])
@@ -731,7 +728,7 @@ class ConsumerRole
   end
 
   def residency_denied?
-    (!is_state_resident.nil?) && (!is_state_resident)
+    (!is_state_resident.nil?) && (!is_state_resident) && local_residency_validation == "outstanding"
   end
 
   def residency_verified?

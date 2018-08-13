@@ -425,6 +425,18 @@ class Plan
     metal_level != 'catastrophic'
   end
 
+  def hsa_eligibility
+    qhp = Products::Qhp.where(standard_component_id: hios_base_id, active_year: active_year).last
+    case qhp.hsa_eligibility.downcase
+    when "" # dental always has empty data for hsa_eligibility in serff templates.
+      return false
+    when "yes"
+      return true
+    when "no"
+      return false
+    end
+  end
+
   def ehb
     percent = read_attribute(:ehb)
     (percent && percent > 0) ? percent : 1
@@ -477,6 +489,26 @@ class Plan
   end
 
   class << self
+
+    def has_rates_for_all_carriers?(start_on_date=nil)
+      date = start_on_date || PlanYear.calculate_start_on_dates[0]
+      return false if date.blank?
+
+      carrier_count = Plan.where(active_year: date.year).pluck(:carrier_profile_id).uniq.size
+      result = Plan.collection.aggregate([
+        {"$match" => {"active_year" => date.year}},
+        {"$unwind" => '$premium_tables'},
+        {"$match" => {"premium_tables.start_on" => { "$lte" => date}}},
+        {"$match" => {"premium_tables.end_on" => { "$gte" => date}}},
+        {"$group" => {
+          "_id" => {"carrier_profile" => "$carrier_profile_id"}, "count" => {"$sum" => 1}
+          }
+        },
+      ],
+      :allow_disk_use => true).map{|a| a["count"]}
+
+      carrier_count == result.size
+    end
 
     def monthly_premium(plan_year, hios_id, insured_age, coverage_begin_date)
       result = []
@@ -659,10 +691,10 @@ class MetalLevel
 
   private
 
-    def safe_assign(metal_level)
-      if metal_level.is_a? String
-        metal_level = MetalLevel.new(metal_level)
-      end
-      metal_level
+  def safe_assign(metal_level)
+    if metal_level.is_a? String
+      metal_level = MetalLevel.new(metal_level)
     end
+    metal_level
+  end
 end

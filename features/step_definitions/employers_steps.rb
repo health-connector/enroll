@@ -345,6 +345,7 @@ And(/^Employer can see the sole source plan information$/) do
 end
 
 And(/^.+ should see a button to create new plan year$/) do
+  sleep 1
   screenshot("employer_plan_year")
   #Hackity Hack need both years reference plans b/c of Plan.valid_shop_dental_plans and Plan.by_active_year(params[:start_on]).shop_market.health_coverage.by_carrier_profile(@carrier_profile).and(hios_id: /-01/)
   find('a.interaction-click-control-add-plan-year').click
@@ -549,6 +550,10 @@ Given /^the employer is logged in$/ do
   login_as owner, scope: :user
 end
 
+Then /^employer should see Bulk Actions$/ do
+  expect(page).to have_content "Bulk Actions"
+end
+
 And /^clicks on terminate employee$/ do
   expect(page).to have_content 'Employee Roster'
   employees.first
@@ -579,13 +584,13 @@ end
 
 And /^employer clicks on terminated employee$/ do
   expect(page).to have_content "Eddie Vedder"
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link 'Eddie Vedder1'
 end
 
 And /^employer clicks on linked employee with address$/ do
   employees.first.update_attributes(aasm_state: "employee_role_linked")
   expect(page).to have_content "Eddie Vedder"
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link employees.first.full_name
 end
 
 Then /^ER should land on (.*) EE tab$/ do |val|
@@ -630,7 +635,7 @@ end
 And /^employer clicks on linked employee without address$/ do
   employees.first.address.delete
   expect(page).to have_content "Eddie Vedder"
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link employees.first.full_name
 end
 
 Then /^employer should see the address on the roster$/ do
@@ -653,13 +658,13 @@ end
 
 And /^employer clicks on non-linked employee with address$/ do
   employees.first.update_attributes(aasm_state: "eligible")
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link employees.first.full_name
 end
 
 And /^employer clicks on non-linked employee without address$/ do
   employees.first.address.delete
   employees.first.update_attributes(aasm_state: "eligible")
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/a').click
+  click_link employees.first.full_name
 end
 
 Then /^employer should see employee roaster$/ do

@@ -1,8 +1,8 @@
 site:
-  key: :mhc
+  key: :cca
   subdomain: "mhc"
   domain_name: "hbxshop.org"
-  home_url: "https://enroll.mhc.hbxshop.org"
+  home_url: "https://business.mahealthconnector.org/"
   home_business_url: "https://www.mahealthconnector.org/business/"
   help_url: "https://www.mahealthconnector.org/business/help-center"
   faqs_url: "https://www.mahealthconnector.org/business/help-center/faqs"
@@ -45,7 +45,10 @@ site:
   irs_url: "https://www.irs.gov/"
   exchange_hbx_id: "MA0"
   mail_address: "noreply@healthconnector.org"
+  privacy_policy: "https://www.mahealthconnector.org/site-policies/privacy-policy"
+  late_rates_message: "Premiums for some coverage effective dates are not yet available. Premiums are typically ready for employers at least 30 days before your coverage starts, and often sooner than that. Please check back again soon to see if premium rates are available, or call customer service if you need more additional assistance."
 
+  exchange_name: "Massachusetts Health Connector"
   social_media:
     facebook_url: ""
 
@@ -59,6 +62,7 @@ contact_center:
   alt_phone_number: "1-888-813-9220"
   payment_phone_number: "1-888-813-9220"
   ivl_number: "1-877-623-6765"
+  ivl_phone_number: "1-877-623-6765"
   email_address: "smallbusiness@mahealthconnector.org"
   small_business_email: "smallbusiness@MAhealthconnector.org"
   non_discrimination_email: "Nondiscrimination@state.ma.us"
@@ -102,6 +106,15 @@ notices:
     state: "MA"
     zip:
 
+  shop:
+    attachments:
+      envelope_without_address: "ma_envelope_without_address.pdf"
+      non_discrimination_attachment: "ma_shop_non_discrimination_attachment.pdf"
+      employee_appeal_rights: "ma_employee_appeal_rights.pdf"
+    partials:
+      template: "notifier/notice_kinds/template.html.erb"
+      header: "notifier/notice_kinds/header_with_page_numbers.html.erb"
+
 invoices:
   addendum: 'ma_non_discrimination_and_language_tags.pdf'
 
@@ -112,6 +125,7 @@ aca:
   hbx_abbreviation: "DC Health Benefit Exchange"
   nationwide_markets: false
   general_agency_enabled: false
+  broker_carrier_appointments_enabled: true
   dental_market_enabled: false
   calendar_enabled: true
   dental_plan_years_available: [""]
@@ -119,7 +133,7 @@ aca:
   minimum_family_contribution_percentage: 30
   address_query_county: true
   broker_routing_information: true
-  recaptcha_enabled: true
+  recaptcha_enabled: false
   security_questions: true
   user_accounts_enabled: true
   plan_options_available: ["sole_source", "single_carrier", "metal_level"]
@@ -147,6 +161,9 @@ aca:
     open_enrollment:
       start_on: <%= Date.new(2017,11,1) %>
       end_on: <%= Date.new(2018,02,05) %>
+    upcoming_open_enrollment:
+      start_on: <%= Date.new(2018,11,1) %>
+      end_on: <%= Date.new(2019,01,31) %>
 
   shop_market:
     valid_employer_attestation_documents_url: 'https://www.mahealthconnector.org/business/business-resource-center/employer-verification-checklist'
@@ -176,7 +193,7 @@ aca:
       advertised_deadline_of_month: 10
       earliest_start_prior_to_effective_on:
         months: -2
-        day_of_month: 22
+        day_of_month: 24
       appeal_period_after_application_denial:
         days: 30
       # After submitting an ineligible plan year application, time period an Employer must wait
@@ -189,7 +206,7 @@ aca:
     renewal_application:
       earliest_start_prior_to_effective_on:
         months: -2
-        day_of_month: 0
+        day_of_month: 24
       monthly_open_enrollment_end_on: 20
       publish_due_day_of_month: 15
       application_submission_soft_deadline: 10

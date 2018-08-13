@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+=begin
 describe EmployerProfile, dbclean: :after_each do
 
   let(:entity_kind)     { "partnership" }
@@ -537,6 +538,17 @@ describe EmployerProfile, "Class methods", dbclean: :after_each do
       employer.save
       employers_with_broker7 = EmployerProfile.find_by_broker_agency_profile(broker_agency_profile7)
       expect(employers_with_broker7.size).to eq 0
+    end
+
+    it 'should trigger broker fired notice to broker and employer' do
+      employer = organization5.create_employer_profile(entity_kind: "partnership", sic_code: '1111');
+      employer.hire_broker_agency(broker_agency_profile7)
+      employer.save
+      employers_with_broker7 = EmployerProfile.find_by_broker_agency_profile(broker_agency_profile7)
+      employer = Organization.find(employer.organization.id).employer_profile
+      expect_any_instance_of(EmployerProfile).to receive(:trigger_notice_observer).exactly(3).times
+      employer.hire_broker_agency(broker_agency_profile)
+      employer.save
     end
 
     it 'shows an employer selected a broker for the first time' do
@@ -1397,6 +1409,18 @@ describe EmployerProfile, "initial employers enrolled plan year state", dbclean:
   end
 end
 
+describe EmployerProfile, "update_status_to_binder_paid", dbclean: :after_each do
+  let!(:new_plan_year){ FactoryGirl.build(:plan_year, :aasm_state => "enrolled") }
+  let!(:employer_profile){ FactoryGirl.create(:employer_profile, plan_years: [new_plan_year], :aasm_state => "eligible") }
+  let!(:organization){ employer_profile.organization }
+
+  it "should update employer profile aasm state to binder_paid" do
+    EmployerProfile.update_status_to_binder_paid([employer_profile.organization.id])
+    employer_profile.reload
+    expect(employer_profile.aasm_state).to eq 'binder_paid'
+  end
+
+end
 
 # describe "#advance_day" do
 #   let(:start_on) { (TimeKeeper.date_of_record + 60).beginning_of_month }
@@ -1474,3 +1498,4 @@ end
 #     end
 #   end
 # end
+=end

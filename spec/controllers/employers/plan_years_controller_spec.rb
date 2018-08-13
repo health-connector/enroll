@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+=begin
 RSpec.describe Employers::PlanYearsController, :dbclean => :after_each do
   let(:employer_profile_id) { EmployerProfile.new.id}
   let(:plan_year_proxy) { double(id: "id") }
@@ -178,7 +179,7 @@ RSpec.describe Employers::PlanYearsController, :dbclean => :after_each do
       let(:save_result) { false }
       let(:plan) {double(:where => [double(:_id => "test")] )}
       let(:benefit_group){ double(:reference_plan => double(:carrier_profile => double(:plans => plan)))}
-      let(:plan_year) { double(:benefit_groups => [benefit_group], id: "id" ) }
+      let(:plan_year) { double(start_on: TimeKeeper.date_of_record,:benefit_groups => [benefit_group], id: "id" ) }
       let(:relationship_benefits_attributes) {
         { "0" => {
          :relationship => "spouse",
@@ -846,3 +847,4 @@ RSpec.describe Employers::PlanYearsController, :dbclean => :after_each do
     end
   end
 end
+=end

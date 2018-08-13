@@ -175,6 +175,9 @@ class BenefitGroup
 
   def set_bounding_cost_plans
     return if reference_plan_id.nil?
+    if self.respond_to?(:benefit_application)
+      return unless self.benefit_application
+    end
     return "" if self.employer_profile.blank?
     if offerings_constrained_to_service_areas?
       profile_and_service_area_pairs = CarrierProfile.carrier_profile_service_area_pairs_for(self.employer_profile, reference_plan.active_year)
@@ -524,7 +527,8 @@ class BenefitGroup
         other_benefit_group = self.plan_year.benefit_groups.detect{ |bg| bg.id != self.id}
 
         if self.plan_year.is_renewing?
-          ce.add_renew_benefit_group_assignment(other_benefit_group)
+          # ce.add_renew_benefit_group_assignment(other_benefit_group)
+          ce.add_renew_benefit_group_assignment([other_benefit_group])
         else
           ce.find_or_create_benefit_group_assignment([other_benefit_group])
         end

@@ -24,6 +24,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       allow(hbx).to receive(:kind).and_return('employer_sponsored')
       render partial: "insured/families/enrollment", collection: [hbx], as: :hbx_enrollment, locals: { read_only: false }
       expect(rendered).to have_content(employer_profile.legal_name)
+      expect(rendered).to have_selector('strong', text: "#{HbxProfile::ShortName} ID:")
     end
 
     it "when kind is employer_sponsored_cobra" do
@@ -36,6 +37,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       allow(hbx).to receive(:kind).and_return('individual')
       render partial: "insured/families/enrollment", collection: [hbx], as: :hbx_enrollment, locals: { read_only: false }
       expect(rendered).to have_content('Individual & Family')
+      expect(rendered).to have_selector('strong', text: "#{HbxProfile::ShortName} ID:")
     end
   end
 
@@ -96,7 +98,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       render partial: "insured/families/enrollment", collection: [hbx_enrollment], as: :hbx_enrollment, locals: { read_only: false }
     end
     it "should open the sbc pdf" do
-      expect(rendered).to have_selector("a[href='#{"http://test.host/document/download/#{Settings.site.s3_prefix}-enroll-sbc-qa/7816ce0f-a138-42d5-89c5-25c5a3408b82?content_type=application/pdf&filename=APlanName.pdf&disposition=inline"}']")
+      expect(rendered).to have_selector("a[href='#{"/document/download/#{Settings.site.s3_prefix}-enroll-sbc-qa/7816ce0f-a138-42d5-89c5-25c5a3408b82?content_type=application/pdf&filename=APlanName.pdf&disposition=inline"}']")
     end
 
     it "should display the title" do
