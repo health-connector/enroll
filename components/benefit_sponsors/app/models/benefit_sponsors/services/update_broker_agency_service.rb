@@ -6,7 +6,7 @@ module BenefitSponsors
 
       def initialize(options={})
         @legal_name = options[:legal_name]
-        @broker_agency = find_broker_agency(@legal_name)
+        @broker_agency = find_broker_agency(@legal_name) unless @legal_name.blank?
       end
 
       def update_broker_profile_id(attr={})
@@ -20,6 +20,21 @@ module BenefitSponsors
         return "Already Exist" if broker_staff_roles.detect { |staff_role| staff_role.benefit_sponsors_broker_agency_profile_id.to_s == broker_agency.id.to_s }
 
         person.broker_agency_staff_roles.first.update_attributes!(benefit_sponsors_broker_agency_profile_id: broker_agency.id)
+      end
+
+      def update_broker_assignment_date(attr={})
+        return if attr.empty?
+        hbx_ids = attr[:hbx_ids]
+        new_date = attr[:start_date]
+        hbx_ids.each do |hbx_id|
+          person = find_person(hbx_id)
+          next unless person.present?
+          primary_family = person.primary_family
+          if primary_family.present? && primary_family.current_broker_agency.present?
+            primary_family.current_broker_agency.update_attributes(start_on: new_date)
+            primary_family.save
+          end
+        end
       end
 
       def update_broker_agency_attributes(attr={})
