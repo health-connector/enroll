@@ -42,7 +42,7 @@ module TransportProfiles
       end
       context.execute_cleanup
       if did_error
-        raise e
+        raise error
       end
     end
 
