@@ -24,6 +24,8 @@ module TransportProfiles
 
     def execute(context = nil)
       context ||= TransportProfiles::ProcessContext.new(self)
+      did_error = false
+      error = nil
       @steps.each do |step|
         begin
           # TODO add logging at start and end of step execution
@@ -31,11 +33,17 @@ module TransportProfiles
         rescue => e
           Rails.logger.error { e }
           Rails.logger.error { e.backtrace.join("\n") }
+          did_error = true
+          error = e
+          break
           # TODO add error logging
           # TODO determine if steps should continue when an error is raised
         end
       end
       context.execute_cleanup
+      if did_error
+        raise e
+      end
     end
 
     # Define this method in subclasses, it is a list of symbols containing all referenced resources.

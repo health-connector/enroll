@@ -12,30 +12,35 @@ module TransportProfiles
       end
 
       def work_with_params(body, delivery_info, properties)
-        headers = properties.headers || {}
-        stringed_payload = headers.stringify_keys
-        artifact_key = stringed_payload["artifact_key"]
-        file_name = stringed_payload["file_name"]
-        transport_process = stringed_payload["transport_process"]
-        atr = ::TransportProfiles::ArtifactTransportRequest.new(
-          :file_name => file_name,
-          :artifact_key => artifact_key,
-          :transport_process => transport_process
-        )
-        if !atr.valid?
-          notify(
-            "acapi.error.events.transport_artifact.invalid_transport_request",
-            {
-              :return_status => "422",
-              :body => JSON.dump(
-                atr.errors.to_hash
-              )
-            }
-          )
-          return :ack
+        begin
+          headers = properties.headers || {}
+          stringed_payload = headers.stringify_keys
+          artifact_key = stringed_payload["artifact_key"]
+          file_name = stringed_payload["file_name"]
+          transport_process = stringed_payload["transport_process"]
+          atr = ::TransportProfiles::ArtifactTransportRequest.new({
+            :file_name => file_name,
+            :artifact_key => artifact_key,
+            :transport_process => transport_process
+          })
+          if !atr.valid?
+            notify(
+              "acapi.error.events.transport_artifact.invalid_transport_request",
+              {
+                :return_status => "422",
+                :body => JSON.dump(
+                  atr.errors.to_hash
+                )
+              }
+            )
+            return :ack
+          end
+          atr.execute
+          :ack
+        rescue Exception => e
+          Rails.logger.error { e }
+          reject!
         end
-        atr.execute
-        :ack
       end
     end
   end
