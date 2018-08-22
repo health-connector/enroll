@@ -50,20 +50,4 @@
   </div>
 </div>
 
-<script>
-$(function() {
-  $('.employee-btns a').each(function(){
-    if(!$(this).hasClass('download-employees')) {
-      $(this).click(function(e){
-        e.preventDefault();
-
-        if($("#forms_plan_design_proposal_title").val() == "" || $("#forms_plan_design_proposal_effective_date").val() == "") {
-          $('.save-quote-btn').click();
-          e.stopPropagation();
-        }
-      });
-    }
-  })
-});
-</script>
 
