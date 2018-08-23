@@ -22,7 +22,7 @@ module BenefitSponsors
             unless policy.is_satisfied?(benefit_application)
 
               if (policy.fail_results.include?(:minimum_participation_rule) || policy.fail_results.include?(:non_business_owner_enrollment_count))
-                deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "renewal_employer_ineligibility_notice")
+                deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "renewal_employer_ineligibility_notice")
 
                 benefit_application.benefit_sponsorship.census_employees.non_terminated.each do |ce|
                   if ce.employee_role.present?
@@ -34,7 +34,7 @@ module BenefitSponsors
           end
 
           if new_model_event.event_key == :initial_application_submitted
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "initial_application_submitted")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "initial_application_submitted")
           end
 
           if new_model_event.event_key == :zero_employees_on_roster
@@ -42,41 +42,41 @@ module BenefitSponsors
           end
 
           if new_model_event.event_key == :renewal_employer_open_enrollment_completed
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "renewal_employer_open_enrollment_completed")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "renewal_employer_open_enrollment_completed")
           end
 
           if new_model_event.event_key == :renewal_application_submitted
             trigger_zero_employees_on_roster_notice(benefit_application)
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "renewal_application_published")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "renewal_application_published")
           end
 
           if new_model_event.event_key == :initial_employer_open_enrollment_completed
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "initial_employer_open_enrollment_completed")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "initial_employer_open_enrollment_completed")
           end
 
           if new_model_event.event_key == :renewal_application_created
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "renewal_application_created")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "renewal_application_created")
           end
 
           if new_model_event.event_key == :renewal_application_autosubmitted
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "plan_year_auto_published")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "plan_year_auto_published")
             trigger_zero_employees_on_roster_notice(benefit_application)
           end
 
           if new_model_event.event_key == :group_advance_termination_confirmation
-            deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "group_advance_termination_confirmation")
+            deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "group_advance_termination_confirmation")
 
             benefit_application.active_benefit_sponsorship.census_employees.active.each do |ce|
               deliver(recipient: ce.employee_role, event_object: benefit_application, notice_event: "notify_employee_of_group_advance_termination")
             end
           end
-          
+
           if new_model_event.event_key == :ineligible_application_submitted
             policy = eligibility_policy.business_policies_for(benefit_application, :submit_benefit_application)
             unless policy.is_satisfied?(benefit_application)
               if benefit_application.is_renewing?
                 if policy.fail_results.include?(:employer_primary_office_location)
-                  deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "employer_renewal_eligibility_denial_notice")
+                  deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "employer_renewal_eligibility_denial_notice")
                   benefit_application.active_benefit_sponsorship.census_employees.non_terminated.each do |ce|
                     if ce.employee_role.present?
                       deliver(recipient: ce.employee_role, event_object: benefit_application, notice_event: "termination_of_employers_health_coverage")
@@ -84,13 +84,13 @@ module BenefitSponsors
                   end
                 end
               elsif (policy.fail_results.include?(:employer_primary_office_location) || policy.fail_results.include?(:benefit_application_fte_count))
-                deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "employer_initial_eligibility_denial_notice")
+                deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "employer_initial_eligibility_denial_notice")
               end
             end
           end
 
           if new_model_event.event_key == :renewal_enrollment_confirmation
-            deliver(recipient: benefit_application.employer_profile,  event_object: benefit_application, notice_event: "renewal_employer_open_enrollment_completed" )
+            deliver(recipient: benefit_application.sponsor_profile,  event_object: benefit_application, notice_event: "renewal_employer_open_enrollment_completed" )
             benefit_application.active_benefit_sponsorship.census_employees.non_terminated.each do |ce|
               enrollments = ce.renewal_benefit_group_assignment.hbx_enrollments
               enrollment = enrollments.select{ |enr| (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES).include?(enr.aasm_state) }.sort_by(&:updated_at).last
@@ -103,7 +103,7 @@ module BenefitSponsors
           if new_model_event.event_key == :application_denied
             policy = enrollment_policy.business_policies_for(benefit_application, :end_open_enrollment)
             unless policy.is_satisfied?(benefit_application)
-            
+
               if (policy.fail_results.include?(:minimum_participation_rule) || policy.fail_results.include?(:non_business_owner_enrollment_count))
                 benefit_application.active_benefit_sponsorship.census_employees.non_terminated.each do |ce|
                   if ce.employee_role.present?
@@ -112,7 +112,7 @@ module BenefitSponsors
                 end
               end
 
-              deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "initial_employer_application_denied")
+              deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "initial_employer_application_denied")
             end
           end
 
@@ -182,7 +182,7 @@ module BenefitSponsors
           hbx_enrollment = new_model_event.klass_instance
 
           if hbx_enrollment.is_shop? && hbx_enrollment.census_employee.is_active?
-            
+
             is_valid_employer_py_oe = (hbx_enrollment.sponsored_benefit_package.benefit_application.open_enrollment_period.cover?(hbx_enrollment.submitted_at) || hbx_enrollment.sponsored_benefit_package.benefit_application.open_enrollment_period.cover?(hbx_enrollment.created_at))
 
             if new_model_event.event_key == :notify_employee_of_plan_selection_in_open_enrollment
@@ -195,7 +195,7 @@ module BenefitSponsors
               if is_valid_employer_py_oe
                 deliver(recipient: hbx_enrollment.employee_role, event_object: hbx_enrollment, notice_event: "notify_employee_of_plan_selection_in_open_enrollment") #initial EE notice
               end
-              
+
               if !is_valid_employer_py_oe && (hbx_enrollment.enrollment_kind == "special_enrollment" || hbx_enrollment.census_employee.new_hire_enrollment_period.cover?(TimeKeeper.date_of_record))
                 deliver(recipient: hbx_enrollment.census_employee.employee_role, event_object: hbx_enrollment, notice_event: "employee_plan_selection_confirmation_sep_new_hire")
               end
@@ -278,7 +278,7 @@ module BenefitSponsors
               if !benefit_sponsorship.initial_enrollment_eligible?
                 eligible_states = BenefitSponsors::BenefitApplications::BenefitApplication::ENROLLMENT_ELIGIBLE_STATES + BenefitSponsors::BenefitApplications::BenefitApplication::ENROLLING_STATES
                 benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state.in => eligible_states).first
-                deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "initial_employer_no_binder_payment_received")
+                deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "initial_employer_no_binder_payment_received")
                 #Notice to employee that there employer misses binder payment
                 org.active_benefit_sponsorship.census_employees.active.each do |ce|
                   begin
@@ -297,7 +297,7 @@ module BenefitSponsors
         if special_enrollment_period.is_shop?
           primary_applicant = special_enrollment_period.family.primary_applicant
           if employee_role = primary_applicant.person.active_employee_roles[0]
-            deliver(recipient: employee_role, event_object: special_enrollment_period, notice_event: "employee_sep_request_accepted") 
+            deliver(recipient: employee_role, event_object: special_enrollment_period, notice_event: "employee_sep_request_accepted")
           end
         end
       end
@@ -335,7 +335,7 @@ module BenefitSponsors
         if CensusEmployee::OTHER_EVENTS.include?(new_model_event.event_key)
           deliver(recipient: census_employee.employee_role, event_object: new_model_event.options[:event_object], notice_event: new_model_event.event_key.to_s)
         end
-        
+
         if CensusEmployee::REGISTERED_EVENTS.include?(new_model_event.event_key)
          if new_model_event.event_key == :employee_notice_for_employee_terminated_from_roster
           deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "employee_notice_for_employee_terminated_from_roster")
@@ -351,7 +351,7 @@ module BenefitSponsors
         # TODO: Update the query to exclude congressional employees
         # if !benefit_application.benefit_packages.any?{|bg| bg.is_congress?} && benefit_application.benefit_sponsorship.census_employees.active.count < 1
         if benefit_application.benefit_sponsorship.census_employees.active.count < 1
-          deliver(recipient: benefit_application.employer_profile, event_object: benefit_application, notice_event: "zero_employees_on_roster_notice")
+          deliver(recipient: benefit_application.sponsor_profile, event_object: benefit_application, notice_event: "zero_employees_on_roster_notice")
         end
       end
 

@@ -110,7 +110,7 @@ module SponsoredBenefits
     end
 
     def employer_profile
-      benefit_application.employer_profile
+      benefit_application.sponsor_profile
     end
 
     def sorted_composite_tier_contributions

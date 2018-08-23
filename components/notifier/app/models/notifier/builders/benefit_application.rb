@@ -136,13 +136,13 @@ module Notifier
 
     def benefit_application_total_enrolled_count
       if load_benefit_application.present?
-        merge_model.benefit_application.total_enrolled_count = load_benefit_application.all_enrolled_and_waived_member_count
+        merge_model.benefit_application.all_enrolled_and_waived_member_count = load_benefit_application.all_enrolled_and_waived_member_count
       end
     end
 
     def benefit_application_eligible_to_enroll_count
       if load_benefit_application.present?
-        merge_model.benefit_application.eligible_to_enroll_count = load_benefit_application.members_eligible_to_enroll_count
+        merge_model.benefit_application.members_eligible_to_enroll_count = load_benefit_application.members_eligible_to_enroll_count
       end
     end
 

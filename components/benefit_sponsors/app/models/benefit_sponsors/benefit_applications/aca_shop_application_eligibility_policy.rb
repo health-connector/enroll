@@ -72,7 +72,7 @@ module BenefitSponsors
 
     rule :employer_profile_eligible,
           validate: -> (benefit_application) {
-            benefit_application.employer_profile.is_benefit_sponsorship_eligible
+            benefit_application.sponsor_profile.is_benefit_sponsorship_eligible
           },
           success:  -> (benfit_application)  { "validated successfully" },
           fail:     -> (benefit_application) { "This employer is ineligible to enroll for coverage at this time" }
