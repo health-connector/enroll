@@ -1,10 +1,11 @@
 site:
+  key: :dc
   short_name: "DC Health Link"
   byline: "DC's Online Health Insurance Marketplace"
   long_name: ""
   copyright_period_start: "2013"
   header_message: "Welcome to the District's Health Insurance Marketplace"
-  logo_file_name: "logo.png"
+  logo_file_name: "dc_logo.png"
   home_url: "https://www.dchealthlink.com/"
   home_forms_url: "https://dchealthlink.com/forms"
   forms_name: "DCHealthLink.com/forms"
@@ -13,6 +14,7 @@ site:
   healthcare_url: "https://www.healthcare.gov/"
   irs_url: "https://www.irs.gov/"
   exchange_hbx_id: "DC0"
+  mail_address: "noreply@dchbx.org"
 
   social_media:
     facebook_url: ""
@@ -31,6 +33,8 @@ aca:
   state_abbreviation: "DC"
   hbx_abbreviation: "DC Health Benefit Exchange"
   market_kinds: ["individual", "shop"]
+  user_accounts_enabled: false
+  rating_areas: [nil]
 #
   qle:
     with_in_sixty_days: 60
