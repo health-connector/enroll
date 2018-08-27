@@ -2,12 +2,11 @@ module BenefitSponsors
   module Services
     class UpdateBrokerAgencyService
 
-      attr_accessor :broker_agency, :corporate_npn, :fein
+      attr_accessor :broker_agency, :legal_name
 
       def initialize(options={})
-        @fein = options[:fein]
-        @broker_agency = find_broker_agency(@fein)
-        @corporate_npn = options[:corporate_npn] || @broker_agency.corporate_npn
+        @legal_name = options[:legal_name]
+        @broker_agency = find_broker_agency(@legal_name) unless @legal_name.blank?
       end
 
       def update_broker_profile_id(attr={})
@@ -21,6 +20,17 @@ module BenefitSponsors
         return "Already Exist" if broker_staff_roles.detect { |staff_role| staff_role.benefit_sponsors_broker_agency_profile_id.to_s == broker_agency.id.to_s }
 
         person.broker_agency_staff_roles.first.update_attributes!(benefit_sponsors_broker_agency_profile_id: broker_agency.id)
+      end
+
+      def update_broker_assignment_date(attr={})
+        return if attr.empty?
+        hbx_ids = attr[:hbx_ids]
+        new_date = attr[:start_date]
+        hbx_ids.each do |hbx_id|
+          organization = find_organization(hbx_id)
+          next unless organization.present?
+          organization.employer_profile.active_broker_agency_account.update_attributes(start_on: new_date)
+        end
       end
 
       def update_broker_agency_attributes(attr={})
@@ -66,9 +76,9 @@ module BenefitSponsors
 
       private
 
-       def find_broker_agency(fein)
-         organization = BenefitSponsors::Organizations::Organization.broker_agency_profiles.where(fein: fein).first
-         raise "organizational broker agency profile do not exist with fein #{fein}" unless organization
+       def find_broker_agency(legal_name)
+         organization = BenefitSponsors::Organizations::Organization.broker_agency_profiles.where(legal_name: legal_name).first
+         raise "organizational broker agency profile do not exist with fein #{legal_name}" unless organization
          organization.broker_agency_profile
        end
 
@@ -78,6 +88,10 @@ module BenefitSponsors
 
        def find_profile(employer_profile_id)
          BenefitSponsors::Organizations::Profile.find(employer_profile_id)
+       end
+
+       def find_organization(hbx_id)
+         BenefitSponsors::Organizations::Organization.where(hbx_id: hbx_id).first
        end
 
     end
