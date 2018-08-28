@@ -17,10 +17,10 @@ module BenefitSponsors
       end
 
       def current_benefit_application(employer)
-        if employer.is_conversion?
-          benefit_applications.where(:aasm_state => :imported).first
+        if (employer.organization.active_benefit_sponsorship.source_kind.to_s == "conversion")
+          employer.benefit_applications.where(:aasm_state => :imported).first
         else
-          benefit_applications.where(:aasm_state => :active).first
+          employer.benefit_applications.where(:aasm_state => :active).first
         end
       end
 
