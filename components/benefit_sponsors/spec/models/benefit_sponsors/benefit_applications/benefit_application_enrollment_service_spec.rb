@@ -160,6 +160,7 @@ module BenefitSponsors
           it "should transition the benefit_application into :enrollment_open" do
             scheduled_event.advance_day(TimeKeeper.date_of_record)
             renewal_application.reload
+            binding.pry
             expect(renewal_application.aasm_state).to eq :enrollment_open
           end
 
@@ -178,11 +179,8 @@ module BenefitSponsors
     describe '.begin_open_enrollment' do
       context "when initial employer present with valid approved application" do
 
-        let(:open_enrollment_begin) { TimeKeeper.date_of_record - 5.days }
-
         include_context "setup initial benefit application" do
           let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year, 8, 1) }
-          let(:open_enrollment_period) { open_enrollment_begin..(effective_period.min - 10.days) }
           let(:aasm_state) { :approved }
         end
 
