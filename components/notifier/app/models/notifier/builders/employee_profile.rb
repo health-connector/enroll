@@ -157,7 +157,7 @@ module Notifier
       elsif payload['event_object_kind'].constantize == QualifyingLifeEventKind
         @special_enrollment_period = QualifyingLifeEventKind.find(payload['event_object_id'])
       else
-        @special_enrollment_period = employee_role.person.primary_family.current_sep
+        @special_enrollment_period = employee_role.person.primary_family.current_sep unless (event_name == "employee_notice_for_sep_denial")
       end
     end
 

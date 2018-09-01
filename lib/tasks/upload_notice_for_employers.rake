@@ -14,8 +14,8 @@ namespace :migrations do
       ENV['notice_name'] = notice_name
 
       begin
-        Rake::Task["migrations:upload_notice_to_employer_account"].reenable
-        Rake::Task["migrations:upload_notice_to_employer_account"].invoke
+        Rake::Task["migrations:upload_notice_to_account"].reenable
+        Rake::Task["migrations:upload_notice_to_account"].invoke
 
         puts "Finished with ER - #{fein}"
       rescue Exception => e
