@@ -4,8 +4,8 @@
      <div class="container plan-design-proposal">
        <%#= render 'shared/engines/horizontal_status', step:1, links: generate_breadcrumb_links(@plan_design_proposal.proposal, @plan_design_organization) %>
       <%= form_for @plan_design_proposal, url: {action: "create"} do |f| %>
-      <%= render 'form', f: f %>
-
+       <%= render 'form', f: f %>
+      <% end %>
 
        <%= render 'employees' %>
 
@@ -18,11 +18,10 @@
            </div>
 
            <div class="pull-right">
-             <%= link_to "Select Health Benefits", new_organizations_plan_design_proposal_plan_selection_path(@plan_design_proposal.proposal.id), remote: true, class:'btn btn-primary', disabled: can_employee_shop?(f.object.effective_date.try(:to_date)) %>
+             <%= link_to "Select Health Benefits", new_organizations_plan_design_proposal_plan_selection_path(@plan_design_proposal.proposal.id), remote: true, class:'btn btn-primary', disabled: can_employee_shop?(@plan_design_proposal.effective_date.try(:to_date)) %>
            </div>
          </div>
        </div>
-       <% end %>
      </div>
     </div>
   </div>
