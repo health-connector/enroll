@@ -100,7 +100,7 @@ class Person
                 index: true
 
   belongs_to :broker_agency_contact,
-                class_name: "BrokerAgencyProfile",
+                class_name: "BenefitSponsors::Organizations::BrokerAgencyProfile",
                 inverse_of: :broker_agency_contacts,
                 index: true
 
