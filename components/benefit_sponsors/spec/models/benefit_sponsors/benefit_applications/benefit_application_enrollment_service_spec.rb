@@ -125,6 +125,9 @@ module BenefitSponsors
 
       context "renewal application in draft state" do
 
+        let(:market_inception) { TimeKeeper.date_of_record.year - 1 }
+        let(:current_effective_date) { Date.new(market_inception, 9, 16) }
+
         let(:scheduled_event)  {BenefitSponsors::ScheduledEvents::AcaShopScheduledEvents}
 
         let!(:renewal_application)  { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application).renew_application[1] }
@@ -150,7 +153,7 @@ module BenefitSponsors
         context "today is date for force publish" do
 
           before(:each) do
-            TimeKeeper.set_date_of_record_unprotected!(Date.new(Date.today.year, 8, 11))
+            TimeKeeper.set_date_of_record_unprotected!(Date.new(Date.today.year, 8, 16))
           end
 
           after(:each) do
