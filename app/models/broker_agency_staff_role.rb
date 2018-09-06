@@ -20,13 +20,6 @@ class BrokerAgencyStaffRole
   accepts_nested_attributes_for :person, :workflow_state_transitions
 
   # after_initialize :initial_transition
-
-  before_create :set_profile_id, :if => Proc.new { |m| m.broker_agency_profile.is_a?(BrokerAgencyProfile) }
-
-  def set_profile_id # adding this for depricated association of broker_agency_profile in main app to fix specs
-    self.broker_agency_profile_id = benefit_sponsors_broker_agency_profile_id if  benefit_sponsors_broker_agency_profile_id.present?
-  end
-
   aasm do
     state :broker_agency_pending, initial: true
     state :active
