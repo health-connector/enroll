@@ -661,19 +661,11 @@ class Person
     end
 
     def staff_for_employer(employer_profile)
-      if employer_profile.is_a? (EmployerProfile)
-        self.where(:employer_staff_roles => {
-            '$elemMatch' => {
-                employer_profile_id: employer_profile.id,
-                aasm_state: :is_active}
-        }).to_a
-      else
-        self.where(:employer_staff_roles => {
-            '$elemMatch' => {
-                benefit_sponsor_employer_profile_id: employer_profile.id,
-                aasm_state: :is_active}
-        }).to_a
-      end
+      self.where(:employer_staff_roles => {
+          '$elemMatch' => {
+              benefit_sponsor_employer_profile_id: employer_profile.id,
+              aasm_state: :is_active}
+      }).to_a
     end
 
     def staff_for_employer_including_pending(employer_profile)
