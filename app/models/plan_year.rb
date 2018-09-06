@@ -7,7 +7,6 @@ class PlanYear
   include ScheduledEventService
   include Config::AcaModelConcern
   include Concerns::Observable
-  include ModelEvents::PlanYear
   include Config::BankHolidaysHelper
 
   embedded_in :employer_profile
