@@ -207,7 +207,7 @@ module BenefitSponsors
 
         context "open enrollment start date in the future" do
           let(:open_enrollment_begin) { TimeKeeper.date_of_record + 5.days }
-
+          let(:open_enrollment_period) { open_enrollment_begin..TimeKeeper.date_of_record.next_month.prev_day }
           it "should do nothing" do
             subject.begin_open_enrollment
             initial_application.reload
@@ -251,8 +251,10 @@ module BenefitSponsors
           end
 
           context "and the benefit_application enrollment passes eligibility policy validation" do
-
+            let(:business_policy) { instance_double("some_policy", success_results: { business_rule: "validation passed" })}
             it "should close open enrollment" do
+              allow(subject).to receive(:business_policy).and_return(business_policy)
+              allow(subject).to receive(:business_policy_satisfied_for?).with(:end_open_enrollment).and_return(true)
               subject.end_open_enrollment
               initial_application.reload
               expect(initial_application.aasm_state).to eq :enrollment_closed
