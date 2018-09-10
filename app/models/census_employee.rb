@@ -266,11 +266,7 @@ class CensusEmployee < CensusMember
 
   def employer_profile=(new_employer_profile)
     raise ArgumentError.new("expected EmployerProfile") unless new_employer_profile.class.to_s.match(/EmployerProfile/)
-    if is_case_old?(new_employer_profile)
-      self.employer_profile_id = new_employer_profile._id
-    else
-      self.benefit_sponsors_employer_profile_id = new_employer_profile._id
-    end
+    self.benefit_sponsors_employer_profile_id = new_employer_profile._id
     @employer_profile = new_employer_profile
   end
 
@@ -544,7 +540,6 @@ class CensusEmployee < CensusMember
   # end
 
   def assign_benefit_packages
-    return true if is_case_old?
     # These will assign deafult benefit packages if not present
     self.active_benefit_group_assignment = nil
     self.renewal_benefit_group_assignment = nil
@@ -684,11 +679,7 @@ class CensusEmployee < CensusMember
   class << self
 
     def scoped_profile(employer_profile_id)
-      if EmployerProfile.find(employer_profile_id).is_a?(EmployerProfile)
-        by_old_employer_profile_id(employer_profile_id)
-      else
-        by_benefit_sponsor_employer_profile_id(employer_profile_id)
-      end
+      by_benefit_sponsor_employer_profile_id(employer_profile_id)
     end
 
     def enrolled_count(benefit_group)
@@ -1275,7 +1266,6 @@ def self.to_csv
   end
 
   def active_census_employee_is_unique
-    potential_dups = CensusEmployee.by_ssn(ssn).by_employer_profile_id(employer_profile_id).active if is_case_old?
     potential_dups ||= CensusEmployee.by_ssn(ssn).by_employer_profile_id(benefit_sponsors_employer_profile_id).active
     if potential_dups.detect { |dup| dup.id != self.id  }
       message = "Employee with this identifying information is already active. "\

@@ -695,12 +695,7 @@ class Person
       return false, 'Person count too high, please contact HBX Admin' if person.count > 1
       return false, 'Person does not exist on the HBX Exchange' if person.count == 0
 
-      if employer_profile.is_a? (EmployerProfile)
-        employer_staff_role = EmployerStaffRole.create(person: person.first, employer_profile_id: employer_profile._id)
-      else
-        employer_staff_role = EmployerStaffRole.create(person: person.first, benefit_sponsor_employer_profile_id: employer_profile._id)
-      end
-
+      employer_staff_role = EmployerStaffRole.create(person: person.first, benefit_sponsor_employer_profile_id: employer_profile._id)
       employer_staff_role.save
 
       return true, person.first

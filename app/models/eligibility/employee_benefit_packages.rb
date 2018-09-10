@@ -2,7 +2,6 @@ module Eligibility
   module EmployeeBenefitPackages
     # Deprecated
     def assign_default_benefit_package
-      return true unless is_case_old?
       py = employer_profile.plan_years.published.first || employer_profile.plan_years.where(aasm_state: 'draft').first
       if py.present?
         if active_benefit_group_assignment.blank? || active_benefit_group_assignment.benefit_group.plan_year != py
