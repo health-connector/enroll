@@ -289,9 +289,7 @@ class CensusEmployee < CensusMember
   def employee_role=(new_employee_role)
     raise ArgumentError.new("expected EmployeeRole") unless new_employee_role.is_a? EmployeeRole
     return false unless self.may_link_employee_role?
-    # Guard against linking employee roles with different employer/identifying information
-    slug = is_case_old? && self.employer_profile_id == new_employee_role.employer_profile_id
-    if (self.benefit_sponsors_employer_profile_id == new_employee_role.benefit_sponsors_employer_profile_id) || slug
+    if (self.benefit_sponsors_employer_profile_id == new_employee_role.benefit_sponsors_employer_profile_id)
       self.employee_role_id = new_employee_role._id
       @employee_role = new_employee_role
       self.link_employee_role! if self.may_link_employee_role?
@@ -326,7 +324,6 @@ class CensusEmployee < CensusMember
   end
 
   def renewal_benefit_group_assignment
-    return benefit_group_assignments.order_by(:'updated_at'.desc).detect{ |assignment| assignment.plan_year && assignment.plan_year.is_renewing? } if is_case_old?
     benefit_group_assignments.order_by(:'updated_at'.desc).detect{ |assignment| assignment.benefit_application && assignment.benefit_application.is_renewing? }
   end
 

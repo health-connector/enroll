@@ -53,7 +53,6 @@ module Eligibility
     # end
 
     def add_renew_benefit_group_assignment(renewal_benefit_packages)
-      return add_renew_benefit_group_assignment_deprecated(renewal_benefit_packages.first) if is_case_old?
       if renewal_benefit_packages.present?
         benefit_group_assignments.renewing.each do |benefit_group_assignment|
           if renewal_benefit_packages.map(&:id).include?(benefit_group_assignment.benefit_package.id)
@@ -82,7 +81,6 @@ module Eligibility
     end
 
     def add_benefit_group_assignment(new_benefit_group, start_on = nil)
-      return add_benefit_group_assignment_deprecated(new_benefit_group) if is_case_old?
       raise ArgumentError, "expected BenefitGroup" unless new_benefit_group.is_a?(BenefitSponsors::BenefitPackages::BenefitPackage)
       reset_active_benefit_group_assignments(new_benefit_group)
       benefit_group_assignments << BenefitGroupAssignment.new(benefit_group: new_benefit_group, start_on: (start_on || new_benefit_group.start_on))
@@ -144,7 +142,6 @@ module Eligibility
     end
 
     def has_benefit_group_assignment?
-      return has_benefit_group_assignment_deprecated? if is_case_old?
       (active_benefit_group_assignment.present? && (BenefitSponsors::BenefitApplications::BenefitApplication::PUBLISHED_STATES).include?(active_benefit_group_assignment.benefit_application.aasm_state)) ||
       (renewal_benefit_group_assignment.present? && renewal_benefit_group_assignment.benefit_application.is_renewing?)
     end

@@ -84,11 +84,7 @@ class EmployeeRole
 
   def employer_profile=(new_employer_profile)
     raise ArgumentError.new("expected EmployerProfile") unless new_employer_profile.class.to_s.match(/EmployerProfile/)
-    if new_employer_profile.kind_of?(EmployerProfile)
-      self.employer_profile_id = new_employer_profile._id
-    else
-      self.benefit_sponsors_employer_profile_id = new_employer_profile._id
-    end
+    self.benefit_sponsors_employer_profile_id = new_employer_profile._id
     @employer_profile = new_employer_profile
   end
 
