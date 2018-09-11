@@ -30,7 +30,6 @@ module Eligibility
     end
 
     def find_or_create_benefit_group_assignment(benefit_packages)
-      return find_or_create_benefit_group_assignment_deprecated(benefit_packages) if is_case_old?
       if benefit_packages.present?
         bg_assignments = benefit_group_assignments.where(:benefit_package_id.in => benefit_packages.map(&:_id)).order_by(:'created_at'.desc)
 
