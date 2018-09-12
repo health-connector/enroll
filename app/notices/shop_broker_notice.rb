@@ -34,15 +34,15 @@ class ShopBrokerNotice < Notice
   end
 
   def attach_envelope
-    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'ma_envelope_without_address.pdf')]
+    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', shop_envelope_without_address)]
   end
-
+  
   def non_discrimination_attachment
-    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'ma_shop_non_discrimination_attachment.pdf')]
+    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', shop_non_discrimination_attachment)]
   end
 
   def employer_appeal_rights_attachment
-    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', 'ma_employer_appeal_rights.pdf')]
+    join_pdfs [notice_path, Rails.root.join('lib/pdf_templates', employee_appeal_rights)]
   end
 
   def append_address(primary_address)
