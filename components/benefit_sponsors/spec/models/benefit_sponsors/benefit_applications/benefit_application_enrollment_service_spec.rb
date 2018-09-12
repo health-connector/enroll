@@ -252,12 +252,19 @@ module BenefitSponsors
 
           context "and the benefit_application enrollment passes eligibility policy validation" do
             let(:business_policy) { instance_double("some_policy", success_results: { business_rule: "validation passed" })}
-            it "should close open enrollment" do
+            before do
               allow(subject).to receive(:business_policy).and_return(business_policy)
               allow(subject).to receive(:business_policy_satisfied_for?).with(:end_open_enrollment).and_return(true)
+            end
+            it "should close open enrollment" do
               subject.end_open_enrollment
               initial_application.reload
               expect(initial_application.aasm_state).to eq :enrollment_closed
+            end
+
+            it "invokes pricing determination calculation" do
+              expect(::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator).to receive(:call).with(initial_application, Date.new(Date.today.year, 7, 24))
+              subject.end_open_enrollment
             end
           end
 
@@ -273,12 +280,6 @@ module BenefitSponsors
               expect(initial_application.aasm_state).to eq :enrollment_ineligible
               expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_ineligible
             end
-          end
-
-
-          it "invokes pricing determination calculation" do
-            expect(::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator).to receive(:call).with(initial_application, Date.new(Date.today.year, 7, 24))
-            subject.end_open_enrollment
           end
         end
 
