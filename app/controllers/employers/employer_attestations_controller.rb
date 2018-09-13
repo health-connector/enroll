@@ -109,7 +109,7 @@ class Employers::EmployerAttestationsController < ApplicationController
       org ||= Organization.where(:"employer_profile.employer_attestation.employer_attestation_documents._id" => BSON::ObjectId.from_string(params[:employer_attestation_id])).first
       @employer_profile = org.employer_profile
     elsif params[:id].present?
-      @employer_profile = EmployerProfile.find(params[:id]) || ::BenefitSponsors::Organizations::Profile.find(params[:id])
+      @employer_profile = ::BenefitSponsors::Organizations::Profile.find(params[:id])
     else
       @employer_profile = Organization.where(:legal_name => params["document"]["creator"]).first.try(:employer_profile)
       @employer_profile ||= ::BenefitSponsors::Organizations::Organization.where(:legal_name => params["document"]["creator"]).first.employer_profile

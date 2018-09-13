@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Employers::EmployerAttestationsController do
 
+  describe "GET edit", dbclean: :after_each do
 
-  describe "GET edit" do
     let(:user) { FactoryGirl.create(:user) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
 
     it "should render the edit template" do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
@@ -15,7 +15,7 @@ RSpec.describe Employers::EmployerAttestationsController do
     end
   end
 
-  describe "GET new" do
+  describe "GET new", dbclean: :after_each do
     let(:user) { FactoryGirl.create(:user) }
 
     it "should render the edit template" do
@@ -25,11 +25,11 @@ RSpec.describe Employers::EmployerAttestationsController do
     end
   end
 
-  describe "POST create" do
+  describe "POST create", dbclean: :after_each do
     let(:user) { FactoryGirl.create(:user) }
     let(:tempfile) { double(path: 'tmp/sample.pdf') }
     let(:file) { double(original_filename: 'sample.pdf', size: 400, tempfile: tempfile) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
 
     before do 
       allow(controller).to receive(:params).and_return({id: employer_profile.id, file: file})
@@ -53,7 +53,7 @@ RSpec.describe Employers::EmployerAttestationsController do
 
       it 'should return success' do
         employer_profile.reload
-        expect(employer_profile.employer_attestation.aasm_state).to eq "submitted"
+        expect(employer_profile.employer_attestation.aasm_state).to eq "approved"
         expect(employer_profile.employer_attestation.employer_attestation_documents.first.aasm_state).to eq "submitted"
         expect(flash[:notice]).to eq "File Saved"
         expect(response).to have_http_status(:redirect)
@@ -61,9 +61,11 @@ RSpec.describe Employers::EmployerAttestationsController do
     end
   end
 
-  describe "PUT update" do 
-    let(:user) { FactoryGirl.create(:user) }
-    let(:attestation_doc) { FactoryGirl.create(:employer_attestation_document) }
+  describe "PUT update", dbclean: :after_each do
+    let!(:user) { FactoryGirl.create(:user) }
+    let!(:attestation_doc) {FactoryGirl.build(:employer_attestation_document)}
+    let!(:employer_attestation) { FactoryGirl.build(:employer_attestation, employer_attestation_documents: [attestation_doc]) }
+    let!(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site, employer_attestation: employer_attestation) }
 
     it "should render the edit template" do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
