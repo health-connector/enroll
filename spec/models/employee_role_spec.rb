@@ -61,18 +61,11 @@ describe ".coverage_effective_on" do
     #   employer
     # }
 
-    let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_aca_shop_dc_employer_profile_renewal_application
-    )}
-
-    let(:employer_profile)        { organization.employer_profile }
+    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let(:organization) { employer_profile.organization}
     let!(:rating_area)            { FactoryGirl.create_default :benefit_markets_locations_rating_area }
     let!(:service_area)           { FactoryGirl.create_default :benefit_markets_locations_service_area }
     let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
-
-
-
     let(:start_on) { (TimeKeeper.date_of_record + 2.months).beginning_of_month - 1.year }
     let(:end_on) { start_on + 1.year - 1.day }
     let(:open_enrollment_start_on) { start_on - 2.months }
@@ -123,13 +116,8 @@ describe EmployeeRole, dbclean: :after_each do
     let(:address) {FactoryGirl.build(:address)}
     let(:saved_person) {FactoryGirl.create(:person, first_name: "Annie", last_name: "Lennox", addresses: [address])}
     let(:new_person) {FactoryGirl.build(:person, first_name: "Carly", last_name: "Simon")}
-    # let(:employer_profile) {FactoryGirl.create(:employer_profile)}
-
-    let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_aca_shop_dc_employer_profile_initial_application
-    )}
-    let(:employer_profile) { organization.employer_profile }
+    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let(:organization) { employer_profile.organization}
 
     let(:valid_person_attributes) do
       {
@@ -306,15 +294,9 @@ describe EmployeeRole, dbclean: :after_each do
   let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
 
   context "when created" do
-    # let(:employer_profile) { FactoryGirl.create(:employer_profile) }
 
-    let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_aca_shop_dc_employer_profile_initial_application
-    )}
-
-    let(:employer_profile) { organization.employer_profile }
-
+    let!(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let(:organization) { employer_profile.organization}
     let(:person) {
       FactoryGirl.create(:person,
         created_at: person_created_at,
@@ -476,25 +458,12 @@ describe EmployeeRole, dbclean: :after_each do
   context "with saved employee roles from multiple employers" do
     let(:match_size)                  { 5 }
     let(:non_match_size)              { 3 }
-    # let(:match_employer_profile)      { FactoryGirl.create(:employer_profile) }
-    # let(:non_match_employer_profile)  { FactoryGirl.create(:employer_profile) }
-
-    let(:organization1) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_aca_shop_dc_employer_profile_initial_application
-    )}
-
-    let(:match_employer_profile) { organization1.employer_profile }
-
+    let(:match_employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let(:organization1) { match_employer_profile.organization}
     let(:match_benefit_sponsorship) { match_employer_profile.add_benefit_sponsorship }
 
-
-    let(:organization2) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_aca_shop_dc_employer_profile_initial_application
-    )}
-    let(:non_match_employer_profile) { organization2.employer_profile }
-
+    let(:non_match_employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let(:organization2) { non_match_employer_profile.organization}
     let(:non_match_benefit_sponsorship) { non_match_employer_profile.add_benefit_sponsorship }
 
     let!(:match_employee_roles)       { FactoryGirl.create_list(:employee_role, 5, employer_profile: match_employer_profile) }
@@ -532,19 +501,12 @@ end
 
 describe EmployeeRole, dbclean: :after_each do
 
-  # let(:employer_profile)          { FactoryGirl.create(:employer_profile) }
   let(:calendar_year) { TimeKeeper.date_of_record.year }
   let(:middle_of_prev_year) { Date.new(calendar_year - 1, 6, 10) }
-
-  let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-    :with_site,
-    :with_aca_shop_dc_employer_profile_initial_application
-  )}
-
-  let(:employer_profile) { organization.employer_profile }
+  let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+  let(:organization) { employer_profile.organization}
   let(:benefit_application) { organization.active_benefit_sponsorship.current_benefit_application }
   let(:benefit_package) { benefit_application.benefit_packages.first }
-
   let!(:rating_area)           { FactoryGirl.create_default :benefit_markets_locations_rating_area }
   let!(:service_area)          { FactoryGirl.create_default :benefit_markets_locations_service_area }
   let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
@@ -738,15 +700,8 @@ end
 describe "#benefit_group", dbclean: :after_each do
   subject { EmployeeRole.new(:person => person, :employer_profile => employer_profile, :census_employee => census_employee) }
   let(:person) { FactoryGirl.create(:person, :with_ssn) }
-  # let(:organization) { FactoryGirl.create(:organization, :with_active_and_renewal_plan_years)}
-
-  let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-    :with_site,
-    :with_aca_shop_dc_employer_profile_renewal_application
-  )}
-
-  let(:employer_profile) { organization.employer_profile  }
-
+  let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+  let(:organization) { employer_profile.organization}
   let!(:rating_area)           { FactoryGirl.create_default :benefit_markets_locations_rating_area }
   let!(:service_area)          { FactoryGirl.create_default :benefit_markets_locations_service_area }
   let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
@@ -799,14 +754,8 @@ describe "#benefit_group", dbclean: :after_each do
 
   context "plan shop through qle and having active & expired plan years" do
 
-    let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_aca_shop_cca_employer_profile_expired_application
-    )}
-
-    let(:employer_profile) { organization.employer_profile  }
-
-    # let(:organization) { FactoryGirl.create(:organization, :with_expired_and_active_plan_years)}
+    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let(:organization) { employer_profile.organization}
 
     before do
       # census_employee.benefit_group_assignments.each do |bga|

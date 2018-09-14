@@ -4,9 +4,10 @@ describe EmployerAttestationDocument, dbclean: :after_each do
 
   context ".submit_review" do
 
-    let(:document) { FactoryGirl.create(:employer_attestation_document) }
-    let(:employer_profile) { document.employer_profile }
-    let(:attestation) { document.employer_attestation }
+    let!(:employer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site) }
+    let!(:document) {FactoryGirl.build(:employer_attestation_document)}
+    let!(:attestation) { FactoryGirl.build(:employer_attestation, employer_attestation_documents: [document]) }
+    let!(:profile_update) { employer_profile.employer_attestation = attestation }
 
     context '.accept' do
       it 'should accept document and approve attestation' do
