@@ -261,7 +261,6 @@ class CensusEmployee < CensusMember
 
   def is_case_old?(employer_profile=nil)
     employer_profile = employer_profile || self.employer_profile
-    employer_profile.present? && employer_profile.is_a?(EmployerProfile)
   end
 
   def employer_profile=(new_employer_profile)
