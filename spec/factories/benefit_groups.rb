@@ -1,6 +1,5 @@
 FactoryGirl.define do
   factory :benefit_group do
-    plan_year
     composite_tier_contributions { [
       FactoryGirl.build(:composite_tier_contribution, benefit_group: self),
       FactoryGirl.build(:composite_tier_contribution, benefit_group: self, composite_rating_tier: 'family', employer_contribution_percent: 40.0)
@@ -76,7 +75,6 @@ end
 
 FactoryGirl.define do
   factory :benefit_group_congress, class: BenefitGroup do
-    plan_year
     is_congress true
     effective_on_kind "first_of_month"
     terminate_on_kind "end_of_month"
