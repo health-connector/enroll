@@ -570,14 +570,14 @@ describe Person, :dbclean => :after_each do
   end
 
   describe '#find_all_staff_roles_by_employer_profile' do
-    employer_profile = FactoryGirl.build(:employer_profile)
-    person = FactoryGirl.build(:person)
-    FactoryGirl.create(:employer_staff_role, person: person, employer_profile_id: employer_profile.id)
+    let!(:employer_profile) {FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site)}
+    let!(:person) {FactoryGirl.build(:person)}
+    let!(:employer_staff_role) {FactoryGirl.create(:employer_staff_role, person: person, benefit_sponsors_employer_profile_id: employer_profile.id)}
+
     it "should have the same search criteria" do
       allow(Person).to receive(:where).and_return([person])
       expect(Person.find_all_staff_roles_by_employer_profile(employer_profile)).to eq [person]
     end
-
   end
 
   describe "large family with multiple employees - The Brady Bunch", :dbclean => :after_all do
