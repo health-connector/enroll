@@ -572,7 +572,7 @@ describe Person, :dbclean => :after_each do
   describe '#find_all_staff_roles_by_employer_profile' do
     let!(:employer_profile) {FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site)}
     let!(:person) {FactoryGirl.build(:person)}
-    let!(:employer_staff_role) {FactoryGirl.create(:employer_staff_role, person: person, benefit_sponsors_employer_profile_id: employer_profile.id)}
+    let!(:employer_staff_role) {FactoryGirl.create(:employer_staff_role, person: person, benefit_sponsor_employer_profile_id: employer_profile.id)}
 
     it "should have the same search criteria" do
       allow(Person).to receive(:where).and_return([person])
@@ -1050,7 +1050,7 @@ describe Person, :dbclean => :after_each do
   end
 
   describe ".add_employer_staff_role(first_name, last_name, dob, email, employer_profile)" do
-    let(:employer_profile){FactoryGirl.create(:employer_profile)}
+    let!(:employer_profile) {FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site)}
     let(:person_params) {{first_name: Forgery('name').first_name, last_name: Forgery('name').first_name, dob: '1990/05/01'}}
     let(:person1) {FactoryGirl.create(:person, person_params)}
 
@@ -1185,8 +1185,23 @@ describe Person, :dbclean => :after_each do
 
   describe "has_active_employee_role_for_census_employee?" do
     let(:person) { FactoryGirl.create(:person) }
-    let(:census_employee) { FactoryGirl.create(:census_employee) }
-    let(:census_employee2) { FactoryGirl.create(:census_employee) }
+    let(:employer_profile) {FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site)}
+    let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_profile) }
+    let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
+    let(:service_area) { create_default(:benefit_markets_locations_service_area) }
+    let(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
+
+    let(:effective_period_start_on) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
+    let(:effective_period_end_on)   { effective_period_start_on + 1.year - 1.day }
+    let(:effective_period)          { effective_period_start_on..effective_period_end_on }
+
+    let(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+    let(:census_employee2) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+
+    before do
+      initial_application.benefit_sponsorship = benefit_sponsorship
+      initial_application.save!
+    end
 
     context "person has no active employee roles" do
       it "should return false" do
@@ -1325,7 +1340,7 @@ describe Person, :dbclean => :after_each do
 
 
   describe "staff_for_employer" do
-    let(:employer_profile) { FactoryGirl.build(:employer_profile) }
+    let!(:employer_profile) {FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site)}
 
     context "employer has no staff roles assigned" do
       it "should return an empty array" do
@@ -1335,7 +1350,7 @@ describe Person, :dbclean => :after_each do
 
     context "employer has an active staff role" do
       let(:person) { FactoryGirl.build(:person) }
-      let(:staff_params)  {{ person: person, employer_profile_id: employer_profile.id, aasm_state: :is_active }}
+      let(:staff_params)  {{ person: person, benefit_sponsor_employer_profile_id: employer_profile.id, aasm_state: :is_active }}
 
       before do
         person.employer_staff_roles << EmployerStaffRole.new(**staff_params)
@@ -1349,12 +1364,12 @@ describe Person, :dbclean => :after_each do
 
 
     context "multiple employers have same person as staff" do
-      let(:employer_profile2) { FactoryGirl.build(:employer_profile) }
+      let!(:employer_profile2) {FactoryGirl.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site)}
       let(:person) { FactoryGirl.build(:person) }
 
-      let(:staff_params1) { {person: person, employer_profile_id: employer_profile.id, aasm_state: :is_active} }
+      let(:staff_params1) { {person: person, benefit_sponsor_employer_profile_id: employer_profile.id, aasm_state: :is_active} }
 
-      let(:staff_params2) { {person: person, employer_profile_id: employer_profile2.id, aasm_state: :is_active} }
+      let(:staff_params2) { {person: person, benefit_sponsor_employer_profile_id: employer_profile2.id, aasm_state: :is_active} }
 
       before do
         person.employer_staff_roles << EmployerStaffRole.new(**staff_params1)
@@ -1371,7 +1386,7 @@ describe Person, :dbclean => :after_each do
       end
 
       context "target employer has staff role in inactive state" do
-        let(:staff_params3) { {person: person, employer_profile_id: employer_profile.id, aasm_state: :is_closed} }
+        let(:staff_params3) { {person: person, benefit_sponsor_employer_profile_id: employer_profile.id, aasm_state: :is_closed} }
 
         before do
           person.employer_staff_roles = []

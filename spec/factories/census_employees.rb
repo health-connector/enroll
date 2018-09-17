@@ -11,7 +11,7 @@ FactoryGirl.define do
     is_business_owner  false
     association :address, strategy: :build
     association :email, strategy: :build
-    association :employer_profile, strategy: :create
+
 
     transient do
       benefit_group { build(:benefit_group) }
