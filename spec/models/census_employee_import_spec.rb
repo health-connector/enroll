@@ -1,15 +1,31 @@
 require 'rails_helper'
 
-RSpec.describe CensusEmployeeImport, :type => :model do
+RSpec.describe CensusEmployeeImport, :type => :model, :dbclean => :after_each do
 
   let(:tempfile) { double("", path: 'spec/test_data/census_employee_import/DCHL Employee Census.xlsx') }
   let(:file) {
     double("", :tempfile => tempfile)
   }
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
   let(:sheet) {
     Roo::Spreadsheet.open(file.tempfile.path).sheet(0)
   }
+  let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+  let(:benefit_market)          { site.benefit_markets.first }
+  let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let(:benefit_sponsorship)    { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
+  let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
+  let(:rating_area)  { create_default(:benefit_markets_locations_rating_area) }
+  let(:service_area) { create_default(:benefit_markets_locations_service_area) }
+  let(:sic_code)      { "001" }
+  let!(:employer_profile) {benefit_sponsorship.profile}
+  let(:renewal_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+  let(:current_effective_date) { renewal_effective_date.prev_year }
+  let(:effective_period) { current_effective_date..current_effective_date.next_year.prev_day }
+  let(:package_kind)            { :single_issuer }
+  let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
+  let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
+  let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
+  let(:benefit_group_assignment) { FactoryGirl.build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id:nil, benefit_package_id: benefit_package.id, is_active:true)}
   let(:subject) {
     CensusEmployeeImport.new({file: file, employer_profile: employer_profile})
   }
@@ -37,7 +53,7 @@ RSpec.describe CensusEmployeeImport, :type => :model do
       expect(subject.save).to be_truthy
       expect(subject.load_imported_census_employees.count).to eq(2) # 1 employee + 1 dependent
       expect(subject.load_imported_census_employees.first).to be_a CensusEmployee
-      expect(subject.load_imported_census_employees.first.census_dependents.count).to eq(1)
+      expect(subject.load_imported_census_employees.first.census_dependents.size).to eq(1)
       expect(subject.load_imported_census_employees.last).to be_a CensusDependent
     end
 
@@ -67,7 +83,6 @@ RSpec.describe CensusEmployeeImport, :type => :model do
     let(:file) {
       double("", :tempfile => tempfile)
     }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
     let(:sheet) {
       Roo::Spreadsheet.open(file.tempfile.path).sheet(0)
     }
@@ -91,8 +106,7 @@ RSpec.describe CensusEmployeeImport, :type => :model do
   context "terminate employee" do
     let(:tempfile) { double("", path: 'spec/test_data/census_employee_import/DCHL Employee Census 3.xlsx') }
     let(:file) { double("", :tempfile => tempfile) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-    let(:census_employee) { FactoryGirl.create(:census_employee, {ssn: "111111111", dob: Date.new(1987, 12, 12), employer_profile: employer_profile}) }
+    let!(:census_employee) { FactoryGirl.create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
 
     context "employee does not exist" do
       it "should fail" do

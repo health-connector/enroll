@@ -4,9 +4,26 @@ RSpec.describe CensusMember, :dbclean => :after_each do
   it { should validate_presence_of :first_name }
   it { should validate_presence_of :last_name }
   it { should validate_presence_of :dob }
+  let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+  let(:benefit_market)          { site.benefit_markets.first }
+  let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let(:benefit_sponsorship)    { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
+  let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
+  let(:rating_area)  { create_default(:benefit_markets_locations_rating_area) }
+  let(:service_area) { create_default(:benefit_markets_locations_service_area) }
+  let(:sic_code)      { "001" }
 
-  let(:employer_profile)  { FactoryGirl.create(:employer_profile) }
-  let(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+  let!(:employer_profile) {benefit_sponsorship.profile}
+  let(:renewal_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+  let(:current_effective_date) { renewal_effective_date.prev_year }
+  let(:effective_period) { current_effective_date..current_effective_date.next_year.prev_day }
+  let(:package_kind)            { :single_issuer }
+  let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
+  let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
+  let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
+  let(:benefit_group_assignment) { FactoryGirl.build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id:nil, benefit_package_id: benefit_package.id, is_active:true)}
+  let!(:census_employee) { FactoryGirl.create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
+
 
   it "sets gender" do
     census_employee.gender = "MALE"

@@ -784,7 +784,6 @@ class CensusEmployee < CensusMember
     # Deprecate in future
 
     def find_all_by_employer_profile(employer_profile)
-      return unscoped.where(employer_profile_id: employer_profile._id).order_name_asc if employer_profile.is_a?(EmployerProfile)
       employer_profile.census_employees.order_name_asc
     end
 
