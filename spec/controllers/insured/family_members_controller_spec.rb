@@ -1,15 +1,38 @@
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe Insured::FamilyMembersController do
+RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application"
   let(:user) { instance_double("User", :primary_family => test_family, :person => person) }
   let(:qle) { FactoryGirl.create(:qualifying_life_event_kind) }
   let(:test_family) { FactoryGirl.build(:family, :with_primary_family_member) }
-  let(:person) { test_family.primary_family_member.person }
-  let(:published_plan_year)  { FactoryGirl.build(:plan_year, aasm_state: :published)}
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:employee_role) { FactoryGirl.create(:employee_role, employer_profile: employer_profile, person: person ) }
+  let(:current_effective_date)  { TimeKeeper.date_of_record }
+  let!(:plan_year) {initial_application}
+  let(:update_to_published_plan_year) {initial_application.update_attributes(aasm_state: "approved")}
+  let(:published_plan_year) {initial_application}
+
+  let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
+  let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
+  let!(:security_question)  { FactoryGirl.create_default :security_question }
+  let(:employer_profile) { benefit_sponsorship.profile }
+  let(:organization) { employer_profile.organization }
+
+  let!(:start_on)  { current_effective_date.prev_month }
+  let!(:effective_period)  { start_on..start_on.next_year.prev_day }
+
+  let!(:benefit_package) { initial_application.benefit_packages.first}
+  let(:benefit_group_assignment) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)}
+
+  let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
   let(:employee_role_id) { employee_role.id }
-  let(:census_employee) { FactoryGirl.create(:census_employee) }
+  let(:census_employee) { FactoryGirl.create(:benefit_sponsors_census_employee,
+    employer_profile: benefit_sponsorship.profile,
+    benefit_sponsorship: benefit_sponsorship,
+    benefit_group_assignments: [benefit_group_assignment]
+  )}
+  let(:person) { test_family.primary_family_member.person }
 
   before do
     employer_profile.plan_years << published_plan_year
@@ -112,7 +135,6 @@ RSpec.describe Insured::FamilyMembersController do
       allow(person).to receive(:primary_family).and_return(test_family)
       allow(person).to receive(:broker_role).and_return(nil)
       allow(employee_role).to receive(:save!).and_return(true)
-      allow(employer_profile).to receive(:published_plan_year).and_return(published_plan_year)
       sign_in user
       allow(controller.request).to receive(:referer).and_return('http://dchealthlink.com/insured/interactive_identity_verifications')
       expect{
@@ -162,7 +184,6 @@ RSpec.describe Insured::FamilyMembersController do
     let(:dependent) { double(addresses: [address], family_member: true, same_with_primary: true) }
     let(:dependent_properties) { { :family_id => "saldjfalkdjf"} }
     let(:save_result) { false }
-    # let(:test_family) { FactoryGirl.build(:family, :with_primary_family_member) }
 
     before :each do
       sign_in(user)
