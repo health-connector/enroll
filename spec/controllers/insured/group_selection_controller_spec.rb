@@ -1,10 +1,17 @@
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe Insured::GroupSelectionController, :type => :controller do
+RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean: :after_each do
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application"
+  let!(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
+  let(:market_inception) { TimeKeeper.date_of_record.year }
+  let!(:current_effective_date) { Date.new(TimeKeeper.date_of_record.last_year.year, TimeKeeper.date_of_record.month, 1) }
   let(:person) {FactoryGirl.create(:person)}
   let(:user) { instance_double("User", :person => person) }
   let(:consumer_role) {FactoryGirl.create(:consumer_role)}
-  let(:employee_role) {FactoryGirl.create(:employee_role)}
+  let(:employee_role) {FactoryGirl.create(:employee_role, employer_profile_id: benefit_sponsorship.profile.id, person: person)}
   let(:household) {double(:immediate_family_coverage_household=> coverage_household, :hbx_enrollments => hbx_enrollments)}
   let(:coverage_household) {double(:id => coverage_household_id) }
   let(:family) {Family.new}
@@ -12,7 +19,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller do
   let(:hbx_enrollments) {double(:enrolled => [hbx_enrollment], :where => collectiondouble)}
   let(:collectiondouble) { double(where: double(order_by: [hbx_enrollment]))}
   let(:hbx_profile) {FactoryGirl.create(:hbx_profile)}
-  let(:benefit_group) { FactoryGirl.create(:benefit_group)}
   let(:benefit_package) { FactoryGirl.build(:benefit_package,
       benefit_coverage_period: hbx_profile.benefit_sponsorship.benefit_coverage_periods.first,
       title: "individual_health_benefits_2015",
@@ -56,17 +62,19 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller do
     allow(user).to receive(:last_portal_visited).and_return('/')
     allow(person).to receive(:active_employee_roles).and_return [employee_role]
     allow(person).to receive(:has_active_employee_role?).and_return true
-    allow(employee_role).to receive(:benefit_group).and_return benefit_group
     allow(coverage_household).to receive(:household).and_return(household)
     allow(hbx_enrollments).to receive(:build).and_return(hbx_enrollment)
     allow(household).to receive(:new_hbx_enrollment_from).and_return(hbx_enrollment)
   end
 
   context "GET new" do
-    let(:census_employee) {FactoryGirl.build(:census_employee)}
+    let!(:census_employee) { FactoryGirl.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
     let(:hbx_enrollment_member) { FactoryGirl.build(:hbx_enrollment_member) }
     let(:family_member) { FamilyMember.new }
-    let(:benefit_group) {FactoryGirl.create(:benefit_group)}
+    let!(:sep) { FactoryGirl.build(:special_enrollment_period, qle_on: TimeKeeper.date_of_record - 20.days, effective_on: TimeKeeper.date_of_record - 20.days, family: family) }
+    before do
+      allow(employee_role).to receive(:census_employee).and_return census_employee
+    end
     it "return http success" do
       sign_in user
       get :new, person_id: person.id, employee_role_id: employee_role.id
@@ -108,7 +116,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller do
       # #selected_enrollment method - and we need to actually mock out the items
       # allow(controller).to receive(:selected_enrollment).and_return hbx_enrollment
       allow_any_instance_of(GroupSelectionPrevaricationAdapter).to receive(:selected_enrollment).with(family, employee_role).and_return(hbx_enrollment)
-
+      allow(person).to receive(:primary_family).and_return(family)
       sign_in user
       get :new, person_id: person.id, employee_role_id: employee_role.id, change_plan: 'change_by_qle', market_kind: 'shop'
       expect(assigns(:hbx_enrollment)).to eq hbx_enrollment
@@ -125,7 +133,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller do
       allow(hbx_enrollment_member).to receive(:family_member).and_return(family_member)
       allow(employee_role).to receive(:is_cobra_status?).and_return true
       allow(person).to receive(:employee_roles).and_return([employee_role])
-      allow(employee_role).to receive(:benefit_group).and_return(benefit_group)
 
       sign_in user
       get :new, person_id: person.id, employee_role_id: employee_role.id, market_kind: 'shop'
@@ -192,6 +199,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller do
       let(:benefit_coverage_period) {FactoryGirl.build(:benefit_coverage_period)}
       before :each do
         allow(HbxProfile).to receive(:current_hbx).and_return hbx_profile
+        allow(benefit_sponsorship).to receive(:benefit_coverage_periods).and_return [benefit_coverage_period]
         allow(benefit_coverage_period).to receive(:benefit_packages).and_return [benefit_package]
         allow(person).to receive(:has_active_consumer_role?).and_return true
         allow(person).to receive(:has_active_employee_role?).and_return false
@@ -268,20 +276,15 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller do
 
   context "POST CREATE" do
     let(:family_member_ids) {{"0"=>"559366ca63686947784d8f01", "1"=>"559366ca63686947784e8f01", "2"=>"559366ca63686947784f8f01", "3"=>"559366ca6368694778508f01"}}
-    let(:benefit_group) {FactoryGirl.create(:benefit_group)}
     let(:benefit_group_assignment) {double(update: true)}
     let(:employee_roles){ [double("EmployeeRole")] }
-    let(:census_employee) {FactoryGirl.create(:census_employee)}
+    let!(:census_employee) { FactoryGirl.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
 
     before do
       allow(coverage_household).to receive(:household).and_return(household)
       allow(household).to receive(:new_hbx_enrollment_from).and_return(hbx_enrollment)
       allow(person).to receive(:employee_roles).and_return([employee_role])
-      allow(employee_role).to receive(:benefit_group).and_return(benefit_group)
-      allow(census_employee).to receive(:coverage_effective_on).and_return(benefit_group.start_on)
       allow(sponsored_benefit_package).to receive(:sponsored_benefit_for).with("health").and_return(sponsored_benefit)
-      allow(hbx_enrollment).to receive(:effective_on).and_return(benefit_group.start_on)
-      allow(employee_role).to receive(:benefit_package_for_date).with(benefit_group.start_on).and_return(sponsored_benefit_package)
       allow(employee_role).to receive(:census_employee).and_return(census_employee)
       allow(hbx_enrollment).to receive(:rebuild_members_by_coverage_household).with(coverage_household: coverage_household).and_return(true)
       allow(family).to receive(:latest_household).and_return(household)
