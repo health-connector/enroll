@@ -11,7 +11,7 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
   let!(:service_areas) { benefit_sponsorship.service_areas_on(effective_period.min) }
 
   let(:benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min) }
-  
+
   let(:initial_application)     { BenefitSponsors::BenefitApplications::BenefitApplication.new(
                                       # benefit_sponsorship: benefit_sponsorship,
                                       benefit_sponsor_catalog: benefit_sponsor_catalog,
@@ -24,7 +24,7 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
                                       pte_count: 0,
                                       msp_count: 0
                                   ) }
-  
+
   # let!(:initial_application)  { build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
   #                                     benefit_sponsorship: benefit_sponsorship,
   #                                     effective_period: effective_period,
@@ -68,5 +68,14 @@ end
 RSpec.shared_context "setup employees with benefits", :shared_context => :metadata do
   include_context "setup employees"
 
-  let!(:census_employees) { create_list(:census_employee, 5, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
+  let!(:census_employees) { create_list(:census_employee_with_active_assignment, 5, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
+
+  def create_person(census_employee, employer_profile)
+    person = FactoryGirl.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
+    employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: census_employee, employer_profile_id: employer_profile.id)
+    census_employee.update_attributes({employee_role: employee_role})
+    Family.find_or_build_from_employee_role(employee_role)
+    employee_role
+    person
+  end
 end
