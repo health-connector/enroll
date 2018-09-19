@@ -166,7 +166,6 @@ class GroupSelectionPrevaricationAdapter
 
 	def if_hbx_enrollment_unset_and_sep_or_qle_change_and_can_derive_previous_shop_enrollment(params, enrollment, new_effective_date)
 		if (select_market(params) == 'shop') && (@change_plan == 'change_by_qle') && enrollment.blank?
-      
 			prev_enrollment = find_previous_enrollment_for(params, new_effective_date)
       if prev_enrollment
 			  yield prev_enrollment

@@ -41,12 +41,13 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       :id => sponsored_benefit_package_id,
       :recorded_rating_area => double(:id => rating_area_id),
       benefit_sponsorship: double(:id => benefit_sponsorship_id),
-      sponsored_benefits: [sponsored_benefit])
+      sponsored_benefits: [sponsored_benefit],
+      effective_on_for: TimeKeeper.date_of_record)
   end
   let(:existing_product_id) { BSON::ObjectId.new }
   let(:benefit_sponsorship_id) { BSON::ObjectId.new }
   let(:rating_area_id) { BSON::ObjectId.new }
-  let(:sponsored_benefit_package_id) { BSON::ObjectId.new }
+  let!(:sponsored_benefit_package_id) { BSON::ObjectId.new }
   let(:coverage_household_id) { BSON::ObjectId.new }
   let(:sponsored_benefit) { instance_double(::BenefitSponsors::BenefitPackages::BenefitPackage, :id => sponsored_benefit_id) }
   let(:sponsored_benefit_id) { BSON::ObjectId.new }
@@ -112,6 +113,10 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
     it "should get hbx_enrollment when has active hbx_enrollments and in qle flow" do
       allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return true
+      allow(person.primary_family.households.first).to receive(:hbx_enrollments).and_return(hbx_enrollments.enrolled)
+      allow(hbx_enrollment).to receive(:employee_role_id).and_return employee_role.id
+      allow(hbx_enrollment).to receive(:active_during?).and_return true
+
       # FIXME: This is no better than mocking the controller itself on the
       # #selected_enrollment method - and we need to actually mock out the items
       # allow(controller).to receive(:selected_enrollment).and_return hbx_enrollment
@@ -145,6 +150,9 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       # allow(controller).to receive(:selected_enrollment).and_return hbx_enrollment
       allow_any_instance_of(GroupSelectionPrevaricationAdapter).to receive(:selected_enrollment).with(family, employee_role).and_return(hbx_enrollment)
       allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return true
+      allow(person.primary_family.households.first).to receive(:hbx_enrollments).and_return(hbx_enrollments.enrolled)
+      allow(hbx_enrollment).to receive(:employee_role_id).and_return employee_role.id
+      allow(hbx_enrollment).to receive(:active_during?).and_return true
       sign_in user
       get :new, person_id: person.id, employee_role_id: employee_role.id, change_plan: 'change_by_qle', market_kind: 'shop', consumer_role_id: consumer_role.id
       expect(assigns(:hbx_enrollment)).to eq hbx_enrollment
@@ -169,9 +177,8 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     end
 
     context "it should set the instance variables" do
-      let(:census_employee) {FactoryGirl.build(:census_employee)}
-
       before do
+        allow(hbx_enrollment).to receive(:sponsored_benefit_package_id).and_return(sponsored_benefit_package_id)
         allow(HbxEnrollment).to receive(:find).with("123").and_return(hbx_enrollment)
         allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return true
         allow(hbx_enrollment).to receive(:kind).and_return "individual"
@@ -194,12 +201,12 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     end
 
     context "individual" do
-      let(:hbx_profile) {double(benefit_sponsorship: benefit_sponsorship)}
-      let(:benefit_sponsorship) {double(benefit_coverage_periods: [benefit_coverage_period])}
+      let(:hbx_profile) {double(benefit_sponsorship: old_benefit_sponsorship)}
+      let(:old_benefit_sponsorship) {double(benefit_coverage_periods: [benefit_coverage_period])}
       let(:benefit_coverage_period) {FactoryGirl.build(:benefit_coverage_period)}
       before :each do
         allow(HbxProfile).to receive(:current_hbx).and_return hbx_profile
-        allow(benefit_sponsorship).to receive(:benefit_coverage_periods).and_return [benefit_coverage_period]
+        allow(old_benefit_sponsorship).to receive(:benefit_coverage_periods).and_return [benefit_coverage_period]
         allow(benefit_coverage_period).to receive(:benefit_packages).and_return [benefit_package]
         allow(person).to receive(:has_active_consumer_role?).and_return true
         allow(person).to receive(:has_active_employee_role?).and_return false
