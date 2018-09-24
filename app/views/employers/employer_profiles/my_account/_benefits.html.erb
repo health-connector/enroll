@@ -22,7 +22,7 @@
         <% end %>
       <% end %>
 
-      <%= pundit_span EmployerProfile,:updateable? %>
+      <%= pundit_span :employer_profile,:updateable? %>
         <% if @plan_years.present? && @employer_profile.published_plan_year.blank? && !@employer_profile.draft_plan_year.present? %>
         <%= link_to "Add Plan Year", new_employers_employer_profile_plan_year_path(@employer_profile, tab: 'benefits'), class: "btn btn-default btn-lg", style: "margin-top: 6px;", data: {loading_text: "Loading..."} %>
         <% end %>
@@ -65,7 +65,7 @@
     </div>
     <div class="col-xs-6 above">
       <div class="row">
-        <%= pundit_span EmployerProfile, :updateable? %>
+        <%= pundit_span :employer_profile, :updateable? %>
             <% if plan_year.draft? || plan_year.renewing_draft? %>
                 <% if plan_year.overlapping_published_plan_years.empty? %>
                     <%= link_to "Publish Plan Year &nbsp;<i class='fa fa-users' aria-hidden='true'></i>".html_safe, employers_employer_profile_plan_year_publish_path(@employer_profile,plan_year), method: :post, remote: true, class: "btn btn-default pull-right #{rates_available?(@employer_profile, plan_year.start_on)}" %>
@@ -488,7 +488,7 @@
         </div>
         <br class="clear"/>
       </div>
-        <%= pundit_span EmployerProfile, :updateable? %>
+        <%= pundit_span :employer_profile, :updateable? %>
             <div class="below clear">
               <%= link_to "Delete Benefit Package <i class='fa fa-trash-o' aria-hidden='true'></i> ".html_safe, "", data: { toggle: "modal", target: "#deleteBenefitPackageModal-#{bg.id}" }, class: 'btn btn-default' if plan_year.aasm_state == "draft" || plan_year.aasm_state == "renewing_draft" %>
               <%= render partial: "employers/plan_years/delete_benefit_package_modal", locals: { plan_year: plan_year, bg: bg } if plan_year.aasm_state == "draft" || plan_year.aasm_state == "renewing_draft" %>
@@ -510,7 +510,7 @@
         It's time to create a benefits package. Select 'Add Plan Year' to create your first one. Most employers only create one benefits package but you'll have the opportunity to create more than one if you want to offer different benefits to different
         groups of employees.
       </p>
-      <%=pundit_span EmployerProfile, :updateable?%>
+      <%=pundit_span :employer_profile, :updateable?%>
         <%= link_to "Add Plan Year", new_employers_employer_profile_plan_year_path(@employer_profile, tab: 'benefits'), class: "btn btn-primary btn-lg #{flag}", data: {loading_text: "Loading..."} %>
       </span>
     <% end %>

@@ -24,7 +24,7 @@
       <td><%= er.roster_size %></td>
       <td><%= er.aasm_state.humanize %></td>
       <td><%= er.published_plan_year.try(:effective_date) %>
-      <%= pundit_span EmployerProfile, :list_enrollments? %>
+      <%= pundit_span :employer_profile, :list_enrollments? %>
           <%= link_to ' (Review)', employers_premium_statement_path(er) %></td>
       </span>
       <% if controller_name == 'profiles' %>
