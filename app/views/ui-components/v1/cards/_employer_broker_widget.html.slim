@@ -1,5 +1,5 @@
 - broker_and_agency_present = true if @employer_profile.broker_agency_profile.present? && @broker_agency_account.writing_agent.present?
-.panel.panel-default class="#{pundit_class EmployerProfile, :updateable?}"
+.panel.panel-default class="#{pundit_class :employer_profile, :updateable?}"
   .panel-heading style="background:none"
     - if broker_and_agency_present
       | Your Broker
