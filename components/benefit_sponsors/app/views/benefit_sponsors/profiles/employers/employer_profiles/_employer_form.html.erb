@@ -139,7 +139,7 @@
         <br>
         <div class="form-inputs">
           <!-- TODO refactor pundit related work and link to add fields-->
-          <%#= pundit_span(EmployerProfile, :updateable?) %>
+          <%#= pundit_span(:employer_profile, :updateable?) %>
           <%#= link_to_add_fields 'Add Office Location'.html_safe, f, :office_locations, 'btn btn-default' %>
           </span>
           <%= link_to "Cancel", profiles_employers_employer_profile_path(id: @agency.profile_id, tab: 'home'), class: 'btn btn-default' %>

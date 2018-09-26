@@ -70,11 +70,11 @@ module SponsoredBenefits
 
 
       def employer_profile
-        ::EmployerProfile.find(sponsor_profile_id) || ::BenefitSponsors::Organizations::Profile.find(sponsor_profile_id)
+        ::BenefitSponsors::Organizations::Profile.find(sponsor_profile_id)
       end
 
       def broker_agency_profile
-        ::BrokerAgencyProfile.find(owner_profile_id) || ::BenefitSponsors::Organizations::Profile.find(owner_profile_id)
+        ::BenefitSponsors::Organizations::Profile.find(owner_profile_id)
       end
 
       def general_agency_profile
