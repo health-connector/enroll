@@ -116,7 +116,6 @@ module BenefitSponsors
         if benefit_application.may_end_open_enrollment?
           benefit_application.end_open_enrollment!
           benefit_application.approve_enrollment_eligiblity! if benefit_application.is_renewing? && benefit_application.may_approve_enrollment_eligiblity?
-          calculate_pricing_determinations(benefit_application)
           [true, benefit_application, business_policy.success_results]
         end
         [false, benefit_application, {:aasm_error => "may_end_open_enrollment? is false"}]
@@ -304,10 +303,6 @@ module BenefitSponsors
 
     def policy_name(event_name)
       event_name
-    end
-
-    def calculate_pricing_determinations(b_application)
-      ::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator.call(b_application, today)
     end
 
     def log_message(errors)

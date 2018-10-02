@@ -15,7 +15,7 @@ module BenefitSponsors
       embeds_one  :sponsor_contribution, 
                   class_name: "::BenefitSponsors::SponsoredBenefits::SponsorContribution"
 
-      embeds_many :pricing_determinations, 
+      embeds_many :pricing_determinations,
                   class_name: "::BenefitSponsors::SponsoredBenefits::PricingDetermination"
 
       delegate :contribution_model, to: :product_package, allow_nil: true
@@ -31,6 +31,8 @@ module BenefitSponsors
 
       validate :product_package_exists
 #      validates_presence_of :sponsor_contribution
+
+      before_create :build_pricing_determination
 
       def product_package_exists
         if product_package.blank?
@@ -100,15 +102,48 @@ module BenefitSponsors
               benefit_package: new_benefit_package
               # pricing_determinations: renew_pricing_determinations(new_product_package)
             )
-            renew_pricing_determinations(new_sponsored_benefit)
+            new_sponsored_benefit.build_pricing_determination
             new_sponsored_benefit
           end
         end
       end
 
-      def renew_pricing_determinations(new_sponsored_benefit)
-        cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(new_sponsored_benefit.benefit_sponsorship, new_sponsored_benefit.benefit_package.benefit_application.effective_period.min)
-        _sbenefit, _price, _cont = cost_estimator.calculate(new_sponsored_benefit, new_sponsored_benefit.reference_product, new_sponsored_benefit.product_package, build_new_pricing_determination: true)
+      def build_pricing_determination
+        cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(self.benefit_sponsorship, self.benefit_package.benefit_application.effective_period.min)
+        cost_estimator.calculate(self, self.reference_product, self.product_package, build_new_pricing_determination: true)
+      end
+
+      def update_pricing_determination(determination_kind: :estimated)
+        if pricing_determinable?
+
+          if determination_kind == :enrollment_close
+            ::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator.call(benefit_package.benefit_application, TimeKeeper.date_of_record)
+          else
+            # cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(self.benefit_sponsorship, self.benefit_package.benefit_application.effective_period.min)
+            # new_pricing_determination = cost_estimator.calculate(self, self.reference_product, self.product_package)
+          
+            if is_pricing_determination_updated?(new_pricing_determination)
+              add_pricing_determination(new_pricing_determination)
+              self.save
+            end
+          end
+        end
+      end
+
+      def is_pricing_determination_updated?(new_pricing_determination)
+        if new_pricing_determination.determination_kind == :estimated
+          latest_pricing_determination != new_pricing_determination
+        else
+          true
+        end
+      end
+
+      def add_pricing_determination(new_pricing_determination)
+        self.pricing_determinations << new_pricing_determination
+      end
+
+      def pricing_determinable?
+        health? && single_plan_type?
       end
 
       def reference_plan_id=(product_id)

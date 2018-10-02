@@ -42,6 +42,8 @@ module BenefitSponsors
 
       default_scope ->{ where(is_active: true) }
 
+      before_update :update_pricing_determination
+
       # calculate effective on date based on probation period kind
       # Logic to deal with hired_on and created_at
       # returns a roster
@@ -212,6 +214,22 @@ module BenefitSponsors
         new_benefit_package
       end
 
+      def enrollment_open
+        sponsored_benefits.each do |sponsored_benefit| 
+          sponsored_benefit.update_pricing_determination(determination_kind: :enrollment_open)
+        end
+        
+        if benefit_application.is_renewing?
+          renew_member_benefits
+        end
+      end
+
+      def enrollment_close
+        sponsored_benefits.each do |sponsored_benefit| 
+          sponsored_benefit.update_pricing_determination(determination_kind: :enrollment_close)
+        end
+      end
+
       def renew_employee_assignments
         assigned_census_employees = predecessor.census_employees_assigned_on(predecessor.start_on)
 
@@ -273,6 +291,12 @@ module BenefitSponsors
 
       def enrolled_families
         Family.enrolled_through_benefit_package(self)
+      end
+
+      def update_pricing_determination
+        sponsored_benefits.each do |sponsored_benefit|
+          sponsored_benefit.update_pricing_determination
+        end
       end
 
       def effectuate_member_benefits

@@ -568,10 +568,6 @@ module BenefitSponsors
       recorded_rating_area
     end
 
-    def renew_benefit_package_members
-      benefit_packages.each { |benefit_package| benefit_package.renew_member_benefits } if is_renewing?
-    end
-
     def reinstate_canceled_benefit_package_members
       if aasm.from_state == :canceled
         benefit_packages.each { |benefit_package| benefit_package.reinstate_canceled_member_benefits }
@@ -636,16 +632,6 @@ module BenefitSponsors
       transition_success = benefit_sponsorship.initial_application_approved! if benefit_sponsorship.may_approve_initial_application?
     end
 
-    def recalc_pricing_determinations
-      benefit_packages.each do |benefit_package|
-        benefit_package.sponsored_benefits.each do |sb|
-          cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_sponsorship, effective_period.min)
-          sbenefit, _price, _cont = cost_estimator.calculate(sb, sb.reference_product, sb.product_package, build_new_pricing_determination: true)
-        end
-      end
-
-      self.save
-    end
 
     class << self
 
@@ -677,9 +663,9 @@ module BenefitSponsors
       ## End optional states for exception processing
 
       # TODO: send_employee_invites - needs to be moved to observer pattern.
-      state :enrollment_open, after_enter: [:recalc_pricing_determinations, :renew_benefit_package_members, :send_employee_invites] # Approved application has entered open enrollment period
+      state :enrollment_open, after_enter: [:benefit_package_enrollment_open, :send_employee_invites] # Approved application has entered open enrollment period
       state :enrollment_extended, :after_enter => :reinstate_canceled_benefit_package_members
-      state :enrollment_closed
+      state :enrollment_closed, after_enter: :benefit_package_enrollment_close
       state :enrollment_eligible    # Enrollment meets criteria necessary for sponsored members to effectuate selected benefits
       state :enrollment_ineligible  # open enrollment did not meet eligibility criteria
 
@@ -810,6 +796,15 @@ module BenefitSponsors
     def publish_state_transition
       return unless benefit_sponsorship.present?
       benefit_sponsorship.application_event_subscriber(aasm)
+    end
+
+
+    def benefit_package_enrollment_open
+      benefit_packages.each {|benefit_package| benefit_package.enrollment_open }
+    end
+
+    def benefit_package_enrollment_close
+      benefit_packages.each {|benefit_package| benefit_package.enrollment_close }
     end
 
     def coverage_renewable?

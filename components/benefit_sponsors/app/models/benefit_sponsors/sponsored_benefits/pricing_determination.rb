@@ -4,6 +4,14 @@ module BenefitSponsors
       include Mongoid::Document
       include Mongoid::Timestamps
 
+      DETERMINATION_KINDS = [   
+        :administrative_adjusted,
+        :enrollment_extended_closed,
+        :enrollment_closed,
+        :enrollment_opened,
+        :estimated,
+      ]
+
       embedded_in :sponsored_benefit, class_name: "::BenefitSponsors::SponsoredBenefits::SponsoredBenefit", inverse_of: :pricing_determinations
       embeds_many :pricing_determination_tiers, class_name: "::BenefitSponsors::SponsoredBenefits::PricingDeterminationTier"
 
@@ -12,6 +20,7 @@ module BenefitSponsors
 
       field :group_size, type: Integer, default: 1
       field :participation_rate, type: Float, default: 0.01
+      field :determination_kind, type: Symbol, default: :estimated
 
       def participation_percent
         participation_rate * 100.00
