@@ -109,8 +109,10 @@ module BenefitSponsors
       end
 
       def build_pricing_determination
-        cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(self.benefit_sponsorship, self.benefit_package.benefit_application.effective_period.min)
-        cost_estimator.calculate(self, self.reference_product, self.product_package, build_new_pricing_determination: true)
+        if pricing_determinable?
+          cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(self.benefit_sponsorship, self.benefit_package.benefit_application.effective_period.min)
+          cost_estimator.calculate(self, self.reference_product, self.product_package, build_new_pricing_determination: true)
+        end
       end
 
       def update_pricing_determination(determination_kind: :estimated)
@@ -120,7 +122,7 @@ module BenefitSponsors
             ::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator.call(benefit_package.benefit_application, TimeKeeper.date_of_record)
           else
             # cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(self.benefit_sponsorship, self.benefit_package.benefit_application.effective_period.min)
-            # new_pricing_determination = cost_estimator.calculate(self, self.reference_product, self.product_package)
+            # new_pricing_determination = cost_estimator.calculate(self, self.reference_product, self.product_package, build_new_pricing_determination: true)
           
             if is_pricing_determination_updated?(new_pricing_determination)
               add_pricing_determination(new_pricing_determination)

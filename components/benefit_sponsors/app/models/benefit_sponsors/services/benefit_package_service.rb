@@ -216,10 +216,6 @@ module BenefitSponsors
           map_errors_for(benefit_package, onto: form)
           return [false, nil]
         end
-        benefit_package.sponsored_benefits.each do |sb|
-          cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
-          sbenefit, _price, _cont = cost_estimator.calculate(sb, sb.reference_product, sb.product_package, build_new_pricing_determination: true)
-        end
         save_successful = benefit_package.save
         unless save_successful
           map_errors_for(benefit_package, onto: form)
