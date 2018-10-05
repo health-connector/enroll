@@ -1,24 +1,23 @@
-
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
 class ChangeEmployerContributions < MongoidMigrationTask
   def migrate
-    organizations = Organization.where(fein: ENV['fein'])
+    organizations = ::BenefitSponsors::Organizations::Organization.where(fein: ENV['fein'])
     state = ENV['aasm_state'].to_s
     kind = ENV['coverage_kind'].to_s
-    relationship = ENV['relationship'].to_s
-    premium = ENV['premium']
-    offered = ENV['offered']
+    relationship_name = ENV['relationship_name'].to_s.sub(/_/, ' ').split.map{|w| w.camelcase}.join(" ")
+    contribution_factor = ENV['contribution_factor'].to_f
+    offered = ENV['is_offered']
     if organizations.size !=1
       raise 'Issues with fein'
     end
     if kind == "health"
-      rb = organizations.first.employer_profile.plan_years.where(aasm_state: state).first.benefit_groups.first.relationship_benefits.where(:relationship => relationship).first
+      relationship = organizations.first.employer_profile.benefit_applications.where(aasm_state: state).first.benefit_packages.first.health_sponsored_benefit.sponsor_contribution.contribution_levels.where(:display_name => relationship_name).first
     elsif kind == "dental"
-      rb = organizations.first.employer_profile.plan_years.where(aasm_state: state).first.benefit_groups.first.dental_relationship_benefits.where(:relationship => relationship).first
+      relationship = organizations.first.employer_profile.benefit_applications.where(aasm_state: state).first.benefit_packages.first.dental_sponsored_benefit.sponsor_contribution.contribution_levels.where(:display_name => relationship_name).first
     else
       raise "Please provide accurate coverage kind"
     end
-    rb.update_attributes(:premium_pct => premium, offered: offered)
+    relationship.update_attributes(:contribution_factor => contribution_factor, is_offered: offered)
   end
 end
