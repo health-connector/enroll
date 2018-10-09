@@ -13,9 +13,9 @@ class ChangeEmployerContributions < MongoidMigrationTask
     end
     if kind == "health"
       relationship = organizations.first.employer_profile.benefit_applications.where(aasm_state: state).first.benefit_packages.first.health_sponsored_benefit.sponsor_contribution.contribution_levels.where(:display_name => relationship_name).first
-    #Refactor the Dental kind code once dental is in place for MA.
-    # elsif kind == "dental"
-    #   relationship = organizations.first.employer_profile.benefit_applications.where(aasm_state: state).first.benefit_packages.first.dental_sponsored_benefit.sponsor_contribution.contribution_levels.where(:display_name => relationship_name).first
+    # Pending work for dental sponsored benefit, please have this fixed with specs, once the dental has made into prod.
+    elsif kind == "dental" && dental_market_enabled?
+      relationship = organizations.first.employer_profile.benefit_applications.where(aasm_state: state).first.benefit_packages.first.dental_sponsored_benefit.sponsor_contribution.contribution_levels.where(:display_name => relationship_name).first
     else
       raise "Please provide accurate coverage kind"
     end

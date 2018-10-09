@@ -58,45 +58,46 @@ describe ChangeEmployerContributions, dbclean: :after_each do
     end
   end
 
-  # describe "changing employer contributions for dental benefits" do
-    
-  #   let(:benefit_group)     { FactoryGirl.create(:benefit_group, :with_dental_benefits, plan_year: plan_year)}
+  # Pending work for dental sponsored benefit, please have this fixed once the dental has made into prod.
+  describe "changing employer contributions for dental benefits", :if => Settings.aca.dental_market_enabled do
 
-  #   before(:each) do
-  #     allow(ENV).to receive(:[]).with("fein").and_return(employer_profile.parent.fein)
-  #     allow(ENV).to receive(:[]).with("aasm_state").and_return(plan_year.aasm_state)
-  #     allow(ENV).to receive(:[]).with("relationship").and_return(benefit_group.dental_relationship_benefits.first.relationship)
-  #     allow(ENV).to receive(:[]).with("premium").and_return(benefit_group.dental_relationship_benefits.first.premium_pct + 5)
-  #     allow(ENV).to receive(:[]).with("offered").and_return(benefit_group.dental_relationship_benefits.first.offered)
-  #     allow(ENV).to receive(:[]).with("coverage_kind").and_return("dental")
-  #   end
+    let(:benefit_group)     { FactoryGirl.create(:benefit_group, :with_dental_benefits, plan_year: plan_year)}
 
-  #   it "should change the employee contribution" do
-  #     expect(benefit_group.dental_relationship_benefits.first.premium_pct).to eq 49
-  #     subject.migrate
-  #     benefit_group.reload
-  #     expect(benefit_group.dental_relationship_benefits.first.premium_pct).to eq 54
-  #   end
+    before(:each) do
+      allow(ENV).to receive(:[]).with("fein").and_return(employer_profile.parent.fein)
+      allow(ENV).to receive(:[]).with("aasm_state").and_return(plan_year.aasm_state)
+      allow(ENV).to receive(:[]).with("relationship").and_return(benefit_group.dental_relationship_benefits.first.relationship)
+      allow(ENV).to receive(:[]).with("premium").and_return(benefit_group.dental_relationship_benefits.first.premium_pct + 5)
+      allow(ENV).to receive(:[]).with("offered").and_return(benefit_group.dental_relationship_benefits.first.offered)
+      allow(ENV).to receive(:[]).with("coverage_kind").and_return("dental")
+    end
 
-  #   it "should not change the other relationships contributions" do
-  #     expect(benefit_group.dental_relationship_benefits[1].premium_pct).to eq 40
-  #     subject.migrate
-  #     benefit_group.reload
-  #     expect(benefit_group.dental_relationship_benefits[1].premium_pct).to eq 40
-  #   end
+    it "should change the employee contribution" do
+      expect(benefit_group.dental_relationship_benefits.first.premium_pct).to eq 49
+      subject.migrate
+      benefit_group.reload
+      expect(benefit_group.dental_relationship_benefits.first.premium_pct).to eq 54
+    end
 
-  #   it "should offer benefits" do
-  #     benefit_group.dental_relationship_benefits.first.update_attribute(:offered, false)
-  #     subject.migrate
-  #     benefit_group.reload
-  #     expect(benefit_group.relationship_benefits.first.offered).to eq true
-  #   end
+    it "should not change the other relationships contributions" do
+      expect(benefit_group.dental_relationship_benefits[1].premium_pct).to eq 40
+      subject.migrate
+      benefit_group.reload
+      expect(benefit_group.dental_relationship_benefits[1].premium_pct).to eq 40
+    end
 
-  #   it "should not offer benefits for other relationships" do
-  #     benefit_group.dental_relationship_benefits[1].update_attribute(:offered, false)
-  #     subject.migrate
-  #     benefit_group.reload
-  #     expect(benefit_group.dental_relationship_benefits[1].offered).to eq false
-  #   end
-  # end
+    it "should offer benefits" do
+      benefit_group.dental_relationship_benefits.first.update_attribute(:offered, false)
+      subject.migrate
+      benefit_group.reload
+      expect(benefit_group.relationship_benefits.first.offered).to eq true
+    end
+
+    it "should not offer benefits for other relationships" do
+      benefit_group.dental_relationship_benefits[1].update_attribute(:offered, false)
+      subject.migrate
+      benefit_group.reload
+      expect(benefit_group.dental_relationship_benefits[1].offered).to eq false
+    end
+  end
 end
