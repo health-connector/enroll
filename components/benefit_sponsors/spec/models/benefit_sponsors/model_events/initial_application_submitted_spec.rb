@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 module BenefitSponsors
-  RSpec.describe 'ModelEvents::InitialApplicationSubmitted', db_clean: :after_each do
+  RSpec.describe 'ModelEvents::InitialApplicationSubmitted', :dbclean => :after_each do
 
     let(:model_event) { "application_submitted" }
     let(:notice_event) { "application_submitted" }
@@ -30,7 +30,7 @@ module BenefitSponsors
       DatabaseCleaner.clean
     end
 
-    describe "when initial employer's application is approved", db_clean: :after_each do
+    describe "when initial employer's application is approved", :dbclean => :after_each do
       context "ModelEvent" do
 
         it "should trigger model event" do
@@ -44,7 +44,7 @@ module BenefitSponsors
         end
       end
 
-      context "Notice Trigger", db_clean: :after_each do
+      context "Notice Trigger", :dbclean => :after_each do
         subject { BenefitSponsors::Observers::BenefitApplicationObserver.new }
 
         let(:model_event) { BenefitSponsors::ModelEvents::ModelEvent.new(:application_submitted, model_instance, {}) }
@@ -67,7 +67,7 @@ module BenefitSponsors
         end
       end
 
-      context "NoticeBuilder", db_clean: :after_each do
+      context "NoticeBuilder", :dbclean => :after_each do
 
         let(:data_elements) {
           [

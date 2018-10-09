@@ -141,7 +141,7 @@ RSpec.describe ModifyBenefitApplication do
       end
     end
 
-    context "should trigger termination notice", db_clean: :after_each do
+    context "should trigger termination notice", :dbclean => :after_each do
 
       let(:termination_date) { start_on.next_month.next_day }
       let(:end_on)           { start_on.next_month.end_of_month }
