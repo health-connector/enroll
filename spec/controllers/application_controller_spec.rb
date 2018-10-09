@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ApplicationController do
-  controller(WelcomeController) do
+  controller(Employers::EmployerProfilesController) do
     def index
       render text: "Anonymous Index"
     end

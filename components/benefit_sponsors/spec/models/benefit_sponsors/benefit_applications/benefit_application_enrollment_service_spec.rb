@@ -163,6 +163,7 @@ module BenefitSponsors
           it "should transition the benefit_application into :enrollment_open" do
             scheduled_event.advance_day(TimeKeeper.date_of_record)
             renewal_application.reload
+            binding.pry
             expect(renewal_application.aasm_state).to eq :enrollment_open
           end
 
