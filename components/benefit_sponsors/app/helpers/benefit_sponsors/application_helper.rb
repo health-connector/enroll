@@ -72,6 +72,10 @@ module BenefitSponsors
       "Employers can begin shopping for coverage on #{site_short_name} up to #{site_initial_earliest_start_prior_to_effective_on} months prior to the desired coverage effective date."
     end
 
+    def coverage_start_tool_tip_helper
+      "Employers can begin shopping for coverage on #{site_short_name} up to #{aca_shop_market_coverage_start_period} prior to the desired coverage effective date."
+    end
+
     def employer_contribution_tool_tip_helper
       employer_contribution = "Employers are required to contribute at least #{aca_shop_market_employer_contribution_percent_minimum} of the premium costs for employees based on the reference plan selected, except during the special annual enrollment period at the end of each year."
           if individual_market_is_enabled?

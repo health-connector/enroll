@@ -31,6 +31,7 @@ module BenefitMarkets
     field :family_deductible, type: String
     field :issuer_assigned_id, type: String
     field :service_area_id, type: BSON::ObjectId
+    field :network_information, type: String
 
     embeds_one  :sbc_document, as: :documentable,
                 :class_name => "::Document"
@@ -132,6 +133,11 @@ module BenefitMarkets
       else
         write_attribute(:service_area_id, val.id)
       end
+    end
+
+    def ehb
+      percent = read_attribute(:ehb)
+      (percent && percent > 0) ? percent : 1
     end
 
     def service_area
@@ -277,6 +283,14 @@ module BenefitMarkets
       new_product = self.class.new(self.attributes.except(:premium_tables))
       new_product.premium_tables = self.premium_tables.map { |pt| pt.create_copy_for_embedding }
       new_product
+    end
+
+    def health?
+      kind == :health
+    end
+
+    def dental?
+      kind == :dental
     end
   end
 end

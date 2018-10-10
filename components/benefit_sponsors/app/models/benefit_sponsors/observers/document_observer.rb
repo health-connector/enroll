@@ -10,7 +10,7 @@ module BenefitSponsors
           if BenefitSponsors::ModelEvents::Document::REGISTERED_EVENTS.include?(new_model_event.event_key)
             document = new_model_event.klass_instance
             employer_profile = document.documentable
-            eligible_states = BenefitSponsors::BenefitApplications::BenefitApplication::PUBLISHED_STATES
+            eligible_states = BenefitSponsors::BenefitApplications::BenefitApplication::PUBLISHED_STATES - BenefitSponsors::BenefitApplications::BenefitApplication::COVERAGE_EFFECTIVE_STATES
             benefit_application = employer_profile.latest_benefit_sponsorship.benefit_applications.where(:aasm_state.in => eligible_states).first
 
             if (new_model_event.event_key == :initial_employer_invoice_available) && benefit_application

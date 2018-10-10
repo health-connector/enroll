@@ -26,10 +26,9 @@ class ShopEnrollmentReport < MongoidMigrationTask
       result
     end
 
-    field_names = ['Employer ID', 'Employer FEIN', 'Employer Name', 'Employer Plan Year Start Date', 'Plan Year State', 'Employer State', 'Enrollment Group ID', 
-               'Enrollment Purchase Date/Time', 'Coverage Start Date', 'Enrollment State', 'Subscriber HBX ID', 'Subscriber First Name','Subscriber Last Name', 'Subscriber SSN', 'Plan HIOS Id', 'Covered lives on the enrollment', 'Enrollment Reason', 'In Glue']
+    field_names = ['Employer ID', 'Employer FEIN', 'Employer Name', 'Employer Plan Year Start Date', 'Plan Year State', 'Employer State', 'Enrollment Group ID', 'Enrollment Purchase Date/Time', 'Coverage Start Date', 'Enrollment State', 'Subscriber HBX ID', 'Subscriber First Name','Subscriber Last Name', 'Subscriber SSN', 'Plan HIOS Id', 'Covered lives on the enrollment', 'Enrollment Reason', 'In Glue']
 
-    file_name = "#{Rails.root}/hbx_report/shop_enrollment_report.csv"
+    file_name = fetch_file_format('shop_enrollment_report', 'ShopEnrollmentReport')
     CSV.open(file_name, "w", force_quotes: true) do |csv|
       csv << field_names
       enrollment_ids_final.each do |id|
@@ -68,6 +67,11 @@ class ShopEnrollmentReport < MongoidMigrationTask
         rescue Exception => e
           puts "Couldnot add the hbx_enrollment's information on to the CSV, because #{e.inspect}" unless Rails.env.test?
         end
+      end
+
+      if Rails.env.production?
+        pubber = Publishers::Legacy::ShopEnrollmentReportPublisher.new
+        pubber.publish URI.join("file://", file_name)
       end
     end
 

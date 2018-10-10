@@ -339,9 +339,15 @@ module BenefitSponsors
 
     #TODO: FIX this
     def non_owner_employee_present?
-      benefit_application.benefit_packages.any?{ |benefit_package|
+      unless benefit_application.is_renewing?
+        benefit_application.benefit_packages.any?{ |benefit_package|
         benefit_package.census_employees_assigned_on(benefit_application.start_on).active.non_business_owner.present?
-      }
+        }
+      else
+        benefit_application.benefit_packages.any?{ |benefit_package|
+        benefit_package.census_employees_assigned_on(benefit_application.start_on,false).active.non_business_owner.present?
+        }
+      end
     end
   end
 end

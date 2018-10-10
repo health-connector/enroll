@@ -1,0 +1,2 @@
+session_id,session.id,roles,full_name,hbx_id,qle_date,reported_date,qle_title,qle_id,success/failure,HT Notes
+NwrgWt_skjfhldjfkpECrgZ-U,5b47f42834957d43906be8769,"[""employee""]",Some Person,765487,6/11/2018,7/12/2018,Started a new job,5992951baca7d42b23000016,invalid sep,Yes invalid -  qle_date more than 30 days in the past

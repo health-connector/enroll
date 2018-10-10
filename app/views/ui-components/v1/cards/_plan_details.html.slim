@@ -48,17 +48,16 @@
                   | DEDUCTIBLE
           tbody
             tr
-              td = plan.health_plan_kind ? plan.health_plan_kind.upcase : ""
+              td = plan.product_type ? plan.product_type.upcase : ""
               td 
                 - plan_level = plan.metal_level_kind.to_s.humanize
                 span class="#{plan_level.downcase}-icon"
                   = plan_level != 'Dental' ? plan_level : display_dental_metal_level(plan).humanize
               td
-                - if offers_nationwide_plans?
-                  - if plan.network_information.present?
-                    | NETWORK NOTES
-                    a href="#" data-toggle="tooltip" data-placement="right" data-container="body" title="#{plan.network_information}"
-                      i.fas.fa-question-circle.fa-lg.pl-1 aria-hidden="true"
+                - if plan.network_information.present?
+                  | NETWORK NOTES
+                  a href="#" data-toggle="tooltip" data-placement="right" data-container="body" title="#{plan.network_information}"
+                    i.fas.fa-question-circle.fa-lg.pl-1 aria-hidden="true"
 
               td 
                 - if @hbx_enrollment.hbx_enrollment_members.size > 1

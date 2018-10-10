@@ -557,7 +557,10 @@ thead {
   padding-left: 0.5em;
 }
 
-
 #datatable_filter_source_kind {
     width: 75px;
+}
+
+#fteEmployee, #pteEmployee, #medSecPayers {
+  padding:0;
 }

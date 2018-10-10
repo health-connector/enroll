@@ -56,7 +56,7 @@
               .col-xs-3.metals
                 .col-xs-12
                   label.container
-                    = kind
+                    = kind.capitalize
                     = f.radio_button :product_option_choice, kind, class: 'product_option_choice', onclick:"getPlanInfo(this)", data: {name: kind}
                     span.checkmark
 
@@ -122,6 +122,7 @@ javascript:
   var filteredProducts = String;
   var referencePlanID = String;
   var planOptions = #{@benefit_package_form.catalog.plan_options.to_json.html_safe};
+  var applicationStartOn = #{@benefit_package_form.service.benefit_application.effective_period.min.strftime("%m-%d").to_json.html_safe};
   var sponsorContributions = #{@benefit_package_form.catalog.sponsor_contributions(@benefit_package_form.id).to_json.html_safe};
   var erCL = #{aca_shop_market_employer_contribution_percent_minimum};
   var familyCL = #{aca_shop_market_employer_family_contribution_percent_minimum};
@@ -136,25 +137,23 @@ javascript:
   }
 
   function setCircle(element) {
-    // Adds toggle circle icon to metal level tabs
-    var items = document.querySelectorAll('#metal-level-select ul li');
-    document.getElementById('referencePlans').classList.add('hidden')
-
-    for (item of items) {
-      if (item.querySelector('.fa-dot-circle')) {
-        item.querySelector('.fa-dot-circle').classList.toggle('fa-circle')
-        item.querySelector('a').classList.remove('active')
-      }
-
-      if (item.innerText == element.innerText) {
-        element.querySelector('.fa-circle').classList.toggle('fa-dot-circle')
-        // Gets product option info
-        productOptionKind = element.querySelector('a').dataset.name;
-        // Sets kind to hidden input field for form submission
-        document.getElementById('ppKind').setAttribute('value', productOptionKind)
-        item.querySelector('a').classList.add('active')
-      }
-    }
+		var items = document.querySelectorAll('#metal-level-select ul li')
+	
+		for (item of items) {
+			item.querySelector('i').classList.remove('fa-dot-circle');
+		}
+		// Sets radio icon to selected
+		setTimeout(function() {
+			if (element.closest('li').classList.contains('active')) {
+				element.querySelector('i').classList.add('fa-dot-circle')
+			}
+		},200)
+		
+    // Gets product option info
+    productOptionKind = element.querySelector('a').dataset.name;
+    // Sets kind to hidden input field for form submission
+    document.getElementById('ppKind').setAttribute('value', productOptionKind)
+    document.getElementById('referencePlans').classList.add('hidden');
   }
 
   function getPlanInfo(element) {
@@ -202,12 +201,12 @@ javascript:
           <div class="col-xs-12 p0 mb-1">
             <label class="container">
               <p class="heading-text reference-plan-title mb-1"> ${plan.title}</p>
-              <span class="plan-label">Type:</span> <span class="rp-plan-info">${plan.health_plan_kind}</span><br>
+              <span class="plan-label">Type:</span> <span class="rp-plan-info">${plan.product_type}</span><br>
               <span class="plan-label">Carrier:</span> <span class="rp-plan-info">${plan.carrier_name}</span><br>
               <span class="plan-label">Level:</span> <span class="rp-plan-info">${plan.metal_level_kind}</span><br>
               <span class="plan-label">Network:</span> <span class="rp-plan-info">${network}</span><br>
               <span class="plan-label mt-1 rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}">View Summary</span><br>
-              <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.health_plan_kind}">
+              <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}">
               <span class="checkmark"></span>
             </label>
           </div>
@@ -299,12 +298,14 @@ javascript:
 
   function showFormButtons() {
     document.getElementById('addBenefitPackage').classList.remove('hidden')
+    document.getElementById('dentalBenefits').classList.remove('hidden')
     document.getElementById('submitBenefitPackage').classList.remove('hidden')
     document.getElementById('cancelBenefitPackage').classList.remove('hidden')
   }
 
   function hideFormButtons() {
     document.getElementById('addBenefitPackage').classList.add('hidden')
+    document.getElementById('dentalBenefits').classList.add('hidden')
     document.getElementById('submitBenefitPackage').classList.add('hidden')
     document.getElementById('cancelBenefitPackage').classList.add('hidden')
   }
@@ -313,6 +314,7 @@ javascript:
 		var savePlanYearButton = document.getElementById('submitBenefitPackage');
     savePlanYearButton.classList.add('disabled');
     disableNewAddBenefitPackageButton()
+    disableDentalBenefitPackage()
 		preventSubmissionOnEnter()
   }
 
@@ -320,6 +322,7 @@ javascript:
 		var savePlanYearButton = document.getElementById('submitBenefitPackage');
     savePlanYearButton.classList.remove('disabled');
     enableNewAddBenefitPackageButton()
+    enableDentalBenefitPackage()
   }
 
   function disableNewAddBenefitPackageButton() {
@@ -329,6 +332,16 @@ javascript:
 
   function enableNewAddBenefitPackageButton() {
     var addBenefitPackageButton = document.getElementById('addBenefitPackage');
+    addBenefitPackageButton.classList.remove('disabled')
+  }
+
+  function disableDentalBenefitPackage() {
+    var addBenefitPackageButton = document.getElementById('dentalBenefits');
+    addBenefitPackageButton.classList.add('disabled')
+  }
+
+  function enableDentalBenefitPackage() {
+    var addBenefitPackageButton = document.getElementById('dentalBenefits');
     addBenefitPackageButton.classList.remove('disabled')
   }
 
@@ -449,15 +462,21 @@ javascript:
         break;
       }
     })
-
-    if (eeContribution < erCL || employeeOnly < erCL) {
+    if (!(document.querySelectorAll(".reference-plans input[type='radio']:checked").length)) {
       disableNewPlanYearButton()
-    } else if (familyOnly < familyCL || spouse < familyCL || domesticPartner < familyCL || childUnder26 < familyCL) {
-      disableNewPlanYearButton()
-    } else if (!(document.querySelectorAll(".reference-plans input[type='radio']:checked").length)) {
-			disableNewPlanYearButton()
-    } else {
-      enableNewPlanYearButton()
+    }
+    else {
+      if (applicationStartOn === "01-01") {
+        enableNewPlanYearButton()
+      } else {
+        if (eeContribution < erCL || employeeOnly < erCL) {
+          disableNewPlanYearButton()
+        } else if (familyOnly < familyCL || spouse < familyCL || domesticPartner < familyCL || childUnder26 < familyCL) {
+          disableNewPlanYearButton()
+        }  else {
+          enableNewPlanYearButton()
+        }
+      }
     }
     displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
   }
@@ -525,7 +544,7 @@ javascript:
 		document.getElementById('modalSummaryData').innerHTML = '';
 		document.getElementById('btnMoreDetails').innerHTML = "More Details"
 	})
-
+  
   function setTempCL() {
     var myLevels = localStorage.getItem("contributionLevels");
     selectedTitle = localStorage.getItem("title");
