@@ -5,7 +5,7 @@ class ChangeEmployerContributions < MongoidMigrationTask
     organizations = ::BenefitSponsors::Organizations::Organization.where(fein: ENV['fein'])
     state = ENV['aasm_state'].to_s
     kind = ENV['coverage_kind'].to_s
-    relationship_name = ENV['relationship_name'].to_s.sub(/_/, ' ').split.map{|w| w.camelcase}.join(" ")
+    relationship_name = ENV['relationship_name'].to_s.gsub(/_/, ' ').split.map{|w| w.camelcase}.join(" ")
     contribution_factor = ENV['contribution_factor'].to_f
     offered = ENV['is_offered']
     if organizations.size !=1
