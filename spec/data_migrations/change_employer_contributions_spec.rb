@@ -25,7 +25,7 @@ describe ChangeEmployerContributions, dbclean: :after_each do
       allow(ENV).to receive(:[]).with("aasm_state").and_return(application.aasm_state)
       allow(ENV).to receive(:[]).with("relationship_name").and_return(benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels.first.display_name)
       allow(ENV).to receive(:[]).with("contribution_factor").and_return(benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels.first.contribution_factor - 0.5)
-      allow(ENV).to receive(:[]).with("is_offered").and_return(benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels.first.is_offered)
+      allow(ENV).to receive(:[]).with("is_offered").and_return(true)
       allow(ENV).to receive(:[]).with("coverage_kind").and_return("health")
     end
 
@@ -50,10 +50,17 @@ describe ChangeEmployerContributions, dbclean: :after_each do
       expect(benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels.first.is_offered).to eq true
     end
 
-    it "should not offer benefits for other relationships" do
+    it "should change the is offered attributes for the given relationship" do
+      benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels.first.update_attribute(:is_offered, false)
+      subject.migrate
+      benefit_package.health_sponsored_benefit.sponsor_contribution.reload
+      expect(benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels.first.is_offered).to eq true
+    end
+
+    it "should not change the is_offered attribute for other relationship" do
       benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels[1].update_attribute(:is_offered, false)
       subject.migrate
-      benefit_package.reload
+      benefit_package.health_sponsored_benefit.sponsor_contribution.reload
       expect(benefit_package.health_sponsored_benefit.sponsor_contribution.contribution_levels[1].is_offered).to eq false
     end
   end
