@@ -719,7 +719,7 @@ class Family
     broker_agency_profile_id = broker_role.benefit_sponsors_broker_agency_profile_id.present? ? broker_role.benefit_sponsors_broker_agency_profile_id : broker_role.broker_agency_profile_id
     terminate_broker_agency if existing_agency
     start_on = Time.now
-    broker_agency_account =  BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id, writing_agent_id: broker_role_id, start_on: start_on, is_active: true)
+    broker_agency_account =  ::BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id, writing_agent_id: broker_role_id, start_on: start_on, is_active: true)
     broker_agency_accounts.push(broker_agency_account)
     self.save
   end
