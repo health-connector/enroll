@@ -1,5 +1,5 @@
 site:
-  key: :mhc
+  key: :cca
   subdomain: "mhc"
   domain_name: "hbxshop.org"
   home_url: "https://business.mahealthconnector.org/"
@@ -45,7 +45,10 @@ site:
   irs_url: "https://www.irs.gov/"
   exchange_hbx_id: "MA0"
   mail_address: "noreply@healthconnector.org"
+  privacy_policy: "https://www.mahealthconnector.org/site-policies/privacy-policy"
+  late_rates_message: "Premiums for some coverage effective dates are not yet available. Premiums are typically ready for employers at least 30 days before your coverage starts, and often sooner than that. Please check back again soon to see if premium rates are available, or call customer service if you need more additional assistance."
 
+  exchange_name: "Massachusetts Health Connector"
   social_media:
     facebook_url: ""
 
@@ -105,9 +108,12 @@ notices:
 
   shop:
     attachments:
-      non_discrimination_attachment: "ma_shop_non_discrimination_attachment.pdf"
       envelope_without_address: "ma_envelope_without_address.pdf"
-
+      non_discrimination_attachment: "ma_shop_non_discrimination_attachment.pdf"
+      employee_appeal_rights: "ma_employee_appeal_rights.pdf"
+    partials:
+      template: "notifier/notice_kinds/template.html.erb"
+      header: "notifier/notice_kinds/header_with_page_numbers.html.erb"
 
 invoices:
   addendum: 'ma_non_discrimination_and_language_tags.pdf'
@@ -119,6 +125,7 @@ aca:
   hbx_abbreviation: "DC Health Benefit Exchange"
   nationwide_markets: false
   general_agency_enabled: false
+  broker_carrier_appointments_enabled: true
   dental_market_enabled: false
   calendar_enabled: true
   dental_plan_years_available: [""]
@@ -126,7 +133,7 @@ aca:
   minimum_family_contribution_percentage: 30
   address_query_county: true
   broker_routing_information: true
-  recaptcha_enabled: true
+  recaptcha_enabled: false
   security_questions: true
   user_accounts_enabled: true
   plan_options_available: ["sole_source", "single_carrier", "metal_level"]
@@ -137,9 +144,9 @@ aca:
   ## acceptable options are ["platinum", "gold", "silver", "dental"]
 
   plan_option_years:
-    single_carriers_available: ['2018']
-    sole_source_carriers_available: ['2017','2018']
-    metal_level_carriers_available: ['2018']
+    single_carriers_available: ['2018', '2019']
+    sole_source_carriers_available: ['2017','2018', '2019']
+    metal_level_carriers_available: ['2018', '2019']
 
   qle:
     with_in_sixty_days: 60

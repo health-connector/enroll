@@ -15,9 +15,9 @@ module Config::SiteHelper
   def site_website_name
     Settings.site.website_name
   end
-  
-  def site_website_link
-    link_to site_website_name, site_website_name
+
+  def site_privacy_policy
+    Settings.site.privacy_policy
   end
 
   def site_website_link
@@ -154,6 +154,10 @@ module Config::SiteHelper
 
   def site_employer_application_deadline_link
     Settings.site.employer_application_deadline_link
+  end
+
+  def site_initial_earliest_start_prior_to_effective_on
+    Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.months.abs
   end
 
   def site_guidance_for_business_owners_url

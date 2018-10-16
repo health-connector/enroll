@@ -8,7 +8,6 @@ class EmployerProfile
   extend Acapi::Notifiers
   include StateTransitionPublisher
   include ScheduledEventService
-  include Config::AcaModelConcern
   include Concerns::Observable
   include ModelEvents::EmployerProfile
   include ApplicationHelper
@@ -349,7 +348,7 @@ class EmployerProfile
    if !plan_year.blank?
      plan_year.start_on
    end
- end
+  end
 
   def billing_plan_year(billing_date = nil)
     billing_report_date = billing_date || TimeKeeper.date_of_record.next_month
