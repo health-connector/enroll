@@ -10,24 +10,25 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
       	csv_org << organization_headers
       	CSV.open(employee_report, "w",:force_quotes=> true) do |csv_emp|
         csv_emp << employee_headers
-				organizations = Organization.where(
-					:"employer_profile.profile_source" => "conversion",
-				  :"employer_profile.plan_years" => {
+				organization_ids = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
+					:"source_kind" => "conversion",
+				  :"benefit_applications" => {
 				  	:"$elemMatch" => {
-				  		:"start_on" => {:"$gte" => Date.new(2018,1,01), :"$lte" => Date.new(2018,4,01)}
+				  		:"effective_period.min" => {:"$gte" => Date.new(2018,1,01), :"$lte" => Date.new(2018,4,01)},
+				  		:"benefit_packages.probation_period_kind" => "first_of_month_after_30_days"
 				  	}
-					},
-					:"employer_profile.plan_years.benefit_groups.effective_on_offset" => 30
-				)
+					}
+				).pluck(:organization_id)
+				organizations = BenefitSponsors::Organizations::Organization.where(:_id.in => organization_ids)
 				organizations.each do |org|
 					profile = org.employer_profile
-					effected_py = profile.plan_years.where(
-						:"start_on" => {:"$gte" => Date.new(2018,1,01), :"$lte" => Date.new(2018,4,01)}
+					effected_py = profile.benefit_applications.where(
+						:"effective_period.min" => {:"$gte" => Date.new(2018,1,01), :"$lte" => Date.new(2018,4,01)}
 					).first
 
 					csv_org << ["#{org.employer_profile.legal_name}", "#{org.fein}", "#{effected_py.start_on}", "#{org.employer_profile.hbx_id}"]
 					
-					effected_bg_ids = effected_py.benefit_groups.where(:"effective_on_offset" => 30).map(&:id)
+					effected_bg_ids = effected_py.benefit_packages.where(:"probation_period_kind" => "first_of_month_after_30_days").map(&:id)
 
 					families = Family.where(
 						:"households.hbx_enrollments" => {
