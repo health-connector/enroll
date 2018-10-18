@@ -180,9 +180,9 @@ CSV.open("#{Rails.root.to_s}/sep_newhire_enrollment_report.csv", "w") do |csv|
           end
 
           csv << data
-      rescue Exception => e
-        puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
       end
+    rescue Exception => e
+      puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
     end
   end
 
@@ -222,10 +222,10 @@ CSV.open("#{Rails.root.to_s}/sep_newhire_enrollment_report.csv", "w") do |csv|
             end
           end
 
-          csv << data
-      rescue Exception => e
-        puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
+        csv << data
       end
+    rescue Exception => e
+      puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
     end
   end
 end
