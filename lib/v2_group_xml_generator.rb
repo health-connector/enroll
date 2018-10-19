@@ -73,7 +73,7 @@ class V2GroupXmlGenerator
           organizations_hash[switched_carrier.legal_name] = [] if organizations_hash[switched_carrier.legal_name].nil?
           organizations_hash[switched_carrier.legal_name] << remove_other_carrier_nodes(cv_xml, switched_carrier.legal_name,
                                                                                         employer_profile,
-                                                                                        predecessor_application(benefit_application).effective_period.min.strftime("%Y%m%d"),
+                                                                                        predecessor_application(benefit_application),
                                                                                         {event: "urn:openhbx:events:v1:employer#benefit_coverage_renewal_carrier_dropped"})
         end
       rescue => e
