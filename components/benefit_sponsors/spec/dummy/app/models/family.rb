@@ -174,7 +174,6 @@ class Family
                                                       }
                                                   })}
 
-
   def active_broker_agency_account
     broker_agency_accounts.detect { |baa| baa.is_active? }
   end
@@ -910,6 +909,4 @@ private
       unset("e_case_id")
     end
   end
-
 end
-
