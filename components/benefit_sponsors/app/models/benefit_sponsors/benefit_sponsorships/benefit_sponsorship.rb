@@ -421,6 +421,10 @@ module BenefitSponsors
       published_benefit_application || benefit_applications.order(updated_at: :desc).non_terminated_non_imported.first || benefit_applications.order_by(:"updated_at".desc).non_imported.first
     end
 
+    def latest_application
+      renewal_benefit_application || most_recent_benefit_application
+    end
+
     def renewing_submitted_benefit_application # TODO -recheck
       benefit_applications.order_by(:"created_at".desc).detect {|application| application.is_renewal_enrolling? }
     end
@@ -592,7 +596,7 @@ module BenefitSponsors
       when :active
         begin_coverage! if may_begin_coverage?
       when :expired
-        cancel! if may_cancel?
+        cancel! if may_cancel? && renewal_benefit_application.blank?
       when :canceled
         if aasm.current_event == :activate_enrollment! || aasm.from_state == :enrollment_ineligible
           cancel! if may_cancel?

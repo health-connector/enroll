@@ -27,6 +27,9 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
                                       pte_count: 0,
                                       msp_count: 0
                                   ) }
+
+  let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
+
   
   # let!(:initial_application)  { build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
   #                                     benefit_sponsorship: benefit_sponsorship,
@@ -68,7 +71,7 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
 end
 
 RSpec.shared_context "setup employees", :shared_context => :metadata do
-  let!(:census_employees) { create_list(:census_employee, 5, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
+  let!(:census_employees) { create_list(:census_employee, 5, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
 end
 
 RSpec.shared_context "setup employees with benefits", :shared_context => :metadata do

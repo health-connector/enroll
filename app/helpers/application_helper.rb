@@ -1,4 +1,5 @@
 module ApplicationHelper
+  require 'json'
 
   def can_employee_shop?(date)
     return false if date.blank?
