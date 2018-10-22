@@ -30,6 +30,7 @@ BenefitSponsors::Engine.routes.draw do
 
     namespace :employers do
       resources :employer_profiles, only: [:show] do
+        get :consumer_override
         get :export_census_employees
         post :bulk_employee_upload
         get :coverage_reports

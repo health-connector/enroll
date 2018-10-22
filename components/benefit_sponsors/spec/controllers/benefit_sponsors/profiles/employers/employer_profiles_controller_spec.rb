@@ -35,7 +35,6 @@ module BenefitSponsors
         expect(response).to have_http_status(:success)
       end
     end
-
     describe "GET show" do
       let!(:employees) {
         FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
@@ -49,11 +48,32 @@ module BenefitSponsors
         allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
       end
 
-      it "should render show template" do
+      it "should render show template for employees tab" do
         expect(response).to render_template("show")
       end
 
-      it "should return http success" do
+      it "should return http success for employees tab" do
+        expect(response).to have_http_status(:success)
+      end
+    end
+    describe "GET show" do
+      let!(:employees) {
+        FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
+      }
+
+      before do
+        benefit_sponsorship.save!
+        allow(controller).to receive(:authorize).and_return(true)
+        sign_in user
+        get :show, id: benefit_sponsor.profiles.first.id, tab: 'families'
+        allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+      end
+
+      it "should render show template for families tab" do
+        expect(response).to render_template("show")
+      end
+
+      it "should return http success for families tab" do
         expect(response).to have_http_status(:success)
       end
     end
