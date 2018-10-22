@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Announcement
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Announcement";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (A)</a> &raquo;
+    
+    
+    <span class="title">Announcement</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Announcement
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Announcement</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Mongoid::Document, Mongoid::Timestamps, <span class='object_link'><a href="SetCurrentUser.html" title="SetCurrentUser (module)">SetCurrentUser</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/announcement.rb</dd>
+  </dl>
+  
+</div>
+
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="AUDIENCE_KINDS-constant" class="">AUDIENCE_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='words_beg'>%W{</span><span class='tstring_content'>Employer</span><span class='words_sep'> </span><span class='tstring_content'>Employee</span><span class='words_sep'> </span><span class='tstring_content'>IVL</span><span class='words_sep'> </span><span class='tstring_content'>Broker</span><span class='words_sep'> </span><span class='tstring_content'>GA</span><span class='words_sep'>}</span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_announcements_by_portal-class_method" title="get_announcements_by_portal (class method)">.<strong>get_announcements_by_portal</strong>(portal_path = &quot;&quot;, person = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#audiences_for_display-instance_method" title="#audiences_for_display (instance method)">#<strong>audiences_for_display</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#date_checks-instance_method" title="#date_checks (instance method)">#<strong>date_checks</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#must_have_audiences-instance_method" title="#must_have_audiences (instance method)">#<strong>must_have_audiences</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_audiences-instance_method" title="#update_audiences (instance method)">#<strong>update_audiences</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_content-instance_method" title="#update_content (instance method)">#<strong>update_content</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="SetCurrentUser.html" title="SetCurrentUser (module)">SetCurrentUser</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="SetCurrentUser.html#included-class_method" title="SetCurrentUser.included (method)">included</a></span>, <span class='object_link'><a href="SetCurrentUser.html#save_user-instance_method" title="SetCurrentUser#save_user (method)">#save_user</a></span>, <span class='object_link'><a href="SetCurrentUser.html#update_user-instance_method" title="SetCurrentUser#update_user (method)">#update_user</a></span></p>
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_announcements_by_portal-class_method">
+  
+    .<strong>get_announcements_by_portal</strong>(portal_path = &quot;&quot;, person = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/announcement.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_announcements_by_portal'>get_announcements_by_portal</span><span class='lparen'>(</span><span class='id identifier rubyid_portal_path'>portal_path</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_person'>person</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_announcements'>announcements</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>case</span> 
+  <span class='kw'>when</span> <span class='id identifier rubyid_portal_path'>portal_path</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>employers/employer_profiles</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_employer'>current_msg_for_employer</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_portal_path'>portal_path</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>families/home</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_employee'>current_msg_for_employee</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_person'>person</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_has_active_employee_role?'>has_active_employee_role?</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_ivl'>current_msg_for_ivl</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_person'>person</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_has_active_consumer_role?'>has_active_consumer_role?</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_portal_path'>portal_path</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>employee</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_employee'>current_msg_for_employee</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_person'>person</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_has_active_employee_role?'>has_active_employee_role?</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_portal_path'>portal_path</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>consumer</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_ivl'>current_msg_for_ivl</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_person'>person</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_has_active_consumer_role?'>has_active_consumer_role?</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_portal_path'>portal_path</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_agencies</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_broker'>current_msg_for_broker</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_portal_path'>portal_path</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>general_agencies</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="Announcement (class)">Announcement</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current_msg_for_ga'>current_msg_for_ga</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_announcements'>announcements</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="audiences_for_display-instance_method">
+  
+    #<strong>audiences_for_display</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/announcement.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_audiences_for_display'>audiences_for_display</span>
+  <span class='id identifier rubyid_audiences'>audiences</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="date_checks-instance_method">
+  
+    #<strong>date_checks</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/announcement.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_date_checks'>date_checks</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_start_date'>start_date</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span> <span class='op'>||</span> <span class='id identifier rubyid_end_date'>end_date</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+  <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='symbol'>:base</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>End Date should be later than today</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_end_date'>end_date</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="TimeKeeper.html" title="TimeKeeper (class)">TimeKeeper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_date_of_record'><span class='object_link'><a href="TimeKeeper.html#date_of_record-class_method" title="TimeKeeper.date_of_record (method)">date_of_record</a></span></span>
+  <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='symbol'>:base</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>End Date should be later than Start date</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_end_date'>end_date</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_start_date'>start_date</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="must_have_audiences-instance_method">
+  
+    #<strong>must_have_audiences</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/announcement.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_must_have_audiences'>must_have_audiences</span>
+  <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='symbol'>:base</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Please select at least one Audience</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_audiences'>audiences</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_audiences-instance_method">
+  
+    #<strong>update_audiences</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/announcement.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_audiences'>update_audiences</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_audiences'>audiences</span> <span class='op'>=</span> <span class='id identifier rubyid_audiences'>audiences</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_audience'>audience</span><span class='op'>|</span> <span class='id identifier rubyid_audience'>audience</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_audiences'>audiences</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_content-instance_method">
+  
+    #<strong>update_content</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/announcement.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_content'>update_content</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_content'>content</span> <span class='op'>=</span> <span class='id identifier rubyid_content'>content</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='kw'>if</span> <span class='id identifier rubyid_content'>content</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:49:44 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

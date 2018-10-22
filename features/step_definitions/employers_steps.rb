@@ -498,10 +498,10 @@ module EmployeeWorld
     @owner ||= FactoryGirl.create :user, *traits, attributes
   end
 
-  def employer(*traits)
-    attributes = traits.extract_options!
-    @employer ||= FactoryGirl.create :employer, *traits, attributes
-  end
+  #def employer(*traits)
+    #attributes = traits.extract_options!
+    #@employer ||= FactoryGirl.create :employer, *traits, attributes
+    #end
 
   def employees(*traits)
     attributes = traits.extract_options!

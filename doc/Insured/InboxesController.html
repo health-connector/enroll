@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Insured::InboxesController
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Insured::InboxesController";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Insured.html" title="Insured (module)">Insured</a></span></span>
+     &raquo; 
+    <span class="title">InboxesController</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Insured::InboxesController
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../InboxesController.html" title="InboxesController (class)">InboxesController</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">ActionController::Base</li>
+          
+            <li class="next"><span class='object_link'><a href="../ApplicationController.html" title="ApplicationController (class)">ApplicationController</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="../InboxesController.html" title="InboxesController (class)">InboxesController</a></span></li>
+          
+            <li class="next">Insured::InboxesController</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/controllers/insured/inboxes_controller.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_inbox_provider-instance_method" title="#find_inbox_provider (instance method)">#<strong>find_inbox_provider</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new-instance_method" title="#new (instance method)">#<strong>new</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#successful_save_path-instance_method" title="#successful_save_path (instance method)">#<strong>successful_save_path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../InboxesController.html" title="InboxesController (class)">InboxesController</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../InboxesController.html#create-instance_method" title="InboxesController#create (method)">#create</a></span>, <span class='object_link'><a href="../InboxesController.html#destroy-instance_method" title="InboxesController#destroy (method)">#destroy</a></span>, <span class='object_link'><a href="../InboxesController.html#show-instance_method" title="InboxesController#show (method)">#show</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../ApplicationController.html" title="ApplicationController (class)">ApplicationController</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../ApplicationController.html#access_denied-instance_method" title="ApplicationController#access_denied (method)">#access_denied</a></span>, <span class='object_link'><a href="../ApplicationController.html#authenticate_me!-instance_method" title="ApplicationController#authenticate_me! (method)">#authenticate_me!</a></span>, <span class='object_link'><a href="../ApplicationController.html#create_sso_account-instance_method" title="ApplicationController#create_sso_account (method)">#create_sso_account</a></span>, <span class='object_link'><a href="../ApplicationController.html#format_js%3F-instance_method" title="ApplicationController#format_js? (method)">#format_js?</a></span>, <span class='object_link'><a href="../ApplicationController.html#user_not_authorized-instance_method" title="ApplicationController#user_not_authorized (method)">#user_not_authorized</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Config/ContactCenterConcern.html" title="Config::ContactCenterConcern (module)">Config::ContactCenterConcern</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Config/ContactCenterConcern.html#contact_center_phone_number-instance_method" title="Config::ContactCenterConcern#contact_center_phone_number (method)">#contact_center_phone_number</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Config/AcaConcern.html" title="Config::AcaConcern (module)">Config::AcaConcern</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Config/AcaConcern.html#aca_qle_period-instance_method" title="Config::AcaConcern#aca_qle_period (method)">#aca_qle_period</a></span>, <span class='object_link'><a href="../Config/AcaConcern.html#aca_shop_market_cobra_enrollment_period_in_months-instance_method" title="Config::AcaConcern#aca_shop_market_cobra_enrollment_period_in_months (method)">#aca_shop_market_cobra_enrollment_period_in_months</a></span>, <span class='object_link'><a href="../Config/AcaConcern.html#aca_state_abbreviation-instance_method" title="Config::AcaConcern#aca_state_abbreviation (method)">#aca_state_abbreviation</a></span>, <span class='object_link'><a href="../Config/AcaConcern.html#general_agency_is_enabled%3F-instance_method" title="Config::AcaConcern#general_agency_is_enabled? (method)">#general_agency_is_enabled?</a></span>, <span class='object_link'><a href="../Config/AcaConcern.html#individual_market_is_enabled%3F-instance_method" title="Config::AcaConcern#individual_market_is_enabled? (method)">#individual_market_is_enabled?</a></span>, <span class='object_link'><a href="../Config/AcaConcern.html#redirect_unless_general_agency_is_enabled%3F-instance_method" title="Config::AcaConcern#redirect_unless_general_agency_is_enabled? (method)">#redirect_unless_general_agency_is_enabled?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Config/SiteConcern.html" title="Config::SiteConcern (module)">Config::SiteConcern</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Config/SiteConcern.html#site_create_routes-instance_method" title="Config::SiteConcern#site_create_routes (method)">#site_create_routes</a></span>, <span class='object_link'><a href="../Config/SiteConcern.html#site_redirect_on_timeout_route-instance_method" title="Config::SiteConcern#site_redirect_on_timeout_route (method)">#site_redirect_on_timeout_route</a></span>, <span class='object_link'><a href="../Config/SiteConcern.html#site_short_name-instance_method" title="Config::SiteConcern#site_short_name (method)">#site_short_name</a></span>, <span class='object_link'><a href="../Config/SiteConcern.html#site_sign_in_routes-instance_method" title="Config::SiteConcern#site_sign_in_routes (method)">#site_sign_in_routes</a></span>, <span class='object_link'><a href="../Config/SiteConcern.html#site_uses_default_devise_path%3F-instance_method" title="Config::SiteConcern#site_uses_default_devise_path? (method)">#site_uses_default_devise_path?</a></span></p>
+
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find_inbox_provider-instance_method">
+  
+    #<strong>find_inbox_provider</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/insured/inboxes_controller.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_inbox_provider'>find_inbox_provider</span>
+  <span class='ivar'>@inbox_provider</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='ivar'>@inbox_provider_name</span> <span class='op'>=</span> <span class='ivar'>@inbox_provider</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new-instance_method">
+  
+    #<strong>new</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+3
+4
+5
+6
+7</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/insured/inboxes_controller.rb', line 3</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@inbox_to_name</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>to</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='ivar'>@inbox_provider_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HBX ADMIN</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="successful_save_path-instance_method">
+  
+    #<strong>successful_save_path</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/insured/inboxes_controller.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_successful_save_path'>successful_save_path</span>
+  <span class='id identifier rubyid_exchanges_hbx_profiles_root_path'>exchanges_hbx_profiles_root_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:23 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: GeneralAgencies::ProfilesController
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "GeneralAgencies::ProfilesController";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'>GeneralAgencies</span>
+     &raquo; 
+    <span class="title">ProfilesController</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: GeneralAgencies::ProfilesController
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">ApplicationController</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">ApplicationController</li>
+          
+            <li class="next">GeneralAgencies::ProfilesController</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/controllers/general_agencies/profiles_controller.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#agency_messages-instance_method" title="#agency_messages (instance method)">#<strong>agency_messages</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-instance_method" title="#create (instance method)">#<strong>create</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#edit-instance_method" title="#edit (instance method)">#<strong>edit</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#edit_staff-instance_method" title="#edit_staff (instance method)">#<strong>edit_staff</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#employers-instance_method" title="#employers (instance method)">#<strong>employers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#families-instance_method" title="#families (instance method)">#<strong>families</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#inbox-instance_method" title="#inbox (instance method)">#<strong>inbox</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#index-instance_method" title="#index (instance method)">#<strong>index</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#messages-instance_method" title="#messages (instance method)">#<strong>messages</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new-instance_method" title="#new (instance method)">#<strong>new</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_agency-instance_method" title="#new_agency (instance method)">#<strong>new_agency</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_agency_staff-instance_method" title="#new_agency_staff (instance method)">#<strong>new_agency_staff</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#redirect_to_new-instance_method" title="#redirect_to_new (instance method)">#<strong>redirect_to_new</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#redirect_to_show-instance_method" title="#redirect_to_show (instance method)">#<strong>redirect_to_show</strong>(general_agency_profile_id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search_general_agency-instance_method" title="#search_general_agency (instance method)">#<strong>search_general_agency</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#show-instance_method" title="#show (instance method)">#<strong>show</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#staffs-instance_method" title="#staffs (instance method)">#<strong>staffs</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>total_families = @general_agency_profile.families   @total =
+total_families.count   @page_alphabets = total_families.map{|f| <a
+href="0">f.primary_applicant.person.last_name</a>}.map(&amp;:capitalize).uniq
+if page.present?     @families = total_families.select{|v|
+v.primary_applicant.person.last_name =~ /^#{page}/i }   elsif @q.present?  
+query= Regexp.escape(@q)     query_args= query.split(“\ ”)     reg_ex =
+query_args.join(&#39;(.*)?&#39;)     @families = total_families.select {|v|
+v.primary_applicant.person.full_name =~ /#{reg_ex}/i}   else     @families
+= <a href="0..20">total_families</a>   end end.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update-instance_method" title="#update (instance method)">#<strong>update</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_staff-instance_method" title="#update_staff (instance method)">#<strong>update_staff</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="agency_messages-instance_method">
+  
+    #<strong>agency_messages</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_agency_messages'>agency_messages</span>
+  <span class='ivar'>@sent_box</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create-instance_method">
+  
+    #<strong>create</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span>
+  <span class='ivar'>@organization</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms.html" title="Forms (module)">Forms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms/GeneralAgencyProfile.html" title="Forms::GeneralAgencyProfile (class)">GeneralAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Forms/OrganizationSignup.html#initialize-instance_method" title="Forms::OrganizationSignup#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_general_agency_profile_params'>general_agency_profile_params</span><span class='rparen'>)</span>
+  <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_languages_spoken'>languages_spoken</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_require'>require</span><span class='lparen'>(</span><span class='symbol'>:organization</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='symbol'>:languages_spoken</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_reject!'>reject!</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:empty?</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_require'>require</span><span class='lparen'>(</span><span class='symbol'>:organization</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='symbol'>:languages_spoken</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='kw'>if</span> <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span>
+    <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Your registration has been submitted. A response will be sent to the email address you provided once your application is reviewed.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_redirect_to'>redirect_to</span> <span class='id identifier rubyid_general_agency_registration_path'>general_agency_registration_path</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_template'>template</span> <span class='op'>=</span> <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_only_staff_role?'>only_staff_role?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>new_agency_staff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>new_agency</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_render'>render</span> <span class='id identifier rubyid_template'>template</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="edit-instance_method">
+  
+    #<strong>edit</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_edit'>edit</span>
+  <span class='ivar'>@organization</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms.html" title="Forms (module)">Forms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms/GeneralAgencyProfile.html" title="Forms::GeneralAgencyProfile (class)">GeneralAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'><span class='object_link'><a href="../Forms/GeneralAgencyProfile.html#find-class_method" title="Forms::GeneralAgencyProfile.find (method)">find</a></span></span><span class='lparen'>(</span><span class='ivar'>@general_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='ivar'>@id</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="edit_staff-instance_method">
+  
+    #<strong>edit_staff</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+123
+124
+125
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 123</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_edit_staff'>edit_staff</span>
+  <span class='id identifier rubyid_respond_to'>respond_to</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_js'>js</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="employers-instance_method">
+  
+    #<strong>employers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_employers'>employers</span>
+  <span class='ivar'>@datatable</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Effective.html" title="Effective (module)">Effective</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Effective/Datatables.html" title="Effective::Datatables (module)">Datatables</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Effective/Datatables/GeneralAgencyDataTable.html" title="Effective::Datatables::GeneralAgencyDataTable (class)">GeneralAgencyDataTable</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>id:</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="families-instance_method">
+  
+    #<strong>families</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+96
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 96</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_families'>families</span>
+  <span class='ivar'>@datatable</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Effective.html" title="Effective (module)">Effective</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Effective/Datatables.html" title="Effective::Datatables (module)">Datatables</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Effective/Datatables/GeneralAgencyFamilyDataTable.html" title="Effective::Datatables::GeneralAgencyFamilyDataTable (class)">GeneralAgencyFamilyDataTable</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>id:</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="inbox-instance_method">
+  
+    #<strong>inbox</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_inbox'>inbox</span>
+  <span class='ivar'>@sent_box</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='op'>||</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>profile_id</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='ivar'>@general_agency_provider</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../GeneralAgencyProfile.html" title="GeneralAgencyProfile (class)">GeneralAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'><span class='object_link'><a href="../GeneralAgencyProfile.html#find-class_method" title="GeneralAgencyProfile.find (method)">find</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='ivar'>@folder</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:folder</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Inbox</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_current_user'>current_user</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid__id'>_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='id identifier rubyid_id'>id</span>
+    <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_current_user'>current_user</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='ivar'>@general_agency_provider</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="index-instance_method">
+  
+    #<strong>index</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span>
+  <span class='ivar'>@general_agency_profiles</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../GeneralAgencyProfile.html" title="GeneralAgencyProfile (class)">GeneralAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_all'><span class='object_link'><a href="../GeneralAgencyProfile.html#all-class_method" title="GeneralAgencyProfile.all (method)">all</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="messages-instance_method">
+  
+    #<strong>messages</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_messages'>messages</span>
+  <span class='ivar'>@sent_box</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_current_user'>current_user</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new-instance_method">
+  
+    #<strong>new</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You don&#39;t have a General Agency Profile associated with your Account!! Please register your General Agency first.</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new_agency-instance_method">
+  
+    #<strong>new_agency</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_new_agency'>new_agency</span>
+  <span class='ivar'>@organization</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms.html" title="Forms (module)">Forms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms/GeneralAgencyProfile.html" title="Forms::GeneralAgencyProfile (class)">GeneralAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Forms/OrganizationSignup.html#initialize-instance_method" title="Forms::OrganizationSignup#initialize (method)">new</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new_agency_staff-instance_method">
+  
+    #<strong>new_agency_staff</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_new_agency_staff'>new_agency_staff</span>
+  <span class='ivar'>@organization</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms.html" title="Forms (module)">Forms</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Forms/GeneralAgencyProfile.html" title="Forms::GeneralAgencyProfile (class)">GeneralAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Forms/OrganizationSignup.html#initialize-instance_method" title="Forms::OrganizationSignup#initialize (method)">new</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="redirect_to_new-instance_method">
+  
+    #<strong>redirect_to_new</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_redirect_to_new'>redirect_to_new</span>
+  <span class='id identifier rubyid_redirect_to'>redirect_to</span> <span class='id identifier rubyid_new_general_agencies_profile_path'>new_general_agencies_profile_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="redirect_to_show-instance_method">
+  
+    #<strong>redirect_to_show</strong>(general_agency_profile_id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_redirect_to_show'>redirect_to_show</span><span class='lparen'>(</span><span class='id identifier rubyid_general_agency_profile_id'>general_agency_profile_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to'>redirect_to</span> <span class='id identifier rubyid_general_agencies_profile_path'>general_agencies_profile_path</span><span class='lparen'>(</span><span class='label'>id:</span> <span class='id identifier rubyid_general_agency_profile_id'>general_agency_profile_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search_general_agency-instance_method">
+  
+    #<strong>search_general_agency</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search_general_agency'>search_general_agency</span>
+  <span class='id identifier rubyid_orgs'>orgs</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_search_by_general_agency'><span class='object_link'><a href="../Organization.html#search_by_general_agency-class_method" title="Organization.search_by_general_agency (method)">search_by_general_agency</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:general_agency_search</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@general_agency_profiles</span> <span class='op'>=</span> <span class='id identifier rubyid_orgs'>orgs</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>?</span> <span class='id identifier rubyid_orgs'>orgs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:general_agency_profile</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="show-instance_method">
+  
+    #<strong>show</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87
+88
+89
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_show'>show</span>
+  <span class='id identifier rubyid_set_flash_by_announcement'>set_flash_by_announcement</span>
+  <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_current_user'>current_user</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span>
+  <span class='ivar'>@staff_role</span> <span class='op'>=</span> <span class='id identifier rubyid_current_user'>current_user</span><span class='period'>.</span><span class='id identifier rubyid_has_general_agency_staff_role?'>has_general_agency_staff_role?</span>
+  <span class='ivar'>@id</span><span class='op'>=</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="staffs-instance_method">
+  
+    #<strong>staffs</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>total_families = @general_agency_profile.families</p>
+
+<pre class="code ruby"><code class="ruby"><span class='ivar'>@total</span> <span class='op'>=</span> <span class='id identifier rubyid_total_families'>total_families</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span>
+<span class='ivar'>@page_alphabets</span> <span class='op'>=</span> <span class='id identifier rubyid_total_families'>total_families</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_primary_applicant'>primary_applicant</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_last_name'>last_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:capitalize</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+<span class='kw'>if</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='ivar'>@families</span> <span class='op'>=</span> <span class='id identifier rubyid_total_families'>total_families</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_primary_applicant'>primary_applicant</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_last_name'>last_name</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_page'>page</span><span class='embexpr_end'>}</span><span class='regexp_end'>/i</span></span> <span class='rbrace'>}</span>
+<span class='kw'>elsif</span> <span class='ivar'>@q</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='id identifier rubyid_query'>query</span><span class='op'>=</span> <span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_escape'>escape</span><span class='lparen'>(</span><span class='ivar'>@q</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_query_args'>query_args</span><span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\ </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_reg_ex'>reg_ex</span> <span class='op'>=</span> <span class='id identifier rubyid_query_args'>query_args</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>(.*)?</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@families</span> <span class='op'>=</span> <span class='id identifier rubyid_total_families'>total_families</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_primary_applicant'>primary_applicant</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg_ex'>reg_ex</span><span class='embexpr_end'>}</span><span class='regexp_end'>/i</span></span><span class='rbrace'>}</span>
+<span class='kw'>else</span>
+  <span class='ivar'>@families</span> <span class='op'>=</span> <span class='id identifier rubyid_total_families'>total_families</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='int'>20</span><span class='rbracket'>]</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>end</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_staffs'>staffs</span>
+  <span class='ivar'>@staffs</span> <span class='op'>=</span> <span class='ivar'>@general_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_general_agency_staff_roles'>general_agency_staff_roles</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update-instance_method">
+  
+    #<strong>update</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update'>update</span>
+  <span class='id identifier rubyid_authorize'>authorize</span> <span class='const'><span class='object_link'><a href="../HbxProfile.html" title="HbxProfile (class)">HbxProfile</a></span></span><span class='comma'>,</span> <span class='symbol'>:modify_admin_tabs?</span>
+  <span class='id identifier rubyid_sanitize_agency_profile_params'>sanitize_agency_profile_params</span>
+  <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_permit!'>permit!</span>
+
+  <span class='ivar'>@organization</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:organization</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='ivar'>@organization_dup</span> <span class='op'>=</span> <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_office_locations'>office_locations</span><span class='period'>.</span><span class='id identifier rubyid_as_json'>as_json</span>
+
+  <span class='comment'>#clear office_locations, don&#39;t worry, we will recreate
+</span>  <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_assign_attributes'>assign_attributes</span><span class='lparen'>(</span><span class='symbol'>:office_locations</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span><span class='lparen'>(</span><span class='label'>validate:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='ivar'>@general_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_primary_staff'>primary_staff</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span>
+
+  <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_person_profile_params'>person_profile_params</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@general_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_languages_spoken_params'>languages_spoken_params</span><span class='rparen'>)</span>
+
+
+  <span class='kw'>if</span> <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_ga_profile_params'>ga_profile_params</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_office_location'>office_location</span> <span class='op'>=</span> <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_primary_office_location'>primary_office_location</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_office_location'>office_location</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_update_ga_staff_phone'>update_ga_staff_phone</span><span class='lparen'>(</span><span class='id identifier rubyid_office_location'>office_location</span><span class='comma'>,</span> <span class='id identifier rubyid_person'>person</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Successfully Update General Agency Profile</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_redirect_to'>redirect_to</span> <span class='id identifier rubyid_general_agencies_profile_path'>general_agencies_profile_path</span><span class='lparen'>(</span><span class='ivar'>@general_agency_profile</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_assign_attributes'>assign_attributes</span><span class='lparen'>(</span><span class='symbol'>:office_locations</span> <span class='op'>=&gt;</span> <span class='ivar'>@organization_dup</span><span class='rparen'>)</span>
+    <span class='ivar'>@organization</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span><span class='lparen'>(</span><span class='label'>validate:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:error</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to Update General Agency Profile</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_redirect_to'>redirect_to</span> <span class='id identifier rubyid_general_agencies_profile_path'>general_agencies_profile_path</span><span class='lparen'>(</span><span class='ivar'>@general_agency_profile</span><span class='rparen'>)</span>
+
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_staff-instance_method">
+  
+    #<strong>update_staff</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/controllers/general_agencies/profiles_controller.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_staff'>update_staff</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>approve</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='ivar'>@staff</span><span class='period'>.</span><span class='id identifier rubyid_approve!'>approve!</span>
+    <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Staff approved successfully.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>deny</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='ivar'>@staff</span><span class='period'>.</span><span class='id identifier rubyid_deny!'>deny!</span>
+    <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Staff deny.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>decertify</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='ivar'>@staff</span><span class='period'>.</span><span class='id identifier rubyid_decertify!'>decertify!</span>
+    <span class='id identifier rubyid_flash'>flash</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Staff decertify.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_send_secure_message_to_general_agency'>send_secure_message_to_general_agency</span><span class='lparen'>(</span><span class='ivar'>@staff</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='ivar'>@staff</span><span class='period'>.</span><span class='id identifier rubyid_active?'>active?</span>
+
+  <span class='id identifier rubyid_redirect_to'>redirect_to</span> <span class='id identifier rubyid_general_agencies_profile_path'>general_agencies_profile_path</span><span class='lparen'>(</span><span class='ivar'>@staff</span><span class='period'>.</span><span class='id identifier rubyid_general_agency_profile'>general_agency_profile</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:43 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>
