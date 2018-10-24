@@ -35,7 +35,7 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 							:"$elemMatch" => {
 								:"benefit_group_id".in => effected_bg_ids,
 								:"effective_on".gt => effected_py.start_on,
-								:"plan_id".ne => nil
+								:"product_id".ne => nil
 				 			}
 						}
 					)
@@ -43,11 +43,11 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 						family.active_household.hbx_enrollments.where(
 							:"benefit_group_id".in => effected_bg_ids,
 							:"effective_on".gt => effected_py.start_on,
-							:"plan_id".ne => nil
+							:"product_id".ne => nil
 						).each do |enrollment|
 							employee_role = enrollment.employee_role
 							person = employee_role.person
-							plan = enrollment.plan
+							plan = enrollment.product
 							csv_emp << ["#{org.employer_profile.legal_name}", "#{org.fein}", "#{effected_py.start_on}", "#{org.employer_profile.hbx_id}","#{person.first_name}","#{person.last_name}","#{person.hbx_id}","#{enrollment.hbx_id}","#{plan.hios_id}","#{plan.name}","#{plan.carrier_profile.legal_name}","#{enrollment.submitted_at}","#{enrollment.effective_on}","#{employee_role.hired_on}","#{employee_role.census_employee.created_at}"]
 						end
 					end
