@@ -148,7 +148,7 @@ module BenefitSponsors
         end
 
         def paginate_families
-          @census_employees = @employer_profile.census_employees.select { |ce| CensusEmployee::EMPLOYMENT_ACTIVE_STATES.include?(ce.aasm_state) && ce.employee_role_id.present?}
+          @census_employees = @employer_profile.census_employees.select { |ce| ce.is_active? && ce.employee_role_id.present?}
         end
 
         def load_documents
