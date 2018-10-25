@@ -72,6 +72,10 @@ module BenefitSponsors
       "Employers can begin shopping for coverage on #{site_short_name} up to #{site_initial_earliest_start_prior_to_effective_on} months prior to the desired coverage effective date."
     end
 
+    def coverage_start_tool_tip_helper
+      "Employers can begin shopping for coverage on #{site_short_name} up to #{aca_shop_market_coverage_start_period} prior to the desired coverage effective date."
+    end
+
     def employer_contribution_tool_tip_helper
       employer_contribution = "Employers are required to contribute at least #{aca_shop_market_employer_contribution_percent_minimum} of the premium costs for employees based on the reference plan selected, except during the special annual enrollment period at the end of each year."
           if individual_market_is_enabled?
@@ -125,6 +129,10 @@ module BenefitSponsors
     def total_active_census_employees(profile_id)
       employer_profile = BenefitSponsors::Organizations::Profile.find(profile_id)
       employer_profile.census_employees.active.count
+    end
+
+    def profile_unread_messages_count(profile)
+      (profile.is_a?(BenefitSponsors::Organizations::Profile) ? profile.inbox.unread_messages.count : profile.inbox.unread_messages_count) rescue 0
     end
 
     def total_messages(record_id)
