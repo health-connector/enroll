@@ -5,4 +5,4 @@ attributes: !ruby/hash:BSON::Document
     raw_data: !binary |-
       WkerV6yn1EZzAADG
   key: en.welcome.index.welcome_to_site_name
-  value: '"Welcome to %{short_name}"'
+  value: '"Welcome to PFL'
