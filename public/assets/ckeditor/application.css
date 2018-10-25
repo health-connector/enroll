@@ -1,0 +1,225 @@
+/* line 1, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* line 6, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+img {
+  border: 0;
+}
+
+/* line 9, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder {
+  display: block;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* line 14, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item:first-child {
+  float: left;
+}
+
+/* line 17, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item {
+  display: inline-block;
+  width: 150px;
+  overflow: hidden;
+  position: relative;
+  margin: 0 12px 12px 0;
+}
+
+/* line 24, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-del {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: url("/assets/ckeditor/filebrowser/gal_del-cc6a818c2a0a4a384c5558930fb9356e.png") no-repeat left center;
+  width: 17px;
+  height: 17px;
+}
+
+/* line 33, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .preloader {
+  background: url("/assets/ckeditor/filebrowser/preloader-1f0c18b689c7d281dceec4a73ec5b6e1.gif") no-repeat center center;
+  width: 118px;
+  height: 100px;
+}
+
+/* line 38, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-del:hover {
+  -moz-opacity: 0.7;
+  -khtml-opacity: 0.7;
+  opacity: 0.7;
+}
+
+/* line 43, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-upload-holder input {
+  height: 162px;
+}
+
+/* line 46, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-upload-holder .add:hover {
+  text-decoration: underline;
+}
+
+/* line 49, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder, .gal-holder .gal-item .gal-upload-holder {
+  display: block;
+  margin: 6px 6px 0 0;
+  overflow: hidden;
+  padding: 12px;
+  background: #fff;
+  border: solid 1px #D3D3D3;
+  min-height: 138px;
+}
+
+/* line 58, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder.hover {
+  background: #DFF1FF;
+  border: solid 1px #99CCFF;
+}
+
+/* line 62, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder.selected {
+  background: #B4D9FF;
+  border: solid 1px #6565FE;
+}
+
+/* line 66, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-upload-holder .add {
+  display: block;
+  color: #2e5aff;
+  background: url("/assets/ckeditor/filebrowser/gal_add-652d4de9c7c7e509ba2b5f7e4fdf1709.png") no-repeat left center;
+  padding-left: 33px;
+  line-height: 25px;
+  text-decoration: none;
+  margin: 50px 0 0 10px;
+  font-size: 14px;
+}
+
+/* line 76, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder .img {
+  height: 100px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* line 81, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder .img-data {
+  display: block;
+  overflow: hidden;
+  padding-top: 5px;
+}
+
+/* line 86, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder .img-data .img-name {
+  display: block;
+  color: #333;
+  padding-bottom: 5px;
+  font-size: 12px;
+  overflow: hidden;
+  width: 500px;
+}
+
+/* line 94, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.img-name {
+  word-wrap: break-word;
+  width: auto !important;
+}
+
+/* line 98, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder .img-data .time-size {
+  display: block;
+  overflow: hidden;
+  font-size: 10px;
+  color: #666;
+}
+
+/* line 104, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder .img-data .time-size .time {
+  display: block;
+  float: left;
+}
+
+/* line 108, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-holder .gal-item .gal-inner-holder .img-data .time-size .size {
+  display: block;
+  float: right;
+}
+
+/* line 112, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-more {
+  display: block;
+  overflow: hidden;
+  border-top: dashed 1px #d3d3d3;
+  padding: 20px 0;
+  text-align: center;
+}
+
+/* line 119, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-more a {
+  color: #2e5aff;
+  background: url("/assets/ckeditor/filebrowser/gal_more-fd3c1431b7ea0fdb5e523319cc6c65b6.gif") no-repeat left center;
+  padding-left: 15px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+/* line 126, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.gal-more a:hover {
+  text-decoration: underline;
+}
+
+/* line 130, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.pagination {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  height: 40px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* line 141, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.pagination a {
+  height: 40px;
+  width: 50%;
+  padding-right: 5px;
+  padding-left: 5px;
+  text-decoration: none;
+  background: #f8f8f8;
+  border-color: #f5c002;
+  color: #000;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 40px;
+  font-weight: 400;
+  font-size: 13px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border: 1px solid #bcbcbc;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+}
+
+/* line 170, /Users/zacharylandes/.rvm/gems/ruby-2.2.3@enroll/gems/ckeditor-4.2.4/app/assets/stylesheets/ckeditor/filebrowser/uploader.scss */
+.pagination a:hover {
+  background: #fff;
+}
+/*
+ * This is a manifest file that'll automatically include all the stylesheets available in this directory
+ * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
+ * the top of the compiled file, but it's generally better to create a new file per style scope.
+
+*/
+
