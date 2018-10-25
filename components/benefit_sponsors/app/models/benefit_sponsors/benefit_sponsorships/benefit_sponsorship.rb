@@ -138,7 +138,7 @@ module BenefitSponsors
 
     scope :may_end_open_enrollment?, -> (compare_date = TimeKeeper.date_of_record) {
       where(:benefit_applications => {
-        :$elemMatch => {:"open_enrollment_period.max".lt => compare_date, :aasm_state => :enrollment_open }}
+        :$elemMatch => {:"open_enrollment_period.max".lt => compare_date, :"aasm_state".in => [:enrollment_open, :enrollment_extended] }}
       )
     }
 
@@ -194,6 +194,18 @@ module BenefitSponsors
     scope :may_auto_submit_application?, -> (compare_date = TimeKeeper.date_of_record) {
       where(:benefit_applications => {
         :$elemMatch => {:predecessor_id => { :$exists => true }, :"effective_period.min" => compare_date, :aasm_state => :draft }}
+      )
+    }
+
+    scope :may_transition_as_initial_ineligible?, -> (compare_date = TimeKeeper.date_of_record) {
+      where(:benefit_applications => {
+        :$elemMatch => {:predecessor_id => { :$exists => false }, :"effective_period.min" => compare_date, :aasm_state => :enrollment_closed }}
+      )
+    }
+
+    scope :may_cancel_ineligible_application?, -> (compare_date = TimeKeeper.date_of_record) {
+      where(:benefit_applications => {
+        :$elemMatch => {:"effective_period.min" => compare_date, :aasm_state => :enrollment_ineligible }}
       )
     }
 
@@ -363,7 +375,11 @@ module BenefitSponsors
 
     def submitted_benefit_application
       # renewing_published_plan_year || active_plan_year ||
-      published_benefit_application
+      published_benefit_application || imported_benefit_application
+    end
+
+    def imported_benefit_application
+      benefit_applications.order_by(:"updated_at".desc).imported.first if is_conversion?
     end
 
     def benefit_applications_by(ids)
@@ -402,7 +418,11 @@ module BenefitSponsors
     end
 
     def most_recent_benefit_application
-      benefit_applications.order_by(:"created_at".desc).first
+      published_benefit_application || benefit_applications.order(updated_at: :desc).non_terminated_non_imported.first || benefit_applications.order_by(:"updated_at".desc).non_imported.first
+    end
+
+    def latest_application
+      renewal_benefit_application || most_recent_benefit_application
     end
 
     def renewing_submitted_benefit_application # TODO -recheck
@@ -435,27 +455,27 @@ module BenefitSponsors
     end
 
     def carriers_dropped_for(product_kind)
-      active_benefit_application.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind)
+      renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind)
     end
+    
     ####
-
 
     # Workflow for self service
     aasm do
-      state :applicant, initial: true
+      state :applicant, initial: true, :after_enter => :publish_benefit_sponsor_event
       state :initial_application_under_review # Sponsor's first application is submitted invalid and under HBX review
       state :initial_application_denied       # Sponsor's first application is rejected
       state :initial_application_approved     # Sponsor's first application is submitted and approved
       state :initial_enrollment_open          # Sponsor members are under first open enrollment period
       state :initial_enrollment_closed        # Sponsor members' have successfully completed first open enrollment
-      state :initial_enrollment_ineligible    # Sponsor members' first open enrollment has failed to meet eligibility policies
-      state :initial_enrollment_eligible,   after_enter: :publish_binder_event   # Sponsor has paid first premium in-full and authorized to offer benefits
-      state :binder_reversed,               after_enter: :publish_binder_event   # Spnosor's initial payment is returned
+      state :initial_enrollment_ineligible, :after_enter => :publish_benefit_sponsor_event  # Sponsor members' first open enrollment has failed to meet eligibility policies
+      state :initial_enrollment_eligible, :after_enter => :publish_benefit_sponsor_event    # Sponsor has paid first premium in-full and authorized to offer benefits
+      state :binder_reversed, :after_enter => :publish_benefit_sponsor_event                # Spnosor's initial payment is returned
       state :active                           # Sponsor's members are actively enrolled in coverage
       state :suspended                        # Premium payment is 61-90 days past due and Sponsor's benefit coverage has lapsed
       state :terminated                       # Sponsor's ability to offer benefits under this BenefitSponsorship is permanently terminated
       state :ineligible                       # Sponsor is permanently banned from sponsoring benefits due to regulation or policy
-
+      
       event :approve_initial_application do
         transitions from: [:applicant, :initial_application_under_review], to: :initial_application_approved
       end
@@ -530,28 +550,24 @@ module BenefitSponsors
       end
 
       event :cancel do
-        transitions from: [:initial_application_approved, :initial_enrollment_closed, :binder_reversed], to: :applicant
+        transitions from: [:initial_application_approved, :initial_enrollment_closed, :binder_reversed, :initial_enrollment_ineligible, :active], to: :applicant
       end
     end
 
     # Notify BenefitApplication that
-    def publish_binder_event
+    def publish_benefit_sponsor_event
+      return unless [:initial_enrollment_eligible,
+        :binder_reversed,
+        :initial_enrollment_ineligible,
+        :applicant
+      ].include?(aasm.to_state)
+      
       begin
-        File.open("publish_binder_event.txt", "a+") do |f|
-          f << "\n---------" + "\n"
-          f << Time.now.getutc.to_s + "\n"
-          f << self.id.to_s + "\n"
-          f << self.organization.legal_name + "\n"
-          benefit_applications.each do |benefit_application|
-            f << "  ----> #{benefit_application.id.to_s}"
-            benefit_application.benefit_sponsorship_event_subscriber(aasm)
-          end
-          f << "---------" + "\n"
+        benefit_applications.each do |benefit_application|
+          benefit_application.benefit_sponsorship_event_subscriber(aasm)
         end
       rescue
-
       end
-
     end
 
     # BenefitApplication        BenefitSponsorship
@@ -580,13 +596,40 @@ module BenefitSponsors
       when :active
         begin_coverage! if may_begin_coverage?
       when :expired
-        cancel! if may_cancel?
+        cancel! if may_cancel? && renewal_benefit_application.blank?
       when :canceled
-        cancel! if (may_cancel? && aasm.current_event == :activate_enrollment!)
+        if aasm.current_event == :activate_enrollment! || aasm.from_state == :enrollment_ineligible
+          cancel! if may_cancel?
+        end
       when :draft
         revert_to_applicant! if may_revert_to_applicant?
+      when :enrollment_extended
+        extend_open_enrollment(aasm)
       end
+    end
 
+    def extend_open_enrollment(aasm)
+      if aasm.from_state == :enrollment_ineligible
+        if initial_enrollment_ineligible?
+          update_state_without_event(:initial_enrollment_open)
+        end
+      else
+        transition = workflow_state_transitions[0]
+
+        if transition.from_state == 'initial_enrollment_ineligible' && transition.to_state == 'applicant'
+          update_state_without_event(:initial_enrollment_open)
+        end
+
+        if transition.from_state == 'active' && transition.to_state == 'applicant'
+          update_state_without_event(:active)
+        end
+      end
+    end
+
+    def update_state_without_event(new_state)
+      old_state = self.aasm_state
+      self.update(aasm_state: new_state)
+      self.workflow_state_transitions.create(from_state: old_state, to_state: new_state)
     end
 
     def is_conversion?

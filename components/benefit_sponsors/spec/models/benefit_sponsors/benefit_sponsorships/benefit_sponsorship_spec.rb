@@ -448,6 +448,90 @@ module BenefitSponsors
       end
     end
 
+    describe "most_recent_benefit_application", :dbclean => :after_each do
+      let(:benefit_sponsorship)                 { employer_profile.add_benefit_sponsorship }
+
+      let!(:imported_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+                                                        benefit_sponsorship: benefit_sponsorship,
+                                                        recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :imported) }
+
+      context "when employer has no benefit application" do
+
+        it "should not return benefit_application" do
+          expect(benefit_sponsorship.most_recent_benefit_application).to eq nil
+        end
+      end
+
+      context "when employer with no benefit application" do
+        before { benefit_sponsorship.benefit_applications = []}
+
+        it "should not return benefit_application" do
+          expect(benefit_sponsorship.most_recent_benefit_application).to eq nil
+        end
+      end
+
+      context "when employer with imported & submitted benefit application" do
+
+        let!(:submitted_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+                                                                benefit_sponsorship: benefit_sponsorship,
+                                                                recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :approved) }
+
+        it "should return submitted_benefit_application" do
+          expect(benefit_sponsorship.most_recent_benefit_application).to eq submitted_benefit_application
+        end
+      end
+    end
+
+    describe "latest_application", :dbclean => :after_each do
+      let!(:benefit_sponsorship)   { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_renewal_draft_benefit_application, profile: employer_profile ) }
+
+      context "when employer has renewal benefit application" do
+
+        it "should return benefit_application" do
+          expect(benefit_sponsorship.latest_application.is_renewing?).to eq true
+        end
+      end
+
+      context "when employer has no renewal benefit application" do
+        before { benefit_sponsorship.benefit_applications.where(:predecessor_id.ne => nil).delete }
+
+        it "should return benefit_application" do
+          expect(benefit_sponsorship.latest_application.is_renewing?).to eq false
+        end
+      end
+
+      context "when employer with no benefit application" do
+        before { benefit_sponsorship.benefit_applications = []}
+
+        it "should not return benefit_application" do
+          expect(benefit_sponsorship.latest_application).to eq nil
+        end
+      end
+    end
+
+    describe "submitted_benefit_application", :dbclean => :after_each do
+      let(:benefit_sponsorship)             { employer_profile.add_benefit_sponsorship }
+      let!(:imported_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+                                                        benefit_sponsorship: benefit_sponsorship,
+                                                        recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :imported) }
+      context "when an employer has imported benefit application" do
+        it "should return imported benefit application" do
+          benefit_sponsorship.update_attributes!(source_kind: :conversion)
+          expect(benefit_sponsorship.submitted_benefit_application).to eq imported_benefit_application
+        end
+      end
+
+      context "when employer with imported & active benefit application" do
+        let!(:active_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+                                                                benefit_sponsorship: benefit_sponsorship,
+                                                                recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :active) }
+        it "should return active benefit application" do
+          benefit_sponsorship.update_attributes!(source_kind: :conversion)
+          expect(benefit_sponsorship.submitted_benefit_application).to eq active_benefit_application
+        end
+      end
+    end
+
     describe "Scopes", :dbclean => :after_each do
       let!(:rating_area)                    { FactoryGirl.create(:benefit_markets_locations_rating_area)  }
       let!(:service_area)                    { FactoryGirl.create(:benefit_markets_locations_service_area)  }
@@ -484,7 +568,9 @@ module BenefitSponsors
                                                           aasm_state: :active)
                                               }
 
-      before { TimeKeeper.set_date_of_record_unprotected!(Date.today) }
+      let(:current_date)                    { Date.today }
+
+      before { TimeKeeper.set_date_of_record_unprotected!(current_date) }
 
       subject { BenefitSponsors::BenefitSponsorships::BenefitSponsorship }
 
@@ -498,12 +584,24 @@ module BenefitSponsors
       end
 
       context '.may_end_open_enrollment?' do
-        let(:initial_application_state) { :enrollment_open }
-        let(:renewal_application_state) { :enrollment_open }
+        context 'applications that are under enrollment_open state' do 
+          let(:initial_application_state) { :enrollment_open }
+          let(:renewal_application_state) { :enrollment_open }
 
-        it "should find sponsorships with application in enrollment_open state and matching open enrollment end date" do
-          expect(subject.may_end_open_enrollment?(april_open_enrollment_end_on.next_day).size).to eq (march_sponsors.size + april_sponsors.size + april_renewal_sponsors.size)
-          expect(subject.may_end_open_enrollment?(april_open_enrollment_end_on.next_day).to_a).to eq (march_sponsors + april_sponsors + april_renewal_sponsors)
+          it "matching open enrollment end on date should be returned" do
+            expect(subject.may_end_open_enrollment?(april_open_enrollment_end_on.next_day).size).to eq (march_sponsors.size + april_sponsors.size + april_renewal_sponsors.size)
+            expect(subject.may_end_open_enrollment?(april_open_enrollment_end_on.next_day).to_a).to eq (march_sponsors + april_sponsors + april_renewal_sponsors)
+          end
+        end
+
+        context 'applications that are under enrollment_extended state' do 
+          let(:initial_application_state) { :enrollment_extended }
+          let(:renewal_application_state) { :enrollment_extended }
+
+          it "matching open enrollment end on date should be returned" do
+            expect(subject.may_end_open_enrollment?(april_open_enrollment_end_on.next_day).size).to eq (march_sponsors.size + april_sponsors.size + april_renewal_sponsors.size)
+            expect(subject.may_end_open_enrollment?(april_open_enrollment_end_on.next_day).to_a).to eq (march_sponsors + april_sponsors + april_renewal_sponsors)
+          end
         end
       end
 
@@ -604,6 +702,48 @@ module BenefitSponsors
 
 
       context '.may_auto_submit_application?' do
+
+      end
+
+      context '.may_transition_as_initial_ineligible?' do 
+        let(:initial_application_state) { :enrollment_closed }
+        let(:renewal_application_state) { :enrollment_closed }
+        let(:april_enrollment_elgible_sponsor) { april_sponsors[0] }
+        let(:april_ineligible_sponsors) { april_sponsors.select{|sponsor| sponsor != april_enrollment_elgible_sponsor } }
+        let(:sponsorship_state) { :initial_enrollment_closed }
+
+        before do
+          april_enrollment_elgible_sponsor.approve_initial_enrollment_eligibility!
+        end
+
+        it "should find initial sponsorships with applications in enrollment_closed state and matching effective date" do
+          expect(subject.may_transition_as_initial_ineligible?(march_effective_date).size).to eq (march_sponsors.size)
+          expect(subject.may_transition_as_initial_ineligible?(march_effective_date).to_a).to eq (march_sponsors)
+
+          expect(subject.may_transition_as_initial_ineligible?(april_effective_date).size).to eq (april_ineligible_sponsors.size)
+          expect(subject.may_transition_as_initial_ineligible?(april_effective_date).to_a).to eq (april_ineligible_sponsors)
+        end
+      end
+
+      context '.may_cancel_ineligible_application?' do
+        let(:initial_application_state) { :enrollment_ineligible }
+        let(:renewal_application_state) { :enrollment_ineligible }
+        let(:april_enrollment_elgible_sponsor) { april_sponsors[0] }
+        let(:april_ineligible_sponsors) { april_sponsors.select{|sponsor| sponsor != april_enrollment_elgible_sponsor } }
+        let(:sponsorship_state) { :initial_enrollment_closed }
+
+        before do
+          april_enrollment_elgible_sponsor.approve_initial_enrollment_eligibility!
+          april_enrollment_elgible_sponsor.benefit_applications.first.update(aasm_state: :enrollment_eligible)
+        end
+
+        it "should find sponsorships with application in enrollment_eligible state and matching effective period begin date" do
+          expect(subject.may_cancel_ineligible_application?(march_effective_date).size).to eq (march_sponsors.size)
+          expect(subject.may_cancel_ineligible_application?(march_effective_date).to_a).to eq (march_sponsors)
+
+          expect(subject.may_cancel_ineligible_application?(april_effective_date).size).to eq (april_ineligible_sponsors.size + april_renewal_sponsors.size)
+          expect(subject.may_cancel_ineligible_application?(april_effective_date).to_a).to eq (april_ineligible_sponsors + april_renewal_sponsors)
+        end
       end
     end
 
