@@ -6,13 +6,12 @@
       //Brand and toggle get grouped for better mobile display
       .navbar-header
         button.navbar-toggle.collapsed type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false"
-          span.sr-only Toggle navigation
         a.navbar-brand href="#" = image_tag Settings.site.logo_file_name
       // Collect the nav links, forms, and other content for toggling
       .collapse.navbar-collapse#bs-example-navbar-collapse-1
         ul.nav.navbar-nav
           li
-            h4 = get_header_text(controller_name)
+            h4 = "Paid Family Leave"
         ul.nav.navbar-nav.navbar-right
           li
             a.call-customer-service href="tel:#{Settings.contact_center.phone_number}"
