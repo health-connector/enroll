@@ -22,6 +22,7 @@ site:
   copyright_period_start: "2017"
   header_message: "The Right Place for the Right Plan"
   logo_file_name: "circle_heart.png"
+  does_img: "does.png"
   make_their_premium_payments_online: "https://ww2.e-billexpress.com/ebpp/MAConnector/"
   tab_icon: 'favicon.ico'
   mailer_logo_file_name: "health_connector.png"
@@ -289,8 +290,8 @@ aptc_errors:
 
 style:
   primary_orange: '#BE1E2C'
-  brand_primary: '#445874'
-  primary_color: '#445874'
+  brand_primary: '#355575'
+  primary_color: '#355575'
   primary_notification: '#BE1E2C'
   primary_panel: '#BE1E2C'
   primary_button: '#337ab7'
