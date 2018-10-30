@@ -30,6 +30,7 @@ BenefitSponsors::Engine.routes.draw do
 
     namespace :employers do
       resources :employer_profiles, only: [:show] do
+        get :consumer_override
         get :export_census_employees
         post :bulk_employee_upload
         get :coverage_reports
@@ -87,8 +88,7 @@ BenefitSponsors::Engine.routes.draw do
         get :reference_product_summary, on: :collection
 
         resources :sponsored_benefits, controller: "sponsored_benefits/sponsored_benefits" do
-          member do 
-            get :change_reference_product
+          member do
             get :calculate_employee_cost_details
             get :calculate_employer_contributions
           end
