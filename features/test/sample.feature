@@ -3,7 +3,8 @@ Feature: As a broker/admin/POC
   So that I can get coverage for myself and my family
   
   Background: Setup benefit application with benefit package containing both health and dental sponsored benefits
-    Given there is an employer ABC Widgets
+    Given a CCA site exists with a health benefit market
+    And there is an employer ABC Widgets
     And this employer has a draft benefit application
     And this benefit application has a benefit package containing both health and dental benefits
     And at least one attestation document status is submitted
