@@ -369,21 +369,29 @@ class CensusEmployee < CensusMember
   #   end
   # end
 
-  def active_benefit_group
+  def active_benefit_package
     if active_benefit_group_assignment.present?
-      active_benefit_group_assignment.benefit_group
+      if active_benefit_group_assignment.benefit_group.plan_year.employees_are_matchable?
+        active_benefit_group_assignment.benefit_group
+      end
     end
   end
+
+  alias_method :active_benefit_group, :active_benefit_package
 
   def published_benefit_group
     published_benefit_group_assignment.benefit_group if published_benefit_group_assignment
   end
 
-  def renewal_published_benefit_group
-    if renewal_benefit_group_assignment && renewal_benefit_group_assignment.benefit_group.plan_year.employees_are_matchable?
-      renewal_benefit_group_assignment.benefit_group
+  def renewal_published_benefit_package
+    if renewal_benefit_group_assignment.present?
+      if renewal_benefit_group_assignment.benefit_group.plan_year.employees_are_matchable?
+        renewal_benefit_group_assignment.benefit_group
+      end
     end
   end
+
+  alias_method :renewal_published_benefit_group, :renewal_published_benefit_package
 
   # Initialize a new, refreshed instance for rehires via deep copy
   def replicate_for_rehire
@@ -603,9 +611,9 @@ class CensusEmployee < CensusMember
     @construct_role = true
 
     if active_benefit_group_assignment.present?
-       send_invite! if _id_changed? && !self.benefit_sponsorship.is_conversion? && !Rails.env.test?
+      send_invite! if _id_changed? && !Rails.env.test?
       # we do not want to create employer role durig census employee saving for conversion
-      return if self.employer_profile.is_a_conversion_employer?
+      # return if self.employer_profile.is_a_conversion_employer? ### this check needs to be re-done when loading mid_PY conversion and needs to have more specific check.
 
       if employee_role.present?
         self.link_employee_role! if may_link_employee_role? && employee_record_claimed?
