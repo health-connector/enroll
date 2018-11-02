@@ -44,6 +44,6 @@ end
 
 World(BenefitSponsorWorld)
 
-And(/^this benefit application has a benefit package containing both (.*?) and (.*?) benefits$/) do |health, dental|
+Given(/^this benefit application has a benefit package containing (?:both ?)(.*?)(?: and ?)(.*?) benefits$/) do |health, dental|
   p dental
 end
