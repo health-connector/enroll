@@ -815,8 +815,8 @@ module BenefitSponsors
       end
 
       event :extend_open_enrollment do
-        transitions from: [:canceled, :enrollment_ineligible, :enrollment_extended], to: :enrollment_extended
-      end      
+        transitions from: [:canceled, :enrollment_ineligible, :enrollment_extended, :enrollment_open, :enrollment_closed], to: :enrollment_extended
+      end
     end
 
     # Notify BenefitSponsorship upon state change
