@@ -1,0 +1,5 @@
+$("#notice").html('<%= j render partial: "benefit_sponsors/benefit_applications/benefit_applications/shared/notice" %>')
+
+$(document).ajaxComplete(function() {
+  $('html').scrollTop(0);
+});

@@ -56,12 +56,8 @@ module BenefitSponsors
         form
       end
 
-      def self.for_update(id)
-        # for update why are we creating new
-        form = self.new(id: id)
-        form.service.load_form_params_from_resource(form)
-        form.service.load_form_metadata(form)
-        form
+      def self.for_update(attrs)
+        new(attrs)
       end
 
       def self.fetch(id)

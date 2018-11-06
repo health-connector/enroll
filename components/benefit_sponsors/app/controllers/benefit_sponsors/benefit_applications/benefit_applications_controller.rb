@@ -26,20 +26,19 @@ module BenefitSponsors
       end
 
       def update
-        @benefit_application_form = BenefitSponsors::Forms::BenefitApplicationForm.for_update(params.require(:id))
+        @benefit_application_form = BenefitSponsors::Forms::BenefitApplicationForm.for_update(application_params.merge({
+          id: params[:id]
+        }))
+
         authorize @benefit_application_form, :updateable?
         if @benefit_application_form.update_attributes(application_params)
-          flash[:notice] = "Benefit Application updated successfully."
-          if @benefit_application_form.show_page_model.benefit_packages.empty?
-            redirect_to new_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_application_form.show_page_model.benefit_sponsorship, @benefit_application_form.show_page_model)
-          elsif params[:update_single].present?
-            redirect_to edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_application_form.show_page_model.benefit_sponsorship, @benefit_application_form.show_page_model, @benefit_application_form.show_page_model.benefit_packages.first, :show_benefit_application_tile => true)
-          else
-            redirect_to edit_benefit_sponsorship_benefit_application_path(@benefit_application_form.show_page_model.benefit_sponsorship, @benefit_application_form.show_page_model)
-          end
+          @notice = "Benefit Application updated successfully."
         else
-          flash[:error] = error_messages(@benefit_application_form)
-          render :edit
+          @notice = error_messages(@benefit_application_form)
+        end
+
+        respond_to do |format|
+          format.js
         end
       end
 
