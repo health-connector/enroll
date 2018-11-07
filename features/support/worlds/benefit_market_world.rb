@@ -4,7 +4,7 @@ module BenefitMarketWorld
   end
 
   def rating_area
-    @rating_area ||= FactoryGirl.create_default(:benefit_markets_locations_rating_area)
+    @rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area)
   end
 
   def service_area

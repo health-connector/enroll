@@ -1,10 +1,10 @@
 module UserWorld
-  
+
   def employee(employer)
     if @employee
       @employee
     else
-      employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer.id)
+      employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer.profiles.first.id)
       person = FactoryGirl.build(:person, employer_staff_roles:[employer_staff_role])
       @employee = FactoryGirl.build(:user, :person => person)
     end
