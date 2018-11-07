@@ -1,7 +1,11 @@
 module EmployerWorld
-  
-  def employer(profile=nil)
+
+  def employer
     @organization ||= FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)
+  end
+
+  def employer_profile
+    @employer_profile = employer.employer_profile
   end
 end
 
@@ -9,6 +13,10 @@ World(EmployerWorld)
 
 And(/^there is an employer (.*?)$/) do |legal_name|
   @legal_name = legal_name
+  employer
+  employer.legal_name = legal_name
+  employer.dba = legal_name
+  benefit_sponsorship(employer)
 end
 
 And(/^this employer has a (.*?) benefit application$/) do |status|
@@ -20,7 +28,6 @@ And(/^this employer has a (.*?) benefit application$/) do |status|
   when "expired"
     @state = :with_expired_and_active_benefit_application
   end
-  benefit_sponsorship(employer)
 end
 
 And(/^at least one attestation document status is (.*?)$/) do |status|
