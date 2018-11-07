@@ -10,7 +10,9 @@ module BenefitSponsorWorld
 
   def benefit_application
     @benefit_application ||= FactoryGirl.create(:benefit_sponsors_benefit_application,
-        :with_benefit_package,
+        benefit_sponsorship: benefit_sponsorship,
+        benefit_sponsor_catalog: benefit_sponsor_catalog,
+        aasm_state: :active,
         :fte_count => 10,
         :open_enrollment_period => Range.new(Date.today, Date.today + BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN),
       )

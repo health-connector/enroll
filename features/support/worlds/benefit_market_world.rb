@@ -45,5 +45,6 @@ module BenefitMarketWorld
       end
   end
 end
+end
 
 World(BenefitMarketWorld)

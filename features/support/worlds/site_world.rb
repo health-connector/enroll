@@ -6,6 +6,6 @@ end
 
 World(SiteWorld)
 
-Given(/^a (.*?) site exists with a benefit market$/) do
+Given(/^a (.*?) site exists with a benefit market$/) do |key|
   site
 end
