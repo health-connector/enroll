@@ -1,6 +1,6 @@
 module BenefitSponsorWorld
 
-  def benefit_sponsorship(employer)
+  def benefit_sponsorship(employer = nil)
     @benefit_sponsorship ||= employer.employer_profile.add_benefit_sponsorship.tap do |benefit_sponsorship|
       benefit_sponsorship.save
     end
@@ -13,8 +13,8 @@ module BenefitSponsorWorld
   def benefit_application
     @benefit_application ||= ::BenefitSponsors::BenefitApplications::BenefitApplicationFactory.call(
       benefit_sponsorship,
-      effective_period: Range.new(Date.today.beginning_of_month..Date.today.beginning_of_month+1.year),
-      open_enrollment_period: Range.new(Date.today, Date.today + BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN),
+      effective_period: Range.new(Date.today.beginning_of_month, Date.today.beginning_of_month+1.year),
+      open_enrollment_period: Range.new(Date.today, Date.today+::BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN),
       fte_count: 5,
       pte_count: 0,
       msp_count: 0
@@ -25,5 +25,5 @@ end
 World(BenefitSponsorWorld)
 
 Given(/^this benefit application has a benefit package containing (?:both ?)(.*?)(?: and ?)(.*?) benefits$/) do |health, dental|
-  p dental
+  benefit_application
 end
