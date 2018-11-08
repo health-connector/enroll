@@ -8,6 +8,5 @@ World(SiteWorld)
 
 Given(/^a (.*?) site exists with a benefit market$/) do |key|
   site
-  issuer_profile
   map_products
 end

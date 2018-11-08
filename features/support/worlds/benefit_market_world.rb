@@ -32,8 +32,19 @@ module BenefitMarketWorld
   end
 
   def service_area
-    county_zip_id = FactoryGirl.create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id
-    @service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
+    @service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip.id], active_year: current_effective_date.year)
+  end
+
+  def county_zip
+    @county_zip ||= FactoryGirl.create(:benefit_markets_locations_county_zip,
+      county_name: 'Middlesex',
+      zip: '01754',
+      state: 'MA'
+    )
+  end
+
+  def issuer_profile(carrier=:default)
+    @issuer_profile[carrier] ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
   def renewal_service_area
@@ -48,7 +59,8 @@ module BenefitMarketWorld
       product_package_kinds: [:single_issuer, :metal_level, :single_product],
       service_area: service_area,
       renewal_service_area: renewal_service_area,
-      metal_level_kind: :gold
+      metal_level_kind: :gold,
+      issuer_profile_id: issuer_profile.id
     )
   end
 
@@ -60,21 +72,42 @@ module BenefitMarketWorld
       product_package_kinds: [:single_product],
       service_area: service_area,
       renewal_service_area: renewal_service_area,
-      metal_level_kind: :dental
+      metal_level_kind: :dental,
+      issuer_profile_id: issuer_profile.id
+    )
+  end
+
+  def build_product_package(product_kind, package_kind)
+    build(:benefit_markets_products_product_package,
+      packagable: nil,
+      package_kind: package_kind,
+      product_kind: product_kind,
+      county_zip_id: county_zip.id,
+      service_area: service_area,
+      title: "#{package_kind.to_s.humanize} #{product_kind}",
+      description: "#{package_kind.to_s.humanize} #{product_kind}",
+      application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
     )
   end
 
   def current_benefit_market_catalog
-    @current_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+    @current_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog,
       benefit_market: benefit_market,
       product_kinds: product_kinds,
       title: "SHOP Benefits for #{current_effective_date.year}",
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
-    )
+    ).tap do |catalog|
+        #[:single_issuer,:metal_level,:single_product]
+        [:single_issuer].each do |package_kind|
+          [:health,:dental].each do |product_kind|
+            catalog.product_packages << build_product_package(product_kind,package_kind)
+          end
+        end
+    end
   end
 
   def renewal_benefit_market_catalog
-    @renewal_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+    @renewal_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog,
       benefit_market: benefit_market,
       product_kinds: product_kinds,
       title: "SHOP Benefits for #{renewal_effective_date.year}",

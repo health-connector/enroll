@@ -40,25 +40,45 @@ module BenefitApplicationWorld
         fte_count: 5,
         pte_count: 0,
         msp_count: 0
-    )
+    ).tap(&:save)
   end
 
-  def product_package
-    @product_package ||= initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind }
+  def roster_size(count=2)
+    return count
   end
+
+  def census_employees
+    create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package)
+  end
+
 
   def dental_product_package
     @dental_product_package ||= initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.product_kind == :dental }
   end
 
   def current_benefit_package
-    @current_benefit_package ||= FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, dental_sponsored_benefit: dental_sponsored_benefit, product_package: product_package, dental_product_package: dental_product_package, benefit_application: initial_application)
+    @current_benefit_package ||= FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package,
+      health_sponsored_benefit: false,
+      dental_sponsored_benefit: false,
+      product_package: find_product_package(:health, :single_issuer),
+      dental_product_package: find_product_package(:dental, :single_issuer),
+      benefit_application: initial_application
+    )
+  end
+
+  def find_product_package(product_kind,package_kind)
+    current_benefit_market_catalog.product_packages.find do |product_package|
+      product_package.product_kind == product_kind &&
+      product_package.package_kind == package_kind
+    end
   end
 end
 
 World(BenefitApplicationWorld)
 
 Given(/^this benefit application has a benefit package containing (?:both ?)(.*?)(?: and ?)(.*?) benefits$/) do |health, dental|
+  health_products
+  census_employees
   initial_application.benefit_packages = [current_benefit_package]
   benefit_sponsorship.benefit_applications = [initial_application]
   benefit_sponsorship.save!
