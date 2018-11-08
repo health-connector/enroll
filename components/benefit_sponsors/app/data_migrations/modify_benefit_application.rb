@@ -20,6 +20,8 @@ class ModifyBenefitApplication< MongoidMigrationTask
       extend_open_enrollment
     when "force_submit_application"
       force_submit_application(benefit_application_for_force_submission)
+    when "terminate_expired_application"
+      terminate_expired_application(benefit_applications_for_cancel)
     end
   end
 
@@ -117,6 +119,34 @@ class ModifyBenefitApplication< MongoidMigrationTask
       service.terminate(end_on, termination_date)
       trigger_advance_termination_request_notice(benefit_application) if benefit_application.terminated? && (termination_notice == "true")
     end
+  end
+
+  def terminate_expired_application(benefit_application)
+    termination_notice = ENV['termination_notice'].to_s
+    end_on = Date.strptime(ENV['end_on'],'%m/%d/%Y')
+    termination_date = Date.strptime(ENV['termination_date'],'%m/%d/%Y')
+      if [:expired,:imported].include?(benefit_application.aasm_state)
+        updated_dates = benefit_application.effective_period.min.to_date..end_on
+        benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date)
+        from_state = benefit_application.aasm_state
+        benefit_application.workflow_state_transitions << WorkflowStateTransition.new(
+        from_state: from_state,
+        to_state: :terminated
+        )
+        benefit_application.update_attributes!(aasm_state: :terminated)
+        if get_benefit_sponsorship.aasm_state != :terminated
+            from_state = get_benefit_sponsorship.aasm_state
+            get_benefit_sponsorship.update_attributes!(aasm_state: :terminated)
+            get_benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
+            from_state: from_state,
+            to_state: :terminated
+            )
+        end
+        benefit_application.benefit_packages.each do |benefit_package|
+          benefit_package.terminate_member_benefits
+        end
+      end
+    trigger_advance_termination_request_notice(benefit_application) if benefit_application.terminated? && (termination_notice == "true")
   end
 
   def cancel_benefit_application(benefit_application)

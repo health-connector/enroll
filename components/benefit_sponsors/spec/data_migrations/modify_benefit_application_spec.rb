@@ -154,6 +154,47 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       end
     end
 
+    context "terminate expired benefit application", dbclean: :after_each do
+      let(:termination_date) { start_on.next_month.next_day }
+      let(:end_on)           { start_on.next_month.end_of_month }
+      let(:effective_date) { start_on }
+
+      before do
+        allow(ENV).to receive(:[]).with("termination_notice").and_return("true")
+        allow(ENV).to receive(:[]).with("action").and_return("terminate_expired_application")
+        allow(ENV).to receive(:[]).with("termination_date").and_return(termination_date.strftime("%m/%d/%Y"))
+        allow(ENV).to receive(:[]).with("end_on").and_return(end_on.strftime("%m/%d/%Y"))
+        allow(ENV).to receive(:[]).with("plan_year_start_on").and_return(effective_date.strftime("%m/%d/%Y"))
+        benefit_application.update_attributes!(aasm_state: :expired)
+        subject.migrate
+        benefit_application.reload
+        benefit_sponsorship.reload
+      end
+
+      it "should terminate the benefit application" do
+        expect(benefit_application.aasm_state).to eq :terminated
+      end
+
+      it "should update end on date on benefit application" do
+        expect(benefit_application.end_on).to eq end_on
+      end
+
+      it "should update terminated on date on benefit application" do
+        expect(benefit_application.terminated_on).to eq termination_date
+      end
+
+      it "should terminate any active employee enrollments" do
+        benefit_application.hbx_enrollments.each { |hbx_enrollment| expect(hbx_enrollment.aasm_state).to eq "coverage_terminated"}
+      end
+
+      it "should terminate any active employee enrollments with termination date as on Benefit Application" do
+        benefit_application.hbx_enrollments.each { |hbx_enrollment| expect(hbx_enrollment.terminated_on).to eq end_on }
+      end
+      it "should update the benefit_sponsorship to terminated state" do
+        expect(benefit_application.benefit_sponsorship.aasm_state).to eq :terminated
+      end
+    end
+
     context "cancel benefit application", dbclean: :after_each do
       let(:past_start_on) {start_on.prev_month}
       let!(:past_effective_period) {past_start_on..past_start_on.next_year.prev_day }
