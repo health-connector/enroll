@@ -108,7 +108,7 @@ namespace :export do
         else
           employee_cl = health_contribution_levels.where(display_name: /Employee Only/i).first
           spouse_cl = domestic_partner_cl = child_under_26_cl = health_contribution_levels.where(display_name: /Family/i).first
-        end        
+        end
 
         benefit_sponsorship = application.benefit_sponsorship
         broker_account = benefit_sponsorship.broker_agency_accounts.first
@@ -151,6 +151,8 @@ namespace :export do
         profile.entity_kind,
         profile.sic_code,
         profile.profile_source,
+        profile.referred_by,
+        profile.referred_reason,
         benefit_sponsorship.aasm_state,
         "", # GA related TODO for DC
         "", # GA related TODO for DC
@@ -193,7 +195,7 @@ namespace :export do
     CSV.open(file_name, "w") do |csv|
 
       headers = %w(employer.legal_name employer.dba employer.fein employer.hbx_id employer.entity_kind 
-                   employer.sic_code employer_profile.profile_source employer.status ga_fein ga_agency_name ga_start_on
+                   employer.sic_code employer_profile.profile_source employer.referred_by employer.referred_reason employer.status ga_fein ga_agency_name ga_start_on
                    office_location.is_primary office_location.address.address_1 office_location.address.address_2
                    office_location.address.city office_location.address.state office_location.address.zip
                    office_location.address.county mailing_location.address_1 mailing_location.address_2 mailing_location.city
@@ -214,7 +216,7 @@ namespace :export do
 
       puts "No general agency profile for CCA Employers" unless general_agency_enabled?
 
-      organizations.no_timeout.each do |organization| 
+      organizations.no_timeout.each do |organization|
         begin
           profile = organization.employer_profile
 
