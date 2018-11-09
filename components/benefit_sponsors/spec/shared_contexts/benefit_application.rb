@@ -18,6 +18,7 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
   }
   
   let(:dental_sponsored_benefit) { false }
+
   let!(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
   let!(:service_areas) { 
     benefit_sponsorship.service_areas_on(effective_period.min) 
