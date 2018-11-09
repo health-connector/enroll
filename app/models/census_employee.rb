@@ -632,6 +632,9 @@ class CensusEmployee < CensusMember
 
     return false if person.blank? || (person.present? &&
                                       person.has_active_employee_role_for_census_employee?(self))
+    # staff role person not going to ssn field but we have update ssn on matching person record
+    person.update_attributes(encrypted_ssn: self.encrypted_ssn, gender: self.gender) if person.employer_staff_roles.present?
+
     Factories::EnrollmentFactory.build_employee_role(person, nil, employer_profile, self, hired_on)
     # self.trigger_notices("employee_eligibility_notice")#sends EE eligibility notice to census employee
     return true
