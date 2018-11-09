@@ -8,7 +8,7 @@ module BenefitMarketWorld
   end
 
   def current_effective_date
-    @current_effective_date = (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year
+    @current_effective_date = (TimeKeeper.date_of_record + 2.months).beginning_of_month
   end
 
   def renewal_effective_date

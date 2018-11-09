@@ -1,7 +1,7 @@
 module BenefitApplicationWorld
 
-  def aasm_state
-    @aasm_state ||= :active
+  def aasm_state(key=nil)
+    @aasm_state ||= key
   end
 
   def package_kind
@@ -30,7 +30,6 @@ module BenefitApplicationWorld
 
   def initial_application
     @initial_application ||= BenefitSponsors::BenefitApplications::BenefitApplication.new(
-        # benefit_sponsorship: benefit_sponsorship,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
         effective_period: effective_period,
         aasm_state: aasm_state,
@@ -43,7 +42,7 @@ module BenefitApplicationWorld
     ).tap(&:save)
   end
 
-  def roster_size(count=2)
+  def roster_size(count=5)
     return count
   end
 
@@ -75,6 +74,15 @@ module BenefitApplicationWorld
 end
 
 World(BenefitApplicationWorld)
+
+And(/^this employer has a (.*?) benefit application$/) do |status|
+  case status
+  when "draft"
+    aasm_state(:draft)
+  when "active"
+    aasm_state(:active)
+  end
+end
 
 Given(/^this benefit application has a benefit package containing (?:both ?)(.*?)(?: and ?)(.*?) benefits$/) do |health, dental|
   health_products
