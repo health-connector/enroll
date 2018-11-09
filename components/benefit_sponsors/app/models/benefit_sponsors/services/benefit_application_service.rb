@@ -147,7 +147,17 @@ module BenefitSponsors
           return [false, nil]
         end
 
-        unless benefit_application.save
+        unless benefit_application.persisted?
+          catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.resolve_service_areas, benefit_application.effective_period.begin)
+          benefit_application.benefit_sponsor_catalog = catalog
+        end
+
+        if benefit_application.save
+          if catalog.present?
+            catalog.benefit_application = benefit_application
+            catalog.save
+          end
+        else
           map_errors_for(benefit_application, onto: form)
           return [false, nil]
         end
