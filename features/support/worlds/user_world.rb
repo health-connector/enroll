@@ -22,5 +22,5 @@ Given(/^that a user with an (.*?) role exists and is logged in$/) do |type|
     when "HBX staff"
       user = nil
   end
-  login_as user
+  login_as user, scope: :user
 end

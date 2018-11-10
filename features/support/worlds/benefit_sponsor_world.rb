@@ -6,7 +6,7 @@ module BenefitSponsorWorld
   end
 
   def benefit_sponsor_catalog
-    @benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min)
+    @benefit_sponsor_catalog ||= benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min).tap(&:save!)
   end
 
   def issuer_profile

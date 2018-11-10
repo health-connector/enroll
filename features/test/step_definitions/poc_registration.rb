@@ -7,7 +7,7 @@ Given(/^the employee is on the (.*?) of the (.*?) employer portal$/) do |action,
 end
 
 When(/^the user clicks 'Publish Plan Year'$/) do
-  find('a.interaction-click-control-publish-plan-year').click
+  find('a.interaction-click-control-publish-plan-year').trigger 'click'
 end
 
 Then(/^the benefit application should move to the enrolling state$/) do

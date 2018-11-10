@@ -6,7 +6,7 @@ Feature: As a broker/admin/POC
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
     And this employer has a draft benefit application
-    And this benefit application has a benefit package containing both health and dental benefits
+    And this benefit application has a benefit package containing health benefits
     And at least one attestation document status is submitted
 
   Scenario: As Employer publish benefit application with benefit package

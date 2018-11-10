@@ -60,7 +60,8 @@ module BenefitMarketWorld
       service_area: service_area,
       renewal_service_area: renewal_service_area,
       metal_level_kind: :gold,
-      issuer_profile_id: issuer_profile.id
+      issuer_profile_id: issuer_profile.id,
+      premium_ages: 20..20 #Get Trey to remove hack
     )
   end
 
@@ -69,11 +70,12 @@ module BenefitMarketWorld
       5,
       :with_renewal_product,
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-      product_package_kinds: [:single_product],
+      product_package_kinds: [:single_product,:single_issuer],
       service_area: service_area,
       renewal_service_area: renewal_service_area,
       metal_level_kind: :dental,
-      issuer_profile_id: issuer_profile.id
+      issuer_profile_id: issuer_profile.id,
+      premium_ages: 20..20 #Get Trey to remove hack
     )
   end
 
@@ -127,7 +129,6 @@ module BenefitMarketWorld
       end
     end
   end
-
 end
 
 World(BenefitMarketWorld)
