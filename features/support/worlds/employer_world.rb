@@ -25,3 +25,7 @@ end
 And(/^at least one attestation document status is (.*?)$/) do |status|
   @employer_attestation_status = status
 end
+
+And(/^employer (.*?) has hired this broker$/) do |employer|
+  #binding.pry
+end
