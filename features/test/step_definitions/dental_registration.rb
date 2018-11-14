@@ -6,12 +6,10 @@ Given(/^the (.*?) is on the (.*?) of the (.*?) employer portal$/) do |role, acti
   end
 end
 
-When(/^the user clicks 'Publish Plan Year'$/) do
-  act_as(@current_role)
+When(/^the (.*) clicks 'Publish Plan Year'$/) do |actor|
   find('.interaction-click-control-publish-plan-year').click
 end
 
 Then(/^the benefit application should move to the enrolling state$/) do
-  act_as(@current_role)
   find('.alert.alert-notice', text: "Plan Year successfully published.")
 end

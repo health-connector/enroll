@@ -20,12 +20,17 @@ And(/^there is an employer (.*?)$/) do |legal_name|
   employer legal_name: legal_name,
            dba: legal_name
   benefit_sponsorship(employer)
+
 end
 
 And(/^at least one attestation document status is (.*?)$/) do |status|
   @employer_attestation_status = status
 end
 
-And(/^employer (.*?) has hired this broker$/) do |employer|
-  #binding.pry
+Given(/^employer (.*?) has hired this broker$/) do |employer|
+  assign_broker_agency_account
+  assign_person_to_broker_agency
+  employer_profile.hire_broker_agency(broker_agency_profile)
+  # Need to fix below later
+  employer_profile.benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id:broker.person.broker_role.id)
 end

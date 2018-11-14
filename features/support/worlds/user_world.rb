@@ -14,21 +14,10 @@ module UserWorld
     if @broker
       @broker
     else
-      broker_agency_profile = FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, organization:broker_agency)
       person = FactoryGirl.create(:person)
-      broker_role = FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person)
+      broker_role = FactoryGirl.build(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person)
       @broker = FactoryGirl.create(:user, :person => person)
     end
-  end
-
-  def act_as(role)
-    case role
-    when "employee"
-      user = employee(employer)
-    when "broker"
-      user = broker(employer)
-    end
-    login_as(user, :scope => :user)
   end
 
 end
@@ -38,11 +27,11 @@ World(UserWorld)
 Given(/^that a user with a (.*?) role exists and is logged in$/) do |type|
   case type
     when "Employer"
-      @current_role = "employee"
+      user = employee(employer)
     when "Broker"
-      @current_role = "broker"
+      user = broker(broker_agency_profile)
     when "HBX staff"
       user = nil
   end
-  act_as(@current_role)
+  login_as(user, :scope => :user)
 end
