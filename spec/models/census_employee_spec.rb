@@ -873,9 +873,9 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   end
 
   describe 'construct_employee_role' do
-    let(:user)  { FactoryGirl.create(:user) }
+    let(:user) {FactoryGirl.create(:user)}
     context 'when employee_role present' do
-      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, employer_profile: employer_profile ) }
+      let(:employee_role) {FactoryGirl.create(:benefit_sponsors_employee_role, employer_profile: employer_profile)}
       let(:census_employee) do
         FactoryGirl.create :benefit_sponsors_census_employee, employer_profile: employer_profile,
                            benefit_sponsorship: organization.active_benefit_sponsorship,
@@ -902,7 +902,27 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         census_employee.construct_employee_role
         census_employee.reload
       end
-      it { expect(census_employee.aasm_state).to eq('eligible') }
+      it {expect(census_employee.aasm_state).to eq('eligible')}
+    end
+
+    context 'when staff role person add to census employee roster' do
+      let!(:person) {FactoryGirl.create(:person, :with_employer_staff_role, user: user)}
+      let!(:cca_profile) {person.employer_staff_roles.first.profile}
+      let!(:site) {create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)}
+
+      it "call Back should not mark census employee as employee_role_linked" do
+        benefit_sponsorship = cca_profile.add_benefit_sponsorship
+        benefit_sponsorship.benefit_applications << initial_application
+        census_employee = FactoryGirl.create :benefit_sponsors_census_employee,
+                                             first_name: person.first_name,
+                                             last_name: person.last_name,
+                                             dob: person.dob,
+                                             employer_profile: cca_profile,
+                                             benefit_sponsorship: benefit_sponsorship
+
+        expect(census_employee.save).to eq true
+        expect(census_employee.aasm_state).to eq "eligible"
+      end
     end
   end
 

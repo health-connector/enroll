@@ -257,60 +257,86 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
   end
 
   describe "POST match" do
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
-    let(:mock_employee_candidate) { instance_double("Forms::EmployeeCandidate", :valid? => validation_result, ssn: "333224444", dob: "08/15/1975") }
-    let(:census_employee) { instance_double("CensusEmployee")}
-    let(:hired_on) { double }
-    let(:employment_relationships) { double }
-    let(:user_id) { "SOMDFINKETHING_ID"}
-    let(:user) { double("User",id: user_id, email: "somdfinkething@gmail.com") }
+    let!(:person) {FactoryGirl.create(:person, :with_employer_staff_role)}
+    let(:person_parameters) {{:first_name => person.first_name, last_name: person.last_name, dob: person.dob.to_s, ssn: "333224444", gender: "male"}}
+    let(:mock_employee_candidate) {instance_double("Forms::EmployeeCandidate", :valid? => validation_result, ssn: "333224444", dob: "08/15/1975", gender: "male")}
+    let(:census_employee) {instance_double("CensusEmployee")}
+    let(:hired_on) {double}
+    let(:employment_relationships) {double}
+    let(:user_id) {"SOMDFINKETHING_ID"}
+    let(:user) {double("User", id: user_id, email: "somdfinkething@gmail.com")}
 
-    before(:each) do
+
+    before :each do
       sign_in(user)
       allow(mock_employee_candidate).to receive(:match_census_employees).and_return(found_census_employees)
       allow(census_employee).to receive(:is_active?).and_return(true)
       allow(Forms::EmployeeCandidate).to receive(:new).with(person_parameters.merge({user_id: user_id})).and_return(mock_employee_candidate)
       allow(Factories::EmploymentRelationshipFactory).to receive(:build).with(mock_employee_candidate, [census_employee]).and_return(employment_relationships)
-      post :match, :person => person_parameters
     end
 
-    context "given invalid parameters" do
-      let(:validation_result) { false }
-      let(:found_census_employees) { [] }
+    context "Normal person claiming" do
+      let(:normal_person) {double("Person", present?: false)}
+      before(:each) do
+        allow(mock_employee_candidate).to receive(:match_person).and_return(normal_person)
+        post :match, :person => person_parameters
+      end
 
-      it "renders the 'search' template" do
-        expect(response).to have_http_status(:success)
-        expect(response).to render_template("search")
-        expect(assigns[:employee_candidate]).to eq mock_employee_candidate
+      context "given invalid parameters" do
+        let(:validation_result) {false}
+        let(:found_census_employees) {[]}
+
+        it "renders the 'search' template" do
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("search")
+          expect(assigns[:employee_candidate]).to eq mock_employee_candidate
+        end
+      end
+
+      context "given valid parameters" do
+        let(:validation_result) {true}
+
+        context "but with no found employee" do
+          let(:found_census_employees) {[]}
+          let(:person) {double("Person")}
+          let(:consumer_role) {double("ConsumerRole", id: "test")}
+          let(:person_parameters) {{"dob" => "1985-10-01", "first_name" => "martin", "gender" => "male", "last_name" => "york", "middle_name" => "", "name_sfx" => "", "ssn" => "000000111"}}
+
+          it "renders the 'no_match' template" do
+            expect(response).to have_http_status(:success)
+            expect(response).to render_template("no_match")
+            expect(assigns[:employee_candidate]).to eq mock_employee_candidate
+            expect(response).to render_template("employee_ineligibility_notice")
+          end
+
+          context "that find a matching employee" do
+            let(:found_census_employees) {[census_employee]}
+
+            it "renders the 'match' template" do
+              expect(response).to have_http_status(:success)
+              expect(response).to render_template("match")
+              expect(assigns[:employee_candidate]).to eq mock_employee_candidate
+              expect(assigns[:employment_relationships]).to eq employment_relationships
+            end
+          end
+        end
       end
     end
 
-    context "given valid parameters" do
-      let(:validation_result) { true }
+    context "staff Role existing person claiming" do
+      let(:validation_result) {true}
+      let(:found_census_employees) {[census_employee]}
 
-      context "but with no found employee" do
-        let(:found_census_employees) { [] }
-        let(:person){ double("Person") }
-        let(:consumer_role){ double("ConsumerRole", id: "test") }
-        let(:person_parameters){{"dob"=>"1985-10-01", "first_name"=>"martin","gender"=>"male","last_name"=>"york","middle_name"=>"","name_sfx"=>"","ssn"=>"000000111"}}
+      before(:each) do
+        allow(mock_employee_candidate).to receive(:match_person).and_return(person)
+        post :match, :person => person_parameters
+      end
 
-        it "renders the 'no_match' template" do
-          expect(response).to have_http_status(:success)
-          expect(response).to render_template("no_match")
-          expect(assigns[:employee_candidate]).to eq mock_employee_candidate
-          expect(response).to render_template("employee_ineligibility_notice")
-        end
-
-        context "that find a matching employee" do
-          let(:found_census_employees) { [census_employee] }
-
-          it "renders the 'match' template" do
-            expect(response).to have_http_status(:success)
-            expect(response).to render_template("match")
-            expect(assigns[:employee_candidate]).to eq mock_employee_candidate
-            expect(assigns[:employment_relationships]).to eq employment_relationships
-          end
-        end
+      it "should update ssn and gender on staff role person record" do
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("match")
+        expect(person.reload.ssn).to eq person_parameters[:ssn]
+        expect(person.reload.gender).to eq person_parameters[:gender]
       end
     end
   end
