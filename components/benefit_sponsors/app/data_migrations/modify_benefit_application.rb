@@ -7,11 +7,11 @@ class ModifyBenefitApplication< MongoidMigrationTask
 
     case action
     when "cancel"
-      cancel_benefit_application(benefit_applications_for_cancel)
+      cancel_benefit_application(benefit_application)
     when "terminate"
-      terminate_benefit_application(benefit_applications_for_terminate)
+      terminate_benefit_application(benefit_application)
     when "reinstate"
-      reinstate_benefit_application(benefit_applications_for_reinstate)
+      reinstate_benefit_application(benefit_application)
     when "begin_open_enrollment"
       begin_open_enrollment(benefit_applications_for_aasm_state_update)
     when "update_effective_period_and_approve"
@@ -19,9 +19,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
     when "extend_open_enrollment"
       extend_open_enrollment
     when "force_submit_application"
-      force_submit_application(benefit_application_for_force_submission)
-    when "terminate_expired_application"
-      terminate_expired_application(benefit_applications_for_cancel)
+      force_submit_application(benefit_application)
     end
   end
 
@@ -110,42 +108,12 @@ class ModifyBenefitApplication< MongoidMigrationTask
     end
   end
 
-  def terminate_benefit_application(benefit_applications)
+  def terminate_benefit_application(benefit_application)
     termination_notice = ENV['termination_notice'].to_s
     termination_date = Date.strptime(ENV['termination_date'], "%m/%d/%Y")
     end_on = Date.strptime(ENV['end_on'], "%m/%d/%Y")
-    benefit_applications.each do |benefit_application|
-      service = initialize_service(benefit_application)
-      service.terminate(end_on, termination_date)
-      trigger_advance_termination_request_notice(benefit_application) if benefit_application.terminated? && (termination_notice == "true")
-    end
-  end
-
-  def terminate_expired_application(benefit_application)
-    termination_notice = ENV['termination_notice'].to_s
-    end_on = Date.strptime(ENV['end_on'],'%m/%d/%Y')
-    termination_date = Date.strptime(ENV['termination_date'],'%m/%d/%Y')
-      if [:expired,:imported].include?(benefit_application.aasm_state)
-        updated_dates = benefit_application.effective_period.min.to_date..end_on
-        benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date)
-        from_state = benefit_application.aasm_state
-        benefit_application.workflow_state_transitions << WorkflowStateTransition.new(
-        from_state: from_state,
-        to_state: :terminated
-        )
-        benefit_application.update_attributes!(aasm_state: :terminated)
-        if get_benefit_sponsorship.aasm_state != :terminated
-            from_state = get_benefit_sponsorship.aasm_state
-            get_benefit_sponsorship.update_attributes!(aasm_state: :terminated)
-            get_benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
-            from_state: from_state,
-            to_state: :terminated
-            )
-        end
-        benefit_application.benefit_packages.each do |benefit_package|
-          benefit_package.terminate_member_benefits
-        end
-      end
+    service = initialize_service(benefit_application)
+    service.terminate(end_on, termination_date)
     trigger_advance_termination_request_notice(benefit_application) if benefit_application.terminated? && (termination_notice == "true")
   end
 
@@ -167,20 +135,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_applications_for_reinstate
   end
 
-  def benefit_application_for_force_submission
-    effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
-    benefit_sponsorship = get_benefit_sponsorship
-    application = benefit_sponsorship.benefit_applications.where(:"effective_period.min" => effective_date)
-    raise "Found #{application.count} benefit applications with that start date" if application.count != 1
-    application.first
-  end
-
-  def benefit_applications_for_terminate
-    benefit_sponsorship = get_benefit_sponsorship
-    benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(TimeKeeper.date_of_record)
-  end
-
-  def benefit_applications_for_cancel
+  def benefit_application
     benefit_sponsorship = get_benefit_sponsorship
     benefit_application_start_on = Date.strptime(ENV['plan_year_start_on'].to_s, "%m/%d/%Y")
     application = benefit_sponsorship.benefit_applications.where(:"effective_period.min" => benefit_application_start_on)
