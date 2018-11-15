@@ -20,6 +20,14 @@ module UserWorld
     end
   end
 
+  def admin(employer=nil)
+    if @admin
+      @admin
+    else
+      
+    end
+  end
+
 end
 
 World(UserWorld)
@@ -31,7 +39,7 @@ Given(/^that a user with a (.*?) role exists and is logged in$/) do |type|
     when "Broker"
       user = broker(broker_agency_profile)
     when "HBX staff"
-      user = nil
+      user = admin(employer)
   end
   login_as(user, :scope => :user)
 end
