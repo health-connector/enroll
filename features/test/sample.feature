@@ -20,3 +20,9 @@ Feature: As a broker/admin/POC
     And the broker is on the Benefits page of the ABC Widgets employer portal
     When the broker clicks 'Publish Plan Year'
     Then the benefit application should move to the enrolling state
+
+  Scenario: As an Admin publish benefit application with benefit package
+    Given that a user with a HBX staff role exists and is logged in
+    And the admin is on the Benefits page of the ABC Widgets employer portal
+    When the admin clicks 'Publish Plan Year'
+    Then the benefit application should move to the enrolling state

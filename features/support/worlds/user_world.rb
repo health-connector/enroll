@@ -24,7 +24,11 @@ module UserWorld
     if @admin
       @admin
     else
-      
+      hbx_profile_id = FactoryGirl.create(:hbx_profile).id
+      person = FactoryGirl.create(:person)
+      hbx_staff_role = HbxStaffRole.create!( person: person, permission_id: Permission.hbx_staff.id, subrole: 'hbx_staff', hbx_profile_id: hbx_profile_id)
+      @admin = FactoryGirl.create(:user, :person => person)
+
     end
   end
 
