@@ -61,6 +61,7 @@ force_renewal_eligible.each do |bs|
   end
   begin
     selected_application.simulate_provisional_renewal! if selected_application.may_simulate_provisional_renewal?
+    ::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator.call(selected_application, TimeKeeper.date_of_record)
   rescue Exception => e
     puts "Could not force publish #{selected_application.benefit_sponsorship.organization.legal_name} because of #{e.inspect}"
     next
