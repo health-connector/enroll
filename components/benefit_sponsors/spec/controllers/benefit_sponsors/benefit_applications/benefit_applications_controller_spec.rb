@@ -487,7 +487,6 @@ module BenefitSponsors
             sign_in_and_revert(login_user)
             expect(flash[:notice]).to match(/Plan Year successfully reverted to draft state./)
           end
-
         end
         it "should display flash messages for broker" do
           [user_with_broker_role].each do |login_user|
