@@ -24,10 +24,10 @@ class Insured::EmployeeRolesController < ApplicationController
     @no_save_button = true
     @person_params = params.require(:person).merge({user_id: current_user.id})
     @employee_candidate = Forms::EmployeeCandidate.new(@person_params)
-    # Person record with staff role exist
-    check_and_update_for_staff_role_person(@employee_candidate)
     @person = @employee_candidate
     if @employee_candidate.valid?
+      # Person record with staff role exist
+      check_and_update_for_staff_role_person(@employee_candidate)
       @found_census_employees = @employee_candidate.match_census_employees.select{|census_employee| census_employee.is_active? }
       if @found_census_employees.empty?
         full_name = @person_params[:first_name] + " " + @person_params[:last_name]
