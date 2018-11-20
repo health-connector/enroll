@@ -83,6 +83,11 @@ last_names = File.open(Rails.root.join 'db', 'builds', 'sur_names.json')
 ln = File.read(last_names)
 last_names_hash = JSON.parse(ln)['lastNames']
 
+#Clears bad organizations created from rake:db:seed
+BenefitSponsors::Organizations::GeneralOrganization.where(legal_name:/acme widgets/i).each do |org|
+  org.destroy
+end
+
 data_hash['companies'].each_with_index do |company,i|
   organization = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site, legal_name: company, dba:company)
   employer_profile = organization.employer_profile
@@ -100,7 +105,7 @@ data_hash['companies'].each_with_index do |company,i|
   service_areas = benefit_sponsorship.service_areas_on(effective_period.min)
   benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min)
 
-  if i.even?
+  if i < 200
     initial_application = BenefitSponsors::BenefitApplications::BenefitApplication.new(
         # benefit_sponsorship: benefit_sponsorship,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
@@ -124,7 +129,7 @@ data_hash['companies'].each_with_index do |company,i|
     census_employees = FactoryGirl.create_list(:census_employee, initial_application.fte_count, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, first_name: first_names_hash.sample, last_name: last_names_hash.sample)
   end
 
-  if i.odd?
+  if i > 200
     initial_application = BenefitSponsors::BenefitApplications::BenefitApplication.new(
         # benefit_sponsorship: benefit_sponsorship,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
@@ -156,17 +161,29 @@ end
   end
 end
 
-puts "::: Creating Brokers and assigning to Organizations :::"
+puts "::: Creating Brokers :::"
 1.upto(10) do |n|
   names = %w[One Two Three Four Five Six Seven Eight Nine Ten]
   broker_organization = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site, legal_name: "Broker #{names[n]}", dba: "Broker #{names[n]} Co." )
   broker_agency_profile = broker_organization.broker_agency_profile
   broker_agency_account = FactoryGirl.build(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile)
-  person = FactoryGirl.create(:person, first_name: first_names_hash.sample, last_name: last_names_hash.sample)
+  person = FactoryGirl.create(:person, :with_work_email, first_name: first_names_hash.sample, last_name: last_names_hash.sample)
   broker_role = FactoryGirl.build(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person)
   broker = FactoryGirl.create(:user, :person => person)
   broker_agency_profile.update_attributes!(primary_broker_role_id: broker.person.broker_role.id)
   broker_agency_profile.approve!
+end
+
+puts "::: Assigning Brokers to Employers :::"
+BenefitSponsors::Organizations::Organization.employer_profiles.each do |organization|
+  employer_profile = organization.employer_profile
+  if employer_profile.active_benefit_sponsorship.present?
+    broker = BenefitSponsors::Organizations::Organization.broker_agency_profiles.sample.broker_agency_profile
+    bm = BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm.for_create(broker_agency_id: broker.id, broker_role_id: broker.primary_broker_role.id, employer_profile_id: employer_profile.id)
+    if bm.save
+      puts "::: Added broker to #{organization.legal_name} :::"
+    end
+  end
 end
 
 finish = Time.now
