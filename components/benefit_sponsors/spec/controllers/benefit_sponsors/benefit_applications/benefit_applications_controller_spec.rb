@@ -60,7 +60,7 @@ module BenefitSponsors
         organization: organization,
         profile_id: organization.profiles.first.id,
         benefit_market: site.benefit_markets[0],
-        employer_attestation: employer_attestation) 
+        employer_attestation: employer_attestation)
     end
 
     let(:benefit_sponsorship_id) { benefit_sponsorship.id.to_s }
