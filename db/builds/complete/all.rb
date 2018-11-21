@@ -101,6 +101,7 @@ data_hash['companies'].each_with_index do |company,i|
   open_enrollment_start_on = effective_period.min.prev_month
   open_enrollment_period = open_enrollment_start_on..(effective_period.min - 10.days)
   dental_sponsored_benefit = false
+  gender = %w[male female]
 
   service_areas = benefit_sponsorship.service_areas_on(effective_period.min)
   benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min)
@@ -115,7 +116,7 @@ data_hash['companies'].each_with_index do |company,i|
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas,
         fte_count: rand(1..10),
-        pte_count: 0,
+        pte_count: rand(1..10),
         msp_count: 0
     )
 
@@ -126,7 +127,9 @@ data_hash['companies'].each_with_index do |company,i|
     benefit_sponsorship.benefit_applications = [initial_application]
 
     enrollment_kinds = ['health']
-    census_employees = FactoryGirl.create_list(:census_employee, initial_application.fte_count, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, first_name: first_names_hash.sample, last_name: last_names_hash.sample)
+    1.upto(initial_application.fte_count+initial_application.pte_count) do |e|
+      ce = CensusEmployee.create(first_name: first_names_hash.sample, last_name: last_names_hash.sample, gender:gender.sample, ssn:rand.to_s[2..10], dob: '10/01/1990', benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_sponsorship_id: benefit_sponsorship.id, hired_on: Date.today-rand(1..10).days)
+    end
   end
 
   if i > 200
@@ -139,7 +142,7 @@ data_hash['companies'].each_with_index do |company,i|
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas,
         fte_count: rand(1..10),
-        pte_count: 0,
+        pte_count: rand(1..10),
         msp_count: 0
     )
 
@@ -150,7 +153,9 @@ data_hash['companies'].each_with_index do |company,i|
     benefit_sponsorship.benefit_applications = [initial_application]
 
     enrollment_kinds = ['health']
-    census_employees = FactoryGirl.create_list(:census_employee, initial_application.fte_count, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, first_name: first_names_hash.sample, last_name: last_names_hash.sample)
+    1.upto(initial_application.fte_count+initial_application.pte_count) do |e|
+      CensusEmployee.create(first_name: first_names_hash.sample, last_name: last_names_hash.sample, gender:gender.sample, ssn:rand.to_s[2..10], dob: '10/01/1990', benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_sponsorship_id: benefit_sponsorship.id, hired_on: Date.today-rand(1..10).days)
+    end
 end
 
 
@@ -188,4 +193,4 @@ end
 
 finish = Time.now
 diff = finish - start
-puts "Completed build in #{Time.at(diff).utc.strftime("%H:%M:%S")}"
+puts "::: Completed build in #{Time.at(diff).utc.strftime("%H:%M:%S")} :::"
