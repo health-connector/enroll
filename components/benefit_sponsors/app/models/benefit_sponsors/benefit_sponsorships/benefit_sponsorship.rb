@@ -526,7 +526,7 @@ module BenefitSponsors
       end
 
       event :terminate do
-        transitions from: [:active, :suspended], to: :terminated
+        transitions from: [:active, :suspended, :applicant], to: :terminated
       end
 
       event :suspend do
@@ -605,6 +605,8 @@ module BenefitSponsors
         revert_to_applicant! if may_revert_to_applicant?
       when :enrollment_extended
         extend_open_enrollment(aasm)
+      when :terminated
+        terminate! if may_terminate?
       end
     end
 

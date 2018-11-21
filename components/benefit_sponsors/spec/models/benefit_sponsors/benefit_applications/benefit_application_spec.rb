@@ -1,4 +1,6 @@
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 module BenefitSponsors
   RSpec.describe BenefitApplications::BenefitApplication, type: :model, :dbclean => :after_each do
@@ -295,6 +297,8 @@ module BenefitSponsors
       let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
       let(:benefit_application)     { described_class.new(params) }
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
 
 
       before do
@@ -345,6 +349,25 @@ module BenefitSponsors
 
                   it "should transition to state: :approved" do
                     expect(benefit_application.aasm_state).to eq :active
+                  end
+
+                  context "and application is expired" do
+                    before {benefit_application.expire!}
+
+                    it "should transition to state: :expired on application and applicant on benefit_sponsorship" do
+                      expect(benefit_application.aasm_state).to eq :expired
+                      expect(benefit_application.benefit_sponsorship.aasm_state).to eq :applicant
+                    end
+
+                    context "and application can be terminated even after being expired" do
+
+                      before {benefit_application.terminate_enrollment!}
+
+                      it "should transition to state: :terminated in benefit_application and benefit_sponsorship" do
+                        expect(benefit_application.aasm_state).to eq :terminated
+                        expect(benefit_application.benefit_sponsorship.aasm_state).to eq :terminated
+                      end
+                    end
                   end
                 end
               end
