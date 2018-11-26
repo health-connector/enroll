@@ -33,7 +33,7 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 					families = Family.where(
 						:"households.hbx_enrollments" => {
 							:"$elemMatch" => {
-								:"benefit_group_id".in => effected_bg_ids,
+								:"sponsored_benefit_package_id".in => effected_bg_ids,
 								:"effective_on".gt => effected_py.start_on,
 								:"product_id".ne => nil
 				 			}
@@ -41,7 +41,7 @@ class NewHireEffectiveOnReport< MongoidMigrationTask
 					)
 					families.each do |family|	
 						family.active_household.hbx_enrollments.where(
-							:"benefit_group_id".in => effected_bg_ids,
+							:"sponsored_benefit_package_id".in => effected_bg_ids,
 							:"effective_on".gt => effected_py.start_on,
 							:"product_id".ne => nil
 						).each do |enrollment|
