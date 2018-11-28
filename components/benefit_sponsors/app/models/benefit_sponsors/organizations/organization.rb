@@ -174,14 +174,11 @@ module BenefitSponsors
       def sponsor_benefits_for(profile)
         new_sponsorship = nil
         if profile.is_benefit_sponsorship_eligible?
-
-          # if profile._type == "BenefitSponsors::Organizations::HbxProfile"
-          #   benefit_market = site.benefit_market_for(:aca_individual)
-          # else
-          #   benefit_market = site.benefit_market_for(:aca_shop)
-          # end
-
-          benefit_market  = site.benefit_market_for(:aca_shop)
+          if profile._type == "BenefitSponsors::Organizations::HbxProfile"
+            benefit_market = site.benefit_market_for(:aca_individual)
+          else
+            benefit_market = site.benefit_market_for(:aca_shop)
+          end
           new_sponsorship = benefit_sponsorships.build(profile: profile, benefit_market: benefit_market)
 
           # new_sponsorship.refresh_rating_area

@@ -1,7 +1,7 @@
 site:
-  key: :cca
-  subdomain: "mhc"
-  domain_name: "hbxshop.org"
+  key: :dc
+  subdomain: "dc"
+  domain_name: "www.dchealthlink.com"
   home_url: "https://business.mahealthconnector.org/"
   home_business_url: "https://www.mahealthconnector.org/business/"
   help_url: "https://www.mahealthconnector.org/business/help-center"
@@ -121,8 +121,8 @@ invoices:
 
 aca:
   state_name: "Massachusetts"
-  state_abbreviation: "MA"
-  market_kinds: ["shop"]
+  state_abbreviation: "DC"
+  market_kinds: ["shop", "individual"]
   hbx_abbreviation: "DC Health Benefit Exchange"
   nationwide_markets: false
   general_agency_enabled: false
@@ -135,7 +135,7 @@ aca:
   address_query_county: true
   broker_routing_information: true
   recaptcha_enabled: false
-  security_questions: true
+  security_questions: false
   user_accounts_enabled: true
   plan_options_available: ["sole_source", "single_carrier", "metal_level"]
   dental_plan_options_available: ["single_plan"]

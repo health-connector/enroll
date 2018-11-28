@@ -667,7 +667,11 @@ module BenefitSponsors
     end
 
     def pull_organization_attributes
-      self.benefit_market = organization.site.benefit_market_for(:aca_shop) unless organization.blank?
+      # if profile._type == "BenefitSponsors::Organizations::HbxProfile"
+      #   self.benefit_market = organization.site.benefit_market_for(:aca_individual)
+      # elsif organization.present?
+      #   self.benefit_market = organization.site.benefit_market_for(:aca_shop)
+      # end
     end
 
     def pull_profile_attributes
