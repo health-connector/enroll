@@ -52,19 +52,19 @@ module BenefitMarkets
       index({ "active_period.min": 1, "active_period.max": 1, market: 1, coverage_kind: 1, nationwide: 1, name: 1 }, {name: "health_products_a_period_market_c_kind_nationwide_name_index"})
       index({ csr_variant_id: 1}, {sparse: true, name: "product_health_products_csr_variant_index"})
 
-      scope :standard_plans,      ->{ where(is_standard_plan: true) }
+      scope :standard_plans,        ->{ where(is_standard_plan: true) }
 
-      scope :ppo_plans,           ->{ where(health_plan_kind: :ppo) }
-      scope :pos_plans,           ->{ where(health_plan_kind: :pos) }
-      scope :hmo_plans,           ->{ where(health_plan_kind: :hmo) }
-      scope :epo_plans,           ->{ where(health_plan_kind: :epo) }
+      scope :ppo_plans,             ->{ where(health_plan_kind: :ppo) }
+      scope :pos_plans,             ->{ where(health_plan_kind: :pos) }
+      scope :hmo_plans,             ->{ where(health_plan_kind: :hmo) }
+      scope :epo_plans,             ->{ where(health_plan_kind: :epo) }
 
-      scope :bronze_plans,        ->{ where(metal_level_kind: :bronze) }
-      scope :silver_plans,        ->{ where(metal_level_kind: :silver) }
-      scope :gold_plans,          ->{ where(metal_level_kind: :gold) }
-      scope :platinum_plans,      ->{ where(metal_level_kind: :platinum) }
-      scope :catastrophic_plans,  ->{ where(metal_level_kind: :catastrophic) }
-
+      scope :bronze_plans,          ->{ where(metal_level_kind: :bronze) }
+      scope :silver_plans,          ->{ where(metal_level_kind: :silver) }
+      scope :gold_plans,            ->{ where(metal_level_kind: :gold) }
+      scope :platinum_plans,        ->{ where(metal_level_kind: :platinum) }
+      scope :catastrophic_plans,    ->{ where(metal_level_kind: :catastrophic) }
+      scope :non_catastropic_plans, ->{ not_in(metal_level_kind: :catastrophic) }
 
       validates :health_plan_kind,
                 presence: true,
