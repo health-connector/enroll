@@ -1,5 +1,9 @@
 require 'factory_girl'
 
+BenefitSponsors::Site.destroy_all
+BenefitMarkets::BenefitMarket.destroy_all
+BenefitMarkets::BenefitMarketCatalog.destroy_all
+
 puts '::: Creating Site with Benefit Market :::'
 start = Time.now
 site = FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, Settings.site.key)
