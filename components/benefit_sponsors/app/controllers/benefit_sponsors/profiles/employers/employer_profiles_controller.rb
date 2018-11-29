@@ -34,6 +34,8 @@ module BenefitSponsors
               @datatable = ::Effective::Datatables::EmployeeDatatable.new(employee_datatable_params)
             when 'brokers'
               @broker_agency_account = @employer_profile.active_broker_agency_account
+            when 'families'
+              paginate_families
             when 'inbox'
 
             else
@@ -99,6 +101,11 @@ module BenefitSponsors
           @sent_box = false
         end
 
+        def consumer_override
+          session[:person_id] = params['person_id']
+          redirect_to main_app.family_account_path
+        end
+
         def download_invoice
           options={}
           options[:content_type] = @invoice.type
@@ -138,6 +145,10 @@ module BenefitSponsors
           }) if @employer_profile.renewal_benefit_application.present?
 
           data_table_params
+        end
+
+        def paginate_families
+          @census_employees = @employer_profile.census_employees.active.exists(:employee_role_id => true)
         end
 
         def load_documents

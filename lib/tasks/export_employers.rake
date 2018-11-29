@@ -27,12 +27,22 @@ namespace :export do
 
     def export_group_size_count(package)
       return 0 if package.blank? || package.health_sponsored_benefit.latest_pricing_determination.blank?
-      package.health_sponsored_benefit.latest_pricing_determination.group_size if !use_simple_employer_calculation_model?
+      bs = package.benefit_application.benefit_sponsorship
+      if bs.source_kind == :conversion || bs.source_kind == :mid_plan_year_conversion
+        return nil
+      else
+        package.health_sponsored_benefit.latest_pricing_determination.group_size unless use_simple_employer_calculation_model?
+      end
     end
 
     def export_participation_rate(package)
       return 0 if package.blank? || package.health_sponsored_benefit.latest_pricing_determination.blank? 
-      package.health_sponsored_benefit.latest_pricing_determination.participation_rate if !use_simple_employer_calculation_model?
+      bs = package.benefit_application.benefit_sponsorship
+      if bs.source_kind == :conversion || bs.source_kind == :mid_plan_year_conversion
+        return nil
+      else
+        package.health_sponsored_benefit.latest_pricing_determination.participation_rate unless use_simple_employer_calculation_model?
+      end
     end
 
     def composite_premiums(package)

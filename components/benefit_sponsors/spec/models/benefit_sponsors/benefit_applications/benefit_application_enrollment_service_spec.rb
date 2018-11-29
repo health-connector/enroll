@@ -303,7 +303,46 @@ module BenefitSponsors
       end
 
       context "when renewing employer present with renewal application" do
+      end
 
+      context "when employer open enrollment extended" do
+
+        let(:open_enrollment_close) { TimeKeeper.date_of_record + 2.days }
+        let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year, 8, 1) }        
+        let(:benefit_sponsorship_state) { :initial_enrollment_open }
+
+        include_context "setup initial benefit application" do
+          let(:aasm_state) { :enrollment_extended }
+        end
+
+        before(:each) do
+          TimeKeeper.set_date_of_record_unprotected!(Date.new(Date.today.year, 7, 24))
+        end
+
+        after(:each) do
+          TimeKeeper.set_date_of_record_unprotected!(Date.today)
+        end
+
+        subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+
+        context "open enrollment close invoked with earlier date" do
+          let(:business_policy) { instance_double("some_policy", success_results: { business_rule: "validation passed" })}
+
+          before do
+            initial_application.update(open_enrollment_period: effective_period.min.prev_month..open_enrollment_close)
+            initial_application.benefit_sponsorship.update(aasm_state: benefit_sponsorship_state)
+            allow(subject).to receive(:business_policy).and_return(business_policy)
+            allow(subject).to receive(:business_policy_satisfied_for?).with(:end_open_enrollment).and_return(true)
+          end
+
+          it "should close open enrollment and reset OE end date" do
+            expect(initial_application.open_enrollment_period.max).to eq open_enrollment_close
+            subject.end_open_enrollment(TimeKeeper.date_of_record)
+            initial_application.reload
+            expect(initial_application.open_enrollment_period.max).to eq TimeKeeper.date_of_record
+            expect(initial_application.aasm_state).to eq :enrollment_closed
+          end
+        end
       end
     end
 
@@ -402,111 +441,90 @@ module BenefitSponsors
     describe '.reinstate' do
     end
 
-    describe '.application_warnings' do
+    describe '.extend_open_enrollment' do
+      include_context "setup initial benefit application"
+      let(:current_effective_date) { Date.new(Date.today.year, 8, 1) }
+      let(:today) { current_effective_date - 7.days }
 
-    context "when an employer publishes a benefit application" do
-    let(:current_effective_date)  { TimeKeeper.date_of_record }
-    let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-    let!(:old_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                            benefit_market: benefit_market,
-                                            title: "SHOP Benefits for #{current_effective_date.year - 1.year}",
-                                            application_period: (current_effective_date.next_month.beginning_of_month - 1.year ..current_effective_date.end_of_month))
-                                          }
+      subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
 
-    let!(:renewing_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                            benefit_market: benefit_market,
-                                            title: "SHOP Benefits for #{current_effective_date.year}",
-                                            application_period: (current_effective_date.next_month.beginning_of_month..current_effective_date.end_of_month + 1.year ))
-                                          }
+      before(:each) do
+        TimeKeeper.set_date_of_record_unprotected!(today)
+      end
 
-    let(:benefit_market)      { site.benefit_markets.first }
-    let!(:product_package_1) { old_benefit_market_catalog.product_packages.first }
-    let!(:product_package_2) { renewing_benefit_market_catalog.product_packages.first }
+      after(:each) do
+        TimeKeeper.set_date_of_record_unprotected!(Date.today)
+      end
 
-    let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-    let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
-    let!(:security_question)  { FactoryGirl.create_default :security_question }
+      context 'when application is ineligible' do 
+        let(:aasm_state) { :enrollment_ineligible }
+        let(:benefit_sponsorship_state) { :initial_enrollment_ineligible }
+        let(:today) { current_effective_date - 7.days }
+        let(:oe_end_date) { current_effective_date - 5.days }
 
-    let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
-    # let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
-    let(:benefit_sponsorship) do
-      FactoryGirl.create(
-        :benefit_sponsors_benefit_sponsorship,
-        :with_rating_area,
-        :with_service_areas,
-        supplied_rating_area: rating_area,
-        service_area_list: [service_area],
-        organization: organization,
-        profile_id: organization.profiles.first.id,
-        benefit_market: site.benefit_markets[0])
-    end
-
-    let(:start_on)  { TimeKeeper.date_of_record}
-    let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year ..start_on.end_of_month }
-    let!(:old_benefit_application) {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: old_effective_period, aasm_state: :active)
-      application.benefit_sponsor_catalog.save!
-      application
-    }
-
-    let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
-    let!(:renewing_benefit_application) {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: renewing_effective_period, aasm_state: :draft, predecessor_id: old_benefit_application.id)
-      application.benefit_sponsor_catalog.save!
-      application
-    }
-
-    let!(:old_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: old_benefit_application, product_package: product_package_1) }
-    let!(:renewing_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_2, is_active: false, description: "Renewing Benefit package", predecessor_id: old_benefit_package.id ) }
-
-    let(:old_benefit_group_assignment) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: old_benefit_package)}
-    let(:renewing_benefit_group_assignment) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: renewing_benefit_package, is_active: false)}
-
-    let(:employee_role_1) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person_1, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee_1.id) }
-    let(:census_employee_1) { FactoryGirl.create(:benefit_sponsors_census_employee,
-      employer_profile: benefit_sponsorship.profile,
-      is_business_owner: false,
-      benefit_sponsorship: benefit_sponsorship,
-      benefit_group_assignments: [old_benefit_group_assignment,renewing_benefit_group_assignment]
-    )}
-    let(:person_1) { FactoryGirl.create(:person) }
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person_1)}
-
-
-    let(:employee_role_2) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person_2, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee_2.id) }
-    let(:census_employee_2) { FactoryGirl.create(:benefit_sponsors_census_employee,
-      employer_profile: benefit_sponsorship.profile,
-      is_business_owner: true,
-      benefit_sponsorship: benefit_sponsorship,
-      benefit_group_assignments: [old_benefit_group_assignment,renewing_benefit_group_assignment]
-    )}
-    let(:person_2) { FactoryGirl.create(:person) }
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person_2)}
-        it "should not give any application warning" do
-          subject = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(renewing_benefit_application)
-          census_employee_1.save
-          census_employee_2.save
-          expect(subject.application_warnings).to eq nil
+        it 'should extend open enrollment' do 
+          expect(initial_application.aasm_state).to eq :enrollment_ineligible
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_ineligible
+          subject.extend_open_enrollment(oe_end_date)
+          initial_application.reload
+          expect(initial_application.aasm_state).to eq :enrollment_extended
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_open
+          expect(initial_application.open_enrollment_period.max).to eq oe_end_date
         end
-        it "should give application warning" do
-          subject = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(renewing_benefit_application)
-          census_employee_1.save
-          census_employee_1.update_attributes!(is_business_owner: true)
-          census_employee_2.save
-          expect(subject.application_warnings).not_to eq nil
+      end
+
+      context 'when application canceled due to ineligibility' do
+        let(:aasm_state) { :canceled }
+        let(:benefit_sponsorship_state) { :applicant }
+        let(:today) { current_effective_date + 2.days }
+        let(:oe_end_date) { current_effective_date + 5.days }
+
+        before do
+          benefit_sponsorship.workflow_state_transitions.create(from_state: 'initial_enrollment_ineligible', to_state: 'applicant') 
         end
-        it "should give application warning for initial application" do
-          subject = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(old_benefit_application)
-          census_employee_1.save
-          census_employee_1.update_attributes!(is_business_owner: true)
-          census_employee_2.save
-          expect(subject.application_warnings).not_to eq nil
+
+        it 'should extend open enrollment' do 
+          expect(initial_application.aasm_state).to eq :canceled
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
+          subject.extend_open_enrollment(oe_end_date)
+          initial_application.reload
+          expect(initial_application.aasm_state).to eq :enrollment_extended
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_open
+          expect(initial_application.open_enrollment_period.max).to eq oe_end_date
         end
-        it "should not give any application warning for initial application" do
-          subject = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(old_benefit_application)
-          census_employee_1.save
-          census_employee_2.save
-          expect(subject.application_warnings).to eq nil
+      end
+
+      context 'when application open enrollment closed' do
+        let(:aasm_state) { :enrollment_closed }
+        let(:benefit_sponsorship_state) { :initial_enrollment_closed }
+        let(:today) { current_effective_date - 8.days }
+        let(:oe_end_date) { current_effective_date - 5.days }
+
+        it 'should extend open enrollment' do 
+          expect(initial_application.aasm_state).to eq :enrollment_closed
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_closed
+          subject.extend_open_enrollment(oe_end_date)
+          initial_application.reload
+          expect(initial_application.aasm_state).to eq :enrollment_extended
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_open
+          expect(initial_application.open_enrollment_period.max).to eq oe_end_date
+        end
+      end
+
+      context 'when application open enrollment open' do
+        let(:aasm_state) { :enrollment_open }
+        let(:benefit_sponsorship_state) { :initial_enrollment_open }
+        let(:today) { current_effective_date - 13.days }
+        let(:oe_end_date) { current_effective_date - 5.days }
+
+        it 'should extend open enrollment' do 
+          expect(initial_application.aasm_state).to eq :enrollment_open
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_open
+          subject.extend_open_enrollment(oe_end_date)
+          initial_application.reload
+          expect(initial_application.aasm_state).to eq :enrollment_extended
+          expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_open
+          expect(initial_application.open_enrollment_period.max).to eq oe_end_date
         end
       end
     end
