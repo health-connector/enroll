@@ -94,6 +94,12 @@ PATH
       virtus (~> 1.0.5)
 
 PATH
+  remote: components/ivl_benefit_sponsors
+  specs:
+    ivl_benefit_sponsors (0.0.1)
+      rails (~> 4.2.7.1)
+
+PATH
   remote: components/notifier
   specs:
     notifier (0.0.1)
@@ -836,6 +842,7 @@ DEPENDENCIES
   httparty
   interactor (= 3.1.0)
   interactor-rails (= 2.0.2)
+  ivl_benefit_sponsors!
   jbuilder (~> 2.0)
   jquery-datatables-rails (= 3.4.0)
   jquery-rails (= 4.0.5)
@@ -919,4 +926,4 @@ DEPENDENCIES
   yard-mongoid (~> 0.1.0)
 
 BUNDLED WITH
-   1.16.0
+   1.17.1

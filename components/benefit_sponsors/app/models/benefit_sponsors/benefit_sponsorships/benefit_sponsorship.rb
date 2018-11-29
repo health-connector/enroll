@@ -90,6 +90,9 @@ module BenefitSponsors
     embeds_many :benefit_applications,
       class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication"
 
+    embeds_many :ivl_benefit_applications,
+                class_name: "::IvlBenefitSponsors::IvlBenefitApplications::IvlBenefitApplication"
+
     has_many    :census_employees,
       class_name: "::CensusEmployee"
 
