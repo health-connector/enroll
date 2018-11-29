@@ -1,4 +1,6 @@
 require "rails_helper"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe ApplicationHelper, :type => :helper do
 
@@ -123,6 +125,39 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
     end
 
+  end
+
+  describe "#benefit_application_summarized_state", dbclean: :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+     let!(:benefit_application) { initial_application}
+
+    context "initial application" do
+      it "should not display with renewing prefix for intial benefit application in active state" do
+        expect(helper.benefit_application_summarized_state(benefit_application)).to eq "Active"
+      end
+      it "should not display with renewing prefix for intial benefit application in enrolling state" do
+        benefit_application.update_attributes!(aasm_state: :enrollment_open)
+        expect(helper.benefit_application_summarized_state(benefit_application)).to eq "Enrolling"
+      end
+    end
+    context "renewing application" do
+      before do
+        benefit_application.update_attributes!(predecessor_id:"11111")
+      end
+
+      it "should not display with renewing prefix for intial benefit application in active state" do
+        expect(helper.benefit_application_summarized_state(benefit_application)).to eq "Active"
+      end
+      it "should display with renewing prefix for benefit application in enrolling state" do
+        benefit_application.update_attributes!(aasm_state: :enrollment_open)
+        expect(helper.benefit_application_summarized_state(benefit_application)).to eq "Renewing Enrolling"
+      end
+      it "should not display with renewing prefix for benefit application in terminated state" do
+        benefit_application.update_attributes!(aasm_state: :terminated)
+        expect(helper.benefit_application_summarized_state(benefit_application)).to eq "Terminated"
+      end
+    end
   end
 
   describe "#fein helper methods" do
