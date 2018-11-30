@@ -113,15 +113,6 @@ module BenefitMarkets
     scope :dental_products,            ->{ where(:"_type" => /.*DentalProduct$/)}
 
     scope :non_catastropic_plans, ->{ not_in(metal_level_kind: :catastrophic) }
-    scope :health_individual_by_effective_period_and_csr_kind, ->(application_period, csr_kind = "csr_100") {
-      health_products.aca_individual_market.by_application_period(application_period).where(
-        { "$or" => [
-                    {:metal_level_kind.in => METAL_LEVEL_KINDS - [:silver, :catastrophic], :csr_variant_id => "01"},
-                    {:metal_level => :silver, :csr_variant_id => ::EligibilityDetermination::CSR_KIND_TO_PLAN_VARIANT_MAP[csr_kind]}
-                  ]
-        }
-      )
-    }
 
     # Highly nested scopes don't behave in a way I entirely understand with
     # respect to the $elemMatch operator.  Since we are only invoking this

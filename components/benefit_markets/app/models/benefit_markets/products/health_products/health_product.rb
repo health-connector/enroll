@@ -65,6 +65,19 @@ module BenefitMarkets
       scope :platinum_plans,        ->{ where(metal_level_kind: :platinum) }
       scope :catastrophic_plans,    ->{ where(metal_level_kind: :catastrophic) }
 
+      scope :individual_by_effective_period_and_csr_kind, ->(application_period, csr_kind = "csr_100") {
+        by_application_period(application_period).where(
+          "$and" => [
+              {benefit_market_kind: :aca_individual},
+              {"$or" => [
+                          {:metal_level_kind.in => METAL_LEVEL_KINDS - [:silver, :catastrophic], :csr_variant_id => "01"},
+                          {:metal_level_kind => :silver, :csr_variant_id => ::EligibilityDetermination::CSR_KIND_TO_PLAN_VARIANT_MAP[csr_kind]}
+                        ]
+              }
+          ]
+        )
+      }
+
       validates :health_plan_kind,
                 presence: true,
                 inclusion: {in: HEALTH_PLAN_MAP.keys, message: "%{value} is not a valid health product kind"}
