@@ -12,9 +12,9 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
 
     if ivl_ba_2019.blank?
       # Create IvlBenefitApplication for year
-      ivl_ba_2018 = hbx.benefit_sponsorship.benefit_coverage_periods.select { |bcp| bcp.start_on.year == 2018 }.first
+      ivl_ba_2018 = benefit_sponsorship.ivl_benefit_applications.select { |bcp| bcp.start_on.year == 2018 }.first
       ivl_ba_2019 = benefit_sponsorship.ivl_benefit_applications.new
-      ivl_ba_2019.effective_period = ((bc_period_2018.effective_period.min.next_year)..(bc_period_2018.effective_period.max.next_year))
+      ivl_ba_2019.effective_period = ((ivl_ba_2018.effective_period.min.next_year)..(ivl_ba_2018.effective_period.max.next_year))
       ivl_ba_2019.open_enrollment_period = ((Settings.aca.individual_market.open_enrollment.start_on)..(Settings.aca.individual_market.open_enrollment.end_on))
     end
     ivl_ba_2019.slcsp = slcsp_2019.id
@@ -26,14 +26,14 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
   def migrate
     year_range_2019 = ((Date.new(2019).beginning_of_year)..(Date.new(2019).end_of_year))
     if Settings.site.key.to_s == "dc"
-      say_with_time("Creating DC IvlBenefitApplication") do
+      Mongoid::Migration.say_with_time("Creating DC IvlBenefitApplication") do
         site = ::BenefitSponsors::Site.by_site_key("dc").first
         organization = site.owner_organization
         benefit_sponsorship = organization.active_benefit_sponsorship
         ivl_ba_2019 = update_or_create_ivl_benefit_application(benefit_sponsorship)
       end
 
-      say_with_time("Creating DC IVLBenefitPackages") do
+      Mongoid::Migration.say_with_time("Creating DC IVLBenefitPackages") do
         ivl_2019_plans = ::BenefitMarkets::Products::Product.by_application_period(year_range_2019).aca_individual_market
         ivl_health_plan_ids_2019 = ivl_2019_plans.health_products.non_catastropic_plans.collect(&:_id) #ivl_health_plans_2019
         ivl_dental_plan_ids_2019 = ivl_2019_plans.dental_products.collect(&:_id) #ivl_dental_plans_2019
@@ -202,7 +202,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           )
         )
 
-        bc_period_2019.benefit_packages = [
+        ivl_ba_2019.ivl_benefit_packages = [
             individual_health_benefit_package,
             individual_dental_benefit_package,
             individual_catastrophic_health_benefit_package,
@@ -214,7 +214,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
             individual_health_benefit_package_for_csr_73
           ]
 
-        bc_period_2019.save!
+        ivl_ba_2019.save!
       end
     end
   end

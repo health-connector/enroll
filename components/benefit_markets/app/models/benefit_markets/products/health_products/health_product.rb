@@ -64,7 +64,6 @@ module BenefitMarkets
       scope :gold_plans,            ->{ where(metal_level_kind: :gold) }
       scope :platinum_plans,        ->{ where(metal_level_kind: :platinum) }
       scope :catastrophic_plans,    ->{ where(metal_level_kind: :catastrophic) }
-      scope :non_catastropic_plans, ->{ not_in(metal_level_kind: :catastrophic) }
 
       validates :health_plan_kind,
                 presence: true,

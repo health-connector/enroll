@@ -112,6 +112,7 @@ module BenefitMarkets
     scope :health_products,            ->{ where(:"_type" => /.*HealthProduct$/) }
     scope :dental_products,            ->{ where(:"_type" => /.*DentalProduct$/)}
 
+    scope :non_catastropic_plans, ->{ not_in(metal_level_kind: :catastrophic) }
     scope :health_individual_by_effective_period_and_csr_kind, ->(application_period, csr_kind = "csr_100") {
       health_products.aca_individual_market.by_application_period(application_period).where(
         { "$or" => [

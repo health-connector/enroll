@@ -24,7 +24,7 @@ module IvlBenefitSponsors
 
     embeds_one :ivl_benefit_element_eligibility_group,
                 class_name: "::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup"
-    accepts_nested_attributes_for :benefit_eligibility_element_group
+    accepts_nested_attributes_for :ivl_benefit_element_eligibility_group
 
     field :title, type: String, default: ""
 
