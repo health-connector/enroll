@@ -49,7 +49,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "individual_health_benefits_2019",
           elected_premium_credit_strategy: "unassisted",
           benefit_ids:          ivl_health_plan_ids_2019,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
               market_places:        ["individual"],
               enrollment_periods:   ["open_enrollment", "special_enrollment"],
               family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -66,7 +66,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "individual_dental_benefits_2019",
           elected_premium_credit_strategy: "unassisted",
           benefit_ids:          ivl_dental_plan_ids_2019,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
               market_places:        ["individual"],
               enrollment_periods:   ["open_enrollment", "special_enrollment"],
               family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -83,7 +83,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "catastrophic_health_benefits_2019",
           elected_premium_credit_strategy: "unassisted",
           benefit_ids:          ivl_and_cat_health_plan_ids_2019,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["open_enrollment", "special_enrollment"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -100,7 +100,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "native_american_health_benefits_2019",
           elected_premium_credit_strategy: "unassisted",
           benefit_ids:          ivl_health_plan_ids_2019,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["open_enrollment", "special_enrollment"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -117,7 +117,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "native_american_dental_benefits_2019",
           elected_premium_credit_strategy: "unassisted",
           benefit_ids:          ivl_dental_plan_ids_2019,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["any"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -134,7 +134,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "individual_health_benefits_csr_100_2019",
           elected_premium_credit_strategy: "allocated_lump_sum_credit",
           benefit_ids:          ivl_health_plan_ids_2019_for_csr_100,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["open_enrollment", "special_enrollment"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -152,7 +152,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "individual_health_benefits_csr_94_2019",
           elected_premium_credit_strategy: "allocated_lump_sum_credit",
           benefit_ids:          ivl_health_plan_ids_2019_for_csr_94,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["open_enrollment", "special_enrollment"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -170,7 +170,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "individual_health_benefits_csr_87_2019",
           elected_premium_credit_strategy: "allocated_lump_sum_credit",
           benefit_ids:          ivl_health_plan_ids_2019_for_csr_87,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["open_enrollment", "special_enrollment"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
@@ -188,7 +188,7 @@ class Import2019IvlBenefitPackage < MongoidMigrationTask
           title: "individual_health_benefits_csr_73_2019",
           elected_premium_credit_strategy: "allocated_lump_sum_credit",
           benefit_ids:          ivl_health_plan_ids_2019_for_csr_73,
-          ivl_benefit_element_eligibility_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
+          ivl_benefit_eligibility_element_group: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup.new(
             market_places:        ["individual"],
             enrollment_periods:   ["open_enrollment", "special_enrollment"],
             family_relationships: ::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,

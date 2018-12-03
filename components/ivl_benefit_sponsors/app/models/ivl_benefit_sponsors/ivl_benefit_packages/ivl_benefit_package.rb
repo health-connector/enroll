@@ -22,9 +22,9 @@ module IvlBenefitSponsors
     embedded_in :ivl_benefit_application, class_name: "::IvlBenefitSponsors::IvlBenefitApplications::IvlBenefitApplication",
                 inverse_of: :ivl_benefit_packages
 
-    embeds_one :ivl_benefit_element_eligibility_group,
+    embeds_one :ivl_benefit_eligibility_element_group,
                 class_name: "::IvlBenefitSponsors::IvlBenefitEligibilityElementGroups::IvlBenefitEligibilityElementGroup"
-    accepts_nested_attributes_for :ivl_benefit_element_eligibility_group
+    accepts_nested_attributes_for :ivl_benefit_eligibility_element_group
 
     field :title, type: String, default: ""
 
@@ -40,11 +40,11 @@ module IvlBenefitSponsors
 
     delegate :market_places, :enrollment_periods, :family_relationships, :benefit_categories,
              :incarceration_status, :age_range, :citizenship_status, :residency_status, :ethnicity, :cost_sharing,
-             to: :ivl_benefit_element_eligibility_group
+             to: :ivl_benefit_eligibility_element_group
 
     delegate :market_places=, :enrollment_periods=, :family_relationships=, :benefit_categories=,
              :incarceration_status=, :age_range=, :citizenship_status=, :residency_status=, :ethnicity=,
-             to: :ivl_benefit_element_eligibility_group
+             to: :ivl_benefit_eligibility_element_group
 
     after_initialize :initialize_dependent_models
 
@@ -56,7 +56,7 @@ module IvlBenefitSponsors
       }
 
     def initialize_dependent_models
-      build_ivl_benefit_element_eligibility_group if ivl_benefit_element_eligibility_group.nil?
+      build_ivl_benefit_eligibility_element_group if ivl_benefit_eligibility_element_group.nil?
     end
 
     def effective_year
