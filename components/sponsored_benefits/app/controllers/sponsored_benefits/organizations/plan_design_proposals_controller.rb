@@ -57,11 +57,13 @@ module SponsoredBenefits
     end
 
     def new
+      # binding.pry
+      # session[:action] = "new"
       if @plan_design_organization.employer_profile.present?
         begin
           plan_design_proposal = @plan_design_organization.build_proposal_from_existing_employer_profile
           flash[:success] = "Imported quote and employee information from your client #{@plan_design_organization.employer_profile.legal_name}."
-          redirect_to action: :edit, id: plan_design_proposal.id
+          redirect_to action: :edit, id: plan_design_proposal.id, temp_session: "new"
         rescue Exception => e
           flash[:error] = e.to_s
           @plan_design_proposal = SponsoredBenefits::Forms::PlanDesignProposal.new(organization: @plan_design_organization)
