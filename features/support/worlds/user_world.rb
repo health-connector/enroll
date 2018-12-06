@@ -20,13 +20,22 @@ module UserWorld
     end
   end
 
-  def admin(employer=nil)
+  def admin(subrole)
     if @admin
       @admin
     else
+      subrole = subrole.parameterize.underscore
       hbx_profile_id = FactoryGirl.create(:hbx_profile).id
       person = FactoryGirl.create(:person)
-      hbx_staff_role = HbxStaffRole.create!( person: person, permission_id: Permission.hbx_staff.id, subrole: 'hbx_staff', hbx_profile_id: hbx_profile_id)
+      if subrole.blank?
+        raise "No subrole was provided"
+      end
+      if Permission.where(name:subrole).present?
+        permission_id = Permission.where(name:subrole).first.id
+      else
+        raise "No permission was found for subrole #{subrole}"
+      end
+      hbx_staff_role = HbxStaffRole.create!( person: person, permission_id: permission_id, subrole: subrole, hbx_profile_id: hbx_profile_id)
       @admin = FactoryGirl.create(:user, :person => person)
 
     end
@@ -36,14 +45,25 @@ end
 
 World(UserWorld)
 
-Given(/^that a user with a (.*?) role exists and is logged in$/) do |type|
+Given(/^that a user with a (.*?) role(?: with (.*?) subrole)? exists and is logged in$/) do |type, subrole|
   case type
     when "Employer"
       user = employee(employer)
     when "Broker"
       user = broker(broker_agency_profile)
     when "HBX staff"
-      user = admin(employer)
+      user = admin(subrole)
   end
   login_as(user, :scope => :user)
+end
+
+Given(/^the user is on the (.*?) of the (.*?)$/) do |path, route|
+  #the user is on the Employer Index of the Admin Dashboard
+  case [path, route]
+    when ["Employer Index", "Admin Dashboard"]
+      visit exchanges_hbx_profiles_path
+      find('.interaction-click-control-employers').click
+      find('.dropdown.pull-right').click
+      expect(page).to have_css('.heading-text', text: 'Benefits - Coverage You Offer')
+  end
 end

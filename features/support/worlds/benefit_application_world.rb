@@ -93,21 +93,18 @@ end
 
 World(BenefitApplicationWorld)
 
-And(/^this employer has a (.*?) benefit application$/) do |status|
+Given(/^this employer has a (.*?) benefit application$/) do |status|
   case status
   when "draft"
     aasm_state(:draft)
   when "active"
     aasm_state(:active)
+  when "terminated"
+    aasm_state(:terminated)
   end
 end
 
-Given(/^this benefit application has a benefit package containing health benefits$/) do
-  health_state(true)
-  update_benefit_sponsorship
-end
-
-Given(/^this benefit application has a benefit package containing (.*?)(?: and ?)(.*?) benefits$/) do |health, dental|
+Given(/^this benefit application has a benefit package containing (.*?)(?: and (.*?))? benefits$/) do |health, dental|
   if health == "health"
     health_state(true)
   end

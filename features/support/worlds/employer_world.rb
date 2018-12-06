@@ -16,14 +16,14 @@ end
 
 World(EmployerWorld)
 
-And(/^there is an employer (.*?)$/) do |legal_name|
+Given(/^there is an employer (.*?)$/) do |legal_name|
   employer legal_name: legal_name,
            dba: legal_name
   benefit_sponsorship(employer)
 
 end
 
-And(/^at least one attestation document status is (.*?)$/) do |status|
+Given(/^at least one attestation document status is (.*?)$/) do |status|
   @employer_attestation_status = status
 end
 
