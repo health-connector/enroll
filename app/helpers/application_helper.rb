@@ -1,9 +1,10 @@
 module ApplicationHelper
   require 'json'
 
-  def can_employee_shop?(date)
+  def can_employee_shop?(date, original_action = nil)
     return false if date.blank?
     date = Date.strptime(date.to_s,"%m/%d/%Y")
+    return false if ((Plan.has_rates_for_all_carriers?(date) == false) && (original_action == 'edit'))
     Plan.has_rates_for_all_carriers?(date) == false
   end
 
@@ -13,6 +14,10 @@ module ApplicationHelper
 
   def rates_available?(employer, date=nil)
     employer.applicant? && !Plan.has_rates_for_all_carriers?(date) ? "blocking" : ""
+  end
+
+  def product_rates_available?(benefit_sponsorship, date=nil)
+    benefit_sponsorship.applicant? && (::BenefitMarkets::Products::Product.has_rates_for_all_carriers?(date) == false) ? "blocking" : ""
   end
 
   def deductible_display(hbx_enrollment, plan)
@@ -765,4 +770,5 @@ module ApplicationHelper
       member_group_hash
     end.to_json
   end
+
 end
