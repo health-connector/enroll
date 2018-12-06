@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: DefinePermissions
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "DefinePermissions";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (D)</a> &raquo;
+    
+    
+    <span class="title">DefinePermissions</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: DefinePermissions
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="MigrationTask.html" title="MigrationTask (class)">MigrationTask</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rake::Task</li>
+          
+            <li class="next"><span class='object_link'><a href="MigrationTask.html" title="MigrationTask (class)">MigrationTask</a></span></li>
+          
+            <li class="next">DefinePermissions</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/data_migrations/define_permissions.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_test_roles-instance_method" title="#build_test_roles (instance method)">#<strong>build_test_roles</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hbx_admin_can_add_sep-instance_method" title="#hbx_admin_can_add_sep (instance method)">#<strong>hbx_admin_can_add_sep</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hbx_admin_can_complete_resident_application-instance_method" title="#hbx_admin_can_complete_resident_application (instance method)">#<strong>hbx_admin_can_complete_resident_application</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hbx_admin_can_lock_unlock-instance_method" title="#hbx_admin_can_lock_unlock (instance method)">#<strong>hbx_admin_can_lock_unlock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hbx_admin_can_reset_password-instance_method" title="#hbx_admin_can_reset_password (instance method)">#<strong>hbx_admin_can_reset_password</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hbx_admin_can_update_ssn-instance_method" title="#hbx_admin_can_update_ssn (instance method)">#<strong>hbx_admin_can_update_ssn</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hbx_admin_can_view_username_and_email-instance_method" title="#hbx_admin_can_view_username_and_email (instance method)">#<strong>hbx_admin_can_view_username_and_email</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initial_hbx-instance_method" title="#initial_hbx (instance method)">#<strong>initial_hbx</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All hbx_roles can view families, employers, broker_agencies, brokers and
+general agencies The convention for a privilege group &#39;x&#39; is 
+&#39;modify_x&#39;, or view &#39;view_x&#39;.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="MigrationTask.html" title="MigrationTask (class)">MigrationTask</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="MigrationTask.html#define_task-class_method" title="MigrationTask.define_task (method)">define_task</a></span>, <span class='object_link'><a href="MigrationTask.html#initialize-instance_method" title="MigrationTask#initialize (method)">#initialize</a></span></p>
+
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="MigrationTask.html#initialize-instance_method" title="MigrationTask#initialize (method)">MigrationTask</a></span></p>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_test_roles-instance_method">
+  
+    #<strong>build_test_roles</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_test_roles'>build_test_roles</span>
+  <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>email:</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>themanda.*dc.gov</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_delete_all'>delete_all</span>
+  <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>last_name:</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^amanda\d+$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_delete_all'>delete_all</span>
+  <span class='id identifier rubyid_a'>a</span><span class='op'>=</span><span class='int'>10000000</span>
+  <span class='id identifier rubyid_u1'>u1</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>email:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>themanda.staff@dc.gov</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password_confirmation:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>oim_id:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ex</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5999999</span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_a'>a</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_u2'>u2</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>email:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>themanda.readonly@dc.gov</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password_confirmation:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='label'>oim_id:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ex</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5999999</span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_a'>a</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_u3'>u3</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>email:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>themanda.csr_supervisor@dc.gov</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password_confirmation:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>oim_id:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ex</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5999999</span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_a'>a</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_u4'>u4</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>email:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>themanda.csr_tier1@dc.gov</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password_confirmation:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='label'>oim_id:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ex</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5999999</span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_a'>a</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_u5'>u5</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>email:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>themanda.csr_tier2@dc.gov</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password_confirmation:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>oim_id:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ex</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5999999</span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_a'>a</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_u6'>u6</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="User.html" title="User (class)">User</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>email:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>developer@dc.gov</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password_confirmation:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P@55word</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>oim_id:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ex</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5999999</span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_a'>a</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span> <span class='op'>=</span> <span class='const'>FactoryGirl</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='symbol'>:hbx_profile</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_p1'>p1</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>first_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>staff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>amanda</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_u1'>u1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p2'>p2</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>first_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read_only</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>amanda</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_u2'>u2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p3'>p3</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>first_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>supervisor</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>amanda</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_u3'>u3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p4'>p4</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>first_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tier1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>amanda</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_u4'>u4</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p5'>p5</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>first_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tier2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>amanda</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_u5'>u5</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p6'>p6</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span> <span class='label'>first_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>developer</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>developer</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_u6'>u6</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="HbxStaffRole.html" title="HbxStaffRole (class)">HbxStaffRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span> <span class='label'>person:</span> <span class='id identifier rubyid_p1'>p1</span><span class='comma'>,</span> <span class='label'>permission_id:</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_staff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>hbx_profile_id:</span> <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="HbxStaffRole.html" title="HbxStaffRole (class)">HbxStaffRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span> <span class='label'>person:</span> <span class='id identifier rubyid_p2'>p2</span><span class='comma'>,</span> <span class='label'>permission_id:</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_read_only'><span class='object_link'><a href="Permission.html#hbx_read_only-class_method" title="Permission.hbx_read_only (method)">hbx_read_only</a></span></span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_read_only</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>hbx_profile_id:</span> <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="HbxStaffRole.html" title="HbxStaffRole (class)">HbxStaffRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span>  <span class='label'>person:</span> <span class='id identifier rubyid_p3'>p3</span><span class='comma'>,</span> <span class='label'>permission_id:</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_supervisor'><span class='object_link'><a href="Permission.html#hbx_csr_supervisor-class_method" title="Permission.hbx_csr_supervisor (method)">hbx_csr_supervisor</a></span></span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_csr_supervisor</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>hbx_profile_id:</span> <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="HbxStaffRole.html" title="HbxStaffRole (class)">HbxStaffRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span> <span class='label'>person:</span> <span class='id identifier rubyid_p4'>p4</span><span class='comma'>,</span> <span class='label'>permission_id:</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_tier1'><span class='object_link'><a href="Permission.html#hbx_csr_tier1-class_method" title="Permission.hbx_csr_tier1 (method)">hbx_csr_tier1</a></span></span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_csr_tier1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>hbx_profile_id:</span> <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="HbxStaffRole.html" title="HbxStaffRole (class)">HbxStaffRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span> <span class='label'>person:</span> <span class='id identifier rubyid_p5'>p5</span><span class='comma'>,</span> <span class='label'>permission_id:</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_tier2'><span class='object_link'><a href="Permission.html#hbx_csr_tier2-class_method" title="Permission.hbx_csr_tier2 (method)">hbx_csr_tier2</a></span></span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_csr_tier2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>hbx_profile_id:</span> <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="HbxStaffRole.html" title="HbxStaffRole (class)">HbxStaffRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span> <span class='label'>person:</span> <span class='id identifier rubyid_p6'>p6</span><span class='comma'>,</span> <span class='label'>permission_id:</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_tier2'><span class='object_link'><a href="Permission.html#hbx_csr_tier2-class_method" title="Permission.hbx_csr_tier2 (method)">hbx_csr_tier2</a></span></span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>developer</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>hbx_profile_id:</span> <span class='id identifier rubyid_hbx_profile_id'>hbx_profile_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hbx_admin_can_add_sep-instance_method">
+  
+    #<strong>hbx_admin_can_add_sep</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hbx_admin_can_add_sep'>hbx_admin_can_add_sep</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_add_sep:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hbx_admin_can_complete_resident_application-instance_method">
+  
+    #<strong>hbx_admin_can_complete_resident_application</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hbx_admin_can_complete_resident_application'>hbx_admin_can_complete_resident_application</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_complete_resident_application:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hbx_admin_can_lock_unlock-instance_method">
+  
+    #<strong>hbx_admin_can_lock_unlock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hbx_admin_can_lock_unlock'>hbx_admin_can_lock_unlock</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='label'>can_lock_unlock:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hbx_admin_can_reset_password-instance_method">
+  
+    #<strong>hbx_admin_can_reset_password</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hbx_admin_can_reset_password'>hbx_admin_can_reset_password</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='label'>can_reset_password:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hbx_admin_can_update_ssn-instance_method">
+  
+    #<strong>hbx_admin_can_update_ssn</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hbx_admin_can_update_ssn'>hbx_admin_can_update_ssn</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_update_ssn:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hbx_admin_can_view_username_and_email-instance_method">
+  
+    #<strong>hbx_admin_can_view_username_and_email</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hbx_admin_can_view_username_and_email'>hbx_admin_can_view_username_and_email</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_view_username_and_email:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_read_only'><span class='object_link'><a href="Permission.html#hbx_read_only-class_method" title="Permission.hbx_read_only (method)">hbx_read_only</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_view_username_and_email:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_supervisor'><span class='object_link'><a href="Permission.html#hbx_csr_supervisor-class_method" title="Permission.hbx_csr_supervisor (method)">hbx_csr_supervisor</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_view_username_and_email:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_tier2'><span class='object_link'><a href="Permission.html#hbx_csr_tier2-class_method" title="Permission.hbx_csr_tier2 (method)">hbx_csr_tier2</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_view_username_and_email:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_csr_tier1'><span class='object_link'><a href="Permission.html#hbx_csr_tier1-class_method" title="Permission.hbx_csr_tier1 (method)">hbx_csr_tier1</a></span></span><span class='period'>.</span><span class='id identifier rubyid_update_attributes!'>update_attributes!</span><span class='lparen'>(</span><span class='label'>can_view_username_and_email:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initial_hbx-instance_method">
+  
+    #<strong>initial_hbx</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>All hbx_roles can view families, employers, broker_agencies, brokers and
+general agencies The convention for a privilege group &#39;x&#39; is 
+&#39;modify_x&#39;, or view &#39;view_x&#39;</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/data_migrations/define_permissions.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initial_hbx'>initial_hbx</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^hbx</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_delete_all'>delete_all</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_staff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modify_family:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>modify_employer:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>revert_application:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>list_enrollments:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>send_broker_agency_message:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>approve_broker:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>approve_ga:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>can_update_ssn:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>can_complete_resident_application:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>can_add_sep:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>can_lock_unlock:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>can_view_username_and_email:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>can_reset_password:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>modify_admin_tabs:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>view_admin_tabs:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_read_only</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modify_family:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>modify_employer:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>revert_application:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>list_enrollments:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>send_broker_agency_message:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_broker:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_ga:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>modify_admin_tabs:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>view_admin_tabs:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_csr_supervisor</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modify_family:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>modify_employer:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>revert_application:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>list_enrollments:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>send_broker_agency_message:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_broker:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_ga:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>modify_admin_tabs:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>view_admin_tabs:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_csr_tier2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modify_family:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>modify_employer:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>revert_application:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>list_enrollments:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>send_broker_agency_message:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_broker:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_ga:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>modify_admin_tabs:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>view_admin_tabs:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_csr_tier1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modify_family:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>modify_employer:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>revert_application:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>list_enrollments:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>send_broker_agency_message:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_broker:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_ga:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>modify_admin_tabs:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>view_admin_tabs:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>developer</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modify_family:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>modify_employer:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>revert_application:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>list_enrollments:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>send_broker_agency_message:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_broker:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>approve_ga:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>modify_admin_tabs:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>view_admin_tabs:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_permission'>permission</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Permission.html" title="Permission (class)">Permission</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff'><span class='object_link'><a href="Permission.html#hbx_staff-class_method" title="Permission.hbx_staff (method)">hbx_staff</a></span></span>
+  <span class='const'><span class='object_link'><a href="Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>hbx_staff_role:</span> <span class='lbrace'>{</span><span class='symbol'>:$exists</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_all'>all</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_hbx_staff_role'>hbx_staff_role</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='label'>permission_id:</span> <span class='id identifier rubyid_permission'>permission</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>subrole:</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hbx_staff</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:16 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

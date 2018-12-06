@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Forms::EmployeeRole
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Forms::EmployeeRole";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Forms.html" title="Forms (module)">Forms</a></span></span>
+     &raquo; 
+    <span class="title">EmployeeRole</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Forms::EmployeeRole
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">SimpleDelegator</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">SimpleDelegator</li>
+          
+            <li class="next">Forms::EmployeeRole</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/forms/employee_role.rb</dd>
+  </dl>
+  
+</div>
+
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="WRAPPED_ATTRIBUTES-constant" class="">WRAPPED_ATTRIBUTES =
+        
+      </dt>
+      <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>employee_role_id</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbracket'>]</span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find-class_method" title="find (class method)">.<strong>find</strong>(id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#model_name-class_method" title="model_name (class method)">.<strong>model_name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#benefit_group-instance_method" title="#benefit_group (instance method)">#<strong>benefit_group</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#census_employee-instance_method" title="#census_employee (instance method)">#<strong>census_employee</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clean_attributes-instance_method" title="#clean_attributes (instance method)">#<strong>clean_attributes</strong>(hsh)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#employee_role-instance_method" title="#employee_role (instance method)">#<strong>employee_role</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#employer_profile-instance_method" title="#employer_profile (instance method)">#<strong>employer_profile</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(person, employee_role = nil)  &#x21d2; EmployeeRole </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of EmployeeRole.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#organization-instance_method" title="#organization (instance method)">#<strong>organization</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#organization_id-instance_method" title="#organization_id (instance method)">#<strong>organization_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_attributes-instance_method" title="#update_attributes (instance method)">#<strong>update_attributes</strong>(hsh)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(person, employee_role = nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Forms::EmployeeRole (class)">EmployeeRole</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of EmployeeRole</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='comma'>,</span> <span class='id identifier rubyid_employee_role'>employee_role</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_employee_role'>employee_role</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_employee_role_id'>employee_role_id</span> <span class='op'>=</span> <span class='id identifier rubyid_employee_role'>employee_role</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find-class_method">
+  
+    .<strong>find</strong>(id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="model_name-class_method">
+  
+    .<strong>model_name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_model_name'>model_name</span>
+  <span class='const'><span class='object_link'><a href="../Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_model_name'>model_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="benefit_group-instance_method">
+  
+    #<strong>benefit_group</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span>
+  <span class='ivar'>@benefit_group</span> <span class='op'>||=</span> <span class='id identifier rubyid_employee_role'>employee_role</span><span class='period'>.</span><span class='id identifier rubyid_benefit_group'>benefit_group</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="census_employee-instance_method">
+  
+    #<strong>census_employee</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_census_employee'>census_employee</span>
+  <span class='ivar'>@census_employee</span> <span class='op'>||=</span> <span class='id identifier rubyid_employee_role'>employee_role</span><span class='period'>.</span><span class='id identifier rubyid_new_census_employee'>new_census_employee</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clean_attributes-instance_method">
+  
+    #<strong>clean_attributes</strong>(hsh)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clean_attributes'>clean_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_hsh'>hsh</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_atts'>atts</span> <span class='op'>=</span> <span class='id identifier rubyid_hsh'>hsh</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_stringify_keys'>stringify_keys</span>
+  <span class='id identifier rubyid_for_wrapper'>for_wrapper</span><span class='comma'>,</span> <span class='id identifier rubyid_for_person'>for_person</span> <span class='op'>=</span> <span class='id identifier rubyid_atts'>atts</span><span class='period'>.</span><span class='id identifier rubyid_partition'>partition</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="#WRAPPED_ATTRIBUTES-constant" title="Forms::EmployeeRole::WRAPPED_ATTRIBUTES (constant)">WRAPPED_ATTRIBUTES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='lbracket'>[</span><span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_for_wrapper'>for_wrapper</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_for_person'>for_person</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="employee_role-instance_method">
+  
+    #<strong>employee_role</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_employee_role'>employee_role</span>
+  <span class='ivar'>@employee_role</span> <span class='op'>||=</span> <span class='id identifier rubyid___getobj__'>__getobj__</span><span class='period'>.</span><span class='id identifier rubyid_employee_roles'>employee_roles</span><span class='period'>.</span><span class='id identifier rubyid_detect'>detect</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_role'>role</span><span class='op'>|</span> <span class='id identifier rubyid_role'>role</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_employee_role_id'>employee_role_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="employer_profile-instance_method">
+  
+    #<strong>employer_profile</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_employer_profile'>employer_profile</span>
+  <span class='ivar'>@employer_profile</span> <span class='op'>||=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_employee_role'>employee_role</span><span class='period'>.</span><span class='id identifier rubyid_employer_profile'>employer_profile</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="organization-instance_method">
+  
+    #<strong>organization</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_organization'>organization</span>
+  <span class='ivar'>@organization</span> <span class='op'>||=</span> <span class='id identifier rubyid_employer_profile'>employer_profile</span><span class='period'>.</span><span class='id identifier rubyid_organization'>organization</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="organization_id-instance_method">
+  
+    #<strong>organization_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_organization_id'>organization_id</span>
+  <span class='id identifier rubyid_organization'>organization</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_attributes-instance_method">
+  
+    #<strong>update_attributes</strong>(hsh)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/forms/employee_role.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_hsh'>hsh</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_for_wrapper'>for_wrapper</span><span class='comma'>,</span> <span class='id identifier rubyid_for_person'>for_person</span> <span class='op'>=</span> <span class='id identifier rubyid_clean_attributes'>clean_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_hsh'>hsh</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_for_wrapper'>for_wrapper</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_content'>=</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_for_person'>for_person</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:01 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

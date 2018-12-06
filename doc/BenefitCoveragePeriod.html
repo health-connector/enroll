@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: BenefitCoveragePeriod
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "BenefitCoveragePeriod";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (B)</a> &raquo;
+    
+    
+    <span class="title">BenefitCoveragePeriod</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: BenefitCoveragePeriod
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">BenefitCoveragePeriod</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Mongoid::Document, Mongoid::Timestamps</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/benefit_coverage_period.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A time period during which Organizations, including <span class='object_link'><a href="HbxProfile.html" title="HbxProfile (class)">HbxProfile</a></span>, who are
+eligible for a <span class='object_link'><a href="BenefitSponsorship.html" title="BenefitSponsorship (class)">BenefitSponsorship</a></span>, may offer <span class='object_link'><a href="BenefitPackage.html" title="BenefitPackage (class)">BenefitPackage</a></span>(s) to
+participants within a market place. Each <span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span> includes
+an open enrollment period, during which eligible partipants may enroll.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#all-class_method" title="all (class method)">.<strong>all</strong>  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All HBX benefit coverage periods.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find-class_method" title="find (class method)">.<strong>find</strong>(id)  &#x21d2; BenefitCoveragePeriod </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The HBX benefit coverage period instance for this identifier.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_by_date-class_method" title="find_by_date (class method)">.<strong>find_by_date</strong>(date)  &#x21d2; BenefitCoveragePeriod </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The HBX benefit coverage period instance that includes this date within its
+start and end dates.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#benefit_products-instance_method" title="#benefit_products (instance method)">#<strong>benefit_products</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#contains%3F-instance_method" title="#contains? (instance method)">#<strong>contains?</strong>(date)  &#x21d2; true, false </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine if this date is within the benefit coverage period start/end
+dates.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#earliest_effective_date-instance_method" title="#earliest_effective_date (instance method)">#<strong>earliest_effective_date</strong>  &#x21d2; Date </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The earliest coverage start effective date, based on today&#39;s date and
+site settings.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#elected_plans_by_enrollment_members-instance_method" title="#elected_plans_by_enrollment_members (instance method)">#<strong>elected_plans_by_enrollment_members</strong>(hbx_enrollment_members, coverage_kind, tax_household = nil)  &#x21d2; Array&lt;Plan&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine list of available products (plans), based on member enrollment
+eligibility for each <span class='object_link'><a href="BenefitPackage.html" title="BenefitPackage (class)">BenefitPackage</a></span> under this <span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#end_on=-instance_method" title="#end_on= (instance method)">#<strong>end_on=</strong>(new_date)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the latest date a participant may enroll for coverage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_enrollment_contains%3F-instance_method" title="#open_enrollment_contains? (instance method)">#<strong>open_enrollment_contains?</strong>(date)  &#x21d2; true, false </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine if this date is within the open enrollment period start/end
+dates.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#second_lowest_cost_silver_plan-instance_method" title="#second_lowest_cost_silver_plan (instance method)">#<strong>second_lowest_cost_silver_plan</strong>  &#x21d2; Plan </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Gets the ACA Second Lowest Cost Silver Plan (SLCSP) reference plan.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#second_lowest_cost_silver_plan=-instance_method" title="#second_lowest_cost_silver_plan= (instance method)">#<strong>second_lowest_cost_silver_plan=</strong>(new_plan)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the ACA Second Lowest Cost Silver Plan (SLCSP) reference plan.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_on=-instance_method" title="#start_on= (instance method)">#<strong>start_on=</strong>(new_date)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the earliest coverage effective date.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#termination_effective_on_for-instance_method" title="#termination_effective_on_for (instance method)">#<strong>termination_effective_on_for</strong>(date)  &#x21d2; Date </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The earliest enrollment termination effective date, based on this date and
+site settings.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="all-class_method">
+  
+    .<strong>all</strong>  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>All HBX benefit coverage periods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Which HBX benefit coverage periods are defined?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></span><span class='period'>.</span><span class='id identifier rubyid_all'>all</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the list of HBX benefit coverage periods</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+212
+213
+214
+215</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 212</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_all'>all</span>
+  <span class='id identifier rubyid_organizations'>organizations</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exists'>exists</span><span class='lparen'>(</span><span class='symbol'>:hbx_profile.benefit_sponsorship.benefit_coverage_periods</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_organizations'>organizations</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>?</span> <span class='id identifier rubyid_organizations'>organizations</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='period'>.</span><span class='id identifier rubyid_hbx_profile'>hbx_profile</span><span class='period'>.</span><span class='id identifier rubyid_benefit_sponsorship'>benefit_sponsorship</span><span class='period'>.</span><span class='id identifier rubyid_benefit_coverage_periods'>benefit_coverage_periods</span> <span class='op'>:</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find-class_method">
+  
+    .<strong>find</strong>(id)  &#x21d2; <tt><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The HBX benefit coverage period instance for this identifier</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Which HBX benefit coverage period matches this id?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the BSON object identifier</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the matching HBX benefit coverage period instance</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+181
+182
+183
+184</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 181</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_organizations'>organizations</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hbx_profile.benefit_sponsorship.benefit_coverage_periods._id</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'>BSON</span><span class='op'>::</span><span class='const'>ObjectId</span><span class='period'>.</span><span class='id identifier rubyid_from_string'>from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_organizations'>organizations</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>?</span> <span class='id identifier rubyid_all'>all</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_bcp'>bcp</span><span class='op'>|</span> <span class='id identifier rubyid_bcp'>bcp</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='op'>==</span> <span class='id identifier rubyid_id'>id</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span> <span class='op'>:</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_by_date-class_method">
+  
+    .<strong>find_by_date</strong>(date)  &#x21d2; <tt><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The HBX benefit coverage period instance that includes this date within its
+start and end dates</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Which HBX benefit coverage period covers this date?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find_by_date'>find_by_date</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>date</span>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the comparison date</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the matching HBX benefit coverage period instance</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 194</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_by_date'>find_by_date</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_organizations'>organizations</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span>
+    <span class='symbol'>:hbx_profile.benefit_sponsorship.benefit_coverage_periods.start_on</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_lte'>lte</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_date'>date</span><span class='comma'>,</span>
+    <span class='symbol'>:hbx_profile.benefit_sponsorship.benefit_coverage_periods.end_on</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_gte'>gte</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_organizations'>organizations</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_bcps'>bcps</span> <span class='op'>=</span> <span class='id identifier rubyid_organizations'>organizations</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='period'>.</span><span class='id identifier rubyid_hbx_profile'>hbx_profile</span><span class='period'>.</span><span class='id identifier rubyid_benefit_sponsorship'>benefit_sponsorship</span><span class='period'>.</span><span class='id identifier rubyid_benefit_coverage_periods'>benefit_coverage_periods</span>
+    <span class='id identifier rubyid_bcps'>bcps</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_bcp'>bcp</span><span class='op'>|</span> <span class='id identifier rubyid_bcp'>bcp</span><span class='period'>.</span><span class='id identifier rubyid_start_on'>start_on</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_date'>date</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_bcp'>bcp</span><span class='period'>.</span><span class='id identifier rubyid_end_on'>end_on</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_date'>date</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='kw'>else</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="benefit_products-instance_method">
+  
+    #<strong>benefit_products</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note todo">
+    <strong>TODO:</strong>
+    <div class='inline'>
+<p>Available products from which this sponsor may offer benefits during this
+benefit coverage period</p>
+</div>
+  </div>
+
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_benefit_products'>benefit_products</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="contains?-instance_method">
+  
+    #<strong>contains?</strong>(date)  &#x21d2; <tt>true</tt>, <tt>false</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine if this date is within the benefit coverage period start/end
+dates</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Is the date within the benefit coverage period?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_contains?'>contains?</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>, <tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the date falls within the period, false if the date is outside the
+period</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 93</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_contains?'>contains?</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_start_on'>start_on</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_end_on'>end_on</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="earliest_effective_date-instance_method">
+  
+    #<strong>earliest_effective_date</strong>  &#x21d2; <tt>Date</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The earliest coverage start effective date, based on today&#39;s date and
+site settings</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>When is the earliest coverage start effective date?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_earliest_effective_date'>earliest_effective_date</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the earliest coverage start effective date</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_earliest_effective_date'>earliest_effective_date</span>
+  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="TimeKeeper.html" title="TimeKeeper (class)">TimeKeeper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_date_of_record'><span class='object_link'><a href="TimeKeeper.html#date_of_record-class_method" title="TimeKeeper.date_of_record (method)">date_of_record</a></span></span><span class='period'>.</span><span class='id identifier rubyid_day'>day</span> <span class='op'>&lt;=</span> <span class='const'><span class='object_link'><a href="HbxProfile.html" title="HbxProfile (class)">HbxProfile</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HbxProfile.html#IndividualEnrollmentDueDayOfMonth-constant" title="HbxProfile::IndividualEnrollmentDueDayOfMonth (constant)">IndividualEnrollmentDueDayOfMonth</a></span></span>
+    <span class='id identifier rubyid_effective_date'>effective_date</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="TimeKeeper.html" title="TimeKeeper (class)">TimeKeeper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_date_of_record'><span class='object_link'><a href="TimeKeeper.html#date_of_record-class_method" title="TimeKeeper.date_of_record (method)">date_of_record</a></span></span><span class='period'>.</span><span class='id identifier rubyid_end_of_month'>end_of_month</span> <span class='op'>+</span> <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_day'>day</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_effective_date'>effective_date</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="TimeKeeper.html" title="TimeKeeper (class)">TimeKeeper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_date_of_record'><span class='object_link'><a href="TimeKeeper.html#date_of_record-class_method" title="TimeKeeper.date_of_record (method)">date_of_record</a></span></span><span class='period'>.</span><span class='id identifier rubyid_next_month'>next_month</span><span class='period'>.</span><span class='id identifier rubyid_end_of_month'>end_of_month</span> <span class='op'>+</span> <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_day'>day</span>
+  <span class='kw'>end</span>
+
+  <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_effective_date'>effective_date</span><span class='comma'>,</span> <span class='id identifier rubyid_start_on'>start_on</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span><span class='comma'>,</span> <span class='id identifier rubyid_end_on'>end_on</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="elected_plans_by_enrollment_members-instance_method">
+  
+    #<strong>elected_plans_by_enrollment_members</strong>(hbx_enrollment_members, coverage_kind, tax_household = nil)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine list of available products (plans), based on member enrollment
+eligibility for each <span class='object_link'><a href="BenefitPackage.html" title="BenefitPackage (class)">BenefitPackage</a></span> under this <span class='object_link'><a href="" title="BenefitCoveragePeriod (class)">BenefitCoveragePeriod</a></span>.
+In the Individual market, BenefitPackage types may include Catastrophic,
+Cost Sharing Reduction (CSR), etc., and eligibility criteria such as member
+age, ethnicity, residency and lawful presence.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>hbx_enrollment_members</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the list of enrolling members</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>coverage_kind</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the benefit type.  Only &#39;health&#39; is currently supported</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tax_household</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="TaxHousehold.html" title="TaxHousehold (class)">TaxHousehold</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the tax household members belong to if eligible for financial assistance</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the list of eligible products</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 147</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_elected_plans_by_enrollment_members'>elected_plans_by_enrollment_members</span><span class='lparen'>(</span><span class='id identifier rubyid_hbx_enrollment_members'>hbx_enrollment_members</span><span class='comma'>,</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_tax_household'>tax_household</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ivl_bgs'>ivl_bgs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_benefit_packages'>benefit_packages</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_bg'>bg</span><span class='op'>|</span>
+    <span class='id identifier rubyid_satisfied'>satisfied</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_family'>family</span> <span class='op'>=</span> <span class='id identifier rubyid_hbx_enrollment_members'>hbx_enrollment_members</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='period'>.</span><span class='id identifier rubyid_hbx_enrollment'>hbx_enrollment</span><span class='period'>.</span><span class='id identifier rubyid_family'>family</span>
+    <span class='id identifier rubyid_hbx_enrollment_members'>hbx_enrollment_members</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:family_member</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_family_member'>family_member</span><span class='op'>|</span>
+      <span class='id identifier rubyid_consumer_role'>consumer_role</span> <span class='op'>=</span> <span class='id identifier rubyid_family_member'>family_member</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_consumer_role'>consumer_role</span>
+      <span class='id identifier rubyid_resident_role'>resident_role</span> <span class='op'>=</span> <span class='id identifier rubyid_family_member'>family_member</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_resident_role'>resident_role</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_resident_role'>resident_role</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_rule'>rule</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="InsuredEligibleForBenefitRule.html" title="InsuredEligibleForBenefitRule (class)">InsuredEligibleForBenefitRule</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="InsuredEligibleForBenefitRule.html#initialize-instance_method" title="InsuredEligibleForBenefitRule#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_resident_role'>resident_role</span><span class='comma'>,</span> <span class='id identifier rubyid_bg'>bg</span><span class='comma'>,</span> <span class='label'>coverage_kind:</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='label'>family:</span> <span class='id identifier rubyid_family'>family</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_rule'>rule</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="InsuredEligibleForBenefitRule.html" title="InsuredEligibleForBenefitRule (class)">InsuredEligibleForBenefitRule</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="InsuredEligibleForBenefitRule.html#initialize-instance_method" title="InsuredEligibleForBenefitRule#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_consumer_role'>consumer_role</span><span class='comma'>,</span> <span class='id identifier rubyid_bg'>bg</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='label'>coverage_kind:</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='label'>family:</span> <span class='id identifier rubyid_family'>family</span><span class='comma'>,</span> <span class='label'>new_effective_on:</span> <span class='id identifier rubyid_hbx_enrollment_members'>hbx_enrollment_members</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='period'>.</span><span class='id identifier rubyid_hbx_enrollment'>hbx_enrollment</span><span class='period'>.</span><span class='id identifier rubyid_effective_on'>effective_on</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_satisfied'>satisfied</span> <span class='op'>=</span> <span class='kw'>false</span> <span class='kw'>and</span> <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_rule'>rule</span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'>satisfied?</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_ivl_bgs'>ivl_bgs</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_bg'>bg</span> <span class='kw'>if</span> <span class='id identifier rubyid_satisfied'>satisfied</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ivl_bgs'>ivl_bgs</span> <span class='op'>=</span> <span class='id identifier rubyid_ivl_bgs'>ivl_bgs</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+  <span class='id identifier rubyid_elected_plan_ids'>elected_plan_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_ivl_bgs'>ivl_bgs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:benefit_ids</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+  <span class='const'><span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_individual_plans'><span class='object_link'><a href="Plan.html#individual_plans-class_method" title="Plan.individual_plans (method)">individual_plans</a></span></span><span class='lparen'>(</span><span class='label'>coverage_kind:</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='label'>active_year:</span> <span class='id identifier rubyid_start_on'>start_on</span><span class='period'>.</span><span class='id identifier rubyid_year'>year</span><span class='comma'>,</span> <span class='label'>tax_household:</span> <span class='id identifier rubyid_tax_household'>tax_household</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_by_plan_ids'>by_plan_ids</span><span class='lparen'>(</span><span class='id identifier rubyid_elected_plan_ids'>elected_plan_ids</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_entries'>entries</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="end_on=-instance_method">
+  
+    #<strong>end_on=</strong>(new_date)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the latest date a participant may enroll for coverage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>new_date</span>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The latest date a participant may enroll for coverage</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_end_on='>end_on=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_date'>new_date</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_new_date'>new_date</span> <span class='op'>=</span> <span class='const'>Date</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_new_date'>new_date</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_date'>new_date</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+  <span class='id identifier rubyid_write_attribute'>write_attribute</span><span class='lparen'>(</span><span class='symbol'>:end_on</span><span class='comma'>,</span> <span class='id identifier rubyid_new_date'>new_date</span><span class='period'>.</span><span class='id identifier rubyid_end_of_day'>end_of_day</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_enrollment_contains?-instance_method">
+  
+    #<strong>open_enrollment_contains?</strong>(date)  &#x21d2; <tt>true</tt>, <tt>false</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine if this date is within the open enrollment period start/end dates</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Is the date within the open enrollment period?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_open_enrollment_contains?'>open_enrollment_contains?</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>date</span>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The comparision date</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>, <tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the date falls within the period, false if the date is outside the
+period</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_enrollment_contains?'>open_enrollment_contains?</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_open_enrollment_start_on'>open_enrollment_start_on</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_open_enrollment_end_on'>open_enrollment_end_on</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="second_lowest_cost_silver_plan-instance_method">
+  
+    #<strong>second_lowest_cost_silver_plan</strong>  &#x21d2; <tt><span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Gets the ACA Second Lowest Cost Silver Plan (SLCSP) reference plan</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>reference plan</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_second_lowest_cost_silver_plan'>second_lowest_cost_silver_plan</span>
+  <span class='kw'>return</span> <span class='ivar'>@second_lowest_cost_silver_plan</span> <span class='kw'>if</span> <span class='kw'>defined?</span> <span class='ivar'>@second_lowest_cost_silver_plan</span>
+  <span class='ivar'>@second_lowest_cost_silver_plan</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_slcsp_id'>slcsp_id</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_slcsp_id'>slcsp_id</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="second_lowest_cost_silver_plan=-instance_method">
+  
+    #<strong>second_lowest_cost_silver_plan=</strong>(new_plan)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the ACA Second Lowest Cost Silver Plan (SLCSP) reference plan</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>new_plan</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The reference plan.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the referenced plan is not silver metal level</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_second_lowest_cost_silver_plan='>second_lowest_cost_silver_plan=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_plan'>new_plan</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>expected Plan</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_new_plan'>new_plan</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Plan.html" title="Plan (class)">Plan</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>slcsp metal level must be silver</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_new_plan'>new_plan</span><span class='period'>.</span><span class='id identifier rubyid_metal_level'>metal_level</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>silver</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_slcsp_id'>slcsp_id</span> <span class='op'>=</span> <span class='id identifier rubyid_new_plan'>new_plan</span><span class='period'>.</span><span class='id identifier rubyid__id'>_id</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_slcsp'>slcsp</span> <span class='op'>=</span> <span class='id identifier rubyid_new_plan'>new_plan</span><span class='period'>.</span><span class='id identifier rubyid__id'>_id</span>
+  <span class='ivar'>@second_lowest_cost_silver_plan</span> <span class='op'>=</span> <span class='id identifier rubyid_new_plan'>new_plan</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_on=-instance_method">
+  
+    #<strong>start_on=</strong>(new_date)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the earliest coverage effective date</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>new_date</span>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The earliest coverage effective date</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_on='>start_on=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_date'>new_date</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_new_date'>new_date</span> <span class='op'>=</span> <span class='const'>Date</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_new_date'>new_date</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_date'>new_date</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+  <span class='id identifier rubyid_write_attribute'>write_attribute</span><span class='lparen'>(</span><span class='symbol'>:start_on</span><span class='comma'>,</span> <span class='id identifier rubyid_new_date'>new_date</span><span class='period'>.</span><span class='id identifier rubyid_beginning_of_day'>beginning_of_day</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="termination_effective_on_for-instance_method">
+  
+    #<strong>termination_effective_on_for</strong>(date)  &#x21d2; <tt>Date</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The earliest enrollment termination effective date, based on this date and
+site settings</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>When is the earliest termination effective date?</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_termination_effective_on_for'>termination_effective_on_for</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>date</span>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The comparision date.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Date</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the earliest termination effective date.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/benefit_coverage_period.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_termination_effective_on_for'>termination_effective_on_for</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+  <span class='comment'># Add guard to prevent the temination date exceeding end date in the Individual Market
+</span>  <span class='lbracket'>[</span><span class='id identifier rubyid_date'>date</span><span class='comma'>,</span> <span class='id identifier rubyid_end_on'>end_on</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span> <span class='comment'># see 20996
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:09 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Etl::Csv::BrokerImport
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Etl::Csv::BrokerImport";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Etl.html" title="Etl (module)">Etl</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Csv.html" title="Etl::Csv (module)">Csv</a></span></span>
+     &raquo; 
+    <span class="title">BrokerImport</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Etl::Csv::BrokerImport
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Base.html" title="Etl::Csv::Base (class)">Base</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Base.html" title="Etl::Csv::Base (class)">Base</a></span></li>
+          
+            <li class="next">Etl::Csv::BrokerImport</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Mongoid::Document</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/etl/csv/broker_import.rb</dd>
+  </dl>
+  
+</div>
+
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="PROVIDER_TYPE_KINDS-constant" class="">PROVIDER_TYPE_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w(</span><span class='tstring_content'>broker</span><span class='words_sep'>)</span></pre></dd>
+    
+      <dt id="PRACTICE_AREA_KINDS-constant" class="">PRACTICE_AREA_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Small Business Insurance Only</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shop</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Individual and Family Insurance Only</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>individual</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Both</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>both</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+    
+      <dt id="NAME_SUFFIX_KINDS-constant" class="">NAME_SUFFIX_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w(</span><span class='tstring_content'>jr</span><span class='words_sep'> </span><span class='tstring_content'>sr</span><span class='words_sep'> </span><span class='tstring_content'>ii</span><span class='words_sep'> </span><span class='tstring_content'>iii</span><span class='words_sep'> </span><span class='tstring_content'>iv</span><span class='words_sep'> </span><span class='tstring_content'>clu</span><span class='words_sep'> </span><span class='tstring_content'>ltcp</span><span class='words_sep'> </span><span class='tstring_content'>cfp</span><span class='words_sep'> </span><span class='tstring_content'>mhsa</span><span class='words_sep'> </span><span class='tstring_content'>chfc</span><span class='words_sep'>)</span></pre></dd>
+    
+      <dt id="ORDERED_COLUMN_NAMES-constant" class="">ORDERED_COLUMN_NAMES =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w(
+</span><span class='tstring_content'>  npn</span><span class='words_sep'>
+</span><span class='tstring_content'>  created_date</span><span class='words_sep'>
+</span><span class='tstring_content'>  provider_type</span><span class='words_sep'>
+</span><span class='tstring_content'>  provider_name</span><span class='words_sep'>
+</span><span class='tstring_content'>  email</span><span class='words_sep'>
+</span><span class='tstring_content'>  web_url</span><span class='words_sep'>
+</span><span class='tstring_content'>  organization_name</span><span class='words_sep'>
+</span><span class='tstring_content'>  organization_type</span><span class='words_sep'>
+</span><span class='tstring_content'>  practice_area</span><span class='words_sep'>
+</span><span class='tstring_content'>  languages</span><span class='words_sep'>
+</span><span class='tstring_content'>  fax_number</span><span class='words_sep'>
+</span><span class='tstring_content'>  app_suite</span><span class='words_sep'>
+</span><span class='tstring_content'>  address_1</span><span class='words_sep'>
+</span><span class='tstring_content'>  address_2</span><span class='words_sep'>
+</span><span class='tstring_content'>  city</span><span class='words_sep'>
+</span><span class='tstring_content'>  state</span><span class='words_sep'>
+</span><span class='tstring_content'>  zip_code</span><span class='words_sep'>
+</span><span class='tstring_content'>  latitude</span><span class='words_sep'>
+</span><span class='tstring_content'>  longitude</span><span class='words_sep'>
+</span><span class='tstring_content'>  direct_phone</span><span class='words_sep'>
+</span><span class='tstring_content'>  mobile_phone</span><span class='words_sep'>
+</span><span class='tstring_content'>  work_phone</span><span class='words_sep'>
+</span><span class='tstring_content'>  work_phone_extension</span><span class='words_sep'>
+</span><span class='tstring_end'>)</span></span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Base.html" title="Etl::Csv::Base (class)">Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Base.html#employer_profile-instance_method" title="Etl::Csv::Base#employer_profile (method)">#employer_profile</a></span>, <span class='object_link'><a href="Base.html#file-instance_method" title="Etl::Csv::Base#file (method)">#file</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_or_update_broker_role-instance_method" title="#add_or_update_broker_role (instance method)">#<strong>add_or_update_broker_role</strong>(record)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#assign_broker_agency_profile_attributes-instance_method" title="#assign_broker_agency_profile_attributes (instance method)">#<strong>assign_broker_agency_profile_attributes</strong>(broker_agency_profile, record)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#assign_broker_role_attributes-instance_method" title="#assign_broker_role_attributes (instance method)">#<strong>assign_broker_role_attributes</strong>(person, record)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_next_fein-instance_method" title="#get_next_fein (instance method)">#<strong>get_next_fein</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#map_attributes-instance_method" title="#map_attributes (instance method)">#<strong>map_attributes</strong>(record)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ordered_column_names-instance_method" title="#ordered_column_names (instance method)">#<strong>ordered_column_names</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_language-instance_method" title="#parse_language (instance method)">#<strong>parse_language</strong>(cell)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_person_name-instance_method" title="#parse_person_name (instance method)">#<strong>parse_person_name</strong>(cell)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_practice_area-instance_method" title="#parse_practice_area (instance method)">#<strong>parse_practice_area</strong>(cell)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_row-instance_method" title="#parse_row (instance method)">#<strong>parse_row</strong>(row)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Base.html" title="Etl::Csv::Base (class)">Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Base.html#header_valid%3F-instance_method" title="Etl::Csv::Base#header_valid? (method)">#header_valid?</a></span>, <span class='object_link'><a href="Base.html#imported_records-instance_method" title="Etl::Csv::Base#imported_records (method)">#imported_records</a></span>, <span class='object_link'><a href="Base.html#initialize-instance_method" title="Etl::Csv::Base#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="Base.html#length-instance_method" title="Etl::Csv::Base#length (method)">#length</a></span>, <span class='object_link'><a href="Base.html#load_records-instance_method" title="Etl::Csv::Base#load_records (method)">#load_records</a></span>, <span class='object_link'><a href="Base.html#open_spreadsheet-instance_method" title="Etl::Csv::Base#open_spreadsheet (method)">#open_spreadsheet</a></span>, <span class='object_link'><a href="Base.html#parse_boolean-instance_method" title="Etl::Csv::Base#parse_boolean (method)">#parse_boolean</a></span>, <span class='object_link'><a href="Base.html#parse_date-instance_method" title="Etl::Csv::Base#parse_date (method)">#parse_date</a></span>, <span class='object_link'><a href="Base.html#parse_employee_relationship-instance_method" title="Etl::Csv::Base#parse_employee_relationship (method)">#parse_employee_relationship</a></span>, <span class='object_link'><a href="Base.html#parse_integer-instance_method" title="Etl::Csv::Base#parse_integer (method)">#parse_integer</a></span>, <span class='object_link'><a href="Base.html#parse_number-instance_method" title="Etl::Csv::Base#parse_number (method)">#parse_number</a></span>, <span class='object_link'><a href="Base.html#parse_phone_number-instance_method" title="Etl::Csv::Base#parse_phone_number (method)">#parse_phone_number</a></span>, <span class='object_link'><a href="Base.html#parse_ssn-instance_method" title="Etl::Csv::Base#parse_ssn (method)">#parse_ssn</a></span>, <span class='object_link'><a href="Base.html#parse_text-instance_method" title="Etl::Csv::Base#parse_text (method)">#parse_text</a></span>, <span class='object_link'><a href="Base.html#persisted%3F-instance_method" title="Etl::Csv::Base#persisted? (method)">#persisted?</a></span>, <span class='object_link'><a href="Base.html#save-instance_method" title="Etl::Csv::Base#save (method)">#save</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="Base.html#initialize-instance_method" title="Etl::Csv::Base#initialize (method)">Etl::Csv::Base</a></span></p>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_or_update_broker_role-instance_method">
+  
+    #<strong>add_or_update_broker_role</strong>(record)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_or_update_broker_role'>add_or_update_broker_role</span><span class='lparen'>(</span><span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_broker_role'>broker_role</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../BrokerRole.html" title="BrokerRole (class)">BrokerRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find_by_npn'><span class='object_link'><a href="../../BrokerRole.html#find_by_npn-class_method" title="BrokerRole.find_by_npn (method)">find_by_npn</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:npn</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comment'>#  || BrokerRole.new
+</span>  <span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_broker_role'>broker_role</span>
+     <span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># built_broker_role = assign_broker_role_attributes(broker_role, record)
+</span>  <span class='comment'># built_broker_role.save
+</span>
+  <span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='id identifier rubyid_assign_broker_role_attributes'>assign_broker_role_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='comma'>,</span> <span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+
+  <span class='id identifier rubyid_built_broker_role'>built_broker_role</span> <span class='op'>=</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_broker_role'>broker_role</span>
+
+  <span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span> <span class='op'>=</span> <span class='id identifier rubyid_built_broker_role'>built_broker_role</span><span class='period'>.</span><span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../../BrokerAgencyProfile.html" title="BrokerAgencyProfile (class)">BrokerAgencyProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_built_broker_agency_profile'>built_broker_agency_profile</span> <span class='op'>=</span> <span class='id identifier rubyid_assign_broker_agency_profile_attributes'>assign_broker_agency_profile_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='comma'>,</span> <span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_built_broker_agency_profile'>built_broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_built_broker_agency_profile'>built_broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_primary_broker_role'>primary_broker_role</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_built_broker_agency_profile'>built_broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_primary_broker_role'>primary_broker_role</span> <span class='op'>=</span> <span class='id identifier rubyid_built_broker_role'>built_broker_role</span>
+    <span class='id identifier rubyid_built_broker_agency_profile'>built_broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_built_broker_role'>built_broker_role</span><span class='period'>.</span><span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_built_broker_role'>built_broker_role</span><span class='period'>.</span><span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span> <span class='op'>=</span> <span class='id identifier rubyid_built_broker_agency_profile'>built_broker_agency_profile</span>
+    <span class='id identifier rubyid_built_broker_role'>built_broker_role</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_built_broker_role'>built_broker_role</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="assign_broker_agency_profile_attributes-instance_method">
+  
+    #<strong>assign_broker_agency_profile_attributes</strong>(broker_agency_profile, record)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StandardError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assign_broker_agency_profile_attributes'>assign_broker_agency_profile_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='comma'>,</span> <span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_organization'>organization</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_office_location'>office_location</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../OfficeLocation.html" title="OfficeLocation (class)">OfficeLocation</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>address:</span> <span class='const'><span class='object_link'><a href="../../Address.html" title="Address (class)">Address</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+            <span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>work</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+            <span class='label'>address_1:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:address_1</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>address_2:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:address_2</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>address_3:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:app_wuite</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>city:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:city</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>state:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:state</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>zip:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:zip_code</span><span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='label'>phone:</span> <span class='const'><span class='object_link'><a href="../../Phone.html" title="Phone (class)">Phone</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+            <span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>work</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+            <span class='label'>full_phone_number:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:work_phone</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:direct_phone</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>extension:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:work_phone_extension</span><span class='rbracket'>]</span>
+          <span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='label'>is_primary:</span> <span class='kw'>true</span>
+      <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_fein'>fein</span> <span class='op'>=</span> <span class='id identifier rubyid_get_next_fein'>get_next_fein</span>
+
+    <span class='id identifier rubyid_organization'>organization</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>legal_name:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:organization_name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:first_name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:last_name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>fein:</span> <span class='id identifier rubyid_fein'>fein</span><span class='comma'>,</span>
+        <span class='label'>home_page:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:web_url</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>office_locations:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_office_location'>office_location</span><span class='rbracket'>]</span>
+      <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span> <span class='op'>=</span> <span class='id identifier rubyid_organization'>organization</span><span class='period'>.</span><span class='id identifier rubyid_build_broker_agency_profile'>build_broker_agency_profile</span><span class='lparen'>(</span>
+        <span class='label'>market_kind:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:practice_area</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>entity_kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>s_corporation</span><span class='tstring_end'>&quot;</span></span> <span class='comma'>,</span>
+        <span class='label'>accept_new_clients:</span> <span class='kw'>true</span><span class='comma'>,</span>
+        <span class='label'>aasm_state:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>is_approved</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StandardError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BrokerAgency is invalid for NPN: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:npn</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_valid?'>valid?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StandardError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BrokerAgency organization is invalid for NPN: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:npn</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_organization'>organization</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_full_messages'>full_messages</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span><span class='period'>.</span><span class='id identifier rubyid_organization'>organization</span><span class='period'>.</span><span class='id identifier rubyid_valid?'>valid?</span>
+  <span class='id identifier rubyid_broker_agency_profile'>broker_agency_profile</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="assign_broker_role_attributes-instance_method">
+  
+    #<strong>assign_broker_role_attributes</strong>(person, record)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assign_broker_role_attributes'>assign_broker_role_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='comma'>,</span> <span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_fax'>fax</span>     <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Phone.html" title="Phone (class)">Phone</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fax</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>full_phone_number:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:fax_number</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_mobile'>mobile</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Phone.html" title="Phone (class)">Phone</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mobile</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>full_phone_number:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:mobile_phone</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_direct'>direct</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Phone.html" title="Phone (class)">Phone</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>work</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>full_phone_number:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:direct_phone</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_phones'>phones</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_fax'>fax</span><span class='comma'>,</span> <span class='id identifier rubyid_mobile'>mobile</span><span class='comma'>,</span> <span class='id identifier rubyid_direct'>direct</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_kind'>kind</span><span class='op'>|</span> <span class='id identifier rubyid_kind'>kind</span><span class='period'>.</span><span class='id identifier rubyid_full_phone_number'>full_phone_number</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_emails'>emails</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="../../Email.html" title="Email (class)">Email</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>work</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>address:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:email</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_assign_attributes'>assign_attributes</span><span class='lparen'>(</span>
+      <span class='lbrace'>{</span>
+        <span class='label'>first_name:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:first_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>middle_name:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:middle_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>last_name:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:last_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>name_sfx:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:name_suffix</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>phones:</span> <span class='id identifier rubyid_phones'>phones</span><span class='comma'>,</span>
+        <span class='label'>emails:</span> <span class='id identifier rubyid_emails'>emails</span>
+      <span class='rbrace'>}</span>
+    <span class='rparen'>)</span>
+  <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_broker_role'>broker_role</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../BrokerRole.html" title="BrokerRole (class)">BrokerRole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_assign_attributes'>assign_attributes</span><span class='lparen'>(</span>
+      <span class='lbrace'>{</span>
+        <span class='label'>npn:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:npn</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>provider_kind:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:provider_type</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>market_kind:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:practice_area</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>languages_spoken:</span> <span class='id identifier rubyid_record'>record</span><span class='lbracket'>[</span><span class='symbol'>:languages</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>accept_new_clients:</span> <span class='kw'>true</span><span class='comma'>,</span>
+        <span class='label'>aasm_state:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>active</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rbrace'>}</span>
+    <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_person'>person</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_next_fein-instance_method">
+  
+    #<strong>get_next_fein</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+192
+193
+194
+195
+196
+197
+198
+199
+200</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 192</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_next_fein'>get_next_fein</span>
+  <span class='id identifier rubyid_seed'>seed</span> <span class='op'>=</span> <span class='int'>999990001</span>
+
+  <span class='id identifier rubyid_org'>org</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_unscoped'>unscoped</span><span class='period'>.</span><span class='id identifier rubyid_order'>order</span><span class='lparen'>(</span><span class='symbol'>:fein</span><span class='period'>.</span><span class='id identifier rubyid_desc'>desc</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_limit'>limit</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='id identifier rubyid_db_max_fein'>db_max_fein</span> <span class='op'>=</span> <span class='id identifier rubyid_org'>org</span><span class='period'>.</span><span class='id identifier rubyid_fein'>fein</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_next_fein'>next_fein</span> <span class='op'>=</span> <span class='id identifier rubyid_db_max_fein'>db_max_fein</span> <span class='op'>+</span> <span class='int'>1</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_seed'>seed</span><span class='comma'>,</span> <span class='id identifier rubyid_next_fein'>next_fein</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="map_attributes-instance_method">
+  
+    #<strong>map_attributes</strong>(record)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_map_attributes'>map_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_add_or_update_broker_role'>add_or_update_broker_role</span><span class='lparen'>(</span><span class='id identifier rubyid_record'>record</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ordered_column_names-instance_method">
+  
+    #<strong>ordered_column_names</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 202</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ordered_column_names'>ordered_column_names</span>
+  <span class='const'><span class='object_link'><a href="#ORDERED_COLUMN_NAMES-constant" title="Etl::Csv::BrokerImport::ORDERED_COLUMN_NAMES (constant)">ORDERED_COLUMN_NAMES</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_language-instance_method">
+  
+    #<strong>parse_language</strong>(cell)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+238
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 238</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_language'>parse_language</span><span class='lparen'>(</span><span class='id identifier rubyid_cell'>cell</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='id identifier rubyid_languages'>languages</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_cell'>cell</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_person_name-instance_method">
+  
+    #<strong>parse_person_name</strong>(cell)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 216</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_person_name'>parse_person_name</span><span class='lparen'>(</span><span class='id identifier rubyid_cell'>cell</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='id identifier rubyid_full_name'>full_name</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_cell'>cell</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>when</span> <span class='int'>2</span>
+      <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+    <span class='kw'>when</span> <span class='int'>3</span>
+      <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#NAME_SUFFIX_KINDS-constant" title="Etl::Csv::BrokerImport::NAME_SUFFIX_KINDS (constant)">NAME_SUFFIX_KINDS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+        <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>name_sfx:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+      <span class='kw'>else</span>
+        <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>middle_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='int'>4</span>
+      <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#NAME_SUFFIX_KINDS-constant" title="Etl::Csv::BrokerImport::NAME_SUFFIX_KINDS (constant)">NAME_SUFFIX_KINDS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+        <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>middle_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>name_sfx:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+      <span class='kw'>else</span>
+        <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>middle_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>last_name:</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_practice_area-instance_method">
+  
+    #<strong>parse_practice_area</strong>(cell)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+206
+207
+208
+209
+210
+211
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 206</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_practice_area'>parse_practice_area</span><span class='lparen'>(</span><span class='id identifier rubyid_cell'>cell</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+
+  <span class='id identifier rubyid_practice_area'>practice_area</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_cell'>cell</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#PRACTICE_AREA_KINDS-constant" title="Etl::Csv::BrokerImport::PRACTICE_AREA_KINDS (constant)">PRACTICE_AREA_KINDS</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_practice_area'>practice_area</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown practice_area: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_practice_area'>practice_area</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+  <span class='id identifier rubyid_key'>key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_row-instance_method">
+  
+    #<strong>parse_row</strong>(row)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/etl/csv/broker_import.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_row'>parse_row</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span>
+    <span class='label'>organization_name:</span>      <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>organization_name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>organization_type:</span>      <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>organization_type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='label'>provider_name:</span>          <span class='id identifier rubyid_parse_person_name'>parse_person_name</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>provider_name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>npn:</span>                    <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>npn</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>email:</span>                  <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>email</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>web_url:</span>                <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>web_url</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>address_1:</span>              <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>address_1</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>address_2:</span>              <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>address_2</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>app_suite:</span>              <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>app_suite</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>city:</span>                   <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>city</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>state:</span>                  <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>state</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>zip_code:</span>               <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>zip_code</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='label'>direct_phone:</span>           <span class='id identifier rubyid_parse_phone_number'>parse_phone_number</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>direct_phone</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>mobile_phone:</span>           <span class='id identifier rubyid_parse_phone_number'>parse_phone_number</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mobile_phone</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>work_phone:</span>             <span class='id identifier rubyid_parse_phone_number'>parse_phone_number</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>work_phone</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>work_phone_extension:</span>   <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>work_phone_extension</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>fax_number:</span>             <span class='id identifier rubyid_parse_phone_number'>parse_phone_number</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fax_number</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='label'>provider_type:</span>          <span class='id identifier rubyid_parse_text'>parse_text</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>provider_type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>practice_area:</span>          <span class='id identifier rubyid_parse_practice_area'>parse_practice_area</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>practice_area</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>languages:</span>              <span class='id identifier rubyid_parse_language'>parse_language</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>languages</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+
+    <span class='label'>latitude:</span>               <span class='id identifier rubyid_parse_number'>parse_number</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>latitude</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>longitude:</span>              <span class='id identifier rubyid_parse_number'>parse_number</span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>longitude</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='comment'># created_date:           parse_date(row[&quot;created_date&quot;])
+</span>  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:04 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

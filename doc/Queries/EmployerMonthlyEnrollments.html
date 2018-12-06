@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Queries::EmployerMonthlyEnrollments
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Queries::EmployerMonthlyEnrollments";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Queries.html" title="Queries (module)">Queries</a></span></span>
+     &raquo; 
+    <span class="title">EmployerMonthlyEnrollments</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Queries::EmployerMonthlyEnrollments
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Queries::EmployerMonthlyEnrollments</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/queries/employer_monthly_enrollments.rb</dd>
+  </dl>
+  
+</div>
+
+<div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="EmployerPremiumStatement.html" title="Queries::EmployerPremiumStatement (class)">EmployerPremiumStatement</a></span>, <span class='object_link'><a href="EmployerShowPageBill.html" title="Queries::EmployerShowPageBill (class)">EmployerShowPageBill</a></span></p>
+</div>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decorate_enrollments_and_calculate_totals-instance_method" title="#decorate_enrollments_and_calculate_totals (instance method)">#<strong>decorate_enrollments_and_calculate_totals</strong>(found_enrollments, bg_cache, plan_cache)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_enrollments-instance_method" title="#find_enrollments (instance method)">#<strong>find_enrollments</strong>(enrollment_ids, people_cache)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_decorators_for_enrollments-instance_method" title="#get_decorators_for_enrollments (instance method)">#<strong>get_decorators_for_enrollments</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(employer_profile, b_date = nil)  &#x21d2; EmployerMonthlyEnrollments </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of EmployerMonthlyEnrollments.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(employer_profile, b_date = nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Queries::EmployerMonthlyEnrollments (class)">EmployerMonthlyEnrollments</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of EmployerMonthlyEnrollments</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+3
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/queries/employer_monthly_enrollments.rb', line 3</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_employer_profile'>employer_profile</span><span class='comma'>,</span> <span class='id identifier rubyid_b_date'>b_date</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@employer_profile</span> <span class='op'>=</span> <span class='id identifier rubyid_employer_profile'>employer_profile</span>
+  <span class='ivar'>@billing_date</span> <span class='op'>=</span> <span class='id identifier rubyid_b_date'>b_date</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="decorate_enrollments_and_calculate_totals-instance_method">
+  
+    #<strong>decorate_enrollments_and_calculate_totals</strong>(found_enrollments, bg_cache, plan_cache)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/queries/employer_monthly_enrollments.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decorate_enrollments_and_calculate_totals'>decorate_enrollments_and_calculate_totals</span><span class='lparen'>(</span><span class='id identifier rubyid_found_enrollments'>found_enrollments</span><span class='comma'>,</span> <span class='id identifier rubyid_bg_cache'>bg_cache</span><span class='comma'>,</span> <span class='id identifier rubyid_plan_cache'>plan_cache</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_found_enrollments'>found_enrollments</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='symbol'>:hbx_enrollments</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_found_enrollments'>found_enrollments</span><span class='comma'>,</span> <span class='symbol'>:total_employer_contribution</span> <span class='op'>=&gt;</span> <span class='float'>0.00</span><span class='comma'>,</span> <span class='symbol'>:total_employee_cost</span> <span class='op'>=&gt;</span> <span class='float'>0.00</span><span class='comma'>,</span> <span class='symbol'>:total_premium</span> <span class='op'>=&gt;</span> <span class='float'>0.00</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_acc'>acc</span><span class='comma'>,</span> <span class='id identifier rubyid_fe'>fe</span><span class='op'>|</span>
+    <span class='id identifier rubyid_benefit_group'>benefit_group</span> <span class='op'>=</span> <span class='id identifier rubyid_bg_cache'>bg_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_benefit_group_id'>benefit_group_id</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_plan'>plan</span> <span class='op'>=</span> <span class='id identifier rubyid_plan_cache'>plan_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_plan_id'>plan_id</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_decorator'>decorator</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='period'>.</span><span class='id identifier rubyid_is_congress?'>is_congress?</span>
+      <span class='id identifier rubyid_decorator'>decorator</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../PlanCostDecoratorCongress.html" title="PlanCostDecoratorCongress (class)">PlanCostDecoratorCongress</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../PlanCostDecoratorCongress.html#initialize-instance_method" title="PlanCostDecoratorCongress#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_plan'>plan</span><span class='comma'>,</span> <span class='id identifier rubyid_fe'>fe</span><span class='comma'>,</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='period'>.</span><span class='id identifier rubyid_sole_source?'>sole_source?</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_dental?'>dental?</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_decorator'>decorator</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../CompositeRatedPlanCostDecorator.html" title="CompositeRatedPlanCostDecorator (class)">CompositeRatedPlanCostDecorator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../CompositeRatedPlanCostDecorator.html#initialize-instance_method" title="CompositeRatedPlanCostDecorator#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_plan'>plan</span><span class='comma'>,</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='comma'>,</span> <span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_composite_rating_tier'>composite_rating_tier</span><span class='comma'>,</span> <span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_is_cobra_status?'>is_cobra_status?</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_reference_plan'>reference_plan</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dental</span><span class='tstring_end'>&#39;</span></span> <span class='op'>?</span>  <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='period'>.</span><span class='id identifier rubyid_dental_reference_plan'>dental_reference_plan</span> <span class='op'>:</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='period'>.</span><span class='id identifier rubyid_reference_plan'>reference_plan</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_decorator'>decorator</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../PlanCostDecorator.html" title="PlanCostDecorator (class)">PlanCostDecorator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../PlanCostDecorator.html#initialize-instance_method" title="PlanCostDecorator#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_plan_cache'>plan_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_plan_id'>plan_id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_fe'>fe</span><span class='comma'>,</span> <span class='id identifier rubyid_benefit_group'>benefit_group</span><span class='comma'>,</span> <span class='id identifier rubyid_reference_plan'>reference_plan</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='symbol'>:total_employer_contribution</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='symbol'>:total_employer_contribution</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_decorator'>decorator</span><span class='period'>.</span><span class='id identifier rubyid_total_employer_contribution'>total_employer_contribution</span>
+    <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='symbol'>:total_employee_cost</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='symbol'>:total_employee_cost</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_decorator'>decorator</span><span class='period'>.</span><span class='id identifier rubyid_total_employee_cost'>total_employee_cost</span>
+    <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='symbol'>:total_premium</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='symbol'>:total_premium</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_decorator'>decorator</span><span class='period'>.</span><span class='id identifier rubyid_total_premium'>total_premium</span>
+    <span class='id identifier rubyid_fe'>fe</span><span class='period'>.</span><span class='id identifier rubyid_assign_cost_decorator'>assign_cost_decorator</span><span class='lparen'>(</span><span class='id identifier rubyid_decorator'>decorator</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_acc'>acc</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_enrollments-instance_method">
+  
+    #<strong>find_enrollments</strong>(enrollment_ids, people_cache)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/queries/employer_monthly_enrollments.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_enrollments'>find_enrollments</span><span class='lparen'>(</span><span class='id identifier rubyid_enrollment_ids'>enrollment_ids</span><span class='comma'>,</span> <span class='id identifier rubyid_people_cache'>people_cache</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_families'>families</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Family.html" title="Family (class)">Family</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>households.hbx_enrollments._id</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$in</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_enrollment_ids'>enrollment_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_families'>families</span><span class='period'>.</span><span class='id identifier rubyid_flat_map'>flat_map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:households</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_flat_map'>flat_map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:hbx_enrollments</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hen'>hen</span><span class='op'>|</span>
+    <span class='id identifier rubyid_enrollment_ids'>enrollment_ids</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_hen'>hen</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_val'>val</span>
+        <span class='id identifier rubyid_hen'>hen</span><span class='period'>.</span><span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_family_members'>family_members</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fm'>fm</span><span class='op'>|</span>
+          <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='id identifier rubyid_people_cache'>people_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_person_id'>person_id</span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_decorators_for_enrollments-instance_method">
+  
+    #<strong>get_decorators_for_enrollments</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/queries/employer_monthly_enrollments.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_decorators_for_enrollments'>get_decorators_for_enrollments</span>
+  <span class='id identifier rubyid_benefit_groups'>benefit_groups</span> <span class='op'>=</span> <span class='ivar'>@employer_profile</span><span class='period'>.</span><span class='id identifier rubyid_plan_years'>plan_years</span><span class='period'>.</span><span class='id identifier rubyid_flat_map'>flat_map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:benefit_groups</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_plan_year'>plan_year</span><span class='comma'>,</span> <span class='id identifier rubyid_billing_report_date'>billing_report_date</span> <span class='op'>=</span> <span class='ivar'>@employer_profile</span><span class='period'>.</span><span class='id identifier rubyid_billing_plan_year'>billing_plan_year</span><span class='lparen'>(</span><span class='ivar'>@billing_date</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_plan_year'>plan_year</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_enrollment_calculations'>enrollment_calculations</span> <span class='op'>=</span> <span class='id identifier rubyid_plan_year'>plan_year</span><span class='period'>.</span><span class='id identifier rubyid_filter_active_enrollments_by_date'>filter_active_enrollments_by_date</span><span class='lparen'>(</span><span class='id identifier rubyid_billing_report_date'>billing_report_date</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_plan_ids'>plan_ids</span> <span class='op'>=</span>  <span class='id identifier rubyid_enrollment_calculations'>enrollment_calculations</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:plan_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_enrollment_ids'>enrollment_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_enrollment_calculations'>enrollment_calculations</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:hbx_enrollment_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_people_ids'>people_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_enrollment_calculations'>enrollment_calculations</span><span class='period'>.</span><span class='id identifier rubyid_flat_map'>flat_map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:family_members</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fm'>fm</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fm'>fm</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>person_id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_people_used'>people_used</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Person.html" title="Person (class)">Person</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='symbol'>:id</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$in</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_people_ids'>people_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_plans_used'>plans_used</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Plan.html" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='symbol'>:id</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$in</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_plan_ids'>plan_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_people_cache'>people_cache</span> <span class='op'>=</span> <span class='id identifier rubyid_people_used'>people_used</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_acc'>acc</span><span class='comma'>,</span> <span class='id identifier rubyid_person'>person</span><span class='op'>|</span>
+    <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_person'>person</span>
+    <span class='id identifier rubyid_acc'>acc</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_plan_cache'>plan_cache</span> <span class='op'>=</span> <span class='id identifier rubyid_plans_used'>plans_used</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_acc'>acc</span><span class='comma'>,</span> <span class='id identifier rubyid_plan'>plan</span><span class='op'>|</span>
+    <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span>
+    <span class='id identifier rubyid_acc'>acc</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_bg_cache'>bg_cache</span> <span class='op'>=</span> <span class='id identifier rubyid_benefit_groups'>benefit_groups</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_acc'>acc</span><span class='comma'>,</span> <span class='id identifier rubyid_bg'>bg</span><span class='op'>|</span>
+    <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='id identifier rubyid_bg'>bg</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_bg'>bg</span>
+    <span class='id identifier rubyid_acc'>acc</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_found_enrollments'>found_enrollments</span> <span class='op'>=</span> <span class='id identifier rubyid_find_enrollments'>find_enrollments</span><span class='lparen'>(</span><span class='id identifier rubyid_enrollment_ids'>enrollment_ids</span><span class='comma'>,</span> <span class='id identifier rubyid_people_cache'>people_cache</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_decorate_enrollments_and_calculate_totals'>decorate_enrollments_and_calculate_totals</span><span class='lparen'>(</span><span class='id identifier rubyid_found_enrollments'>found_enrollments</span><span class='comma'>,</span> <span class='id identifier rubyid_bg_cache'>bg_cache</span><span class='comma'>,</span> <span class='id identifier rubyid_plan_cache'>plan_cache</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:32 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>
