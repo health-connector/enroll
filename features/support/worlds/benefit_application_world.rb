@@ -109,8 +109,8 @@ Given(/^this employer has a (.*?) benefit application$/) do |status|
     aasm_state(:enrollment_open)
   when "pending"
     aasm_state(:pending)
-  when "enrollment_open"
-    aasm_state(:enrollment_open)
+  when "enrollment_eligible"
+    aasm_state(:enrollment_eligible)
   end
 end
 
