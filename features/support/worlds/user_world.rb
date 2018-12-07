@@ -63,7 +63,5 @@ Given(/^the user is on the (.*?) of the (.*?)$/) do |path, route|
     when ["Employer Index", "Admin Dashboard"]
       visit exchanges_hbx_profiles_path
       find('.interaction-click-control-employers').click
-      find('.dropdown.pull-right').click
-      expect(page).to have_css('.heading-text', text: 'Benefits - Coverage You Offer')
   end
 end
