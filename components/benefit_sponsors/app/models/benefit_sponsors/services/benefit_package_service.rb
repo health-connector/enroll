@@ -138,11 +138,13 @@ module BenefitSponsors
         hios_id = [] << product.hios_id
         year = benefit_application.start_on.year
         coverage_kind = product.kind.to_s
+        sbc_url = ""
+        if product.sbc_document.present?
+          bucket = product.sbc_document.identifier.split("#")[0].split(":")[-1]
+          key = product.sbc_document.identifier.split("#")[1]
+          sbc_url = "/document/download/#{bucket}/#{key}?content_type=application/pdf&filename=#{product.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline"
+        end
 
-        bucket = product.sbc_document.identifier.split("#")[0].split(":")[-1]
-        key = product.sbc_document.identifier.split("#")[1]
-
-        sbc_url = "/document/download/#{bucket}/#{key}?content_type=application/pdf&filename=#{product.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline"
         visit_types = []
 
         qhps = Products::QhpCostShareVariance.find_qhp_cost_share_variances(hios_id.to_a, year, coverage_kind)
