@@ -101,6 +101,10 @@ Given(/^this employer has a (.*?) benefit application$/) do |status|
     aasm_state(:active)
   when "terminated"
     aasm_state(:terminated)
+  when "canceled"
+    aasm_state(:canceled)
+  when "enrollment_ineligible"
+    aasm_state(:enrollment_ineligible)
   end
 end
 
