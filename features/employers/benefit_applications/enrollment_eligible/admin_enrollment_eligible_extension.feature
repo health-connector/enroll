@@ -1,5 +1,5 @@
-Feature: As an admin user I should have the ability to extend the OE
-  of a given Employer before open enrollment has closed.
+Feature: As an admin user I should not have the ability to extend the OE
+  of a given Employer with an eligible enrollment.
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
