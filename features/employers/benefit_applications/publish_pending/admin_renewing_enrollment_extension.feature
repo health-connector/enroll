@@ -7,7 +7,7 @@ Feature: As an admin user I should have the ability to extend the OE
     Given this employer has a enrollment_eligible benefit application
     Given this benefit application has a benefit package containing health benefits
 
-  Scenario: As an HBX Staff with Super Admin subroles I should not be able to extend Open Enrollment for an Employer with a draft benefit application
+  Scenario: As an HBX Staff with Super Admin subroles I should not be able to extend Open Enrollment for an Employer with a enrollment_eligible benefit application
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     Given the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer

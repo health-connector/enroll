@@ -65,3 +65,35 @@ Given(/^the user is on the (.*?)(?: of the (.*?))?$/) do |path, route|
       find('.interaction-click-control-employers').click
   end
 end
+
+When(/^the user clicks (.*?) for that Employer$/) do |action|
+  case action
+    when "Action"
+      find('.dropdown.pull-right', text: 'Actions').click
+  end
+end
+
+Then(/^the user will see the Extend Open Enrollment button$/) do
+  expect(page).to have_css('.btn.btn-xs', text: 'Extend Open Enrollment')
+end
+
+Then(/^the user will not see the Extend Open Enrollment button$/) do
+  expect(page).to_not have_css('.btn.btn-xs', text: 'Extend Open Enrollment')
+end
+
+When(/^the user clicks Extend Open Enrollment$/) do
+  find('.btn.btn-xs', text: 'Extend Open Enrollment').click
+end
+
+When(/^the user clicks Edit Open Enrollment$/) do
+  find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').trigger('click')
+end
+
+Then(/^the user clicks Extend Open Enrollment button$/) do
+  find('input[value="Extend Open Enrollment"]').trigger('click')
+end
+
+Then(/^the user enters a new open enrollment end date$/) do
+  input = find('input.hasDatepicker')
+  input.set(Date.today+1.week)
+end

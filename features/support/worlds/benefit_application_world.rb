@@ -86,6 +86,7 @@ module BenefitApplicationWorld
     census_employees
     initial_application.benefit_packages = [current_benefit_package]
     benefit_sponsorship.benefit_applications = [initial_application]
+    benefit_sponsorship.benefit_applications.first.update(created_at:Date.today)
     benefit_sponsorship.save!
     benefit_sponsor_catalog.save!
   end
@@ -105,7 +106,7 @@ Given(/^this employer has a (.*?) benefit application$/) do |status|
     aasm_state(:canceled)
   when "enrollment_ineligible"
     aasm_state(:enrollment_ineligible)
-  when "enrolling"
+  when "enrollment_open"
     aasm_state(:enrollment_open)
   when "pending"
     aasm_state(:pending)

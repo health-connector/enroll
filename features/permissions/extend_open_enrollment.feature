@@ -4,7 +4,7 @@ Feature: As a Super Admin I will be the only user
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given there is an employer ABC Widgets
-    Given this employer has a enrolling benefit application
+    Given this employer has a enrollment_open benefit application
     Given this benefit application has a benefit package containing health benefits
 
   Scenario: HBX Staff with Super Admin subroles should see Extend Open Enrollment button
