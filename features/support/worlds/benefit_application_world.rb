@@ -100,8 +100,6 @@ Given(/^this employer has a (.*?) benefit application$/) do |status|
     aasm_state(:draft)
   when "active"
     aasm_state(:active)
-  when "terminated"
-    aasm_state(:terminated)
   when "canceled"
     aasm_state(:canceled)
   when "enrollment_closed"
@@ -114,8 +112,16 @@ Given(/^this employer has a (.*?) benefit application$/) do |status|
     aasm_state(:enrollment_ineligible)
   when "enrollment_open"
     aasm_state(:enrollment_open)
+  when "expired"
+    aasm_state(:expired)
+  when "imported"
+    aasm_state(:imported)
   when "pending"
     aasm_state(:pending)
+  when "terminated"
+    aasm_state(:terminated)
+  when "termination_pending"
+    aasm_state(:termination_pending)
   end
 end
 
