@@ -602,7 +602,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
     let(:person) { double("person")}
-    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:permission) { double(can_extend_open_enrollment: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission)}
     let(:hbx_profile) { double("HbxProfile")}
     let(:benefit_sponsorship) { double(benefit_applications: benefit_applications) }
     let(:benefit_applications) { [ double ]}
@@ -619,6 +620,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     context '.oe_extendable_applications' do 
       let(:benefit_applications) { [ double(may_extend_open_enrollment?: true) ]}
 
+      before do 
+        allow(benefit_sponsorship).to receive(:oe_extendable_benefit_applications).and_return(benefit_applications)
+      end
+
       it "renders open enrollment extendable applications" do
         xhr :get, :oe_extendable_applications
 
@@ -629,6 +634,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context '.oe_extended_applications' do
       let(:benefit_applications) { [ double(enrollment_extended?: true) ]}
+
+      before do 
+        allow(benefit_sponsorship).to receive(:oe_extended_applications).and_return(benefit_applications)
+      end
 
       it "renders open enrollment extended applications" do
         xhr :get, :oe_extended_applications
@@ -674,7 +683,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
     let(:person) { double("person")}
-    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:permission) { double(can_extend_open_enrollment: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission)}
     let(:hbx_profile) { double("HbxProfile")}
     let(:benefit_sponsorship) { double(benefit_applications: benefit_applications) }
     let(:benefit_applications) { [ double ]}
