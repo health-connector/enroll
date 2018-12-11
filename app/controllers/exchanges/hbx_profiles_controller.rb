@@ -329,11 +329,11 @@ def employer_poc
 
     status_params = params.permit(:status)
     @status = status_params[:status] || 'is_applicant'
-    @general_agency_profiles = GeneralAgencyProfile.filter_by(@status)
+    @general_agency_profiles = BenefitSponsors::Organizations::GeneralAgencyProfile.filter_by(@status)
     @general_agency_profiles = Kaminari.paginate_array(@general_agency_profiles).page(page_no)
 
     respond_to do |format|
-      format.html { render 'general_agency' }
+      # format.html { render 'general_agency' }
       format.js
     end
   end

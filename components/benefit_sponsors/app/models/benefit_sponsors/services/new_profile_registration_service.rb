@@ -128,6 +128,8 @@ module BenefitSponsors
       def profile_attributes(form)
         if is_broker_profile?
           form.attributes.slice(:id, :market_kind, :home_page, :accept_new_clients, :languages_spoken, :working_hours, :ach_routing_number, :ach_account_number)
+        elsif is_general_agency_profile?
+          form.attributes.slice(:id, :market_kind, :home_page, :accept_new_clients, :languages_spoken)
         elsif is_sponsor_profile?
           if is_cca_sponsor_profile?
             form.attributes.slice(:contact_method, :id, :sic_code)
@@ -147,6 +149,10 @@ module BenefitSponsors
 
       def is_broker_profile?
         profile_type == "broker_agency"
+      end
+
+      def is_general_agency_profile?
+        profile_type == "general_agency"
       end
 
       def is_sponsor_profile?
@@ -194,6 +200,8 @@ module BenefitSponsors
       def pluck_profile(organization)
         if is_broker_profile?
           organization.profiles.where(_type: /BrokerAgencyProfile/).first
+        elsif is_general_agency_profile?
+          organization.profiles.where(_type: /GeneralAgencyProfile/).first
         elsif is_sponsor_profile?
           organization.profiles.where(_type: /EmployerProfile/).first
         end
