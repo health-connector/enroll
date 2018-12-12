@@ -16,7 +16,7 @@ end
 
 World(EmployerWorld)
 
-Given(/^there is an employer (.*?)$/) do |legal_name|
+And(/^there is an employer (.*?)$/) do |legal_name|
   employer legal_name: legal_name,
            dba: legal_name
   benefit_sponsorship(employer)

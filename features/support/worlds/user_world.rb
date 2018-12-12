@@ -57,7 +57,7 @@ Given(/^that a user with a (.*?) role(?: with (.*?) subrole)? exists and is logg
   login_as(user, :scope => :user)
 end
 
-Given(/^the user is on the (.*?)(?: of the (.*?))?$/) do |path, route|
+And(/^the user is on the (.*?)(?: of the (.*?))?$/) do |path, route|
   #the user is on the Employer Index of the Admin Dashboard
   case [path, route]
     when ["Employer Index", "Admin Dashboard"]
