@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Parsers::Xml::Cv::Importers::FamilyParser
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Parsers::Xml::Cv::Importers::FamilyParser";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Parsers.html" title="Parsers (module)">Parsers</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Xml.html" title="Parsers::Xml (module)">Xml</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Cv.html" title="Parsers::Xml::Cv (module)">Cv</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Importers.html" title="Parsers::Xml::Cv::Importers (module)">Importers</a></span></span>
+     &raquo; 
+    <span class="title">FamilyParser</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Parsers::Xml::Cv::Importers::FamilyParser
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Parsers::Xml::Cv::Importers::FamilyParser</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Base.html" title="Parsers::Xml::Cv::Importers::Base (module)">Base</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/parsers/xml/cv/importers/family_parser.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#e_case_id-instance_method" title="#e_case_id (instance method)">#<strong>e_case_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute e_case_id.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#family-instance_method" title="#family (instance method)">#<strong>family</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute family.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#family_members-instance_method" title="#family_members (instance method)">#<strong>family_members</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute family_members.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#households-instance_method" title="#households (instance method)">#<strong>households</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute households.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#id-instance_method" title="#id (instance method)">#<strong>id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute id.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#irs_groups-instance_method" title="#irs_groups (instance method)">#<strong>irs_groups</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute irs_groups.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#primary_family_member_id-instance_method" title="#primary_family_member_id (instance method)">#<strong>primary_family_member_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute primary_family_member_id.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_person_relationships_for_primary_applicant-instance_method" title="#generate_person_relationships_for_primary_applicant (instance method)">#<strong>generate_person_relationships_for_primary_applicant</strong>(family_member_objects)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_coverage_households_by_household_xml-instance_method" title="#get_coverage_households_by_household_xml (instance method)">#<strong>get_coverage_households_by_household_xml</strong>(household)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_family_object-instance_method" title="#get_family_object (instance method)">#<strong>get_family_object</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_person_object_by_family_member_xml-instance_method" title="#get_person_object_by_family_member_xml (instance method)">#<strong>get_person_object_by_family_member_xml</strong>(fm)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_tax_households_by_household_xml-instance_method" title="#get_tax_households_by_household_xml (instance method)">#<strong>get_tax_households_by_household_xml</strong>(household)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(input_xml)  &#x21d2; FamilyParser </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of FamilyParser.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Base.html" title="Parsers::Xml::Cv::Importers::Base (module)">Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Base.html#get_person_object_by-instance_method" title="Parsers::Xml::Cv::Importers::Base#get_person_object_by (method)">#get_person_object_by</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(input_xml)  &#x21d2; <tt><span class='object_link'><a href="" title="Parsers::Xml::Cv::Importers::FamilyParser (class)">FamilyParser</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of FamilyParser</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8
+9
+10
+11
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_input_xml'>input_xml</span><span class='rparen'>)</span>
+  <span class='ivar'>@family</span> <span class='op'>=</span> <span class='const'>Openhbx</span><span class='op'>::</span><span class='const'>Cv2</span><span class='op'>::</span><span class='const'>Family</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_input_xml'>input_xml</span><span class='comma'>,</span> <span class='label'>single:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='ivar'>@id</span> <span class='op'>=</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='ivar'>@e_case_id</span> <span class='op'>=</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_e_case_id'>e_case_id</span>
+  <span class='ivar'>@primary_family_member_id</span> <span class='op'>=</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_primary_family_member_id'>primary_family_member_id</span>
+  <span class='ivar'>@family_members</span> <span class='op'>=</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_family_members'>family_members</span>
+  <span class='ivar'>@households</span> <span class='op'>=</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_households'>households</span>
+  <span class='ivar'>@irs_groups</span> <span class='op'>=</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_irs_groups'>irs_groups</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="e_case_id-instance_method">
+  
+    #<strong>e_case_id</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute e_case_id</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_e_case_id'>e_case_id</span>
+  <span class='ivar'>@e_case_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="family-instance_method">
+  
+    #<strong>family</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute family</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_family'>family</span>
+  <span class='ivar'>@family</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="family_members-instance_method">
+  
+    #<strong>family_members</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute family_members</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_family_members'>family_members</span>
+  <span class='ivar'>@family_members</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="households-instance_method">
+  
+    #<strong>households</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute households</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_households'>households</span>
+  <span class='ivar'>@households</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="id-instance_method">
+  
+    #<strong>id</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute id</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_id'>id</span>
+  <span class='ivar'>@id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="irs_groups-instance_method">
+  
+    #<strong>irs_groups</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute irs_groups</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_irs_groups'>irs_groups</span>
+  <span class='ivar'>@irs_groups</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="primary_family_member_id-instance_method">
+  
+    #<strong>primary_family_member_id</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute primary_family_member_id</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_primary_family_member_id'>primary_family_member_id</span>
+  <span class='ivar'>@primary_family_member_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate_person_relationships_for_primary_applicant-instance_method">
+  
+    #<strong>generate_person_relationships_for_primary_applicant</strong>(family_member_objects)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_person_relationships_for_primary_applicant'>generate_person_relationships_for_primary_applicant</span><span class='lparen'>(</span><span class='id identifier rubyid_family_member_objects'>family_member_objects</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_primary_applicant_person'>primary_applicant_person</span> <span class='op'>=</span> <span class='id identifier rubyid_family_member_objects'>family_member_objects</span><span class='period'>.</span><span class='id identifier rubyid_detect'>detect</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_is_primary_applicant'>is_primary_applicant</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_primary_applicant_person'>primary_applicant_person</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+
+  <span class='id identifier rubyid_primary_applicant_person'>primary_applicant_person</span><span class='period'>.</span><span class='id identifier rubyid_person_relationships'>person_relationships</span> <span class='op'>=</span> <span class='id identifier rubyid_family_member_objects'>family_member_objects</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:person</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:person_relationships</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span> <span class='kw'>rescue</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_coverage_households_by_household_xml-instance_method">
+  
+    #<strong>get_coverage_households_by_household_xml</strong>(household)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_coverage_households_by_household_xml'>get_coverage_households_by_household_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_household'>household</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_coverage_households'>coverage_households</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_household'>household</span><span class='period'>.</span><span class='id identifier rubyid_coverage_households'>coverage_households</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ch'>ch</span><span class='op'>|</span>
+    <span class='id identifier rubyid_coverage_households'>coverage_households</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../CoverageHousehold.html" title="CoverageHousehold (class)">CoverageHousehold</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='label'>id:</span> <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+      <span class='label'>is_immediate_family:</span> <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_is_immediate_family'>is_immediate_family</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_coverage_households'>coverage_households</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_family_object-instance_method">
+  
+    #<strong>get_family_object</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_family_object'>get_family_object</span>
+  <span class='id identifier rubyid_family_member_objects'>family_member_objects</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_family_members'>family_members</span>
+    <span class='id identifier rubyid_family_members'>family_members</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fm'>fm</span><span class='op'>|</span>
+      <span class='id identifier rubyid_is_primary_applicant'>is_primary_applicant</span> <span class='op'>=</span> <span class='id identifier rubyid_primary_family_member_id'>primary_family_member_id</span> <span class='op'>==</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='op'>||</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_is_primary_applicant'>is_primary_applicant</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_family_member_objects'>family_member_objects</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../FamilyMember.html" title="FamilyMember (class)">FamilyMember</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>id:</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+        <span class='comment'># hbx_id: fm.id,
+</span>        <span class='label'>former_family_id:</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_primary_family_id'>primary_family_id</span><span class='comma'>,</span>
+        <span class='label'>is_primary_applicant:</span> <span class='id identifier rubyid_is_primary_applicant'>is_primary_applicant</span><span class='comma'>,</span> <span class='comment'># did not see the real xml  
+</span>        <span class='label'>is_coverage_applicant:</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_is_coverage_applicant'>is_coverage_applicant</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='comment'># need to confirm the case sensetive
+</span>        <span class='label'>person:</span> <span class='id identifier rubyid_get_person_object_by_family_member_xml'>get_person_object_by_family_member_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_fm'>fm</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_generate_person_relationships_for_primary_applicant'>generate_person_relationships_for_primary_applicant</span><span class='lparen'>(</span><span class='id identifier rubyid_family_member_objects'>family_member_objects</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_household_objects'>household_objects</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_households'>households</span>
+    <span class='id identifier rubyid_households'>households</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_h'>h</span><span class='op'>|</span>
+      <span class='id identifier rubyid_household_objects'>household_objects</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../Household.html" title="Household (class)">Household</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>id:</span> <span class='id identifier rubyid_h'>h</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+        <span class='label'>irs_group_id:</span> <span class='id identifier rubyid_h'>h</span><span class='period'>.</span><span class='id identifier rubyid_irs_group_id'>irs_group_id</span><span class='comma'>,</span>
+        <span class='label'>effective_starting_on:</span> <span class='id identifier rubyid_h'>h</span><span class='period'>.</span><span class='id identifier rubyid_start_date'>start_date</span><span class='comma'>,</span>
+        <span class='label'>effective_ending_on:</span> <span class='id identifier rubyid_h'>h</span><span class='period'>.</span><span class='id identifier rubyid_end_date'>end_date</span><span class='comma'>,</span>
+        <span class='label'>coverage_households:</span> <span class='id identifier rubyid_get_coverage_households_by_household_xml'>get_coverage_households_by_household_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_h'>h</span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='label'>tax_households:</span> <span class='id identifier rubyid_get_tax_households_by_household_xml'>get_tax_households_by_household_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_h'>h</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_irs_group_objects'>irs_group_objects</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_irs_groups'>irs_groups</span>
+    <span class='id identifier rubyid_irs_groups'>irs_groups</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_irs'>irs</span><span class='op'>|</span>
+      <span class='id identifier rubyid_irs_group_objects'>irs_group_objects</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../IrsGroup.html" title="IrsGroup (class)">IrsGroup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>hbx_assigned_id:</span> <span class='id identifier rubyid_irs'>irs</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+        <span class='label'>effective_starting_on:</span> <span class='id identifier rubyid_irs'>irs</span><span class='period'>.</span><span class='id identifier rubyid_effective_start_date'>effective_start_date</span><span class='comma'>,</span>
+        <span class='label'>effective_ending_on:</span> <span class='id identifier rubyid_irs'>irs</span><span class='period'>.</span><span class='id identifier rubyid_effective_end_date'>effective_end_date</span><span class='comma'>,</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='const'><span class='object_link'><a href="../../../../Family.html" title="Family (class)">Family</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>id:</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+    <span class='label'>e_case_id:</span> <span class='id identifier rubyid_e_case_id'>e_case_id</span><span class='comma'>,</span>
+    <span class='label'>family_members:</span> <span class='id identifier rubyid_family_member_objects'>family_member_objects</span><span class='comma'>,</span>
+    <span class='label'>households:</span> <span class='id identifier rubyid_household_objects'>household_objects</span><span class='comma'>,</span>
+    <span class='label'>irs_groups:</span> <span class='id identifier rubyid_irs_group_objects'>irs_group_objects</span><span class='comma'>,</span>
+    <span class='label'>created_at:</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_created_at'>created_at</span><span class='comma'>,</span>
+    <span class='label'>updated_at:</span> <span class='id identifier rubyid_family'>family</span><span class='period'>.</span><span class='id identifier rubyid_modified_at'>modified_at</span><span class='comma'>,</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_person_object_by_family_member_xml-instance_method">
+  
+    #<strong>get_person_object_by_family_member_xml</strong>(fm)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_person_object_by_family_member_xml'>get_person_object_by_family_member_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_fm'>fm</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_person'>person</span> <span class='op'>=</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span>
+  <span class='id identifier rubyid_person_demographics'>person_demographics</span> <span class='op'>=</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_person_demographics'>person_demographics</span>
+  <span class='id identifier rubyid_person_relationships'>person_relationships</span> <span class='op'>=</span> <span class='id identifier rubyid_fm'>fm</span><span class='period'>.</span><span class='id identifier rubyid_person_relationships'>person_relationships</span>
+
+  <span class='id identifier rubyid_get_person_object_by'>get_person_object_by</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='comma'>,</span> <span class='id identifier rubyid_person_demographics'>person_demographics</span><span class='comma'>,</span> <span class='id identifier rubyid_person_relationships'>person_relationships</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_tax_households_by_household_xml-instance_method">
+  
+    #<strong>get_tax_households_by_household_xml</strong>(household)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/parsers/xml/cv/importers/family_parser.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_tax_households_by_household_xml'>get_tax_households_by_household_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_household'>household</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tax_households'>tax_households</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_household'>household</span><span class='period'>.</span><span class='id identifier rubyid_tax_households'>tax_households</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_th'>th</span><span class='op'>|</span>
+    <span class='id identifier rubyid_tax_household_members'>tax_household_members</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_th'>th</span><span class='period'>.</span><span class='id identifier rubyid_tax_household_members'>tax_household_members</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_thm'>thm</span><span class='op'>|</span>
+      <span class='id identifier rubyid_tax_household_members'>tax_household_members</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../TaxHouseholdMember.html" title="TaxHouseholdMember (class)">TaxHouseholdMember</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='label'>applicant_id:</span> <span class='id identifier rubyid_thm'>thm</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+        <span class='label'>is_ia_eligible:</span> <span class='id identifier rubyid_thm'>thm</span><span class='period'>.</span><span class='id identifier rubyid_is_insurance_assistance_eligible'>is_insurance_assistance_eligible</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='label'>is_medicaid_chip_eligible:</span> <span class='id identifier rubyid_thm'>thm</span><span class='period'>.</span><span class='id identifier rubyid_is_medicaid_chip_eligible'>is_medicaid_chip_eligible</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_tax_households'>tax_households</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../TaxHousehold.html" title="TaxHousehold (class)">TaxHousehold</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='label'>id:</span> <span class='id identifier rubyid_th'>th</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+      <span class='label'>tax_household_members:</span> <span class='id identifier rubyid_tax_household_members'>tax_household_members</span><span class='comma'>,</span>
+      <span class='label'>effective_starting_on:</span> <span class='id identifier rubyid_th'>th</span><span class='period'>.</span><span class='id identifier rubyid_start_date'>start_date</span><span class='comma'>,</span>
+      <span class='label'>effective_ending_on:</span> <span class='id identifier rubyid_th'>th</span><span class='period'>.</span><span class='id identifier rubyid_end_date'>end_date</span><span class='comma'>,</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_tax_households'>tax_households</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:38 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

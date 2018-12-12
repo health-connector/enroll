@@ -1,0 +1,2971 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Plan
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Plan";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (P)</a> &raquo;
+    
+    
+    <span class="title">Plan</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Plan
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Plan</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Config/AcaModelConcern.html" title="Config::AcaModelConcern (module)">Config::AcaModelConcern</a></span>, Mongoid::Document, Mongoid::Timestamps</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/plan.rb</dd>
+  </dl>
+  
+</div>
+
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="COVERAGE_KINDS-constant" class="">COVERAGE_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>health</span><span class='words_sep'> </span><span class='tstring_content'>dental</span><span class='words_sep'>]</span></pre></dd>
+    
+      <dt id="METAL_LEVEL_KINDS-constant" class="">METAL_LEVEL_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>bronze</span><span class='words_sep'> </span><span class='tstring_content'>silver</span><span class='words_sep'> </span><span class='tstring_content'>gold</span><span class='words_sep'> </span><span class='tstring_content'>platinum</span><span class='words_sep'> </span><span class='tstring_content'>catastrophic</span><span class='words_sep'> </span><span class='tstring_content'>dental</span><span class='words_sep'>]</span></pre></dd>
+    
+      <dt id="REFERENCE_PLAN_METAL_LEVELS-constant" class="">REFERENCE_PLAN_METAL_LEVELS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>bronze</span><span class='words_sep'> </span><span class='tstring_content'>silver</span><span class='words_sep'> </span><span class='tstring_content'>gold</span><span class='words_sep'> </span><span class='tstring_content'>platinum</span><span class='words_sep'> </span><span class='tstring_content'>dental</span><span class='words_sep'>]</span></pre></dd>
+    
+      <dt id="MARKET_KINDS-constant" class="">MARKET_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w(</span><span class='tstring_content'>shop</span><span class='words_sep'> </span><span class='tstring_content'>individual</span><span class='words_sep'>)</span></pre></dd>
+    
+      <dt id="PLAN_TYPE_KINDS-constant" class="">PLAN_TYPE_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>pos</span><span class='words_sep'> </span><span class='tstring_content'>hmo</span><span class='words_sep'> </span><span class='tstring_content'>epo</span><span class='words_sep'> </span><span class='tstring_content'>ppo</span><span class='words_sep'>]</span></pre></dd>
+    
+      <dt id="DENTAL_METAL_LEVEL_KINDS-constant" class="">DENTAL_METAL_LEVEL_KINDS =
+        
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>high</span><span class='words_sep'> </span><span class='tstring_content'>low</span><span class='words_sep'>]</span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_plan_features-class_method" title="build_plan_features (class method)">.<strong>build_plan_features</strong>(market_kind, coverage_kind, year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_plan_selectors-class_method" title="build_plan_selectors (class method)">.<strong>build_plan_selectors</strong>(market_kind, coverage_kind, year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_by_carrier_profile-class_method" title="find_by_carrier_profile (class method)">.<strong>find_by_carrier_profile</strong>(carrier_profile)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Carriers: use class method (which may be chained).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#for_service_areas_and_carriers-class_method" title="for_service_areas_and_carriers (class method)">.<strong>for_service_areas_and_carriers</strong>(service_area_carrier_pairs, active_year, metal_level = nil, coverage_kind = &#39;health&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#has_rates_for_all_carriers%3F-class_method" title="has_rates_for_all_carriers? (class method)">.<strong>has_rates_for_all_carriers?</strong>(start_on_date = nil)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#individual_plans-class_method" title="individual_plans (class method)">.<strong>individual_plans</strong>(coverage_kind:, active_year:, tax_household:)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#monthly_premium-class_method" title="monthly_premium (class method)">.<strong>monthly_premium</strong>(plan_year, hios_id, insured_age, coverage_begin_date)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_enrollment_year-class_method" title="open_enrollment_year (class method)">.<strong>open_enrollment_year</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reference_plan_metal_level_for_options-class_method" title="reference_plan_metal_level_for_options (class method)">.<strong>reference_plan_metal_level_for_options</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search_options-class_method" title="search_options (class method)">.<strong>search_options</strong>(plans)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shop_dental_plans-class_method" title="shop_dental_plans (class method)">.<strong>shop_dental_plans</strong>(year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shop_health_plans-class_method" title="shop_health_plans (class method)">.<strong>shop_health_plans</strong>(year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shop_plans-class_method" title="shop_plans (class method)">.<strong>shop_plans</strong>(coverage_kind, year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_for_carrier-class_method" title="valid_for_carrier (class method)">.<strong>valid_for_carrier</strong>(active_year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_shop_dental_plans-class_method" title="valid_shop_dental_plans (class method)">.<strong>valid_shop_dental_plans</strong>(type = &quot;carrier&quot;, key = nil, year_of_plans = Plan.open_enrollment_year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_shop_health_plans-class_method" title="valid_shop_health_plans (class method)">.<strong>valid_shop_health_plans</strong>(type = &quot;carrier&quot;, key = nil, year_of_plans = Plan.open_enrollment_year)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_shop_health_plans_for_service_area-class_method" title="valid_shop_health_plans_for_service_area (class method)">.<strong>valid_shop_health_plans_for_service_area</strong>(type = &quot;carrier&quot;, key = nil, year_of_plans = Plan.open_enrollment_year, carrier_service_area_pairs = [])  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bound_age-instance_method" title="#bound_age (instance method)">#<strong>bound_age</strong>(given_age)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#can_use_aptc%3F-instance_method" title="#can_use_aptc? (instance method)">#<strong>can_use_aptc?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#carrier_profile-instance_method" title="#carrier_profile (instance method)">#<strong>carrier_profile</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#carrier_profile=-instance_method" title="#carrier_profile= (instance method)">#<strong>carrier_profile=</strong>(new_carrier_profile)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>belongs_to CarrierProfile.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cat_age_off_renewal_plan-instance_method" title="#cat_age_off_renewal_plan (instance method)">#<strong>cat_age_off_renewal_plan</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#coverage_kind=-instance_method" title="#coverage_kind= (instance method)">#<strong>coverage_kind=</strong>(new_coverage_kind)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deductible_integer-instance_method" title="#deductible_integer (instance method)">#<strong>deductible_integer</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dental%3F-instance_method" title="#dental? (instance method)">#<strong>dental?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ehb-instance_method" title="#ehb (instance method)">#<strong>ehb</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#health%3F-instance_method" title="#health? (instance method)">#<strong>health?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hsa_eligibility-instance_method" title="#hsa_eligibility (instance method)">#<strong>hsa_eligibility</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hsa_plan%3F-instance_method" title="#hsa_plan? (instance method)">#<strong>hsa_plan?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#individual_health_by_active_year-instance_method" title="#individual_health_by_active_year (instance method)">#<strong>individual_health_by_active_year</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>DEPRECATED - 2015-10-26 - By Dan Thomas - Use:
+individual_health_by_active_year_and_csr_kind.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_csr%3F-instance_method" title="#is_csr? (instance method)">#<strong>is_csr?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_dental_only%3F-instance_method" title="#is_dental_only? (instance method)">#<strong>is_dental_only?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#metal_level=-instance_method" title="#metal_level= (instance method)">#<strong>metal_level=</strong>(new_metal_level)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#minimum_age-instance_method" title="#minimum_age (instance method)">#<strong>minimum_age</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#order-instance_method" title="#order (instance method)">#<strong>order</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Scopes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#plan_deductible-instance_method" title="#plan_deductible (instance method)">#<strong>plan_deductible</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#plan_hsa-instance_method" title="#plan_hsa (instance method)">#<strong>plan_hsa</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#premium_for-instance_method" title="#premium_for (instance method)">#<strong>premium_for</strong>(schedule_date, age)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#premium_table_for-instance_method" title="#premium_table_for (instance method)">#<strong>premium_table_for</strong>(schedule_date)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#renewal_plan-instance_method" title="#renewal_plan (instance method)">#<strong>renewal_plan</strong>(date = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#renewal_plan=-instance_method" title="#renewal_plan= (instance method)">#<strong>renewal_plan=</strong>(new_renewal_plan)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>has_one renewal_plan.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#renewal_plan_type-instance_method" title="#renewal_plan_type (instance method)">#<strong>renewal_plan_type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_plan_features-class_method">
+  
+    .<strong>build_plan_features</strong>(market_kind, coverage_kind, year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 634</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_plan_features'>build_plan_features</span> <span class='id identifier rubyid_market_kind'>market_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='id identifier rubyid_plans'>plans</span> <span class='op'>=</span> <span class='id identifier rubyid_shop_plans'>shop_plans</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='id identifier rubyid_feature_array'>feature_array</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_plans'>plans</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_plan'>plan</span><span class='op'>|</span>
+
+    <span class='id identifier rubyid_characteristics'>characteristics</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plan_id</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dental</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dental_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_dental_level'>dental_level</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metal</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_metal_level'>metal_level</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>carrier</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_organization'>organization</span><span class='period'>.</span><span class='id identifier rubyid_legal_name'>legal_name</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plan_type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_plan_type'>plan_type</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>deductible</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_deductible_integer'>deductible_integer</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>carrier_abbrev</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_abbrev'>abbrev</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nationwide</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_nationwide'>nationwide</span>
+    <span class='id identifier rubyid_characteristics'>characteristics</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dc_in_network</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_dc_in_network'>dc_in_network</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_deductible_integer'>deductible_integer</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_feature_array'>feature_array</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_characteristics'>characteristics</span>
+    <span class='kw'>else</span>
+      <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ERROR: No deductible found for Plan: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:name</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>, ID: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_feature_array'>feature_array</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_plan_selectors-class_method">
+  
+    .<strong>build_plan_selectors</strong>(market_kind, coverage_kind, year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 615</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_plan_selectors'>build_plan_selectors</span> <span class='id identifier rubyid_market_kind'>market_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='id identifier rubyid_plans'>plans</span> <span class='op'>=</span> <span class='id identifier rubyid_shop_plans'>shop_plans</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='id identifier rubyid_selectors'>selectors</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dental</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_selectors'>selectors</span><span class='lbracket'>[</span><span class='symbol'>:dental_levels</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plans'>plans</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_dental_level'>dental_level</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_selectors'>selectors</span><span class='lbracket'>[</span><span class='symbol'>:metals</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plans'>plans</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_metal_level'>metal_level</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_selectors'>selectors</span><span class='lbracket'>[</span><span class='symbol'>:carriers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_plans'>plans</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span>
+    <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_carrier_profile_id'>carrier_profile_id</span>
+    <span class='id identifier rubyid_carrier_profile'>carrier_profile</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CarrierProfile.html" title="CarrierProfile (class)">CarrierProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'><span class='object_link'><a href="CarrierProfile.html#find-class_method" title="CarrierProfile.find (method)">find</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_legal_name'>legal_name</span><span class='comma'>,</span> <span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_abbrev'>abbrev</span><span class='comma'>,</span> <span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='rbracket'>]</span>
+    <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_selectors'>selectors</span><span class='lbracket'>[</span><span class='symbol'>:plan_types</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='id identifier rubyid_plans'>plans</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_plan_type'>plan_type</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_selectors'>selectors</span><span class='lbracket'>[</span><span class='symbol'>:dc_network</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>false</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_selectors'>selectors</span><span class='lbracket'>[</span><span class='symbol'>:nationwide</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>any</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>false</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_selectors'>selectors</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_by_carrier_profile-class_method">
+  
+    .<strong>find_by_carrier_profile</strong>(carrier_profile)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Carriers: use class method (which may be chained)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+312
+313
+314</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 312</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_by_carrier_profile'>find_by_carrier_profile</span><span class='lparen'>(</span><span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>carrier_profile_id:</span> <span class='id identifier rubyid_carrier_profile'>carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid__id'>_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="for_service_areas_and_carriers-class_method">
+  
+    .<strong>for_service_areas_and_carriers</strong>(service_area_carrier_pairs, active_year, metal_level = nil, coverage_kind = &#39;health&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 316</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_for_service_areas_and_carriers'>for_service_areas_and_carriers</span><span class='lparen'>(</span><span class='id identifier rubyid_service_area_carrier_pairs'>service_area_carrier_pairs</span><span class='comma'>,</span> <span class='id identifier rubyid_active_year'>active_year</span><span class='comma'>,</span> <span class='id identifier rubyid_metal_level'>metal_level</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>health</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_plan_criteria_set'>plan_criteria_set</span> <span class='op'>=</span> <span class='id identifier rubyid_service_area_carrier_pairs'>service_area_carrier_pairs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sap'>sap</span><span class='op'>|</span>
+    <span class='id identifier rubyid_criteria'>criteria</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='symbol'>:carrier_profile_id</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sap'>sap</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='comma'>,</span>
+      <span class='symbol'>:service_area_id</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sap'>sap</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='comma'>,</span>
+      <span class='symbol'>:active_year</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_active_year'>active_year</span><span class='comma'>,</span>
+      <span class='symbol'>:coverage_kind</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span>
+    <span class='rbrace'>}</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_metal_level'>metal_level</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_criteria'>criteria</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>metal_level:</span> <span class='id identifier rubyid_metal_level'>metal_level</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_criteria'>criteria</span>
+  <span class='kw'>end</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$or</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_plan_criteria_set'>plan_criteria_set</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="has_rates_for_all_carriers?-class_method">
+  
+    .<strong>has_rates_for_all_carriers?</strong>(start_on_date = nil)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 493</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_has_rates_for_all_carriers?'>has_rates_for_all_carriers?</span><span class='lparen'>(</span><span class='id identifier rubyid_start_on_date'>start_on_date</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_date'>date</span> <span class='op'>=</span> <span class='id identifier rubyid_start_on_date'>start_on_date</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="PlanYear.html" title="PlanYear (class)">PlanYear</a></span></span><span class='period'>.</span><span class='id identifier rubyid_calculate_start_on_dates'><span class='object_link'><a href="PlanYear.html#calculate_start_on_dates-class_method" title="PlanYear.calculate_start_on_dates (method)">calculate_start_on_dates</a></span></span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_date'>date</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+
+  <span class='id identifier rubyid_carrier_count'>carrier_count</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>active_year:</span> <span class='id identifier rubyid_date'>date</span><span class='period'>.</span><span class='id identifier rubyid_year'>year</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pluck'>pluck</span><span class='lparen'>(</span><span class='symbol'>:carrier_profile_id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_collection'>collection</span><span class='period'>.</span><span class='id identifier rubyid_aggregate'>aggregate</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+    <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$match</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>active_year</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_date'>date</span><span class='period'>.</span><span class='id identifier rubyid_year'>year</span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$unwind</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$premium_tables</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$match</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>premium_tables.start_on</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$lte</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_date'>date</span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$match</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>premium_tables.end_on</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$gte</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_date'>date</span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$group</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_id</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>carrier_profile</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$carrier_profile_id</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>count</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$sum</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='rbrace'>}</span>
+      <span class='rbrace'>}</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='symbol'>:allow_disk_use</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span> <span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>count</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_carrier_count'>carrier_count</span> <span class='op'>==</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="individual_plans-class_method">
+  
+    .<strong>individual_plans</strong>(coverage_kind:, active_year:, tax_household:)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 556</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_individual_plans'>individual_plans</span><span class='lparen'>(</span><span class='label'>coverage_kind:</span><span class='comma'>,</span> <span class='label'>active_year:</span><span class='comma'>,</span> <span class='label'>tax_household:</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dental</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_individual_dental_by_active_year'>individual_dental_by_active_year</span><span class='lparen'>(</span><span class='id identifier rubyid_active_year'>active_year</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_with_premium_tables'>with_premium_tables</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>health</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_csr_kind'>csr_kind</span> <span class='op'>=</span> <span class='id identifier rubyid_tax_household'>tax_household</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:latest_eligibility_determination</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:csr_eligibility_kind</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_csr_kind'>csr_kind</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_individual_health_by_active_year_and_csr_kind_with_catastrophic'>individual_health_by_active_year_and_csr_kind_with_catastrophic</span><span class='lparen'>(</span><span class='id identifier rubyid_active_year'>active_year</span><span class='comma'>,</span> <span class='id identifier rubyid_csr_kind'>csr_kind</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_with_premium_tables'>with_premium_tables</span>
+    <span class='kw'>else</span>
+      <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_individual_health_by_active_year_and_csr_kind_with_catastrophic'>individual_health_by_active_year_and_csr_kind_with_catastrophic</span><span class='lparen'>(</span><span class='id identifier rubyid_active_year'>active_year</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_with_premium_tables'>with_premium_tables</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="monthly_premium-class_method">
+  
+    .<strong>monthly_premium</strong>(plan_year, hios_id, insured_age, coverage_begin_date)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 513</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monthly_premium'>monthly_premium</span><span class='lparen'>(</span><span class='id identifier rubyid_plan_year'>plan_year</span><span class='comma'>,</span> <span class='id identifier rubyid_hios_id'>hios_id</span><span class='comma'>,</span> <span class='id identifier rubyid_insured_age'>insured_age</span><span class='comma'>,</span> <span class='id identifier rubyid_coverage_begin_date'>coverage_begin_date</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_plan_year'>plan_year</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='id identifier rubyid_coverage_begin_date'>coverage_begin_date</span><span class='period'>.</span><span class='id identifier rubyid_to_date'>to_date</span><span class='period'>.</span><span class='id identifier rubyid_year'>year</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='lbracket'>[</span><span class='id identifier rubyid_insured_age'>insured_age</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_age'>age</span><span class='op'>|</span>
+      <span class='id identifier rubyid_cost'>cost</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find_by'>find_by</span><span class='lparen'>(</span><span class='label'>active_year:</span> <span class='id identifier rubyid_plan_year'>plan_year</span><span class='comma'>,</span> <span class='label'>hios_id:</span> <span class='id identifier rubyid_hios_id'>hios_id</span><span class='rparen'>)</span>
+      <span class='period'>.</span><span class='id identifier rubyid_premium_tables'>premium_tables</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='symbol'>:age</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_age'>age</span><span class='comma'>,</span> <span class='symbol'>:start_on</span><span class='period'>.</span><span class='id identifier rubyid_lte'>lte</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_coverage_begin_date'>coverage_begin_date</span><span class='comma'>,</span> <span class='symbol'>:end_on</span><span class='period'>.</span><span class='id identifier rubyid_gte'>gte</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_coverage_begin_date'>coverage_begin_date</span><span class='rparen'>)</span>
+      <span class='period'>.</span><span class='id identifier rubyid_entries'>entries</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='period'>.</span><span class='id identifier rubyid_cost'>cost</span>
+      <span class='id identifier rubyid_result'>result</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span> <span class='label'>age:</span> <span class='id identifier rubyid_age'>age</span><span class='comma'>,</span> <span class='label'>cost:</span> <span class='id identifier rubyid_cost'>cost</span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_enrollment_year-class_method">
+  
+    .<strong>open_enrollment_year</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+526
+527
+528</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 526</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_enrollment_year'>open_enrollment_year</span>
+  <span class='const'><span class='object_link'><a href="Organization.html" title="Organization (class)">Organization</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open_enrollment_year'><span class='object_link'><a href="Organization.html#open_enrollment_year-class_method" title="Organization.open_enrollment_year (method)">open_enrollment_year</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reference_plan_metal_level_for_options-class_method">
+  
+    .<strong>reference_plan_metal_level_for_options</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+552
+553
+554</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 552</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reference_plan_metal_level_for_options'>reference_plan_metal_level_for_options</span>
+  <span class='const'><span class='object_link'><a href="#REFERENCE_PLAN_METAL_LEVELS-constant" title="Plan::REFERENCE_PLAN_METAL_LEVELS (constant)">REFERENCE_PLAN_METAL_LEVELS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span> <span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_humanize'>humanize</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search_options-class_method">
+  
+    .<strong>search_options</strong>(plans)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 578</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search_options'>search_options</span><span class='lparen'>(</span><span class='id identifier rubyid_plans'>plans</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span><span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plan_type</span><span class='label_end'>&#39;:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plan_hsa</span><span class='label_end'>&#39;:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metal_level</span><span class='label_end'>&#39;:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plan_deductible</span><span class='label_end'>&#39;:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_option'>option</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='id identifier rubyid_collected'>collected</span> <span class='op'>=</span> <span class='id identifier rubyid_plans'>plans</span><span class='period'>.</span><span class='id identifier rubyid_collect'>collect</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_plan'>plan</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_option'>option</span> <span class='op'>==</span> <span class='symbol'>:metal_level</span>
+        <span class='const'><span class='object_link'><a href="MetalLevel.html" title="MetalLevel (class)">MetalLevel</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="MetalLevel.html#initialize-instance_method" title="MetalLevel#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_option'>option</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_plan'>plan</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_option'>option</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_collected'>collected</span><span class='period'>.</span><span class='id identifier rubyid_none?'>none?</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='id identifier rubyid_option'>option</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_collected'>collected</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_options'>options</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shop_dental_plans-class_method">
+  
+    .<strong>shop_dental_plans</strong>(year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+611
+612
+613</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 611</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shop_dental_plans'>shop_dental_plans</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='id identifier rubyid_shop_dental_by_active_year'>shop_dental_by_active_year</span> <span class='id identifier rubyid_year'>year</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shop_health_plans-class_method">
+  
+    .<strong>shop_health_plans</strong>(year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 600</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shop_health_plans'>shop_health_plans</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='gvar'>$shop_plan_cache</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='kw'>defined?</span> <span class='gvar'>$shop_plan_cache</span>
+  <span class='kw'>if</span> <span class='gvar'>$shop_plan_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_year'>year</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='gvar'>$shop_plan_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_year'>year</span><span class='rbracket'>]</span> <span class='op'>=</span>
+      <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="#REFERENCE_PLAN_METAL_LEVELS-constant" title="Plan::REFERENCE_PLAN_METAL_LEVELS (constant)">REFERENCE_PLAN_METAL_LEVELS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_metal_level'>metal_level</span><span class='op'>|</span>
+        <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_valid_shop_health_plans'><span class='object_link'><a href="#valid_shop_health_plans-class_method" title="Plan.valid_shop_health_plans (method)">valid_shop_health_plans</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metal_level</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_metal_level'>metal_level</span><span class='comma'>,</span> <span class='id identifier rubyid_year'>year</span><span class='rparen'>)</span>
+    <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span>
+  <span class='kw'>end</span>
+  <span class='gvar'>$shop_plan_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_year'>year</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shop_plans-class_method">
+  
+    .<strong>shop_plans</strong>(coverage_kind, year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+570
+571
+572
+573
+574
+575
+576</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 570</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shop_plans'>shop_plans</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>health</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_shop_health_plans'>shop_health_plans</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shop_dental_plans'>shop_dental_plans</span> <span class='id identifier rubyid_year'>year</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_for_carrier-class_method">
+  
+    .<strong>valid_for_carrier</strong>(active_year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+540
+541
+542
+543
+544</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 540</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid_for_carrier'>valid_for_carrier</span><span class='lparen'>(</span><span class='id identifier rubyid_active_year'>active_year</span><span class='rparen'>)</span>
+  <span class='comment'># carrier_ids = Plan.shop_dental_by_active_year(active_year).map(&amp;:carrier_profile_id).uniq
+</span>  <span class='comment'># carrier_ids.map{|c| org= Organization.where(:&#39;carrier_profile._id&#39; =&gt; c).first;org}
+</span>  <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_shop_dental_by_active_year'>shop_dental_by_active_year</span><span class='lparen'>(</span><span class='id identifier rubyid_active_year'>active_year</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:carrier_profile</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_shop_dental_plans-class_method">
+  
+    .<strong>valid_shop_dental_plans</strong>(type = &quot;carrier&quot;, key = nil, year_of_plans = Plan.open_enrollment_year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+546
+547
+548
+549
+550</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 546</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid_shop_dental_plans'>valid_shop_dental_plans</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='op'>=</span><span class='const'>Plan</span><span class='period'>.</span><span class='id identifier rubyid_open_enrollment_year'>open_enrollment_year</span><span class='rparen'>)</span>
+  <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dental-plans-</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='embexpr_end'>}</span><span class='tstring_content'>-for-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>-at-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>expires_in:</span> <span class='int'>5</span><span class='period'>.</span><span class='id identifier rubyid_hour'>hour</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_public_send'>public_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shop_dental_by_active_year</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_shop_health_plans-class_method">
+  
+    .<strong>valid_shop_health_plans</strong>(type = &quot;carrier&quot;, key = nil, year_of_plans = Plan.open_enrollment_year)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+530
+531
+532
+533
+534</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 530</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid_shop_health_plans'>valid_shop_health_plans</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='op'>=</span><span class='const'>Plan</span><span class='period'>.</span><span class='id identifier rubyid_open_enrollment_year'>open_enrollment_year</span><span class='rparen'>)</span>
+  <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>plans-</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='embexpr_end'>}</span><span class='tstring_content'>-for-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>-at-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='embexpr_end'>}</span><span class='tstring_content'>-ofkind-health</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>expires_in:</span> <span class='int'>5</span><span class='period'>.</span><span class='id identifier rubyid_hour'>hour</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_public_send'>public_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>valid_shop_by_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'>_and_year</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>coverage_kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>health</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_shop_health_plans_for_service_area-class_method">
+  
+    .<strong>valid_shop_health_plans_for_service_area</strong>(type = &quot;carrier&quot;, key = nil, year_of_plans = Plan.open_enrollment_year, carrier_service_area_pairs = [])  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+536
+537
+538</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 536</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid_shop_health_plans_for_service_area'>valid_shop_health_plans_for_service_area</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='op'>=</span><span class='const'>Plan</span><span class='period'>.</span><span class='id identifier rubyid_open_enrollment_year'>open_enrollment_year</span><span class='comma'>,</span> <span class='id identifier rubyid_carrier_service_area_pairs'>carrier_service_area_pairs</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_for_service_areas_and_carriers'><span class='object_link'><a href="#for_service_areas_and_carriers-class_method" title="Plan.for_service_areas_and_carriers (method)">for_service_areas_and_carriers</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_carrier_service_area_pairs'>carrier_service_area_pairs</span><span class='comma'>,</span> <span class='id identifier rubyid_year_of_plans'>year_of_plans</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="bound_age-instance_method">
+  
+    #<strong>bound_age</strong>(given_age)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+390
+391
+392
+393
+394</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 390</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_bound_age'>bound_age</span><span class='lparen'>(</span><span class='id identifier rubyid_given_age'>given_age</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_minimum_age'>minimum_age</span> <span class='kw'>if</span> <span class='id identifier rubyid_given_age'>given_age</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_minimum_age'>minimum_age</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_maximum_age'>maximum_age</span> <span class='kw'>if</span> <span class='id identifier rubyid_given_age'>given_age</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_maximum_age'>maximum_age</span>
+  <span class='id identifier rubyid_given_age'>given_age</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="can_use_aptc?-instance_method">
+  
+    #<strong>can_use_aptc?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+424
+425
+426</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 424</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_can_use_aptc?'>can_use_aptc?</span>
+  <span class='id identifier rubyid_metal_level'>metal_level</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>catastrophic</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="carrier_profile-instance_method">
+  
+    #<strong>carrier_profile</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+351
+352
+353
+354</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 351</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_carrier_profile'>carrier_profile</span>
+  <span class='kw'>return</span> <span class='ivar'>@carrier_profile</span> <span class='kw'>if</span> <span class='kw'>defined?</span> <span class='ivar'>@carrier_profile</span>
+  <span class='ivar'>@carrier_profile</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CarrierProfile.html" title="CarrierProfile (class)">CarrierProfile</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'><span class='object_link'><a href="CarrierProfile.html#find-class_method" title="CarrierProfile.find (method)">find</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_carrier_profile_id'>carrier_profile_id</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_carrier_profile_id'>carrier_profile_id</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="carrier_profile=-instance_method">
+  
+    #<strong>carrier_profile=</strong>(new_carrier_profile)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>belongs_to CarrierProfile</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+341
+342
+343
+344
+345
+346
+347
+348
+349</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 341</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_carrier_profile='>carrier_profile=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_carrier_profile'>new_carrier_profile</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_new_carrier_profile'>new_carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_carrier_profile_id'>carrier_profile_id</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>expected CarrierProfile </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_new_carrier_profile'>new_carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'><span class='object_link'><a href="CarrierProfile.html" title="CarrierProfile (class)">CarrierProfile</a></span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_carrier_profile_id'>carrier_profile_id</span> <span class='op'>=</span> <span class='id identifier rubyid_new_carrier_profile'>new_carrier_profile</span><span class='period'>.</span><span class='id identifier rubyid__id'>_id</span>
+    <span class='ivar'>@carrier_profile</span> <span class='op'>=</span> <span class='id identifier rubyid_new_carrier_profile'>new_carrier_profile</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cat_age_off_renewal_plan-instance_method">
+  
+    #<strong>cat_age_off_renewal_plan</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+356
+357
+358</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 356</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cat_age_off_renewal_plan'>cat_age_off_renewal_plan</span>
+  <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_cat_age_off_renewal_plan_id'>cat_age_off_renewal_plan_id</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cat_age_off_renewal_plan_id'>cat_age_off_renewal_plan_id</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="coverage_kind=-instance_method">
+  
+    #<strong>coverage_kind=</strong>(new_coverage_kind)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+336
+337
+338</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 336</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_coverage_kind='>coverage_kind=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_coverage_kind'>new_coverage_kind</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write_attribute'>write_attribute</span><span class='lparen'>(</span><span class='symbol'>:coverage_kind</span><span class='comma'>,</span> <span class='id identifier rubyid_new_coverage_kind'>new_coverage_kind</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deductible_integer-instance_method">
+  
+    #<strong>deductible_integer</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+449
+450
+451</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 449</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deductible_integer'>deductible_integer</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_deductible'>deductible</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_deductible'>deductible</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\$</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>,</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dental?-instance_method">
+  
+    #<strong>dental?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+412
+413
+414</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 412</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dental?'>dental?</span>
+  <span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dental</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ehb-instance_method">
+  
+    #<strong>ehb</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+440
+441
+442
+443</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 440</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ehb'>ehb</span>
+  <span class='id identifier rubyid_percent'>percent</span> <span class='op'>=</span> <span class='id identifier rubyid_read_attribute'>read_attribute</span><span class='lparen'>(</span><span class='symbol'>:ehb</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_percent'>percent</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_percent'>percent</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_percent'>percent</span> <span class='op'>:</span> <span class='int'>1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="health?-instance_method">
+  
+    #<strong>health?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+416
+417
+418</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 416</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_health?'>health?</span>
+  <span class='id identifier rubyid_coverage_kind'>coverage_kind</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_coverage_kind'>coverage_kind</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>health</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hsa_eligibility-instance_method">
+  
+    #<strong>hsa_eligibility</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 428</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hsa_eligibility'>hsa_eligibility</span>
+  <span class='id identifier rubyid_qhp'>qhp</span> <span class='op'>=</span> <span class='const'>Products</span><span class='op'>::</span><span class='const'>Qhp</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>standard_component_id:</span> <span class='id identifier rubyid_hios_base_id'>hios_base_id</span><span class='comma'>,</span> <span class='label'>active_year:</span> <span class='id identifier rubyid_active_year'>active_year</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_qhp'>qhp</span><span class='period'>.</span><span class='id identifier rubyid_hsa_eligibility'>hsa_eligibility</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># dental always has empty data for hsa_eligibility in serff templates.
+</span>    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>yes</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>no</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hsa_plan?-instance_method">
+  
+    #<strong>hsa_plan?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+457
+458
+459
+460
+461
+462
+463
+464
+465</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 457</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hsa_plan?'>hsa_plan?</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_regex'>regex</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HSA</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_regex'>regex</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="individual_health_by_active_year-instance_method">
+  
+    #<strong>individual_health_by_active_year</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>DEPRECATED - 2015-10-26 - By Dan Thomas - Use:
+individual_health_by_active_year_and_csr_kind</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 210</span>
+
+<span class='id identifier rubyid_scope'>scope</span> <span class='symbol'>:individual_health_by_active_year</span><span class='comma'>,</span> <span class='tlambda'>-&gt;</span><span class='lparen'>(</span><span class='id identifier rubyid_active_year'>active_year</span><span class='rparen'>)</span> <span class='tlambeg'>{</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>active_year:</span> <span class='id identifier rubyid_active_year'>active_year</span><span class='comma'>,</span> <span class='label'>market:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>individual</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>coverage_kind:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>health</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>hios_id:</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>-01$</span><span class='regexp_end'>/</span></span> <span class='rparen'>)</span> <span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_csr?-instance_method">
+  
+    #<strong>is_csr?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+445
+446
+447</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 445</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_csr?'>is_csr?</span>
+  <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="EligibilityDetermination.html" title="EligibilityDetermination (class)">EligibilityDetermination</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="EligibilityDetermination.html#CSR_KIND_TO_PLAN_VARIANT_MAP-constant" title="EligibilityDetermination::CSR_KIND_TO_PLAN_VARIANT_MAP (constant)">CSR_KIND_TO_PLAN_VARIANT_MAP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span> <span class='op'>-</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="EligibilityDetermination.html" title="EligibilityDetermination (class)">EligibilityDetermination</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="EligibilityDetermination.html#CSR_KIND_TO_PLAN_VARIANT_MAP-constant" title="EligibilityDetermination::CSR_KIND_TO_PLAN_VARIANT_MAP (constant)">CSR_KIND_TO_PLAN_VARIANT_MAP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_csr_variant_id'>csr_variant_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_dental_only?-instance_method">
+  
+    #<strong>is_dental_only?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+420
+421
+422</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 420</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_dental_only?'>is_dental_only?</span>
+  <span class='id identifier rubyid_dental?'>dental?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="metal_level=-instance_method">
+  
+    #<strong>metal_level=</strong>(new_metal_level)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+332
+333
+334</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 332</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_metal_level='>metal_level=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_metal_level'>new_metal_level</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write_attribute'>write_attribute</span><span class='lparen'>(</span><span class='symbol'>:metal_level</span><span class='comma'>,</span> <span class='id identifier rubyid_new_metal_level'>new_metal_level</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="minimum_age-instance_method">
+  
+    #<strong>minimum_age</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+382
+383
+384
+385
+386
+387
+388</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 382</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_minimum_age'>minimum_age</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_premium_tables'>premium_tables</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_premium_tables'>premium_tables</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span><span class='lparen'>(</span><span class='symbol'>:age</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_read_attribute'>read_attribute</span><span class='lparen'>(</span><span class='symbol'>:minimum_age</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="order-instance_method">
+  
+    #<strong>order</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Scopes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 155</span>
+
+<span class='id identifier rubyid_default_scope'>default_scope</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span><span class='id identifier rubyid_order'>order</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name ASC</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbrace'>}</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="plan_deductible-instance_method">
+  
+    #<strong>plan_deductible</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+453
+454
+455</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 453</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_plan_deductible'>plan_deductible</span>
+  <span class='id identifier rubyid_deductible_integer'>deductible_integer</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="plan_hsa-instance_method">
+  
+    #<strong>plan_hsa</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+467
+468
+469
+470
+471</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 467</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_plan_hsa'>plan_hsa</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_regex'>regex</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HSA</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_regex'>regex</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Yes</span><span class='tstring_end'>&#39;</span></span><span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="premium_for-instance_method">
+  
+    #<strong>premium_for</strong>(schedule_date, age)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+402
+403
+404
+405
+406
+407
+408
+409
+410</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 402</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_premium_for'>premium_for</span><span class='lparen'>(</span><span class='id identifier rubyid_schedule_date'>schedule_date</span><span class='comma'>,</span> <span class='id identifier rubyid_age'>age</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bound_age_val'>bound_age_val</span> <span class='op'>=</span> <span class='id identifier rubyid_bound_age'>bound_age</span><span class='lparen'>(</span><span class='id identifier rubyid_age'>age</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_premium_table_for'>premium_table_for</span><span class='lparen'>(</span><span class='id identifier rubyid_schedule_date'>schedule_date</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_detect'>detect</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_pt'>pt</span><span class='op'>|</span> <span class='id identifier rubyid_pt'>pt</span><span class='period'>.</span><span class='id identifier rubyid_age'>age</span> <span class='op'>==</span> <span class='id identifier rubyid_bound_age_val'>bound_age_val</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_cost'>cost</span>
+    <span class='const'>BigDecimal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='lbracket'>[</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_bound_age_val'>bound_age_val</span><span class='comma'>,</span> <span class='id identifier rubyid_schedule_date'>schedule_date</span><span class='comma'>,</span> <span class='id identifier rubyid_age'>age</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="premium_table_for-instance_method">
+  
+    #<strong>premium_table_for</strong>(schedule_date)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+396
+397
+398
+399
+400</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 396</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_premium_table_for'>premium_table_for</span><span class='lparen'>(</span><span class='id identifier rubyid_schedule_date'>schedule_date</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_premium_tables'>premium_tables</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pt'>pt</span><span class='op'>|</span>
+    <span class='lparen'>(</span><span class='id identifier rubyid_pt'>pt</span><span class='period'>.</span><span class='id identifier rubyid_start_on'>start_on</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_schedule_date'>schedule_date</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_pt'>pt</span><span class='period'>.</span><span class='id identifier rubyid_end_on'>end_on</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_schedule_date'>schedule_date</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="renewal_plan-instance_method">
+  
+    #<strong>renewal_plan</strong>(date = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 371</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_renewal_plan'>renewal_plan</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@renewal_plan</span> <span class='kw'>if</span> <span class='kw'>defined?</span> <span class='ivar'>@renewal_plan</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_date'>date</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_renewal_plan_mappings'>renewal_plan_mappings</span><span class='period'>.</span><span class='id identifier rubyid_by_date'>by_date</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_renewal_mapping'>renewal_mapping</span> <span class='op'>=</span> <span class='id identifier rubyid_renewal_plan_mappings'>renewal_plan_mappings</span><span class='period'>.</span><span class='id identifier rubyid_by_date'>by_date</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='ivar'>@renewal_plan</span> <span class='op'>=</span> <span class='id identifier rubyid_renewal_mapping'>renewal_mapping</span><span class='period'>.</span><span class='id identifier rubyid_renewal_plan'>renewal_plan</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@renewal_plan</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_renewal_plan_id'>renewal_plan_id</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_renewal_plan_id'>renewal_plan_id</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="renewal_plan=-instance_method">
+  
+    #<strong>renewal_plan=</strong>(new_renewal_plan)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>has_one renewal_plan</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+361
+362
+363
+364
+365
+366
+367
+368
+369</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 361</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_renewal_plan='>renewal_plan=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_renewal_plan'>new_renewal_plan</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_new_renewal_plan'>new_renewal_plan</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_renewal_plan_id'>renewal_plan_id</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>expected Plan </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_new_renewal_plan'>new_renewal_plan</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'><span class='object_link'><a href="" title="Plan (class)">Plan</a></span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_renewal_plan_id'>renewal_plan_id</span> <span class='op'>=</span> <span class='id identifier rubyid_new_renewal_plan'>new_renewal_plan</span><span class='period'>.</span><span class='id identifier rubyid__id'>_id</span>
+    <span class='ivar'>@renewal_plan</span> <span class='op'>=</span> <span class='id identifier rubyid_new_renewal_plan'>new_renewal_plan</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="renewal_plan_type-instance_method">
+  
+    #<strong>renewal_plan_type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/plan.rb', line 473</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_renewal_plan_type'>renewal_plan_type</span>
+  <span class='id identifier rubyid_hios'>hios</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_hios_base_id'>hios_base_id</span>
+  <span class='id identifier rubyid_kp'>kp</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390001</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390002</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390003</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390004</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390005</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390006</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390007</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390008</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390009</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390010</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>94506DC0390011</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cf_nonhsa'>cf_nonhsa</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>78079DC0160001</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>78079DC0160002</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400003</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cf_reg'>cf_reg</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400001</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400002</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400004</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400007</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400008</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>78079DC0210001</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>78079DC0210002</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>78079DC0210003</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>78079DC0210004</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cf_hsa'>cf_hsa</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400005</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400006</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>86052DC0400009</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2017 Plan</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_active_year'>active_year</span> <span class='op'>!=</span> <span class='int'>2016</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_kp'>kp</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_hios'>hios</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KP</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_cf_nonhsa'>cf_nonhsa</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_hios'>hios</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CFNONHSA</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_cf_reg'>cf_reg</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_hios'>hios</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CFREG</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_cf_hsa'>cf_hsa</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_hios'>hios</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CFHSA</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:49:30 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

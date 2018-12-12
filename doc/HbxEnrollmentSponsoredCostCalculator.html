@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: HbxEnrollmentSponsoredCostCalculator
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "HbxEnrollmentSponsoredCostCalculator";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (H)</a> &raquo;
+    
+    
+    <span class="title">HbxEnrollmentSponsoredCostCalculator</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: HbxEnrollmentSponsoredCostCalculator
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">HbxEnrollmentSponsoredCostCalculator</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/hbx_enrollment_sponsored_cost_calculator.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#groups_for_products-instance_method" title="#groups_for_products (instance method)">#<strong>groups_for_products</strong>(products)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(original_enrollment)  &#x21d2; HbxEnrollmentSponsoredCostCalculator </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of HbxEnrollmentSponsoredCostCalculator.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(original_enrollment)  &#x21d2; <tt><span class='object_link'><a href="" title="HbxEnrollmentSponsoredCostCalculator (class)">HbxEnrollmentSponsoredCostCalculator</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of HbxEnrollmentSponsoredCostCalculator</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+2
+3
+4
+5
+6
+7
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/hbx_enrollment_sponsored_cost_calculator.rb', line 2</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_original_enrollment'>original_enrollment</span><span class='rparen'>)</span>
+  <span class='ivar'>@member_group</span> <span class='op'>=</span> <span class='id identifier rubyid_original_enrollment'>original_enrollment</span><span class='period'>.</span><span class='id identifier rubyid_as_shop_member_group'>as_shop_member_group</span>
+  <span class='ivar'>@sponsored_benefit</span> <span class='op'>=</span> <span class='id identifier rubyid_original_enrollment'>original_enrollment</span><span class='period'>.</span><span class='id identifier rubyid_sponsored_benefit'>sponsored_benefit</span>
+  <span class='ivar'>@pricing_model</span> <span class='op'>=</span> <span class='ivar'>@sponsored_benefit</span><span class='period'>.</span><span class='id identifier rubyid_pricing_model'>pricing_model</span>
+  <span class='ivar'>@contribution_model</span> <span class='op'>=</span> <span class='ivar'>@sponsored_benefit</span><span class='period'>.</span><span class='id identifier rubyid_contribution_model'>contribution_model</span>
+  <span class='ivar'>@pricing_calculator</span> <span class='op'>=</span> <span class='ivar'>@sponsored_benefit</span><span class='period'>.</span><span class='id identifier rubyid_pricing_calculator'>pricing_calculator</span>
+  <span class='ivar'>@contribution_calculator</span> <span class='op'>=</span> <span class='ivar'>@sponsored_benefit</span><span class='period'>.</span><span class='id identifier rubyid_contribution_calculator'>contribution_calculator</span>
+  <span class='ivar'>@sponsor_contribution</span> <span class='op'>=</span> <span class='ivar'>@sponsored_benefit</span><span class='period'>.</span><span class='id identifier rubyid_sponsor_contribution'>sponsor_contribution</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="groups_for_products-instance_method">
+  
+    #<strong>groups_for_products</strong>(products)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/hbx_enrollment_sponsored_cost_calculator.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_groups_for_products'>groups_for_products</span><span class='lparen'>(</span><span class='id identifier rubyid_products'>products</span><span class='rparen'>)</span>
+  <span class='ivar'>@groups_for_products</span> <span class='op'>||=</span> <span class='id identifier rubyid_calculate_groups_for_products'>calculate_groups_for_products</span><span class='lparen'>(</span><span class='id identifier rubyid_products'>products</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:42 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

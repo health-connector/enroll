@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: UserMailer
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "UserMailer";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (U)</a> &raquo;
+    
+    
+    <span class="title">UserMailer</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: UserMailer
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="ApplicationMailer.html" title="ApplicationMailer (class)">ApplicationMailer</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">ActionMailer::Base</li>
+          
+            <li class="next"><span class='object_link'><a href="ApplicationMailer.html" title="ApplicationMailer (class)">ApplicationMailer</a></span></li>
+          
+            <li class="next">UserMailer</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Config/AcaHelper.html" title="Config::AcaHelper (module)">Config::AcaHelper</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html" title="Config::ContactCenterHelper (module)">Config::ContactCenterHelper</a></span>, <span class='object_link'><a href="Config/SiteHelper.html" title="Config::SiteHelper (module)">Config::SiteHelper</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/mailers/user_mailer.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#agent_invitation_email-instance_method" title="#agent_invitation_email (instance method)">#<strong>agent_invitation_email</strong>(email, person_name, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#broker_application_confirmation-instance_method" title="#broker_application_confirmation (instance method)">#<strong>broker_application_confirmation</strong>(person)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#broker_denied_notification-instance_method" title="#broker_denied_notification (instance method)">#<strong>broker_denied_notification</strong>(broker_role)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#broker_invitation_email-instance_method" title="#broker_invitation_email (instance method)">#<strong>broker_invitation_email</strong>(email, person_name, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#broker_pending_notification-instance_method" title="#broker_pending_notification (instance method)">#<strong>broker_pending_notification</strong>(broker_role, unchecked_carriers)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#employer_invoice_generation_notification-instance_method" title="#employer_invoice_generation_notification (instance method)">#<strong>employer_invoice_generation_notification</strong>(employer, subject)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generic_consumer_welcome-instance_method" title="#generic_consumer_welcome (instance method)">#<strong>generic_consumer_welcome</strong>(first_name, hbx_id, email)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generic_notice_alert-instance_method" title="#generic_notice_alert (instance method)">#<strong>generic_notice_alert</strong>(first_name, notice_subject, email, files_to_attach = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generic_notice_alert_to_ba-instance_method" title="#generic_notice_alert_to_ba (instance method)">#<strong>generic_notice_alert_to_ba</strong>(first_name, email, employer_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>def generic_notice_alert_to_ba_and_ga(first_name, email, employer_name)  
+if email.present?     message = mail(email, subject: “You have a new
+message from DC Health Link”, from:
+&#39;no-reply@individual.dchealthlink.com&#39;) do |format|      
+format.html “generic_notice_alert_to_broker_and_ga”, locals:
+{first_name: first_name, employer_name: employer_name}     end   end end.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initial_employee_invitation_email-instance_method" title="#initial_employee_invitation_email (instance method)">#<strong>initial_employee_invitation_email</strong>(email, census_employee, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#invitation_email-instance_method" title="#invitation_email (instance method)">#<strong>invitation_email</strong>(email, person_name, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#message_to_broker-instance_method" title="#message_to_broker (instance method)">#<strong>message_to_broker</strong>(person, broker, params)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_client_notification-instance_method" title="#new_client_notification (instance method)">#<strong>new_client_notification</strong>(agent_email, first_name, name, role, insured_email, is_person)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#plan_shopping_completed-instance_method" title="#plan_shopping_completed (instance method)">#<strong>plan_shopping_completed</strong>(user, hbx_enrollment, plan_decorator)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#renewal_invitation_email-instance_method" title="#renewal_invitation_email (instance method)">#<strong>renewal_invitation_email</strong>(email, census_employee, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_employee_ineligibility_notice-instance_method" title="#send_employee_ineligibility_notice (instance method)">#<strong>send_employee_ineligibility_notice</strong>(email, first_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_employee_open_enrollment_invitation-instance_method" title="#send_employee_open_enrollment_invitation (instance method)">#<strong>send_employee_open_enrollment_invitation</strong>(email, census_employee, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Email will sent to census employees as soon as they are added to the
+roster.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_future_employee_open_enrollment_invitation-instance_method" title="#send_future_employee_open_enrollment_invitation (instance method)">#<strong>send_future_employee_open_enrollment_invitation</strong>(email, census_employee, invitation)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Email will be sent to census employees when they reach the DOH.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#welcome-instance_method" title="#welcome (instance method)">#<strong>welcome</strong>(user)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Config/ContactCenterHelper.html" title="Config::ContactCenterHelper (module)">Config::ContactCenterHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_address_one-instance_method" title="Config::ContactCenterHelper#contact_center_address_one (method)">#contact_center_address_one</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_alt_fax_number-instance_method" title="Config::ContactCenterHelper#contact_center_alt_fax_number (method)">#contact_center_alt_fax_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_alt_name-instance_method" title="Config::ContactCenterHelper#contact_center_alt_name (method)">#contact_center_alt_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_alt_phone_number-instance_method" title="Config::ContactCenterHelper#contact_center_alt_phone_number (method)">#contact_center_alt_phone_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_address_one-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_address_one (method)">#contact_center_appeal_address_one</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_city-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_city (method)">#contact_center_appeal_city</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_name-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_name (method)">#contact_center_appeal_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_state-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_state (method)">#contact_center_appeal_state</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_zip-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_zip (method)">#contact_center_appeal_zip</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeals-instance_method" title="Config::ContactCenterHelper#contact_center_appeals (method)">#contact_center_appeals</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeals_link-instance_method" title="Config::ContactCenterHelper#contact_center_appeals_link (method)">#contact_center_appeals_link</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_city-instance_method" title="Config::ContactCenterHelper#contact_center_city (method)">#contact_center_city</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_email_address-instance_method" title="Config::ContactCenterHelper#contact_center_email_address (method)">#contact_center_email_address</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_fax_number-instance_method" title="Config::ContactCenterHelper#contact_center_fax_number (method)">#contact_center_fax_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_ivl_number-instance_method" title="Config::ContactCenterHelper#contact_center_ivl_number (method)">#contact_center_ivl_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_ivl_phone_number-instance_method" title="Config::ContactCenterHelper#contact_center_ivl_phone_number (method)">#contact_center_ivl_phone_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_mailing_address_name-instance_method" title="Config::ContactCenterHelper#contact_center_mailing_address_name (method)">#contact_center_mailing_address_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_name-instance_method" title="Config::ContactCenterHelper#contact_center_name (method)">#contact_center_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_phone_number-instance_method" title="Config::ContactCenterHelper#contact_center_phone_number (method)">#contact_center_phone_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_postal_code-instance_method" title="Config::ContactCenterHelper#contact_center_postal_code (method)">#contact_center_postal_code</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_state-instance_method" title="Config::ContactCenterHelper#contact_center_state (method)">#contact_center_state</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_tty_number-instance_method" title="Config::ContactCenterHelper#contact_center_tty_number (method)">#contact_center_tty_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_complaint_url-instance_method" title="Config::ContactCenterHelper#non_discrimination_complaint_url (method)">#non_discrimination_complaint_url</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_email-instance_method" title="Config::ContactCenterHelper#non_discrimination_email (method)">#non_discrimination_email</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_phone_1-instance_method" title="Config::ContactCenterHelper#non_discrimination_phone_1 (method)">#non_discrimination_phone_1</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_phone_2-instance_method" title="Config::ContactCenterHelper#non_discrimination_phone_2 (method)">#non_discrimination_phone_2</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_phone_3-instance_method" title="Config::ContactCenterHelper#non_discrimination_phone_3 (method)">#non_discrimination_phone_3</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#small_business_email_link-instance_method" title="Config::ContactCenterHelper#small_business_email_link (method)">#small_business_email_link</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#small_businesss_email-instance_method" title="Config::ContactCenterHelper#small_businesss_email (method)">#small_businesss_email</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Config/SiteHelper.html" title="Config::SiteHelper (module)">Config::SiteHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Config/SiteHelper.html#find_your_doctor_url-instance_method" title="Config::SiteHelper#find_your_doctor_url (method)">#find_your_doctor_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#health_care_website-instance_method" title="Config::SiteHelper#health_care_website (method)">#health_care_website</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#health_care_website_url-instance_method" title="Config::SiteHelper#health_care_website_url (method)">#health_care_website_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#ivl_login_url-instance_method" title="Config::SiteHelper#ivl_login_url (method)">#ivl_login_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#link_to_make_their_premium_payments_online-instance_method" title="Config::SiteHelper#link_to_make_their_premium_payments_online (method)">#link_to_make_their_premium_payments_online</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#link_to_site_business_resource_center-instance_method" title="Config::SiteHelper#link_to_site_business_resource_center (method)">#link_to_site_business_resource_center</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#mail_address-instance_method" title="Config::SiteHelper#mail_address (method)">#mail_address</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#mail_non_discrimination_email-instance_method" title="Config::SiteHelper#mail_non_discrimination_email (method)">#mail_non_discrimination_email</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#non_discrimination_notice_url-instance_method" title="Config::SiteHelper#non_discrimination_notice_url (method)">#non_discrimination_notice_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_broker_quoting_enabled%3F-instance_method" title="Config::SiteHelper#site_broker_quoting_enabled? (method)">#site_broker_quoting_enabled?</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_brokers_agreement_path-instance_method" title="Config::SiteHelper#site_brokers_agreement_path (method)">#site_brokers_agreement_path</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_business_resource_center_url-instance_method" title="Config::SiteHelper#site_business_resource_center_url (method)">#site_business_resource_center_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_byline-instance_method" title="Config::SiteHelper#site_byline (method)">#site_byline</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_curam_enabled%3F-instance_method" title="Config::SiteHelper#site_curam_enabled? (method)">#site_curam_enabled?</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_document_verification_checklist_url-instance_method" title="Config::SiteHelper#site_document_verification_checklist_url (method)">#site_document_verification_checklist_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_domain_name-instance_method" title="Config::SiteHelper#site_domain_name (method)">#site_domain_name</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_employer_application_deadline_link-instance_method" title="Config::SiteHelper#site_employer_application_deadline_link (method)">#site_employer_application_deadline_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_faqs_url-instance_method" title="Config::SiteHelper#site_faqs_url (method)">#site_faqs_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_find_expert_link-instance_method" title="Config::SiteHelper#site_find_expert_link (method)">#site_find_expert_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_find_expert_url-instance_method" title="Config::SiteHelper#site_find_expert_url (method)">#site_find_expert_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_guidance_for_business_owners_url-instance_method" title="Config::SiteHelper#site_guidance_for_business_owners_url (method)">#site_guidance_for_business_owners_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_help_url-instance_method" title="Config::SiteHelper#site_help_url (method)">#site_help_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_home_business_url-instance_method" title="Config::SiteHelper#site_home_business_url (method)">#site_home_business_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_home_link-instance_method" title="Config::SiteHelper#site_home_link (method)">#site_home_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_home_url-instance_method" title="Config::SiteHelper#site_home_url (method)">#site_home_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_initial_earliest_start_prior_to_effective_on-instance_method" title="Config::SiteHelper#site_initial_earliest_start_prior_to_effective_on (method)">#site_initial_earliest_start_prior_to_effective_on</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_invoice_bill_url-instance_method" title="Config::SiteHelper#site_invoice_bill_url (method)">#site_invoice_bill_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_long_name-instance_method" title="Config::SiteHelper#site_long_name (method)">#site_long_name</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_address-instance_method" title="Config::SiteHelper#site_main_web_address (method)">#site_main_web_address</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_address_text-instance_method" title="Config::SiteHelper#site_main_web_address_text (method)">#site_main_web_address_text</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_address_url-instance_method" title="Config::SiteHelper#site_main_web_address_url (method)">#site_main_web_address_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_link-instance_method" title="Config::SiteHelper#site_main_web_link (method)">#site_main_web_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_make_their_premium_payments_online-instance_method" title="Config::SiteHelper#site_make_their_premium_payments_online (method)">#site_make_their_premium_payments_online</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_non_discrimination_complaint_url-instance_method" title="Config::SiteHelper#site_non_discrimination_complaint_url (method)">#site_non_discrimination_complaint_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_nondiscrimination_notice_url-instance_method" title="Config::SiteHelper#site_nondiscrimination_notice_url (method)">#site_nondiscrimination_notice_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_policies_url-instance_method" title="Config::SiteHelper#site_policies_url (method)">#site_policies_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_privacy_policy-instance_method" title="Config::SiteHelper#site_privacy_policy (method)">#site_privacy_policy</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_redirect_on_timeout_route-instance_method" title="Config::SiteHelper#site_redirect_on_timeout_route (method)">#site_redirect_on_timeout_route</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_registration_path-instance_method" title="Config::SiteHelper#site_registration_path (method)">#site_registration_path</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_short_name-instance_method" title="Config::SiteHelper#site_short_name (method)">#site_short_name</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_uses_default_devise_path%3F-instance_method" title="Config::SiteHelper#site_uses_default_devise_path? (method)">#site_uses_default_devise_path?</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_website_address-instance_method" title="Config::SiteHelper#site_website_address (method)">#site_website_address</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_website_link-instance_method" title="Config::SiteHelper#site_website_link (method)">#site_website_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_website_name-instance_method" title="Config::SiteHelper#site_website_name (method)">#site_website_name</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Config/AcaHelper.html" title="Config::AcaHelper (module)">Config::AcaHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Config/AcaHelper.html#aca_address_query_county-instance_method" title="Config::AcaHelper#aca_address_query_county (method)">#aca_address_query_county</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_broker_routing_information-instance_method" title="Config::AcaHelper#aca_broker_routing_information (method)">#aca_broker_routing_information</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_primary_market-instance_method" title="Config::AcaHelper#aca_primary_market (method)">#aca_primary_market</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_recaptcha_enabled-instance_method" title="Config::AcaHelper#aca_recaptcha_enabled (method)">#aca_recaptcha_enabled</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_security_questions-instance_method" title="Config::AcaHelper#aca_security_questions (method)">#aca_security_questions</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_census_employees_template_file-instance_method" title="Config::AcaHelper#aca_shop_market_census_employees_template_file (method)">#aca_shop_market_census_employees_template_file</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_coverage_start_period-instance_method" title="Config::AcaHelper#aca_shop_market_coverage_start_period (method)">#aca_shop_market_coverage_start_period</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_employer_contribution_percent_minimum-instance_method" title="Config::AcaHelper#aca_shop_market_employer_contribution_percent_minimum (method)">#aca_shop_market_employer_contribution_percent_minimum</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_employer_family_contribution_percent_minimum-instance_method" title="Config::AcaHelper#aca_shop_market_employer_family_contribution_percent_minimum (method)">#aca_shop_market_employer_family_contribution_percent_minimum</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_new_employee_paper_application_is_enabled%3F-instance_method" title="Config::AcaHelper#aca_shop_market_new_employee_paper_application_is_enabled? (method)">#aca_shop_market_new_employee_paper_application_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_valid_employer_attestation_documents_url-instance_method" title="Config::AcaHelper#aca_shop_market_valid_employer_attestation_documents_url (method)">#aca_shop_market_valid_employer_attestation_documents_url</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_state_abbreviation-instance_method" title="Config::AcaHelper#aca_state_abbreviation (method)">#aca_state_abbreviation</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_state_name-instance_method" title="Config::AcaHelper#aca_state_name (method)">#aca_state_name</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_user_accounts_enabled-instance_method" title="Config::AcaHelper#aca_user_accounts_enabled (method)">#aca_user_accounts_enabled</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#broker_carrier_appointments_enabled%3F-instance_method" title="Config::AcaHelper#broker_carrier_appointments_enabled? (method)">#broker_carrier_appointments_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#calendar_is_enabled%3F-instance_method" title="Config::AcaHelper#calendar_is_enabled? (method)">#calendar_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#carrier_special_plan_identifier_namespace-instance_method" title="Config::AcaHelper#carrier_special_plan_identifier_namespace (method)">#carrier_special_plan_identifier_namespace</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#check_plan_options_title-instance_method" title="Config::AcaHelper#check_plan_options_title (method)">#check_plan_options_title</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#dental_market_enabled%3F-instance_method" title="Config::AcaHelper#dental_market_enabled? (method)">#dental_market_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#display_plan_cost_warning-instance_method" title="Config::AcaHelper#display_plan_cost_warning (method)">#display_plan_cost_warning</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#employer_attestation_is_enabled%3F-instance_method" title="Config::AcaHelper#employer_attestation_is_enabled? (method)">#employer_attestation_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_metal_level_years-instance_method" title="Config::AcaHelper#enabled_metal_level_years (method)">#enabled_metal_level_years</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_metal_levels_for_single_carrier-instance_method" title="Config::AcaHelper#enabled_metal_levels_for_single_carrier (method)">#enabled_metal_levels_for_single_carrier</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_single_carrier_years-instance_method" title="Config::AcaHelper#enabled_single_carrier_years (method)">#enabled_single_carrier_years</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_sole_source_years-instance_method" title="Config::AcaHelper#enabled_sole_source_years (method)">#enabled_sole_source_years</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_file_format-instance_method" title="Config::AcaHelper#fetch_file_format (method)">#fetch_file_format</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_invoices_addendum-instance_method" title="Config::AcaHelper#fetch_invoices_addendum (method)">#fetch_invoices_addendum</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_plan_title_for_metal_level-instance_method" title="Config::AcaHelper#fetch_plan_title_for_metal_level (method)">#fetch_plan_title_for_metal_level</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_plan_title_for_single_carrier-instance_method" title="Config::AcaHelper#fetch_plan_title_for_single_carrier (method)">#fetch_plan_title_for_single_carrier</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_plan_title_for_sole_source-instance_method" title="Config::AcaHelper#fetch_plan_title_for_sole_source (method)">#fetch_plan_title_for_sole_source</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#general_agency_enabled%3F-instance_method" title="Config::AcaHelper#general_agency_enabled? (method)">#general_agency_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#individual_market_is_enabled%3F-instance_method" title="Config::AcaHelper#individual_market_is_enabled? (method)">#individual_market_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#invoice_bill_url_helper-instance_method" title="Config::AcaHelper#invoice_bill_url_helper (method)">#invoice_bill_url_helper</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#market_rating_areas-instance_method" title="Config::AcaHelper#market_rating_areas (method)">#market_rating_areas</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#metal_levels_explained-instance_method" title="Config::AcaHelper#metal_levels_explained (method)">#metal_levels_explained</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#multiple_market_rating_areas%3F-instance_method" title="Config::AcaHelper#multiple_market_rating_areas? (method)">#multiple_market_rating_areas?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offer_sole_source%3F-instance_method" title="Config::AcaHelper#offer_sole_source? (method)">#offer_sole_source?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_metal_level%3F-instance_method" title="Config::AcaHelper#offers_metal_level? (method)">#offers_metal_level?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_nationwide_plans%3F-instance_method" title="Config::AcaHelper#offers_nationwide_plans? (method)">#offers_nationwide_plans?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_single_carrier%3F-instance_method" title="Config::AcaHelper#offers_single_carrier? (method)">#offers_single_carrier?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_single_plan%3F-instance_method" title="Config::AcaHelper#offers_single_plan? (method)">#offers_single_plan?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#payment_pdf_helper-instance_method" title="Config::AcaHelper#payment_pdf_helper (method)">#payment_pdf_helper</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#payment_phone_number-instance_method" title="Config::AcaHelper#payment_phone_number (method)">#payment_phone_number</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#plan_match_tool_is_enabled%3F-instance_method" title="Config::AcaHelper#plan_match_tool_is_enabled? (method)">#plan_match_tool_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#site_broker_claim_quoting_enabled%3F-instance_method" title="Config::AcaHelper#site_broker_claim_quoting_enabled? (method)">#site_broker_claim_quoting_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#site_broker_quoting_enabled%3F-instance_method" title="Config::AcaHelper#site_broker_quoting_enabled? (method)">#site_broker_quoting_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#use_simple_employer_calculation_model%3F-instance_method" title="Config::AcaHelper#use_simple_employer_calculation_model? (method)">#use_simple_employer_calculation_model?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="ApplicationMailer.html" title="ApplicationMailer (class)">ApplicationMailer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ApplicationMailer.html#notice_email-instance_method" title="ApplicationMailer#notice_email (method)">#notice_email</a></span></p>
+
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="agent_invitation_email-instance_method">
+  
+    #<strong>agent_invitation_email</strong>(email, person_name, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_agent_invitation_email'>agent_invitation_email</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_person_name'>person_name</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> Support Invitation</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>agent_invitation_email</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:person_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_person_name'>person_name</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="broker_application_confirmation-instance_method">
+  
+    #<strong>broker_application_confirmation</strong>(person)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+164
+165
+166
+167
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 164</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_broker_application_confirmation'>broker_application_confirmation</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_emails'>emails</span><span class='period'>.</span><span class='id identifier rubyid_find_by'>find_by</span><span class='lparen'>(</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>work</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_emails'>emails</span><span class='period'>.</span><span class='id identifier rubyid_find_by'>find_by</span><span class='lparen'>(</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>work</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:address</span><span class='rparen'>)</span> <span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> Welcome! You&#39;ve Submitted a Broker Application on the </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> for Business</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_application_confirmation</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:person</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_person'>person</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="broker_denied_notification-instance_method">
+  
+    #<strong>broker_denied_notification</strong>(broker_role)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+156
+157
+158
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 156</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_broker_denied_notification'>broker_denied_notification</span><span class='lparen'>(</span><span class='id identifier rubyid_broker_role'>broker_role</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_email_address'>email_address</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_email_address'>email_address</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Broker application denied</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_denied</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:applicant_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="broker_invitation_email-instance_method">
+  
+    #<strong>broker_invitation_email</strong>(email, person_name, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_broker_invitation_email'>broker_invitation_email</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_person_name'>person_name</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Congratulations! Your Broker Application for the </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> for Business has been Approved!</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_invitation_email</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:person_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_person_name'>person_name</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="broker_pending_notification-instance_method">
+  
+    #<strong>broker_pending_notification</strong>(broker_role, unchecked_carriers)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_broker_pending_notification'>broker_pending_notification</span><span class='lparen'>(</span><span class='id identifier rubyid_broker_role'>broker_role</span><span class='comma'>,</span><span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_subject_sufix'>subject_sufix</span> <span class='op'>=</span> <span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>, missing carrier appointments</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>, has all carrier appointments</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_subject_prefix'>subject_prefix</span> <span class='op'>=</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_training'>training</span> <span class='op'>||</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_training'>training</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Action Needed - Broker License for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> for Business</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Action Needed - Complete Broker Training for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> for Business</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_subject'>subject</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_subject_prefix'>subject_prefix</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_email_address'>email_address</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='id identifier rubyid_subject'>subject</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_training'>training</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_pending_completed_training_missing_carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:applicant_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span> <span class='comma'>,</span><span class='symbol'>:unchecked_carriers</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_training'>training</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_pending_missing_training_completed_carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:applicant_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span> <span class='comma'>,</span> <span class='symbol'>:unchecked_carriers</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_training'>training</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>broker_pending_missing_training_and_carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:applicant_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_broker_role'>broker_role</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span> <span class='comma'>,</span> <span class='symbol'>:unchecked_carriers</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_unchecked_carriers'>unchecked_carriers</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="employer_invoice_generation_notification-instance_method">
+  
+    #<strong>employer_invoice_generation_notification</strong>(employer, subject)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+150
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 150</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_employer_invoice_generation_notification'>employer_invoice_generation_notification</span><span class='lparen'>(</span><span class='id identifier rubyid_employer'>employer</span><span class='comma'>,</span><span class='id identifier rubyid_subject'>subject</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_employer'>employer</span><span class='period'>.</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='id identifier rubyid_subject'>subject</span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>no-reply@individual.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_domain_name'>site_domain_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span><span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>employer_invoice_generation</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_employer'>employer</span><span class='period'>.</span><span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_first_name'>first_name</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generic_consumer_welcome-instance_method">
+  
+    #<strong>generic_consumer_welcome</strong>(first_name, hbx_id, email)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117
+118
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generic_consumer_welcome'>generic_consumer_welcome</span><span class='lparen'>(</span><span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='id identifier rubyid_hbx_id'>hbx_id</span><span class='comma'>,</span> <span class='id identifier rubyid_email'>email</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>no-reply@individual.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_domain_name'>site_domain_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span><span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>generic_consumer</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='label'>hbx_id:</span> <span class='id identifier rubyid_hbx_id'>hbx_id</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generic_notice_alert-instance_method">
+  
+    #<strong>generic_notice_alert</strong>(first_name, notice_subject, email, files_to_attach = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generic_notice_alert'>generic_notice_alert</span><span class='lparen'>(</span><span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='id identifier rubyid_notice_subject'>notice_subject</span><span class='comma'>,</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_files_to_attach'>files_to_attach</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_files_to_attach'>files_to_attach</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file_name'>file_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_path'>file_path</span><span class='op'>|</span>
+    <span class='id identifier rubyid_attachments'>attachments</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file_name'>file_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span>  <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You have a new message from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>no-reply@individual.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_domain_name'>site_domain_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span><span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>generic_notice_alert</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='label'>notice_subject:</span> <span class='id identifier rubyid_notice_subject'>notice_subject</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generic_notice_alert_to_ba-instance_method">
+  
+    #<strong>generic_notice_alert_to_ba</strong>(first_name, email, employer_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>def generic_notice_alert_to_ba_and_ga(first_name, email, employer_name)</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+  <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You have a new message from DC Health Link</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>no-reply@individual.dchealthlink.com</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span><span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>generic_notice_alert_to_broker_and_ga</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='label'>employer_name:</span> <span class='id identifier rubyid_employer_name'>employer_name</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>end</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+142
+143
+144
+145
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 142</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generic_notice_alert_to_ba'>generic_notice_alert_to_ba</span><span class='lparen'>(</span><span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_employer_name'>employer_name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You have a new message from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#{mail_address}</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+     <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span><span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>generic_notice_alert_to_broker</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='label'>employer_name:</span> <span class='id identifier rubyid_employer_name'>employer_name</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initial_employee_invitation_email-instance_method">
+  
+    #<strong>initial_employee_invitation_email</strong>(email, census_employee, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initial_employee_invitation_email'>initial_employee_invitation_email</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enroll Now: Your Health Plan Open Enrollment Period has Begun</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>initial_employee_invitation_email</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:census_employee</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="invitation_email-instance_method">
+  
+    #<strong>invitation_email</strong>(email, person_name, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_invitation_email'>invitation_email</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_person_name'>person_name</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invitation from your Employer to Sign up for Health Insurance at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invitation_email</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:person_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_person_name'>person_name</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="message_to_broker-instance_method">
+  
+    #<strong>message_to_broker</strong>(person, broker, params)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_message_to_broker'>message_to_broker</span><span class='lparen'>(</span><span class='id identifier rubyid_person'>person</span><span class='comma'>,</span> <span class='id identifier rubyid_broker'>broker</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_broker'>broker</span><span class='period'>.</span><span class='id identifier rubyid_email_address'>email_address</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_broker'>broker</span><span class='period'>.</span><span class='id identifier rubyid_email_address'>email_address</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:subject</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>from:</span> <span class='id identifier rubyid_person'>person</span><span class='period'>.</span><span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_email'>email</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>message_to_broker</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:person</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_person'>person</span><span class='comma'>,</span> <span class='symbol'>:broker</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_broker'>broker</span><span class='comma'>,</span> <span class='symbol'>:message_body</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:body</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new_client_notification-instance_method">
+  
+    #<strong>new_client_notification</strong>(agent_email, first_name, name, role, insured_email, is_person)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_new_client_notification'>new_client_notification</span><span class='lparen'>(</span><span class='id identifier rubyid_agent_email'>agent_email</span><span class='comma'>,</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_role'>role</span><span class='comma'>,</span> <span class='id identifier rubyid_insured_email'>insured_email</span><span class='comma'>,</span> <span class='id identifier rubyid_is_person'>is_person</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_agent_email'>agent_email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_subject'>subject</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>New Client Notification -[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>] email provided - [</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_insured_email'>insured_email</span><span class='embexpr_end'>}</span><span class='tstring_content'>]</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_agent_email'>agent_email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='id identifier rubyid_subject'>subject</span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>no-reply@individual.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_domain_name'>site_domain_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>new_client_notification</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>first_name:</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='comma'>,</span> <span class='symbol'>:role</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_role'>role</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="plan_shopping_completed-instance_method">
+  
+    #<strong>plan_shopping_completed</strong>(user, hbx_enrollment, plan_decorator)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_plan_shopping_completed'>plan_shopping_completed</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_hbx_enrollment'>hbx_enrollment</span><span class='comma'>,</span> <span class='id identifier rubyid_plan_decorator'>plan_decorator</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Your </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_site_short_name'>site_short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> Enrollment Confirmation</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>plan_shopping_completed</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:user</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='symbol'>:enrollment</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_hbx_enrollment'>hbx_enrollment</span><span class='comma'>,</span> <span class='symbol'>:plan</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_plan_decorator'>plan_decorator</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="renewal_invitation_email-instance_method">
+  
+    #<strong>renewal_invitation_email</strong>(email, census_employee, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_renewal_invitation_email'>renewal_invitation_email</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enroll Now: Your Health Plan Open Enrollment Period has Begun</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+    <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>renewal_invitation_email</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:census_employee</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_employee_ineligibility_notice-instance_method">
+  
+    #<strong>send_employee_ineligibility_notice</strong>(email, first_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100
+101
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_employee_ineligibility_notice'>send_employee_ineligibility_notice</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Settings</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span><span class='period'>.</span><span class='id identifier rubyid_short_name'>short_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> - Assistance Enrolling in Employer-sponsored Health Insurance</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#{mail_address}</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span><span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>employee_ineligibility_notice</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>first_name:</span> <span class='id identifier rubyid_first_name'>first_name</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_employee_open_enrollment_invitation-instance_method">
+  
+    #<strong>send_employee_open_enrollment_invitation</strong>(email, census_employee, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Email will sent to census employees as soon as they are added to the roster</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_employee_open_enrollment_invitation'>send_employee_open_enrollment_invitation</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='comment'># TODO - Move logic to model
+</span>  <span class='id identifier rubyid_benefit_applications'>benefit_applications</span> <span class='op'>=</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='period'>.</span><span class='id identifier rubyid_benefit_sponsorship'>benefit_sponsorship</span><span class='period'>.</span><span class='id identifier rubyid_benefit_applications'>benefit_applications</span><span class='period'>.</span><span class='id identifier rubyid_published'>published</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_ba'>ba</span><span class='op'>|</span> <span class='id identifier rubyid_ba'>ba</span><span class='period'>.</span><span class='id identifier rubyid_effective_period'>effective_period</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_census_employee'>census_employee</span><span class='period'>.</span><span class='id identifier rubyid_earliest_effective_date'>earliest_effective_date</span><span class='rparen'>)</span><span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_benefit_applications'>benefit_applications</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_ba'>ba</span><span class='op'>|</span> <span class='id identifier rubyid_ba'>ba</span><span class='period'>.</span><span class='id identifier rubyid_is_submitted?'>is_submitted?</span><span class='rbrace'>}</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_census_employee'>census_employee</span><span class='period'>.</span><span class='id identifier rubyid_hired_on'>hired_on</span> <span class='op'>&gt;</span> <span class='const'><span class='object_link'><a href="TimeKeeper.html" title="TimeKeeper (class)">TimeKeeper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_date_of_record'><span class='object_link'><a href="TimeKeeper.html#date_of_record-class_method" title="TimeKeeper.date_of_record (method)">date_of_record</a></span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You Have Been Invited to Sign Up for Employer-Sponsored Coverage through the </span><span class='embexpr_beg'>#{</span><span class='const'>Settings</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span><span class='period'>.</span><span class='id identifier rubyid_long_name'>long_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+        <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invite_future_employee_for_open_enrollment</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:census_employee</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enroll Now: Your Health Plan Open Enrollment Period has Begun</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+        <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invite_initial_employee_for_open_enrollment</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:census_employee</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_future_employee_open_enrollment_invitation-instance_method">
+  
+    #<strong>send_future_employee_open_enrollment_invitation</strong>(email, census_employee, invitation)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Email will be sent to census employees when they reach the DOH.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_future_employee_open_enrollment_invitation'>send_future_employee_open_enrollment_invitation</span><span class='lparen'>(</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='id identifier rubyid_invitation'>invitation</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_benefit_applications'>benefit_applications</span> <span class='op'>=</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='period'>.</span><span class='id identifier rubyid_benefit_sponsorship'>benefit_sponsorship</span><span class='period'>.</span><span class='id identifier rubyid_benefit_applications'>benefit_applications</span><span class='period'>.</span><span class='id identifier rubyid_published'>published</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_ba'>ba</span><span class='op'>|</span> <span class='id identifier rubyid_ba'>ba</span><span class='period'>.</span><span class='id identifier rubyid_effective_period'>effective_period</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_census_employee'>census_employee</span><span class='period'>.</span><span class='id identifier rubyid_earliest_effective_date'>earliest_effective_date</span><span class='rparen'>)</span><span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_benefit_applications'>benefit_applications</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_ba'>ba</span><span class='op'>|</span> <span class='id identifier rubyid_ba'>ba</span><span class='period'>.</span><span class='id identifier rubyid_is_submitted?'>is_submitted?</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enroll Now: Your Health Plan Open Enrollment Period has Begun</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_render'>render</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invite_initial_employee_for_open_enrollment</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:census_employee</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_census_employee'>census_employee</span><span class='comma'>,</span> <span class='symbol'>:invitation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_invitation'>invitation</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="welcome-instance_method">
+  
+    #<strong>welcome</strong>(user)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/mailers/user_mailer.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_welcome'>welcome</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_email'>email</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_mail'>mail</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>to:</span> <span class='id identifier rubyid_user'>user</span><span class='period'>.</span><span class='id identifier rubyid_email'>email</span><span class='comma'>,</span> <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Thank you for registering.</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_format'>format</span><span class='op'>|</span>
+      <span class='id identifier rubyid_format'>format</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:49:44 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

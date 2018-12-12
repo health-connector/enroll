@@ -1,0 +1,2742 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Notice
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Notice";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (N)</a> &raquo;
+    
+    
+    <span class="title">Notice</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Notice
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Notice</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Config/AcaHelper.html" title="Config::AcaHelper (module)">Config::AcaHelper</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html" title="Config::ContactCenterHelper (module)">Config::ContactCenterHelper</a></span>, <span class='object_link'><a href="Config/SiteHelper.html" title="Config::SiteHelper (module)">Config::SiteHelper</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/notices/notice.rb</dd>
+  </dl>
+  
+</div>
+
+<div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="GeneralAgencyNotice.html" title="GeneralAgencyNotice (class)">GeneralAgencyNotice</a></span>, <span class='object_link'><a href="IvlNotice.html" title="IvlNotice (class)">IvlNotice</a></span>, <span class='object_link'><a href="RenewalNotice.html" title="RenewalNotice (class)">RenewalNotice</a></span>, <span class='object_link'><a href="ShopBrokerNotice.html" title="ShopBrokerNotice (class)">ShopBrokerNotice</a></span>, <span class='object_link'><a href="ShopEmployeeNotice.html" title="ShopEmployeeNotice (class)">ShopEmployeeNotice</a></span>, <span class='object_link'><a href="ShopEmployerNotice.html" title="ShopEmployerNotice (class)">ShopEmployerNotice</a></span>, <span class='object_link'><a href="ShopGeneralAgencyNotice.html" title="ShopGeneralAgencyNotice (class)">ShopGeneralAgencyNotice</a></span></p>
+</div>
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="Required-constant" class="">Required =
+        
+      </dt>
+      <dd><pre class="code"><span class='lbracket'>[</span><span class='symbol'>:subject</span><span class='comma'>,</span><span class='symbol'>:mpi_indicator</span><span class='comma'>,</span><span class='symbol'>:template</span><span class='comma'>,</span><span class='symbol'>:recipient</span><span class='comma'>,</span><span class='symbol'>:notice</span><span class='comma'>,</span><span class='symbol'>:market_kind</span><span class='comma'>,</span><span class='symbol'>:event_name</span><span class='comma'>,</span><span class='symbol'>:recipient_document_store</span><span class='rbracket'>]</span></pre></dd>
+    
+  </dl>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#event_name-instance_method" title="#event_name (instance method)">#<strong>event_name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute event_name.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#file_name-instance_method" title="#file_name (instance method)">#<strong>file_name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute file_name.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from-instance_method" title="#from (instance method)">#<strong>from</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute from.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#header-instance_method" title="#header (instance method)">#<strong>header</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute header.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#market_kind-instance_method" title="#market_kind (instance method)">#<strong>market_kind</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute market_kind.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mpi_indicator-instance_method" title="#mpi_indicator (instance method)">#<strong>mpi_indicator</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute mpi_indicator.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute name.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notice-instance_method" title="#notice (instance method)">#<strong>notice</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute notice.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notice_data-instance_method" title="#notice_data (instance method)">#<strong>notice_data</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute notice_data.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#options-instance_method" title="#options (instance method)">#<strong>options</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute options.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#random_str-instance_method" title="#random_str (instance method)">#<strong>random_str</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute random_str.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recipient-instance_method" title="#recipient (instance method)">#<strong>recipient</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute recipient.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recipient_document_store-instance_method" title="#recipient_document_store (instance method)">#<strong>recipient_document_store</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute recipient_document_store.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sep-instance_method" title="#sep (instance method)">#<strong>sep</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute sep.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#state-instance_method" title="#state (instance method)">#<strong>state</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute state.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#subject-instance_method" title="#subject (instance method)">#<strong>subject</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute subject.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#template-instance_method" title="#template (instance method)">#<strong>template</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute template.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to-instance_method" title="#to (instance method)">#<strong>to</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute to.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clear_tmp-instance_method" title="#clear_tmp (instance method)">#<strong>clear_tmp</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_recipient_document-instance_method" title="#create_recipient_document (instance method)">#<strong>create_recipient_document</strong>(doc_uri)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_secure_inbox_message-instance_method" title="#create_secure_inbox_message (instance method)">#<strong>create_secure_inbox_message</strong>(notice)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#envelope_path-instance_method" title="#envelope_path (instance method)">#<strong>envelope_path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_pdf_notice-instance_method" title="#generate_pdf_notice (instance method)">#<strong>generate_pdf_notice</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#html-instance_method" title="#html (instance method)">#<strong>html</strong>(options = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(params = {})  &#x21d2; Notice </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Notice.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#join_pdfs-instance_method" title="#join_pdfs (instance method)">#<strong>join_pdfs</strong>(pdfs)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#layout-instance_method" title="#layout (instance method)">#<strong>layout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notice_filename-instance_method" title="#notice_filename (instance method)">#<strong>notice_filename</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notice_path-instance_method" title="#notice_path (instance method)">#<strong>notice_path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pdf-instance_method" title="#pdf (instance method)">#<strong>pdf</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pdf_options-instance_method" title="#pdf_options (instance method)">#<strong>pdf_options</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#save_html-instance_method" title="#save_html (instance method)">#<strong>save_html</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_email_notice-instance_method" title="#send_email_notice (instance method)">#<strong>send_email_notice</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_generic_notice_alert-instance_method" title="#send_generic_notice_alert (instance method)">#<strong>send_generic_notice_alert</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#store_paper_notice-instance_method" title="#store_paper_notice (instance method)">#<strong>store_paper_notice</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#upload_and_send_secure_message-instance_method" title="#upload_and_send_secure_message (instance method)">#<strong>upload_and_send_secure_message</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#upload_to_amazonS3-instance_method" title="#upload_to_amazonS3 (instance method)">#<strong>upload_to_amazonS3</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate_params-instance_method" title="#validate_params (instance method)">#<strong>validate_params</strong>(params)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Config/ContactCenterHelper.html" title="Config::ContactCenterHelper (module)">Config::ContactCenterHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_address_one-instance_method" title="Config::ContactCenterHelper#contact_center_address_one (method)">#contact_center_address_one</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_alt_fax_number-instance_method" title="Config::ContactCenterHelper#contact_center_alt_fax_number (method)">#contact_center_alt_fax_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_alt_name-instance_method" title="Config::ContactCenterHelper#contact_center_alt_name (method)">#contact_center_alt_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_alt_phone_number-instance_method" title="Config::ContactCenterHelper#contact_center_alt_phone_number (method)">#contact_center_alt_phone_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_address_one-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_address_one (method)">#contact_center_appeal_address_one</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_city-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_city (method)">#contact_center_appeal_city</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_name-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_name (method)">#contact_center_appeal_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_state-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_state (method)">#contact_center_appeal_state</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeal_zip-instance_method" title="Config::ContactCenterHelper#contact_center_appeal_zip (method)">#contact_center_appeal_zip</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeals-instance_method" title="Config::ContactCenterHelper#contact_center_appeals (method)">#contact_center_appeals</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_appeals_link-instance_method" title="Config::ContactCenterHelper#contact_center_appeals_link (method)">#contact_center_appeals_link</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_city-instance_method" title="Config::ContactCenterHelper#contact_center_city (method)">#contact_center_city</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_email_address-instance_method" title="Config::ContactCenterHelper#contact_center_email_address (method)">#contact_center_email_address</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_fax_number-instance_method" title="Config::ContactCenterHelper#contact_center_fax_number (method)">#contact_center_fax_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_ivl_number-instance_method" title="Config::ContactCenterHelper#contact_center_ivl_number (method)">#contact_center_ivl_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_ivl_phone_number-instance_method" title="Config::ContactCenterHelper#contact_center_ivl_phone_number (method)">#contact_center_ivl_phone_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_mailing_address_name-instance_method" title="Config::ContactCenterHelper#contact_center_mailing_address_name (method)">#contact_center_mailing_address_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_name-instance_method" title="Config::ContactCenterHelper#contact_center_name (method)">#contact_center_name</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_phone_number-instance_method" title="Config::ContactCenterHelper#contact_center_phone_number (method)">#contact_center_phone_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_postal_code-instance_method" title="Config::ContactCenterHelper#contact_center_postal_code (method)">#contact_center_postal_code</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_state-instance_method" title="Config::ContactCenterHelper#contact_center_state (method)">#contact_center_state</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#contact_center_tty_number-instance_method" title="Config::ContactCenterHelper#contact_center_tty_number (method)">#contact_center_tty_number</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_complaint_url-instance_method" title="Config::ContactCenterHelper#non_discrimination_complaint_url (method)">#non_discrimination_complaint_url</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_email-instance_method" title="Config::ContactCenterHelper#non_discrimination_email (method)">#non_discrimination_email</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_phone_1-instance_method" title="Config::ContactCenterHelper#non_discrimination_phone_1 (method)">#non_discrimination_phone_1</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_phone_2-instance_method" title="Config::ContactCenterHelper#non_discrimination_phone_2 (method)">#non_discrimination_phone_2</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#non_discrimination_phone_3-instance_method" title="Config::ContactCenterHelper#non_discrimination_phone_3 (method)">#non_discrimination_phone_3</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#small_business_email_link-instance_method" title="Config::ContactCenterHelper#small_business_email_link (method)">#small_business_email_link</a></span>, <span class='object_link'><a href="Config/ContactCenterHelper.html#small_businesss_email-instance_method" title="Config::ContactCenterHelper#small_businesss_email (method)">#small_businesss_email</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Config/SiteHelper.html" title="Config::SiteHelper (module)">Config::SiteHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Config/SiteHelper.html#find_your_doctor_url-instance_method" title="Config::SiteHelper#find_your_doctor_url (method)">#find_your_doctor_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#health_care_website-instance_method" title="Config::SiteHelper#health_care_website (method)">#health_care_website</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#health_care_website_url-instance_method" title="Config::SiteHelper#health_care_website_url (method)">#health_care_website_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#ivl_login_url-instance_method" title="Config::SiteHelper#ivl_login_url (method)">#ivl_login_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#link_to_make_their_premium_payments_online-instance_method" title="Config::SiteHelper#link_to_make_their_premium_payments_online (method)">#link_to_make_their_premium_payments_online</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#link_to_site_business_resource_center-instance_method" title="Config::SiteHelper#link_to_site_business_resource_center (method)">#link_to_site_business_resource_center</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#mail_address-instance_method" title="Config::SiteHelper#mail_address (method)">#mail_address</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#mail_non_discrimination_email-instance_method" title="Config::SiteHelper#mail_non_discrimination_email (method)">#mail_non_discrimination_email</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#non_discrimination_notice_url-instance_method" title="Config::SiteHelper#non_discrimination_notice_url (method)">#non_discrimination_notice_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_broker_quoting_enabled%3F-instance_method" title="Config::SiteHelper#site_broker_quoting_enabled? (method)">#site_broker_quoting_enabled?</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_brokers_agreement_path-instance_method" title="Config::SiteHelper#site_brokers_agreement_path (method)">#site_brokers_agreement_path</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_business_resource_center_url-instance_method" title="Config::SiteHelper#site_business_resource_center_url (method)">#site_business_resource_center_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_byline-instance_method" title="Config::SiteHelper#site_byline (method)">#site_byline</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_curam_enabled%3F-instance_method" title="Config::SiteHelper#site_curam_enabled? (method)">#site_curam_enabled?</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_document_verification_checklist_url-instance_method" title="Config::SiteHelper#site_document_verification_checklist_url (method)">#site_document_verification_checklist_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_domain_name-instance_method" title="Config::SiteHelper#site_domain_name (method)">#site_domain_name</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_employer_application_deadline_link-instance_method" title="Config::SiteHelper#site_employer_application_deadline_link (method)">#site_employer_application_deadline_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_faqs_url-instance_method" title="Config::SiteHelper#site_faqs_url (method)">#site_faqs_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_find_expert_link-instance_method" title="Config::SiteHelper#site_find_expert_link (method)">#site_find_expert_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_find_expert_url-instance_method" title="Config::SiteHelper#site_find_expert_url (method)">#site_find_expert_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_guidance_for_business_owners_url-instance_method" title="Config::SiteHelper#site_guidance_for_business_owners_url (method)">#site_guidance_for_business_owners_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_help_url-instance_method" title="Config::SiteHelper#site_help_url (method)">#site_help_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_home_business_url-instance_method" title="Config::SiteHelper#site_home_business_url (method)">#site_home_business_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_home_link-instance_method" title="Config::SiteHelper#site_home_link (method)">#site_home_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_home_url-instance_method" title="Config::SiteHelper#site_home_url (method)">#site_home_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_initial_earliest_start_prior_to_effective_on-instance_method" title="Config::SiteHelper#site_initial_earliest_start_prior_to_effective_on (method)">#site_initial_earliest_start_prior_to_effective_on</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_invoice_bill_url-instance_method" title="Config::SiteHelper#site_invoice_bill_url (method)">#site_invoice_bill_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_long_name-instance_method" title="Config::SiteHelper#site_long_name (method)">#site_long_name</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_address-instance_method" title="Config::SiteHelper#site_main_web_address (method)">#site_main_web_address</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_address_text-instance_method" title="Config::SiteHelper#site_main_web_address_text (method)">#site_main_web_address_text</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_address_url-instance_method" title="Config::SiteHelper#site_main_web_address_url (method)">#site_main_web_address_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_main_web_link-instance_method" title="Config::SiteHelper#site_main_web_link (method)">#site_main_web_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_make_their_premium_payments_online-instance_method" title="Config::SiteHelper#site_make_their_premium_payments_online (method)">#site_make_their_premium_payments_online</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_non_discrimination_complaint_url-instance_method" title="Config::SiteHelper#site_non_discrimination_complaint_url (method)">#site_non_discrimination_complaint_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_nondiscrimination_notice_url-instance_method" title="Config::SiteHelper#site_nondiscrimination_notice_url (method)">#site_nondiscrimination_notice_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_policies_url-instance_method" title="Config::SiteHelper#site_policies_url (method)">#site_policies_url</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_privacy_policy-instance_method" title="Config::SiteHelper#site_privacy_policy (method)">#site_privacy_policy</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_redirect_on_timeout_route-instance_method" title="Config::SiteHelper#site_redirect_on_timeout_route (method)">#site_redirect_on_timeout_route</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_registration_path-instance_method" title="Config::SiteHelper#site_registration_path (method)">#site_registration_path</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_short_name-instance_method" title="Config::SiteHelper#site_short_name (method)">#site_short_name</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_uses_default_devise_path%3F-instance_method" title="Config::SiteHelper#site_uses_default_devise_path? (method)">#site_uses_default_devise_path?</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_website_address-instance_method" title="Config::SiteHelper#site_website_address (method)">#site_website_address</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_website_link-instance_method" title="Config::SiteHelper#site_website_link (method)">#site_website_link</a></span>, <span class='object_link'><a href="Config/SiteHelper.html#site_website_name-instance_method" title="Config::SiteHelper#site_website_name (method)">#site_website_name</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Config/AcaHelper.html" title="Config::AcaHelper (module)">Config::AcaHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Config/AcaHelper.html#aca_address_query_county-instance_method" title="Config::AcaHelper#aca_address_query_county (method)">#aca_address_query_county</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_broker_routing_information-instance_method" title="Config::AcaHelper#aca_broker_routing_information (method)">#aca_broker_routing_information</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_primary_market-instance_method" title="Config::AcaHelper#aca_primary_market (method)">#aca_primary_market</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_recaptcha_enabled-instance_method" title="Config::AcaHelper#aca_recaptcha_enabled (method)">#aca_recaptcha_enabled</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_security_questions-instance_method" title="Config::AcaHelper#aca_security_questions (method)">#aca_security_questions</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_census_employees_template_file-instance_method" title="Config::AcaHelper#aca_shop_market_census_employees_template_file (method)">#aca_shop_market_census_employees_template_file</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_coverage_start_period-instance_method" title="Config::AcaHelper#aca_shop_market_coverage_start_period (method)">#aca_shop_market_coverage_start_period</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_employer_contribution_percent_minimum-instance_method" title="Config::AcaHelper#aca_shop_market_employer_contribution_percent_minimum (method)">#aca_shop_market_employer_contribution_percent_minimum</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_employer_family_contribution_percent_minimum-instance_method" title="Config::AcaHelper#aca_shop_market_employer_family_contribution_percent_minimum (method)">#aca_shop_market_employer_family_contribution_percent_minimum</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_new_employee_paper_application_is_enabled%3F-instance_method" title="Config::AcaHelper#aca_shop_market_new_employee_paper_application_is_enabled? (method)">#aca_shop_market_new_employee_paper_application_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_shop_market_valid_employer_attestation_documents_url-instance_method" title="Config::AcaHelper#aca_shop_market_valid_employer_attestation_documents_url (method)">#aca_shop_market_valid_employer_attestation_documents_url</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_state_abbreviation-instance_method" title="Config::AcaHelper#aca_state_abbreviation (method)">#aca_state_abbreviation</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_state_name-instance_method" title="Config::AcaHelper#aca_state_name (method)">#aca_state_name</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#aca_user_accounts_enabled-instance_method" title="Config::AcaHelper#aca_user_accounts_enabled (method)">#aca_user_accounts_enabled</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#broker_carrier_appointments_enabled%3F-instance_method" title="Config::AcaHelper#broker_carrier_appointments_enabled? (method)">#broker_carrier_appointments_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#calendar_is_enabled%3F-instance_method" title="Config::AcaHelper#calendar_is_enabled? (method)">#calendar_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#carrier_special_plan_identifier_namespace-instance_method" title="Config::AcaHelper#carrier_special_plan_identifier_namespace (method)">#carrier_special_plan_identifier_namespace</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#check_plan_options_title-instance_method" title="Config::AcaHelper#check_plan_options_title (method)">#check_plan_options_title</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#dental_market_enabled%3F-instance_method" title="Config::AcaHelper#dental_market_enabled? (method)">#dental_market_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#display_plan_cost_warning-instance_method" title="Config::AcaHelper#display_plan_cost_warning (method)">#display_plan_cost_warning</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#employer_attestation_is_enabled%3F-instance_method" title="Config::AcaHelper#employer_attestation_is_enabled? (method)">#employer_attestation_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_metal_level_years-instance_method" title="Config::AcaHelper#enabled_metal_level_years (method)">#enabled_metal_level_years</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_metal_levels_for_single_carrier-instance_method" title="Config::AcaHelper#enabled_metal_levels_for_single_carrier (method)">#enabled_metal_levels_for_single_carrier</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_single_carrier_years-instance_method" title="Config::AcaHelper#enabled_single_carrier_years (method)">#enabled_single_carrier_years</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#enabled_sole_source_years-instance_method" title="Config::AcaHelper#enabled_sole_source_years (method)">#enabled_sole_source_years</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_file_format-instance_method" title="Config::AcaHelper#fetch_file_format (method)">#fetch_file_format</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_invoices_addendum-instance_method" title="Config::AcaHelper#fetch_invoices_addendum (method)">#fetch_invoices_addendum</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_plan_title_for_metal_level-instance_method" title="Config::AcaHelper#fetch_plan_title_for_metal_level (method)">#fetch_plan_title_for_metal_level</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_plan_title_for_single_carrier-instance_method" title="Config::AcaHelper#fetch_plan_title_for_single_carrier (method)">#fetch_plan_title_for_single_carrier</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#fetch_plan_title_for_sole_source-instance_method" title="Config::AcaHelper#fetch_plan_title_for_sole_source (method)">#fetch_plan_title_for_sole_source</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#general_agency_enabled%3F-instance_method" title="Config::AcaHelper#general_agency_enabled? (method)">#general_agency_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#individual_market_is_enabled%3F-instance_method" title="Config::AcaHelper#individual_market_is_enabled? (method)">#individual_market_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#invoice_bill_url_helper-instance_method" title="Config::AcaHelper#invoice_bill_url_helper (method)">#invoice_bill_url_helper</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#market_rating_areas-instance_method" title="Config::AcaHelper#market_rating_areas (method)">#market_rating_areas</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#metal_levels_explained-instance_method" title="Config::AcaHelper#metal_levels_explained (method)">#metal_levels_explained</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#multiple_market_rating_areas%3F-instance_method" title="Config::AcaHelper#multiple_market_rating_areas? (method)">#multiple_market_rating_areas?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offer_sole_source%3F-instance_method" title="Config::AcaHelper#offer_sole_source? (method)">#offer_sole_source?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_metal_level%3F-instance_method" title="Config::AcaHelper#offers_metal_level? (method)">#offers_metal_level?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_nationwide_plans%3F-instance_method" title="Config::AcaHelper#offers_nationwide_plans? (method)">#offers_nationwide_plans?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_single_carrier%3F-instance_method" title="Config::AcaHelper#offers_single_carrier? (method)">#offers_single_carrier?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#offers_single_plan%3F-instance_method" title="Config::AcaHelper#offers_single_plan? (method)">#offers_single_plan?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#payment_pdf_helper-instance_method" title="Config::AcaHelper#payment_pdf_helper (method)">#payment_pdf_helper</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#payment_phone_number-instance_method" title="Config::AcaHelper#payment_phone_number (method)">#payment_phone_number</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#plan_match_tool_is_enabled%3F-instance_method" title="Config::AcaHelper#plan_match_tool_is_enabled? (method)">#plan_match_tool_is_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#site_broker_claim_quoting_enabled%3F-instance_method" title="Config::AcaHelper#site_broker_claim_quoting_enabled? (method)">#site_broker_claim_quoting_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#site_broker_quoting_enabled%3F-instance_method" title="Config::AcaHelper#site_broker_quoting_enabled? (method)">#site_broker_quoting_enabled?</a></span>, <span class='object_link'><a href="Config/AcaHelper.html#use_simple_employer_calculation_model%3F-instance_method" title="Config::AcaHelper#use_simple_employer_calculation_model? (method)">#use_simple_employer_calculation_model?</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(params = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Notice (class)">Notice</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Notice</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_validate_params'>validate_params</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_subject'>subject</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:subject</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>notice_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_random_str'>random_str</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mpi_indicator'>mpi_indicator</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:mpi_indicator</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_template'>template</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:template</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_notice'>notice</span><span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:notice</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_event_name'>event_name</span><span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:event_name</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_market_kind'>market_kind</span><span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:market_kind</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_recipient'>recipient</span><span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:recipient</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_recipient_document_store'>recipient_document_store</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:recipient_document_store</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to'>to</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:to</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:options</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:state</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:options</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_recipient'>recipient</span><span class='period'>.</span><span class='id identifier rubyid_first_name'>first_name</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sep'>sep</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:options</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:sep</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:options</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="event_name=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="event_name-instance_method">
+  
+    #<strong>event_name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute event_name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_event_name'>event_name</span>
+  <span class='ivar'>@event_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="file_name=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="file_name-instance_method">
+  
+    #<strong>file_name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute file_name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_file_name'>file_name</span>
+  <span class='ivar'>@file_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="from=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="from-instance_method">
+  
+    #<strong>from</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute from</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_from'>from</span>
+  <span class='ivar'>@from</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="header=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="header-instance_method">
+  
+    #<strong>header</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_header'>header</span>
+  <span class='ivar'>@header</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="market_kind=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="market_kind-instance_method">
+  
+    #<strong>market_kind</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute market_kind</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_market_kind'>market_kind</span>
+  <span class='ivar'>@market_kind</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="mpi_indicator=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mpi_indicator-instance_method">
+  
+    #<strong>mpi_indicator</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute mpi_indicator</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mpi_indicator'>mpi_indicator</span>
+  <span class='ivar'>@mpi_indicator</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="name=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='ivar'>@name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="notice=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="notice-instance_method">
+  
+    #<strong>notice</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute notice</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notice'>notice</span>
+  <span class='ivar'>@notice</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="notice_data=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="notice_data-instance_method">
+  
+    #<strong>notice_data</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute notice_data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notice_data'>notice_data</span>
+  <span class='ivar'>@notice_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="options=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="options-instance_method">
+  
+    #<strong>options</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute options</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_options'>options</span>
+  <span class='ivar'>@options</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="random_str=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="random_str-instance_method">
+  
+    #<strong>random_str</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute random_str</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_random_str'>random_str</span>
+  <span class='ivar'>@random_str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="recipient=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="recipient-instance_method">
+  
+    #<strong>recipient</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute recipient</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recipient'>recipient</span>
+  <span class='ivar'>@recipient</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="recipient_document_store=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="recipient_document_store-instance_method">
+  
+    #<strong>recipient_document_store</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute recipient_document_store</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recipient_document_store'>recipient_document_store</span>
+  <span class='ivar'>@recipient_document_store</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sep=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sep-instance_method">
+  
+    #<strong>sep</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute sep</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sep'>sep</span>
+  <span class='ivar'>@sep</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="state=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="state-instance_method">
+  
+    #<strong>state</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute state</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_state'>state</span>
+  <span class='ivar'>@state</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="subject=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="subject-instance_method">
+  
+    #<strong>subject</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute subject</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_subject'>subject</span>
+  <span class='ivar'>@subject</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="template=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="template-instance_method">
+  
+    #<strong>template</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute template</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_template'>template</span>
+  <span class='ivar'>@template</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="to=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="to-instance_method">
+  
+    #<strong>to</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute to</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to'>to</span>
+  <span class='ivar'>@to</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="clear_tmp-instance_method">
+  
+    #<strong>clear_tmp</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+179
+180
+181
+182</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 179</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clear_tmp'>clear_tmp</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_envelope_path'>envelope_path</span><span class='rparen'>)</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_notice_path'>notice_path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_recipient_document-instance_method">
+  
+    #<strong>create_recipient_document</strong>(doc_uri)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 156</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_recipient_document'>create_recipient_document</span><span class='lparen'>(</span><span class='id identifier rubyid_doc_uri'>doc_uri</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notice'>notice</span> <span class='op'>=</span> <span class='id identifier rubyid_recipient_document_store'>recipient_document_store</span><span class='period'>.</span><span class='id identifier rubyid_documents'>documents</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='label'>title:</span> <span class='id identifier rubyid_notice_filename'>notice_filename</span><span class='comma'>,</span>
+    <span class='label'>creator:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hbx_staff</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>notice</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='label'>identifier:</span> <span class='id identifier rubyid_doc_uri'>doc_uri</span><span class='comma'>,</span>
+    <span class='label'>format:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>application/pdf</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_notice'>notice</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span>
+    <span class='id identifier rubyid_notice'>notice</span>
+  <span class='kw'>else</span>
+    <span class='comment'># LOG ERROR
+</span>  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_secure_inbox_message-instance_method">
+  
+    #<strong>create_secure_inbox_message</strong>(notice)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173
+174
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_secure_inbox_message'>create_secure_inbox_message</span><span class='lparen'>(</span><span class='id identifier rubyid_notice'>notice</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;br&gt;You can download the notice by clicking this link </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;a href=</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_application'>application</span><span class='period'>.</span><span class='id identifier rubyid_routes'>routes</span><span class='period'>.</span><span class='id identifier rubyid_url_helpers'>url_helpers</span><span class='period'>.</span><span class='id identifier rubyid_authorized_document_download_path'>authorized_document_download_path</span><span class='lparen'>(</span><span class='id identifier rubyid_recipient'>recipient</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+            <span class='id identifier rubyid_recipient'>recipient</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>documents</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_notice'>notice</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>?content_type=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_notice'>notice</span><span class='period'>.</span><span class='id identifier rubyid_format'>format</span><span class='embexpr_end'>}</span><span class='tstring_content'>&amp;filename=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_notice'>notice</span><span class='period'>.</span><span class='id identifier rubyid_title'>title</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^0-9a-z]</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>.pdf&amp;disposition=inline</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> target=&#39;_blank&#39;&gt;</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_notice'>notice</span><span class='period'>.</span><span class='id identifier rubyid_title'>title</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;/a&gt;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='id identifier rubyid_recipient'>recipient</span><span class='period'>.</span><span class='id identifier rubyid_inbox'>inbox</span><span class='period'>.</span><span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='lbrace'>{</span> <span class='label'>subject:</span> <span class='id identifier rubyid_subject'>subject</span><span class='comma'>,</span> <span class='label'>body:</span> <span class='id identifier rubyid_body'>body</span><span class='comma'>,</span> <span class='label'>from:</span> <span class='id identifier rubyid_site_short_name'>site_short_name</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="envelope_path-instance_method">
+  
+    #<strong>envelope_path</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_envelope_path'>envelope_path</span>
+  <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_root'>root</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>envelope_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_random_str'>random_str</span><span class='embexpr_end'>}</span><span class='tstring_content'>.pdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_pdf_notice-instance_method">
+  
+    #<strong>generate_pdf_notice</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_pdf_notice'>generate_pdf_notice</span>
+  <span class='kw'>begin</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_notice_path'>notice_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+      <span class='id identifier rubyid_file'>file</span> <span class='op'>&lt;&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pdf'>pdf</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># notice_path
+</span>  <span class='comment'># clear_tmp
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="html-instance_method">
+  
+    #<strong>html</strong>(options = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_html'>html</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="ApplicationController.html" title="ApplicationController (class)">ApplicationController</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_render_to_string'>render_to_string</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='symbol'>:template</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:custom_template</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_template'>template</span><span class='comma'>,</span>
+    <span class='symbol'>:layout</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_layout'>layout</span><span class='comma'>,</span>
+    <span class='symbol'>:locals</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>notice:</span> <span class='id identifier rubyid_notice'>notice</span> <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="join_pdfs-instance_method">
+  
+    #<strong>join_pdfs</strong>(pdfs)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_join_pdfs'>join_pdfs</span><span class='lparen'>(</span><span class='id identifier rubyid_pdfs'>pdfs</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pdf'>pdf</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_pdfs'>pdfs</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='const'>CombinePDF</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='id identifier rubyid_pdfs'>pdfs</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='const'>CombinePDF</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_pdf'>pdf</span> <span class='op'>&lt;&lt;</span> <span class='const'>CombinePDF</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='id identifier rubyid_pdfs'>pdfs</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pdf'>pdf</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span> <span class='id identifier rubyid_notice_path'>notice_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="layout-instance_method">
+  
+    #<strong>layout</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_layout'>layout</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_market_kind'>market_kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>individual</span><span class='tstring_end'>&#39;</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ivl_pdf_notice</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pdf_notice</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notice_filename-instance_method">
+  
+    #<strong>notice_filename</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notice_filename'>notice_filename</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_subject'>subject</span><span class='period'>.</span><span class='id identifier rubyid_titleize'>titleize</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^0-9a-z]</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notice_path-instance_method">
+  
+    #<strong>notice_path</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notice_path'>notice_path</span>
+  <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_root'>root</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_notice_filename'>notice_filename</span><span class='embexpr_end'>}</span><span class='tstring_content'>.pdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pdf-instance_method">
+  
+    #<strong>pdf</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pdf'>pdf</span>
+  <span class='const'>WickedPdf</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_pdf_from_string'>pdf_from_string</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>kind:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pdf</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_pdf_options'>pdf_options</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pdf_options-instance_method">
+  
+    #<strong>pdf_options</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pdf_options'>pdf_options</span>
+  <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>margin:</span>  <span class='lbrace'>{</span>
+      <span class='label'>top:</span> <span class='int'>10</span><span class='comma'>,</span>
+      <span class='label'>bottom:</span> <span class='int'>20</span><span class='comma'>,</span>
+      <span class='label'>left:</span> <span class='int'>22</span><span class='comma'>,</span>
+      <span class='label'>right:</span> <span class='int'>22</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>disable_smart_shrinking:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>dpi:</span> <span class='int'>96</span><span class='comma'>,</span>
+    <span class='label'>page_size:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Letter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>formats:</span> <span class='symbol'>:html</span><span class='comma'>,</span>
+    <span class='label'>encoding:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf8</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>header:</span> <span class='lbrace'>{</span>
+      <span class='label'>content:</span> <span class='const'><span class='object_link'><a href="ApplicationController.html" title="ApplicationController (class)">ApplicationController</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_render_to_string'>render_to_string</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+        <span class='label'>template:</span> <span class='id identifier rubyid_header'>header</span><span class='comma'>,</span>
+        <span class='label'>layout:</span> <span class='kw'>false</span><span class='comma'>,</span>
+        <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>recipient:</span> <span class='id identifier rubyid_recipient'>recipient</span><span class='comma'>,</span> <span class='label'>notice:</span> <span class='id identifier rubyid_notice'>notice</span><span class='rbrace'>}</span>
+        <span class='rbrace'>}</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_footer'>footer</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_market_kind'>market_kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>individual</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>notices/shared/footer_ivl.html.erb</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>notices/shared/footer.html.erb</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>footer:</span> <span class='lbrace'>{</span>
+      <span class='label'>content:</span> <span class='const'><span class='object_link'><a href="ApplicationController.html" title="ApplicationController (class)">ApplicationController</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_render_to_string'>render_to_string</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+        <span class='label'>template:</span> <span class='id identifier rubyid_footer'>footer</span><span class='comma'>,</span>
+        <span class='label'>layout:</span> <span class='kw'>false</span><span class='comma'>,</span>
+        <span class='label'>locals:</span> <span class='lbrace'>{</span><span class='label'>notice:</span> <span class='id identifier rubyid_notice'>notice</span><span class='rbrace'>}</span>
+      <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="save_html-instance_method">
+  
+    #<strong>save_html</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101
+102
+103</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_save_html'>save_html</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_root'>root</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>notice.html</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+    <span class='id identifier rubyid_file'>file</span> <span class='op'>&lt;&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_html'>html</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_email_notice-instance_method">
+  
+    #<strong>send_email_notice</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_email_notice'>send_email_notice</span>
+  <span class='const'><span class='object_link'><a href="ApplicationMailer.html" title="ApplicationMailer (class)">ApplicationMailer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_notice_email'><span class='object_link'><a href="ApplicationMailer.html#notice_email-instance_method" title="ApplicationMailer#notice_email (method)">notice_email</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_deliver_now'>deliver_now</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_generic_notice_alert-instance_method">
+  
+    #<strong>send_generic_notice_alert</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>recipient</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>is a Person object</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 136</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_generic_notice_alert'>send_generic_notice_alert</span>
+  <span class='const'><span class='object_link'><a href="UserMailer.html" title="UserMailer (class)">UserMailer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_generic_notice_alert'><span class='object_link'><a href="UserMailer.html#generic_notice_alert-instance_method" title="UserMailer#generic_notice_alert (method)">generic_notice_alert</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span><span class='id identifier rubyid_subject'>subject</span><span class='comma'>,</span><span class='id identifier rubyid_to'>to</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_deliver_now'>deliver_now</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="store_paper_notice-instance_method">
+  
+    #<strong>store_paper_notice</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_store_paper_notice'>store_paper_notice</span>
+  <span class='id identifier rubyid_bucket_name'>bucket_name</span><span class='op'>=</span> <span class='const'>Settings</span><span class='period'>.</span><span class='id identifier rubyid_paper_notice'>paper_notice</span>
+  <span class='id identifier rubyid_notice_filename_for_paper_notice'>notice_filename_for_paper_notice</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_recipient'>recipient</span><span class='period'>.</span><span class='id identifier rubyid_hbx_id'>hbx_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_subject'>subject</span><span class='period'>.</span><span class='id identifier rubyid_titleize'>titleize</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\s*</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_notice_path_for_paper_notice'>notice_path_for_paper_notice</span> <span class='op'>=</span> <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_root'>root</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_notice_filename_for_paper_notice'>notice_filename_for_paper_notice</span><span class='embexpr_end'>}</span><span class='tstring_content'>.pdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_cp'>cp</span><span class='lparen'>(</span><span class='id identifier rubyid_notice_path'>notice_path</span><span class='comma'>,</span> <span class='id identifier rubyid_notice_path_for_paper_notice'>notice_path_for_paper_notice</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_doc_uri'>doc_uri</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Aws.html" title="Aws (module)">Aws</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Aws/S3Storage.html" title="Aws::S3Storage (class)">S3Storage</a></span></span><span class='period'>.</span><span class='id identifier rubyid_save'><span class='object_link'><a href="Aws/S3Storage.html#save-class_method" title="Aws::S3Storage.save (method)">save</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_notice_path_for_paper_notice'>notice_path_for_paper_notice</span><span class='comma'>,</span><span class='id identifier rubyid_bucket_name'>bucket_name</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_notice_filename_for_paper_notice'>notice_filename_for_paper_notice</span><span class='embexpr_end'>}</span><span class='tstring_content'>.pdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_notice_path_for_paper_notice'>notice_path_for_paper_notice</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to upload paper notices to Amazon</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># paper_notices_folder = &quot;#{Rails.root.to_s}/public/paper_notices/&quot;
+</span>  <span class='comment'># FileUtils.cp(notice_path, &quot;#{Rails.root.to_s}/public/paper_notices/&quot;)
+</span>  <span class='comment'># File.rename(paper_notices_folder + , paper_notices_folder + &quot;#{recipient.hbx_id}_&quot; + notice_filename + File.extname(notice_path))
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="upload_and_send_secure_message-instance_method">
+  
+    #<strong>upload_and_send_secure_message</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+123
+124
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 123</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_upload_and_send_secure_message'>upload_and_send_secure_message</span>
+  <span class='id identifier rubyid_doc_uri'>doc_uri</span> <span class='op'>=</span> <span class='id identifier rubyid_upload_to_amazonS3'>upload_to_amazonS3</span>
+  <span class='id identifier rubyid_notice'>notice</span>  <span class='op'>=</span> <span class='id identifier rubyid_create_recipient_document'>create_recipient_document</span><span class='lparen'>(</span><span class='id identifier rubyid_doc_uri'>doc_uri</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_create_secure_inbox_message'>create_secure_inbox_message</span><span class='lparen'>(</span><span class='id identifier rubyid_notice'>notice</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="upload_to_amazonS3-instance_method">
+  
+    #<strong>upload_to_amazonS3</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+129
+130
+131
+132
+133</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 129</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_upload_to_amazonS3'>upload_to_amazonS3</span>
+  <span class='const'><span class='object_link'><a href="Aws.html" title="Aws (module)">Aws</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Aws/S3Storage.html" title="Aws::S3Storage (class)">S3Storage</a></span></span><span class='period'>.</span><span class='id identifier rubyid_save'><span class='object_link'><a href="Aws/S3Storage.html#save-class_method" title="Aws::S3Storage.save (method)">save</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_notice_path'>notice_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>notices</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unable to upload to amazon </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate_params-instance_method">
+  
+    #<strong>validate_params</strong>(params)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+184
+185
+186
+187
+188
+189
+190
+191</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/notices/notice.rb', line 184</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_params'>validate_params</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_errors'>errors</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='op'>::</span><span class='const'>Required</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_errors'>errors</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_key'>key</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Required params </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> ,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> not present</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:49:37 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

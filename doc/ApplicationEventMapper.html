@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: ApplicationEventMapper
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "ApplicationEventMapper";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (A)</a> &raquo;
+    
+    
+    <span class="title">ApplicationEventMapper</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: ApplicationEventMapper
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">ApplicationEventMapper</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/application_event_mapper.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="ApplicationEventMapper/Resource.html" title="ApplicationEventMapper::Resource (class)">Resource</a></span>, <span class='object_link'><a href="ApplicationEventMapper/ResourceReverseLookup.html" title="ApplicationEventMapper::ResourceReverseLookup (class)">ResourceReverseLookup</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="EVENT_PREFIX-constant" class="">EVENT_PREFIX =
+        
+      </dt>
+      <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>acapi.info.events.</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+    
+      <dt id="EVENT_MAP-constant" class="">EVENT_MAP =
+        
+      </dt>
+      <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='label'>employer:</span> <span class='lbrace'>{</span>
+      <span class='label'>binder_paid:</span> <span class='symbol'>:benefit_coverage_initial_binder_paid</span><span class='comma'>,</span>        
+    <span class='rbrace'>}</span>
+<span class='rbrace'>}</span></pre></dd>
+    
+      <dt id="RESOURCE_MAP-constant" class="">RESOURCE_MAP =
+        
+      </dt>
+      <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EmployerProfile</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper/Resource.html" title="ApplicationEventMapper::Resource (class)">Resource</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:employer</span><span class='comma'>,</span> <span class='symbol'>:hbx_id</span><span class='comma'>,</span> <span class='symbol'>:employer_id</span><span class='comma'>,</span> <span class='symbol'>:by_hbx_id</span><span class='rparen'>)</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ConsumerRole</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper/Resource.html" title="ApplicationEventMapper::Resource (class)">Resource</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:consumer_role</span><span class='comma'>,</span> <span class='symbol'>:id</span><span class='comma'>,</span> <span class='symbol'>:consumer_role_id</span><span class='comma'>,</span> <span class='symbol'>:find</span><span class='rparen'>)</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EmployeeRole</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper/Resource.html" title="ApplicationEventMapper::Resource (class)">Resource</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:employee</span><span class='comma'>,</span> <span class='symbol'>:id</span><span class='comma'>,</span> <span class='symbol'>:employee_role_id</span><span class='comma'>,</span> <span class='symbol'>:find</span><span class='rparen'>)</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CensusEmployee</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper/Resource.html" title="ApplicationEventMapper::Resource (class)">Resource</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:census_employee</span><span class='comma'>,</span> <span class='symbol'>:id</span><span class='comma'>,</span> <span class='symbol'>:census_employee_id</span><span class='comma'>,</span> <span class='symbol'>:find</span><span class='rparen'>)</span>
+<span class='rbrace'>}</span></pre></dd>
+    
+      <dt id="REVERSE_LOOKUP_MAP-constant" class="">REVERSE_LOOKUP_MAP =
+        
+      </dt>
+      <dd><pre class="code"><span class='const'><span class='object_link'><a href="#RESOURCE_MAP-constant" title="ApplicationEventMapper::RESOURCE_MAP (constant)">RESOURCE_MAP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_acc'>acc</span><span class='comma'>,</span> <span class='id identifier rubyid_vals'>vals</span><span class='op'>|</span>
+  <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_mapping'>mapping</span> <span class='op'>=</span> <span class='id identifier rubyid_vals'>vals</span>
+  <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='id identifier rubyid_mapping'>mapping</span><span class='period'>.</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper/ResourceReverseLookup.html" title="ApplicationEventMapper::ResourceReverseLookup (class)">ResourceReverseLookup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_constantize'>constantize</span><span class='comma'>,</span> <span class='id identifier rubyid_mapping'>mapping</span><span class='period'>.</span><span class='id identifier rubyid_identifier_key'>identifier_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='id identifier rubyid_mapping'>mapping</span><span class='period'>.</span><span class='id identifier rubyid_search_method'>search_method</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_acc'>acc</span>
+<span class='kw'>end</span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extract_event_parts-class_method" title="extract_event_parts (class method)">.<strong>extract_event_parts</strong>(event_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lookup_resource_mapping-class_method" title="lookup_resource_mapping (class method)">.<strong>lookup_resource_mapping</strong>(event_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#map_event_name-class_method" title="map_event_name (class method)">.<strong>map_event_name</strong>(resource_mapping, transition_event_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#map_resource-class_method" title="map_resource (class method)">.<strong>map_resource</strong>(resource_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="extract_event_parts-class_method">
+  
+    .<strong>extract_event_parts</strong>(event_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_mapper.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extract_event_parts'>extract_event_parts</span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_event_parts'>event_parts</span> <span class='op'>=</span> <span class='id identifier rubyid_event_name'>event_name</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_event_parts'>event_parts</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_event_parts'>event_parts</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lookup_resource_mapping-class_method">
+  
+    .<strong>lookup_resource_mapping</strong>(event_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_mapper.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lookup_resource_mapping'>lookup_resource_mapping</span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resource_name'>resource_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_garbage_i_dont_care_about'>garbage_i_dont_care_about</span> <span class='op'>=</span> <span class='id identifier rubyid_extract_event_parts'>extract_event_parts</span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="#REVERSE_LOOKUP_MAP-constant" title="ApplicationEventMapper::REVERSE_LOOKUP_MAP (constant)">REVERSE_LOOKUP_MAP</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#REVERSE_LOOKUP_MAP-constant" title="ApplicationEventMapper::REVERSE_LOOKUP_MAP (constant)">REVERSE_LOOKUP_MAP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="ApplicationEventMapper/ResourceReverseLookup.html" title="ApplicationEventMapper::ResourceReverseLookup (class)">ResourceReverseLookup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='period'>.</span><span class='id identifier rubyid_camelize'>camelize</span><span class='period'>.</span><span class='id identifier rubyid_constantize'>constantize</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>_id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:find</span><span class='rparen'>)</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="map_event_name-class_method">
+  
+    .<strong>map_event_name</strong>(resource_mapping, transition_event_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_mapper.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_map_event_name'>map_event_name</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_mapping'>resource_mapping</span><span class='comma'>,</span> <span class='id identifier rubyid_transition_event_name'>transition_event_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_event_name'>event_name</span> <span class='op'>=</span> <span class='id identifier rubyid_transition_event_name'>transition_event_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\!$</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+  <span class='id identifier rubyid_resource_prefix'>resource_prefix</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#EVENT_PREFIX-constant" title="ApplicationEventMapper::EVENT_PREFIX (constant)">EVENT_PREFIX</a></span></span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_resource_mapping'>resource_mapping</span><span class='period'>.</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#EVENT_MAP-constant" title="ApplicationEventMapper::EVENT_MAP (constant)">EVENT_MAP</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_resource_mapping'>resource_mapping</span><span class='period'>.</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='const'><span class='object_link'><a href="#EVENT_MAP-constant" title="ApplicationEventMapper::EVENT_MAP (constant)">EVENT_MAP</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_resource_mapping'>resource_mapping</span><span class='period'>.</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_event_name'>event_name</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#EVENT_MAP-constant" title="ApplicationEventMapper::EVENT_MAP (constant)">EVENT_MAP</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_resource_mapping'>resource_mapping</span><span class='period'>.</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_resource_prefix'>resource_prefix</span> <span class='op'>+</span> <span class='id identifier rubyid_event_name'>event_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="map_resource-class_method">
+  
+    .<strong>map_resource</strong>(resource_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_mapper.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_map_resource'>map_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="#RESOURCE_MAP-constant" title="ApplicationEventMapper::RESOURCE_MAP (constant)">RESOURCE_MAP</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#RESOURCE_MAP-constant" title="ApplicationEventMapper::RESOURCE_MAP (constant)">RESOURCE_MAP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_name'>resource_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_mapped_name'>mapped_name</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_name'>resource_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_underscore'>underscore</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+  <span class='const'><span class='object_link'><a href="ApplicationEventMapper/Resource.html" title="ApplicationEventMapper::Resource (class)">Resource</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_mapped_name'>mapped_name</span><span class='comma'>,</span> <span class='symbol'>:id</span><span class='comma'>,</span> <span class='lparen'>(</span><span class='id identifier rubyid_mapped_name'>mapped_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_id</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='symbol'>:find</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:10 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: ApplicationEventKind
+  
+    &mdash; Documentation by YARD 0.9.12
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "ApplicationEventKind";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (A)</a> &raquo;
+    
+    
+    <span class="title">ApplicationEventKind</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: ApplicationEventKind
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">ApplicationEventKind</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>Mongoid::Document</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>app/models/application_event_kind.rb</dd>
+  </dl>
+  
+</div>
+
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="RESOURCE_NAME_KINDS-constant" class="">RESOURCE_NAME_KINDS =
+        <div class="docstring">
+  <div class="discussion">
+    
+<p>PERSON_CREATED_EVENT_NAME = “acapi.info.events.individual.created”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+      </dt>
+      <dd><pre class="code"><span class='qwords_beg'>%w(
+</span><span class='tstring_content'>  family</span><span class='words_sep'> 
+</span><span class='tstring_content'>  employer</span><span class='words_sep'>
+</span><span class='tstring_content'>  employee_role</span><span class='words_sep'> 
+</span><span class='tstring_content'>  consumer_role</span><span class='words_sep'> 
+</span><span class='tstring_content'>  broker_agency_profile</span><span class='words_sep'> 
+</span><span class='tstring_content'>  broker_role</span><span class='words_sep'> 
+</span><span class='tstring_content'>  issuer_profile</span><span class='words_sep'> 
+</span><span class='tstring_content'>  general_agent_profile</span><span class='words_sep'>
+</span><span class='tstring_end'>)</span></span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#application_events_for-class_method" title="application_events_for (class method)">.<strong>application_events_for</strong>(event_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#event_name=-instance_method" title="#event_name= (instance method)">#<strong>event_name=</strong>(new_event_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#execute_notices-instance_method" title="#execute_notices (instance method)">#<strong>execute_notices</strong>(event_name, payload)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_events-instance_method" title="#resource_events (instance method)">#<strong>resource_events</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_name=-instance_method" title="#resource_name= (instance method)">#<strong>resource_name=</strong>(new_resource_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="application_events_for-class_method">
+  
+    .<strong>application_events_for</strong>(event_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_kind.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_application_events_for'>application_events_for</span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resource_name'>resource_name</span><span class='comma'>,</span> <span class='id identifier rubyid_event_name'>event_name</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper.html" title="ApplicationEventMapper (class)">ApplicationEventMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_extract_event_parts'><span class='object_link'><a href="ApplicationEventMapper.html#extract_event_parts-class_method" title="ApplicationEventMapper.extract_event_parts (method)">extract_event_parts</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>event_name:</span> <span class='id identifier rubyid_event_name'>event_name</span><span class='comma'>,</span> <span class='label'>resource_name:</span> <span class='id identifier rubyid_resource_name'>resource_name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="event_name=-instance_method">
+  
+    #<strong>event_name=</strong>(new_event_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_kind.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_event_name='>event_name=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_event_name'>new_event_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write_attribute'>write_attribute</span><span class='lparen'>(</span><span class='symbol'>:event_name</span><span class='comma'>,</span> <span class='id identifier rubyid_stringify'>stringify</span><span class='lparen'>(</span><span class='id identifier rubyid_new_event_name'>new_event_name</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_update_key'>update_key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="execute_notices-instance_method">
+  
+    #<strong>execute_notices</strong>(event_name, payload)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_kind.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_execute_notices'>execute_notices</span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_finder_mapping'>finder_mapping</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="ApplicationEventMapper.html" title="ApplicationEventMapper (class)">ApplicationEventMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_lookup_resource_mapping'><span class='object_link'><a href="ApplicationEventMapper.html#lookup_resource_mapping-class_method" title="ApplicationEventMapper.lookup_resource_mapping (method)">lookup_resource_mapping</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_finder_mapping'>finder_mapping</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='comment'># LOG AN ERROR ABOUT A BOGUS EVENT WHERE YOU CAN&#39;T FIND THINGS
+</span>    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_object_event_was_about'>object_event_was_about</span> <span class='op'>=</span> <span class='id identifier rubyid_finder_mapping'>finder_mapping</span><span class='period'>.</span><span class='id identifier rubyid_mapped_class'>mapped_class</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_finder_mapping'>finder_mapping</span><span class='period'>.</span><span class='id identifier rubyid_search_method'>search_method</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='lbracket'>[</span><span class='id identifier rubyid_finder_mapping'>finder_mapping</span><span class='period'>.</span><span class='id identifier rubyid_identifier_key'>identifier_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notice_triggers'>notice_triggers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_trigger'>trigger</span><span class='op'>|</span>
+    <span class='id identifier rubyid_trigger'>trigger</span><span class='period'>.</span><span class='id identifier rubyid_publish'>publish</span><span class='lparen'>(</span><span class='id identifier rubyid_object_event_was_about'>object_event_was_about</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_event_name'>event_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Use the object and the application event kind to do your stuff
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resource_events-instance_method">
+  
+    #<strong>resource_events</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_kind.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resource_events'>resource_events</span>
+  <span class='id identifier rubyid_resource_name'>resource_name</span><span class='period'>.</span><span class='id identifier rubyid_camelize'>camelize</span><span class='period'>.</span><span class='id identifier rubyid_constantize'>constantize</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resource_name=-instance_method">
+  
+    #<strong>resource_name=</strong>(new_resource_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'app/models/application_event_kind.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resource_name='>resource_name=</span><span class='lparen'>(</span><span class='id identifier rubyid_new_resource_name'>new_resource_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write_attribute'>write_attribute</span><span class='lparen'>(</span><span class='symbol'>:resource_name</span><span class='comma'>,</span> <span class='id identifier rubyid_stringify'>stringify</span><span class='lparen'>(</span><span class='id identifier rubyid_new_resource_name'>new_resource_name</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_update_key'>update_key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Oct 11 09:50:06 2018 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.12 (ruby-2.2.3).
+</div>
+
+    </div>
+  </body>
+</html>
