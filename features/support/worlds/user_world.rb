@@ -57,20 +57,13 @@ Given(/^that a user with a (.*?) role(?: with (.*?) subrole)? exists and is logg
   login_as(user, :scope => :user)
 end
 
-And(/^the user is on the (.*?)(?: of the (.*?))?$/) do |path, route|
-  #the user is on the Employer Index of the Admin Dashboard
-  case [path, route]
-    when ["Employer Index", "Admin Dashboard"]
-      visit exchanges_hbx_profiles_path
-      find('.interaction-click-control-employers').click
-  end
+And(/^the user is on the Employer Index of the Admin Dashboard$/) do
+  visit exchanges_hbx_profiles_path
+  find('.interaction-click-control-employers').click
 end
 
-When(/^the user clicks (.*?) for that Employer$/) do |action|
-  case action
-    when "Action"
-      find('.dropdown.pull-right', text: 'Actions').click
-  end
+When(/^the user clicks Action for that Employer$/) do
+  find('.dropdown.pull-right', text: 'Actions').click
 end
 
 Then(/^the user will see the Extend Open Enrollment button$/) do
