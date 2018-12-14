@@ -158,3 +158,18 @@ end
 And(/^system date is between submission deadline & OE End date$/) do
   allow(TimeKeeper).to receive(:date_of_record).and_return((initial_application.open_enrollment_period.max - 1.day))
 end
+
+And(/^the user is on the Employer Registration page$/) do
+  #visit '/benefit_sponsors/profiles/registrations/new?portal=true&profile_type=benefit_sponsor'
+  visit '/'
+  find('.btn.btn-default.interaction-click-control-employer-portal').click
+end
+
+And(/^the user is registering a new Employer$/) do
+  registering_employer
+end
+
+When(/^the user clicks the 'Confirm' button on the Employer Registration Form$/) do
+  find('form#new_agency input[type="submit"]').click
+  expect(page).to have_css('legend', text: 'Balscssc')
+end
