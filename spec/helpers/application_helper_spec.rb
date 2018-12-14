@@ -4,6 +4,17 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 
 RSpec.describe ApplicationHelper, :type => :helper do
 
+  describe "#can_employee_shop??" do
+    it "should return false if date is empty" do
+      expect(helper.can_employee_shop?(nil)).to eq false
+    end
+
+    it "should return true if date is present and rates are present" do
+      allow(Plan).to receive(:has_rates_for_all_carriers?).and_return(false)
+      expect(helper.can_employee_shop?("10/01/2018", "edit")).to eq false
+    end
+  end
+
   describe "#rates_available?" do
     let(:employer_profile){ double("EmployerProfile") }
 
@@ -16,6 +27,21 @@ RSpec.describe ApplicationHelper, :type => :helper do
     it "should return empty string when false" do
       allow(employer_profile).to receive(:applicant?).and_return(false)
       expect(helper.rates_available?(employer_profile)).to eq ""
+    end
+  end
+
+  describe "#product_rates_available?" do
+    let(:benefit_sponsorship){ double("benefit_sponsorship") }
+
+    it "should return blocking when true" do
+      allow(benefit_sponsorship).to receive(:applicant?).and_return(true)
+      allow(Plan).to receive(:has_rates_for_all_carriers?).and_return(false)
+      expect(helper.product_rates_available?(benefit_sponsorship)).to eq "blocking"
+    end
+
+    it "should return empty string when false" do
+      allow(benefit_sponsorship).to receive(:applicant?).and_return(false)
+      expect(helper.product_rates_available?(benefit_sponsorship)).to eq ""
     end
   end
 
