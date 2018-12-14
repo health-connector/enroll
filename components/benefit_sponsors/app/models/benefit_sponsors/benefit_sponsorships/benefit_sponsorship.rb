@@ -408,9 +408,9 @@ module BenefitSponsors
        .by_overlapping_effective_period(benefit_application.effective_period)
        .reject{|result| result == benefit_application}.present?
     end
-
+    
     def oe_extended_applications
-      benefit_applications.select do |application| 
+      benefit_applications.select do |application|
         application.enrollment_extended? && TimeKeeper.date_of_record > open_enrollment_period_for(application.effective_date).max
       end
     end

@@ -82,6 +82,10 @@ When(/^the user clicks Edit Open Enrollment$/) do
   find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').trigger('click')
 end
 
+Then(/^the user will see the Close Open Enrollment button$/) do
+  expect(page).to have_css('.btn.btn-xs', text: 'Close Open Enrollment')
+end
+
 Then(/^the user clicks Extend Open Enrollment button$/) do
   find('input[value="Extend Open Enrollment"]').trigger('click')
 end
