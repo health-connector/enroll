@@ -100,6 +100,8 @@ And(/^this employer has a (.*?) benefit application$/) do |status|
     aasm_state(:draft)
   when "active"
     aasm_state(:active)
+  when "enrolling"
+    aasm_state(:enrolling) 
   when "canceled"
     aasm_state(:canceled)
   when "enrollment_closed"
@@ -133,4 +135,14 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
     dental_state(true)
   end
   update_benefit_sponsorship
+end
+
+Given(/^the system date is greater than or equal to open enrollment start date$/) do
+  open_enrollment_start_on = initial_application.open_enrollment_period.min
+   Date.today >= open_enrollment_start_on
+end
+
+Given(/^the system date is less than or equal to open enrollment end date$/) do
+  open_enrollment_end_on = initial_application.open_enrollment_period.max
+   Date.today <= open_enrollment_end_on
 end
