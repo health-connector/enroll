@@ -92,9 +92,9 @@ Then(/^the user enters a new open enrollment end date$/) do
 end
 
 And(/^the user is on the Employer Registration page$/) do
-  #visit '/benefit_sponsors/profiles/registrations/new?portal=true&profile_type=benefit_sponsor'
-  visit '/'
-  find('.btn.btn-default.interaction-click-control-employer-portal').click
+  visit '/benefit_sponsors/profiles/registrations/new?portal=true&profile_type=benefit_sponsor'
+  #visit '/'
+  #find('.btn.btn-default.interaction-click-control-employer-portal').click
 end
 
 And(/^the user is registering a new Employer$/) do
@@ -102,6 +102,6 @@ And(/^the user is registering a new Employer$/) do
 end
 
 When(/^the user clicks the 'Confirm' button on the Employer Registration Form$/) do
-  find('form#new_agency input[type="submit"]').click
-  expect(page).to have_css('legend', text: 'Balscssc')
+  expect(page).to have_css('.btn.btn-xs', text: 'dflkdhfdlkfhdf')
+  #find('form#new_agency input[type="submit"]').click
 end
