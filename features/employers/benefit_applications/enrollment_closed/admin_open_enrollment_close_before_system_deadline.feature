@@ -6,12 +6,12 @@ Feature: As an admin user I should have the ability to extend the OE
     And there is an employer ABC Widgets
     And this employer has a enrolling benefit application
     And this employer has a enrollment_open benefit application
+    And this employer has a enrollment_extended benefit application
     And this benefit application has a benefit package containing health benefits
 
     Scenario: Initial application Manual Close
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
-    And this employer has a enrollment_extended benefit application
 	And the system date is greater than or equal to open enrollment start date
 	And the system date is less than or equal to open enrollment end date
     When the user clicks Action for that Employer
@@ -20,7 +20,6 @@ Feature: As an admin user I should have the ability to extend the OE
     Scenario: Renewing application Manual Close
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
-    And this employer has a enrollment_extended benefit application
 	And the system date is greater than or equal to open enrollment start date
 	And the system date is less than or equal to open enrollment end date
     When the user clicks Action for that Employer
