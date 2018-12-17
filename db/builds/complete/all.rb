@@ -61,17 +61,6 @@ renewal_benefit_market_catalog = FactoryGirl.create(:benefit_markets_benefit_mar
     application_period: (renewal_effective_date.beginning_of_year..renewal_effective_date.end_of_year)
 )
 
-current_benefit_market_catalog.product_packages.each do |product_package|
-  if renewal_product_package = renewal_benefit_market_catalog.product_packages.detect{ |p|
-    p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind }
-
-    renewal_product_package.products.each_with_index do |renewal_product, i|
-      current_product = product_package.products[i]
-      current_product.update(renewal_product_id: renewal_product.id)
-    end
-  end
-end
-
 puts '::: Completed setting up Benefit Market :::'
 
 puts '::: Creating Benefit Sponsors and Benefit Applications :::'
