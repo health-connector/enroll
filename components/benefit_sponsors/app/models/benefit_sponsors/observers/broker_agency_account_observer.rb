@@ -35,8 +35,7 @@ module BenefitSponsors
         if new_model_event.present? &&  new_model_event.is_a?(BenefitSponsors::ModelEvents::ModelEvent)
 
           broker_agency_account = new_model_event.klass_instance
-
-          if broker_agency_account.benefit_sponsorship.present?
+          if  broker_agency_account.benefit_sponsorship.present?
 
             broker_agency_profile = broker_agency_account.broker_agency_profile
             broker = broker_agency_profile.primary_broker_role
