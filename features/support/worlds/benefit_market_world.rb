@@ -132,3 +132,9 @@ module BenefitMarketWorld
 end
 
 World(BenefitMarketWorld)
+
+Given(/^dental products exist$/) do
+  # dental_products
+  World(BenefitMarketWorld)
+end
+
