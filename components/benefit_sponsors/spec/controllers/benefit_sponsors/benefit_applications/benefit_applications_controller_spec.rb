@@ -193,19 +193,19 @@ module BenefitSponsors
         ben_app.save
       end
 
+      it "should render js template" do
+        sign_in_and_do_update
+        expect(response.content_type).to eq Mime::JS
+      end
+
       it "should be a success" do
         sign_in_and_do_update
-        # expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:success)
       end
 
       it "should initialize form" do
         sign_in_and_do_update
         expect(assigns(:benefit_application_form).class).to eq form_class
-      end
-
-      it "should redirect to benefit packages index" do
-        sign_in_and_do_update
-        expect(response.location.include?("benefit_packages")).to be_truthy
       end
 
       context "when update fails" do
@@ -216,14 +216,9 @@ module BenefitSponsors
           })
         end
 
-        it "should redirect to edit" do
-          sign_in_and_do_update
-          expect(response).to render_template("edit")
-        end
-
         it "should return error messages" do
           sign_in_and_do_update
-          expect(flash[:error]).to match(/Open enrollment end on can't be blank/)
+          expect(assigns(:notice)).to match(/Open enrollment end on can't be blank/)
         end
       end
 
