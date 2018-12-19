@@ -83,7 +83,7 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_super_admin.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_super_admin.hbx_staff_role.permission.can_change_fein).to be true
         end
 
         context 'after the rake task is run' do
