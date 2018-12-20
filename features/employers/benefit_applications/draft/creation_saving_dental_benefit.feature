@@ -21,3 +21,21 @@ Feature: As an employer/admin/broker
     And the user is on the Dental Benefit Application page for this employer
     Then the user will be on the Set Up Dental Benefit Package Page
     And the existing Health Benefit should be saved
+
+    Scenario: Employer Contribution Disables the Add Dental Benefits button
+    Given that a user with a Employer role exists and is logged in
+    And the benefit application is not effective January 1st
+    And the user is on the Edit Benefit Application page for this employer
+    When the user goes to edit the Plan Year
+    And the user sees health edit benefit package
+    When the user selects a contribution value less than shop:employer_contribution_percent_minimum
+    Then the Add Dental Benefits button should be disabled
+
+    Scenario: Employer Contribution Enables the Add Dental Benefits button
+    Given that a user with a Employer role exists and is logged in
+    And the benefit application is effective January 1st
+    And the user is on the Edit Benefit Application page for this employer
+    When the user goes to edit the Plan Year
+    And the user sees health edit benefit package
+    When the user selects a contribution value less than shop:employer_contribution_percent_minimum
+    Then the Add Dental Benefits button should be enabled

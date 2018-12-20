@@ -1,3 +1,5 @@
+require 'pry'
+
 module BenefitApplicationWorld
 
   def aasm_state(key=nil)
@@ -134,3 +136,45 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
   end
   update_benefit_sponsorship
 end
+
+And(/^the benefit application (.*?) effective January 1st$/) do |effective_or_not|
+  current_effective_date = initial_application.effective_date
+  if effective_or_not == "is not"
+    if current_effective_date.day == 1 && current_effective_date.month == 1
+      initial_application.effective_date = current_effective_date - 2.months
+      initial_application.save
+      initial_application.reload
+      expect(initial_application.effective_date.month).not_to eq 1
+    end
+  end
+  if effective_or_not == "is"
+    if current_effective_date.day != 1 && current_effective_date.month != 1
+      next_year = current_effective_date.year
+      updated_effective_date = Date.new(1,1, next_year)
+      initial_application.effective_date = updated_effective_date
+      initial_application.save
+      initial_application.reload
+      expect(initial_application.effective_date.month).to eq 1
+    end
+  end
+end
+
+When(/^the user selects a contribution value less than shop:employer_contribution_percent_minimum$/) do
+  # you select the contributions on the page that appears when you click add dental benefits button
+  # implement this next
+  #click_button 'Add Dental Benefits'
+  #binding.pry
+
+  # employer_contribution_percent_minimum
+  # employer_family_contribution_percent_minimum: 33
+  #[0,1,2,3].each do |input_number|
+  #  fill_in(
+  #    "sponsored_benefits_sponsor_contribution_attributes_contribution_levels_attributes_#{input_number}_contribution_factor",
+  #    :with => '10'
+  #  )
+  #end
+  # binding.pry
+  # click_button "Submit Dental Benefits"
+  #binding.pry
+end
+
