@@ -15,10 +15,9 @@ Feature: As an employer/admin/broker
     Then the user will see an enabled button labeled Add Dental Benefits
 
     Scenario: Navigation to Dental Set Up
-    Given that dental products exist
     Given that a user with a Employer role exists and is logged in
     And the user is on the Edit Benefit Application page for this employer
     When the user goes to edit the Plan Year
     And the user is on the Dental Benefit Application page for this employer
-    Then the user will see a heading Dental Set up Benefit Package
+    Then the user will be on the Set Up Dental Benefit Package Page
     And the existing Health Benefit should be saved

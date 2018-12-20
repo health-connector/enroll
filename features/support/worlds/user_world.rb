@@ -1,5 +1,3 @@
-require 'pry'
-
 module UserWorld
 
   def employee(employer=nil)
@@ -70,21 +68,16 @@ And(/^the user is on the (.*?) Benefit Application page for this employer$/) do 
       benefit_application_url = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=benefits"
       visit benefit_application_url
     when "Dental"
-      #initial_application = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.first.benefit_applications.first
-      #benefit_sponsorship = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.first
-      #benefit_package = ''
-      #benefit_application_url = "/benefit_sponsors/benefit_sponsorships/#{benefit_sponsorship.id}/benefit_applications/#{initial_application.id}/benefit_packages/#{benefit_package.id}/sponsored_benefits/new?kind=dental"
-      # We need to reference this as the URL above, but we need to figure out how to access the benefit package for the URL.
-      # this is because "and" statements should not contain actions like a user clicking the link below.
       click_button "Add Dental Benefits"
-
     end
 end
 
-Then(/^the user will see a heading Dental Set up Benefit Package$/) do
-  expect(page).to have_content("Dental - Set up Benefit Package")
-  # Also ended with the "And statement":
-  # And the existing Health Benefit should be saved
+Then(/^the user will be on the Set Up Dental Benefit Package Page$/) do
+  expect(page).to have_content("Set up Benefit Package")
+end
+
+And(/^the existing Health Benefit should be saved$/) do
+  expect(page).to have_content("Benefit Package successfully updated.")
 end
 
 When(/^the user goes to edit the Plan Year$/) do
