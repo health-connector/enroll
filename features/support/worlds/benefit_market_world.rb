@@ -100,7 +100,7 @@ module BenefitMarketWorld
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
     ).tap do |catalog|
         #[:single_issuer,:metal_level,:single_product]
-        [:single_issuer].each do |package_kind|
+        [:single_issuer, :single_product].each do |package_kind|
           [:health,:dental].each do |product_kind|
             catalog.product_packages << build_product_package(product_kind,package_kind)
           end
