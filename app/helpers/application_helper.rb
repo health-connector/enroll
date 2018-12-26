@@ -1,14 +1,9 @@
 module ApplicationHelper
 
-  def can_employee_shop?(date, original_action = nil)
+  def can_employee_shop?(date)
     return false if date.blank?
     date = Date.strptime(date.to_s,"%m/%d/%Y")
-    return false if ((Plan.has_rates_for_all_carriers?(date) == false) && (original_action == 'edit'))
     Plan.has_rates_for_all_carriers?(date) == false
-  end
-
-  def no_rates_error(exchange)
-    "Benefits for which you may be eligible to offer are not currently approved by the #{exchange}, please return in 24 hours."
   end
 
   def rates_available?(employer, date=nil)
@@ -16,7 +11,7 @@ module ApplicationHelper
   end
 
   def product_rates_available?(benefit_sponsorship, date=nil)
-    benefit_sponsorship.applicant? && (::BenefitMarkets::Products::Product.has_rates_for_all_carriers?(date) == false) ? "blocking" : ""
+    benefit_sponsorship.applicant? && (::BenefitMarkets::Products::Product.has_rates?(date) == false) ? "blocking" : ""
   end
 
   def deductible_display(hbx_enrollment, plan)
