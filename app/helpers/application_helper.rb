@@ -6,12 +6,12 @@ module ApplicationHelper
     Plan.has_rates_for_all_carriers?(date) == false
   end
 
-  def no_rates_error(exchange)
-    "Benefits for which you may be eligible to offer are not currently approved by the #{exchange}, please return in 24 hours."
-  end
-
   def rates_available?(employer, date=nil)
     employer.applicant? && !Plan.has_rates_for_all_carriers?(date) ? "blocking" : ""
+  end
+
+  def product_rates_available?(benefit_sponsorship, date=nil)
+    benefit_sponsorship.applicant? && (::BenefitMarkets::Products::Product.has_rates?(date) == false) ? "blocking" : ""
   end
 
   def deductible_display(hbx_enrollment, plan)
@@ -764,4 +764,5 @@ module ApplicationHelper
       member_group_hash
     end.to_json
   end
+
 end
