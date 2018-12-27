@@ -159,3 +159,19 @@ And(/^the benefit application (.*?) effective January 1st$/) do |effective_or_no
     end
   end
 end
+
+When(/^the user selects a contribution value less than shop:employer_contribution_percent_minimum$/) do
+  # you select the contributions on the page that appears when you click add dental benefits button
+  # implement this next
+  #click_button 'Add Dental Benefits'
+
+  # employer_contribution_percent_minimum
+  # employer_family_contribution_percent_minimum: 33
+  #[0,1,2,3].each do |input_number|
+  #  fill_in(
+  #    "sponsored_benefits_sponsor_contribution_attributes_contribution_levels_attributes_#{input_number}_contribution_factor",
+  #    :with => '10'
+  #  )
+  #end
+  # click_button "Submit Dental Benefits
+end

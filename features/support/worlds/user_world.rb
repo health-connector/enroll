@@ -62,29 +62,36 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employers').click
 end
 
-And(/^the user is on the Edit Benefit Application page for this employer$/) do
-  benefit_application_url = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=benefits"
-  visit benefit_application_url
+And(/^the user is on the (.*?) Benefit Application page for this employer$/) do |which_page|
+  case which_page
+    when "Edit"
+      benefit_application_url = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=benefits"
+      visit benefit_application_url
+    when "Dental"
+      # Technically an "And" statement should not involve any user actions, except for perhaps using the "visit" method
+      # to go to a specific URL. However, at the moment, this appears to be the quickest way to get to this page, as the
+      # URL is quite complex.
+      click_button "Add Dental Benefits"
+    end
+end
+
+And(/^the user sees health edit benefit package$/) do
+  wait_for_ajax(10,2)
+  # This div with the sliding fields to edit the contributions
+  # isn't appearing.
+  expect(page).to have_content("Health - Edit Benefit Package")
 end
 
 Then(/^the user will be on the Set Up Dental Benefit Package Page$/) do
   expect(page).to have_content("Set up Benefit Package")
 end
 
-And(/^the user goes to edit the Plan Year$/) do
-  find('.interaction-click-control-edit-plan-year', text: 'Edit Plan Year').click
-end
-
-When(/^the user clicks Add Dental Benefits$/) do
-  find('.interaction-click-control-add-dental-benefits', text: 'Add Dental Benefits').click
-end
-
-When(/^the user is on the Dental Benefit Application page for this employer$/) do
-  expect(page).to have_content("Dental - Set up Benefit Package")
-end
-
 And(/^the existing Health Benefit should be saved$/) do
   expect(page).to have_content("Benefit Package successfully updated.")
+end
+
+When(/^the user goes to edit the Plan Year$/) do
+  click_link "Edit Plan Year"
 end
 
 Then(/^the user will see an enabled button labeled Add Dental Benefits$/) do
@@ -120,11 +127,14 @@ Then(/^the user enters a new open enrollment end date$/) do
   input.set(Date.today+1.week)
 end
 
-Then(/^the Add Dental Benefits button should be enabled$/) do
-  expect(page).to have_css('.btn btn-default ml-1', text: 'Add Dental Benefits')
-end
-
-Then(/^the Add Dental Benefits button should be disabled$/) do
-  expect(page).to_not have_css('.btn btn-default ml-1', text: 'Add Dental Benefits')
-  fail
+Then(/^the Add Dental Benefits button should be (.*?)$/) do |status|
+  case status
+    when "enabled"
+      result = be_truthy
+    when "disabled"
+      result = be_falsey
+    end
+  # Not sure if its supposed to be disabled or just not appear at all.
+  add_dental_benefits_button = find('a.btn.btn-primary.btn-sm', text: "Add Dental Benefits")
+  expect(add_dental_benefits.disabled).to result
 end

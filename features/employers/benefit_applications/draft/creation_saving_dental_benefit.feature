@@ -38,5 +38,5 @@ Feature: As an employer/admin/broker
     And the user is on the Edit Benefit Application page for this employer
     When the user goes to edit the Plan Year
     And the user sees health edit benefit package
-    When the user selects a contribution value less than shop:employer_contribution_percent_minimum
+    When the user selects a contribution value less than shop:employer contribution percent minimum
     Then the Add Dental Benefits button should be enabled
