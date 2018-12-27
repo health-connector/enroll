@@ -6,7 +6,7 @@ Feature: As an employer/admin/broker
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
     And this employer has a draft benefit application
-    And this benefit application has a benefit package containing health and benefits
+    And this benefit application has a benefit package containing health benefits
 
     Scenario: Creation/EDIT of benefit package
     Given that a user with a Employer role exists and is logged in
@@ -18,17 +18,18 @@ Feature: As an employer/admin/broker
     Given that a user with a Employer role exists and is logged in
     And the user is on the Edit Benefit Application page for this employer
     When the user goes to edit the Plan Year
+    When the user clicks Add Dental Benefits
     And the user is on the Dental Benefit Application page for this employer
     Then the user will be on the Set Up Dental Benefit Package Page
     And the existing Health Benefit should be saved
 
     Scenario: Employer Contribution Disables the Add Dental Benefits button
     Given that a user with a Employer role exists and is logged in
-    And the benefit application is not effective January 1st
     And the user is on the Edit Benefit Application page for this employer
     When the user goes to edit the Plan Year
-    And the user sees health edit benefit package
-    When the user selects a contribution value less than shop:employer_contribution_percent_minimum
+    And the benefit application is not effective January 1st
+    And the user selected a Health benefit Reference plan
+    And the user selects a contribution value less than shop employer contribution percent minimum 
     Then the Add Dental Benefits button should be disabled
 
     Scenario: Employer Contribution Enables the Add Dental Benefits button

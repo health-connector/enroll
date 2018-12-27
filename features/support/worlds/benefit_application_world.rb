@@ -47,7 +47,10 @@ module BenefitApplicationWorld
         fte_count: 5,
         pte_count: 0,
         msp_count: 0
-    ).tap(&:save)
+    ).tap do |application|
+      benefit_sponsor_catalog.benefit_application = application
+      application.save
+    end
   end
 
   def roster_size(count=5)
@@ -155,23 +158,4 @@ And(/^the benefit application (.*?) effective January 1st$/) do |effective_or_no
       expect(initial_application.effective_date.month).to eq 1
     end
   end
-end
-
-When(/^the user selects a contribution value less than shop:employer_contribution_percent_minimum$/) do
-  # you select the contributions on the page that appears when you click add dental benefits button
-  # implement this next
-  #click_button 'Add Dental Benefits'
-  #binding.pry
-
-  # employer_contribution_percent_minimum
-  # employer_family_contribution_percent_minimum: 33
-  #[0,1,2,3].each do |input_number|
-  #  fill_in(
-  #    "sponsored_benefits_sponsor_contribution_attributes_contribution_levels_attributes_#{input_number}_contribution_factor",
-  #    :with => '10'
-  #  )
-  #end
-  # binding.pry
-  # click_button "Submit Dental Benefits"
-  #binding.pry
 end
