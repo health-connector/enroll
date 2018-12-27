@@ -1,3 +1,5 @@
+require 'pry'
+
 module UserWorld
 
   def employee(employer=nil)
@@ -64,6 +66,50 @@ end
 
 When(/^the user clicks Action for that Employer$/) do
   find('.dropdown.pull-right', text: 'Actions').click
+end
+
+And(/^the user is on the (.*?) Benefit Application page for this employer$/) do |which_page|
+  case which_page
+    when "Edit"
+      benefit_application_url = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=benefits"
+      visit benefit_application_url
+    when "Dental"
+      # Technically an "And" statement should not involve any user actions, except for perhaps using the "visit" method
+      # to go to a specific URL. However, at the moment, this appears to be the quickest way to get to this page, as the
+      # URL is quite complex.
+      click_button "Add Dental Benefits"
+    end
+end
+
+When(/^the user clicks the Benefits page link$/) do
+  click_link "Benefits"
+end
+
+And(/^the user is on the (.*?) page for this employer$/) do |which_page|
+  case which_page
+    when "Employer Profile"
+      employer_profile_url = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=home"
+      visit employer_profile_url
+    end
+end
+
+And(/^the only benefit application is in a draft state$/) do
+
+end
+
+When(/^there are zero existing benefit applications$/) do
+  # Figure out what user interactions triggers this
+  # It's a "When", so it must be a user action.
+end
+
+Then(/^the user (.*?) an active Add Plan Year button.$/) do |will_or_will_not|
+  # Get more exact CSS of this to check for enabled button
+  case will_or_will_not
+    when 'will see'
+      expect(page).to have_link("Add Plan Year"), disabled: false
+    when 'will not see'
+      expect(page).not_to have_link("Add Plan Year"), disabled: false
+    end
 end
 
 Then(/^the user will see the Extend Open Enrollment button$/) do
