@@ -1,5 +1,3 @@
-require 'pry'
-
 module UserWorld
 
   def employee(employer=nil)
@@ -93,13 +91,10 @@ And(/^the user is on the (.*?) page for this employer$/) do |which_page|
     end
 end
 
-And(/^the only benefit application is in a draft state$/) do
-
-end
-
 When(/^there are zero existing benefit applications$/) do
   # Figure out what user interactions triggers this
   # It's a "When", so it must be a user action.
+  # Should this be a delete_all type action?
 end
 
 Then(/^the user (.*?) an active Add Plan Year button.$/) do |will_or_will_not|
