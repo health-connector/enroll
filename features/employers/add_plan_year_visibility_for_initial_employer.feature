@@ -5,85 +5,29 @@ Feature: As an Employer,
   Background: Setup site, Employer, HBX staff, Broker, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
-    And this benefit application has a benefit package containing health benefits
 
     Scenario: No Plan Year Exists
     Given that a user with a Employer role exists and is logged in
     And this employer has a draft benefit application
+    And this benefit application has a benefit package containing health benefits
     And the user is on the Employer Profile page for this employer
     When the user clicks the Benefits page link
     When there are zero existing benefit applications
     Then the user will see an active Add Plan Year button.
 
-    Scenario: Existing Plan Year in Draft state
+    Scenario Outline: Existing Plan Year in <py_state> State
     Given that a user with a Employer role exists and is logged in
-    And this employer has a draft benefit application
+    And this employer has a <py_state> benefit application
+    And this benefit application has a benefit package containing health benefits
     And the user is on the Employer Profile page for this employer
     When the user clicks the Benefits page link
-    Then the user will see an active Add Plan Year button.
+    Then the user <will_or_will_not_see> an active Add Plan Year button.
 
-    Scenario: Existing Plan Year in Expired State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a expired benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Canceled State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a canceled benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Terminated State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a terminated benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Publish Pending State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a terminated benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will not see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Enrolling State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a enrolling benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will not see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Enrollment Closed State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a enrollment closed benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will not see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Enrolled State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a enrolled benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will not see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Enrollment Ineligible State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a enrolled benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will not see an active Add Plan Year button.
-
-    Scenario: Existing Plan Year in Active State
-    Given that a user with a Employer role exists and is logged in
-    And this employer has a active benefit application
-    And the user is on the Employer Profile page for this employer
-    When the user clicks the Benefits page link
-    Then the user will not see an active Add Plan Year button.
-
-
-
+    Examples:
+      | py_state              | will_or_will_not_see  |
+      | draft                 | will see              |
+      | canceled              | will see              |
+      | terminated            | will see              |
+      | pending               | will not see          |
+      | enrollment_ineligible | will not see          |
+      | active                | will not see          |
