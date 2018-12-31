@@ -60,9 +60,10 @@ module BenefitSponsors
         new(attrs)
       end
 
-      def self.fetch(id)
+      def self.fetch(args)
         #why are we creating new insted of fetching
-        form = self.new(id: id)
+        form = self.new(id: args[:benefit_application_id], benefit_sponsorship_id: args[:benefit_sponsorship_id])
+        form.service.load_form_metadata(form)
         form
       end
 
