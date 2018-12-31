@@ -6,16 +6,7 @@ RSpec.describe "_open_enrollment_ends.html.slim", :type => :view, dbclean: :afte
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let(:employer_profile) { abc_profile }
-  
   let(:benefit_application) {initial_application}
-  let(:benefit_group) { current_benefit_package }
-  let(:census_employee1) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
-  let(:census_employee2) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
-  let(:census_employee3) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
-  let(:user) { FactoryGirl.create(:user) }
-  let(:issuer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile)}
-  let(:reference_product) { current_benefit_package.sponsored_benefits[0].reference_product }
   let(:current_effective_date) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
   let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
   let(:open_enrollment_period) {effective_period.min.prev_month..(Date.new(effective_period.min.year,effective_period.min.month,20))}
