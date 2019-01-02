@@ -66,8 +66,17 @@ end
 # The :transaction strategy is faster, but might give you threading problems.
 # See https://github.com/cucumber/cucumber-rails/blob/master/features/choose_javascript_database_strategy.feature
 Cucumber::Rails::Database.javascript_strategy = :truncation
-Capybara.default_driver = :selenium_chrome_headless
+Capybara::Screenshot.webkit_options = { width: 2280, height: 1800 }
+Capybara::Screenshot.prune_strategy = :keep_last_run
 
-Capybara.register_driver :selenium_chrome_headless do |app|
-  Capybara::Selenium::Driver.new(app, :browser => :chrome)
+Capybara.register_driver :selenium do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument("--window-size=1024,768")
+
+  Capybara::Selenium::Driver.new(app,
+    browser: :chrome,
+    options: options
+  )
 end
+
+Capybara.default_driver = :selenium_chrome_headless
