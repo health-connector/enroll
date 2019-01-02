@@ -1,6 +1,7 @@
 module FormsWorld
 
   def fill_in_employer_registration_form
+    fill_in 'agency_staff_roles_attributes_0_first_name', with: "Employer"
     fill_in 'agency_staff_roles_attributes_0_first_name', with: 'Employer'
     fill_in 'agency_staff_roles_attributes_0_last_name', with: 'One'
     fill_in 'inputDOB', with: '10/01/1990'
@@ -16,7 +17,7 @@ module FormsWorld
     fill_in 'inputAddress1', with: registering_employer.employer_profile.office_locations.first.address.address_1
     fill_in 'agency_organization_profile_attributes_office_locations_attributes_0_address_attributes_city', with: registering_employer.employer_profile.office_locations.first.address.city
     select registering_employer.employer_profile.office_locations.first.address.state, from: 'inputState'
-    fill_in 'inputZip', with: registering_employer.employer_profile.office_locations.first.address.zip
+    #fill_in 'inputZip', with: registering_employer.employer_profile.office_locations.first.address.zip
     fill_in 'inputAreacode', with: registering_employer.employer_profile.office_locations.first.phone.area_code
     fill_in 'inputNumber', with: (registering_employer.employer_profile.office_locations.first.phone.number), match: :first
     select 'Radio', from: 'referred-by-select'
@@ -27,5 +28,6 @@ World(FormsWorld)
 
 Given(/^all required fields have valid inputs on the Employer Registration Form$/) do
   fill_in_employer_registration_form
+  click_button("Confirm")
   expect(page).to have_css('.btn.btn-xs', text: 'dflkdhfdlkfhdf')
 end
