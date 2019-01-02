@@ -208,6 +208,8 @@ GEM
     amq-protocol (1.9.2)
     animate-rails (1.0.10)
       rails
+    archive-zip (0.11.0)
+      io-like (~> 0.3.0)
     arel (6.0.4)
     ast (2.4.0)
     awesome_print (1.8.0)
@@ -292,6 +294,9 @@ GEM
       coffee-rails (>= 3.2)
       railties (>= 3.0)
       sass-rails (>= 3.2)
+    chromedriver-helper (2.1.0)
+      archive-zip (~> 0.10)
+      nokogiri (~> 1.8)
     ckeditor (4.2.4)
       cocaine
       orm_adapter (~> 0.5.0)
@@ -409,6 +414,7 @@ GEM
     interactor-rails (2.0.2)
       interactor (~> 3.0)
       rails (>= 3, < 5.1)
+    io-like (0.3.0)
     jbuilder (2.8.0)
       activesupport (>= 4.2.0)
       multi_json (>= 1.2)
@@ -796,6 +802,7 @@ DEPENDENCIES
   carrierwave-mongoid
   certified
   chosen-rails
+  chromedriver-helper
   ckeditor
   coffee-rails (~> 4.1.0)
   combine_pdf
