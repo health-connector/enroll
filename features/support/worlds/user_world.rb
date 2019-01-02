@@ -40,6 +40,12 @@ module UserWorld
     end
   end
 
+  def user_sign_up
+    fill_in 'user_oim_id', with: 'employerone@test.com'
+    fill_in 'user_password', with: 'P@$$W0rd1'
+    fill_in 'user_password_confirmation', with: 'P@$$W0rd1'
+  end
+
 end
 
 World(UserWorld)
@@ -167,6 +173,19 @@ end
 
 And(/^the user is registering a new Employer$/) do
   registering_employer
+end
+
+And(/^the user is on the root index page$/) do
+  visit '/'
+end
+
+And(/^the user click the Employer Portal link$/) do
+  find('.interaction-click-control-employer-portal').click
+end
+
+And(/^the user has successfully signed up$/) do
+  user_sign_up
+  find('.interaction-click-control-create-account').click
 end
 
 When(/^the user clicks the 'Confirm' button on the Employer Registration Form$/) do
