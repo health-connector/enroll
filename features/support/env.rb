@@ -5,6 +5,7 @@
 # files.
 require_relative '../../spec/ivl_helper'
 
+require 'selenium-webdriver'
 require 'cucumber/rails'
 require 'email_spec/cucumber'
 require 'rspec/expectations'
