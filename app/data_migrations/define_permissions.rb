@@ -31,7 +31,7 @@ class DefinePermissions < MigrationTask
     Permission.create(name: 'super_admin', modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
       send_broker_agency_message: true, approve_broker: true, approve_ga: true, can_update_ssn: false, can_complete_resident_application: false,
       can_add_sep: false, can_lock_unlock: true, can_view_username_and_email: false, can_reset_password: false, modify_admin_tabs: true,
-      view_admin_tabs: true, can_extend_open_enrollment: true)
+      view_admin_tabs: true, can_extend_open_enrollment: true, can_change_fein: true)
 
     permission = Permission.hbx_staff
     Person.where(hbx_staff_role: {:$exists => true}).all.each{|p|p.hbx_staff_role.update_attributes(permission_id: permission.id, subrole:'hbx_staff')}
@@ -114,12 +114,19 @@ class DefinePermissions < MigrationTask
 
   def grant_hbx_tier3_access
     raise "User Email Argument expected!!"if ENV['user_email'].blank?
-
     user_emails = ENV['user_email'].split(',')
     hbx_organization = BenefitSponsors::Organizations::Organization.hbx_profiles.first
     users = User.where(:email.in => user_emails)
     users.each do |user|
       HbxStaffRole.create!( person: user.person, permission_id: Permission.hbx_tier3.id, subrole: 'hbx_tier3', hbx_profile_id: HbxProfile.current_hbx.id, benefit_sponsor_hbx_profile_id: hbx_organization.hbx_profile.id)
     end
+  end
+
+  def hbx_admin_can_change_fein
+    Permission.super_admin.update_attributes(can_change_fein: true)
+  end
+
+  def hbx_admin_can_extend_open_enrollment
+    Permission.hbx_tier3.update_attributes(can_extend_open_enrollment: true)
   end
 end

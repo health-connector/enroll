@@ -1,5 +1,5 @@
 Feature: As a Super Admin I will be the only user
-  that is able to see & access the "Extension of Open Enrollment" Feature.
+  that is able to see & access the Change FEIN Feature.
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
@@ -7,11 +7,11 @@ Feature: As a Super Admin I will be the only user
     And this employer has a enrollment_open benefit application
     And this benefit application has a benefit package containing health benefits
 
-  Scenario Outline: HBX Staff with <subrole> subroles should <action> Extend Open Enrollment button
+  Scenario Outline: HBX Staff with <subrole> subroles should <action> Change FEIN button
     Given that a user with a HBX staff role with <subrole> subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer
-    Then the user will <action> the Extend Open Enrollment button
+    Then the user will <action> the Change FEIN button
 
     Examples:
       | subrole       | action  |
@@ -19,4 +19,4 @@ Feature: As a Super Admin I will be the only user
       | HBX Staff     | not see |
       | HBX Read Only | not see |
       | Developer     | not see |
-      | HBX Tier3     | see |
+      | HBX Tier3     | not see |
