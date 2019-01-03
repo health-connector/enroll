@@ -82,6 +82,13 @@ When(/^the user clicks Edit Open Enrollment$/) do
   find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').trigger('click')
 end
 
+When(/^the user clicks the (.*?) filter$/) do |filter_name|
+  case filter_name
+    when 'Applicants'
+      find('div[id="Tab:benefit_sponsorship_applicant"]').click
+    end
+end
+
 Then(/^the user clicks Extend Open Enrollment button$/) do
   find('input[value="Extend Open Enrollment"]').trigger('click')
 end
@@ -89,4 +96,17 @@ end
 Then(/^the user enters a new open enrollment end date$/) do
   input = find('input.hasDatepicker')
   input.set(Date.today+1.week)
+end
+
+Then(/^the user should only see employers with applicant Plan Years.$/) do
+  applicant_employers = ["Draft"]
+  applicant_employers.each do |applicant|
+    expect(page).to have_text(applicant)
+  end
+  
+  # This scope should only include "Draft" = Applicants
+  non_applicant_employers = ["Active", "Renewing Enrolling", "Renewing Enrolled", "Expired"]
+  non_applicant_employers.each do |non_applicant|
+    expect(page).to_not have_text(non_applicant)
+  end
 end

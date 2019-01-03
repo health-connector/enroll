@@ -63,7 +63,8 @@ module BenefitApplicationWorld
   end
 
   def current_benefit_package
-    @current_benefit_package ||= FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package,
+    @current_benefit_package ||= FactoryGirl.create(
+      :benefit_sponsors_benefit_packages_benefit_package,
       health_sponsored_benefit: health_state,
       dental_sponsored_benefit: dental_state,
       product_package: find_product_package(:health, :single_issuer),
@@ -93,6 +94,31 @@ module BenefitApplicationWorld
 end
 
 World(BenefitApplicationWorld)
+
+And(/^these employers have a benefit application$/) do
+  sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.all
+  sponsorships.each_with_index do |sponsorship, index|
+    status = aasm_state(:draft)
+    sponsorship.benefit_applications.build(
+      benefit_sponsor_catalog: benefit_sponsor_catalog,
+      effective_period: effective_period,
+      aasm_state: status,
+      open_enrollment_period: open_enrollment_period,
+      recorded_rating_area: rating_area,
+      recorded_service_areas: service_areas,
+      fte_count: 5,
+      pte_count: 0,
+      msp_count: 0
+    ).tap(&:save)
+  end
+  # Make with different states
+  first_app = sponsorships.first.benefit_applications.first
+  first_app.aasm_state = :active
+  first_app.save
+  last_app = sponsorships.last.benefit_applications.first
+  last_app.aasm_state = :expired
+  last_app.save
+end
 
 And(/^this employer has a (.*?) benefit application$/) do |status|
   case status
@@ -133,4 +159,8 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
     dental_state(true)
   end
   update_benefit_sponsorship
+end
+
+And(/^these benefit applications have a benefit package containing (.*?)(?: and (.*?))? benefits$/) do |health, dental|
+  # Implementations for each one
 end

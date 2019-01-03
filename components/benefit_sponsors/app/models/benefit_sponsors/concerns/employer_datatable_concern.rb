@@ -26,7 +26,9 @@ module BenefitSponsors
           orgs =  BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles.employer_attestation.aasm_state".in => EmployerAttestation::ATTESTATION_KINDS)
           self.where(:"organization".in => orgs.collect{|org| org.id.to_s}) }
 
-        scope :benefit_sponsorship_applicant, -> () { where(:"aasm_state" => :applicant) }
+        scope :benefit_sponsorship_applicant, -> () { 
+          where(:"benefit_applications.aasm_state".in => [:draft])
+        }
 
         scope :benefit_application_enrolling, -> () {
           where(:"benefit_applications.aasm_state".in => [:draft, :enrollment_open, :enrollment_extended, :enrollment_closed, :enrollment_eligible])
