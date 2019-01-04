@@ -151,10 +151,10 @@ module BenefitSponsors
       end
     end
 
-    def cancel
+    def cancel(notify_trading_partner = false)
       if business_policy_satisfied_for?(:cancel_benefit)
         if benefit_application.may_cancel?
-          benefit_application.cancel!
+          benefit_application.cancel!(notify_trading_partner)
         else
           raise StandardError, "Benefit cancel state transition failed"
         end
@@ -175,13 +175,25 @@ module BenefitSponsors
       end
     end
 
-    def terminate(end_on, termination_date)
+    def terminate(end_on, termination_date, termination_kind, notify_trading_partner = false)
       if business_policy_satisfied_for?(:terminate_benefit)
         if benefit_application.may_terminate_enrollment?
-            updated_dates = benefit_application.effective_period.min.to_date..end_on
-            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date)
-            benefit_application.terminate_enrollment!
-          end
+          updated_dates = benefit_application.effective_period.min.to_date..end_on
+          benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date, termination_kind: termination_kind)
+          benefit_application.terminate_enrollment!(notify_trading_partner)
+        end
+      else
+        [false, benefit_application, business_policy.fail_results]
+      end
+    end
+
+    def schedule_termination(end_on, termination_date, termination_kind, notify_trading_partner = false)
+      if business_policy_satisfied_for?(:terminate_benefit)
+        if benefit_application.may_schedule_enrollment_termination?
+          updated_dates = benefit_application.effective_period.min.to_date..end_on
+          benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date, termination_kind: termination_kind)
+          benefit_application.schedule_enrollment_termination!(notify_trading_partner)
+        end
       else
         [false, benefit_application, business_policy.fail_results]
       end

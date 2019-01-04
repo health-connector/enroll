@@ -23,6 +23,7 @@ class Permission
   field :can_extend_open_enrollment, type: Boolean, default: false
   field :can_force_publish, type: Boolean, default: false
   field :can_change_fein, type: Boolean, default: false
+  field :can_modify_plan_year, type: Boolean, default: false
 
   class << self
     def hbx_staff

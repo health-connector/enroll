@@ -352,7 +352,7 @@ module BenefitSponsors
 
         context "open enrollment close date passed" do
           before :each do
-            initial_application.benefit_sponsorship.update_attributes(aasm_state: :initial_enrollment_open)
+            initial_application.benefit_sponsorship.update_attributes(aasm_state: :applicant)
             allow(::BenefitSponsors::SponsoredBenefits::EnrollmentClosePricingDeterminationCalculator).to receive(:call).with(initial_application, Date.new(Date.today.year, 7, 24))
           end
 
@@ -379,7 +379,7 @@ module BenefitSponsors
               subject.end_open_enrollment
               initial_application.reload
               expect(initial_application.aasm_state).to eq :enrollment_ineligible
-              expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_ineligible
+              expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
             end
           end
 
@@ -532,9 +532,69 @@ module BenefitSponsors
     end
 
     describe '.cancel' do
+      context "when a benefit application is canceled" do
+        include_context "setup initial benefit application"
+
+        subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+
+        before do
+          subject.cancel
+          initial_application.reload
+        end
+
+        it "should move benefit application to termiantion pending" do
+          expect(initial_application.aasm_state).to eq :canceled
+        end
+
+        it "should update end date on benefit application" do
+          # expect(initial_application.end_on).to eq initial_application.start_on
+        end
+      end
+    end
+
+    describe '.schedule_termination' do
+      context "when an employer is scheduled for termination" do
+        include_context "setup initial benefit application"
+        let(:end_date) { TimeKeeper.date_of_record.next_month }
+
+        subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+
+        before do
+          subject.schedule_termination(end_date, TimeKeeper.date_of_record, "voluntary", false)
+          initial_application.reload
+        end
+
+        it "should move benefit application to termiantion pending" do
+          expect(initial_application.aasm_state).to eq :termination_pending
+        end
+
+        it "should update end date on benefit application" do
+          expect(initial_application.end_on).to eq end_date
+        end
+      end
     end
 
     describe '.terminate' do
+      context "when an employer is terminated" do
+        include_context "setup initial benefit application"
+        let(:end_date) { TimeKeeper.date_of_record.prev_day }
+
+        subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+
+        before do
+          subject.terminate(end_date, TimeKeeper.date_of_record, "voluntary", false)
+          initial_application.reload
+        end
+
+        it "should terminate benefit application" do
+          expect(initial_application.aasm_state).to eq :terminated
+        end
+
+        it "should update benefit application end date" do
+          expect(initial_application.end_on).to eq end_date
+        end
+      end
+
     end
 
     describe '.reinstate' do

@@ -18,14 +18,14 @@ module BenefitSponsors
     APPLICATION_APPROVED_STATES   = [:approved].freeze
     APPLICATION_DENIED_STATES     = [:denied].freeze
     ENROLLING_STATES              = [:enrollment_open, :enrollment_extended, :enrollment_closed].freeze
-    ENROLLMENT_ELIGIBLE_STATES    = [:enrollment_eligible].freeze
+    ENROLLMENT_ELIGIBLE_STATES    = [:enrollment_eligible, :binder_paid].freeze
     ENROLLMENT_INELIGIBLE_STATES  = [:enrollment_ineligible].freeze
     COVERAGE_EFFECTIVE_STATES     = [:active, :termination_pending].freeze
     TERMINATED_STATES             = [:suspended, :terminated, :canceled, :expired].freeze
     CANCELED_STATES               = [:canceled].freeze
     EXPIRED_STATES                = [:expired].freeze
     IMPORTED_STATES               = [:imported].freeze
-    APPROVED_STATES               = [:approved, :enrollment_open, :enrollment_extended, :enrollment_closed, :enrollment_eligible, :active, :suspended].freeze
+    APPROVED_STATES               = [:approved, :enrollment_open, :enrollment_extended, :enrollment_closed, :enrollment_eligible, :binder_paid, :active, :suspended].freeze
     SUBMITTED_STATES              = ENROLLMENT_ELIGIBLE_STATES + APPLICATION_APPROVED_STATES + ENROLLING_STATES + COVERAGE_EFFECTIVE_STATES
     TERMINATED_IMPORTED_STATES    = TERMINATED_STATES + IMPORTED_STATES
     APPPROVED_AND_TERMINATED_STATES   = APPROVED_STATES +  [:termination_pending, :terminated, :expired]
@@ -37,8 +37,18 @@ module BenefitSponsors
                                                   active:     :effectuate,
                                                   expired:    :expire,
                                                   terminated: :terminate,
+                                                  termination_pending: :termination_pending,
                                                   canceled:   :cancel
                                                 }
+
+    VOLUNTARY_TERMINATED_PLAN_YEAR_EVENT_TAG = "benefit_coverage_period_terminated_voluntary"
+    VOLUNTARY_TERMINATED_PLAN_YEAR_EVENT = "acapi.info.events.employer.benefit_coverage_period_terminated_voluntary"
+
+    NON_PAYMENT_TERMINATED_PLAN_YEAR_EVENT_TAG = "benefit_coverage_period_terminated_nonpayment"
+    NON_PAYMENT_TERMINATED_PLAN_YEAR_EVENT = "acapi.info.events.employer.benefit_coverage_period_terminated_nonpayment"
+
+    INITIAL_OR_RENEWAL_PLAN_YEAR_DROP_EVENT_TAG="benefit_coverage_renewal_carrier_dropped"
+    INITIAL_OR_RENEWAL_PLAN_YEAR_DROP_EVENT="acapi.info.events.employer.benefit_coverage_renewal_carrier_dropped"
 
 
 
@@ -81,6 +91,8 @@ module BenefitSponsors
     field :recorded_service_area_ids,   type: Array, default: []
 
     field :benefit_sponsor_catalog_id,  type: BSON::ObjectId
+
+    field :termination_kind,       type: String
 
     delegate :benefit_market, to: :benefit_sponsorship
 
@@ -674,10 +686,11 @@ module BenefitSponsors
       end
     end
 
-    def accept_application
-      adjust_open_enrollment_date
-      transition_success = benefit_sponsorship.initial_application_approved! if benefit_sponsorship.may_approve_initial_application?
-    end
+    # Not being used any where in the application
+    # def accept_application
+    #   adjust_open_enrollment_date
+    #   transition_success = benefit_sponsorship.initial_application_approved! if benefit_sponsorship.may_approve_initial_application?
+    # end
 
     def recalc_pricing_determinations
       benefit_packages.each do |benefit_package|
@@ -723,6 +736,7 @@ module BenefitSponsors
       state :enrollment_open, after_enter: [:recalc_pricing_determinations, :renew_benefit_package_members, :send_employee_invites] # Approved application has entered open enrollment period
       state :enrollment_extended, :after_enter => :reinstate_canceled_benefit_package_members
       state :enrollment_closed
+      state :binder_paid            # made binder payment - used by initial applications only
       state :enrollment_eligible    # Enrollment meets criteria necessary for sponsored members to effectuate selected benefits
       state :enrollment_ineligible  # open enrollment did not meet eligibility criteria
 
@@ -731,10 +745,10 @@ module BenefitSponsors
       state :expired,    :after_enter => :transition_benefit_package_members  # Non-published plans are expired following their end on date
       state :canceled,   :after_enter => :transition_benefit_package_members  # Application closed prior to coverage taking effect
 
-      state :termination_pending
+      state :termination_pending, :after_enter => :transition_benefit_package_members # Coverage under this application is termination pending
       state :suspended   # Coverage is no longer in effect. members may not enroll or change enrollments
 
-      after_all_transitions :publish_state_transition
+      after_all_transitions [:publish_state_transition, :notify_application]
 
       event :import_application do
         transitions from: :draft, to: :imported
@@ -782,8 +796,13 @@ module BenefitSponsors
           to:     :enrollment_closed
       end
 
+      event :credit_binder do
+        transitions from: :enrollment_closed,
+          to: :binder_paid
+      end
+
       event :approve_enrollment_eligiblity do
-        transitions from:   :enrollment_closed,
+        transitions from:   [:enrollment_closed, :binder_paid],
           to:     :enrollment_eligible
       end
 
@@ -793,7 +812,7 @@ module BenefitSponsors
       end
 
       event :reverse_enrollment_eligibility do
-        transitions from:   :enrollment_eligible,
+        transitions from:   [:enrollment_eligible, :binder_paid],
           to:     :enrollment_closed
       end
 
@@ -801,14 +820,14 @@ module BenefitSponsors
         transitions from:   [
           :approved, :denied,
           :enrollment_open, :enrollment_closed,
-          :enrollment_eligible, :enrollment_ineligible,
+          :enrollment_eligible, :binder_paid, :enrollment_ineligible,
           :active
         ] + APPLICATION_EXCEPTION_STATES,
           to:     :draft, :after => [:cancel_enrollments]
       end
 
       event :activate_enrollment do
-        transitions from:   :enrollment_eligible,
+        transitions from:   [:enrollment_eligible, :binder_paid],
           to:     :active
         transitions from:   APPLICATION_DRAFT_STATES + ENROLLING_STATES,
           to:     :canceled
@@ -819,13 +838,13 @@ module BenefitSponsors
       end
 
       event :expire do
-        transitions from:   [:approved, :enrollment_open, :enrollment_eligible, :active],
+        transitions from:   [:approved, :enrollment_open, :enrollment_eligible, :binder_paid, :active],
           to:     :expired
       end
 
       # Enrollment processed stopped due to missing binder payment
       event :cancel do
-        transitions from:   APPLICATION_DRAFT_STATES + ENROLLING_STATES + [:enrollment_ineligible, :active],
+        transitions from:   APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES + [:enrollment_ineligible, :active],
           to:     :canceled
       end
 
@@ -836,7 +855,11 @@ module BenefitSponsors
 
       # Coverage terminated due to non-payment
       event :terminate_enrollment do
-        transitions from: [:active, :suspended], to: :terminated
+        transitions from: [:active, :suspended, :expired, :termination_pending], to: :terminated
+      end
+
+      event :schedule_enrollment_termination do
+        transitions from: [:active, :suspended], to: :termination_pending
       end
 
       # Coverage reinstated
@@ -861,23 +884,31 @@ module BenefitSponsors
 
     # Listen for BenefitSponsorship state changes
     def benefit_sponsorship_event_subscriber(aasm)
-      if (aasm.to_state == :binder_reversed) && may_reverse_enrollment_eligibility?
-        reverse_enrollment_eligibility!
-      end
+      # if (aasm.to_state == :binder_reversed) && may_reverse_enrollment_eligibility?
+      #   reverse_enrollment_eligibility!
+      # end
 
-      if (aasm.to_state == :initial_enrollment_eligible) && may_approve_enrollment_eligiblity?
-        approve_enrollment_eligiblity!
-      end
+      # if (aasm.to_state == :initial_enrollment_eligible) && may_approve_enrollment_eligiblity?
+      #   approve_enrollment_eligiblity!
+      # end
 
-      if (aasm.to_state == :initial_enrollment_ineligible) && may_deny_enrollment_eligiblity?
-        deny_enrollment_eligiblity!
-      end
+      # if (aasm.to_state == :initial_enrollment_ineligible) && may_deny_enrollment_eligiblity?
+      #   deny_enrollment_eligiblity!
+      # end
 
       if (aasm.to_state == :applicant && aasm.current_event == :cancel!)
-        cancel! if enrollment_ineligible? && may_cancel?
+        cancel! if (enrollment_ineligible? || enrollment_closed?) && may_cancel?
       end
     end
 
+    def notify_application(notify = false)
+     @notify = notify
+    end
+
+    def is_application_trading_partner_publishable?
+      return @notify if defined? @notify
+      return false
+    end
 
     ### TODO FIX Move these methods to domain logic
             def employee_participation_ratio_minimum
@@ -888,7 +919,7 @@ module BenefitSponsors
               return false if self.aasm_state.blank?
               return false if self.imported?
               return false if self.effective_period.blank?
-              return true if self.enrollment_eligible? || self.active?
+              return true if self.enrollment_eligible? || self.binder_paid? || self.active?
               self.terminated? || self.expired?
             end
 

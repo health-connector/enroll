@@ -98,6 +98,7 @@ FactoryGirl.define do
       can_add_sep true
       can_extend_open_enrollment true
       can_force_publish true
+      can_modify_plan_year true
     end
   end
 end
