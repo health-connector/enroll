@@ -179,7 +179,7 @@ And(/^the user is on the root index page$/) do
   visit '/'
 end
 
-And(/^the user click the Employer Portal link$/) do
+And(/^the user clicks the Employer Portal link$/) do
   find('.interaction-click-control-employer-portal').click
 end
 
@@ -189,6 +189,14 @@ And(/^the user has successfully signed up$/) do
 end
 
 When(/^the user clicks the 'Confirm' button on the Employer Registration Form$/) do
-  expect(page).to have_css('.btn.btn-xs', text: 'dflkdhfdlkfhdf')
-  #find('form#new_agency input[type="submit"]').click
+  find('input[name="commit"]').click
+end
+
+Then(/^the user will navigate to a new page "My Health Benefits Program"$/) do
+  expect(page).to have_css('.alert-notice', text: 'Welcome to Health Connector. Your account has been created.')
+end
+
+Then(/^the user will be prompted to enter missing information from the Employer Registration Form$/) do
+  expect(page).to have_css('.invalid-feedback', text: 'Please provide a first name.')
+  expect(page).to have_css('.invalid-feedback', text: 'Please provide a last name.')
 end
