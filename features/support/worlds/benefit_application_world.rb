@@ -142,3 +142,10 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
   end
   update_benefit_sponsorship
 end
+
+And(/^this employer has not setup a benefit application$/) do
+  health_products
+  census_employees
+  benefit_sponsorship.save!
+  benefit_sponsor_catalog.save!
+end
