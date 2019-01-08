@@ -53,6 +53,13 @@ module FormsWorld
     all('#inputNumber').last.set(registering_employer.employer_profile.office_locations.first.phone.number)
     select 'Radio', from: 'referred-by-select'
   end
+
+  def fill_entire_benefit_package_form
+    find('.interaction-choice-control-bastartdate').click
+    find('.interaction-choice-control-bastartdate-1').click
+    find('#fteEmployee').set(5)
+    find('#pteEmployee').set(5)
+  end
 end
 
 World(FormsWorld)
@@ -63,4 +70,8 @@ end
 
 Given(/^at least one required field is blank on the Employer Registration Form$/) do
   fill_in_some_of_employer_registration_form
+end
+
+When(/^the user completely fills out the Benefit Package form$/) do
+  fill_entire_benefit_package_form
 end

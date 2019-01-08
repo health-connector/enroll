@@ -98,8 +98,6 @@ end
 
 And(/^the user is on the Employer Registration page$/) do
   visit '/benefit_sponsors/profiles/registrations/new?portal=true&profile_type=benefit_sponsor'
-  #visit '/'
-  #find('.btn.btn-default.interaction-click-control-employer-portal').click
 end
 
 And(/^the user is registering a new Employer$/) do
@@ -108,6 +106,10 @@ end
 
 And(/^the user is on the root index page$/) do
   visit '/'
+end
+
+And(/^the user is on the Employers Benefits Page$/) do
+  visit "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=benefits"
 end
 
 And(/^the user clicks the Employer Portal link$/) do
@@ -127,7 +129,25 @@ Then(/^the user will navigate to a new page "My Health Benefits Program"$/) do
   expect(page).to have_css('.alert-notice', text: 'Welcome to Health Connector. Your account has been created.')
 end
 
+And(/^the user is on the Employer Benefits homepage$/) do
+  visit "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=benefits"
+end
+
 Then(/^the user will be prompted to enter missing information from the Employer Registration Form$/) do
   expect(page).to have_css('.invalid-feedback', text: 'Please provide a first name.')
   expect(page).to have_css('.invalid-feedback', text: 'Please provide a last name.')
+end
+
+Then(/^the user will see the Add Benefit Package page$/) do
+  expect(page).to have_css('h1.heading-text', text: 'Add Benefit Package')
+end
+
+Then(/^the user will be able to submit the Benefit Package$/) do
+  find('#benefitContinueBtn').click
+  #wait_for_ajax
+  expect(page).to have_css('h1.heading-text', text: 'Benefit Package - Set Up')
+end
+
+When(/^the user clicks the Add Plan Year button$/) do
+  find('#AddPlanYearBtn').click
 end
