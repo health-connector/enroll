@@ -66,6 +66,7 @@ module BenefitSponsors
       context "has received valid attributes" do
         it "should save updated benefit application" do
           service_obj = Services::BenefitApplicationService.new(benefit_application_factory)
+          allow(service_obj).to receive(:benefit_sponsorship).and_return benefit_sponsorship
           expect(service_obj.store(benefit_application_form, benefit_application)).to eq [true, benefit_application]
         end
       end
