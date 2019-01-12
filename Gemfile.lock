@@ -47,21 +47,21 @@ PATH
   specs:
     benefit_sponsors (0.0.1)
       aasm (~> 4.8.0)
-      active_model_serializers
-      config
+      active_model_serializers (~> 0.10)
+      config (~> 1.7)
       devise (~> 4.5)
-      interactor (= 3.0)
-      interactor-rails (= 2.2)
+      interactor (~> 3.0)
+      interactor-rails (~> 2.2)
       language_list (~> 1)
       money-rails (~> 1.13)
       mongoid (~> 7.0)
-      mongoid-autoinc
+      mongoid-autoinc (~> 6.0)
       pundit (~> 2.0)
       rails (~> 5.2.2)
-      roo (~> 2.1.0)
-      slim (~> 3.0.8)
-      symmetric-encryption (~> 3.6.0)
-      virtus (~> 1.0.5)
+      roo (~> 2.1)
+      slim (~> 3.0)
+      symmetric-encryption (~> 3.6)
+      virtus (~> 1.0)
 
 PATH
   remote: components/notifier
@@ -884,13 +884,14 @@ GEM
       capistrano (~> 3.1)
       capistrano-bundler (~> 1.1)
     capistrano-stats (1.1.1)
-    capybara (2.6.2)
+    capybara (3.12.0)
       addressable
-      mime-types (>= 1.16)
-      nokogiri (>= 1.3.3)
-      rack (>= 1.0.0)
-      rack-test (>= 0.5.4)
-      xpath (~> 2.0)
+      mini_mime (>= 0.1.3)
+      nokogiri (~> 1.8)
+      rack (>= 1.6.0)
+      rack-test (>= 0.6.3)
+      regexp_parser (~> 1.2)
+      xpath (~> 3.2)
     capybara-screenshot (1.0.22)
       capybara (>= 1.0, < 4)
       launchy
@@ -1196,8 +1197,8 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    poltergeist (1.17.0)
-      capybara (~> 2.1)
+    poltergeist (1.18.1)
+      capybara (>= 2.1, < 4)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
     popper_js (1.14.5)
@@ -1251,6 +1252,7 @@ GEM
     redis (4.1.0)
     redis-namespace (1.6.0)
       redis (>= 3.0.4)
+    regexp_parser (1.3.0)
     responders (2.4.0)
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
@@ -1414,8 +1416,8 @@ GEM
     websocket-extensions (0.1.3)
     wicked_pdf (1.1.0)
     wkhtmltopdf-binary-edge (0.12.3.0)
-    xpath (2.1.0)
-      nokogiri (~> 1.3)
+    xpath (3.2.0)
+      nokogiri (~> 1.8)
     yard (0.9.16)
     yard-mongoid (0.1.0)
       yard (>= 0.8.4)
@@ -1438,7 +1440,7 @@ DEPENDENCIES
   bson (~> 4.3)
   capistrano (= 3.3.5)
   capistrano-rails (= 1.1.6)
-  capybara (~> 2.6.2)
+  capybara (~> 3.12)
   capybara-screenshot (~> 1.0.18)
   carrierwave-mongoid (~> 1.2)
   certified (~> 1)
@@ -1485,7 +1487,7 @@ DEPENDENCIES
   openhbx_cv2!
   overcommit (~> 0.44)
   parallel_tests (~> 2.26.2)
-  poltergeist (~> 1.17.0)
+  poltergeist (~> 1.18.0)
   prawn!
   puma (~> 3.11)
   pundit (~> 2.0)
