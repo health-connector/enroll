@@ -5,23 +5,33 @@ end
 
 When(/^Primary Broker should see the New Broker Agency form$/) do
   wait_for_ajax
-  expect(page).to have_css("#broker_agency_form")
+  expect(page).to have_text("Broker Agency Information")
+  # Broker Agency Form Field Names
+  form_field_names = [
+    "Legal Name",
+    "DBA",
+    "FEIN",
+    "Practice Area"
+  ]
+  form_field_names.each do |form_field_name|
+    expect(page).to have_text(form_field_name)
+  end
 end
 
 When(/^.+ enters personal information$/) do
   visit "/broker_registration"
 
-  fill_in 'organization[first_name]', with: 'Ricky'
-  fill_in 'organization[last_name]', with: 'Martin'
-  fill_in 'jq_datepicker_ignore_organization[dob]', with: '10/10/1984'
-  find('.interaction-field-control-person-email').click
-  fill_in 'organization[email]', with: 'ricky.martin@example.com'
-  fill_in 'organization[npn]', with: '109109109'
+  fill_in 'agency[staff_roles_attributes][0][first_name]', with: 'Ricky'
+  fill_in 'agency[staff_roles_attributes][0][last_name]', with: 'Martin'
+  fill_in 'agency[staff_roles_attributes][0][dob]', with: '10/10/1984'
+  #find('.interaction-field-control-person-email').click
+  fill_in 'agency[staff_roles_attributes][0][email]', with: 'ricky.martin@example.com'
+  fill_in 'agency[staff_roles_attributes][0][npn]', with: '109109109'
 end
 
 And(/^.+ enters broker agency information for individual markets$/) do
-  fill_in 'organization[legal_name]', with: "Logistics Inc"
-  fill_in 'organization[dba]', with: "Logistics Inc"
+  fill_in 'agency[organization][legal_name]', with: "Logistics Inc"
+  fill_in 'agency[organization][dba]', with: "Logistics Inc"
   # Auto-Generates FEIN
   # fill_in 'organization[fein]', with: "890890891"
 
@@ -41,8 +51,8 @@ And(/^.+ enters broker agency information for individual markets$/) do
 end
 
 And(/^.+ enters broker agency information for SHOP markets$/) do
-  fill_in 'organization[legal_name]', with: "Logistics Inc"
-  fill_in 'organization[dba]', with: "Logistics Inc"
+  fill_in 'agency[organization][legal_name]', with: "Logistics Inc"
+  fill_in 'agency[organization][dba]', with: "Logistics Inc"
   # Auto-Generates FEIN
   # fill_in 'organization[fein]', with: "890890891"
 
@@ -52,18 +62,17 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
 
   # find(:xpath, "//p[@class='label'][contains(., 'Select Practice Area')]").click
   # find(:xpath, "//li[contains(., 'Small Business Marketplace ONLY')]").click
+  #find('button.multiselect').click
+  #find(:xpath, '//label[input[@value="bn"]]').click
+  #find(:xpath, '//label[input[@value="fr"]]').click
 
-  find('button.multiselect').click
-  find(:xpath, '//label[input[@value="bn"]]').click
-  find(:xpath, '//label[input[@value="fr"]]').click
+  find(:xpath, "//*[input[@name='agency[organization][profile_attributes][accept_new_clients]']]").click
+  find(:xpath, "//*[input[@name='agency[organization][profile_attributes][working_hours]']]").click
 
-  find(:xpath, "//label[input[@name='organization[accept_new_clients]']]").trigger('click')
-  find(:xpath, "//label[input[@name='organization[working_hours]']]").trigger('click')
-
-  fill_in 'organization[ach_record][routing_number]', with: '123456789'
-  fill_in 'organization[ach_record][routing_number_confirmation]', with: '123456789'
-  fill_in 'organization[ach_record][account_number]', with: '9999999999999999'
-  find("#organization_ach_record_routing_number_confirmation").send_keys([:control, "a"])
+  fill_in 'agency[organization][profile_attributes][ach_routing_number]', with: '123456789'
+  fill_in 'agency[organization][profile_attributes][ach_routing_number_confirmation]', with: '123456789'
+  fill_in 'agency[organization][profile_attributes][ach_account_number]', with: '9999999999999999'
+  #find("#organization_ach_record_routing_number_confirmation").send_keys([:control, "a"])
 end
 
 And(/^.+ clicks? on Create Broker Agency$/) do

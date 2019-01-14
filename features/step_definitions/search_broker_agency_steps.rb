@@ -13,6 +13,13 @@ Then(/^he should see the one result with the agency name$/) do
 end
 
 Given(/^Hbx Admin click on (.*)$/) do |link_text|
-  find_link(link_text).visible?
-  click_link(link_text)
+  links = page.all('a')
+  spans = page.all('span')
+  case link_text
+    when 'Broker Agencies'
+      links.detect { |link| link.text == "Brokers" }.click
+      click_link(link_text)
+    else
+      page.find('a', /link_text?/i, match: :first).click
+  end
 end
