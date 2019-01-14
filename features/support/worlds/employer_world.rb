@@ -2,7 +2,7 @@ module EmployerWorld
 
   def employer(*traits)
     attributes = traits.extract_options!
-    @organization ||= FactoryGirl.create(
+    @organization ||= FactoryBot.create(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
       attributes.merge(site: site)

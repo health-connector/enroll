@@ -9,13 +9,13 @@ describe SbcProcessor2015 do
 
   let(:csv_path) { Dir.glob(File.join(Rails.root, 'spec/test_data/plan_data/sbc/*.csv')).first }
   let(:pdf_path) { Dir.glob(File.join(Rails.root, 'spec/test_data/plan_data/sbc/pdf/')).first }
-  let!(:product) { FactoryGirl.create(
+  let!(:product) { FactoryBot.create(
       :benefit_markets_products_health_products_health_product,
       hios_id: "59763MA0030014-01",
       application_period: Date.new(TimeKeeper.date_of_record.year, 1, 1)..Date.new(TimeKeeper.date_of_record.year, 12, 31),
       sbc_document: nil
   )}
-  let!(:plan){ FactoryGirl.create(
+  let!(:plan){ FactoryBot.create(
     :plan,
     active_year: product.active_year,
     hios_id: product.hios_id,

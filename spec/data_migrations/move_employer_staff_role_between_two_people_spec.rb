@@ -12,9 +12,9 @@ describe MoveEmployerStaffRoleBetweenTwoPeople do
   end
 
   describe "move employer staff role between two people" do
-    let!(:person1) { FactoryGirl.create(:person)}
-    let!(:person2) { FactoryGirl.create(:person)}
-    let!(:employer_staff_role) {FactoryGirl.create(:employer_staff_role,person: person1)}
+    let!(:person1) { FactoryBot.create(:person)}
+    let!(:person2) { FactoryBot.create(:person)}
+    let!(:employer_staff_role) {FactoryBot.create(:employer_staff_role,person: person1)}
     before(:each) do
       allow(ENV).to receive(:[]).with("from_hbx_id").and_return(person1.hbx_id)
       allow(ENV).to receive(:[]).with("to_hbx_id").and_return(person2.hbx_id)

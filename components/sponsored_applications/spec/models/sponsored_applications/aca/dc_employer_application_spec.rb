@@ -10,7 +10,7 @@ module SponsoredApplications
     let(:kind)                              { :dc_employer }
     let(:effective_term)                    { first_day_of_next_month..last_day_of_this_month_next_year }
     let(:open_enrollment_term)              { first_day_of_this_month..first_day_of_this_month + 10.days }
-    let(:benefit_groups)                    { [FactoryGirl.create(:sponsored_applications_benefit_group)] }
+    let(:benefit_groups)                    { [FactoryBot.create(:sponsored_applications_benefit_group)] }
 
     let(:valid_params) do 
       {
