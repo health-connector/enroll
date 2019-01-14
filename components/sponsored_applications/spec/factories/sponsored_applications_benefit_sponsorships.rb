@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :sponsored_applications_benefit_sponsorship, class: 'SponsoredApplications::BenefitSponsorship' do
     
   end
