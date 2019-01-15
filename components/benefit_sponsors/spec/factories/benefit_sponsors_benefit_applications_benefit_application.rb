@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   sequence(:random_count) do |n|
     @random_counts ||= (1..25).to_a.shuffle
@@ -7,9 +7,9 @@ FactoryGirl.define do
 
   factory :benefit_sponsors_benefit_application, class: 'BenefitSponsors::BenefitApplications::BenefitApplication' do
 
-    fte_count   FactoryGirl.generate(:random_count)
-    pte_count   FactoryGirl.generate(:random_count)
-    msp_count   FactoryGirl.generate(:random_count)
+    fte_count   { FactoryBot.generate(:random_count) }
+    pte_count   { FactoryBot.generate(:random_count) }
+    msp_count   { FactoryBot.generate(:random_count) }
 
     # design using defining module spec helpers
     effective_period do
@@ -34,16 +34,16 @@ FactoryGirl.define do
 
     recorded_service_areas   { [create(:benefit_markets_locations_service_area)] }
     recorded_rating_area     { create(:benefit_markets_locations_rating_area) }
-    recorded_sic_code         "011"
+    recorded_sic_code         { "011" }
 
     transient do
-      predecessor_application_state :active
-      imported_application_state :imported
-      default_effective_period nil
-      default_open_enrollment_period nil
-      package_kind :single_issuer
-      dental_package_kind :single_product
-      dental_sponsored_benefit false
+      predecessor_application_state { :active }
+      imported_application_state { :imported }
+      default_effective_period { nil }
+      default_open_enrollment_period { nil }
+      package_kind { :single_issuer }
+      dental_package_kind { :single_product }
+      dental_sponsored_benefit { false }
     end
 
     trait :with_benefit_sponsor_catalog do
@@ -83,7 +83,7 @@ FactoryGirl.define do
 
     trait :with_predecessor_application do
       after(:build) do |benefit_application, evaluator|
-        predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
+        predecessor_application = FactoryBot.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
           effective_period: (benefit_application.effective_period.begin - 1.year)..(benefit_application.effective_period.end - 1.year),
@@ -100,7 +100,7 @@ FactoryGirl.define do
 
     trait :with_predecessor_expired_application do
       after(:build) do |benefit_application, evaluator|
-        benefit_application.predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
+        benefit_application.predecessor_application = FactoryBot.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
           effective_period: (benefit_application.effective_period.begin - 1.year)..(benefit_application.effective_period.end - 1.year),
@@ -113,7 +113,7 @@ FactoryGirl.define do
 
     trait :with_predecessor_imported_application do
       after(:build) do |benefit_application, evaluator|
-        predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
+        predecessor_application = FactoryBot.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
           effective_period: (benefit_application.effective_period.begin - 1.year)..(benefit_application.effective_period.end - 1.year),

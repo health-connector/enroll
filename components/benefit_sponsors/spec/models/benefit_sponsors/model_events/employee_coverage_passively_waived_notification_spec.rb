@@ -6,17 +6,17 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeCoveragePassivelyWaivedNot
   let(:notice_event) { "employee_coverage_passively_waived" }
   let!(:start_on) { TimeKeeper.date_of_record.next_month.beginning_of_month}
   let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_renewal_application, site: site) }
+  let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_renewal_application, site: site) }
   let(:employer_profile) { organization.employer_profile }
   let(:benefit_sponsorship) { employer_profile.active_benefit_sponsorship }
   let!(:active_benefit_application) { benefit_sponsorship.current_benefit_application }
   let!(:renewing_benefit_application) { benefit_sponsorship.renewal_benefit_application }
-  let!(:person){ FactoryGirl.create(:person, :with_family)}
+  let!(:person){ FactoryBot.create(:person, :with_family)}
   let!(:family) {person.primary_family}
-  let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
-  let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile ) }
+  let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile ) }
 
-  let!(:hbx_enrollment) {  FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+  let!(:hbx_enrollment) {  FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                         household: family.active_household,
                         aasm_state: "renewing_waived",
                         effective_on: renewing_benefit_application.start_on,

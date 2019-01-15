@@ -10,9 +10,9 @@ describe MoveUserAccountBetweenTwoPeopleAccounts do
     end
   end
   describe "move the user from person1 to person2 " do
-    let(:person1) { FactoryGirl.create(:person,user:user)}
-    let(:user){FactoryGirl.create(:user)}
-    let(:person2){FactoryGirl.create(:person)}
+    let(:person1) { FactoryBot.create(:person,user:user)}
+    let(:user){FactoryBot.create(:user)}
+    let(:person2){FactoryBot.create(:person)}
     before(:each) do
       allow(ENV).to receive(:[]).with("hbx_id_1").and_return(person1.hbx_id)
       allow(ENV).to receive(:[]).with("hbx_id_2").and_return(person2.hbx_id)
@@ -28,9 +28,9 @@ describe MoveUserAccountBetweenTwoPeopleAccounts do
     end
   end
   describe "not move the user if person not found " do
-    let(:person1) { FactoryGirl.create(:person,user:user)}
-    let(:user){FactoryGirl.create(:user)}
-    let(:person2){FactoryGirl.create(:person)}
+    let(:person1) { FactoryBot.create(:person,user:user)}
+    let(:user){FactoryBot.create(:user)}
+    let(:person2){FactoryBot.create(:person)}
     before(:each) do
       allow(ENV).to receive(:[]).with("hbx_id_1").and_return("")
       allow(ENV).to receive(:[]).with("hbx_id_2").and_return(person2.hbx_id)
@@ -46,8 +46,8 @@ describe MoveUserAccountBetweenTwoPeopleAccounts do
     end
   end
   describe "not move the user if person1 has no user " do
-    let(:person1) { FactoryGirl.create(:person)}
-    let(:person2){FactoryGirl.create(:person)}
+    let(:person1) { FactoryBot.create(:person)}
+    let(:person2){FactoryBot.create(:person)}
     before(:each) do
       allow(ENV).to receive(:[]).with("hbx_id_1").and_return(person1.hbx_id)
       allow(ENV).to receive(:[]).with("hbx_id_2").and_return(person2.hbx_id)

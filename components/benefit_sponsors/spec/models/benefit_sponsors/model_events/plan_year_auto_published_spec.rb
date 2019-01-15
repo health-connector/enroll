@@ -8,9 +8,9 @@ RSpec.describe 'BenefitSponsors::ModelEvents::PlanYearAutoPublished', dbclean: :
   let(:start_on) { TimeKeeper.date_of_record.next_month.beginning_of_month}
 
   let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_renewal_draft_application, site: site) }
+  let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_renewal_draft_application, site: site) }
   let(:employer_profile) { organization.employer_profile }
-  let!(:census_employee) {FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile)}
+  let!(:census_employee) {FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile)}
   let(:benefit_sponsorship) { employer_profile.active_benefit_sponsorship }
   let!(:model_instance) { benefit_sponsorship.renewal_benefit_application }
 

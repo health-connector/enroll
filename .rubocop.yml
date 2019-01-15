@@ -10,6 +10,8 @@ Style/HashSyntax:
 Style/StringLiterals:
   Enabled: false
 
+require: rubocop-rspec
+
 # Deprecated
 # Style/TrailingBlankLines:
 #   Enabled: false

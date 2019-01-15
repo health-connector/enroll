@@ -1,32 +1,38 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :person do
     # name_pfx 'Mr'
     first_name 'John'
     # middle_name 'X'
     sequence(:last_name) {|n| "Smith#{n}" }
     # name_sfx 'Jr'
+    user { FactoryBot.build(:user) }
+
     dob "1972-04-04".to_date
     is_incarcerated false
     is_active true
     gender "male"
-    # us_citizen "true"
+    us_citizen "true"
+    # profile { FactoryBot.build(:hbx_profile) }
+
+    # profile         { FactoryBot.create(:hbx_profile) }
+
     # indian_tribe_member "false"
     # naturalized_citizen "false"
-    #association :employee_role, strategy: :build
+    association :employee_role, strategy: :build
 
     after(:create) do |p, evaluator|
       create_list(:address, 2, person: p)
       create_list(:phone, 2, person: p)
       create_list(:email, 2, person: p)
-      #create_list(:employee_role, 1, person: p)
+      create_list(:employee_role, 1, person: p)
     end
 
     trait :with_mailing_address do
-      addresses { [FactoryGirl.build(:address, :mailing_kind)]}
+      addresses { [FactoryBot.build(:address, :mailing_kind)]}
     end
 
     trait :with_bad_mailing_address do 
-      addresses { [FactoryGirl.build(:address, :mailing_kind, :without_address_1, :without_city, :without_state, :without_zip)] }
+      addresses { [FactoryBot.build(:address, :mailing_kind, :without_address_1, :without_city, :without_state, :without_zip)] }
     end
 
     trait :with_ssn do
@@ -34,11 +40,11 @@ FactoryGirl.define do
     end
 
     trait :with_work_email do
-      emails { [FactoryGirl.build(:email, kind: "work") ] }
+      emails { [FactoryBot.build(:email, kind: "work") ] }
     end
 
     trait :with_work_phone do
-      phones { [FactoryGirl.build(:phone, kind: "work") ] }
+      phones { [FactoryBot.build(:phone, kind: "work") ] }
     end
 
     trait :without_first_name do
@@ -115,7 +121,7 @@ FactoryGirl.define do
 
     trait :with_family do
       after :create do |person|
-        family = FactoryGirl.create :family, :with_primary_family_member, person: person
+        family = FactoryBot.create :family, :with_primary_family_member, person: person
       end
     end
 
