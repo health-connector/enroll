@@ -17,7 +17,7 @@
 require File.expand_path("../dummy/config/environment", __FILE__)
 require 'shoulda/matchers'
 require 'database_cleaner'
-require 'factory_girl_rails'
+require 'Factory_bot_rails'
 # require 'pry'
 
 RSpec.configure do |config|
