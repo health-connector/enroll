@@ -9,6 +9,13 @@ module EmployerWorld
     )
   end
 
+  def registering_employer
+     @registering_organization ||= FactoryGirl.build(
+       :benefit_sponsors_organizations_general_organization,
+       :with_aca_shop_cca_employer_profile,
+       site: site)
+   end
+
   def employer_profile
     @employer_profile = employer.employer_profile
   end

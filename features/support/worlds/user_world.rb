@@ -62,6 +62,20 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employers').click
 end
 
+And(/^the user is on the Employers page of the Broker Portal$/) do
+  expect(page.current_path.include?("employers")).to eq true
+end
+
+And(/^the user is on the Add Prospect Employer Page$/) do
+  url = "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{broker_agency_profile.id}"
+  visit url
+end
+
+When(/^the user clicks the ‘Create Quote’ option for a prospect employer$/) do
+  wait_for_ajax
+  click_link 'Create Quote'
+end
+
 When(/^the user clicks Action for that Employer$/) do
   find('.dropdown.pull-right', text: 'Actions').click
 end
@@ -89,4 +103,12 @@ end
 Then(/^the user enters a new open enrollment end date$/) do
   input = find('input.hasDatepicker')
   input.set(Date.today+1.week)
+end
+
+Then(/^the user should see a success message confirming creation of the (.*?)$/) do |model_name|
+  case model_name
+  when 'quote'
+    wait_for_ajax
+    expect(page).to have_content("Quote information saved successfully.")
+  end
 end
