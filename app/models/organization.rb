@@ -298,7 +298,6 @@ class Organization
       Organization.exists(carrier_profile: true).inject({}) do |carrier_names, org|
 
         ## don't enable Tufts for now
-
         unless (filters[:primary_office_location].nil?)
           next carrier_names unless CarrierServiceArea.valid_for?(office_location: office_location, carrier_profile: org.carrier_profile)
           if filters[:active_year]
