@@ -96,7 +96,8 @@ module BenefitSponsors
 
     belongs_to  :benefit_market,
       counter_cache: true,
-      class_name: "::BenefitMarkets::BenefitMarket"
+      class_name: "::BenefitMarkets::BenefitMarket",
+      optional: true
 
     belongs_to  :rating_area,
       counter_cache: true,
