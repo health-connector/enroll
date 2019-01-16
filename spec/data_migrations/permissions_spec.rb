@@ -67,8 +67,8 @@ describe DefinePermissions, dbclean: :after_each do
       end
     end
 
-    describe 'update permissions for super admin role to be able to change FEIN' do
-      let(:given_task_name) {':hbx_admin_can_change_fein'}
+    describe 'update permissions for super admin role to be able to force publish' do
+      let(:given_task_name) {':hbx_admin_can_force_publish'}
 
       before do
         User.all.delete
@@ -83,16 +83,16 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_super_admin.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_super_admin.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns true' do
-            expect(hbx_super_admin.hbx_staff_role.permission.can_change_fein).to be true
+            expect(hbx_super_admin.hbx_staff_role.permission.can_force_publish).to be true
           end
         end
       end
@@ -105,16 +105,16 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_staff.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(hbx_staff.hbx_staff_role.permission.can_change_fein).to be false
+            expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
@@ -127,16 +127,16 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_read_only.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_read_only.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(hbx_read_only.hbx_staff_role.permission.can_change_fein).to be false
+            expect(hbx_read_only.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
@@ -149,16 +149,16 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_csr_supervisor.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_csr_supervisor.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(hbx_csr_supervisor.hbx_staff_role.permission.can_change_fein).to be false
+            expect(hbx_csr_supervisor.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
@@ -171,16 +171,16 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_csr_tier1.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_csr_tier1.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(hbx_csr_tier1.hbx_staff_role.permission.can_change_fein).to be false
+            expect(hbx_csr_tier1.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
@@ -193,16 +193,16 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_csr_tier2.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_csr_tier2.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(hbx_csr_tier2.hbx_staff_role.permission.can_change_fein).to be false
+            expect(hbx_csr_tier2.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
@@ -215,21 +215,43 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(hbx_tier3.hbx_staff_role.permission.can_change_fein).to be false
+          expect(hbx_tier3.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(hbx_tier3.hbx_staff_role.permission.can_change_fein).to be false
+            expect(hbx_tier3.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
 
-      context "of an hbx developer" do
+      context "of an hbx staff" do
+        let(:hbx_staff) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx staff" do
         let(:developer) do
           FactoryGirl.create(:person).tap do |person|
             FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
@@ -237,16 +259,223 @@ describe DefinePermissions, dbclean: :after_each do
         end
 
         it 'returns false before the rake task is ran' do
-          expect(developer.hbx_staff_role.permission.can_change_fein).to be false
+          expect(developer.hbx_staff_role.permission.can_force_publish).to be false
         end
 
         context 'after the rake task is run' do
           before do
-            subject.hbx_admin_can_change_fein
+            subject.hbx_admin_can_force_publish
           end
 
           it 'returns false' do
-            expect(developer.hbx_staff_role.permission.can_change_fein).to be false
+            expect(developer.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+    end
+
+    describe 'update permissions for super admin role to be able to force publish' do
+      let(:given_task_name) {':hbx_admin_can_force_publish'}
+
+      before do
+        User.all.delete
+        Person.all.delete
+      end
+
+      context "of an hbx super admin" do
+        let(:hbx_super_admin) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_super_admin.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns true' do
+            expect(hbx_super_admin.hbx_staff_role.permission.can_force_publish).to be true
+          end
+        end
+      end
+
+      context "of an hbx staff" do
+        let(:hbx_staff) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx read only" do
+        let(:hbx_read_only) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_read_only.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_read_only.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx csr supervisor" do
+        let(:hbx_csr_supervisor) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_csr_supervisor.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_csr_supervisor.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx csr tier1" do
+        let(:hbx_csr_tier1) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_csr_tier1.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_csr_tier1.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx csr tier2" do
+        let(:hbx_csr_tier2) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_csr_tier2.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_csr_tier2.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx tier3" do
+        let(:hbx_tier3) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_tier3.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_tier3.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx staff" do
+        let(:hbx_staff) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(hbx_staff.hbx_staff_role.permission.can_force_publish).to be false
+          end
+        end
+      end
+
+      context "of an hbx staff" do
+        let(:developer) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(developer.hbx_staff_role.permission.can_force_publish).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_force_publish
+          end
+
+          it 'returns false' do
+            expect(developer.hbx_staff_role.permission.can_force_publish).to be false
           end
         end
       end
@@ -276,35 +505,6 @@ describe DefinePermissions, dbclean: :after_each do
         expect(Permission.hbx_csr_tier1.can_add_sep).to be false
         expect(Permission.hbx_csr_tier2.can_add_sep).to be false
         expect(Permission.developer.can_add_sep).to be false
-      end
-    end
-
-    describe 'update permissions for hbx tier3 can extend open enrollment' do
-      let(:given_task_name) {':hbx_admin_can_extend_open_enrollment'}
-      before do
-        User.all.delete
-        Person.all.delete
-      end
-      context "of an hbx tier3" do
-        let(:hbx_tier3) do
-          FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
-          end
-        end
-
-        it 'returns false before the rake task is ran' do
-          expect(hbx_tier3.hbx_staff_role.permission.can_extend_open_enrollment).to be false
-        end
-
-        context 'after the rake task is run' do
-          before do
-          subject.hbx_admin_can_extend_open_enrollment
-          end
-
-          it 'returns true' do
-          expect(hbx_tier3.hbx_staff_role.permission.can_extend_open_enrollment).to be true
-          end
-        end
       end
     end
   end
