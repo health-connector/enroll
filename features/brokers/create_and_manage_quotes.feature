@@ -13,6 +13,19 @@ Feature: Create and Manage Quotes
     When the user fills out and submits the Prospective Employer form
     And the user is on the Employers page of the Broker Portal
     When the user clicks Action for that Employer
-    When the user clicks the ‘Create Quote’ option for a prospect employer
-    When the user enters a quote name and selects a plan year effective date
+    And the user clicks the ‘Create Quote’ option for a prospect employer
+    And the user enters a quote name and selects a plan year effective date
     Then the user should see a success message confirming creation of the quote
+
+
+  Scenario: Add employee to a quote roster
+    Given that a user with a Broker role exists and is logged in
+    And the broker has a prospect employer
+    And the user is on the Employers page of the Broker Portal
+    When the user clicks Action for that Employer
+    And the user clicks the ‘Create Quote’ option for a prospect employer
+    And the user enters a quote name and selects a plan year effective date
+    And the user clicks the Add Employee button
+    And the user fills out and submits the Add Employee form
+    Then the user should see a success message confirming creation of the employee
+    And the user should see a new record added to the roster

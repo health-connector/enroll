@@ -71,9 +71,17 @@ And(/^the user is on the Add Prospect Employer Page$/) do
   visit url
 end
 
-When(/^the user clicks the ‘Create Quote’ option for a prospect employer$/) do
-  wait_for_ajax
+And(/^the user clicks the ‘Create Quote’ option for a prospect employer$/) do
   click_link 'Create Quote'
+end
+
+And(/^the user clicks the Add Employee button$/) do
+  wait_for_ajax
+  Capybara.ignore_hidden_elements = false
+  links = page.all('a')
+  add_employee_link = links.detect { |link| link.text == "Add Employee" }
+  add_employee_link.trigger('click')
+  Capybara.ignore_hidden_elements = true
 end
 
 When(/^the user clicks Action for that Employer$/) do
@@ -110,5 +118,16 @@ Then(/^the user should see a success message confirming creation of the (.*?)$/)
   when 'quote'
     wait_for_ajax
     expect(page).to have_content("Quote information saved successfully.")
+  when 'employee'
+    wait_for_ajax
+    expect(page).to have_content('Employee record created successfully.')
   end
+end
+
+And(/^the user should see a new record added to the roster$/) do
+  # fill_in_add_employee_form in forms_world.rb
+  expect(page).to have_content("Employee Roster")
+  expect(page).to have_content("Robert Downey Jr")
+  expect(page).to have_content("01/01/1965")
+  expect(page).to have_content("Eligible")
 end

@@ -41,3 +41,9 @@ Given(/^employer (.*?) has hired this broker$/) do |employer|
   # Need to fix below later
   employer_profile.benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id:broker.person.broker_role.id)
 end
+
+And(/^the broker has a prospect employer$/) do
+  url = "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{broker_agency_profile.id}"
+  visit url
+  fill_in_prospective_employer_form
+end

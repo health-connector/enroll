@@ -127,6 +127,23 @@ module FormsWorld
     # This is the right one for the March 2019 (or whatever the date will be)
     date_select_options[1].trigger('click')
   end
+
+  def fill_in_add_employee_form
+    wait_for_ajax
+    fill_in(
+      'census_members_plan_design_census_employee[first_name]',
+      with: 'Robert'
+    )
+    fill_in(
+      'census_members_plan_design_census_employee[last_name]',
+       with: 'Downey Jr'
+    )
+    fill_in(
+      'jq_datepicker_ignore_census_members_plan_design_census_employee[dob]',
+      with: '01/01/1965'
+    )
+    click_button 'Create Employee'
+  end
 end
 
 World(FormsWorld)
@@ -143,10 +160,14 @@ When(/^the user completely fills out the Benefit Package form$/) do
   fill_entire_benefit_package_form
 end
 
-When(/^the user enters a quote name and selects a plan year effective date$/) do
+And(/^the user enters a quote name and selects a plan year effective date$/) do
   fill_in_quotes_form
 end
 
 When(/^the user fills out and submits the Prospective Employer form$/) do
   fill_in_prospective_employer_form
+end
+
+And(/^the user fills out and submits the Add Employee form$/) do
+  fill_in_add_employee_form
 end
