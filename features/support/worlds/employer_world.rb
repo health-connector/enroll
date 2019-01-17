@@ -47,3 +47,21 @@ And(/^the broker has a prospect employer$/) do
   visit url
   fill_in_prospective_employer_form
 end
+
+And(/^a quote for the brokers prospect employer exists$/) do
+  find('.dropdown.pull-right', text: 'Actions').click
+  click_link 'Create Quote'
+  fill_in_quotes_form
+  wait_for_ajax
+  expect(page).to have_content("Quote information saved successfully.")
+end
+
+And(/^prospect employer has an employee on the roster$/) do
+  wait_for_ajax
+  Capybara.ignore_hidden_elements = false
+  links = page.all('a')
+  add_employee_link = links.detect { |link| link.text == "Add Employee" }
+  add_employee_link.trigger('click')
+  Capybara.ignore_hidden_elements = true
+  fill_in_add_employee_form
+end

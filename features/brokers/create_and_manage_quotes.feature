@@ -17,7 +17,6 @@ Feature: Create and Manage Quotes
     And the user enters a quote name and selects a plan year effective date
     Then the user should see a success message confirming creation of the quote
 
-
   Scenario: Add employee to a quote roster
     Given that a user with a Broker role exists and is logged in
     And the broker has a prospect employer
@@ -29,3 +28,32 @@ Feature: Create and Manage Quotes
     And the user fills out and submits the Add Employee form
     Then the user should see a success message confirming creation of the employee
     And the user should see a new record added to the roster
+
+  Scenario: Display Health Benefits Selection Page
+    Given that a user with a Broker role exists and is logged in
+    And the broker has a prospect employer
+    And a quote for the brokers prospect employer exists
+    And prospect employer has an employee on the roster
+    And the user is on the roster page of the prospect employer page quote
+    When the user clicks Select Health Benefits
+    Then the user should be on the Select Health Benefits page
+
+  Scenario: Setup Health Benefits By Carrier
+    Given the carrier plan Harvard Pilgrim Health Care exists
+    Given that a user with a Broker role exists and is logged in
+    And the broker has a prospect employer
+    And a quote for the brokers prospect employer exists
+    And prospect employer has an employee on the roster
+    And the user is on the roster page of the prospect employer page quote
+    When the user clicks Select Health Benefits
+    Then the user should be on the Select Health Benefits page
+    When the user selects Single Carrier
+    And the user selects Harvard Pilgrim Health Care from the carrier selection list
+    And the user selects 60% for the employee contribution
+    And the user selects 50% for the spouse contribution
+    And the user selects 50% for the domestic partner contribution
+    And the user selects 50% for the child contribution
+    And the user selects a reference plan
+    Then the user should remain on the Select Health Benefits Page
+    And the user should see a quote price
+    And the user should see a new UI element labelled 'Health Plan Information'

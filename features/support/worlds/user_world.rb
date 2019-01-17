@@ -66,26 +66,14 @@ And(/^the user is on the Employers page of the Broker Portal$/) do
   expect(page.current_path.include?("employers")).to eq true
 end
 
+And(/^the user is on the roster page of the prospect employer page quote$/) do
+  expect(page).to have_text("Employee Roster")
+  page.driver.browser.js_errors = false
+end
+
 And(/^the user is on the Add Prospect Employer Page$/) do
   url = "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{broker_agency_profile.id}"
   visit url
-end
-
-And(/^the user clicks the ‘Create Quote’ option for a prospect employer$/) do
-  click_link 'Create Quote'
-end
-
-And(/^the user clicks the Add Employee button$/) do
-  wait_for_ajax
-  Capybara.ignore_hidden_elements = false
-  links = page.all('a')
-  add_employee_link = links.detect { |link| link.text == "Add Employee" }
-  add_employee_link.trigger('click')
-  Capybara.ignore_hidden_elements = true
-end
-
-When(/^the user clicks Action for that Employer$/) do
-  find('.dropdown.pull-right', text: 'Actions').click
 end
 
 Then(/^the user will see the Extend Open Enrollment button$/) do
@@ -96,21 +84,70 @@ Then(/^the user will not see the Extend Open Enrollment button$/) do
   expect(page).to_not have_css('.btn.btn-xs', text: 'Extend Open Enrollment')
 end
 
-When(/^the user clicks Extend Open Enrollment$/) do
-  find('.btn.btn-xs', text: 'Extend Open Enrollment').click
-end
-
-When(/^the user clicks Edit Open Enrollment$/) do
-  find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').trigger('click')
-end
-
-Then(/^the user clicks Extend Open Enrollment button$/) do
-  find('input[value="Extend Open Enrollment"]').trigger('click')
-end
-
 Then(/^the user enters a new open enrollment end date$/) do
   input = find('input.hasDatepicker')
   input.set(Date.today+1.week)
+end
+
+And(/^the user should see a new record added to the roster$/) do
+  # fill_in_add_employee_form in forms_world.rb
+  expect(page).to have_content("Employee Roster")
+  expect(page).to have_content("Robert Downey Jr")
+  expect(page).to have_content("01/01/1965")
+  expect(page).to have_content("Eligible")
+end
+
+Then(/^the user should be on the Select Health Benefits page$/) do
+  expect(page).to have_content("Benefit Model Selection")
+  expect(page).to have_content("Benefit Package Selection")
+end
+
+And(/^the user selects (.*?) from the carrier selection list$/) do |plan_name|
+  Capybara.ignore_hidden_elements = false
+  # All of the plan options are h3 elements with a class of pdp-titles-text.
+  # clicking them will select the option
+  # For the first test case we are trying to pass through Harvard Pilgrim Health Care 
+  binding.pry
+  Capybara.ignore_hidden_elements = true
+end
+
+When(/^the user selects (.*?) for the (.*?) contribution$/) do |percentage, contributor|
+  Capybara.ignore_hidden_elements = false
+  inputs = page.all('input')
+  sliders = inputs.select { |input| input[:class] == "contribution_slide_handler" }
+  Capybara.ignore_hidden_elements = true
+  case contributor
+  when 'employee'
+    Capybara.ignore_hidden_elements = false
+    binding.pry
+    fill_in(sliders[0], with: percentage.to_s)
+    Capybara.ignore_hidden_elements = true
+  when 'spouse'
+    Capybara.ignore_hidden_elements = false
+    fill_in(sliders[1], with: percentage.to_s)
+    Capybara.ignore_hidden_elements = true
+  when 'domestic partner'
+    Capybara.ignore_hidden_elements = false
+    fill_in(sliders[2], with: percentage.to_s)
+    Capybara.ignore_hidden_elements = true
+  when 'child'
+    Capybara.ignore_hidden_elements = false
+    fill_in(sliders[3], with: percentage.to_s)
+    Capybara.ignore_hidden_elements = true
+  end
+end
+
+
+When(/^the user selects Single Carrier$/) do
+  Capybara.ignore_hidden_elements = false
+  # On the UI, selecting the "Div" will then select a hidden
+  # radio button
+  div_array = page.all('div').to_a
+  select_single_carrier = div_array.detect { |div| div.text == 'One Carrier' }
+  select_single_carrier.click
+  #fail if single_carrier_input.nil?
+  binding.pry
+  Capybara.ignore_hidden_elements = true
 end
 
 Then(/^the user should see a success message confirming creation of the (.*?)$/) do |model_name|
@@ -124,10 +161,30 @@ Then(/^the user should see a success message confirming creation of the (.*?)$/)
   end
 end
 
-And(/^the user should see a new record added to the roster$/) do
-  # fill_in_add_employee_form in forms_world.rb
-  expect(page).to have_content("Employee Roster")
-  expect(page).to have_content("Robert Downey Jr")
-  expect(page).to have_content("01/01/1965")
-  expect(page).to have_content("Eligible")
+When(/^the user clicks (.*?)$/) do |which_link_or_button|
+  case which_link_or_button
+  when 'Select Health Benefits'
+    links = page.all('a')
+    link = links.detect { |link| link.text == "Select Health Benefits" }
+    link.trigger('click')
+  when 'Extend Open Enrollment'
+    find('.btn.btn-xs', text: 'Extend Open Enrollment').click
+  when 'Extend Open Enrollment button'
+    find('input[value="Extend Open Enrollment"]').trigger('click')
+  when 'Edit Open Enrollment'
+    find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').trigger('click')
+  when 'Action for that Employer'
+    find('.dropdown.pull-right', text: 'Actions').click
+  when 'the Add Employee button'
+    wait_for_ajax
+    Capybara.ignore_hidden_elements = false
+    links = page.all('a')
+    add_employee_link = links.detect { |link| link.text == "Add Employee" }
+    add_employee_link.trigger('click')
+    Capybara.ignore_hidden_elements = true
+  when 'Action for that Employer'
+    find('.dropdown.pull-right', text: 'Actions').click
+  when "the ‘Create Quote’ option for a prospect employer"
+    click_link 'Create Quote'
+  end
 end
