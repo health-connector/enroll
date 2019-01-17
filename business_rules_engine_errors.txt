@@ -1,0 +1,14 @@
+
+---------
+01/17/2019 17:27
+BenefitSponsors::BenefitApplications::BenefitApplication
+5c40bae416676762206915bb
+Current state: draft
+Non Biz Owner Count: 0
+Members Eligible to Enroll: 5
+Ratio: 0.0
+{}
+{:benefit_application_fte_count=>"validated successfully", :benefit_application_contains_benefit_packages=>"validated successfully", :benefit_packages_contains_reference_plans=>"validated successfully", :all_employees_are_assigned_benefit_package=>"validated successfully", :employer_profile_eligible=>"validated successfully", :employer_primary_office_location=>"validated successfully", :all_contribution_levels_min_met=>"validated successfully", :open_enrollment_period_minimum=>"validated successfully"}
+ABC Widgets
+---------
+

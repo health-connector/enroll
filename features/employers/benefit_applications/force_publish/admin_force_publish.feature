@@ -24,7 +24,7 @@ Feature: As an admin user I should have the ability to extend the OE
   Scenario: Draft application published between submission deadline & OE End date
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
-    And system date is between submission deadline & OE End date
+    And system date is between submission deadline & effective date
     When ABC widgets FTE count is less than or equal to shop:small_market_employee_count_maximum
     And ABC widgets primary address state is MA
     And the user clicks Action for that Employer
@@ -39,7 +39,7 @@ Feature: As an admin user I should have the ability to extend the OE
   Scenario Outline: Draft application published between submission deadline & OE End date
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
-    And system date is between submission deadline & OE End date
+    And system date is between submission deadline & effective date
     And ABC widgets FTE count is <compare_fte> to shop:small_market_employee_count_maximum
     And ABC widgets primary address state <state_check> MA
     And the user clicks Action for that Employer

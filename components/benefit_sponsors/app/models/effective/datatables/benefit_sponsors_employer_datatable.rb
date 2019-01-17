@@ -110,7 +110,7 @@ module Effective
 
       def business_policy_accepted?(draft_application)
         current_date = TimeKeeper.date_of_record
-        current_date <= draft_application.open_enrollment_period.max && current_date.day > publish_due_day_of_month && current_date > (draft_application.effective_period.min - 2.months)
+        current_date <= draft_application.effective_date && current_date.day > publish_due_day_of_month && current_date > (draft_application.effective_period.min - 2.months)
       end
 
       def force_publish_link_type(benefit_sponsorship, allow)
