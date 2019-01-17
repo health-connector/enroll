@@ -5,7 +5,7 @@ Feature: Create and Manage Quotes
   Background: Set up site and broker
     Given a CCA site exists with a benefit market
     Given there is a Broker XYZ Broking
-    And the person is assigned to a broker agency
+    And the broker is assigned to a broker agency
 
   Scenario: Create quote for a Prospect Employer
     Given that a user with a Broker role exists and is logged in

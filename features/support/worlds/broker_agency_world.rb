@@ -41,6 +41,6 @@ Given(/^there is a Broker (.*?)$/) do |legal_name|
   #benefit_sponsorship(broker)
 end
 
-And(/^the person is assigned to a broker agency$/) do
+And(/^the broker is assigned to a broker agency$/) do
   assign_person_to_broker_agency
 end
