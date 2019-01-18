@@ -153,7 +153,7 @@ module Queries
           { "$match" => {
             "households.hbx_enrollments.sponsored_benefit_id" => sb_id,
             "households.hbx_enrollments.aasm_state" => {"$in" => new_enrollment_statuses},
-            "households.hbx_enrollments.effective_on" => effective_on,
+            "households.hbx_enrollments.effective_on" => {"$gte" => effective_on},
             "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]},
             "households.hbx_enrollments.submitted_at" => {"$lte" => threshold_time}
           }},
