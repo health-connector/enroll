@@ -13,7 +13,7 @@ module EmployerWorld
     @employer_profile = employer.employer_profile
   end
 
-   def prospect_employer
+  def prospect_employer
     @prospect_employer ||= FactoryGirl.build(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
