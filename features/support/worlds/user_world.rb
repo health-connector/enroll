@@ -70,6 +70,10 @@ And(/^the user is on the roster page of the prospect employer page quote$/) do
   visit sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(broker_quote)
 end
 
+And(/^the user is on the proposal plan selection page$/) do
+  visit sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(broker_quote)
+end
+
 And(/^the user is on the Add Prospect Employer Page$/) do
   url = "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{broker_agency_profile.id}"
   visit url
@@ -143,9 +147,8 @@ When(/^the user selects Single Carrier$/) do
   # radio button
   div_array = page.all('div').to_a
   select_single_carrier = div_array.detect { |div| div.text == 'One Carrier' }
-  select_single_carrier.click
-  #fail if single_carrier_input.nil?
   binding.pry
+  select_single_carrier.click
   Capybara.ignore_hidden_elements = true
 end
 

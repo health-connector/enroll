@@ -30,6 +30,17 @@ module BrokerAgencyWorld
     )
   end
 
+  def carrier(name)
+    @carriers ||= {}
+    @carrier[name] ||= FactoryGirl.create(:carrier_profile).tap do |carrier|
+      FactoryGirl.create(:carrier_service_area, issuer_hios_id: carrier.issuer_hios_ids.first, serves_entire_state: true, service_area_id: 'EX123')
+    end
+  end
+
+  def proposal_plan(*traits)
+    @proposal_plan ||= FactoryGirl.create :plan, carrier: carrier(:default)
+  end
+
   def prospect_employer(*traits) # this is for BQT propsects because they use old models
     attributes = traits.extract_options!
     @prospect_employer ||= FactoryGirl.create(

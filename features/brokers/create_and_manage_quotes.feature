@@ -34,9 +34,7 @@ Feature: Create and Manage Quotes
     And that a user with a Broker role exists and is logged in
     And the broker has a prospect employer with a quote
     And prospect employer has an employee on the roster
-    When the user is on the roster page of the prospect employer page quote
-    And the user clicks Select Health Benefits
-    Then the user should be on the Select Health Benefits page
+    When the user is on the proposal plan selection page
     When the user selects Single Carrier
     And the user selects Harvard Pilgrim Health Care from the carrier selection list
     And the user selects 60% for the employee contribution
