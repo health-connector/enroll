@@ -24,7 +24,6 @@ module PlanWorld
     5.times do 
       product = FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_renewal_product, service_area: service_area)
       plan = FactoryGirl.create(:plan, hios_id: product.hios_id, service_area_id: service_area.id)
-      binding.pry
     end
   end
 end

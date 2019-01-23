@@ -1,5 +1,4 @@
 module BrokerAgencyWorld
-
   def broker_organization
     @broker_organization ||= FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site)
   end
@@ -31,6 +30,20 @@ module BrokerAgencyWorld
     )
   end
 
+  def prospect_employer(*traits) # this is for BQT propsects because they use old models
+    attributes = traits.extract_options!
+    @prospect_employer ||= FactoryGirl.create(
+      :sponsored_benefits_plan_design_organization,
+      *traits,
+      attributes.merge(sponsor_profile_id: nil)
+    ).tap do |prospect_employer|
+      prospect_employer.plan_design_proposals.first.profile.benefit_sponsorships.first.update_attributes initial_enrollment_period: Date.today.at_beginning_of_month.next_month.next_month..Date.today.at_end_of_month.next_month.next_month
+    end
+  end
+
+  def broker_quote
+    prospect_employer.plan_design_proposals.first
+  end
 end
 
 World(BrokerAgencyWorld)

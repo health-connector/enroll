@@ -5,6 +5,7 @@ module EmployerWorld
     @organization ||= FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
+      *traits,
       attributes.merge(site: site)
     )
   end
@@ -23,18 +24,18 @@ end
 
 World(EmployerWorld)
 
-And(/^there is an employer (.*?)$/) do |legal_name|
+Given(/^there is an employer (.*?)$/) do |legal_name|
   employer legal_name: legal_name,
            dba: legal_name
   benefit_sponsorship(employer)
 
 end
 
-Given(/^at least one attestation document status is (.*?)$/) do |status|
+Given(/^at least one attestation document status is (.*)$/) do |status|
   @employer_attestation_status = status
 end
 
-Given(/^employer (.*?) has hired this broker$/) do |employer|
+Given(/^employer (.*) has hired this broker$/) do |employer|
   assign_broker_agency_account
   assign_person_to_broker_agency
   employer_profile.hire_broker_agency(broker_agency_profile)
@@ -42,26 +43,14 @@ Given(/^employer (.*?) has hired this broker$/) do |employer|
   employer_profile.benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id:broker.person.broker_role.id)
 end
 
-And(/^the broker has a prospect employer$/) do
-  url = "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{broker_agency_profile.id}"
-  visit url
-  fill_in_prospective_employer_form
+Given(/^the broker has a prospect employer( with a quote)?$/) do |with_quote|
+  if with_quote
+    prospect_employer :with_profile, owner_profile_id: broker_agency_profile.id
+  else
+    prospect_employer owner_profile_id: broker_agency_profile.id
+  end
 end
 
-And(/^a quote for the brokers prospect employer exists$/) do
-  find('.dropdown.pull-right', text: 'Actions').click
-  click_link 'Create Quote'
-  fill_in_quotes_form
-  wait_for_ajax
-  expect(page).to have_content("Quote information saved successfully.")
-end
-
-And(/^prospect employer has an employee on the roster$/) do
-  wait_for_ajax
-  Capybara.ignore_hidden_elements = false
-  links = page.all('a')
-  add_employee_link = links.detect { |link| link.text == "Add Employee" }
-  add_employee_link.trigger('click')
-  Capybara.ignore_hidden_elements = true
-  fill_in_add_employee_form
+Given(/^prospect employer has an employee on the roster$/) do
+  FactoryGirl.create :plan_design_census_employee, benefit_sponsorship: prospect_employer.plan_design_proposals.first.profile.benefit_sponsorships.first
 end

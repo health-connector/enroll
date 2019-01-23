@@ -67,8 +67,7 @@ And(/^the user is on the Employers page of the Broker Portal$/) do
 end
 
 And(/^the user is on the roster page of the prospect employer page quote$/) do
-  expect(page).to have_text("Employee Roster")
-  page.driver.browser.js_errors = false
+  visit sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(broker_quote)
 end
 
 And(/^the user is on the Add Prospect Employer Page$/) do

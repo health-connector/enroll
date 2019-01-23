@@ -12,7 +12,7 @@ Feature: Create and Manage Quotes
     And the user is on the Add Prospect Employer Page
     When the user fills out and submits the Prospective Employer form
     And the user is on the Employers page of the Broker Portal
-    When the user clicks Action for that Employer
+    And the user clicks Action for that Employer
     And the user clicks the ‘Create Quote’ option for a prospect employer
     And the user enters a quote name and selects a plan year effective date
     Then the user should see a success message confirming creation of the quote
@@ -29,23 +29,13 @@ Feature: Create and Manage Quotes
     Then the user should see a success message confirming creation of the employee
     And the user should see a new record added to the roster
 
-  Scenario: Display Health Benefits Selection Page
-    Given that a user with a Broker role exists and is logged in
-    And the broker has a prospect employer
-    And a quote for the brokers prospect employer exists
-    And prospect employer has an employee on the roster
-    And the user is on the roster page of the prospect employer page quote
-    When the user clicks Select Health Benefits
-    Then the user should be on the Select Health Benefits page
-
   Scenario: Setup Health Benefits By Carrier
-    Given the carrier plan Harvard Pilgrim Health Care exists
-    Given that a user with a Broker role exists and is logged in
-    And the broker has a prospect employer
-    And a quote for the brokers prospect employer exists
+    Given proposal plans exist by carriers
+    And that a user with a Broker role exists and is logged in
+    And the broker has a prospect employer with a quote
     And prospect employer has an employee on the roster
-    And the user is on the roster page of the prospect employer page quote
-    When the user clicks Select Health Benefits
+    When the user is on the roster page of the prospect employer page quote
+    And the user clicks Select Health Benefits
     Then the user should be on the Select Health Benefits page
     When the user selects Single Carrier
     And the user selects Harvard Pilgrim Health Care from the carrier selection list
