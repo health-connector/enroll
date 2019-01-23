@@ -26,9 +26,7 @@ module PlanWorld
     #  plan = FactoryGirl.create(:plan, hios_id: product.hios_id, service_area_id: service_area.id)
     #end
     carrier_profile = FactoryGirl.create(:carrier_profile, legal_name: "Harvard Pilgrim Health Care", dba: "Harvard Pilgrim Health Care")
-    plan = FactoryGirl.create(:active_individual_health_plan, carrier_profile: carrier_profile)
-    binding.pry
-    premium_table = FactoryGirl.create(:premium_table)
+    plan = FactoryGirl.create(:active_individual_health_plan, :with_premium_tables, carrier_profile: carrier_profile)
     #health_product = FactoryGirl.create(:benefit_markets_products_health_products_health_product)
     #health_product.add_to_set(county_zip_ids: service_area.zip)
   end
