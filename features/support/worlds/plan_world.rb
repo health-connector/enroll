@@ -18,9 +18,13 @@ module PlanWorld
 
     product = product_package.products.first
     service_area = FactoryGirl.create(:benefit_markets_locations_service_area)
+    service_area_zip = registering_employer.employer_profile.office_locations.first.address.zip
+    service_area.add_to_set(county_zip_ids: service_area_zip)
+    service_area.save
     5.times do 
       product = FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_renewal_product, service_area: service_area)
-      plan = FactoryGirl.create(:plan, hios_id: product.hios_id)
+      plan = FactoryGirl.create(:plan, hios_id: product.hios_id, service_area_id: service_area.id)
+      binding.pry
     end
   end
 end
@@ -28,12 +32,6 @@ end
 World(PlanWorld)
 
 Given(/^the carrier plan (.*?) exists?/) do |carrier_plan|
-  #load_old_model_product_and_carrier_plan
-  # It appears that the proper single carrier products are created. For example:
-  # products = BenefitMarkets::Products::Product.all.to_a
-  # products.select { |product| product.product_package_kinds.include?(:single_issuer) }.count
-  # this returns "16"
-  # are they not displayng when clicking "one carrier" because of the service area? zip code?
   load_carriers
 end
 
