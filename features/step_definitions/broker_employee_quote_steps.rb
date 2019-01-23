@@ -1,10 +1,10 @@
 #Capybara.ignore_hidden_elements = false
 
 module BrokerWorld
-  def broker(*traits)
-    attributes = traits.extract_options!
-    @broker ||= FactoryGirl.create :user, *traits, attributes
-  end
+  # def broker(*traits)
+  #   attributes = traits.extract_options!
+  #   @broker ||= FactoryGirl.create :user, *traits, attributes
+  # end
 
   def broker_agency(*traits)
     attributes = traits.extract_options!

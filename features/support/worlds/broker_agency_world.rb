@@ -21,6 +21,25 @@ module BrokerAgencyWorld
     employer_profile.benefit_sponsorships << broker_agency_account
     employer_profile.organization.save!
   end
+
+  def broker(*traits)
+    attributes = traits.extract_options!
+    @broker_organization ||= FactoryGirl.create(
+      :benefit_sponsors_organizations_general_organization,
+      :with_broker_agency_profile,
+      attributes.merge(site: site)
+    )
+  end
 end
 
 World(BrokerAgencyWorld)
+
+Given(/^there is a Broker (.*?)$/) do |legal_name|
+  broker legal_name: legal_name,
+         dba: legal_name
+end
+
+And(/^the broker is assigned to a broker agency$/) do
+  assign_person_to_broker_agency
+end
+

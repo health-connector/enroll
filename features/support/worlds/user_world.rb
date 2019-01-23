@@ -62,6 +62,25 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employers').click
 end
 
+When(/^the broker clicks on I'm a Broker$/) do
+  visit "/"
+  links = page.all('a')
+  link = links.detect { |link| link.text == "I'm a Broker" }
+  link.click
+end
+
+And(/^the user is on the Employers page of XYZ Broking$/) do
+   find('a.interaction-click-control-employers', text: 'Employers').trigger('click')
+end
+
+When(/^the user clicks on the Add Prospect Employer button$/) do
+  find('a.prospective-employer', text: 'Add Prospect Employer').click
+end
+
+And(/^the user enters a Legal Name$/) do
+  find('.dropdown.pull-right', text: 'Actions').click
+end
+
 When(/^the user clicks Action for that Employer$/) do
   find('.dropdown.pull-right', text: 'Actions').click
 end
@@ -89,4 +108,55 @@ end
 Then(/^the user enters a new open enrollment end date$/) do
   input = find('input.hasDatepicker')
   input.set(Date.today+1.week)
+end
+
+And(/^the user is on the Employer Registration page$/) do
+  visit '/'
+  find('.btn.btn-default.interaction-click-control-employer-portal').click
+end
+
+And(/^the broker clicks on the Confirm button$/) do
+  page.find_button("Confirm").click
+end
+
+Then(/^the Broker should be on the Employers page of XYZ Broking$/) do
+  find('a.interaction-click-control-employers', text: 'Employers').trigger('click')
+end
+
+And(/^the user should see a success message$/) do 
+  expect(page).to have_content("Prospect Employer")
+end
+
+When(/^the user selects Edit Employer under actions dropdown on an existing prospect$/) do
+  find('a.interaction-click-control-edit-employer-details', text: 'Edit Employer Details').trigger('click')
+end
+
+When(/^the user modifies the Legal Name$/) do
+  fill_in 'organization_legal_name', with: "123Employer"
+end
+
+When(/^the user selects Remove Employer under actions dropdown on an existing prospect$/) do
+  find('a.interaction-click-control-remove-employer', text: 'Remove Employer').trigger('click')
+end
+
+Then(/^the user should see a validation error message$/) do
+  expect(page).to have_content("Please remove any quotes for this employer before removing.")
+end
+
+When(/^the user selects ‘View Quotes’ on ‘ABC Prospect’$/) do
+  find('a.interaction-click-control-view-quotes', text: 'View Quotes').trigger('click')
+end
+
+When(/^the user selects Remove Quote on the quote named ‘Prospect Benefits’$/) do
+  find('a.btn', text: 'Remove Quote').trigger('click')
+end
+
+Then(/^the Broker should be on the Quotes page of ABC Prospect$/) do
+  expect(page).to have_content("Manage Quotes")
+end
+
+Given(/^there are no quotes for ‘ABC Prospect’$/) do
+  find('a.interaction-click-control-view-quotes', text: 'View Quotes').trigger('click')
+  expect(page).to have_content("No data available in table")
+  find('a.interaction-click-control-employers', text: 'Employers').trigger('click')
 end
