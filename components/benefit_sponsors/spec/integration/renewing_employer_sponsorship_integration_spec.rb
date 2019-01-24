@@ -48,6 +48,7 @@ RSpec.describe "an MA ACA Employer", :dbclean => :after_each do
       :site => ::BenefitSponsors::Site.first
     })
     employer_organization.profiles.first
+    binding.pry
   end
 
   def create_census_employee(employer_profile, benefit_sponsorship)
