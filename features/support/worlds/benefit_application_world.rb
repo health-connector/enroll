@@ -134,3 +134,9 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
   end
   update_benefit_sponsorship
 end
+
+Given(/^the system date is greater than or equal to open enrollment end date$/) do
+  open_enrollment_end_on = initial_application.open_enrollment_period.max
+  TimeKeeper.set_date_of_record_unprotected!(open_enrollment_end_on + 2.days)
+end
+
