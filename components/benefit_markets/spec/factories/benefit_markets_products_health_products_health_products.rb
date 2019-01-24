@@ -23,7 +23,7 @@ FactoryGirl.define do
       end
 
       before(:create) do |product, evaluator|
-        renewal_product = create(:benefit_markets_products_health_products_health_product,
+        renewal_product = build(:benefit_markets_products_health_products_health_product,
           application_period: (product.application_period.min.next_year..product.application_period.max.next_year),
           product_package_kinds: product.product_package_kinds,
           service_area: evaluator.renewal_service_area,
