@@ -145,8 +145,9 @@ When(/^the user selects Single Carrier$/) do
   # radio button
   div_array = page.all('div').to_a
   select_single_carrier = div_array.detect { |div| div.text == 'One Carrier' }
-  select_single_carrier.click
+  select_single_carrier.trigger('click')
   wait_for_ajax
+  binding.pry
   Capybara.ignore_hidden_elements = true
 end
 
