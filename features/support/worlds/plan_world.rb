@@ -34,7 +34,7 @@ end
 
 World(PlanWorld)
 
-Given(/^proposal plans exist by carriers/) do
+Given(/^that carriers with proposal plans exist/) do
   load_carriers
 end
 

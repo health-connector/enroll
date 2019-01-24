@@ -122,7 +122,6 @@ When(/^the user selects (.*?) for the (.*?) contribution$/) do |percentage, cont
   case contributor
   when 'employee'
     Capybara.ignore_hidden_elements = false
-    binding.pry
     fill_in(sliders[0], with: percentage.to_s)
     Capybara.ignore_hidden_elements = true
   when 'spouse'
@@ -147,8 +146,9 @@ When(/^the user selects Single Carrier$/) do
   # radio button
   div_array = page.all('div').to_a
   select_single_carrier = div_array.detect { |div| div.text == 'One Carrier' }
-  binding.pry
   select_single_carrier.click
+  wait_for_ajax
+  binding.pry
   Capybara.ignore_hidden_elements = true
 end
 

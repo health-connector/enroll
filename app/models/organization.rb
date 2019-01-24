@@ -271,7 +271,6 @@ class Organization
 
         carrier_names
       end
-      #binding.pry
       return carrier_names
     end
 
@@ -297,10 +296,8 @@ class Organization
 
     Rails.cache.fetch(cache_string, expires_in: 2.hour) do
       Organization.exists(carrier_profile: true).inject({}) do |carrier_names, org|
-        binding.pry
         ## don't enable Tufts for now
         unless (filters[:primary_office_location].nil?)
-          binding.pry
           next carrier_names unless CarrierServiceArea.valid_for?(office_location: office_location, carrier_profile: org.carrier_profile)
           if filters[:active_year]
             if filters[:active_year].to_s == '2017'
@@ -311,15 +308,13 @@ class Organization
           end
         end
         if (filters[:sole_source_only]) ## Only sole source carriers requested
-          binding.pry
           next carrier_names unless org.carrier_profile.offers_sole_source?  # skip carrier unless it is a sole source provider
         end
-        binding.pry
         carrier_names[org.carrier_profile.id.to_s] = org.carrier_profile.legal_name if Plan.with_premium_tables.valid_shop_health_plans("carrier", org.carrier_profile.id).select{|a| a.premium_tables.present? }.present?
         carrier_names
       end
     end
-    binding.pry
+    Plan.all
   end
 
   def self.valid_carrier_names(filters = { sole_source_only: false, primary_office_location: nil, selected_carrier_level: nil, active_year: nil })

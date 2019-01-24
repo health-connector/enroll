@@ -30,7 +30,7 @@ Feature: Create and Manage Quotes
     And the user should see a new record added to the roster
 
   Scenario: Setup Health Benefits By Carrier
-    Given proposal plans exist by carriers
+    Given that carriers with proposal plans exist
     And that a user with a Broker role exists and is logged in
     And the broker has a prospect employer with a quote
     And prospect employer has an employee on the roster
