@@ -109,8 +109,7 @@ And(/^the user selects (.*?) from the carrier selection list$/) do |plan_name|
   Capybara.ignore_hidden_elements = false
   # All of the plan options are h3 elements with a class of pdp-titles-text.
   # clicking them will select the option
-  # For the first test case we are trying to pass through Harvard Pilgrim Health Care 
-  binding.pry
+  # For the first test case we are trying to pass through Harvard Pilgrim Health Care
   Capybara.ignore_hidden_elements = true
 end
 
@@ -148,7 +147,6 @@ When(/^the user selects Single Carrier$/) do
   select_single_carrier = div_array.detect { |div| div.text == 'One Carrier' }
   select_single_carrier.click
   wait_for_ajax
-  binding.pry
   Capybara.ignore_hidden_elements = true
 end
 

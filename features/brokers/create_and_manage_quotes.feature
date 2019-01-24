@@ -36,7 +36,7 @@ Feature: Create and Manage Quotes
     And prospect employer has an employee on the roster
     When the user is on the proposal plan selection page
     When the user selects Single Carrier
-    And the user selects Harvard Pilgrim Health Care from the carrier selection list
+    And the user selects Kaiser Permanente, Inc. from the carrier selection list
     And the user selects 60% for the employee contribution
     And the user selects 50% for the spouse contribution
     And the user selects 50% for the domestic partner contribution

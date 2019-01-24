@@ -25,8 +25,18 @@ module PlanWorld
     #  product = FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_renewal_product, service_area: service_area)
     #  plan = FactoryGirl.create(:plan, hios_id: product.hios_id, service_area_id: service_area.id)
     #end
-    carrier_profile = FactoryGirl.create(:carrier_profile, legal_name: "Harvard Pilgrim Health Care", dba: "Harvard Pilgrim Health Care")
-    plan = FactoryGirl.create(:active_individual_health_plan, :with_premium_tables, carrier_profile: carrier_profile)
+    organization=FactoryGirl.create(:organization, legal_name: "Kaiser Permanente, Inc.", dba: "Kaiser")
+    carrier_profile =  FactoryGirl.create(:carrier_profile, abbrev: "KP", organization: organization, issuer_hios_ids: ['11111'])
+    carrier_service_area = FactoryGirl.create(:carrier_service_area, issuer_hios_id: '11111', serves_entire_state: true, service_area_id: 'EX123', service_area_zipcode: "01001")
+    plans = FactoryGirl.create_list(:plan, 4, :with_premium_tables, metal_level: "platinum", market: "shop", plan_type: "ppo", carrier_profile: carrier_profile, active_year: TimeKeeper.date_of_record.year, service_area_id: 'EX123')
+
+
+
+
+
+
+    # carrier_profile = FactoryGirl.create(:carrier_profile, legal_name: "Harvard Pilgrim Health Care", dba: "Harvard Pilgrim Health Care")
+    # plan = FactoryGirl.create(:active_individual_health_plan, :with_premium_tables, carrier_profile: carrier_profile)
     #health_product = FactoryGirl.create(:benefit_markets_products_health_products_health_product)
     #health_product.add_to_set(county_zip_ids: service_area.zip)
   end

@@ -52,5 +52,5 @@ Given(/^the broker has a prospect employer( with a quote)?$/) do |with_quote|
 end
 
 Given(/^prospect employer has an employee on the roster$/) do
-  FactoryGirl.create :plan_design_census_employee, benefit_sponsorship: prospect_employer.plan_design_proposals.first.profile.benefit_sponsorships.first
+  FactoryGirl.create :plan_design_census_employee, benefit_sponsorship: @prospect_employer.plan_design_proposals.first.profile.benefit_sponsorships.first
 end
