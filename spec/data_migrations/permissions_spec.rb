@@ -43,6 +43,8 @@ describe DefinePermissions, dbclean: :after_each do
         User.all.delete
         Person.all.delete
         @hbx_staff_person = FactoryGirl.create(:person)
+        @super_admin = FactoryGirl.create(:person)
+        @hbx_tier3 = FactoryGirl.create(:person)
         @hbx_read_only_person = FactoryGirl.create(:person)
         @hbx_csr_supervisor_person = FactoryGirl.create(:person)
         @hbx_csr_tier1_person = FactoryGirl.create(:person)
@@ -52,12 +54,16 @@ describe DefinePermissions, dbclean: :after_each do
         hbx_csr_supervisor_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_supervisor_person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
         hbx_csr_tier1_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_tier1_person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
         hbx_csr_tier2_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_tier2_person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+        super_admin = FactoryGirl.create(:hbx_staff_role, person: @super_admin, subrole: "super_admin", permission_id: Permission.super_admin.id)
+        hbx_tier3 = FactoryGirl.create(:hbx_staff_role, person: @hbx_tier3, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
         subject.hbx_admin_can_view_username_and_email
       end
 
       it "updates can_view_username_and_email to true" do
-        expect(Person.all.count).to eq(5)
+        expect(Person.all.count).to eq(7)
         expect(@hbx_staff_person.hbx_staff_role.permission.can_view_username_and_email).to be true
+        expect(@super_admin.hbx_staff_role.permission.can_view_username_and_email).to be true
+        expect(@hbx_tier3.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@hbx_read_only_person.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@hbx_csr_supervisor_person.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@hbx_csr_tier1_person.hbx_staff_role.permission.can_view_username_and_email).to be true
@@ -505,6 +511,213 @@ describe DefinePermissions, dbclean: :after_each do
         expect(Permission.hbx_csr_tier1.can_add_sep).to be false
         expect(Permission.hbx_csr_tier2.can_add_sep).to be false
         expect(Permission.developer.can_add_sep).to be false
+      end
+    end
+
+    describe 'update permissions for super admin role to be able to create benefit application' do
+      let(:given_task_name) {':hbx_admin_can_create_benefit_application'}
+
+      before do
+        User.all.delete
+        Person.all.delete
+      end
+
+      context "of an hbx super admin" do
+        let(:hbx_super_admin) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_super_admin.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns true' do
+            expect(hbx_super_admin.hbx_staff_role.permission.can_create_benefit_application).to be true
+          end
+        end
+      end
+
+      context "of an hbx staff" do
+        let(:hbx_staff) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_staff.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(hbx_staff.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
+      end
+
+      context "of an hbx read only" do
+        let(:hbx_read_only) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_read_only.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(hbx_read_only.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
+      end
+
+      context "of an hbx csr supervisor" do
+        let(:hbx_csr_supervisor) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_csr_supervisor.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(hbx_csr_supervisor.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
+      end
+
+      context "of an hbx csr tier1" do
+        let(:hbx_csr_tier1) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_csr_tier1.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(hbx_csr_tier1.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
+      end
+
+      context "of an hbx csr tier2" do
+        let(:hbx_csr_tier2) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_csr_tier2.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(hbx_csr_tier2.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
+      end
+
+      context "of an hbx tier3" do
+        let(:hbx_tier3) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_tier3.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns true' do
+            expect(hbx_tier3.hbx_staff_role.permission.can_create_benefit_application).to be true
+          end
+        end
+      end
+
+      context "of an hbx staff" do
+        let(:hbx_staff) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(hbx_staff.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(hbx_staff.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
+      end
+
+      context "of an hbx staff" do
+        let(:developer) do
+          FactoryGirl.create(:person).tap do |person|
+            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          end
+        end
+
+        it 'returns false before the rake task is ran' do
+          expect(developer.hbx_staff_role.permission.can_create_benefit_application).to be false
+        end
+
+        context 'after the rake task is run' do
+          before do
+            subject.hbx_admin_can_create_benefit_application
+          end
+
+          it 'returns false' do
+            expect(developer.hbx_staff_role.permission.can_create_benefit_application).to be false
+          end
+        end
       end
     end
   end
