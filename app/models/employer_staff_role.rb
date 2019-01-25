@@ -41,6 +41,10 @@ class EmployerStaffRole
     aasm_state.humanize.titleize
   end
 
+  def is_active?
+    aasm_state == "is_active"
+  end
+
   def profile
     BenefitSponsors::Organizations::Profile.find(benefit_sponsor_employer_profile_id)
   end
