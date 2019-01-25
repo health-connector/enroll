@@ -7,37 +7,14 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_s
 
 RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
-  # include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
-
-  let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
-  let(:benefit_market) { site.benefit_markets.first }
-  let!(:current_benefit_market_catalog) do
-    BenefitSponsors::ProductSpecHelpers.construct_cca_simple_benefit_market_catalog(site, benefit_market, effective_period)
-    benefit_market.benefit_market_catalogs.where(
-      "application_period.min" => effective_period.min
-    ).first
-  end
 
   let(:current_effective_date) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
 
-  let(:service_areas) do
-    ::BenefitMarkets::Locations::ServiceArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).all.to_a
-  end
-
-  let(:rating_area) do
-    ::BenefitMarkets::Locations::RatingArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).first
-  end
-
   let!(:employer_profile) {benefit_sponsorship.profile}
   let!(:organization) {employer_profile.organization}
-  let!(:rating_area) {FactoryGirl.create_default :benefit_markets_locations_rating_area}
-  let!(:service_area) {FactoryGirl.create_default :benefit_markets_locations_service_area}
-  let!(:benefit_sponsor_catalog) {FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: service_areas)}
+  let!(:benefit_sponsor_catalog) {FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [renewal_service_area])}
 
   let!(:benefit_application) {initial_application}
   let!(:benefit_package) {benefit_application.benefit_packages.first}
@@ -2044,6 +2021,12 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         coverage_date = initial_application.end_on - 1.month
         expect(census_employee.benefit_package_for_date(coverage_date)).to eq nil
       end
+
+      it "should return nil if given coverage_date is not between the bga start_on and end_on dates" do
+        initial_application.update_attributes(aasm_state: :imported)
+        coverage_date = census_employee.benefit_group_assignments.first.start_on - 1.month
+        expect(census_employee.benefit_group_assignment_for_date(coverage_date)).to eq nil
+      end
     end
 
     context "when ER has active and renewal benefit applications" do
@@ -2057,7 +2040,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       end
 
       it "should return renewal benefit_package if given effective_on date is in renewal benefit application" do
-        census_employee.active_benefit_group_assignment.update_attributes(is_active: false)
+        census_employee.active_benefit_group_assignment.update_attributes!(is_active: false)
+        census_employee.inactive_benefit_group_assignments.first.benefit_package.update_attributes!(is_active: false)
         benefit_group_assignment_two
         coverage_date = renewal_application.start_on
         expect(census_employee.benefit_package_for_date(coverage_date)).to eq renewal_application.benefit_packages.first
@@ -2092,7 +2076,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         census_employee.benefit_group_assignments.where(:"benefit_package_id".in => benefit_application.benefit_packages.map(&:id)).each do |bga|
           # when there is both MYC & Imported Plan years, is_active for imported plan year's bga's should be false
           # to allow plan shop through myc plan years
-          bga.update_attributes(is_active: false)
+          bga.update_attributes!(is_active: false)
+          bga.benefit_package.update_attributes!(is_active: false)
         end
         expect(census_employee.benefit_package_for_date(coverage_date)).to eq myc_application.benefit_packages.first
       end
