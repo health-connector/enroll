@@ -11,24 +11,13 @@ module PlanWorld
   end
 
   def load_carriers
-    #benefit_market_catalog = BenefitMarkets::BenefitMarketCatalog.all.last
-    #FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: @site
-    #product_package_kind = :single_issuer
-    #product_package = benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first
+    year = TimeKeeper.date_of_record.year
+    plan = FactoryGirl.create :plan, :with_premium_tables, active_year: year, market: 'shop', coverage_kind: 'health', deductible: 4000, is_sole_source: false
+    plan2 = FactoryGirl.create :plan, :with_premium_tables, active_year: (year - 1), market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id, is_sole_source: false
+    sole_source_plan = FactoryGirl.create_list :plan, 4, :with_rating_factors, :with_premium_tables, active_year: year, market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id, is_vertical: false, is_horizontal: false, is_sole_source: true
+    sole_source_plan_two = FactoryGirl.create_list :plan, 4, :with_rating_factors, :with_premium_tables, active_year: (year - 1), market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id, is_vertical: false, is_horizontal: false, is_sole_source: true
 
-    #product = product_package.products.first
-    #service_area = FactoryGirl.create(:benefit_markets_locations_service_area)
-    #service_area_zip = registering_employer.employer_profile.office_locations.first.address.zip
-    #service_area.add_to_set(county_zip_ids: service_area_zip)
-    #service_area.save
-    #5.times do 
-    #  product = FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_renewal_product, service_area: service_area)
-    #  plan = FactoryGirl.create(:plan, hios_id: product.hios_id, service_area_id: service_area.id)
-    #end
-    organization=FactoryGirl.create(:organization, legal_name: "Kaiser Permanente, Inc.", dba: "Kaiser")
-    carrier_profile =  FactoryGirl.create(:carrier_profile, abbrev: "KP", organization: organization, issuer_hios_ids: ['11111'])
-    carrier_service_area = FactoryGirl.create(:carrier_service_area, issuer_hios_id: '11111', serves_entire_state: true, service_area_id: 'EX123', service_area_zipcode: "01001")
-    plans = FactoryGirl.create_list(:plan, 4, :with_premium_tables, metal_level: "platinum", market: "shop", plan_type: "ppo", carrier_profile: carrier_profile, active_year: TimeKeeper.date_of_record.year, service_area_id: 'EX123')
+    # carrier_service_area = FactoryGirl.create(:carrier_service_area, issuer_hios_id: '11111', serves_entire_state: true, service_area_id: 'EX123', service_area_zipcode: "01001")
 
 
 

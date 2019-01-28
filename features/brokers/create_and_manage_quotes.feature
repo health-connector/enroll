@@ -1,6 +1,5 @@
 Feature: Create and Manage Quotes
-  In order for Brokers to be able to send a quote to an employe to claim
-  The broker should be able to generate a quote
+  In order for Brokers to be able to generate a quote to a prospect employer
 
   Background: Set up site and broker
     Given a CCA site exists with a benefit market
@@ -36,7 +35,7 @@ Feature: Create and Manage Quotes
     And prospect employer has an employee on the roster
     When the user is on the proposal plan selection page
     When the user selects Single Carrier
-    And the user selects Kaiser Permanente, Inc. from the carrier selection list
+    And the user selects BMC HealthNet Plan from the carrier selection list
     And the user selects 60% for the employee contribution
     And the user selects 50% for the spouse contribution
     And the user selects 50% for the domestic partner contribution

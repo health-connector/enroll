@@ -314,7 +314,6 @@ class Organization
         carrier_names
       end
     end
-    Plan.all
   end
 
   def self.valid_carrier_names(filters = { sole_source_only: false, primary_office_location: nil, selected_carrier_level: nil, active_year: nil })

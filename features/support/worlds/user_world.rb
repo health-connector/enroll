@@ -106,16 +106,28 @@ Then(/^the user should be on the Select Health Benefits page$/) do
 end
 
 And(/^the user selects (.*?) from the carrier selection list$/) do |plan_name|
+  # page.find(:xpath, "//*[@id='singleCarrierCarrierList']/div[2]/div[2]/label").click
+  # find('input[name="single_carrier"]').click
+  # carrier = CarrierProfile.all.first.id.to_s
+  # find("#single_carrier_#{carrier}_link").click
+  # find("", visible: false)[2].click
+  find('input[name="single_carrier"]', visible: false).click
   Capybara.ignore_hidden_elements = false
-  # All of the plan options are h3 elements with a class of pdp-titles-text.
-  # clicking them will select the option
-  # For the first test case we are trying to pass through Harvard Pilgrim Health Care
   Capybara.ignore_hidden_elements = true
 end
 
 When(/^the user selects (.*?) for the (.*?) contribution$/) do |percentage, contributor|
   Capybara.ignore_hidden_elements = false
   inputs = page.all('input')
+  # find('input.contribution_slide_handler.slider').attr('data-value', '0');
+  #
+  # find('input.hidden-param.contribution_handler.premium-storage-input').val("0");
+
+
+
+
+
+
   sliders = inputs.select { |input| input[:class] == "contribution_slide_handler" }
   Capybara.ignore_hidden_elements = true
   case contributor
@@ -141,13 +153,8 @@ end
 
 When(/^the user selects Single Carrier$/) do
   Capybara.ignore_hidden_elements = false
-  # On the UI, selecting the "Div" will then select a hidden
-  # radio button
-  div_array = page.all('div').to_a
-  select_single_carrier = div_array.detect { |div| div.text == 'One Carrier' }
-  select_single_carrier.trigger('click')
-  wait_for_ajax
-  binding.pry
+  find('label[for=forms_plan_design_proposal_plan_option_kind_single_carrier]').click
+  # find(".carriers", visible: false)[2].click
   Capybara.ignore_hidden_elements = true
 end
 
