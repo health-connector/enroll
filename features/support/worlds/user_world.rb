@@ -90,3 +90,17 @@ Then(/^the user enters a new open enrollment end date$/) do
   input = find('input.hasDatepicker')
   input.set(Date.today+1.week)
 end
+
+Given(/^the user is on the Benefits page for (.*?)$/) do |legal_name|
+  profile_id = @organization.employer_profile.id.to_s
+  visit benefit_sponsors.profiles_employers_employer_profile_path(profile_id, :tab=>'benefits')
+    expect(page).to have_content('Benefits - Coverage You Offer')
+end
+
+When(/^the user clicks the Claim Quote button$/) do
+  find('a.interaction-click-control-claim-quote', text: 'Claim Quote').click
+end
+
+When(/^the user clicks Claim Code$/) do
+  find('.interaction-click-control-claim-code', text: 'Claim Code').click
+end

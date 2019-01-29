@@ -25,10 +25,6 @@ module EmployerWorld
     end
   end
 
-  def check_benefit_application_status
-    employer_profile.active_benefit_sponsorship
-  end
-
   private
 
   def update_initial_enrollment_period(quote,period)
@@ -61,5 +57,5 @@ Given(/^(.*?) has a valid quote for (.*?)?$/) do |broker, employer|
 end
 
 Given(/^ABC Widgets does not have a benefit application$/) do
-  check_benefit_application_status.nil?
+  expect(@employer_profile.benefit_sponsorships.first.benefit_applications.present?).to be_falsy
 end
