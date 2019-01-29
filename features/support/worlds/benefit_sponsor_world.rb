@@ -3,6 +3,7 @@ module BenefitSponsorWorld
   def benefit_sponsorship(employer = nil)
     @benefit_sponsorship ||= employer.employer_profile.add_benefit_sponsorship.tap do |benefit_sponsorship|
     end
+    @benefit_sponsorship.save! if @benefit_sponsorship.valid?
   end
 
   def benefit_sponsor_catalog
