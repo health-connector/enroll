@@ -36,10 +36,7 @@ Feature: Create and Manage Quotes
     When the user is on the proposal plan selection page
     When the user selects Single Carrier
     And the user selects BMC HealthNet Plan from the carrier selection list
-    And the user selects 60% for the employee contribution
-    And the user selects 50% for the spouse contribution
-    And the user selects 50% for the domestic partner contribution
-    And the user selects 50% for the child contribution
+    And the broker sets contribution
     And the user selects a reference plan
     Then the user should remain on the Select Health Benefits Page
     And the user should see a quote price

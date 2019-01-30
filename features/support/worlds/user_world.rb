@@ -116,46 +116,78 @@ And(/^the user selects (.*?) from the carrier selection list$/) do |plan_name|
   Capybara.ignore_hidden_elements = true
 end
 
-When(/^the user selects (.*?) for the (.*?) contribution$/) do |percentage, contributor|
+When(/^the broker sets contribution$/) do
   Capybara.ignore_hidden_elements = false
-  inputs = page.all('input')
+  # inputs = page.all('input')
   # find('input.contribution_slide_handler.slider').attr('data-value', '0');
   #
   # find('input.hidden-param.contribution_handler.premium-storage-input').val("0");
+  # find_all("input.contribution_slide_handler.slider.premium-storage-input").each do |capybara|
+  #   path = capybara.path
+  #   find(:xpath, path).set('60')
+  # end
+  # need to find a better way to find boot strap slider
+  find(:xpath, "//*[@id='forms_plan_design_proposal_profile_benefit_sponsorship_benefit_application_benefit_group_relationship_benefits_attributes_0_premium_pct']").set('90')
+  find(:xpath, "//*[@id='forms_plan_design_proposal_profile_benefit_sponsorship_benefit_application_benefit_group_relationship_benefits_attributes_1_premium_pct']").set('90')
+  find(:xpath, "//*[@id='forms_plan_design_proposal_profile_benefit_sponsorship_benefit_application_benefit_group_relationship_benefits_attributes_2_premium_pct']").set('90')
+  find(:xpath, "//*[@id='forms_plan_design_proposal_profile_benefit_sponsorship_benefit_application_benefit_group_relationship_benefits_attributes_3_premium_pct']").set('90')
+  # find(:xpath, "//*[@id='new_forms_plan_design_proposal']/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/div[1]/fieldset/div[2]/div/div[2]/input").set(style: {left: 47%;})
 
-
-
-
-
-
-  sliders = inputs.select { |input| input[:class] == "contribution_slide_handler" }
+  # page.execute_script("$('#forms_plan_design_proposal_profile_benefit_sponsorship_benefit_application_benefit_group_composite_tier_contributions_attributes_0_employer_contribution_percent').slider('setValue', [0,80])")
+  # find_all("input.contribution_slide_handler.slider.premium-storage-input")[0].set("80")
+  # find_all("input.contribution_slide_handler.slider.premium-storage-input")[1].set("80")
+  # find_all("input.contribution_slide_handler.slider.premium-storage-input")[2].set("80")
+  # find_all("input.contribution_slide_handler.slider.premium-storage-input")[3].set("80")
+  
+  # sliders = inputs.select { |input| input[:class] == "contribution_slide_handler" }
   Capybara.ignore_hidden_elements = true
-  case contributor
-  when 'employee'
-    Capybara.ignore_hidden_elements = false
-    fill_in(sliders[0], with: percentage.to_s)
-    Capybara.ignore_hidden_elements = true
-  when 'spouse'
-    Capybara.ignore_hidden_elements = false
-    fill_in(sliders[1], with: percentage.to_s)
-    Capybara.ignore_hidden_elements = true
-  when 'domestic partner'
-    Capybara.ignore_hidden_elements = false
-    fill_in(sliders[2], with: percentage.to_s)
-    Capybara.ignore_hidden_elements = true
-  when 'child'
-    Capybara.ignore_hidden_elements = false
-    fill_in(sliders[3], with: percentage.to_s)
-    Capybara.ignore_hidden_elements = true
-  end
+  # case contributor
+  # when 'employee'
+  #   Capybara.ignore_hidden_elements = false
+  #   fill_in(sliders[0], with: percentage.to_s)
+  #   Capybara.ignore_hidden_elements = true
+  # when 'spouse'
+  #   Capybara.ignore_hidden_elements = false
+  #   fill_in(sliders[1], with: percentage.to_s)
+  #   Capybara.ignore_hidden_elements = true
+  # when 'domestic partner'
+  #   Capybara.ignore_hidden_elements = false
+  #   fill_in(sliders[2], with: percentage.to_s)
+  #   Capybara.ignore_hidden_elements = true
+  # when 'child'
+  #   Capybara.ignore_hidden_elements = false
+  #   fill_in(sliders[3], with: percentage.to_s)
+  #   Capybara.ignore_hidden_elements = true
+  # end
 end
 
 
 When(/^the user selects Single Carrier$/) do
   Capybara.ignore_hidden_elements = false
-  find('label[for=forms_plan_design_proposal_plan_option_kind_single_carrier]').click
+  sleep 3
+  find('label[for=forms_plan_design_proposal_plan_option_kind_single_carrier]', visible: false).click
   # find(".carriers", visible: false)[2].click
   Capybara.ignore_hidden_elements = true
+end
+
+When(/^the user selects a reference plan$/) do
+ Capybara.ignore_hidden_elements = false
+ find('input[name="reference_plan"]', visible: false).click
+end
+
+When(/^the user should remain on the Select Health Benefits Page$/) do
+  Capybara.ignore_hidden_elements = false
+
+end
+
+
+When(/^the user should see a quote price$/) do
+
+end
+
+When(/^the user should see a new UI element labelled 'Health Plan Information'$/) do
+
+
 end
 
 Then(/^the user should see a success message confirming creation of the (.*?)$/) do |model_name|
