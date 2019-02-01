@@ -1,6 +1,7 @@
+require 'rails_helper'
 
 module BenefitSponsors
-  RSpec.describe BenefitSponsors::EmployerProfilePolicy, dbclean: :after_each do
+  RSpec.describe EmployerProfilePolicy, dbclean: :after_each do
     let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:profile) { organization.employer_profile }
@@ -62,10 +63,11 @@ module BenefitSponsors
     context 'person with HBX admin role' do
       let(:person) { FactoryGirl.create(:person) }
       let(:user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: person) }
-      let(:hbx_staff_role) {FactoryGirl.create(:hbx_staff_role, person: user.person) }
+      let(:hbx_staff_role) { HbxStaffRole.new(person: user.person) }
       
       before :each do
-        allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :hbx_staff))
+        allow(hbx_staff_role).to receive_message_chain(:permission, :modify_employer).and_return true
+        allow(hbx_staff_role).to receive_message_chain(:permission, :list_enrollments).and_return true
         user.person.hbx_staff_role = hbx_staff_role 
       end
 
