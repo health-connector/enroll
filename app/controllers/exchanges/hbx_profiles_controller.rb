@@ -23,12 +23,12 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def oe_extendable_applications
-    @benefit_applications  = @benefit_sponsorship.benefit_applications.select{|application| application.may_extend_open_enrollment?}
+    @benefit_applications  = @benefit_sponsorship.oe_extendable_benefit_applications
     @element_to_replace_id = params[:employer_actions_id]
   end
 
   def oe_extended_applications
-    @benefit_applications  = @benefit_sponsorship.benefit_applications.select{|application| application.enrollment_extended?}
+    @benefit_applications  = @benefit_sponsorship.oe_extended_applications
     @element_to_replace_id = params[:employer_actions_id]
   end
 
@@ -37,6 +37,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def extend_open_enrollment
+    authorize HbxProfile, :can_extend_open_enrollment?
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
     open_enrollment_end_date = Date.strptime(params["open_enrollment_end_date"], "%m/%d/%Y")
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).extend_open_enrollment(open_enrollment_end_date)
@@ -44,6 +45,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def close_extended_open_enrollment
+    authorize HbxProfile, :can_extend_open_enrollment?
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).end_open_enrollment(TimeKeeper.date_of_record)
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully closed employer(s) open enrollment." }
@@ -101,6 +103,16 @@ class Exchanges::HbxProfilesController < ApplicationController
     #redirect_to exchanges_hbx_profiles_root_path
 
      respond_to do |format|
+       format.js
+     end
+  end
+
+  def force_publish
+      @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:"_id".in => params[:ids])
+      benefit_application = @benfit_sponsorships.first.benefit_applications.draft_state.last
+      @service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(benefit_application)
+      @service.force_submit_application
+      respond_to do |format|
        format.js
      end
   end

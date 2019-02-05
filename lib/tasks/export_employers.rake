@@ -129,7 +129,7 @@ namespace :export do
       broker_account ||= benefit_sponsorship.broker_agency_accounts.first
       broker_role ||= broker_account.broker_agency_profile.primary_broker_role if broker_account.present?
 
-      staff_role = profile.staff_roles.first
+      staff_role = profile.staff_roles.detect {|person| person.user.present? }
       intial_tier, final_tier = composite_premiums(package)
       similar_params = [reference_product.try(:issuer_profile_id),
         reference_product.try(:metal_level),

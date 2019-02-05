@@ -6,7 +6,7 @@ module BenefitSponsors
       attr_accessor :notifier
 
       def broker_hired?(account, options={})
-        if !account.persisted? && account.valid? && account.benefit_sponsorship.present?
+        if !account.persisted? && account.valid? && account.benefit_sponsorship?
           profile = account.benefit_sponsorship.profile
           notify(
             "acapi.info.events.employer.broker_added",
@@ -37,10 +37,10 @@ module BenefitSponsors
           broker_agency_account = new_model_event.klass_instance
 
           if broker_agency_account.benefit_sponsorship.present?
-
             broker_agency_profile = broker_agency_account.broker_agency_profile
             broker = broker_agency_profile.primary_broker_role
             employer_profile = broker_agency_account.benefit_sponsorship.profile
+
 
             if BenefitSponsors::ModelEvents::BrokerAgencyAccount::REGISTERED_EVENTS.include?(new_model_event.event_key)
               if new_model_event.event_key == :broker_hired

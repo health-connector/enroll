@@ -40,7 +40,7 @@ module BenefitSponsors
       context 'when a family account hires a broker agency' do
 
         let(:broker_role) { FactoryGirl.create(:broker_role, :aasm_state => 'active', broker_agency_profile: broker_agency_profile) }
-        let(:account) { build :benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile, benefit_sponsorship: benefit_sponsorship }
+        let(:account) { build :benefit_sponsors_accounts_broker_agency_account, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id}
 
         before do
           account.benefit_sponsorship = nil
