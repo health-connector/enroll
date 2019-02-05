@@ -11,4 +11,7 @@ HBX_PROFILES_TRANSLATIONS = {
 	"en.hbx_profiles.last_updated_at" => "Last Updated At",
 	"en.hbx_profiles.edit_open_enrollment" => "Edit Open Enrollment",
 	"en.hbx_profiles.close_open_enrollment" => "Close Open Enrollment",
+	"en.hbx_profiles.change_fein" => "Change FEIN",
+	"en.hbx_profiles.new_fein" => "New FEIN",
+	"en.hbx_profiles.update_fein_success" => "FEIN Update Successful"
 }
