@@ -312,7 +312,6 @@ module BenefitSponsors
       include_context "setup benefit market with market catalogs and product packages"
       include_context "setup initial benefit application"
 
-
       before do
         benefit_application.benefit_sponsorship = benefit_sponsorship
         benefit_application.save!
@@ -368,7 +367,7 @@ module BenefitSponsors
 
                     it "should transition to state: :expired on application and applicant on benefit_sponsorship" do
                       expect(benefit_application.aasm_state).to eq :expired
-                      expect(benefit_application.benefit_sponsorship.aasm_state).to eq :applicant
+                      expect(benefit_application.benefit_sponsorship.aasm_state).to eq :active
                     end
 
                     context "and application can be terminated even after being expired" do
