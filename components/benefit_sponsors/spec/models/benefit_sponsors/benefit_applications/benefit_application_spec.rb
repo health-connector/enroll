@@ -367,7 +367,7 @@ module BenefitSponsors
 
                     it "should transition to state: :expired on application and applicant on benefit_sponsorship" do
                       expect(benefit_application.aasm_state).to eq :expired
-                      expect(benefit_application.benefit_sponsorship.aasm_state).to eq :applicant
+                      expect(benefit_application.benefit_sponsorship.aasm_state).to eq :active
                     end
 
                     context "and application can be terminated even after being expired" do
