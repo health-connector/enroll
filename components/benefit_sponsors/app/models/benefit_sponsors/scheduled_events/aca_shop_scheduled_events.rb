@@ -120,26 +120,26 @@ module BenefitSponsors
 
       def auto_transmit_monthly_benefit_sponsors
         if aca_shop_market_transmit_scheduled_employers
-          if (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month
+           # [26, 27, 28, 29, 30, 31] >= 26
+          if (new_date.prev_day.mday + 1) >= aca_shop_market_employer_transmission_day_of_month
             transmit_scheduled_benefit_sponsors(new_date)
           end
         end
       end
 
       def transmit_scheduled_benefit_sponsors(new_date, feins=[])
-        start_on = new_date.next_month.beginning_of_month
+        start_on = new_date.prev_day.next_month.beginning_of_month
+        transition_at = (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month ? nil : new_date.prev_day
         benefit_sponsors = BenefitSponsors::BenefitSponsorships::BenefitSponsorship
         benefit_sponsors = benefit_sponsors.find_by_feins(feins) if feins.any?
-        
-        benefit_sponsors.may_transmit_renewal_enrollment?(start_on).each do |benefit_sponsorship|
+        benefit_sponsors.may_transmit_renewal_enrollment?(start_on, transition_at).each do |benefit_sponsorship|
           begin
             execute_sponsor_event(benefit_sponsorship, :transmit_renewal_eligible_event) if benefit_sponsorship.is_renewal_transmission_eligible?
             execute_sponsor_event(benefit_sponsorship, :transmit_renewal_carrier_drop_event) if benefit_sponsorship.is_renewal_carrier_drop?
           rescue Exception => e 
           end
         end
-
-        benefit_sponsors.may_transmit_initial_enrollment?(start_on).each do |benefit_sponsorship|
+        benefit_sponsors.may_transmit_initial_enrollment?(start_on, transition_at).each do |benefit_sponsorship|
           begin
             execute_sponsor_event(benefit_sponsorship, :transmit_initial_eligible_event)
           rescue Exception => e 
