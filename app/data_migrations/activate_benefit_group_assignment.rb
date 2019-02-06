@@ -4,7 +4,7 @@ class ActivateBenefitGroupAssignment < MongoidMigrationTask
   def migrate
     begin
       bga_id = ENV['bga_id']
-      census_employee = CensusEmployee.by_benefit_group_assignment_ids([bga_id]).first
+      census_employee = CensusEmployee.where(:'benefit_group_assignments._id' => BSON::ObjectId(bga_id)).first
 
       if census_employee.nil?
         puts "No census employee was found with given benefit group assignment id" unless Rails.env.test?
