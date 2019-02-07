@@ -229,8 +229,8 @@ describe DefinePermissions, dbclean: :after_each do
             subject.hbx_admin_can_force_publish
           end
 
-          it 'returns false' do
-            expect(hbx_tier3.hbx_staff_role.permission.can_force_publish).to be false
+          it 'returns true' do
+            expect(hbx_tier3.hbx_staff_role.permission.can_force_publish).to be true
           end
         end
       end
@@ -718,6 +718,22 @@ describe DefinePermissions, dbclean: :after_each do
             expect(developer.hbx_staff_role.permission.can_create_benefit_application).to be false
           end
         end
+      end
+    end
+
+    describe 'super_admin can update plan years from admin index' do
+      before do
+        User.all.delete
+        Person.all.delete
+      end
+      let(:super_admin) do
+        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+        end
+      end
+
+      it 'returns true' do
+        expect(super_admin.hbx_staff_role.permission.can_modify_plan_year).to be true
       end
     end
   end

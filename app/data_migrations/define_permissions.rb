@@ -112,6 +112,11 @@ class DefinePermissions < MigrationTask
 
   def hbx_admin_can_force_publish
     Permission.super_admin.update_attributes(can_force_publish: true)
+    Permission.hbx_tier3.update_attributes(can_force_publish: true)
+  end
+
+  def hbx_admin_can_modify_plan_year
+    Permission.super_admin.update_attributes(can_modify_plan_year: true)
   end
 
   def hbx_admin_can_extend_open_enrollment
