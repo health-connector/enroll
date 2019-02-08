@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe "a monthly shop enrollment query" do
+describe "a monthly shop enrollment query", dbclean: :after_each do
   # TODO Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on) updated to new model in
   # app/models/queries/named_enrollment_queries.rb
   describe "given an employer who has completed their first open enrollment" do

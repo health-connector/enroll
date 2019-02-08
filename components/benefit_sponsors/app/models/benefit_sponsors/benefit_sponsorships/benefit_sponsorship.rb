@@ -547,7 +547,7 @@ module BenefitSponsors
         transitions from: [:applicant, :initial_application_approved,
                           :initial_application_under_review, :initial_application_denied,
                           :initial_enrollment_closed, :initial_enrollment_eligible, :binder_reversed,
-                          :initial_enrollment_ineligible], to: :applicant
+                          :initial_enrollment_ineligible, :terminated], to: :applicant
       end
 
       event :terminate do
@@ -622,10 +622,10 @@ module BenefitSponsors
         begin_coverage! if may_begin_coverage?
       when :expired
         cancel! if may_cancel?
+      when :terminated
+        terminate! if may_terminate?
       when :canceled
-        if aasm.current_event == :activate_enrollment! || aasm.from_state == :enrollment_ineligible
-          cancel! if may_cancel?
-        end
+        cancel! if may_cancel?
       when :draft
         revert_to_applicant! if may_revert_to_applicant?
       when :enrollment_extended

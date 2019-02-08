@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe "a monthly shop renewal termination query" do
+describe "a monthly shop renewal termination query", dbclean: :after_each do
 # TODO   app/models/subscribers/shop_renewal_transmission_authorized.rb
  #  Fix specs when shop_monthly_terminations scenario fixed in app/models/subscribers/shop_renewal_transmission_authorized.rb
   describe "given a renewing employer who has completed their open enrollment" do
