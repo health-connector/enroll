@@ -620,8 +620,6 @@ module BenefitSponsors
         deny_initial_enrollment_eligibility! if may_deny_initial_enrollment_eligibility?
       when :active
         begin_coverage! if may_begin_coverage?
-      when :expired
-        cancel! if may_cancel?
       when :terminated
         terminate! if may_terminate?
       when :canceled
