@@ -143,6 +143,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def edit_force_publish
     @element_to_replace_id = params[:employer_actions_id]
     @benefit_application = @benefit_sponsorship.benefit_applications.draft_state.last
+
     respond_to do |format|
      format.js
    end
@@ -150,9 +151,15 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def force_publish
     @element_to_replace_id = params[:employer_actions_id]
-    @benefit_application = @benefit_sponsorship.benefit_applications.draft_state.last
-    @service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
-    @service.force_submit_application
+    @benefit_application   = @benefit_sponsorship.benefit_applications.draft_state.last
+    
+    if @benefit_application.present?
+      @service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
+      if @service.may_force_submit_application? || params[:publish_with_warnings] == 'true'
+        @service.force_submit_application      
+      end
+    end
+
     respond_to do |format|
       format.js
     end
