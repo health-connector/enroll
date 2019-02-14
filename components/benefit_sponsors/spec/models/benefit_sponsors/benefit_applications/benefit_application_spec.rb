@@ -501,6 +501,24 @@ module BenefitSponsors
           end
         end
 
+        context "renewal application generation in late rates scenario" do
+
+          before  do
+            TimeKeeper.set_date_of_record_unprotected!(renewal_application.open_enrollment_period.min.to_date.next_day)
+            renewal = initial_application.renew(renewal_benefit_sponsor_catalog)
+            renewal.save
+            benefit_sponsorship.reload
+          end
+
+          after  do
+            TimeKeeper.set_date_of_record_unprotected!(Date.today)
+          end
+
+          it "should have correct open_enrollment_period" do
+            expect(benefit_sponsorship.renewal_benefit_application.open_enrollment_period.min).to eq [renewal_benefit_sponsor_catalog.open_enrollment_period.min.next_day, TimeKeeper.date_of_record].max
+          end
+        end
+
         context "when renewal application moved to enrollment_open state" do
 
           before do

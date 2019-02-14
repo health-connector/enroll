@@ -564,7 +564,8 @@ module BenefitSponsors
       if new_benefit_sponsor_catalog.effective_date != end_on + 1.day
         raise StandardError, "effective period must begin on #{end_on + 1.day}"
       end
-
+      open_enrollment_start_date = [new_benefit_sponsor_catalog.open_enrollment_period.min.to_date, TimeKeeper.date_of_record.to_date].max
+      oe_period = open_enrollment_start_date..new_benefit_sponsor_catalog.open_enrollment_period.max
       renewal_application = benefit_sponsorship.benefit_applications.new(
         fte_count:                fte_count,
         pte_count:                pte_count,
@@ -572,7 +573,7 @@ module BenefitSponsors
         benefit_sponsor_catalog:  new_benefit_sponsor_catalog,
         predecessor:              self,
         effective_period:         new_benefit_sponsor_catalog.effective_period,
-        open_enrollment_period:   new_benefit_sponsor_catalog.open_enrollment_period
+        open_enrollment_period:   oe_period
       )
 
       renewal_application.pull_benefit_sponsorship_attributes

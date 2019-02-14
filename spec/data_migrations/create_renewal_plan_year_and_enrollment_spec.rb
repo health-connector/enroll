@@ -22,7 +22,7 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
 
     let!(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
     let(:market_inception) { TimeKeeper.date_of_record.year }
-    let!(:current_effective_date) { Date.new(TimeKeeper.date_of_record.last_year.year, TimeKeeper.date_of_record.month, 1) }
+    let!(:current_effective_date) { Date.new(TimeKeeper.date_of_record.last_year.year, (TimeKeeper.date_of_record + 2.months).month, 1) }
     let(:aasm_state) { :active }
     let!(:save_catalog){ benefit_market.benefit_market_catalogs.map(&:save)}
     let(:business_policy) { instance_double("some_policy", success_results: "validated successfully")}
