@@ -1,3 +1,4 @@
+@wip
 Feature: EE plan purchase
 
   Scenario: when EE purchase plan for self & dependent
@@ -27,7 +28,7 @@ Feature: EE plan purchase
     When employee unchecks the dependent
     And employee clicked on shop for new plan
     Then employee should see primary person
-    
+
   Scenario: EE having an ineligible family member & doing plan shop
     Given a matched Employee exists with only employee role
     And employee has a valid "Married" qle
@@ -91,4 +92,3 @@ Feature: EE plan purchase
     And employee should also see the reason for ineligibility
     When employee clicked on shop for new plan
     Then employee should see primary and valid dependent
-
