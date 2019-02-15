@@ -51,6 +51,19 @@ class Exchanges::HbxProfilesController < ApplicationController
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully closed employer(s) open enrollment." }
   end
 
+  def new_benefit_application
+    authorize HbxProfile, :can_create_benefit_application?
+    @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_new(new_ba_params)
+    @element_to_replace_id = params[:employer_actions_id]
+  end
+
+  def create_benefit_application
+    @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
+    authorize @ba_form, :updateable?
+    @save_errors = benefit_application_error_messages(@ba_form) unless @ba_form.save
+    @element_to_replace_id = params[:employer_actions_id]
+  end
+
   def edit_fein
     @organization = @benefit_sponsorship.organization
     @element_to_replace_id = params[:employer_actions_id]
@@ -69,19 +82,6 @@ class Exchanges::HbxProfilesController < ApplicationController
       format.js { render "edit_fein" } if @errors_on_save
       format.js { render "update_fein" }
     end
-  end
-
-  def new_benefit_application
-    authorize HbxProfile, :can_create_benefit_application?
-    @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_new(new_ba_params)
-    @element_to_replace_id = params[:employer_actions_id]
-  end
-
-  def create_benefit_application
-    @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
-    authorize @ba_form, :updateable?
-    @save_errors = benefit_application_error_messages(@ba_form) unless @ba_form.save
-    @element_to_replace_id = params[:employer_actions_id]
   end
 
   def binder_paid
