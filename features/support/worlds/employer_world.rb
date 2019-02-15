@@ -1,17 +1,16 @@
 module EmployerWorld
 
-  def employer(legal_name, *traits)
+  def employer(*traits)
     attributes = traits.extract_options!
-    @organization ||= {}
-    @organization[legal_name] ||= FactoryGirl.create(
+    @organization ||= FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
       attributes.merge(site: site)
     )
   end
 
-  def employer_profile(legal_name)
-    @employer_profile = employer(legal_name).employer_profile
+  def employer_profile
+    @employer_profile = employer.employer_profile
   end
 
   def registering_employer
