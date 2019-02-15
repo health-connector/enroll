@@ -20,7 +20,7 @@ Then(/they attempt to submit a new password/) do
   fill_in 'user[password]', with: 'thisisnotthepassword'
   fill_in 'user[new_password]', with: 'NewPass!@#$1234'
   fill_in 'user[password_confirmation]', with: 'NewPass!@#$1234'
-  page.find_button('Change my password').trigger('click')
+  page.find_button('Change my password').click
   wait_for_ajax
 end
 

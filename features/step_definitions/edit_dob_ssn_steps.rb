@@ -29,7 +29,7 @@ end
 
 When(/^Hbx Admin enters an invalid SSN and clicks on update$/) do
   fill_in 'person[ssn]', :with => '212-31-31'
-  page.find_button("Update").trigger("click")
+  page.find_button("Update").click
 end
 
 Then(/^Hbx Admin should see the edit form being rendered again with a validation error message$/) do
@@ -39,7 +39,7 @@ end
 
 When(/^Hbx Admin enters a valid DOB and SSN and clicks on update$/) do
   fill_in 'person[ssn]', :with => '212-31-3131'
-  page.find_button("Update").trigger("click")
+  page.find_button("Update").click
 end
 
 Then(/^Hbx Admin should see the update partial rendered with update sucessful message$/) do

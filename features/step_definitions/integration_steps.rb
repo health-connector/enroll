@@ -571,7 +571,7 @@ When (/^(.*) logs? out$/) do |someone|
 end
 
 When(/^.+ go(?:es)? to register as an employee$/) do
-  find('.interaction-click-control-continue').click
+  find('.interaction-click-control-continue', visible: false).click
 end
 
 Then(/^.+ should see the employee search page$/) do
@@ -692,11 +692,11 @@ When(/^.+ completes? the matched employee form for (.*)$/) do |named_person|
   wait_for_ajax(3,2)
 
   #find("#person_addresses_attributes_0_address_1", :wait => 10).click
-  # find("#person_addresses_attributes_0_address_1").trigger('click')
-  # find("#person_addresses_attributes_0_address_2").trigger('click')
+  # find("#person_addresses_attributes_0_address_1").click
+  # find("#person_addresses_attributes_0_address_2").click
   # there is a flickering failure here due to over-lapping modals
-  # find("#person_addresses_attributes_0_city").trigger('click')
-  # find("#person_addresses_attributes_0_zip").trigger('click')
+  # find("#person_addresses_attributes_0_city").click
+  # find("#person_addresses_attributes_0_zip").click
   find_by_id("person_phones_attributes_0_full_phone_number", wait: 10)
   fill_in "person[phones_attributes][0][full_phone_number]", :with => person[:home_phone]
 
@@ -721,7 +721,7 @@ And(/^.+ selects the first plan available$/) do
   links = page.all('a')
   first_plan_html_class = "btn btn-default btn-right plan-select select interaction-click-control-select-plan"
   first_plan_select_link = links.detect { |link| link.text == "Select Plan" }
-  first_plan_select_link.trigger('click')
+  first_plan_select_link.click
 end
 
 Then(/^.+ should see the dependents page$/) do
@@ -744,7 +744,7 @@ When(/^.+ clicks? delete on baby Soren$/) do
   @browser.button(text: /Confirm Member/i).wait_while_present
 end
 
-Then(/^.+ should see ((?:(?!the).)+) dependents*$/) do |n|
+Then(/^.+ should see (\d+) dependents*$/) do |n|
   expect(page).to have_selector('li.dependent_list', :count => n.to_i)
 end
 
@@ -960,7 +960,7 @@ end
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) option$/) do |tab_name|
   find(".interaction-click-control-#{tab_name.downcase.gsub(' ','-')}").click
   wait_for_ajax
-  find('#myTabContent').trigger('click')
+  find('#myTabContent').click
 end
 
 And(/^clicks on the person in families tab$/) do
@@ -970,7 +970,7 @@ And(/^clicks on the person in families tab$/) do
   find(:xpath, "//a[@href='/exchanges/hbx_profiles/family_index_dt']").click
   wait_for_ajax(10,2)
   family_member = page.find('a', :text => "#{user.person.full_name}")
-  family_member.trigger('click')
+  family_member.click
   visit verification_insured_families_path
   find(:xpath, "//ul/li/a[contains(@class, 'interaction-click-control-documents')]").click
 end
@@ -1064,7 +1064,7 @@ And(/I select three plans to compare/) do
 
     wait_for_ajax(10)
     expect(page).to have_content("Choose Plan - Compare Selected Plans")
-    find(:xpath, '//*[@id="plan-details-modal-body"]/div[2]/button[2]').trigger('click')
+    find(:xpath, '//*[@id="plan-details-modal-body"]/div[2]/button[2]').click
   end
 end
 

@@ -1,4 +1,4 @@
-@individual_enabled
+@wip
 Feature: Phone and Paper Enrollment options exist
   In order to support paper and phone enrollments
   Links are provided that will track phone and paper enrollments

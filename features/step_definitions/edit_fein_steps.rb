@@ -10,7 +10,7 @@ And(/^the user enters FEIN with less than nine digits$/) do
 end
 
 And(/^the user clicks submit button$/) do
-  page.find_button('Submit').trigger('click')
+  page.find_button('Submit').click
 end
 
 Then(/^an warning message will be presented as FEIN must be at least nine digits$/) do

@@ -48,14 +48,14 @@ end
 
 And(/^Hbx Admin is on Broker Index of the Admin Dashboard$/) do
   visit exchanges_hbx_profiles_path
-  find('.interaction-click-control-brokers').trigger('click')
+  find('.interaction-click-control-brokers').click
 end
 
 Then(/^Hbx Admin is on Broker Index and clicks Broker Applicants$/) do
-  find('.interaction-click-control-broker-applications').trigger('click')
+  find('.interaction-click-control-broker-applications').click
 end
 
 Then(/^Hbx Admin the clicks on current broker applicant show button$/) do
-  find('.interaction-click-control-broker-show').trigger('click')
+  find('.interaction-click-control-broker-show').click
 end
 

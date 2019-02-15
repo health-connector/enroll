@@ -1,11 +1,5 @@
-# This feature concentrates on "Initiate cobra" link functionality under census employee roster
-
-
+@wip
 Feature: Census Employee COBRA functionality
-
-  The COBRA functionality provides an ability to plan shop for terminated
-  census employees, Once after employer initiates Cobra eligibility to employee.
-
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer EnterPrise Limited

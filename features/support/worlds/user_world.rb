@@ -78,11 +78,11 @@ When(/^the user clicks Extend Open Enrollment$/) do
 end
 
 When(/^the user clicks Edit Open Enrollment$/) do
-  find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').trigger('click')
+  find('a.btn.btn-primary.btn-sm', text: 'Edit Open Enrollment').click
 end
 
 Then(/^the user clicks Extend Open Enrollment button$/) do
-  find('input[value="Extend Open Enrollment"]').trigger('click')
+  find('input[value="Extend Open Enrollment"]').click
 end
 
 Then(/^the user enters a new open enrollment end date$/) do
@@ -128,7 +128,7 @@ When(/^the user partially fills out the Create Plan Year Form$/)  do
 end
 
 When(/^the user clicks the X icon on the Create Plan Year form$/) do
-  find('#closeBAForm').trigger('click')
+  find('#closeBAForm').click
 end
 
 Then(/^the Effective End Date will populate with a date equal to one year minus (\d+) day from the Effective Start Date$/) do |arg1|

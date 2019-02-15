@@ -317,7 +317,7 @@ When(/^.+ cobra one employee$/) do
   element.find('a', :text => "Initiate Cobra", :wait => 3).click
   wait_for_ajax
 #   find('input.date-picker').set((TimeKeeper.date_of_record.next_month.beginning_of_month).to_s)
-  find('a.cobra_confirm', :text => /Initiate Cobra/i, :wait => 3).trigger('click')
+  find('a.cobra_confirm', :text => /Initiate Cobra/i, :wait => 3).click
 end
 
 Then(/^.+ should see cobra successful msg/) do
@@ -385,7 +385,7 @@ And(/^.+ should be able to enter sole source plan year, benefits, relationship b
   fill_in "plan_year[benefit_groups_attributes][0][composite_tier_contributions_attributes][3][employer_contribution_percent]", :with => 50
 
   wait_for_ajax
-  find('.interaction-click-control-create-plan-year').trigger('click')
+  find('.interaction-click-control-create-plan-year').click
 end
 
 def enter_plan_year_info
@@ -423,10 +423,10 @@ And(/^.+ should be able to enter single carrier plan year, benefits, relationshi
   fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][3][premium_pct]", :with => 50
 
   wait_for_ajax
-  find('.interaction-click-control-create-plan-year').trigger('click')
+  find('.interaction-click-control-create-plan-year').click
 end
 
 And(/employer selects Add New Employee button on employee roster/) do
-  find('.interaction-click-control-add-new-employee').trigger('click')
+  find('.interaction-click-control-add-new-employee').click
   wait_for_ajax(3,2)
 end

@@ -236,7 +236,7 @@ end
 
 When(/^.+ clicks on terminate button for rehired census employee$/) do
   @browser.a(text: /Terminate/).wait_until_present
-  @browser.execute_script("$('.interaction-click-control-terminate').last().trigger('click')")
+  @browser.execute_script("$('.interaction-click-control-terminate').last().click")
   terminated_date = (TimeKeeper.date_of_record + 60.days).strftime("%m/%d/%Y")
   @browser.execute_script("$('.date-picker').val(\'#{terminated_date}\')")
   #click submit
@@ -388,7 +388,7 @@ And(/^.+ should be able to enter plan year, benefits, relationship benefits with
   wait_for_ajax(10,2)
   find('.reference-plans label').click
   wait_for_ajax(10,2)
-  find('.interaction-click-control-create-plan-year').trigger('click')
+  find('.interaction-click-control-create-plan-year').click
 end
 
 And(/^.+ should see a success message after clicking on create plan year button$/) do
@@ -402,11 +402,11 @@ When(/^.+ enters filter in plan selection page$/) do
 end
 
 When(/^.+ enters? hsa_compatible filter in plan selection page$/) do
-  find(:xpath, "//div[contains(@class, 'selectric-plan-carrier-selection-filter')]//p[@class='label']").trigger 'click'
-  find(:xpath, "//div[contains(@class, 'selectric-plan-carrier-selection-filter')]//li[contains(@class, 'interaction-choice-control-carrier-1')]").trigger 'click'
+  find(:xpath, "//div[contains(@class, 'selectric-plan-carrier-selection-filter')]//p[@class='label']").click
+  find(:xpath, "//div[contains(@class, 'selectric-plan-carrier-selection-filter')]//li[contains(@class, 'interaction-choice-control-carrier-1')]").click
 
-  find(:xpath, "//div[contains(@class, 'selectric-plan-hsa-eligibility-selection-filter')]//p[@class='label']").trigger 'click'
-  find(:xpath, "//div[contains(@class, 'selectric-plan-hsa-eligibility-selection-filter')]//li[contains(@class, 'interaction-choice-control-carrier-0')]").trigger 'click'
+  find(:xpath, "//div[contains(@class, 'selectric-plan-hsa-eligibility-selection-filter')]//p[@class='label']").click
+  find(:xpath, "//div[contains(@class, 'selectric-plan-hsa-eligibility-selection-filter')]//li[contains(@class, 'interaction-choice-control-carrier-0')]").click
 
   click_link 'Apply'
 end
@@ -562,7 +562,7 @@ And /^clicks on terminate employee$/ do
   terminate_date = (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y")
   page.execute_script("$('.date-picker').val(\'#{terminate_date}\')")
   expect(page).to have_content 'Employee Roster'
-  first("a.delete_confirm").trigger('click')
+  first("a.delete_confirm").click
   wait_for_ajax(3,2)
 end
 
@@ -602,7 +602,7 @@ And /^ER enters (.*) EE name on search bar$/ do |val|
 end
 
 And /^ER clicks on search button$/ do
-  find(".interaction-click-control-search").trigger('click')
+  find(".interaction-click-control-search").click
 end
 
 Then /^ER should see the (.*) searched EE on the roster page$/ do |val|
@@ -713,7 +713,7 @@ end
 And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
   date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day  : TimeKeeper.date_of_record - 3.months
   find('input.text-center.date-picker').set date
-  find("a", :text => "Terminate Employee").trigger('click')
+  find("a", :text => "Terminate Employee").click
 end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
@@ -796,7 +796,7 @@ Then(/^.+ fill the document form$/) do
   script = "$('[name=\"file\"]').css({opacity: 100, display: 'block'});"
   page.evaluate_script(script)
 
-  find(:xpath,"//*[@id='modal-wrapper']/div/form/label").trigger('click')
+  find(:xpath,"//*[@id='modal-wrapper']/div/form/label").click
   within '.upload_document' do
     attach_file('file', "#{Rails.root}/test/JavaScript.pdf")
   end
@@ -818,7 +818,7 @@ Then(/^Employer should see Action Needed under document/) do
 end
 
 And(/^the employer clicks document name/) do
-  find(:xpath,"//*[@id='effective_datatable_wrapper']//a[contains(.,'JavaScript.pdf')]").trigger('click')
+  find(:xpath,"//*[@id='effective_datatable_wrapper']//a[contains(.,'JavaScript.pdf')]").click
 end
 
 Then(/^the employer should see Download,Print Option/) do
@@ -845,7 +845,7 @@ And /^employer clicks on submit button by entering todays date$/ do
   date = TimeKeeper.date_of_record
   find('input.text-center.date-picker').set date
   terminated_id = @census_employees.first.id.to_s
-  find(:xpath, "//*[@id='rehire_#{terminated_id}']/strong").trigger('click')
+  find(:xpath, "//*[@id='rehire_#{terminated_id}']/strong").click
 end
 
 When(/^employer selects one of their employees on Employee Roster$/) do
@@ -860,7 +860,7 @@ Then(/^employer should see census employee's details$/) do
 end
 
 Then(/^employer clicks logout$/) do
-  find('.interaction-click-control-logout').trigger('click')
+  find('.interaction-click-control-logout').click
 end
 
 Then /^employer should see Enter effective date for (.*?) Action/ do |action_name|
@@ -887,7 +887,7 @@ end
 
 When(/^EnterPrise Limited employer clicks on Initiate COBRA button$/) do
   id = @census_employees.first.id.to_s
-  find(:xpath, "//*[@id='cobra-#{id}']").trigger('click')
+  find(:xpath, "//*[@id='cobra-#{id}']").click
 end
 
 And(/^employer should see census employee status as (.*?)$/) do |status|

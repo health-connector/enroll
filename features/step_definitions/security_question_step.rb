@@ -33,7 +33,7 @@ When(/^Hbx Admin clicks on (.*?) Question link$/) do |link|
 end
 
 Given(/^user will clicks on New Question link$/) do
-  find_link('New Question').trigger('click')
+  find_link('New Question').click
 end
 
 Then(/^user fill out New Question form detail$/) do
@@ -53,7 +53,7 @@ Then(/^Hbx Admin update the question title$/) do
 end
 
 When(/^Hbx Admin submit the question form$/) do
-  page.find_button('submit').trigger('click')
+  page.find_button('submit').click
 end
 
 Then(/^there (is|are) (\d+) preloaded security questions$/) do |text, num|
@@ -77,7 +77,7 @@ Then 'I confirm the delete question popup' do
 end
 
 Given(/^user click on Security Question link$/) do
-  find_link('Security Question').trigger('click')
+  find_link('Security Question').click
 end
 
 When(/^Hbx Admin click on Edit Question link$/) do
@@ -85,7 +85,7 @@ When(/^Hbx Admin click on Edit Question link$/) do
 end
 
 When(/^Hbx Admin click on Delete Question link$/) do
-  find(:xpath, "(//a[text()='Delete'])[2]").trigger('click')
+  find(:xpath, "(//a[text()='Delete'])[2]").click
 end
 
 
@@ -99,8 +99,8 @@ end
 
 Then(/^I select the all security question and give the answer$/) do
   (0..2).each do |num|
-    page.all('.security-question-select')[num].set("Security Question #{num + 1}")
-    page.all('.interaction-field-control-security-question-response-question-answer')[num].set("Answer #{num+1}")
+    page.all('.security-question-select', visible: false)[num].set("Security Question #{num + 1}")
+    page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num+1}")
   end
 end
 

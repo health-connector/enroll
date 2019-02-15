@@ -1,3 +1,4 @@
+@wip
 Feature: EE plan purchase
 
   Background: Setup site, employer, and benefit application
@@ -46,22 +47,14 @@ Feature: EE plan purchase
     And Employee clicks Confirm
     And Employee sees the Enrollment Submitted page and clicks Continue
     When Employee click the "Married" in qle carousel
-    And Employee select a past qle date
-    Then Employee should see confirmation and clicks continue
-    Then Employee should see the dependents page
-    When Employee clicks Add Member
-    Then Employee should see the new dependent form
-    When Employee enters the dependent info of Patrick wife
-    When Employee clicks confirm member
-    Then Employee should see 1 dependents
-    When Employee clicks continue on group selection page for dependents
-    When Employee clicks Shop for new plan button
-    Then Patrick Doe should see the list of plans
-    When Patrick Doe selects a plan on the plan shopping page
-    When Employee clicks on Confirm button on the coverage summary page
-    Then Employee clicks back to my account button
-    Then Patrick Doe should see active enrollment with their spouse
-    And Employee logs out
+    And I select a past qle date
+    Then I should see confirmation and continue
+    When employee clicked continue on household info page
+    Then employee should see all the family members names
+    And employee cannot uncheck primary person
+    When employee unchecks the dependent
+    And employee clicked on shop for new plan
+    Then employee should see primary person
 
   Scenario: EE having an ineligible family member & doing plan shop
     When staff role person logged in
@@ -140,4 +133,3 @@ Feature: EE plan purchase
     And employee should also see the reason for ineligibility
     When employee clicked on shop for new plan
     Then employee should see primary and valid dependent
-

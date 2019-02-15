@@ -36,7 +36,7 @@ When(/^the system date is (.*?) open_enrollment_period start date$/) do |compare
 end
 
 When(/^the user clicks on Force Publish button$/) do
-  find('.btn.btn-xs', text: 'Force Publish').trigger('click')
+  find('.btn.btn-xs', text: 'Force Publish').click
 end
 
 Then(/^the force published action should display 'Employer\(s\) Plan Year was successfully published'$/) do
