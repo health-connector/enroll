@@ -297,7 +297,7 @@ When(/employee switched to (.*) employer/) do |employer|
 end
 
 When(/employee clicked on shop for plans/) do
-  find(".interaction-click-control-shop-for-plans").trigger('click')
+  find(".interaction-click-control-shop-for-plans").click
   wait_for_ajax
 end
 

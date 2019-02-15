@@ -8,7 +8,7 @@ And(/^Hbx Admin should see broker application with carrier appointments$/) do
 end
 
 And(/^Hbx Admin clicks on the pending button$/) do
-  find('.interaction-click-control-broker-pending').trigger('click')
+  find('.interaction-click-control-broker-pending').click
 end
 
 Then(/^Hbx Admin views a successful message$/) do

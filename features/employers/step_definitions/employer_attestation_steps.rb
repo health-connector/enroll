@@ -12,11 +12,11 @@ Then (/^Employer Staff should not see force publish$/) do
 end
 
 Then (/^Employer Staff clicks cancel button in Attestation warning dialog$/) do
-  find('.interaction-click-control-cancel').trigger('click')
+  find('.interaction-click-control-cancel').click
 end
 
 Then (/^Employer Staff clicks go back button in Attestation warning dialog$/) do
-  find('#publishPlanYear .interaction-click-control-go-back').trigger('click')
+  find('#publishPlanYear .interaction-click-control-go-back').click
 end
 
 Then (/^Employer Staff should redirect to plan year edit page$/) do
@@ -30,7 +30,7 @@ Then(/^Plan Year should be moved to (.*)$/) do |state|
 end
 
 When (/I click Iam Admin button/) do
-  find(".interaction-click-control-i'm-an-admin").trigger('click')
+  find(".interaction-click-control-i'm-an-admin").click
 end
 
 When (/^I visit sign up page$/) do
@@ -39,11 +39,11 @@ end
 
 When (/^I click HBX portal$/) do
   visit('/exchanges/hbx_profiles')
-  #find('.interaction-click-control-hbx-portal').trigger('click')
+  #find('.interaction-click-control-hbx-portal').click
 end
 
 When(/^Admin click all employers link/) do
-  find('.interaction-click-control-employers').trigger('click')
+  find('.interaction-click-control-employers').click
 end
 
 When (/^Admin clicks employer attestation filter$/) do
@@ -73,7 +73,7 @@ Then (/^Admin should see attestation document$/)do
 end
 
 When (/^Admin clicks view attestation document$/) do
-  find(:xpath, '//*[@id="attestation_documents_table"]/div/table/tbody/tr[1]/td[6]/a').trigger('click')
+  find(:xpath, '//*[@id="attestation_documents_table"]/div/table/tbody/tr[1]/td[6]/a').click
 end
 
 Then (/^Admin should see preview and attestation form$/) do
@@ -84,7 +84,7 @@ Then (/^Admin should see preview and attestation form$/) do
 end
 
 When (/^Admin clicks submit in employer attestation form$/) do
-  first('#attestation_documents_table .btn-primary',:text=>/SUBMIT/i).trigger('click')
+  first('#attestation_documents_table .btn-primary',:text=>/SUBMIT/i).click
 end
 
 Then (/^Admin should see attestation updated message$/) do
@@ -111,7 +111,7 @@ And(/^Employer should see attestation upload button disabled$/) do
 end
 
 When(/^Admin choose (.*)$/) do |state|
-  find_field(state).trigger('click')
+  find_field(state).click
 end
 
 When(/^Admin enters the information needed$/) do
@@ -166,7 +166,7 @@ And(/^.+ should be able to enter sole source plan year, benefits, relationship b
   fill_in "plan_year[benefit_groups_attributes][0][composite_tier_contributions_attributes][3][employer_contribution_percent]", :with => 50
 
   wait_for_ajax
-  find('.interaction-click-control-create-plan-year').trigger('click')
+  find('.interaction-click-control-create-plan-year').click
 end
 
 When(/^.+ try to create plan year with less than 33% contribution for spouse, domestic partner and child under 26$/) do
@@ -206,7 +206,7 @@ And(/^.+ should be able to enter plan year, benefits, relationship benefits for 
   fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][3][premium_pct]", :with => 50
 
   wait_for_ajax
-  find('.interaction-click-control-create-plan-year').trigger('click')
+  find('.interaction-click-control-create-plan-year').click
 end
 
 Then(/^Employer clicks delete in actions$/) do
@@ -220,7 +220,7 @@ Then(/^Employer should see disabled delete button in actions$/) do
 end
 
 Then(/^Employer should not see submitted document$/) do
-   find('.interaction-click-control-documents').trigger('click')
+   find('.interaction-click-control-documents').click
    expect(page).to have_content('No data available in table')
 end
 

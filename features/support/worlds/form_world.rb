@@ -65,8 +65,8 @@ module FormWorld
     fill_in 'agency[organization][dba]', with: 'benken inc'
     fill_in 'agency[organization][fein]', with: '238964984'
     select "Small Business Marketplace ONLY", :from => "agency_organization_profile_attributes_market_kind"
-    find("option[value='tr']").trigger('click')
-    find("#agency_organization_profile_attributes_accept_new_clients").trigger('click')
+    find("option[value='tr']").click
+    find("#agency_organization_profile_attributes_accept_new_clients").click
   end
 
   def fill_in_office_locations_for_broker_agecny

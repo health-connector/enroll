@@ -191,9 +191,9 @@ And(/^Employer creates Benefit package$/) do
   wait_for_ajax
   fill_in 'benefit_package[title]', with: 'Silver PPO Group'
   fill_in 'benefit_package[description]', with: 'Testing'
-  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').trigger("click")
+  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').click
   wait_for_ajax
-  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').trigger("click")
+  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').click
   sleep 5
   wait_for_ajax
 end

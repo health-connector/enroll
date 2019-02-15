@@ -38,8 +38,8 @@ And(/^.+ enters broker agency information for individual markets$/) do
   find(:xpath, '//label[input[@value="bn"]]').click
   find(:xpath, '//label[input[@value="fr"]]').click
 
-  find(:xpath, "//label[input[@name='organization[accept_new_clients]']]").trigger('click')
-  find(:xpath, "//label[input[@name='organization[working_hours]']]").trigger('click')
+  find(:xpath, "//label[input[@name='organization[accept_new_clients]']]").click
+  find(:xpath, "//label[input[@name='organization[working_hours]']]").click
 end
 
 And(/^Current broker agency is fake fein$/) do
@@ -61,8 +61,8 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
   # find(:xpath, "//p[@class='label'][contains(., 'Select Practice Area')]").click
   # find(:xpath, "//li[contains(., 'Small Business Marketplace ONLY')]").click
   # Languages
-  find("option[value='tr']").trigger('click')
-  find("#agency_organization_profile_attributes_accept_new_clients").trigger('click')
+  find("option[value='tr']").click
+  find("#agency_organization_profile_attributes_accept_new_clients").click
 
   fill_in 'agency_organization_profile_attributes_ach_routing_number', with: '123456789'
   fill_in 'agency_organization_profile_attributes_ach_routing_number_confirmation', with: '123456789'
@@ -91,7 +91,7 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
   wait_for_ajax
   # Clicking the 'Create Broker Agency' button 
-  find("#broker-btn").trigger('click')
+  find("#broker-btn").click
 end
 
 
@@ -100,7 +100,7 @@ And(/^.+ clicks? on Create Broker Agency$/) do
   page.find('h1', text: 'Broker Registration').click
   wait_for_ajax
   # Clicking the 'Create Broker Agency' button 
-  find("#broker-btn").trigger('click')
+  find("#broker-btn").click
 end
 
 Then(/^.+ should see broker registration successful message$/) do
@@ -112,7 +112,7 @@ And(/^.+ should see the list of broker applicants$/) do
 end
 
 Then(/^.+ clicks? on the current broker applicant show button$/) do
-  find('.interaction-click-control-broker-show').trigger('click')
+  find('.interaction-click-control-broker-show').click
 end
 
 And(/^.+ should see the broker application with carrier appointments$/) do
@@ -125,7 +125,7 @@ And(/^.+ should see the broker application with carrier appointments$/) do
 end
 
 And(/^.+ clicks? on approve broker button$/) do
-  find('.interaction-click-control-broker-approve').trigger('click')
+  find('.interaction-click-control-broker-approve').click
 end
 
 Then(/^.+ should see the broker successfully approved message$/) do
@@ -268,7 +268,7 @@ Then(/^.* creates and publishes a plan year$/) do
   fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][2][premium_pct]", with: 50
   fill_in "plan_year[benefit_groups_attributes][0][relationship_benefits_attributes][3][premium_pct]", with: 50
 
-  find('.interaction-click-control-create-plan-year').trigger('click')
+  find('.interaction-click-control-create-plan-year').click
   find('.alert-notice')
 
   if (Settings.aca.enforce_employer_attestation.to_s == "true")
