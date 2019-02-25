@@ -1,4 +1,4 @@
-@individual_enabled
+@wip
 Feature: Hbx staff create announcements for consumer role
 
   Scenario: Hbx staff create announcements for consumer role

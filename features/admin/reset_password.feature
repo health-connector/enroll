@@ -1,3 +1,4 @@
+@wip
 Feature: Reset password of user
  In order to reset password of the user
  User should have the role of an admin

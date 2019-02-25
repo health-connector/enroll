@@ -1,3 +1,4 @@
+@wip
 Feature: Employee of a Sole Source Employer Shopping During Open Enrollment
   Background:
     Given there is a configured CCA benefit market, pricing models, and catalog

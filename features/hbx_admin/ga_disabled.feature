@@ -1,4 +1,4 @@
-@general_agency_disabled
+@wip
 Feature: Admin can't assign General Agencies if they are disabled
 
   Background:
