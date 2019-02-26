@@ -28,7 +28,7 @@ module BenefitSponsors
 
     def is_staff_role_for_employer?(profile)
       staff_roles = user.person.employer_staff_roles
-      staff_roles.any? {|role| role.benefit_sponsor_employer_profile_id == record.id }
+      staff_roles.any? {|role| role.benefit_sponsor_employer_profile_id == record.id && role.is_active?}
     end
 
     def is_broker_for_employer?(profile)

@@ -61,7 +61,12 @@ FactoryGirl.define do
 
     trait :with_employer_staff_role do
       after(:create) do |p, evaluator|
-        create_list(:employer_staff_role, 1, person: p)
+        if evaluator.benefit_sponsor_employer_profile_id
+          #When component spec is ran globally
+          create_list(:employer_staff_role, 1, person: p, benefit_sponsor_employer_profile_id: evaluator.benefit_sponsor_employer_profile_id)
+        else
+          create_list(:employer_staff_role, 1, person: p)
+        end
       end
     end
 
@@ -126,6 +131,7 @@ FactoryGirl.define do
       census_employee_id nil
       employer_profile_id nil
       hired_on nil
+      benefit_sponsor_employer_profile_id nil
     end
 
     factory :person_with_employee_role do
