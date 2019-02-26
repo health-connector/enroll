@@ -160,6 +160,7 @@ module BenefitSponsors
 
       def execute_sponsor_event(benefit_sponsorship, event)
         BenefitSponsors::BenefitSponsorships::BenefitSponsorshipDirector.new(new_date).process(benefit_sponsorship, event)
+        puts "After director...  #{benefit_sponsorship.organization.legal_name} at #{Time.now.to_s}"
       end
 
       def process_events_for(&block)
