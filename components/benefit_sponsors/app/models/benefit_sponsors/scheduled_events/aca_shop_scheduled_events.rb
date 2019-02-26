@@ -79,7 +79,7 @@ module BenefitSponsors
         if renewal_application_begin.mday == 1
           benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.may_renew_application?(renewal_application_begin.prev_day)
           benefit_sponsorships.each do |benefit_sponsorship|
-            puts "Processing #{benefit_sponsorship.organization.legal_name}" at #{Time.now.to_s}
+            puts "Processing #{benefit_sponsorship.organization.legal_name} at #{Time.now.to_s}"
             execute_sponsor_event(benefit_sponsorship, :renew_sponsor_benefit)
           end
         end
