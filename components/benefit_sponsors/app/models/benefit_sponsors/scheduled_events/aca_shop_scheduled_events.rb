@@ -13,6 +13,7 @@ module BenefitSponsors
 
       def initialize(new_date)
         @new_date = new_date
+        initialize_logger
         shop_daily_events
         auto_submit_renewal_applications
         process_applications_missing_binder_payment
@@ -164,8 +165,16 @@ module BenefitSponsors
         begin
           block.call
         rescue Exception => e
+          # @logger.info "Failed: #{benefit_sponsorship.organization.legal_name}(#{benefit_sponsorship.organization.fein}) for event #{event}"
+          @logger.info e.message
+          @logger.info e.backtrace.inspect
         end
       end
+
+      def initialize_logger
+        @logger = Logger.new("#{Rails.root}/log/aca_shop_scheduled_events.log") unless defined? @logger
+      end
+
     end
   end
 end
