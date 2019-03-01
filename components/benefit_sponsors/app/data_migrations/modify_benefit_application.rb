@@ -42,8 +42,9 @@ class ModifyBenefitApplication< MongoidMigrationTask
       from_state = benefit_application.aasm_state
       benefit_application.update_attributes!(:aasm_state => :enrollment_open)
       benefit_application.workflow_state_transitions << WorkflowStateTransition.new(
-          from_state: from_state,
-          to_state: "enrollment_open"
+        from_state: from_state,
+        to_state: 'enrollment_open',
+        reason: 'modify_benefit_application'
       )
       if from_state == :approved
         benefit_application.recalc_pricing_determinations
@@ -54,8 +55,9 @@ class ModifyBenefitApplication< MongoidMigrationTask
         bs_from_state = benefit_sponsorship.aasm_state
         benefit_sponsorship.update_attributes!(aasm_state: "initial_enrollment_open")
         benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
-            from_state: bs_from_state,
-            to_state: "initial_enrollment_open"
+          from_state: bs_from_state,
+          to_state: 'initial_enrollment_open',
+          reason: 'modify_benefit_application'
         )
       end
       puts "aasm state has been changed to enrolling" unless Rails.env.test?
@@ -98,8 +100,9 @@ class ModifyBenefitApplication< MongoidMigrationTask
          if (bs_from_state != "active")
         benefit_sponsorship.update_attributes!(aasm_state: "active")
         benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
-            from_state: bs_from_state,
-            to_state: "active"
+          from_state: bs_from_state,
+          to_state: 'active',
+          reason: 'modify_benefit_application'
         )
          end
       end
