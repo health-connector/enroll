@@ -50,7 +50,7 @@ module BenefitSponsors
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_begin_benefit_coverage?(new_date)
 
         benefit_sponsorships.each do |benefit_sponsorship|
-          execute_sponsor_event(benefit_sponsorship, :begin_sponsor_benefit)   
+          execute_sponsor_event(benefit_sponsorship, :begin_sponsor_benefit)
         end
       end
 
@@ -130,19 +130,20 @@ module BenefitSponsors
         start_on = new_date.next_month.beginning_of_month
         benefit_sponsors = BenefitSponsors::BenefitSponsorships::BenefitSponsorship
         benefit_sponsors = benefit_sponsors.find_by_feins(feins) if feins.any?
-        
         benefit_sponsors.may_transmit_renewal_enrollment?(start_on).each do |benefit_sponsorship|
           begin
             execute_sponsor_event(benefit_sponsorship, :transmit_renewal_eligible_event) if benefit_sponsorship.is_renewal_transmission_eligible?
             execute_sponsor_event(benefit_sponsorship, :transmit_renewal_carrier_drop_event) if benefit_sponsorship.is_renewal_carrier_drop?
-          rescue Exception => e 
+          rescue Exception => e
+            log("ERROR: Could not transmit scheduled benefit sponsors for date #{date} with feins #{feins}", {:severity => "critical"})
           end
         end
 
         benefit_sponsors.may_transmit_initial_enrollment?(start_on).each do |benefit_sponsorship|
           begin
             execute_sponsor_event(benefit_sponsorship, :transmit_initial_eligible_event)
-          rescue Exception => e 
+          rescue Exception => e
+            log("ERROR: Could not transmit initial enrollment benefit sponsors for date #{start_on} with feins #{feins}", {:severity => "critical"})
           end
         end
       end
@@ -164,6 +165,7 @@ module BenefitSponsors
         begin
           block.call
         rescue Exception => e
+          log("ERROR: Could not process events for block #{block}", {:severity => "critical"})
         end
       end
     end

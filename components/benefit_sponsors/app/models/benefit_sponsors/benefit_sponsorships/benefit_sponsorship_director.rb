@@ -1,5 +1,6 @@
 module BenefitSponsors
   class BenefitSponsorships::BenefitSponsorshipDirector
+    include Acapi::Notifiers
 
     attr_reader :new_date
 
@@ -12,7 +13,8 @@ module BenefitSponsors
         business_policy_name = policy_name(event)
         business_policy = business_policy_for(benefit_sponsorship, business_policy_name)
         sponsor_service_for(benefit_sponsorship).execute(benefit_sponsorship, event, business_policy)
-      rescue Exception => e 
+      rescue Exception => e
+        log("ERROR: Could not process benefit_sponsorship #{benefit_sponsorship} for event #{event} with date #{date}", {:severity => "critical"})
       end
     end
 

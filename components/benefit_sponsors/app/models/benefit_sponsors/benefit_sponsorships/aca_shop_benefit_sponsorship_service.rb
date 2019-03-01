@@ -91,7 +91,7 @@ module BenefitSponsors
     end
 
     def auto_cancel_ineligible
-      benefit_sponsorship.cancel! if benefit_sponsorship.may_cancel?      
+      benefit_sponsorship.cancel! if benefit_sponsorship.may_cancel?
     end
 
     def transmit_initial_eligible_event
@@ -158,6 +158,7 @@ module BenefitSponsors
       begin
         block.call
       rescue Exception => e
+        log("ERROR: Could not process event for #{benefit_sponsorship} #{block.inspect}", {:severity => "critical"})
       end
     end
   end

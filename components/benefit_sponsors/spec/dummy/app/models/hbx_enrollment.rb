@@ -273,6 +273,7 @@ class HbxEnrollment
       end
       enrollment
     rescue Exception => e
+      log("ERROR: Could not renew benefit #{new_benefit_package}", {:severity => "critical"})
     end
   end
 
@@ -524,7 +525,7 @@ class HbxEnrollment
 
   def renewal_enrollments(successor_application)
     family.active_household.hbx_enrollments.where({
-      :sponsored_benefit_package_id.in => successor_application.benefit_packages.pluck(:_id), 
+      :sponsored_benefit_package_id.in => successor_application.benefit_packages.pluck(:_id),
       :coverage_kind => coverage_kind,
       :kind => kind,
       :effective_on => successor_application.start_on
