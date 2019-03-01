@@ -719,7 +719,6 @@ class Person
     # Returns false if employer staff role not matches
     # Returns true is role was marked inactive
     def deactivate_employer_staff_role(person_id, employer_profile_id)
-
       begin
         person = Person.find(person_id)
       rescue
@@ -732,7 +731,6 @@ class Person
         return false, 'No matching employer staff role'
       end
     end
-
   end
 
   # HACK

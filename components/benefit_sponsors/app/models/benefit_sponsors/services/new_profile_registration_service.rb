@@ -24,7 +24,13 @@ module BenefitSponsors
       def find
         organization = factory_class.build(profile_id: profile_id)
         staff_roles = factory_class.find_representatives(profile_id, profile_type)
-        attributes_to_form_params(organization, staff_roles)
+        params = attributes_to_form_params(organization, staff_roles)
+        format_params(params)
+      end
+
+      def format_params(params)
+        params.merge!({:staff_roles => []}) if params[:staff_roles].first.blank?
+        params
       end
 
       def attributes_to_form_params(obj, staff_roles=nil)
