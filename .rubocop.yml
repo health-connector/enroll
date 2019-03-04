@@ -1,7 +1,25 @@
+# We will add the following back in later, but they cause
+#   a completely outsized amount of cop failures for the number of files:
+# - db/seedfiles
+# - lib/tasks
+AllCops:
+  Exclude:
+    - './project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec'
+    - './node_modules/**/*'
+    - './db/seedfiles/**/*'
+    - './lib/tasks/**/*'
+    - './components/benefit_markets/db/seedfiles/**/*'
+    - './components/benefit_sponsors/db/seedfiles/**/*'
+    - './components/old_sponsored_benefits/**/*'
+    - './eyes/enroll.eye.rb'
+
 Rails:
   Enabled: true
 
 Rails/ActiveRecordAliases:
+  Enabled: false
+
+Rails/FindBy:
   Enabled: false
 
 Layout/EmptyLines:
@@ -19,6 +37,10 @@ Layout/ExtraSpacing:
 Layout/EmptyLinesAroundClassBody:
   Enabled: false
 
+# Re-enable once other problems are solved
+Layout/SpaceAfterComma:
+  Enabled: false
+
 Layout/SpaceBeforeBlockBraces:
   Enabled: false
 
@@ -34,6 +56,10 @@ Metrics/LineLength:
 Style/BracesAroundHashParameters:
   Enabled: false
 
+# We will want to turn this back on or customize it more fully
+Style/Documentation:
+  Enabled: false
+
 Style/HashSyntax:
   Enabled: false
 
@@ -42,6 +68,12 @@ Style/StringLiterals:
 
 Style/SymbolArray:
   Enabled: false
+
+Style/WordArray:
+  Enabled: false
+
+require:
+  - ./cops/lint/empty_rescue_clause.rb
 
 # Deprecated
 # Style/TrailingBlankLines:
