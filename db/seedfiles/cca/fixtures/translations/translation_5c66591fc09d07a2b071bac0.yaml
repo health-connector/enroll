@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6KwcbrA
+  key: en.plans.ad_hours
+  value: '"Monday - Thursday, 8 am to 7 pm and Friday 8 am to 5 pm, ET."'

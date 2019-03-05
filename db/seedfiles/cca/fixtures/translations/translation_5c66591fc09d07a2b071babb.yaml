@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbq7
+  key: en.plans.aetna_href_sbe_call
+  value: '"tel:+1-855-885-3289"'

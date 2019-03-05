@@ -1,0 +1,4510 @@
+--- !ruby/object:BenefitMarkets::Products::HealthProducts::HealthProduct
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZMWMCdB0Xyg5o9
+  description: ''
+  product_package_kinds:
+  - :metal_level
+  - :single_issuer
+  - :single_product
+  premium_ages: !ruby/hash:BSON::Document
+    min: 14
+    max: 64
+  _type: BenefitMarkets::Products::HealthProducts::HealthProduct
+  ehb: 0.9999
+  health_plan_kind: :hmo
+  benefit_market_kind: :aca_shop
+  title: 'Standard Low Silver: Complete HMO HSA 2000 25/50'
+  issuer_profile_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLiMCdB0Ik0T2i
+  hios_id: 41304MA0041276-01
+  hios_base_id: 41304MA0041276
+  csr_variant_id: '01'
+  application_period: !ruby/hash:BSON::Document
+    min: 2019-01-01 00:00:00.000000000 Z
+    max: 2019-12-31 00:00:00.000000000 Z
+  service_area_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZL/cCdB0Ltn4qL
+  deductible: "$2,000"
+  family_deductible: "$4000 per person | $4000 per group"
+  is_reference_plan_eligible: true
+  metal_level_kind: :silver
+  kind: :health
+  is_standard_plan: true
+  hsa_eligibility: false
+  updated_at: 2019-02-15 05:39:09.716000000 Z
+  created_at: 2019-02-15 05:21:28.640000000 Z
+  issuer_assigned_id: HMOMM275-276DV
+  provider_directory_url: https://ma.checkbookhealth.org/mashop
+  rx_formulary_url: http://allwayshealthpartners.org
+  premium_tables:
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwDe
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIV
+    updated_at: 2019-02-19 19:09:56.565000000 Z
+    created_at: 2019-02-19 19:09:56.565000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDf
+      age: 14
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDg
+      age: 15
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDh
+      age: 16
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDi
+      age: 17
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDj
+      age: 18
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDk
+      age: 19
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDl
+      age: 20
+      cost: 225.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDm
+      age: 21
+      cost: 355.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDn
+      age: 22
+      cost: 355.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDo
+      age: 23
+      cost: 355.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDp
+      age: 24
+      cost: 355.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDq
+      age: 25
+      cost: 355.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDr
+      age: 26
+      cost: 355.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDs
+      age: 27
+      cost: 366.46
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDt
+      age: 28
+      cost: 375.47
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDu
+      age: 29
+      cost: 382.98
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDv
+      age: 30
+      cost: 386.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDw
+      age: 31
+      cost: 391.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDx
+      age: 32
+      cost: 397.4
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDy
+      age: 33
+      cost: 400.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwDz
+      age: 34
+      cost: 404.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD0
+      age: 35
+      cost: 406.12
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD1
+      age: 36
+      cost: 407.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD2
+      age: 37
+      cost: 409.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD3
+      age: 38
+      cost: 411.22
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD4
+      age: 39
+      cost: 414.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD5
+      age: 40
+      cost: 418.44
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD6
+      age: 41
+      cost: 423.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD7
+      age: 42
+      cost: 428.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD8
+      age: 43
+      cost: 435.56
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD9
+      age: 44
+      cost: 443.98
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD+
+      age: 45
+      cost: 453.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwD/
+      age: 46
+      cost: 465.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEA
+      age: 47
+      cost: 478.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEB
+      age: 48
+      cost: 492.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEC
+      age: 49
+      cost: 507.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwED
+      age: 50
+      cost: 523.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEE
+      age: 51
+      cost: 538.32
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEF
+      age: 52
+      cost: 554.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEG
+      age: 53
+      cost: 571.37
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEH
+      age: 54
+      cost: 589.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEI
+      age: 55
+      cost: 606.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEJ
+      age: 56
+      cost: 624.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEK
+      age: 57
+      cost: 643.48
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEL
+      age: 58
+      cost: 662.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEM
+      age: 59
+      cost: 684.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEN
+      age: 60
+      cost: 710.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEO
+      age: 61
+      cost: 710.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEP
+      age: 62
+      cost: 710.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEQ
+      age: 63
+      cost: 710.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwER
+      age: 64
+      cost: 710.49
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwES
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIW
+    updated_at: 2019-02-19 19:09:56.591000000 Z
+    created_at: 2019-02-19 19:09:56.591000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwET
+      age: 14
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEU
+      age: 15
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEV
+      age: 16
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEW
+      age: 17
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEX
+      age: 18
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEY
+      age: 19
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEZ
+      age: 20
+      cost: 239.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEa
+      age: 21
+      cost: 376.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEb
+      age: 22
+      cost: 376.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEc
+      age: 23
+      cost: 376.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEd
+      age: 24
+      cost: 376.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEe
+      age: 25
+      cost: 376.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEf
+      age: 26
+      cost: 376.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEg
+      age: 27
+      cost: 388.73
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEh
+      age: 28
+      cost: 398.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEi
+      age: 29
+      cost: 406.26
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEj
+      age: 30
+      cost: 410.08
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEk
+      age: 31
+      cost: 415.82
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEl
+      age: 32
+      cost: 421.56
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEm
+      age: 33
+      cost: 425.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEn
+      age: 34
+      cost: 428.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEo
+      age: 35
+      cost: 430.8
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEp
+      age: 36
+      cost: 432.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEq
+      age: 37
+      cost: 434.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEr
+      age: 38
+      cost: 436.22
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEs
+      age: 39
+      cost: 440.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEt
+      age: 40
+      cost: 443.87
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEu
+      age: 41
+      cost: 449.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEv
+      age: 42
+      cost: 454.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEw
+      age: 43
+      cost: 462.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEx
+      age: 44
+      cost: 470.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEy
+      age: 45
+      cost: 481.48
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwEz
+      age: 46
+      cost: 493.91
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE0
+      age: 47
+      cost: 507.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE1
+      age: 48
+      cost: 522.91
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE2
+      age: 49
+      cost: 537.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE3
+      age: 50
+      cost: 554.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE4
+      age: 51
+      cost: 571.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE5
+      age: 52
+      cost: 588.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE6
+      age: 53
+      cost: 606.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE7
+      age: 54
+      cost: 624.9
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE8
+      age: 55
+      cost: 643.39
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE9
+      age: 56
+      cost: 662.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE+
+      age: 57
+      cost: 682.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwE/
+      age: 58
+      cost: 702.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFA
+      age: 59
+      cost: 726.58
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFB
+      age: 60
+      cost: 753.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFC
+      age: 61
+      cost: 753.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFD
+      age: 62
+      cost: 753.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFE
+      age: 63
+      cost: 753.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFF
+      age: 64
+      cost: 753.67
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwFG
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIX
+    updated_at: 2019-02-19 19:09:56.624000000 Z
+    created_at: 2019-02-19 19:09:56.624000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFH
+      age: 14
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFI
+      age: 15
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFJ
+      age: 16
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFK
+      age: 17
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFL
+      age: 18
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFM
+      age: 19
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFN
+      age: 20
+      cost: 234.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFO
+      age: 21
+      cost: 369.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFP
+      age: 22
+      cost: 369.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFQ
+      age: 23
+      cost: 369.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFR
+      age: 24
+      cost: 369.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFS
+      age: 25
+      cost: 369.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFT
+      age: 26
+      cost: 369.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFU
+      age: 27
+      cost: 381.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFV
+      age: 28
+      cost: 390.87
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFW
+      age: 29
+      cost: 398.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFX
+      age: 30
+      cost: 402.45
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFY
+      age: 31
+      cost: 408.08
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFZ
+      age: 32
+      cost: 413.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFa
+      age: 33
+      cost: 417.15
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFb
+      age: 34
+      cost: 420.9
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFc
+      age: 35
+      cost: 422.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFd
+      age: 36
+      cost: 424.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFe
+      age: 37
+      cost: 426.22
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFf
+      age: 38
+      cost: 428.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFg
+      age: 39
+      cost: 431.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFh
+      age: 40
+      cost: 435.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFi
+      age: 41
+      cost: 440.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFj
+      age: 42
+      cost: 446.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFk
+      age: 43
+      cost: 453.43
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFl
+      age: 44
+      cost: 462.19
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFm
+      age: 45
+      cost: 472.51
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFn
+      age: 46
+      cost: 484.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFo
+      age: 47
+      cost: 498.16
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFp
+      age: 48
+      cost: 513.17
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFq
+      age: 49
+      cost: 527.87
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFr
+      age: 50
+      cost: 544.45
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFs
+      age: 51
+      cost: 560.4
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFt
+      age: 52
+      cost: 577.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFu
+      age: 53
+      cost: 594.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFv
+      age: 54
+      cost: 613.27
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFw
+      age: 55
+      cost: 631.41
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFx
+      age: 56
+      cost: 650.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFy
+      age: 57
+      cost: 669.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwFz
+      age: 58
+      cost: 689.9
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF0
+      age: 59
+      cost: 713.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF1
+      age: 60
+      cost: 739.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF2
+      age: 61
+      cost: 739.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF3
+      age: 62
+      cost: 739.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF4
+      age: 63
+      cost: 739.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF5
+      age: 64
+      cost: 739.63
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwF6
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIY
+    updated_at: 2019-02-19 19:09:56.662000000 Z
+    created_at: 2019-02-19 19:09:56.662000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF7
+      age: 14
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF8
+      age: 15
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF9
+      age: 16
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF+
+      age: 17
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwF/
+      age: 18
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGA
+      age: 19
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGB
+      age: 20
+      cost: 223.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGC
+      age: 21
+      cost: 352.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGD
+      age: 22
+      cost: 352.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGE
+      age: 23
+      cost: 352.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGF
+      age: 24
+      cost: 352.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGG
+      age: 25
+      cost: 352.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGH
+      age: 26
+      cost: 352.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGI
+      age: 27
+      cost: 363.37
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGJ
+      age: 28
+      cost: 372.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGK
+      age: 29
+      cost: 379.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGL
+      age: 30
+      cost: 383.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGM
+      age: 31
+      cost: 388.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGN
+      age: 32
+      cost: 394.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGO
+      age: 33
+      cost: 397.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGP
+      age: 34
+      cost: 400.91
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGQ
+      age: 35
+      cost: 402.7
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGR
+      age: 36
+      cost: 404.48
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGS
+      age: 37
+      cost: 405.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGT
+      age: 38
+      cost: 407.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGU
+      age: 39
+      cost: 411.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGV
+      age: 40
+      cost: 414.91
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGW
+      age: 41
+      cost: 419.98
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGX
+      age: 42
+      cost: 425.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGY
+      age: 43
+      cost: 431.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGZ
+      age: 44
+      cost: 440.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGa
+      age: 45
+      cost: 450.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGb
+      age: 46
+      cost: 461.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGc
+      age: 47
+      cost: 474.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGd
+      age: 48
+      cost: 488.8
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGe
+      age: 49
+      cost: 502.8
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGf
+      age: 50
+      cost: 518.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGg
+      age: 51
+      cost: 533.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGh
+      age: 52
+      cost: 550.17
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGi
+      age: 53
+      cost: 566.56
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGj
+      age: 54
+      cost: 584.14
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGk
+      age: 55
+      cost: 601.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGl
+      age: 56
+      cost: 619.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGm
+      age: 57
+      cost: 638.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGn
+      age: 58
+      cost: 657.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGo
+      age: 59
+      cost: 679.18
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGp
+      age: 60
+      cost: 704.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGq
+      age: 61
+      cost: 704.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGr
+      age: 62
+      cost: 704.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGs
+      age: 63
+      cost: 704.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGt
+      age: 64
+      cost: 704.5
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwGu
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIZ
+    updated_at: 2019-02-19 19:09:56.705000000 Z
+    created_at: 2019-02-19 19:09:56.705000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGv
+      age: 14
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGw
+      age: 15
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGx
+      age: 16
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGy
+      age: 17
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwGz
+      age: 18
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG0
+      age: 19
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG1
+      age: 20
+      cost: 249.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG2
+      age: 21
+      cost: 393.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG3
+      age: 22
+      cost: 393.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG4
+      age: 23
+      cost: 393.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG5
+      age: 24
+      cost: 393.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG6
+      age: 25
+      cost: 393.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG7
+      age: 26
+      cost: 393.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG8
+      age: 27
+      cost: 405.43
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG9
+      age: 28
+      cost: 415.4
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG+
+      age: 29
+      cost: 423.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwG/
+      age: 30
+      cost: 427.7
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHA
+      age: 31
+      cost: 433.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHB
+      age: 32
+      cost: 439.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHC
+      age: 33
+      cost: 443.32
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHD
+      age: 34
+      cost: 447.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHE
+      age: 35
+      cost: 449.3
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHF
+      age: 36
+      cost: 451.3
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHG
+      age: 37
+      cost: 452.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHH
+      age: 38
+      cost: 454.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHI
+      age: 39
+      cost: 458.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHJ
+      age: 40
+      cost: 462.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHK
+      age: 41
+      cost: 468.58
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHL
+      age: 42
+      cost: 474.23
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHM
+      age: 43
+      cost: 481.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHN
+      age: 44
+      cost: 491.19
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHO
+      age: 45
+      cost: 502.16
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHP
+      age: 46
+      cost: 515.12
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHQ
+      age: 47
+      cost: 529.41
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHR
+      age: 48
+      cost: 545.37
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHS
+      age: 49
+      cost: 560.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHT
+      age: 50
+      cost: 578.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHU
+      age: 51
+      cost: 595.56
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHV
+      age: 52
+      cost: 613.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHW
+      age: 53
+      cost: 632.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHX
+      age: 54
+      cost: 651.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHY
+      age: 55
+      cost: 671.02
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHZ
+      age: 56
+      cost: 691.3
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHa
+      age: 57
+      cost: 711.91
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHb
+      age: 58
+      cost: 733.18
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHc
+      age: 59
+      cost: 757.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHd
+      age: 60
+      cost: 786.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHe
+      age: 61
+      cost: 786.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHf
+      age: 62
+      cost: 786.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHg
+      age: 63
+      cost: 786.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHh
+      age: 64
+      cost: 786.03
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwHi
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIa
+    updated_at: 2019-02-19 19:09:56.761000000 Z
+    created_at: 2019-02-19 19:09:56.761000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHj
+      age: 14
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHk
+      age: 15
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHl
+      age: 16
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHm
+      age: 17
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHn
+      age: 18
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHo
+      age: 19
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHp
+      age: 20
+      cost: 240.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHq
+      age: 21
+      cost: 378.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHr
+      age: 22
+      cost: 378.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHs
+      age: 23
+      cost: 378.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHt
+      age: 24
+      cost: 378.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHu
+      age: 25
+      cost: 378.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHv
+      age: 26
+      cost: 378.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHw
+      age: 27
+      cost: 390.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHx
+      age: 28
+      cost: 399.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHy
+      age: 29
+      cost: 407.62
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwHz
+      age: 30
+      cost: 411.46
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH0
+      age: 31
+      cost: 417.22
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH1
+      age: 32
+      cost: 422.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH2
+      age: 33
+      cost: 426.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH3
+      age: 34
+      cost: 430.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH4
+      age: 35
+      cost: 432.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH5
+      age: 36
+      cost: 434.17
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH6
+      age: 37
+      cost: 435.77
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH7
+      age: 38
+      cost: 437.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH8
+      age: 39
+      cost: 441.52
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH9
+      age: 40
+      cost: 445.36
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH+
+      age: 41
+      cost: 450.8
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwH/
+      age: 42
+      cost: 456.23
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIA
+      age: 43
+      cost: 463.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIB
+      age: 44
+      cost: 472.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIC
+      age: 45
+      cost: 483.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwID
+      age: 46
+      cost: 495.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIE
+      age: 47
+      cost: 509.32
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIF
+      age: 48
+      cost: 524.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIG
+      age: 49
+      cost: 539.7
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIH
+      age: 50
+      cost: 556.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwII
+      age: 51
+      cost: 572.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIJ
+      age: 52
+      cost: 590.55
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIK
+      age: 53
+      cost: 608.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIL
+      age: 54
+      cost: 627.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIM
+      age: 55
+      cost: 645.55
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIN
+      age: 56
+      cost: 665.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIO
+      age: 57
+      cost: 684.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIP
+      age: 58
+      cost: 705.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIQ
+      age: 59
+      cost: 729.02
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIR
+      age: 60
+      cost: 756.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIS
+      age: 61
+      cost: 756.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIT
+      age: 62
+      cost: 756.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIU
+      age: 63
+      cost: 756.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIV
+      age: 64
+      cost: 756.2
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUhIs1vK4MSwIW
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-01-01 00:00:00.000000000 Z
+      max: 2019-03-31 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIb
+    updated_at: 2019-02-19 19:09:56.950000000 Z
+    created_at: 2019-02-19 19:09:56.950000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIX
+      age: 14
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIY
+      age: 15
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIZ
+      age: 16
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIa
+      age: 17
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIb
+      age: 18
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIc
+      age: 19
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwId
+      age: 20
+      cost: 272.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIe
+      age: 21
+      cost: 429.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIf
+      age: 22
+      cost: 429.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIg
+      age: 23
+      cost: 429.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIh
+      age: 24
+      cost: 429.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIi
+      age: 25
+      cost: 429.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIj
+      age: 26
+      cost: 429.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIk
+      age: 27
+      cost: 443.01
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIl
+      age: 28
+      cost: 453.91
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIm
+      age: 29
+      cost: 462.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIn
+      age: 30
+      cost: 467.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIo
+      age: 31
+      cost: 473.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIp
+      age: 32
+      cost: 480.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIq
+      age: 33
+      cost: 484.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIr
+      age: 34
+      cost: 488.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIs
+      age: 35
+      cost: 490.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIt
+      age: 36
+      cost: 493.14
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIu
+      age: 37
+      cost: 494.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIv
+      age: 38
+      cost: 497.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIw
+      age: 39
+      cost: 501.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIx
+      age: 40
+      cost: 505.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIy
+      age: 41
+      cost: 512.02
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwIz
+      age: 42
+      cost: 518.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI0
+      age: 43
+      cost: 526.55
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI1
+      age: 44
+      cost: 536.72
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI2
+      age: 45
+      cost: 548.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI3
+      age: 46
+      cost: 562.87
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI4
+      age: 47
+      cost: 578.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI5
+      age: 48
+      cost: 595.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI6
+      age: 49
+      cost: 613.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI7
+      age: 50
+      cost: 632.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI8
+      age: 51
+      cost: 650.77
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI9
+      age: 52
+      cost: 670.75
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI+
+      age: 53
+      cost: 690.73
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwI/
+      age: 54
+      cost: 712.16
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJA
+      age: 55
+      cost: 733.22
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJB
+      age: 56
+      cost: 755.38
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJC
+      age: 57
+      cost: 777.9
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJD
+      age: 58
+      cost: 801.14
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJE
+      age: 59
+      cost: 828.02
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJF
+      age: 60
+      cost: 858.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJG
+      age: 61
+      cost: 858.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJH
+      age: 62
+      cost: 858.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJI
+      age: 63
+      cost: 858.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUhIs1vK4MSwJJ
+      age: 64
+      cost: 858.89
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUiIs1vK4MSwrS
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIV
+    updated_at: 2019-02-19 19:10:00.907000000 Z
+    created_at: 2019-02-19 19:10:00.907000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrT
+      age: 14
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrU
+      age: 15
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrV
+      age: 16
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrW
+      age: 17
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrX
+      age: 18
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrY
+      age: 19
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrZ
+      age: 20
+      cost: 215.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwra
+      age: 21
+      cost: 339.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrb
+      age: 22
+      cost: 339.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrc
+      age: 23
+      cost: 339.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrd
+      age: 24
+      cost: 339.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwre
+      age: 25
+      cost: 339.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrf
+      age: 26
+      cost: 339.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrg
+      age: 27
+      cost: 350.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrh
+      age: 28
+      cost: 359.19
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwri
+      age: 29
+      cost: 366.38
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrj
+      age: 30
+      cost: 369.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrk
+      age: 31
+      cost: 375.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrl
+      age: 32
+      cost: 380.18
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrm
+      age: 33
+      cost: 383.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrn
+      age: 34
+      cost: 386.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwro
+      age: 35
+      cost: 388.51
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrp
+      age: 36
+      cost: 390.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrq
+      age: 37
+      cost: 391.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrr
+      age: 38
+      cost: 393.4
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrs
+      age: 39
+      cost: 396.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrt
+      age: 40
+      cost: 400.3
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwru
+      age: 41
+      cost: 405.18
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrv
+      age: 42
+      cost: 410.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrw
+      age: 43
+      cost: 416.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrx
+      age: 44
+      cost: 424.73
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwry
+      age: 45
+      cost: 434.22
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwrz
+      age: 46
+      cost: 445.43
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr0
+      age: 47
+      cost: 457.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr1
+      age: 48
+      cost: 471.58
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr2
+      age: 49
+      cost: 485.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr3
+      age: 50
+      cost: 500.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr4
+      age: 51
+      cost: 514.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr5
+      age: 52
+      cost: 530.8
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr6
+      age: 53
+      cost: 546.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr7
+      age: 54
+      cost: 563.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr8
+      age: 55
+      cost: 580.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr9
+      age: 56
+      cost: 597.77
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr+
+      age: 57
+      cost: 615.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwr/
+      age: 58
+      cost: 633.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsA
+      age: 59
+      cost: 655.26
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsB
+      age: 60
+      cost: 679.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsC
+      age: 61
+      cost: 679.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsD
+      age: 62
+      cost: 679.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsE
+      age: 63
+      cost: 679.69
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsF
+      age: 64
+      cost: 679.69
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUiIs1vK4MSwsG
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIW
+    updated_at: 2019-02-19 19:10:00.995000000 Z
+    created_at: 2019-02-19 19:10:00.995000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsH
+      age: 14
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsI
+      age: 15
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsJ
+      age: 16
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsK
+      age: 17
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsL
+      age: 18
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsM
+      age: 19
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsN
+      age: 20
+      cost: 228.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsO
+      age: 21
+      cost: 360.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsP
+      age: 22
+      cost: 360.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsQ
+      age: 23
+      cost: 360.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsR
+      age: 24
+      cost: 360.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsS
+      age: 25
+      cost: 360.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsT
+      age: 26
+      cost: 360.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsU
+      age: 27
+      cost: 371.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsV
+      age: 28
+      cost: 381.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsW
+      age: 29
+      cost: 388.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsX
+      age: 30
+      cost: 392.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsY
+      age: 31
+      cost: 397.8
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsZ
+      age: 32
+      cost: 403.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsa
+      age: 33
+      cost: 406.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsb
+      age: 34
+      cost: 410.3
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsc
+      age: 35
+      cost: 412.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsd
+      age: 36
+      cost: 413.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwse
+      age: 37
+      cost: 415.48
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsf
+      age: 38
+      cost: 417.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsg
+      age: 39
+      cost: 420.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsh
+      age: 40
+      cost: 424.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsi
+      age: 41
+      cost: 429.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsj
+      age: 42
+      cost: 435.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsk
+      age: 43
+      cost: 442.01
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsl
+      age: 44
+      cost: 450.55
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsm
+      age: 45
+      cost: 460.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsn
+      age: 46
+      cost: 472.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwso
+      age: 47
+      cost: 485.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsp
+      age: 48
+      cost: 500.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsq
+      age: 49
+      cost: 514.58
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsr
+      age: 50
+      cost: 530.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwss
+      age: 51
+      cost: 546.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwst
+      age: 52
+      cost: 563.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsu
+      age: 53
+      cost: 579.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsv
+      age: 54
+      cost: 597.82
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsw
+      age: 55
+      cost: 615.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsx
+      age: 56
+      cost: 634.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsy
+      age: 57
+      cost: 653.01
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSwsz
+      age: 58
+      cost: 672.52
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSws0
+      age: 59
+      cost: 695.08
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSws1
+      age: 60
+      cost: 721.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSws2
+      age: 61
+      cost: 721.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSws3
+      age: 62
+      cost: 721.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSws4
+      age: 63
+      cost: 721.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiIs1vK4MSws5
+      age: 64
+      cost: 721.0
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUiYs1vK4MSws6
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIX
+    updated_at: 2019-02-19 19:10:01.100000000 Z
+    created_at: 2019-02-19 19:10:01.100000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSws7
+      age: 14
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSws8
+      age: 15
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSws9
+      age: 16
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSws+
+      age: 17
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSws/
+      age: 18
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtA
+      age: 19
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtB
+      age: 20
+      cost: 224.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtC
+      age: 21
+      cost: 353.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtD
+      age: 22
+      cost: 353.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtE
+      age: 23
+      cost: 353.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtF
+      age: 24
+      cost: 353.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtG
+      age: 25
+      cost: 353.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtH
+      age: 26
+      cost: 353.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtI
+      age: 27
+      cost: 364.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtJ
+      age: 28
+      cost: 373.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtK
+      age: 29
+      cost: 381.41
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtL
+      age: 30
+      cost: 385.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtM
+      age: 31
+      cost: 390.39
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtN
+      age: 32
+      cost: 395.77
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtO
+      age: 33
+      cost: 399.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtP
+      age: 34
+      cost: 402.66
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtQ
+      age: 35
+      cost: 404.45
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtR
+      age: 36
+      cost: 406.25
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtS
+      age: 37
+      cost: 407.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtT
+      age: 38
+      cost: 409.54
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtU
+      age: 39
+      cost: 413.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtV
+      age: 40
+      cost: 416.72
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtW
+      age: 41
+      cost: 421.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtX
+      age: 42
+      cost: 426.89
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtY
+      age: 43
+      cost: 433.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtZ
+      age: 44
+      cost: 442.15
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwta
+      age: 45
+      cost: 452.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtb
+      age: 46
+      cost: 463.7
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtc
+      age: 47
+      cost: 476.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtd
+      age: 48
+      cost: 490.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwte
+      age: 49
+      cost: 504.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtf
+      age: 50
+      cost: 520.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtg
+      age: 51
+      cost: 536.11
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwth
+      age: 52
+      cost: 552.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwti
+      age: 53
+      cost: 569.03
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtj
+      age: 54
+      cost: 586.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtk
+      age: 55
+      cost: 604.04
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtl
+      age: 56
+      cost: 622.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtm
+      age: 57
+      cost: 640.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtn
+      age: 58
+      cost: 660.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwto
+      age: 59
+      cost: 682.14
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtp
+      age: 60
+      cost: 707.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtq
+      age: 61
+      cost: 707.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtr
+      age: 62
+      cost: 707.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwts
+      age: 63
+      cost: 707.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtt
+      age: 64
+      cost: 707.57
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUiYs1vK4MSwtu
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIY
+    updated_at: 2019-02-19 19:10:01.205000000 Z
+    created_at: 2019-02-19 19:10:01.205000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtv
+      age: 14
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtw
+      age: 15
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtx
+      age: 16
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwty
+      age: 17
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwtz
+      age: 18
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt0
+      age: 19
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt1
+      age: 20
+      cost: 213.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt2
+      age: 21
+      cost: 337.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt3
+      age: 22
+      cost: 337.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt4
+      age: 23
+      cost: 337.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt5
+      age: 24
+      cost: 337.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt6
+      age: 25
+      cost: 337.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt7
+      age: 26
+      cost: 337.07
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt8
+      age: 27
+      cost: 347.62
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt9
+      age: 28
+      cost: 356.17
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt+
+      age: 29
+      cost: 363.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwt/
+      age: 30
+      cost: 366.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuA
+      age: 31
+      cost: 371.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuB
+      age: 32
+      cost: 376.98
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuC
+      age: 33
+      cost: 380.11
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuD
+      age: 34
+      cost: 383.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuE
+      age: 35
+      cost: 385.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuF
+      age: 36
+      cost: 386.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuG
+      age: 37
+      cost: 388.38
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuH
+      age: 38
+      cost: 390.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuI
+      age: 39
+      cost: 393.51
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuJ
+      age: 40
+      cost: 396.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuK
+      age: 41
+      cost: 401.77
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuL
+      age: 42
+      cost: 406.62
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuM
+      age: 43
+      cost: 413.17
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuN
+      age: 44
+      cost: 421.15
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuO
+      age: 45
+      cost: 430.56
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuP
+      age: 46
+      cost: 441.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuQ
+      age: 47
+      cost: 453.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuR
+      age: 48
+      cost: 467.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuS
+      age: 49
+      cost: 481.01
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuT
+      age: 50
+      cost: 496.11
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuU
+      age: 51
+      cost: 510.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuV
+      age: 52
+      cost: 526.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuW
+      age: 53
+      cost: 542.0
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuX
+      age: 54
+      cost: 558.82
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuY
+      age: 55
+      cost: 575.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuZ
+      age: 56
+      cost: 592.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwua
+      age: 57
+      cost: 610.41
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwub
+      age: 58
+      cost: 628.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuc
+      age: 59
+      cost: 649.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwud
+      age: 60
+      cost: 673.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwue
+      age: 61
+      cost: 673.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuf
+      age: 62
+      cost: 673.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwug
+      age: 63
+      cost: 673.97
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuh
+      age: 64
+      cost: 673.97
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUiYs1vK4MSwui
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIZ
+    updated_at: 2019-02-19 19:10:01.314000000 Z
+    created_at: 2019-02-19 19:10:01.314000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuj
+      age: 14
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuk
+      age: 15
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwul
+      age: 16
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwum
+      age: 17
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwun
+      age: 18
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuo
+      age: 19
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwup
+      age: 20
+      cost: 238.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuq
+      age: 21
+      cost: 376.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwur
+      age: 22
+      cost: 376.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwus
+      age: 23
+      cost: 376.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwut
+      age: 24
+      cost: 376.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuu
+      age: 25
+      cost: 376.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuv
+      age: 26
+      cost: 376.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuw
+      age: 27
+      cost: 387.85
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwux
+      age: 28
+      cost: 397.39
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuy
+      age: 29
+      cost: 405.34
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwuz
+      age: 30
+      cost: 409.16
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu0
+      age: 31
+      cost: 414.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu1
+      age: 32
+      cost: 420.61
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu2
+      age: 33
+      cost: 424.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu3
+      age: 34
+      cost: 427.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu4
+      age: 35
+      cost: 429.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu5
+      age: 36
+      cost: 431.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu6
+      age: 37
+      cost: 433.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu7
+      age: 38
+      cost: 435.23
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu8
+      age: 39
+      cost: 439.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu9
+      age: 40
+      cost: 442.87
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu+
+      age: 41
+      cost: 448.27
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwu/
+      age: 42
+      cost: 453.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvA
+      age: 43
+      cost: 460.99
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvB
+      age: 44
+      cost: 469.9
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvC
+      age: 45
+      cost: 480.39
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvD
+      age: 46
+      cost: 492.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvE
+      age: 47
+      cost: 506.47
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvF
+      age: 48
+      cost: 521.73
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvG
+      age: 49
+      cost: 536.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvH
+      age: 50
+      cost: 553.53
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvI
+      age: 51
+      cost: 569.75
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvJ
+      age: 52
+      cost: 587.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvK
+      age: 53
+      cost: 604.73
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvL
+      age: 54
+      cost: 623.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvM
+      age: 55
+      cost: 641.94
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvN
+      age: 56
+      cost: 661.33
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvO
+      age: 57
+      cost: 681.05
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvP
+      age: 58
+      cost: 701.4
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvQ
+      age: 59
+      cost: 724.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvR
+      age: 60
+      cost: 751.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvS
+      age: 61
+      cost: 751.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvT
+      age: 62
+      cost: 751.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvU
+      age: 63
+      cost: 751.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUiYs1vK4MSwvV
+      age: 64
+      cost: 751.96
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUios1vK4MSwvW
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIa
+    updated_at: 2019-02-19 19:10:02.542000000 Z
+    created_at: 2019-02-19 19:10:02.542000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvX
+      age: 14
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvY
+      age: 15
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvZ
+      age: 16
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwva
+      age: 17
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvb
+      age: 18
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvc
+      age: 19
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvd
+      age: 20
+      cost: 229.65
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwve
+      age: 21
+      cost: 361.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvf
+      age: 22
+      cost: 361.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvg
+      age: 23
+      cost: 361.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvh
+      age: 24
+      cost: 361.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvi
+      age: 25
+      cost: 361.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvj
+      age: 26
+      cost: 361.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvk
+      age: 27
+      cost: 373.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvl
+      age: 28
+      cost: 382.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvm
+      age: 29
+      cost: 389.96
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvn
+      age: 30
+      cost: 393.63
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvo
+      age: 31
+      cost: 399.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvp
+      age: 32
+      cost: 404.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvq
+      age: 33
+      cost: 408.01
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvr
+      age: 34
+      cost: 411.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvs
+      age: 35
+      cost: 413.51
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvt
+      age: 36
+      cost: 415.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvu
+      age: 37
+      cost: 416.88
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvv
+      age: 38
+      cost: 418.71
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvw
+      age: 39
+      cost: 422.38
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvx
+      age: 40
+      cost: 426.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvy
+      age: 41
+      cost: 431.26
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwvz
+      age: 42
+      cost: 436.46
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv0
+      age: 43
+      cost: 443.49
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv1
+      age: 44
+      cost: 452.06
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv2
+      age: 45
+      cost: 462.16
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv3
+      age: 46
+      cost: 474.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv4
+      age: 47
+      cost: 487.24
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv5
+      age: 48
+      cost: 501.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv6
+      age: 49
+      cost: 516.31
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv7
+      age: 50
+      cost: 532.52
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv8
+      age: 51
+      cost: 548.12
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv9
+      age: 52
+      cost: 564.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv+
+      age: 53
+      cost: 581.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwv/
+      age: 54
+      cost: 599.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwA
+      age: 55
+      cost: 617.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwB
+      age: 56
+      cost: 636.23
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwC
+      age: 57
+      cost: 655.2
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwD
+      age: 58
+      cost: 674.78
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwE
+      age: 59
+      cost: 697.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwF
+      age: 60
+      cost: 723.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwG
+      age: 61
+      cost: 723.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwH
+      age: 62
+      cost: 723.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwI
+      age: 63
+      cost: 723.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwJ
+      age: 64
+      cost: 723.42
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGxUios1vK4MSwwK
+    effective_period: !ruby/hash:BSON::Document
+      min: 2019-04-01 00:00:00.000000000 Z
+      max: 2019-06-30 00:00:00.000000000 Z
+    rating_area_id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLcMCdB0HAWeIb
+    updated_at: 2019-02-19 19:10:02.633000000 Z
+    created_at: 2019-02-19 19:10:02.633000000 Z
+    premium_tuples:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwL
+      age: 14
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwM
+      age: 15
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwN
+      age: 16
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwO
+      age: 17
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwP
+      age: 18
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwQ
+      age: 19
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwR
+      age: 20
+      cost: 260.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwS
+      age: 21
+      cost: 410.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwT
+      age: 22
+      cost: 410.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwU
+      age: 23
+      cost: 410.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwV
+      age: 24
+      cost: 410.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwW
+      age: 25
+      cost: 410.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwX
+      age: 26
+      cost: 410.95
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwY
+      age: 27
+      cost: 423.81
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwZ
+      age: 28
+      cost: 434.23
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwa
+      age: 29
+      cost: 442.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwb
+      age: 30
+      cost: 447.09
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwc
+      age: 31
+      cost: 453.35
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwd
+      age: 32
+      cost: 459.6
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwe
+      age: 33
+      cost: 463.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwf
+      age: 34
+      cost: 467.59
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwg
+      age: 35
+      cost: 469.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwh
+      age: 36
+      cost: 471.76
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwi
+      age: 37
+      cost: 473.5
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwj
+      age: 38
+      cost: 475.58
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwk
+      age: 39
+      cost: 479.75
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwl
+      age: 40
+      cost: 483.92
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwm
+      age: 41
+      cost: 489.83
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwn
+      age: 42
+      cost: 495.74
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwo
+      age: 43
+      cost: 503.73
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwp
+      age: 44
+      cost: 513.46
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwq
+      age: 45
+      cost: 524.93
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwr
+      age: 46
+      cost: 538.48
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwws
+      age: 47
+      cost: 553.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwt
+      age: 48
+      cost: 570.1
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwu
+      age: 49
+      cost: 586.43
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwv
+      age: 50
+      cost: 604.84
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwww
+      age: 51
+      cost: 622.57
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwx
+      age: 52
+      cost: 641.68
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwy
+      age: 53
+      cost: 660.79
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSwwz
+      age: 54
+      cost: 681.29
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww0
+      age: 55
+      cost: 701.44
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww1
+      age: 56
+      cost: 722.64
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww2
+      age: 57
+      cost: 744.18
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww3
+      age: 58
+      cost: 766.42
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww4
+      age: 59
+      cost: 792.13
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww5
+      age: 60
+      cost: 821.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww6
+      age: 61
+      cost: 821.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww7
+      age: 62
+      cost: 821.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww8
+      age: 63
+      cost: 821.67
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGxUios1vK4MSww9
+      age: 64
+      cost: 821.67

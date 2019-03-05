@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbqk
+  key: en.plans.thd_hours
+  value: '"Monday through Friday, from 8 a.m. to 5 p.m., excluding holidays"'

@@ -1,0 +1,9 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZHcCdB6KwcbmN
+  key: en.insured.plan_shoppings.final_cost_change
+  value: '"Please note your final cost may change based on the final enrollment of
+    all employees."'

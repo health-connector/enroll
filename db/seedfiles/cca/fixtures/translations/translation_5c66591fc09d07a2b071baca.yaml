@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6KwcbrK
+  key: en.plans.dd_href_number1
+  value: '"tel:+18004710236"'

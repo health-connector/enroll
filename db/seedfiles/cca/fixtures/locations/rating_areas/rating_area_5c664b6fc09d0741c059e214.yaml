@@ -1,0 +1,221 @@
+--- !ruby/object:BenefitMarkets::Locations::RatingArea
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLb8CdB0HAWeIU
+  active_year: 2017
+  exchange_provided_code: R-MA007
+  county_zip_ids:
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4dt
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4du
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4dv
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4dw
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4dx
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4dy
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4dz
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d0
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d1
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d2
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d3
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d4
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d5
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4d6
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4d7
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4d8
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4d9
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4d+
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4d/
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eA
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eB
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eC
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eD
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eE
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eF
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eG
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eH
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eI
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eJ
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eK
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eL
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eM
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eN
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eO
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eP
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eQ
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eR
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eS
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eT
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eU
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eV
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eW
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eX
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eY
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eZ
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ea
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eb
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ec
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ed
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ee
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ef
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eg
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eh
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ei
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ej
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ek
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4el
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4em
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4en
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eo
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ep
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eq
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4er
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4es
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4et
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4eu
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ev
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ew
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ex
+  - !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4ey
+  updated_at: 2019-02-15 05:17:35.022000000 Z
+  created_at: 2019-02-15 05:17:35.022000000 Z

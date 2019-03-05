@@ -1,0 +1,70 @@
+--- !ruby/object:BenefitSponsors::Organizations::ExemptOrganization
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLiMCdB0Ik0T2Z
+  _type: BenefitSponsors::Organizations::ExemptOrganization
+  fein: '041045815'
+  site_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      WxWP5J+ICzHOaeVu
+  legal_name: Blue Cross Blue Shield MA
+  hbx_id: 99e5420b41b84433b96e285459a860d1
+  updated_at: 2019-02-15 05:18:00.958000000 Z
+  created_at: 2019-02-15 05:18:00.958000000 Z
+  profiles:
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLiMCdB0Ik0T2Y
+    contact_method: :paper_and_electronic
+    _type: BenefitSponsors::Organizations::IssuerProfile
+    issuer_hios_ids:
+    - '42690'
+    issuer_state: MA
+    market_coverage: shop (small group)
+    hbx_carrier_id: 20002
+    abbrev: BCBS
+    ivl_health: false
+    ivl_dental: false
+    shop_health: true
+    shop_dental: false
+    is_benefit_sponsorship_eligible: false
+    offers_sole_source: false
+    dental_only_plan: false
+    updated_at: 2019-02-15 05:18:00.957000000 Z
+    created_at: 2019-02-15 05:18:00.957000000 Z
+    office_locations:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGZLiMCdB0Ik0T2V
+      is_primary: true
+      address: !ruby/hash:BSON::Document
+        _id: !ruby/object:BSON::ObjectId
+          raw_data: !binary |-
+            XGZLiMCdB0Ik0T2W
+        address_1: address_placeholder
+        address_2: address_2
+        address_3: ''
+        county: ''
+        country_name: ''
+        kind: work
+        city: City
+        state: St
+        zip: '10001'
+        updated_at: 2019-02-15 05:18:00.957000000 Z
+        created_at: 2019-02-15 05:18:00.957000000 Z
+      phone: !ruby/hash:BSON::Document
+        _id: !ruby/object:BSON::ObjectId
+          raw_data: !binary |-
+            XGZLiMCdB0Ik0T2X
+        kind: main
+        country_code: ''
+        area_code: '111'
+        number: '1111111'
+        extension: ''
+        full_phone_number: '1111111111'
+        updated_at: 2019-02-15 05:18:00.957000000 Z
+        created_at: 2019-02-15 05:18:00.957000000 Z

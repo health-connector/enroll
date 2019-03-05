@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbp8
+  key: en.plans.bhp_hours
+  value: '"Monday through Friday from 8:00 a.m. to 6:00 p.m."'

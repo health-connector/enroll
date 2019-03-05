@@ -1,0 +1,11 @@
+--- !ruby/object:BenefitMarkets::Locations::CountyZip
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLT8CdB0FWz4VY
+  county_name: Hampden
+  zip: '01069'
+  state: MA
+  updated_at: 2019-02-15 05:17:03.667000000 Z
+  created_at: 2019-02-15 05:17:03.667000000 Z

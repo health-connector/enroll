@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbqn
+  key: en.plans.thpp_hours
+  value: '"Monday - Thursday 8:00am to 7:00pm; Friday 8:00am to 5:00pm"'

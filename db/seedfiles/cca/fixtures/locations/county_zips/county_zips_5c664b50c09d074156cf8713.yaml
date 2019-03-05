@@ -1,0 +1,11 @@
+--- !ruby/object:BenefitMarkets::Locations::CountyZip
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4cT
+  county_name: Suffolk
+  zip: '02266'
+  state: MA
+  updated_at: 2019-02-15 05:17:04.746000000 Z
+  created_at: 2019-02-15 05:17:04.746000000 Z

@@ -71,6 +71,7 @@ namespace :fixture_dump do
   desc "Dump sic codes"
   task :sic_codes => :environment do
     ::SicCode.each do |cz|
+      binding.pry
       f_name = File.join(Rails.root, "fixture_dumps", "sic_code_#{cz.id.to_s}.yaml")
       File.open(f_name,'w') do |f|
         f.write cz.to_yaml(except: ["__selected_fields"])

@@ -1,0 +1,17 @@
+--- !ruby/object:BenefitMarkets::Locations::ServiceArea
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZL6MCdB0Ltn4Bh
+  active_year: 2019
+  issuer_provided_code: MAS001
+  covered_states:
+  - MA
+  issuer_hios_id: '11821'
+  issuer_profile_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLicCdB0Ik0T27
+  issuer_provided_title: Delta Dental PPO
+  updated_at: 2019-02-15 05:19:36.658000000 Z
+  created_at: 2019-02-15 05:19:36.658000000 Z

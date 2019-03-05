@@ -1,0 +1,17 @@
+--- !ruby/object:BenefitMarkets::Locations::ServiceArea
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLvcCdB0Ltn2Nu
+  active_year: 2017
+  issuer_provided_code: MAS001
+  covered_states:
+  - MA
+  issuer_hios_id: '36046'
+  issuer_profile_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLiMCdB0Ik0T2d
+  issuer_provided_title: Harvard Pilgrim Health Care Full Service Area
+  updated_at: 2019-02-15 05:18:53.316000000 Z
+  created_at: 2019-02-15 05:18:53.316000000 Z

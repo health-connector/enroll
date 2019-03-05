@@ -1,0 +1,17 @@
+--- !ruby/object:BenefitMarkets::Locations::ServiceArea
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZL48CdB0Ltn302
+  active_year: 2019
+  issuer_provided_code: MAS001
+  covered_states:
+  - MA
+  issuer_hios_id: '18076'
+  issuer_profile_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLicCdB0Ik0T22
+  issuer_provided_title: Altus Dental Service Area
+  updated_at: 2019-02-15 05:19:31.092000000 Z
+  created_at: 2019-02-15 05:19:31.092000000 Z

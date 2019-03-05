@@ -1,0 +1,11 @@
+--- !ruby/object:BenefitMarkets::Locations::CountyZip
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLT8CdB0FWz4WM
+  county_name: Berkshire
+  zip: '01202'
+  state: MA
+  updated_at: 2019-02-15 05:17:03.759000000 Z
+  created_at: 2019-02-15 05:17:03.759000000 Z

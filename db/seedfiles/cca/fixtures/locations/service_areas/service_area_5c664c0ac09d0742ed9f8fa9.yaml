@@ -1,0 +1,17 @@
+--- !ruby/object:BenefitMarkets::Locations::ServiceArea
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZMCsCdB0Ltn4+p
+  active_year: 2019
+  issuer_provided_code: MAS001
+  covered_states:
+  - MA
+  issuer_hios_id: '29125'
+  issuer_profile_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLicCdB0Ik0T2s
+  issuer_provided_title: Tufts Health Plan
+  updated_at: 2019-02-15 05:20:10.591000000 Z
+  created_at: 2019-02-15 05:20:10.591000000 Z

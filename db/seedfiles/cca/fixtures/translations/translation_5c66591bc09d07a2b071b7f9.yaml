@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZG8CdB6Kwcbf5
+  key: en.users.orphans.show.oim_id
+  value: '"OIM ID"'

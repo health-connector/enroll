@@ -1,0 +1,11 @@
+--- !ruby/object:BenefitMarkets::Locations::CountyZip
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUMCdB0FWz4Zb
+  county_name: Middlesex
+  zip: '01827'
+  state: MA
+  updated_at: 2019-02-15 05:17:04.301000000 Z
+  created_at: 2019-02-15 05:17:04.301000000 Z

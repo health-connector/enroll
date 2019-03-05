@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6KwcbrY
+  key: en.hbx_profiles.please_choose_new_oe_date
+  value: '"Please Choose New Open Enrollment Date"'

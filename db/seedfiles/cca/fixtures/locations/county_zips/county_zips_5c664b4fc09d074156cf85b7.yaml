@@ -1,0 +1,11 @@
+--- !ruby/object:BenefitMarkets::Locations::CountyZip
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLT8CdB0FWz4W3
+  county_name: Franklin
+  zip: '01339'
+  state: MA
+  updated_at: 2019-02-15 05:17:03.857000000 Z
+  created_at: 2019-02-15 05:17:03.857000000 Z

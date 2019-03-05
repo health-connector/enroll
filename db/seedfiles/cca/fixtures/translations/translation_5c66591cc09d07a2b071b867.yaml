@@ -1,0 +1,9 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZHMCdB6Kwcbhn
+  key: en.enroll_in_health_or_dental_dc
+  value: '"Enroll in health or dental coverage on the %{site_short_name}''s individual
+    market"'

@@ -1,3 +1,5 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'sic_codes_seed'))
+
 require File.expand_path(File.join(File.dirname(__FILE__), "translations_seed"))
 require File.expand_path(File.join(File.dirname(__FILE__), "qles_seed"))
 

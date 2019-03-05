@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZHsCdB6KwcboP
+  key: en.quote_employer_cost_comparison_results
+  value: '"Quote Employer Cost Comparison Results"'

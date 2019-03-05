@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZHsCdB6Kwcbo4
+  key: en.add_member_to_this_family
+  value: '"Add member to this family"'

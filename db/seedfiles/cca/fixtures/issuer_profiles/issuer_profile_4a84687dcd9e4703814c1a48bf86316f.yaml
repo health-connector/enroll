@@ -1,0 +1,70 @@
+--- !ruby/object:BenefitSponsors::Organizations::ExemptOrganization
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLicCdB0Ik0T2y
+  _type: BenefitSponsors::Organizations::ExemptOrganization
+  fein: '362739571'
+  site_id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      WxWP5J+ICzHOaeVu
+  legal_name: UnitedHealthcare
+  hbx_id: 4a84687dcd9e4703814c1a48bf86316f
+  updated_at: 2019-02-15 05:18:01.018000000 Z
+  created_at: 2019-02-15 05:18:01.018000000 Z
+  profiles:
+  - !ruby/hash:BSON::Document
+    _id: !ruby/object:BSON::ObjectId
+      raw_data: !binary |-
+        XGZLicCdB0Ik0T2x
+    contact_method: :paper_and_electronic
+    _type: BenefitSponsors::Organizations::IssuerProfile
+    issuer_hios_ids:
+    - '31779'
+    issuer_state: MA
+    market_coverage: shop (small group)
+    hbx_carrier_id: 20014
+    abbrev: UHIC
+    ivl_health: false
+    ivl_dental: false
+    shop_health: true
+    shop_dental: false
+    is_benefit_sponsorship_eligible: false
+    offers_sole_source: false
+    dental_only_plan: false
+    updated_at: 2019-02-15 05:18:01.018000000 Z
+    created_at: 2019-02-15 05:18:01.018000000 Z
+    office_locations:
+    - !ruby/hash:BSON::Document
+      _id: !ruby/object:BSON::ObjectId
+        raw_data: !binary |-
+          XGZLicCdB0Ik0T2u
+      is_primary: true
+      address: !ruby/hash:BSON::Document
+        _id: !ruby/object:BSON::ObjectId
+          raw_data: !binary |-
+            XGZLicCdB0Ik0T2v
+        address_1: address_placeholder
+        address_2: address_2
+        address_3: ''
+        county: ''
+        country_name: ''
+        kind: work
+        city: City
+        state: St
+        zip: '10001'
+        updated_at: 2019-02-15 05:18:01.017000000 Z
+        created_at: 2019-02-15 05:18:01.017000000 Z
+      phone: !ruby/hash:BSON::Document
+        _id: !ruby/object:BSON::ObjectId
+          raw_data: !binary |-
+            XGZLicCdB0Ik0T2w
+        kind: main
+        country_code: ''
+        area_code: '111'
+        number: '1111111'
+        extension: ''
+        full_phone_number: '1111111111'
+        updated_at: 2019-02-15 05:18:01.017000000 Z
+        created_at: 2019-02-15 05:18:01.017000000 Z

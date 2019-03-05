@@ -1,0 +1,11 @@
+--- !ruby/object:BenefitMarkets::Locations::CountyZip
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZLUcCdB0FWz4fI
+  county_name: Bristol
+  zip: '02743'
+  state: MA
+  updated_at: 2019-02-15 05:17:05.202000000 Z
+  created_at: 2019-02-15 05:17:05.202000000 Z

@@ -1,0 +1,8 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbq4
+  key: en.plans.aetna_broker_and_emprs_hours
+  value: '"from 8am-5pm EST, Monday - Friday"'

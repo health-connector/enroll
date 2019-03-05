@@ -1,0 +1,9 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6KwcbrE
+  key: en.plans.ad_infoline
+  value: '"Infoline,  our automated telephone system, is available 24 hours a day/7
+    days a week"'

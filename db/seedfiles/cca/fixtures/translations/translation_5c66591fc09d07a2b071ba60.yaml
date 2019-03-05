@@ -1,0 +1,9 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbpg
+  key: en.broker_carrier_appointments_enabled_note
+  value: '"Note: Carrier appointments for broker are not necessary for participation
+    in %{site_long_name}."'

@@ -1,5 +1,5 @@
 def load_cca_benefit_market_catalogs_seed
-    cz_pattern = File.join(File.dirname(__FILE__), "fixtures", "benefit_market_catalog_*.yaml")
+    cz_pattern = File.join(File.dirname(__FILE__), "fixtures", 'benefit_market_catalogs', "benefit_market_catalog_*.yaml")
   
     Dir.glob(cz_pattern).each do |f_name|
       loaded_class_1 = ::BenefitMarkets::BenefitMarketCatalog

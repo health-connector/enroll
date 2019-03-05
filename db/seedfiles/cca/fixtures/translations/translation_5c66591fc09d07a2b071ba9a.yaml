@@ -1,0 +1,9 @@
+--- !ruby/object:Translation
+__selected_fields: 
+attributes: !ruby/hash:BSON::Document
+  _id: !ruby/object:BSON::ObjectId
+    raw_data: !binary |-
+      XGZZH8CdB6Kwcbqa
+  key: en.plans.hphc_hours
+  value: '"Monday, Tuesday, & Thursday from 8:00 a.m. to 6:00 p.m.; Wednesday from
+    10:00 a.m. to 6:00 p.m.; and Friday from 8:00 a.m. to 5:30 p.m"'
