@@ -700,7 +700,7 @@ GEM
       thor
       thread (~> 0.1.7)
     spring (1.6.3)
-    sprockets (2.12.4)
+    sprockets (2.12.5)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
