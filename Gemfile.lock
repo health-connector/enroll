@@ -372,7 +372,7 @@ GEM
       railties (>= 3.0.0)
     fakeredis (0.7.0)
       redis (>= 3.2, < 5.0)
-    ffi (1.9.23)
+    ffi (1.10.0)
     forgery (0.7.0)
     gherkin (3.2.0)
     globalid (0.4.1)
