@@ -45,7 +45,7 @@ gem 'mongoid-history'
 gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', git: 'https://github.com/adacosta/mongoid_rails_migrations.git', branch: 'master'
 gem 'mongoid_userstamp'
-gem 'nokogiri', '1.6.7.2'
+gem 'nokogiri', '1.10.1'
 gem 'nokogiri-happymapper', :require => 'happymapper'
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem "notifier",           path: "components/notifier"
