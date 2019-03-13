@@ -123,6 +123,105 @@ module BenefitSponsors
     describe '.force_submit_application' do
       include_context "setup initial benefit application"
 
+      context 'Invoke force_submit_application' do
+        let(:application_errors) do
+          { 'invalid_application' => 'Invalid application error' }
+        end
+        let(:application_warnings) do
+          { 'invalid_application' => 'Invalid application warning' }
+        end
+        subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+
+        context 'When business_policy_satisfied_for? OR is_application_eligible? AND may_submit_for_review? are is false' do
+
+          it 'should return notice, warnings and state could not be changed' do
+            allow(initial_application).to receive(:open_enrollment_length).and_return(4)
+            allow(initial_application).to receive(:may_submit_for_review?).and_return(false)
+            subject.force_submit_application
+            initial_application.reload
+            expect(subject.messages['notice']).to eq('Employer(s) Plan Year could not be processed')
+            expect(subject.messages['warnings']).to eq(['open enrollment period length 4 day(s) is less than 5 day(s) minimum'])
+            expect(subject.errors).to eq([])
+            expect(initial_application.aasm_state).to eq :active
+          end
+        end
+
+        context 'When business_policy_satisfied_for? OR is_application_eligible? is false AND may_submit_for_review? is true' do
+          context 'state is not draft' do
+            it 'should return error' do
+              allow(subject).to receive(:business_policy_satisfied_for?).and_return(false)
+              allow(initial_application).to receive(:may_submit_for_review?).and_return(true)
+              subject.force_submit_application
+              initial_application.reload
+              expect(subject.messages).to eq({})
+              expect(subject.errors).to eq(["Event 'submit_for_review' cannot transition from 'active'. "])
+              expect(initial_application.aasm_state).to eq :active
+            end
+          end
+
+          context 'state is draft' do
+            before { initial_application.update_attribute(:aasm_state, 'draft') }
+            it 'should return notice, warnings and state could not be changed' do
+              allow(initial_application).to receive(:open_enrollment_length).and_return(4)
+              allow(initial_application).to receive(:may_submit_for_review?).and_return(true)
+              subject.force_submit_application
+              initial_application.reload
+              expect(subject.messages['notice']).to eq('Employer(s) Plan Year was successfully submitted for review.')
+              expect(subject.messages['warnings']).to eq(['open enrollment period length 4 day(s) is less than 5 day(s) minimum'])
+              expect(subject.errors).to eq([])
+              expect(initial_application.aasm_state).to eq :pending
+            end
+          end
+        end
+
+        context 'When business_policy_satisfied_for?? AND is_application_eligible? are true' do
+          context 'when benefit_application may_approve_application? is false' do
+            it 'should return notice Plan Year could not be processed' do
+              allow(initial_application).to receive(:may_approve_application?).and_return(false)
+              subject.force_submit_application
+              initial_application.reload
+              expect(subject.messages['notice']).to eq('Employer(s) Plan Year could not be processed')
+              expect(subject.errors).to eq([])
+              expect(initial_application.aasm_state).to eq :active
+            end
+          end
+
+          context 'when benefit_application may_approve_application? is true and state is active then' do
+            it 'should return error' do
+              allow(initial_application).to receive(:may_approve_application?).and_return(true)
+              subject.force_submit_application
+              initial_application.reload
+              expect(subject.messages).to eq({})
+              expect(subject.errors).to eq(["Event 'auto_approve_application' cannot transition from 'active'. "])
+              expect(initial_application.aasm_state).to eq :active
+            end
+          end
+
+          context 'when benefit_application may_approve_application? is true and state is draft then' do
+            before { initial_application.update_attributes(aasm_state: 'draft') }
+
+            it 'should return error if today is less than open_enrollment_period' do
+              allow(initial_application).to receive(:may_submit_for_review?).and_return(true)
+              allow(subject).to receive(:today).and_return(initial_application.open_enrollment_period.begin - 1.year)
+              subject.force_submit_application
+              initial_application.reload
+              expect(subject.messages).to eq({})
+              expect(subject.errors).to eq(['Employer(s) Plan Year date has not matched.'])
+              expect(initial_application.aasm_state).to eq :approved
+            end
+
+            it 'should return notice, warnings and state could not be changed' do
+              allow(initial_application).to receive(:may_submit_for_review?).and_return(true)
+              subject.force_submit_application
+              initial_application.reload
+              expect(subject.messages['notice']).to eq('Employer(s) Plan Year was successfully published.')
+              expect(subject.errors).to eq([])
+              expect(initial_application.aasm_state).to eq :enrollment_open
+            end
+          end
+        end
+      end
+
       context "renewal application in draft state" do
 
         let(:scheduled_event)  {BenefitSponsors::ScheduledEvents::AcaShopScheduledEvents}
@@ -190,8 +289,6 @@ module BenefitSponsors
         let(:open_enrollment_begin) { TimeKeeper.date_of_record - 5.days }
 
         include_context "setup initial benefit application" do
-          let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year, 8, 1) }
-          let(:open_enrollment_period) { (effective_period.min - 2.months)..open_enrollment_begin }
           let(:aasm_state) { :approved }
         end
 
@@ -526,6 +623,56 @@ module BenefitSponsors
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :initial_enrollment_open
           expect(initial_application.open_enrollment_period.max).to eq oe_end_date
         end
+      end
+    end
+
+    describe '.hbx_enrollments_by_month' do
+
+      include_context "setup initial benefit application"
+      let(:product_kinds)  { [:health, :dental] }
+      let(:dental_sponsored_benefit) { true }
+      let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
+      let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
+      let(:benefit_package) { initial_application.benefit_packages.first }
+      let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
+      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) { FactoryGirl.create(:census_employee,
+        employer_profile: benefit_sponsorship.profile,
+        benefit_sponsorship: benefit_sponsorship,
+        benefit_group_assignments: [benefit_group_assignment]
+      )}
+      let(:person){ FactoryGirl.create(:person, :with_family)}
+      let(:family) {person.primary_family}
+
+      let!(:hbx_enrollment) {  FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                        household: family.active_household,
+                        aasm_state: "coverage_selected",
+                        effective_on: initial_application.start_on,
+                        rating_area_id: initial_application.recorded_rating_area_id,
+                        coverage_kind: "health",
+                        sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                        sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
+                        benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
+                        employee_role_id: employee_role.id)
+      }
+
+      let!(:dental_hbx_enrollment) {  FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                        household: family.active_household,
+                        aasm_state: "coverage_selected",
+                        effective_on: initial_application.start_on,
+                        rating_area_id: initial_application.recorded_rating_area_id,
+                        coverage_kind: "dental",
+                        sponsored_benefit_id: initial_application.benefit_packages.first.dental_sponsored_benefit.id,
+                        sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
+                        benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
+                        employee_role_id: employee_role.id)
+      }
+
+      let!(:enrollment_service) { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+      let!(:enrollments) { enrollment_service.hbx_enrollments_by_month(initial_application.start_on) }
+
+      it 'should return enrollments - both health and dental' do
+        expect(enrollments.map{ |k| k["coverage_kind"] }).to eq ['health', 'dental']
       end
     end
   end
