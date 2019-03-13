@@ -20,10 +20,12 @@
 # Execute the Business Policy:
 #   assert_business_policies([:name_of_first_business_policy])
 #
+require 'acapi'
+
 module BenefitMarkets
   module BusinessRulesEngine
     extend ActiveSupport::Concern
-    include Acapi::Notifiers
+    include ::Acapi::Notifiers
 
     included do
       class_attribute :business_policies
