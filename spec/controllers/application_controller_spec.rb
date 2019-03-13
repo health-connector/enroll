@@ -162,4 +162,65 @@ RSpec.describe ApplicationController do
       expect(pagination).to eq alphabet_array
     end
   end
+
+  # In application controller,
+  # set_bookmark_url calls the save_bookmark method, which in turn
+  # is called by set_employee_bookmark_url, set_consumer_bookmark_url, etc. methods.
+  # These methods now pass in bookmark_url = url || request.path instead of
+  # bookmark_url = url || request.original_url, which was storing the
+  # fully qualified domain name. path just stores the path such as "/families/home"
+  # and not the environment's full URL string.
+  context "#set_bookmark_url", :type => :controller do
+    # For some reason without mocking it out putting consumer role's person
+    # as person is returning nil when doing person.consumer_role
+    let!(:person) { FactoryGirl.create(:consumer_role_person) }
+    let!(:consumer_role) { FactoryGirl.create(:consumer_role, person: person) }
+    let!(:employee_role) { FactoryGirl.create(:employee_role, person: person) }
+    let(:user) { FactoryGirl.create(:user, :person => person, roles: ["admin"]) }
+    let(:application_controller) { ApplicationController.new }
+    # Using this test method because set_bookmark_url is
+    # called in app/controllers/insured/families_controller.rb#home
+    # using path instead of hardcoded links
+    let(:test_url_arguement) { home_insured_families_path }
+    let(:request_path) { "/families/home" }
+
+    before do
+      application_controller.instance_variable_set(:@person, person)
+      allow(application_controller).to receive(:request).and_return(ActionController::TestRequest.new)
+      allow(application_controller.request).to receive(:host).and_return("test.host")
+      ApplicationController.send(:public, *ApplicationController.protected_instance_methods)
+      allow(application_controller).to receive(:set_current_person).and_return(person)
+      allow(person).to receive(:consumer_role).and_return(consumer_role)
+      allow(person.employee_roles).to receive(:last).and_return(employee_role)
+      allow(application_controller).to receive(:current_user).and_return(user)
+    end
+
+    it "saves the bookmark_url attributes as the relative path, not URL" do
+      application_controller.set_bookmark_url(test_url_arguement)
+      expect(person.consumer_role.bookmark_url).to eq(request_path)
+      expect(person.employee_roles.last.bookmark_url).to eq(request_path)
+    end
+  end
+
+  context "#update_url", :type => :controller do
+    let!(:application_controller) { ApplicationController.new }
+    let(:user) { FactoryGirl.create(:user) }
+    let(:request_path) { "/families/home" }
+
+    before do
+      allow(application_controller).to receive(:request).and_return(ActionController::TestRequest.new)
+      allow(application_controller.request).to receive(:host).and_return("test.host")
+      allow(application_controller.request).to receive(:path).and_return(request_path)
+      ApplicationController.send(:public, *ApplicationController.private_instance_methods)
+      allow(application_controller).to receive(:current_user).and_return(user)
+      allow(application_controller).to receive(:controller_name).and_return("employer_profiles")
+      allow(application_controller).to receive(:action_name).and_return("show")
+    end
+
+    it "saves the current_user last_portal_visited as the relative path, not URL" do
+      expect(user.last_portal_visited).to be_nil
+      application_controller.update_url
+      expect(user.last_portal_visited).to eq(request_path)
+    end
+  end
 end
