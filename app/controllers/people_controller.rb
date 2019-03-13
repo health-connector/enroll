@@ -2,6 +2,7 @@ class PeopleController < ApplicationController
   include ApplicationHelper
   include ErrorBubble
   include VlpDoc
+  include Acapi::Notifiers
 
   def new
     @person = Person.new
@@ -223,7 +224,7 @@ class PeopleController < ApplicationController
   def create
     sanitize_person_params
     @person = Person.find_or_initialize_by(encrypted_ssn: Person.encrypt_ssn(params[:person][:ssn]), date_of_birth: params[:person][:dob])
-    
+
     # person_params
     respond_to do |format|
       if @person.update_attributes(person_params)
@@ -280,6 +281,7 @@ private
     begin
       klass.find(id)
     rescue
+      log("ERROR: Could not find person with id #{id}", {:severity => "critical"})
       nil
     end
   end

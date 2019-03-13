@@ -173,6 +173,7 @@ module BenefitSponsors
       begin
         block.call
       rescue Exception => e
+        log("ERROR: Could not process event for #{benefit_sponsorship} #{block.inspect}", {:severity => "critical"})
       end
     end
   end

@@ -140,6 +140,7 @@ module BenefitSponsors
         begin
           block.call
         rescue Exception => e
+          log("ERROR: Could not process events for block #{block}", {:severity => "critical"})
           @logger.error e.message
           @logger.error e.backtrace.join("\n")
         end

@@ -1,12 +1,15 @@
 module Caches
   class PlanDetails
+    include Acapi::Notifiers
+
     def self.lookup_rate_with_area(plan_id, rate_schedule_date, effective_age, rating_area)
       calc_age = age_bounding(plan_id, effective_age)
       age_record = $plan_age_lookup_with_rating_area[plan_id][calc_age][rating_area].detect do |pt|
         (pt[:start_on] <= rate_schedule_date) && (pt[:end_on] >= rate_schedule_date)
       end
       age_record[:cost]
-    rescue
+    rescue StandardError => e
+      log("ERROR: Could not find rate for plan_id: #{plan_id}, rate_schedule_date: #{rate_schedule_date}, effective_age: #{effective_age}, rating_area #{rating_area} due to -- #{e}", {:severity => "critical"})
       0
     end
 
@@ -16,15 +19,16 @@ module Caches
         (pt[:start_on] <= rate_schedule_date) && (pt[:end_on] >= rate_schedule_date)
       end
       age_record[:cost]
-    rescue
+    rescue StandardError => e
+      log("ERROR: Could not find rate for plan_id: #{plan_id}, rate_schedule_date: #{rate_schedule_date}, effective_age: #{effective_age} due to -- #{e}", {:severity => "critical"})
       0
-    end 
+    end
 
     def self.age_bounding(plan_id, given_age)
       plan_age = $plan_age_bounds[plan_id]
       return plan_age[:minimum] if given_age < plan_age[:minimum]
       return plan_age[:maximum] if given_age > plan_age[:maximum]
-      given_age 
+      given_age
     end
 
     def self.load_record_cache!
@@ -62,7 +66,7 @@ module Caches
               :cost => pt.cost
             }
           )
-        end 
+        end
       end
     end
 
