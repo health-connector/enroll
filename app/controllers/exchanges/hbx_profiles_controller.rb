@@ -8,7 +8,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
   before_action :check_hbx_staff_role, except: [:request_help, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :set_hbx_profile, only: [:edit, :update, :destroy]
-  before_action :find_hbx_profile, only: [:employer_index, :broker_agency_index, :inbox, :configuration, :show, :binder_index]
+  before_action :check_super_admin, only: [:configuration]
+  before_action :find_hbx_profile, only: [:employer_index, :broker_agency_index, :inbox, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
   before_action :check_csr_or_hbx_staff, only: [:family_index]
@@ -487,7 +488,6 @@ def employer_poc
 
   def configuration
     @time_keeper = Forms::TimeKeeper.new
-
     respond_to do |format|
       format.html { render partial: "configuration_index" }
       format.js {}
@@ -562,53 +562,57 @@ def employer_poc
   def edit
   end
 
+# FIXME: I have removed all writes to the HBX Profile models as we
+#        don't seem to have functionality that requires them nor
+#        permission checks around them.
+
   # GET /exchanges/hbx_profiles/1/inbox
-  def inbox
-    @inbox_provider = current_user.person.hbx_staff_role.hbx_profile
-    @folder = params[:folder] || 'inbox'
-    @sent_box = true
-  end
+#  def inbox
+#    @inbox_provider = current_user.person.hbx_staff_role.hbx_profile
+#    @folder = params[:folder] || 'inbox'
+#    @sent_box = true
+#  end
 
   # POST /exchanges/hbx_profiles
   # POST /exchanges/hbx_profiles.json
-  def create
-    @organization = Organization.new(organization_params)
-    @hbx_profile = @organization.build_hbx_profile(hbx_profile_params.except(:organization))
+#  def create
+#    @organization = Organization.new(organization_params)
+#    @hbx_profile = @organization.build_hbx_profile(hbx_profile_params.except(:organization))
 
-    respond_to do |format|
-      if @hbx_profile.save
-        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully created.' }
-        format.json { render :show, status: :created, location: @hbx_profile }
-      else
-        format.html { render :new }
-        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+#    respond_to do |format|
+#      if @hbx_profile.save
+#        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully created.' }
+#        format.json { render :show, status: :created, location: @hbx_profile }
+#      else
+#        format.html { render :new }
+#        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
+#      end
+#    end
+#  end
 
   # PATCH/PUT /exchanges/hbx_profiles/1
   # PATCH/PUT /exchanges/hbx_profiles/1.json
-  def update
-    respond_to do |format|
-      if @hbx_profile.update(hbx_profile_params)
-        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully updated.' }
-        format.json { render :show, status: :ok, location: @hbx_profile }
-      else
-        format.html { render :edit }
-        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+#  def update
+#    respond_to do |format|
+#      if @hbx_profile.update(hbx_profile_params)
+#        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully updated.' }
+#        format.json { render :show, status: :ok, location: @hbx_profile }
+#      else
+#        format.html { render :edit }
+#        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
+#      end
+#    end
+#  end
 
   # DELETE /exchanges/hbx_profiles/1
   # DELETE /exchanges/hbx_profiles/1.json
-  def destroy
-    @hbx_profile.destroy
-    respond_to do |format|
-      format.html { redirect_to exchanges_hbx_profiles_path, notice: 'HBX Profile was successfully destroyed.' }
-      format.json { head :no_content }
-    end
-  end
+#  def destroy
+#    @hbx_profile.destroy
+#    respond_to do |format|
+#      format.html { redirect_to exchanges_hbx_profiles_path, notice: 'HBX Profile was successfully destroyed.' }
+#      format.json { head :no_content }
+#    end
+#  end
 
   def set_date
     authorize HbxProfile, :modify_admin_tabs?
@@ -742,6 +746,12 @@ private
   def check_hbx_staff_role
     unless current_user.has_hbx_staff_role?
       redirect_to root_path, :flash => { :error => "You must be an HBX staff member" }
+    end
+  end
+
+  def check_super_admin
+    unless current_user.try(:person).try(:hbx_staff_role).permission.name == "super_admin"
+      redirect_to root_path, :flash => { :error => "You must be an HBX super admin" }
     end
   end
 
