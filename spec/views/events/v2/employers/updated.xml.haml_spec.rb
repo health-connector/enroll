@@ -55,7 +55,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
         allow(employer_profile).to receive(:broker_agency_profile).and_return(broker_agency_profile)
         allow(broker_agency_profile).to receive(:active_broker_roles).and_return([broker])
         allow(broker_agency_profile).to receive(:primary_broker_role).and_return(broker)
-        render :template => "events/v2/employers/updated", :locals => { :employer => employer_profile, benefit_application_id:nil, manual_gen: false }
+        render :template => "events/v2/employers/updated", :locals => { :employer => employer_profile, benefit_application_id: nil, manual_gen: false }
         @doc = Nokogiri::XML(rendered)
       end
 

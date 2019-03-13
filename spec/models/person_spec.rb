@@ -1406,13 +1406,13 @@ describe Person, :dbclean => :after_each do
     let(:terminated_staff_member) { FactoryGirl.create(:person)}
     let(:pending_staff_member) { FactoryGirl.create(:person)}
 
-    before{
+    before do
       broker_staff_people.each do |person|
-        FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile_id:broker_agency_profile.id, person: person, broker_agency_profile: broker_agency_profile, aasm_state: 'active')
+        FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, person: person, broker_agency_profile: broker_agency_profile, aasm_state: 'active')
       end
-      FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile_id:broker_agency_profile.id, person: terminated_staff_member, broker_agency_profile: broker_agency_profile, aasm_state: 'broker_agency_terminated')
-      FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile_id:broker_agency_profile.id, person: pending_staff_member, broker_agency_profile: broker_agency_profile, aasm_state: 'broker_agency_pending')
-    }
+      FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, person: terminated_staff_member, broker_agency_profile: broker_agency_profile, aasm_state: 'broker_agency_terminated')
+      FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, person: pending_staff_member, broker_agency_profile: broker_agency_profile, aasm_state: 'broker_agency_pending')
+    end
 
     context 'finds all active staff for broker with same broker agency profile id' do
       before {

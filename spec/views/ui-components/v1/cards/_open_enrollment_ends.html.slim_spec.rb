@@ -32,7 +32,7 @@ RSpec.describe "_open_enrollment_ends.html.slim", :type => :view, dbclean: :afte
     after do
       TimeKeeper.set_date_of_record_unprotected!(Date.today)
     end
-  
+
     it "should render the correct date" do
       render "ui-components/v1/cards/open_enrollment_ends"
       expect(rendered).not_to have_content((open_enrollment_end_date - Time.now.to_date).to_i)
