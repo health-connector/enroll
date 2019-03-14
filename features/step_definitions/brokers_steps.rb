@@ -5,7 +5,10 @@ end
 
 When(/^Primary Broker should see the New Broker Agency form$/) do
   wait_for_ajax
-  expect(page).to have_css("#broker_agency_form")
+  expect(page).to have_css("#broker_registration_form")
+  # Agency fields are part of the broker registration form
+  expect(page).to have_content("Broker Agency Information")
+
 end
 
 When(/^.+ enters personal information$/) do
