@@ -131,9 +131,10 @@ Given (/a matched Employee exists with active and renwal plan years/) do
   org = FactoryGirl.create :organization, :with_active_and_renewal_plan_years
   @active_benefit_group = org.employer_profile.active_plan_year.benefit_groups[0]
   active_bga = FactoryGirl.build :benefit_group_assignment, benefit_group: @active_benefit_group
-
+  benefit_package = FactoryGirl.build :benefit_package
+  
   @renewal_benefit_group = org.employer_profile.show_plan_year.benefit_groups[0]
-  renewal_bga = FactoryGirl.build :benefit_group_assignment, benefit_group: @renewal_benefit_group
+  renewal_bga = FactoryGirl.build :benefit_group_assignment, benefit_group: @renewal_benefit_group, benefit_package_id: benefit_package.id
 
   @employee_role = person.employee_roles[0]
   ce =  FactoryGirl.build(:census_employee,
@@ -227,13 +228,15 @@ When(/(.*) clicked on make changes button/) do |role|
 end
 
 When(/(.*) clicked continue on household info page/) do |role|
-  find_all("#btn_household_continue")[1].click
+  find_all("#btn_household_continue")[0].click
 end
 
 Then(/(.*) should see all the family members names/) do |role|
   people = Person.all
   people.each do |person|
-    expect(page).to have_content "#{person.full_name}"
+    expect(page).to have_content "#{person.last_name}"
+    expect(page).to have_content "#{person.first_name}"
+
   end
 end
 
