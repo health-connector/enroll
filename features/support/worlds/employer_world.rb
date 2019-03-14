@@ -40,7 +40,6 @@ Given(/^employer (.*?) has hired this broker$/) do |legal_name|
   # Need to fix below later
   employer_profile(legal_name).benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id:broker.person.broker_role.id)
 end
-<<<<<<< Updated upstream
 
 And(/^(.*?) employer has a staff role$/)do |legal_name|
   employer_profile = @organization[legal_name]
@@ -59,5 +58,3 @@ And(/^(.*?) visit the Employee Roster$/) do |legal_name|
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab=>'employees')
   save_and_open_page
 end
-=======
->>>>>>> Stashed changes
