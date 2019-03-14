@@ -139,13 +139,14 @@ def enter_plan_year_info
   find(:xpath, "//li[@data-index='1'][contains(., '#{(effective_on_year).year}')]", :wait => 5).click
 
   screenshot("employer_add_plan_year")
-  find('.interaction-field-control-plan-year-fte-count').click
+  # find('.interaction-field-control-plan-year-fte-count').click
 
-  fill_in "plan_year[fte_count]", :with => "35"
-  fill_in "plan_year[pte_count]", :with => "15"
-  fill_in "plan_year[msp_count]", :with => "3"
-
+  fill_in "fteEmployee", :with => "35"
+  fill_in "pteEmployee", :with => "15"
+  fill_in "medSecPayers", :with => "3"
+  binding.pry
   find('.interaction-click-control-continue').click
+  # benefitContinueBtn
 
   # Benefit Group
   fill_in "plan_year[benefit_groups_attributes][0][title]", :with => "BMC HealthNet Plan Silver B"

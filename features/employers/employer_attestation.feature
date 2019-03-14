@@ -1,26 +1,27 @@
 Feature: Employer Profile
   In order for initial employers to submit application
   Employer Staff should upload attestation document
-  Background:
-    Given shop health plans exist for both last and this year
-    Given vertical and horizontal plan choices are offered
-    When I visit the Employer portal
-    Then Jack Doe create a new account for employer
-    And I select the all security question and give the answer
-    When I have submit the security questions
-    Then I should see a successful sign up message
-    Then I should click on employer portal
-    Then Jack Doe creates a new employer profile with default_office_location
-    When I go to the Profile tab
-    When Employer goes to the benefits tab I should see plan year information
+
+  Background: Setup site, HBX Staff logged in, on Employer Registration Page
+    Given a CCA site exists with a benefit market
+    And the user is on the Employer Registration page
+    And Jack Doe create a new account for employer
+    And the user is registering a new Employer
+    And all required fields have valid inputs on the Employer Registration Form
+    And the user clicks the 'Confirm' button on the Employer Registration Form
+    And Employer goes to the benefits tab I should see plan year information
     And Employer should see a button to create new plan year
     And Employer should be able to enter plan year, benefits, relationship benefits for employer
     And Employer should see a success message after clicking on create plan year button
 
+  Scenario: I have Successful Submission
+    Given all required fields have valid inputs on the Employer Registration Form
+    When the user clicks the 'Confirm' button on the Employer Registration Form
+
   Scenario: Initial employer tries to submit application without uploading attestation
     When Employer goes to the benefits tab I should see plan year information
     When Employer clicks on publish plan year
-    Then Employer Staff should not see force publish 
+    Then Employer Staff should not see force publish
     When Employer Staff clicks cancel button in Attestation warning dialog
     Then Employer Staff should redirect to plan year edit page
 
