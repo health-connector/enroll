@@ -102,6 +102,16 @@ Given(/^this employer has not setup a benefit application$/) do
   benefit_sponsor_catalog.save!
 end
 
+And(/^this employer has a benefit application$/) do
+  # This should be re-factored such that properly create a active application
+  health_products
+  census_employees
+  initial_application.benefit_packages = [current_benefit_package]
+  benefit_sponsorship.benefit_applications << initial_application
+  benefit_sponsorship.save!
+  benefit_sponsor_catalog.save!
+end
+
 And(/^this employer has a (.*?) benefit application$/) do |status|
   case status
   when "draft"
