@@ -114,6 +114,8 @@ end
 
 And(/^this employer has a (.*?) benefit application$/) do |status|
   case status
+  when "published"
+    aasm_state(:published)
   when "draft"
     aasm_state(:draft)
   when "active"

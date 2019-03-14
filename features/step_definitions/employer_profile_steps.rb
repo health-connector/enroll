@@ -35,7 +35,7 @@ Then  /(\w+) signs in to portal/ do |name|
     find('.interaction-click-control-sign-in-existing-account').click
   end
   person = Person.where(first_name: name).first
-  fill_in "user[login]", :with => person.user.email
+  fill_in "user[login]", :with => person.user.oim_id
   find('#user_login').set(person.user.email)
   fill_in "user[password]", :with => @pswd
   #TODO this fixes the random login fails b/c of empty params on email
@@ -230,20 +230,27 @@ end
 Given /a FEIN for a new company/ do
   @fein = 100000000+rand(10000)
 end
-
 Given(/^(\w+) enters Employer Information/) do |name|
-  fill_in 'organization[legal_name]', :with => Forgery('name').company_name
-  fill_in 'organization[dba]', :with => Forgery('name').company_name
-  fill_in 'organization[fein]', :with => @fein
-  select_from_chosen '0111', from: 'Select Industry Code'
+  fill_in 'agency[organization][legal_name]', :with => Forgery('name').company_name
+  fill_in 'agency[organization][dba]', :with => Forgery('name').company_name
+  fill_in 'agency[organization][fein]', :with => @fein
+  # find(:xpath, '//*[@id="agency_organization_entity_kind"]').click
+  select 'Tax Exempt Organization', from: 'agency_organization_entity_kind'
+  select "0111", from: "agency_organization_profile_attributes_sic_code"
+  # find(:xpath, '//*[@id="agency_organization_profile_attributes_sic_code"]').click
 
-  find('.selectric-interaction-choice-control-organization-entity-kind').click
-  find(:xpath, "//div[@class='selectric-scroll']/ul/li[contains(text(), 'C Corporation')]").click
+
+  # find('.selectric-interaction-choice-control-organization-entity-kind').click
+  #
   step "I enter office location for #{default_office_location}"
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][area_code]', :with => '202'
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][number]', :with => '5551212'
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][extension]', :with => '22332'
-  find('.interaction-click-control-save').click
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => '202'
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => '5551212'
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => '22332'
+  select 'Billboard', from: 'referred-by-select'
+
+  find_button("Confirm").click
+
+  # find('.interaction-click-control-save').click
 end
 
 Then /(\w+) becomes an Employer/ do |name|

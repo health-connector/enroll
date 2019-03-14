@@ -425,21 +425,23 @@ end
 When(/(^.+) enters? office location for (.+)$/) do |role, location|
   location = eval(location) if location.class == String
   RatingArea.where(zip_code: "01001").first || FactoryGirl.create(:rating_area, zip_code: "01001", county_name: "Hampden", rating_area: Settings.aca.rating_areas.first)
-  fill_in 'organization[office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
-  fill_in 'organization[office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
-  fill_in 'organization[office_locations_attributes][0][address_attributes][city]', :with => location[:city]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][city]', :with => location[:city]
 
-  find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'SELECT STATE')]]").click
-  find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), '#{location[:state]}')]").click
+  # find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'SELECT STATE')]]").click
+  select "MA", from: "inputState"
+  # agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][state]
+  # find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), '#{location[:state]}')]").click
 
-  fill_in 'organization[office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
   if role.include? 'Employer'
     wait_for_ajax
-    select "#{location[:county]}", :from => "organization[office_locations_attributes][0][address_attributes][county]"
+    select "#{location[:county]}", :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
   end
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
   wait_for_ajax
   page.find('h4', text: "#{Settings.site.byline}").click
 end
@@ -907,7 +909,12 @@ When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
-  find(".#{tab_name.downcase}-dropdown").click
+  if tab_name == "Brokers"
+    target_dropdown = page.all('a').detect { |a| a.text == tab_name }
+    target_dropdown.click
+  else
+    find(".#{tab_name.downcase}-dropdown").click
+  end
   wait_for_ajax
 end
 

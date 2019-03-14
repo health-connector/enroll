@@ -3,16 +3,16 @@ Feature: Employer Profile
   Employer Staff should be able to add and delete employer staff roles
 
   Scenario: An existing person asks for a staff role at an existing company
-    Given Hannah is a person
-    Given Hannah is the staff person for an employer
-    Given Hannah has already provided security question responses
-    Given BusyGuy is a person
-    Given BusyGuy has already provided security question responses
-    Given BusyGuy accesses the Employer Portal
+    Given Han is a person
+    Given Han is the staff person for an employer
+    Given Han has already provided security question responses
+    Given Jack Doe is a person
+    Given Jack Doe has already provided security question responses
+    Given Jack Doe accesses the Employer Portal
 
-    Given BusyGuy enters data for Turner Agency, Inc
-    Then BusyGuy is notified about Employer Staff Role application is pending
-    Then BusyGuy logs out
+    Given Jack Doe enters data for Abc Wedgets, Inc
+    Then Jack Doe is notified about Employer Staff Role application is pending
+    Then Jack Doe logs out
     When Hannah accesses the Employer Portal
     And Hannah decides to Update Business information
     Then Point of Contact count is 2

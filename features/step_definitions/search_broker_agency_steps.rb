@@ -12,7 +12,7 @@ Then(/^he should see the one result with the agency name$/) do
   expect(page).to have_no_content("Chase & Assoc")
 end
 
-Given(/^Hbx Admin click on (.*)$/) do |link_text|
-  find_link(link_text).visible?
-  click_link(link_text)
+Given(/^Hbx Admin clicks on (.*)$/) do |link_text|
+  target_link = page.all('a').detect { |a| a.text == link_text }
+  target_link.click
 end

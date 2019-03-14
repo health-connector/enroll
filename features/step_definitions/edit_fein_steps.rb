@@ -6,11 +6,11 @@ When(/^the user clicks Change FEIN link in the Actions dropdown for ABC Widgets 
 end
 
 And(/^the user enters FEIN with less than nine digits$/) do
-  find('#organizations_general_organization_new_fein').set("89-423")
+  find('#organizations_general_organization_new_fein').set("89-42312")
 end
 
 And(/^the user clicks submit button$/) do
-  page.find_button('submit').trigger('click')
+  page.find_button('Submit').trigger('click')
 end
 
 Then(/^an warning message will be presented as FEIN must be at least nine digits$/) do
@@ -20,7 +20,6 @@ end
 And(/^the user enters FEIN matches an existing Employer Profile FEIN$/) do
   find('#organizations_general_organization_new_fein').set(employer("Xfinity Enterprise")[:fein])
 end
-
 
 Then(/^an warning message will be presented as FEIN matches HBX ID Legal Name$/) do
   expect(page).to have_content("FEIN matches HBX ID #{employer("Xfinity Enterprise")[:hbx_id]}, #{employer("Xfinity Enterprise")[:legal_name]}")
