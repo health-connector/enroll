@@ -694,19 +694,20 @@ Then /^employer should see the (.*) button$/ do |status|
   find_link(status.capitalize).visible?
 end
 
-And /^employer clicks on (.*) button$/ do |status|
+When /^employer clicks on (.*) button$/ do |status|
   click_link(status.capitalize)
 end
 
-Then /^employer should see the field to enter (.*) date$/ do |status|
-  status = status == 'termination' ? 'ENTER DATE OF TERMINATION' : 'ENTER DATE OF REHIRE'
-  expect(page).to have_content status
-end
+# Then /^employer should see the field to enter (.*) date$/ do |status|
+#   status = status == 'termination' ? 'ENTER DATE OF TERMINATION' : 'ENTER DATE OF REHIRE'
+#   expect(page).to have_content status
+# end
 
 And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
   date = date == 'today' ? TimeKeeper.date_of_record : TimeKeeper.date_of_record - 3.months
-  find('.date-picker.date-field').set date
-  find('.btn-primary.btn-sm').click
+  find('input.text-center.date-picker').set date
+  page.execute_script %Q{ $("a.ui-state-default:contains('#{date.day}')").trigger("click") }
+  find("a", :text => "Terminate Employee").trigger('click')
 end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
@@ -807,4 +808,13 @@ Then(/^the employer should see Download,Print Option/) do
 
   expect(page).to have_content('Download')
   expect(page).to have_content('Print')
+end
+
+And(/^employer clicks on Actions drop down for employee$/) do
+ census_id = @employees.first.id.to_s
+ find(:xpath, "//*[@id='dropdown_for_census_employeeid_#{census_id}']").click
+end
+
+And(/^employer should see (.*?) to remove text$/) do |text|
+  expect(page).to have_content(text)
 end

@@ -9,14 +9,12 @@ Feature: Employee termination and Re-hire functionality
   Scenario: Employer terminated EE with DOT as today
     Given staff role person logged in
     And ABC Widgets visit the Employee Roster
-    And this employer click on one of their employees
-#    Then they should see that employee's details
-#    And employer click on pencil symbol next to employee status bar
-#    Then employer should see the terminate button
-#    And employer clicks on terminate button
-#    Then employer should see the field to enter termination date
-#    And employer clicks on terminate button with date as today
-#    Then employer should see the terminated success flash notice
+    And employer clicks on Actions drop down for employee
+    And employer should see the terminate button
+    When employer clicks on terminate button
+    Then employer should see Enter termination date to remove text
+    And employer clicks on terminate button with date as today
+    Then employer should see the terminated success flash notice
 
 Scenario: Employer terminated EE with DOT in past greater than 60 days
   Given an employer exists
