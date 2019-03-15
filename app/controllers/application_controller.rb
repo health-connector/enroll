@@ -122,16 +122,19 @@ class ApplicationController < ActionController::Base
       end
     end
 
+    # Rails will infer that the string saved is indeed the
+    # relative path, and assure that the user is redirected to that
+    # (and not another site/environment)
     def update_url
       if (controller_name == "employer_profiles" && action_name == "show") ||
-          (controller_name == "families" && action_name == "home") ||
-          (controller_name == "profiles" && action_name == "new") ||
-          (controller_name == 'profiles' && action_name == 'show') ||
-          (controller_name == 'hbx_profiles' && action_name == 'show')
-          if current_user.last_portal_visited != request.original_url
-            current_user.last_portal_visited = request.original_url
-            current_user.save
-          end
+         (controller_name == "families" && action_name == "home") ||
+         (controller_name == "profiles" && action_name == "new") ||
+         (controller_name == 'profiles' && action_name == 'show') ||
+         (controller_name == 'hbx_profiles' && action_name == 'show')
+        if current_user.last_portal_visited != request.path
+          current_user.last_portal_visited = request.path
+          current_user.save
+        end
       end
     end
 
@@ -140,6 +143,7 @@ class ApplicationController < ActionController::Base
     end
 
   protected
+
   # Broker Signup form should be accessibile for anonymous users
     def authentication_not_required?
       devise_controller? ||
@@ -276,6 +280,12 @@ class ApplicationController < ActionController::Base
       /consumer/.match(current_user.last_portal_visited) || (session[:last_market_visited] == 'individual' && !(/employee/.match(current_user.try(:last_portal_visited))))
     end
 
+    # https://stackoverflow.com/a/29055958/5331859
+    # request.url
+    # => "http://localhost:3000/lists/7/items"
+    # request.path
+    # => "/lists/7/items"
+
     def save_bookmark (role, bookmark_url)
       if role && bookmark_url && (role.try(:bookmark_url) != family_account_path)
         role.bookmark_url = bookmark_url
@@ -285,9 +295,10 @@ class ApplicationController < ActionController::Base
         @person.employee_roles.last.update_attribute(:bookmark_url, family_account_path) if (@person.employee_roles.present? && @person.employee_roles.last.bookmark_url != family_account_path)
       end
     end
+
     def set_bookmark_url(url=nil)
       set_current_person
-      bookmark_url = url || request.original_url
+      bookmark_url = url || request.path
       if /employee/.match(bookmark_url)
         role = @person.try(:employee_roles).try(:last)
       elsif /consumer/.match(bookmark_url)
@@ -299,7 +310,7 @@ class ApplicationController < ActionController::Base
     def set_employee_bookmark_url(url=nil)
       set_current_person
       role = @person.try(:employee_roles).try(:last)
-      bookmark_url = url || request.original_url
+      bookmark_url = url || request.path
       save_bookmark role, bookmark_url
       session[:last_market_visited] = 'shop'
     end
@@ -307,7 +318,7 @@ class ApplicationController < ActionController::Base
     def set_consumer_bookmark_url(url=nil)
       set_current_person
       role = @person.try(:consumer_role)
-      bookmark_url = url || request.original_url
+      bookmark_url = url || request.path
       save_bookmark role, bookmark_url
       session[:last_market_visited] = 'individual'
     end
@@ -315,7 +326,7 @@ class ApplicationController < ActionController::Base
     def set_resident_bookmark_url(url=nil)
       set_current_person
       role = @person.try(:resident_role)
-      bookmark_url = url || request.original_url
+      bookmark_url = url || request.path
       save_bookmark role, bookmark_url
       session[:last_market_visited] = 'resident'
     end
