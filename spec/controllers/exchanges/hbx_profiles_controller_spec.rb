@@ -238,7 +238,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
       allow(user).to receive(:person).and_return(person)
-      allow(user).to receive(:last_portal_visited=).with("http://test.host/exchanges/hbx_profiles")
+      allow(user).to receive(:last_portal_visited=).with("/exchanges/hbx_profiles")
       allow(user).to receive(:save)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
@@ -314,7 +314,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     before :each do
       allow(user).to receive(:has_csr_role?).and_return(true)
-      allow(user).to receive(:last_portal_visited=).with("http://test.host/exchanges/hbx_profiles")
+      allow(user).to receive(:last_portal_visited=).with("/exchanges/hbx_profiles")
       allow(user).to receive(:save)
       allow(user).to receive(:has_role?).with(:csr).and_return true
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return false
