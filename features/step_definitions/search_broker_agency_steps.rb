@@ -14,7 +14,3 @@ Then(/^he should see the one result with the agency name$/) do
   expect(page).to have_content(broker_organization_legal_name)
 end
 
-Given(/^Hbx Admin clicks on (.*)$/) do |link_text|
-  target_link = page.all('a').detect { |a| a.text == link_text }
-  target_link.click
-end

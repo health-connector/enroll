@@ -94,7 +94,8 @@ And(/^.+ clicks? on Create Broker Agency$/) do
   wait_for_ajax
   page.find('h1', text: 'Broker Registration').click
   wait_for_ajax
-  click_button "Create Broker Agency", wait: 6
+  # Clicking the 'Create Broker Agency' button 
+  find("#broker-btn").trigger('click')
 end
 
 Then(/^.+ should see broker registration successful message$/) do
@@ -127,9 +128,11 @@ Then(/^.+ should see the broker successfully approved message$/) do
 end
 
 And(/^.+ should receive an invitation email$/) do
-  open_email("ricky.martin@example.com", :with_subject => "Congratulations! Your Broker Application for the #{Settings.site.short_name} for Business has been Approved!")
+  open_email(
+    "ricky.martin@example.com",
+    :with_subject => "Important information for accessing your new broker account through the #{Settings.site.short_name}"
+  )
   expect(current_email.to).to eq(["ricky.martin@example.com"])
-  #current_email.should have_subject("Invitation from your Employer to Sign up for Health Insurance at #{Settings.site.short_name} ")
 end
 
 When(/^.+ visits? invitation url in email$/) do

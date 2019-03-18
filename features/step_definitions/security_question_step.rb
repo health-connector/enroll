@@ -73,7 +73,7 @@ Then(/^I select the all security question and give the answer$/) do
   end
 end
 
-When(/I have submit the security questions$/) do
+When(/I have submitted the security questions$/) do
   screenshot("group_selection")
   find('.interaction-click-control-save-responses').click
 end
