@@ -52,8 +52,9 @@ And(/^staff role person logged in$/) do
   login_as @staff_role, scope: :user
 end
 
-And(/^(.*?) visit the Employee Roster$/) do |legal_name|
+And(/^(.*?) employer visit the Employee Roster$/) do |legal_name|
   organization =  @organization[legal_name]
   employer_profile = organization.employer_profile
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab=>'employees')
+  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab=>'benefits')
 end

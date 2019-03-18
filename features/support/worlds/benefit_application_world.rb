@@ -58,6 +58,18 @@ module BenefitApplicationWorld
     @employees ||= create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package)
   end
 
+  def new_benefit_package
+    FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: find_product_package(:health, :single_issuer))
+  end
+
+  def ce
+    create_list(:census_employee, 1 , :with_active_assignment, first_name: "Patrick", last_name: "Doe", dob: "1980-01-01".to_date, ssn: "786120965", benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: initial_application.benefit_packages.first)
+  end
+
+  def premium_tuples
+    create_list(:benefit_markets_products_premium_tuple, 3)
+  end
+
   def dental_product_package
     @dental_product_package ||= initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.product_kind == :dental }
   end
@@ -111,6 +123,17 @@ And(/^this employer has a benefit application$/) do
   benefit_sponsorship.save!
   benefit_sponsor_catalog.save!
 end
+
+And(/^this employer has enrollment_open benefit application with a census_employee$/) do
+  aasm_state(:enrollment_open)
+  initial_application.benefit_packages = [new_benefit_package]
+  benefit_sponsorship.benefit_applications << initial_application
+  ce
+  benefit_sponsorship.organization.update_attributes!(fein: "764141112")
+  benefit_sponsorship.save!
+  benefit_sponsor_catalog.save! 
+end
+
 
 And(/^this employer has a (.*?) benefit application$/) do |status|
   case status
