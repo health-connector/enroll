@@ -54,7 +54,7 @@ module BenefitApplicationWorld
     return count
   end
 
-  def census_employees
+  def census_employees_roster
     @employees ||= create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package)
   end
 
@@ -95,7 +95,7 @@ module BenefitApplicationWorld
 
   def update_benefit_sponsorship
     health_products
-    census_employees
+    census_employees_roster
     initial_application.benefit_packages = [current_benefit_package]
     benefit_sponsorship.benefit_applications = [initial_application]
     benefit_sponsorship.benefit_applications.first.update(created_at:Date.today)
@@ -108,7 +108,7 @@ World(BenefitApplicationWorld)
 
 Given(/^this employer has not setup a benefit application$/) do
   health_products
-  census_employees
+  census_employees_roster
   initial_application.benefit_packages = [current_benefit_package]
   benefit_sponsorship.save!
   benefit_sponsor_catalog.save!
@@ -117,7 +117,7 @@ end
 And(/^this employer has a benefit application$/) do
   # This should be re-factored such that properly create a active application
   health_products
-  census_employees
+  census_employees_roster
   initial_application.benefit_packages = [current_benefit_package]
   benefit_sponsorship.benefit_applications << initial_application
   benefit_sponsorship.save!
