@@ -21,7 +21,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
                         employee_role_id: employee_role.id)
   }
   let(:model_instance) { initial_application }
-  let(:end_date) { TimeKeeper.date_of_record.prev_day }
+  let(:end_date) { TimeKeeper.date_of_record.prev_month.end_of_month }
   let(:termination_date) {(TimeKeeper.date_of_record)}
   let(:service) { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(model_instance) }
   
