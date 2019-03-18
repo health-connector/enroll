@@ -909,12 +909,8 @@ When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
-  if tab_name == "Brokers" || "Admin"
-    target_dropdown = page.all('a').detect { |a| a.text == tab_name }
-    target_dropdown.click
-  else
-    find(".#{tab_name.downcase}-dropdown").click
-  end
+  target_dropdown = page.all('a').detect { |a| a.text == tab_name }
+  target_dropdown.click
   wait_for_ajax
 end
 

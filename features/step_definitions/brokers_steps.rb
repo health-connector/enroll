@@ -42,6 +42,11 @@ And(/^.+ enters broker agency information for individual markets$/) do
   find(:xpath, "//label[input[@name='organization[working_hours]']]").trigger('click')
 end
 
+And(/^Current broker agency is fake fein$/) do
+  broker_agency.is_fake_fein = true
+  broker_agency.save
+end
+
 And(/^.+ enters broker agency information for SHOP markets$/) do
   fill_in 'agency[organization][legal_name]', with: "Logistics Inc"
   fill_in 'agency[organization][dba]', with: "Logistics Inc"

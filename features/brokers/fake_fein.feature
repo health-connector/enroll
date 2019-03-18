@@ -14,6 +14,7 @@ Scenario: Primary Broker should not see FAKE Fein in his account
   Given Primary Broker has not signed up as an HBX user
   Then Primary Broker should see the New Broker Agency form
   When Primary Broker enters personal information
+  And Current broker agency is fake fein
   And Primary Broker enters broker agency information for SHOP markets
   And Primary Broker enters office location for default_office_location
   And Primary Broker clicks on Create Broker Agency
