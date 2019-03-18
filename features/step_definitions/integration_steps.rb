@@ -909,7 +909,7 @@ When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
-  if tab_name == "Brokers"
+  if tab_name == "Brokers" || "Admin"
     target_dropdown = page.all('a').detect { |a| a.text == tab_name }
     target_dropdown.click
   else
