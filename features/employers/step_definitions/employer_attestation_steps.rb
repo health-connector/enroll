@@ -144,7 +144,6 @@ def enter_plan_year_info
   fill_in "fteEmployee", :with => "35"
   fill_in "pteEmployee", :with => "15"
   fill_in "medSecPayers", :with => "3"
-  binding.pry
   find('.interaction-click-control-continue').click
   # benefitContinueBtn
 
