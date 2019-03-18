@@ -75,6 +75,14 @@ When(/(.*) clicks \"Shop for Plans\" on my account page/) do |named_person|
   find('.interaction-click-control-shop-for-plans').click
 end
 
+When(/Employee clicks continue button on the group selection page/) do
+  if find_all('.interaction-click-control-continue', wait: 10).any?
+    find('.interaction-click-control-continue').click
+  else
+    find('.interaction-click-control-shop-for-new-plan', :wait => 10).click
+  end
+end
+
 When(/(.*) clicks continue on the group selection page/) do |named_person|
   employer_profile = EmployerProfile.all.first
   plan_year = EmployerProfile.all.first.plan_years.first.start_on.year
