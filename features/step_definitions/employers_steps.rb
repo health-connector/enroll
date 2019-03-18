@@ -704,18 +704,21 @@ end
 # end
 
 And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
-  date = date == 'today' ? TimeKeeper.date_of_record : TimeKeeper.date_of_record - 3.months
+  date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day  : TimeKeeper.date_of_record - 3.months
   find('input.text-center.date-picker').set date
-  page.execute_script %Q{ $("a.ui-state-default:contains('#{date.day}')").trigger("click") }
   find("a", :text => "Terminate Employee").trigger('click')
 end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
+  # Phantom JS starts checking before Rails Action complete
+  sleep(3)
   result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully rehired Census Employee."
   expect(page).to have_content result
 end
 
 Then /^employer should see the error flash notice$/ do
+  # Phantom JS starts checking before Rails Action complete
+  sleep(3)
   expect(page).to have_content /Census Employee could not be terminated: Termination date must be within the past 60 days./
 end
 
@@ -810,11 +813,22 @@ Then(/^the employer should see Download,Print Option/) do
   expect(page).to have_content('Print')
 end
 
-And(/^employer clicks on Actions drop down for employee$/) do
- census_id = @employees.first.id.to_s
- find(:xpath, "//*[@id='dropdown_for_census_employeeid_#{census_id}']").click
-end
-
 And(/^employer should see (.*?) to remove text$/) do |text|
   expect(page).to have_content(text)
+end
+
+And(/^employer clicks on Actions drop down for one of (.*?) employee$/) do |status|
+  census_id = @census_employees.first.id.to_s
+  find(:xpath, "//*[@id='dropdown_for_census_employeeid_#{census_id}']").click
+end
+
+When(/^employer clicks on button terminated for datatable$/)do
+  find(:xpath, "//*[@id='Tab:terminated']").click
+end
+
+And /^employer clicks on submit button by entering todays date$/ do
+  date = TimeKeeper.date_of_record
+  find('input.text-center.date-picker').set date
+  terminated_id = @census_employees.first.id.to_s
+  find(:xpath, "//*[@id='rehire_#{terminated_id}']/strong").trigger('click')
 end

@@ -15,8 +15,8 @@ Then(/^he should see the one result with the agency name$/) do
 end
 
 
-And(/^Hbx Admin clicks on (.*?)$/) do |tab_name|
-  target_dropdown = page.all('a').detect { |a| a.text == tab_name }
-  target_dropdown.click
-  wait_for_ajax
-end
+# And(/^Hbx Admin clicks on (.*?)$/) do |tab_name|
+#   target_dropdown = page.all('a').detect { |a| a.text == tab_name }
+#   target_dropdown.click
+#   wait_for_ajax
+# end
