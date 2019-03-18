@@ -270,7 +270,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     it "should not render the config index for a not super admin" do
       allow(admin_permission).to receive(:view_the_configuration_tab).and_return(false)
-      allow(staff_permission).to receive(:view_the_configuration_tab).and_return(false)
+      allow(staff_permission).to receive(:view_the_configuration_tab).and_return(true)
       allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(false)
       allow(hbx_staff_role).to receive(:permission).and_return(staff_permission)
       allow(hbx_staff_role).to receive(:subrole).and_return(staff_permission.name)
@@ -283,12 +283,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
       sign_in(user_2)
       get :configuration
-      expect(response).to have_http_status(:redirect)
+      expect(response).to have_http_status(:success)
     end
 
     it "should not allow super admin to time travel" do
       allow(admin_permission).to receive(:view_the_configuration_tab).and_return(true)
-      allow(staff_permission).to receive(:view_the_configuration_tab).and_return(false)
+      allow(staff_permission).to receive(:view_the_configuration_tab).and_return(true)
       allow(hbx_staff_role).to receive(:permission).and_return(staff_permission)
       allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(true)
       allow(hbx_staff_role).to receive(:subrole).and_return(staff_permission.name)
