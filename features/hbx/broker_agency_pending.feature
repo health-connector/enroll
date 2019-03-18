@@ -25,4 +25,3 @@ Feature: HBX Admin should be able to send the broker application to pending stat
     And Hbx Admin should see broker application with carrier appointments
     And Hbx Admin clicks on the pending button
     Then Hbx Admin views a successful message
-

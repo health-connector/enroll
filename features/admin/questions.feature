@@ -4,7 +4,7 @@ Feature: Add, Edit and Delete security questions
     Given Hbx Admin exists
     When Hbx Admin logs on to the Hbx Portal
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     And Hbx Admin clicks on the Admin dropdown
     And Hbx Admin clicks on the Config option
     And Hbx Admin should see Security Question link
@@ -20,7 +20,7 @@ Feature: Add, Edit and Delete security questions
     Given Hbx Admin exists
     When Hbx Admin logs on to the Hbx Portal
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     And Hbx Admin clicks on the Admin dropdown
     And Hbx Admin clicks on the Config option
     And there is 1 preloaded security questions
@@ -38,7 +38,7 @@ Feature: Add, Edit and Delete security questions
     Given Hbx Admin exists
     When Hbx Admin logs on to the Hbx Portal
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     And Hbx Admin clicks on the Admin dropdown
     And Hbx Admin clicks on the Config option
     And there is 1 preloaded security questions
@@ -56,7 +56,7 @@ Feature: Add, Edit and Delete security questions
     And I should see a successful sign up message
     And I can see the security modal dialog
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     Then I have landed on employer profile page
     And I click on log out link
     And I visit the Employer portal

@@ -605,7 +605,7 @@ And(/^Primary Broker select the all security question and give the answer$/) do
 end
 
 When(/^Primary Broker have submit the security questions$/) do
-  step 'I have submit the security questions'
+  step 'I have submitted the security questions'
 end
 
 And(/^Broker Assisted select the all security question and give the answer$/) do
@@ -613,7 +613,7 @@ And(/^Broker Assisted select the all security question and give the answer$/) do
 end
 
 When(/^Broker Assisted have submit the security questions$/) do
-  step 'I have submit the security questions'
+  step 'I have submitted the security questions'
 end
 
 When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
