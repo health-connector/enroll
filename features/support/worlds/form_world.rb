@@ -54,7 +54,32 @@ module FormWorld
     phone_number1.set '5551212'
   end
 
+  def fill_in_broker_agency_registration_form
+    visit "/broker_registration"
+    fill_in 'agency[staff_roles_attributes][0][first_name]', with: "Ben"
+    fill_in 'agency[staff_roles_attributes][0][last_name]', with: "Ken"
+    fill_in 'agency[staff_roles_attributes][0][dob]', with: "11/11/1988"
+    fill_in 'agency[staff_roles_attributes][0][email]', with: 'ben.ken@gmail.com'
+    fill_in 'agency[staff_roles_attributes][0][npn]', with: '2642834'
+    fill_in 'agency[organization][legal_name]', with: 'Benken Inc'
+    fill_in 'agency[organization][dba]', with: 'benken inc'
+    fill_in 'agency[organization][fein]', with: '238964984'
+    select "Small Business Marketplace ONLY", :from => "agency_organization_profile_attributes_market_kind"
+    find("option[value='tr']").trigger('click')
+    find("#agency_organization_profile_attributes_accept_new_clients").trigger('click')
+  end
 
+  def fill_in_office_locations_for_broker_agecny
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_1]', with: '123 main st'
+    select "Primary", :from => "kindSelect"
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_2]', with: '456 suite'
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][city]', with: 'Dunn village'
+    select "MA", from: "inputState"
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', with: '01011'
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', with: '781'
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', with: '2783461'
+    fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', with: '1'
+  end
 end
 
 World(FormWorld)
@@ -125,3 +150,33 @@ When(/^the user clicks the 'Confirm' button on the Employer Registration Form$/)
   # expect(page).to have_css('legend', text: 'Balscssc')
   find('.alert', text: "Welcome to Health Connector. Your account has been created.")
 end
+
+Given(/^user visits the Broker Registration form$/) do
+  visit '/'
+  find(".interaction-click-control-broker-registration", wait: 10).click
+  wait_for_ajax
+  visit "/broker_registration"
+end
+
+And(/^user enters the personal and Broker Agency information$/) do
+  fill_in_broker_agency_registration_form
+end
+
+And(/^user enters the ach routing information$/) do
+  fill_in 'agency[organization][profile_attributes][ach_account_number]', with: '99999999999999'
+  fill_in 'agency[organization][profile_attributes][ach_routing_number]', with: '123456789'
+  fill_in 'agency[organization][profile_attributes][ach_routing_number_confirmation]', with: '123456789'
+end
+
+And(/^user enters the office locations and phones$/) do
+  fill_in_office_locations_for_broker_agecny
+end
+
+Given(/^user clicks on Create Broker Agency button$/) do
+  find(:xpath, "//input[@value='CREATE BROKER AGENCY'][@name='commit']").click
+end
+
+Then(/^user should see the broker registration successful message$/) do
+  expect(page).to have_content('Your registration has been submitted. A response will be sent to the email address you provided once your application is reviewed.')
+end
+
