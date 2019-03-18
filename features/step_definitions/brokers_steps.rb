@@ -13,14 +13,13 @@ end
 
 When(/^.+ enters personal information$/) do
   visit "/broker_registration"
-
-  fill_in 'organization[first_name]', with: 'Ricky'
-  fill_in 'organization[last_name]', with: 'Martin'
-  fill_in 'jq_datepicker_ignore_organization[dob]', with: '10/10/1984'
-  find('.interaction-field-control-person-email').click
-  fill_in 'organization[email]', with: 'ricky.martin@example.com'
-  fill_in 'organization[npn]', with: '109109109'
+  fill_in 'agency[staff_roles_attributes][0][first_name]', with: 'Ricky'
+  fill_in 'agency[staff_roles_attributes][0][last_name]', with: 'Martin'
+  fill_in 'inputDOB', with: '10/10/1984'
+  fill_in 'inputEmail', with: 'ricky.martin@example.com'
+  fill_in 'agency[staff_roles_attributes][0][npn]', with: '109109109'
 end
+
 
 And(/^.+ enters broker agency information for individual markets$/) do
   fill_in 'organization[legal_name]', with: "Logistics Inc"
@@ -44,8 +43,9 @@ And(/^.+ enters broker agency information for individual markets$/) do
 end
 
 And(/^.+ enters broker agency information for SHOP markets$/) do
-  fill_in 'organization[legal_name]', with: "Logistics Inc"
-  fill_in 'organization[dba]', with: "Logistics Inc"
+  fill_in 'agency[organization][legal_name]', with: "Logistics Inc"
+  fill_in 'agency[organization][dba]', with: "Logistics Inc"
+  fill_in 'agency[organization][fein]', with: "890890891"
   # Auto-Generates FEIN
   # fill_in 'organization[fein]', with: "890890891"
 
@@ -55,19 +55,40 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
 
   # find(:xpath, "//p[@class='label'][contains(., 'Select Practice Area')]").click
   # find(:xpath, "//li[contains(., 'Small Business Marketplace ONLY')]").click
+  # Languages
+  find("option[value='tr']").trigger('click')
+  find("#agency_organization_profile_attributes_accept_new_clients").trigger('click')
 
-  find('button.multiselect').click
-  find(:xpath, '//label[input[@value="bn"]]').click
-  find(:xpath, '//label[input[@value="fr"]]').click
+  fill_in 'agency_organization_profile_attributes_ach_routing_number', with: '123456789'
+  fill_in 'agency_organization_profile_attributes_ach_routing_number_confirmation', with: '123456789'
+  fill_in 'agency_organization_profile_attributes_ach_account_number', with: '9999999999999999'
+  # Using this as a seperate step was deleting the rest of the form
+  role = "Primary Broker"
+  location = 'default_office_location'
+  location = eval(location) if location.class == String
+  RatingArea.where(zip_code: "01001").first || FactoryGirl.create(:rating_area, zip_code: "01001", county_name: "Hampden", rating_area: Settings.aca.rating_areas.first)
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][city]', :with => location[:city]
 
-  find(:xpath, "//label[input[@name='organization[accept_new_clients]']]").trigger('click')
-  find(:xpath, "//label[input[@name='organization[working_hours]']]").trigger('click')
+  # find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'SELECT STATE')]]").click
+  select "MA", from: "inputState"
+  # agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][state]
+  # find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), '#{location[:state]}')]").click
 
-  fill_in 'organization[ach_record][routing_number]', with: '123456789'
-  fill_in 'organization[ach_record][routing_number_confirmation]', with: '123456789'
-  fill_in 'organization[ach_record][account_number]', with: '9999999999999999'
-  find("#organization_ach_record_routing_number_confirmation").send_keys([:control, "a"])
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
+  if role.include? 'Employer'
+    wait_for_ajax
+    select "#{location[:county]}", :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
+  end
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
+  wait_for_ajax
+  # Clicking the 'Create Broker Agency' button 
+  find("#broker-btn").trigger('click')
 end
+
 
 And(/^.+ clicks? on Create Broker Agency$/) do
   wait_for_ajax
