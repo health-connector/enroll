@@ -1,7 +1,7 @@
 Feature: Fake FEINs
   Broker creates a Broker Agency with FAKE Fein
   And I select the all security question and give the answer
-  When I have submit the security questions
+  When I have submitted the security questions
   The Broker should not see Fake FEIN in his account
   The Hbx Admin should be able to see the Fake FEIN in broker's account
   Brokers with REAL Feins should Fein in their account

@@ -1,6 +1,8 @@
 Feature: HBX Admin should be able to send the broker application to pending state
 
   Scenario: Broker can enter ACH information
+    Given a CCA site exists with a benefit market
+    And there is an employer ABC Widgets
     When Primary Broker visits the HBX Broker Registration form
     Given a valid ach record exists
     Given Primary Broker has not signed up as an HBX user
@@ -11,6 +13,8 @@ Feature: HBX Admin should be able to send the broker application to pending stat
     Then Primary Broker should see bank information
 
   Scenario: HBX Admin sends a Broker Applicant to a pending state
+    Given a CCA site exists with a benefit market
+    And there is an employer ABC Widgets
     When Primary Broker visits the HBX Broker Registration form
     Given a valid ach record exists
     Given Primary Broker has not signed up as an HBX user
@@ -23,7 +27,7 @@ Feature: HBX Admin should be able to send the broker application to pending stat
     Given Hbx Admin exists
     When Hbx Admin logs on to the Hbx Portal
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     And Hbx Admin clicks on the Brokers dropdown
     And Hbx Admin clicks on the Broker Applications option
     Then Hbx Admin should see the list of broker applicants
