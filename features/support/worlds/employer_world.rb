@@ -1,5 +1,4 @@
 module EmployerWorld
-
   def employer(legal_name, *traits)
     attributes = traits.extract_options!
     traits.push(:with_aca_shop_cca_employer_profile) unless traits.include? :with_aca_shop_cca_employer_profile_no_attestation
@@ -18,7 +17,8 @@ module EmployerWorld
     @registering_organiazation ||= FactoryGirl.build(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
-      site: site)
+      site: site
+    )
   end
 end
 
@@ -43,13 +43,13 @@ Given(/^employer (.*?) has hired this broker$/) do |legal_name|
   assign_person_to_broker_agency
   employer_profile(legal_name).hire_broker_agency(broker_agency_profile)
   # Need to fix below later
-  employer_profile(legal_name).benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id:broker.person.broker_role.id)
+  employer_profile(legal_name).benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id: broker.person.broker_role.id)
 end
 
-And(/^(.*?) employer has a staff role$/)do |legal_name|
+And(/^(.*?) employer has a staff role$/) do |legal_name|
   employer_profile = @organization[legal_name]
-  employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.profiles.first.id)
-  person = FactoryGirl.create(:person, employer_staff_roles:[employer_staff_role])
+  employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.profiles.first.id)
+  person = FactoryGirl.create(:person, employer_staff_roles: [employer_staff_role])
   @staff_role ||= FactoryGirl.create(:user, :person => person)
 end
 
@@ -58,13 +58,31 @@ And(/^staff role person logged in$/) do
 end
 
 And(/^(.*?) is logged in and on the home page$/) do |legal_name|
-  organization =  @organization[legal_name]
+  organization = @organization[legal_name]
   employer_profile = organization.employer_profile
-  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab=>'home')
+  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'home')
 end
 
 And(/^(.*?) employer visit the Employee Roster$/) do |legal_name|
-  organization =  @organization[legal_name]
+  organization = @organization[legal_name]
   employer_profile = organization.employer_profile
-  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab=>'employees')
+  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'employees')
 end
+
+When(/^employer selects one of their employees on Employee Roster$/) do
+  find('.interaction-click-control-eddie-vedder1').trigger('click')
+end
+
+Then(/^employer should see census employee's details$/) do
+  wait_for_ajax
+  expect(page).to have_selector("input[value='#{employees.first.dob.strftime('%m/%d/%Y')}']")
+end
+
+Then(/^employer clicks logout$/) do
+  find('.interaction-click-control-logout').trigger('click')
+end
+
+Given(/^employer views and clicks on Actions button for an Employee$/) do
+  find('.interaction-click-control-actions').trigger('click')
+end
+
