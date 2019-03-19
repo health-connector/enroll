@@ -233,6 +233,16 @@ Given /Admin accesses the Employers tab of HBX portal/ do
   tab_class = '.interaction-click-control-employers'
   find(tab_class, wait: 10).click
 end
+
+Given(/the user is on the Admin Tab of the Admin Dashboard/) do
+  visit '/'
+  portal_class = '.interaction-click-control-hbx-portal'
+  find(portal_class).click
+  step "Admin signs in to portal"
+  tab_class = '.interaction-click-control-admin'
+  find(tab_class, wait: 10).click
+end
+
 Given /Admin selects Hannahs company/ do
   company = find('a', text: 'Turner Agency, Inc', :wait => 3)
   company.click
@@ -245,6 +255,7 @@ Given /(\w+) has HBXAdmin privileges/ do |name|
                     send_broker_agency_message: true, approve_broker: true, approve_ga: true,
                     modify_admin_tabs: true, view_admin_tabs: true)
   role.update_attributes(permission_id: Permission.hbx_staff.id)
+
 end
 
 Given /a FEIN for an existing company/ do
