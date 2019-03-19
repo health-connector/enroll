@@ -1,11 +1,8 @@
 module EmployerWorld
 
   def employer(legal_name, *traits)
-    puts 'employer called'
     attributes = traits.extract_options!
-    puts traits.inspect
     traits.push(:with_aca_shop_cca_employer_profile) unless traits.include? :with_aca_shop_cca_employer_profile_no_attestation
-    puts traits.inspect
     @organization ||= {}
     @organization[legal_name] ||= FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization, *traits,
