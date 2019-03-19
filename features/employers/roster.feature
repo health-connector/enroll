@@ -28,19 +28,3 @@ Feature: Employer can view their employees
     Then employer should see employee roaster
     Then employer clicks logout
 
-   Scenario: Employer views their employees and this ER has linked EEs
-    Given employer clicks on linked employee with address
-    Then employer should not see the address on the roster
-    And employer clicks on cancel button
-    And employer clicks on linked employee without address
-    Then employer should see the address on the roster
-    And employer populates the address field
-    And employer clicks on update employee
-    Then employer should not see the address on the roster
-    And employer clicks on cancel button
-    And employer clicks on non-linked employee with address
-    Then employer should not see the address on the roster
-    And employer clicks on cancel button
-    And employer clicks on non-linked employee without address
-    Then employer should see the address on the roster
-    And employer logs out

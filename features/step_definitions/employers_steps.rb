@@ -505,6 +505,7 @@ module EmployeeWorld
     # :employer_profile, *traits, attributes.merge(:employer_profiles_traits => :with_staff)
   end
 end
+
 World(EmployeeWorld)
 
 Given /^an employer exists$/ do
@@ -580,7 +581,7 @@ end
 
 And /^employer clicks on terminated employee$/ do
   expect(page).to have_content "Eddie Vedder"
-  click_link 'Eddie Vedder1'
+  click_link 'Eddie Vedder'
 end
 
 And /^employer clicks on linked employee with address$/ do
@@ -666,6 +667,7 @@ end
 Then /^employer should see employee roaster$/ do
   expect(page).to have_content "Employee Roster"
 end
+
 And /^employer should also see termination date$/ do
   expect(page).to have_content "Terminated On"
 end
