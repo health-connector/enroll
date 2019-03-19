@@ -50,6 +50,11 @@ module BenefitApplicationWorld
     ).tap(&:save)
   end
 
+  def assign_sponsred_benefits
+  product_package = benefit_market.benefit_market_catalogs.first.product_packages.where(package_kind: :single_issuer).first
+
+  end
+
   def roster_size(count=5)
     return count
   end
@@ -86,6 +91,10 @@ module BenefitApplicationWorld
     end
   end
 
+  def new_benefit_package
+    FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: find_product_package(:health, :single_issuer), dental_product_package: find_product_package(:dental, :single_issuer))
+  end
+
   def find_product_package(product_kind,package_kind)
     current_benefit_market_catalog.product_packages.detect do |product_package|
       product_package.product_kind == product_kind &&
@@ -101,6 +110,14 @@ module BenefitApplicationWorld
     benefit_sponsorship.benefit_applications.first.update(created_at:Date.today)
     benefit_sponsorship.save!
     benefit_sponsor_catalog.save!
+  end
+
+
+  def properly_associate_benefit_package
+    initial_application.open_enrollment_period = TimeKeeper.date_of_record..TimeKeeper.date_of_record + 19.days
+    initial_application.benefit_packages = [new_benefit_package]
+    benefit_sponsorship.benefit_applications << initial_application
+    @census_employees ||= create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: initial_application.benefit_packages.first)
   end
 end
 
@@ -131,9 +148,16 @@ And(/^this employer has enrollment_open benefit application with offering health
   ce
   benefit_sponsorship.organization.update_attributes!(fein: "764141112")
   benefit_sponsorship.save!
-  benefit_sponsor_catalog.save! 
+  benefit_sponsor_catalog.save!
 end
 
+And(/^has a draft application$/) do
+  # This should be re-factored such that properly create a active application
+  health_products
+  properly_associate_benefit_package
+  benefit_sponsorship.save!
+  benefit_sponsor_catalog.save!
+end
 
 And(/^this employer has a (.*?) benefit application$/) do |status|
   case status

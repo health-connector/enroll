@@ -12,7 +12,7 @@ Then (/^Employer Staff should not see force publish$/) do
 end
 
 Then (/^Employer Staff clicks cancel button in Attestation warning dialog$/) do
-  find('#publishPlanYear .interaction-click-control-cancel').trigger('click')
+  find('.interaction-click-control-cancel').trigger('click')
 end
 
 Then (/^Employer Staff clicks go back button in Attestation warning dialog$/) do
@@ -53,18 +53,18 @@ end
 
 And(/^Admin clicks (.*) filter in employer attestation$/) do|state|
   wait_for_ajax
-  find_by_id("Tab:employer_attestations-employer_attestations_#{state}").click
+  find_by_id("Tab:employer_attestations-#{state}").click
 end
 
 Then (/^Admin should see Employer with (.*) status$/) do |state|
   wait_for_ajax
-  expect(find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[12]')).to have_content state
+  expect(find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[10]')).to have_content state
 end
 
 When (/^Admin clicks attestation action$/) do
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[13]/div').click
+  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[11]/div').click
   wait_for_ajax
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[13]/div/ul/li[3]/a').click
+  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[11]/div/ul/li[3]/a').click
 end
 
 Then (/^Admin should see attestation document$/)do
@@ -95,7 +95,6 @@ end
 When (/^Admin clicks employer in employers_attestation filter$/) do
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[1]').click()
 end
-
 
 Then (/^Employer Staff should see attestation status (.*)$/) do |state|
   wait_for_ajax

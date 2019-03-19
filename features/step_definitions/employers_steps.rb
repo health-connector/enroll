@@ -306,8 +306,9 @@ When(/^I go to the Profile tab$/) do
 end
 
 
-When(/^.+ go[es]+ to the benefits tab I should see plan year information$/) do
-  click_link 'Benefits'
+When(/^(.*?) go[es]+ to the benefits tab I should see plan year information$/) do |legal_name|
+  profile = @organization[legal_name].employer_profile
+  visit  benefit_sponsors.profiles_employers_employer_profile_path(profile.id, :tab=>'benefits')
 end
 
 When(/^I go to MY Health Connector tab$/) do

@@ -1,11 +1,14 @@
 module EmployerWorld
 
   def employer(legal_name, *traits)
+    puts 'employer called'
     attributes = traits.extract_options!
+    puts traits.inspect
+    traits.push(:with_aca_shop_cca_employer_profile) unless traits.include? :with_aca_shop_cca_employer_profile_no_attestation
+    puts traits.inspect
     @organization ||= {}
     @organization[legal_name] ||= FactoryGirl.create(
-      :benefit_sponsors_organizations_general_organization,
-      :with_aca_shop_cca_employer_profile,
+      :benefit_sponsors_organizations_general_organization, *traits,
       attributes.merge(site: site)
     )
   end
@@ -26,6 +29,11 @@ World(EmployerWorld)
 
 And(/^there is an employer (.*?)$/) do |legal_name|
   employer legal_name, legal_name: legal_name, dba: legal_name
+  benefit_sponsorship(employer(legal_name))
+end
+
+And(/^it has an employer (.*?) with no attestation submitted$/) do |legal_name|
+  employer legal_name, :with_aca_shop_cca_employer_profile_no_attestation, legal_name: legal_name, dba: legal_name
   benefit_sponsorship(employer(legal_name))
 end
 
@@ -50,6 +58,12 @@ end
 
 And(/^staff role person logged in$/) do
   login_as @staff_role, scope: :user
+end
+
+And(/^(.*?) is logged in and on the home page$/) do |legal_name|
+  organization =  @organization[legal_name]
+  employer_profile = organization.employer_profile
+  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab=>'home')
 end
 
 And(/^(.*?) employer visit the Employee Roster$/) do |legal_name|

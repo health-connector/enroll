@@ -2,33 +2,25 @@ Feature: Employer Profile
   In order for initial employers to submit application
   Employer Staff should upload attestation document
 
-  Background: Setup site, HBX Staff logged in, on Employer Registration Page
+  Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    And the user is on the Employer Registration page
-    And Jack Doe create a new account for employer
-    And the user is registering a new Employer
-    And all required fields have valid inputs on the Employer Registration Form
-    And the user clicks the 'Confirm' button on the Employer Registration Form
-    And Employer goes to the benefits tab I should see plan year information
-    And Employer should see a button to create new plan year
-    And Employer should be able to enter plan year, benefits, relationship benefits for employer
-    And Employer should see a success message after clicking on create plan year button
-
-  Scenario: I have Successful Submission
-    Given all required fields have valid inputs on the Employer Registration Form
-    When the user clicks the 'Confirm' button on the Employer Registration Form
+    And it has an employer ABC Widgets with no attestation submitted
+    And ABC Widgets employer has a staff role
+    And has a draft application
+    And staff role person logged in
+    And ABC Widgets goes to the benefits tab I should see plan year information
 
   Scenario: Initial employer tries to submit application without uploading attestation
-    When Employer goes to the benefits tab I should see plan year information
     When Employer clicks on publish plan year
     Then Employer Staff should not see force publish
     When Employer Staff clicks cancel button in Attestation warning dialog
     Then Employer Staff should redirect to plan year edit page
 
   Scenario: Initial employer tries to submit application after submitting the attestation
+    When Employer clicks on publish plan year
     Then Employer uploads an attestation document
     And Employer should still see attestation upload button enabled
-    When Employer goes to the benefits tab I should see plan year information
+    When ABC Widgets goes to the benefits tab I should see plan year information
     When Employer clicks on publish plan year
     Then Plan Year should be moved to Enrolling
 
@@ -40,7 +32,6 @@ Feature: Employer Profile
     When Hbx Admin logs on to the Hbx Portal
     When Admin click all employers link
     When Admin clicks employer attestation filter
-    And Admin clicks submitted filter in employer attestation
     Then Admin should see Employer with Submitted status
     When Admin clicks attestation action
     Then Admin should see attestation document
@@ -50,12 +41,11 @@ Feature: Employer Profile
     Then Admin should see attestation updated message
     When Admin click all employers link
     When Admin clicks employer attestation filter
-    And Admin clicks approved filter in employer attestation
     Then Admin should see Employer with Approved status
 
     Then I click on log out link
-    When I visit the Employer portal
-    When Jack Doe logs on to the Employer portal
+    And staff role person logged in
+    And ABC Widgets is logged in and on the home page
     And Employer Staff clicks documents tab
     Then Employer Staff should see attestation status Accepted
     And Employer should see attestation upload button disabled
@@ -85,14 +75,14 @@ Feature: Employer Profile
     Then Admin should see Employer with Pending status
 
     Then I click on log out link
-    When I visit the Employer portal
-    When Jack Doe logs on to the Employer portal
+    And staff role person logged in
+    And ABC Widgets is logged in and on the home page
     And Employer Staff clicks documents tab
     Then Employer Staff should see attestation status Info needed
 
   Scenario: Initial Employer with enrolled plan year and Admin denies Attestation
     Then Employer uploads an attestation document
-    When Employer goes to the benefits tab I should see plan year information
+    When ABC Widgets goes to the benefits tab I should see plan year information
     When Employer clicks on publish plan year
     Then Plan Year should be moved to Enrolling
 
@@ -117,14 +107,14 @@ Feature: Employer Profile
     Then Admin should see Employer with Denied status
 
     Then I click on log out link
-    When I visit the Employer portal
-    When Jack Doe logs on to the Employer portal
+    And staff role person logged in
+    And ABC Widgets is logged in and on the home page
     And Employer Staff clicks documents tab
     Then Employer Staff should see attestation status Rejected
-    When Employer goes to the benefits tab I should see plan year information
-    Then Plan Year should be moved to Canceled
-    When Employer staff clicks employees tab
-    Then Employer staff should employees coverage status as canceled
+    When ABC Widgets goes to the benefits tab I should see plan year information
+    # Then Plan Year should be moved to Canceled
+    # When Employer staff clicks employees tab
+    # Then Employer staff should employees coverage status as canceled
 
   Scenario: Initial Employer with active plan year and Admin denies Attestation
     Then Employer uploads an attestation document
@@ -149,11 +139,11 @@ Feature: Employer Profile
     Then Admin should see Employer with Denied status
 
     Then I click on log out link
-    When I visit the Employer portal
-    When Jack Doe logs on to the Employer portal
+    And staff role person logged in
+    And ABC Widgets is logged in and on the home page
     And Employer Staff clicks documents tab
     Then Employer Staff should see attestation status Rejected
-    When Employer goes to the benefits tab I should see plan year information
+    When ABC Widgets goes to the benefits tab I should see plan year information
     Then I click on log out link
 
   Scenario: Employer Deletes submitted documents
@@ -178,7 +168,7 @@ Feature: Employer Profile
     When Admin clicks submit in employer attestation form
     Then Admin should see attestation updated message
     Then I click on log out link
-    When I visit the Employer portal
-    When Jack Doe logs on to the Employer portal
+    And staff role person logged in
+    And ABC Widgets is logged in and on the home page
     Then Employer Staff clicks documents tab
     And Employer should see disabled delete button in actions
