@@ -59,7 +59,7 @@ module BenefitApplicationWorld
   end
 
   def new_benefit_package
-    FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: find_product_package(:health, :single_issuer))
+    FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: find_product_package(:health, :single_issuer), dental_product_package: find_product_package(:dental, :single_issuer), dental_sponsored_benefit: true)
   end
 
   def ce
@@ -124,7 +124,7 @@ And(/^this employer has a benefit application$/) do
   benefit_sponsor_catalog.save!
 end
 
-And(/^this employer has enrollment_open benefit application with a census_employee$/) do
+And(/^this employer has enrollment_open benefit application with offering health and dental$/) do
   aasm_state(:enrollment_open)
   initial_application.benefit_packages = [new_benefit_package]
   benefit_sponsorship.benefit_applications << initial_application

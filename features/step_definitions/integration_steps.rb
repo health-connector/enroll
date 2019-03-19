@@ -1,5 +1,4 @@
 # load Rails.root + "db/seeds.rb"
-
 When(/I use unique values/) do
   require 'test/unique_value_stash.rb'
   include UniqueValueStash
@@ -742,6 +741,21 @@ When(/^.+ enters? the dependent info of Sorens daughter$/) do
   find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
   find(:xpath, "//li[@data-index='3'][contains(., 'Child')]").click
   find(:xpath, "//label[@for='radio_female']").click
+end
+
+When(/^.+ enters? the dependent info of Patrick wife$/) do
+  fill_in 'dependent[first_name]', with: 'Cynthia'
+  fill_in 'dependent[last_name]', with: 'Patrick'
+  fill_in 'dependent[ssn]', with: '123445678'
+  fill_in 'jq_datepicker_ignore_dependent[dob]', with: '01/15/1996'
+  find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
+  find(:xpath, "//li[@data-index='1'][contains(., 'Spouse')]").click
+  find(:xpath, "//label[@for='radio_female']").click
+  fill_in 'dependent[addresses][0][address_1]', with: '123 STREET'
+  fill_in 'dependent[addresses][0][city]', with: 'WASHINGTON'
+  find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
+  find(:xpath, "//li[@data-index='24'][contains(., 'MA')]").click
+  fill_in 'dependent[addresses][0][zip]', with: '01001'
 end
 
 When(/^.+ clicks? confirm member$/) do
