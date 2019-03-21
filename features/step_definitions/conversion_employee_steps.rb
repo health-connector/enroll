@@ -260,7 +260,7 @@ Then(/(.*) should see the receipt page with renewing plan year start date as eff
 end
 
 When(/Employee click the "(.*?)" in qle carousel/) do |qle_event|
-  binding.pry
+  #binding.pry
   click_link "#{qle_event}"
 end
 

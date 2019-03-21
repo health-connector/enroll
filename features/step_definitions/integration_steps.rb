@@ -364,25 +364,8 @@ Given(/(.*) Employer for (.*) exists with active and renewing plan year/) do |ki
   plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, start_on: start_on - 1.year, end_on: end_on - 1.year,
     open_enrollment_start_on: open_enrollment_start_on - 1.year, open_enrollment_end_on: open_enrollment_end_on - 1.year - 3.days,
     fte_count: 2, aasm_state: :published, is_conversion: (kind.downcase == 'conversion' ? true : false)
-  employer = organization
-  benefit_sponsorship = benefit_sponsorship(employer)
-  binding.pry
-  BenefitSponsors::BenefitApplications::BenefitApplication.new(
-    benefit_sponsor_catalog: benefit_sponsor_catalog,
-    effective_period: effective_period,
-    aasm_state: aasm_state,
-    open_enrollment_period: open_enrollment_period,
-    recorded_rating_area: rating_area,
-    recorded_service_areas: service_areas,
-    fte_count: 5,
-    pte_count: 0,
-    msp_count: 0
-  ).tap(&:save)
-  # raise ArgumentError, "expected BenefitGroup" unless new_benefit_group.is_a?(BenefitSponsors::BenefitPackages::BenefitPackage)
-  binding.pry
-  #benefit_sponsors_benefit_packages_benefit_package embedded_in ::BenefitSponsors::BenefitApplications::BenefitApplication
-  benefit_application = ::BenefitSponsors::BenefitApplications::BenefitApplication.new
-  new_benefit_package
+
+  benefit_group = FactoryGirl.create :benefit_group, plan_year: plan_year, reference_plan_id: plan.id
   employee.add_benefit_group_assignment benefit_group, benefit_group.start_on
 
   renewal_plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, start_on: start_on, end_on: end_on, open_enrollment_start_on: open_enrollment_start_on, open_enrollment_end_on: open_enrollment_end_on, fte_count: 2, aasm_state: :renewing_draft
