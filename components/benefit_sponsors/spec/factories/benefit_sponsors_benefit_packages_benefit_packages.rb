@@ -4,7 +4,7 @@ FactoryGirl.define do
     benefit_application { create(:benefit_sponsors_benefit_application) }
 
     title "first benefit package"
-    description "my first benefit pacakge"
+    description "my first benefit package"
     probation_period_kind :first_of_month
     is_default false
 

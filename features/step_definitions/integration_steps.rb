@@ -364,8 +364,25 @@ Given(/(.*) Employer for (.*) exists with active and renewing plan year/) do |ki
   plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, start_on: start_on - 1.year, end_on: end_on - 1.year,
     open_enrollment_start_on: open_enrollment_start_on - 1.year, open_enrollment_end_on: open_enrollment_end_on - 1.year - 3.days,
     fte_count: 2, aasm_state: :published, is_conversion: (kind.downcase == 'conversion' ? true : false)
-
-  benefit_group = FactoryGirl.create :benefit_group, plan_year: plan_year, reference_plan_id: plan.id
+  employer = organization
+  benefit_sponsorship = benefit_sponsorship(employer)
+  binding.pry
+  BenefitSponsors::BenefitApplications::BenefitApplication.new(
+    benefit_sponsor_catalog: benefit_sponsor_catalog,
+    effective_period: effective_period,
+    aasm_state: aasm_state,
+    open_enrollment_period: open_enrollment_period,
+    recorded_rating_area: rating_area,
+    recorded_service_areas: service_areas,
+    fte_count: 5,
+    pte_count: 0,
+    msp_count: 0
+  ).tap(&:save)
+  # raise ArgumentError, "expected BenefitGroup" unless new_benefit_group.is_a?(BenefitSponsors::BenefitPackages::BenefitPackage)
+  binding.pry
+  #benefit_sponsors_benefit_packages_benefit_package embedded_in ::BenefitSponsors::BenefitApplications::BenefitApplication
+  benefit_application = ::BenefitSponsors::BenefitApplications::BenefitApplication.new
+  new_benefit_package
   employee.add_benefit_group_assignment benefit_group, benefit_group.start_on
 
   renewal_plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, start_on: start_on, end_on: end_on, open_enrollment_start_on: open_enrollment_start_on, open_enrollment_end_on: open_enrollment_end_on, fte_count: 2, aasm_state: :renewing_draft
@@ -698,7 +715,24 @@ When(/^.+ completes? the matched employee form for (.*)$/) do |named_person|
   wait_for_ajax
   fill_in "person[phones_attributes][0][full_phone_number]", :with => person[:home_phone] #because why not...
   expect(page).to have_field("HOME PHONE", with: "(#{person[:home_phone][0..2]}) #{person[:home_phone][3..5]}-#{person[:home_phone][6..9]}") if person[:home_phone].present?
+  #find("#btn-continue").click
+  click_button 'CONTINUE'
+end
+
+And(/^.+ sees the (.*) page and clicks Continue$/) do |which_page|
+  expect(page).to have_content(which_page)
   find("#btn-continue").click
+end
+
+And(/^.+ clicks Confirm$/) do
+  click_link 'Confirm'
+end
+
+And(/^.+ selects the first plan available$/) do
+  links = page.all('a')
+  first_plan_html_class = "btn btn-default btn-right plan-select select interaction-click-control-select-plan"
+  first_plan_select_link = links.detect { |link| link.text == "Select Plan" }
+  first_plan_select_link.trigger('click')
 end
 
 Then(/^.+ should see the dependents page$/) do
