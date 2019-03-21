@@ -70,19 +70,17 @@ And(/^(.*?) employer visit the Employee Roster$/) do |legal_name|
 end
 
 When(/^employer selects one of their employees on Employee Roster$/) do
-  find('.interaction-click-control-eddie-vedder1').trigger('click')
+  census_employee = @census_employees.first
+  expect(page).to have_content "Eddie Vedder"
+  click_link census_employee.full_name
 end
 
 Then(/^employer should see census employee's details$/) do
-  wait_for_ajax
-  expect(page).to have_selector("input[value='#{employees.first.dob.strftime('%m/%d/%Y')}']")
+  sleep(3)
+  expect(page).to have_content "Eligible"
 end
 
 Then(/^employer clicks logout$/) do
   find('.interaction-click-control-logout').trigger('click')
-end
-
-Given(/^employer views and clicks on Actions button for an Employee$/) do
-  find('.interaction-click-control-actions').trigger('click')
 end
 
