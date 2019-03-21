@@ -94,22 +94,17 @@ module BenefitMarketWorld
 
   def current_benefit_market_catalog
     @current_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog,
+      :with_product_packages,
       benefit_market: benefit_market,
       product_kinds: product_kinds,
       title: "SHOP Benefits for #{current_effective_date.year}",
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
-    ).tap do |catalog|
-        #[:single_issuer,:metal_level,:single_product]
-        [:single_issuer].each do |package_kind|
-          [:health,:dental].each do |product_kind|
-            catalog.product_packages << build_product_package(product_kind,package_kind)
-          end
-        end
-    end
+    )
   end
 
   def renewal_benefit_market_catalog
     @renewal_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog,
+      :with_product_packages,
       benefit_market: benefit_market,
       product_kinds: product_kinds,
       title: "SHOP Benefits for #{renewal_effective_date.year}",

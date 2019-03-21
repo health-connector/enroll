@@ -139,6 +139,7 @@ And(/^the user is on the Employer Registration page$/) do
   #visit '/benefit_sponsors/profiles/registrations/new?portal=true&profile_type=benefit_sponsor'
   visit '/'
   find('.btn.btn-default.interaction-click-control-employer-portal').click
+  sleep(3)
 end
 
 And(/^the user is registering a new Employer$/) do
@@ -146,6 +147,7 @@ And(/^the user is registering a new Employer$/) do
 end
 
 When(/^the user clicks the 'Confirm' button on the Employer Registration Form$/) do
+  sleep(3)
   find('form#new_agency input[type="submit"]').click
   # expect(page).to have_css('legend', text: 'Balscssc')
   find('.alert', text: "Welcome to Health Connector. Your account has been created.")
