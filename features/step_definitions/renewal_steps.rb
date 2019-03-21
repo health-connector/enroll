@@ -27,7 +27,6 @@ And(/(.*) has active coverage and passive renewal/) do |named_person|
 end
 
 Then(/(.*) should see active and renewing enrollments/) do |named_person|
-  binding.pry
   visit "/families/home"
   person = people[named_person]
   ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
