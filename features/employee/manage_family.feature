@@ -79,7 +79,7 @@ Feature: Employees can update their password or security questions
     Then Employee will submit with wrong password
     And they should see a password does not match error
 
-  Scenario: An employee cannot update their password without the correct original password
+  Scenario: An employee can update their security question responses
     Given Employer exists and logs in
     And this employer has enrollment_open benefit application with offering health and dental
     And Acme Inc. employer visit the Employee Roster
