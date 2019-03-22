@@ -50,7 +50,7 @@ module BenefitApplicationWorld
     ).tap(&:save)
   end
 
-  def assign_sponsred_benefits
+  def assign_sponsored_benefits
   product_package = benefit_market.benefit_market_catalogs.first.product_packages.where(package_kind: :single_issuer).first
 
   end

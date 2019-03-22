@@ -79,6 +79,13 @@ module BenefitMarketWorld
     )
   end
 
+  def qualifying_life_events
+    @qualifying_life_events ||= [
+      :effective_on_event_date,
+      :effective_on_first_of_month
+    ].map { |event_trait| FactoryGirl.create(:qualifying_life_event_kind, event_trait) }
+  end
+
   def build_product_package(product_kind, package_kind)
     build(:benefit_markets_products_product_package,
       packagable: nil,
@@ -127,3 +134,7 @@ module BenefitMarketWorld
 end
 
 World(BenefitMarketWorld)
+
+Given(/^Qualifying life events are present$/) do
+  qualifying_life_events
+end
