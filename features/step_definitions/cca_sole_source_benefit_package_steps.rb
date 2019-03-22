@@ -9,7 +9,7 @@ end
 def effective_date(start_or_end)
   effective_year = Time.now.year
   return Date.new(effective_year, 1, 1) if start_or_end == "start"
-  return Date.new(effective_year, 12, 31) if start_or_end = "end"
+  return Date.new(effective_year, 12, 31) if start_or_end == "end"
 end
 
 Given (/^.*a configured CCA benefit market, pricing models, and catalog$/) do

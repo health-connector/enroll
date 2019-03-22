@@ -834,3 +834,18 @@ And /^employer clicks on submit button by entering todays date$/ do
   terminated_id = @census_employees.first.id.to_s
   find(:xpath, "//*[@id='rehire_#{terminated_id}']/strong").trigger('click')
 end
+
+When(/^employer selects one of their employees on Employee Roster$/) do
+  census_employee = @census_employees.first
+  expect(page).to have_content "Eddie Vedder"
+  click_link census_employee.full_name
+end
+
+Then(/^employer should see census employee's details$/) do
+  sleep(3)
+  expect(page).to have_content "Eligible"
+end
+
+Then(/^employer clicks logout$/) do
+  find('.interaction-click-control-logout').trigger('click')
+end
