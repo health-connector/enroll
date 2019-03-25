@@ -33,10 +33,6 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     And Employee sees the Enrollment Submitted page and clicks Continue
 
     Then Employee Patrick Doe should see their plan start date on the page
-    
-    # Old steps, so what should it look for now?
-    # Then Employee Patrick Doe should have the renewing plan year start date as earliest effective date
-    # And Employee Patrick Doe should not see earliest effective date on the page
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through Shop for Plans
     Given Conversion Employer for Soren White exists with active and renewing plan year

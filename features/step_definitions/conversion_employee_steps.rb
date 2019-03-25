@@ -1,4 +1,4 @@
-Given(/^ $/) do |named_person|
+Given(/^Multiple Conversion Employers for (.*) exist with active and renewing plan years$/) do |named_person|
   person = people[named_person]
 
   secondary_organization = FactoryGirl.create :organization, legal_name: person[:mlegal_name],
