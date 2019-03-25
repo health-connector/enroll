@@ -36,14 +36,20 @@ module BenefitApplicationWorld
     @service_areas ||= benefit_sponsorship.service_areas_on(effective_period.min)
   end
 
+  def sic_code
+    @sic_code ||= benefit_sponsorship.sic_code
+  end
+
   def initial_application
     @initial_application ||= BenefitSponsors::BenefitApplications::BenefitApplication.new(
+        benefit_sponsorship: benefit_sponsorship,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
         effective_period: effective_period,
         aasm_state: aasm_state,
         open_enrollment_period: open_enrollment_period,
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas,
+        recorded_sic_code: sic_code,
         fte_count: 5,
         pte_count: 0,
         msp_count: 0
@@ -116,7 +122,6 @@ module BenefitApplicationWorld
   def properly_associate_benefit_package
     initial_application.open_enrollment_period = TimeKeeper.date_of_record..TimeKeeper.date_of_record + 19.days
     initial_application.benefit_packages = [new_benefit_package]
-    benefit_sponsorship.benefit_applications << initial_application
     @census_employees ||= create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: initial_application.benefit_packages.first)
   end
 end
@@ -134,9 +139,8 @@ end
 And(/^this employer has a benefit application$/) do
   # This should be re-factored such that properly create a active application
   health_products
-  census_employees_roster
-  initial_application.benefit_packages = [current_benefit_package]
-  benefit_sponsorship.benefit_applications << initial_application
+  initial_application.update_attributes(aasm_state: :enrollment_open)
+  initial_application.benefit_packages = [new_benefit_package]
   benefit_sponsorship.save!
   benefit_sponsor_catalog.save!
 end
