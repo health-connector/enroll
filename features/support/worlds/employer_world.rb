@@ -69,4 +69,3 @@ And(/^(.*?) is logged in and on the home page$/) do |legal_name|
   employer_profile = organization.employer_profile
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'home')
 end
-
