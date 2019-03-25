@@ -2,20 +2,37 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
   In order to make employees purchase coverage only using renewal plan year
   Employee should be blocked from buying coverage under off-exchange plan year
 
+  Background: Setup site, employer, and benefit application
+    Given a CCA site exists with a benefit market
+    Given Qualifying life events are present
+    And there is an employer ACME Widgets, Inc.
+    # Benefit application model seems to suggest that enrollment_open is considered renewing?
+    And this employer has enrollment_open benefit application with offering health and dental
+    And ACME Widgets, Inc. employer has a staff role
+
   Scenario: New Hire should not get effective date before renewing plan year start date
-    Given Conversion Employer for Soren White exists with active and renewing plan year
-      And Employee has current hired on date
-      And Employee has not signed up as an HBX user
-      And Soren White visits the employee portal
-      When Soren White creates an HBX account
-      And I select the all security question and give the answer
-      When I have submitted the security questions
-      When Employee goes to register as an employee
-      Then Employee should see the employee search page
-      When Employee enters the identifying info of Soren White
-      Then Employee should see the matched employee record form
-      Then Employee Soren White should have the renewing plan year start date as earliest effective date
-      And Employee Soren White should not see earliest effective date on the page
+    Given staff role person logged in
+    And ACME Widgets, Inc. employer visit the Employee Roster
+    Then Employer logs out
+    And Employee has not signed up as an HBX user
+    And Patrick Doe visits the employee portal
+    When Patrick Doe creates an HBX account
+    And I select the all security question and give the answer
+    When I have submitted the security questions
+    When Employee goes to register as an employee
+    Then Employee should see the employee search page
+    When Employee enters the identifying info of Patrick Doe
+    Then Employee should see the matched employee record form
+    When Employee accepts the matched employer
+
+    When Employee completes the matched employee form for Patrick Doe
+    And Employee sees the Household Info: Family Members page and clicks Continue
+    And Employee sees the Choose Coverage for your Household page and clicks Continue
+    And Employee selects the first plan available
+    And Employee clicks Confirm
+    And Employee sees the Enrollment Submitted page and clicks Continue
+
+    Then Employee Patrick Doe should see their plan start date on the page
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through Shop for Plans
     Given Conversion Employer for Soren White exists with active and renewing plan year

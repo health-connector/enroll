@@ -29,9 +29,11 @@ def people
       first_name: "Patrick",
       last_name: "Doe",
       dob: "01/01/1980",
+      dob_date: "01/01/1980".to_date,
       ssn: "786120965",
       email: 'patrick.doe@dc.gov',
-      password: 'aA1!aA1!aA1!'
+      password: 'aA1!aA1!aA1!',
+      fein: registering_employer.fein # 570834919
     },
     "Broker Assisted" => {
       first_name: 'Broker',
@@ -634,7 +636,7 @@ Then(/^.+ should not see the matched employee record form$/) do
 end
 
 Then(/^Employee should see the matched employee record form$/) do
-  expect(page).to have_content('Acme Inc.')
+  expect(page).to have_content(@organization[@organization.keys.first].legal_name)
   screenshot("employer_search_results")
 end
 
@@ -648,6 +650,10 @@ Then(/^Employee should not see the individual market place workflow$/) do
   within('.select-employer') do
     expect(page).not_to have_css('#individual-benefits')
   end
+end
+
+Given(/^Employer exists and logs in and adds and employee$/) do
+  login_as @staff_role, scope: :user
 end
 
 # TODO: needs to be merged
