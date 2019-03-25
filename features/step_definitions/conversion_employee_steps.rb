@@ -1,4 +1,4 @@
-Given(/^Multiple Conversion Employers for (.*) exist with active and renewing plan years$/) do |named_person|
+Given(/^ $/) do |named_person|
   person = people[named_person]
 
   secondary_organization = FactoryGirl.create :organization, legal_name: person[:mlegal_name],
@@ -73,6 +73,13 @@ Then(/Employee (.*) should have the (.*) plan year start date as earliest effect
     expect(page).to have_content "Raising this failure, b'coz this else block should never be executed"
   end
 end
+
+Then(/^Employee (.*) should see their plan start date on the page$/) do |named_person|
+  employer_profile = employer_profile(@organization[@organization.keys.first].legal_name)
+  benefit_sponsorship_created_at = Date.strptime(employer_profile.benefit_sponsorships.first.created_at.to_s, "%m/%d/%Y").to_s
+  expect(page).to have_content(benefit_sponsorship_created_at)
+end
+
 
 Then(/Employee (.*) should not see earliest effective date on the page/) do |named_person|
   person = people[named_person]

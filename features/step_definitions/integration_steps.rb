@@ -29,9 +29,11 @@ def people
       first_name: "Patrick",
       last_name: "Doe",
       dob: "01/01/1980",
+      dob_date: "01/01/1980".to_date,
       ssn: "786120965",
       email: 'patrick.doe@dc.gov',
-      password: 'aA1!aA1!aA1!'
+      password: 'aA1!aA1!aA1!',
+      fein: registering_employer.fein # 570834919
     },
     "Broker Assisted" => {
       first_name: 'Broker',
@@ -338,8 +340,13 @@ end
 Given(/(.*) Employer for (.*) exists with active and renewing plan year/) do |kind, named_person|
   person = people[named_person]
   FactoryGirl.create(:rating_area, zip_code: "01002", county_name: "Franklin", rating_area: Settings.aca.rating_areas.first)
-  organization = FactoryGirl.create :organization, legal_name: person[:legal_name], dba: person[:dba], fein: person[:fein]
-  employer_profile = FactoryGirl.create :employer_profile, organization: organization, profile_source: (kind.downcase == 'conversion' ? kind.downcase : 'self_serve'), registered_on: TimeKeeper.date_of_record
+  if @organization[@organization.keys.first].present?
+    organization = @organization[@organization.keys.first]
+    employer_profile = organization.employer_profile
+  else
+    organization = FactoryGirl.create :organization, legal_name: person[:legal_name], dba: person[:dba], fein: person[:fein]
+    employer_profile = FactoryGirl.create :employer_profile, organization: organization, profile_source: (kind.downcase == 'conversion' ? kind.downcase : 'self_serve'), registered_on: TimeKeeper.date_of_record
+  end
   owner = FactoryGirl.create :census_employee, :owner, employer_profile: employer_profile
   employee_role = FactoryGirl.create(:employee_role, employer_profile: organization.employer_profile)
   owner.update_attributes!(employee_role_id: employee_role.id)
@@ -634,7 +641,7 @@ Then(/^.+ should not see the matched employee record form$/) do
 end
 
 Then(/^Employee should see the matched employee record form$/) do
-  expect(page).to have_content('Acme Inc.')
+  expect(page).to have_content(@organization[@organization.keys.first].legal_name)
   screenshot("employer_search_results")
 end
 
