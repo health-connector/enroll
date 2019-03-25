@@ -23,3 +23,19 @@ Feature: Newly designated employees can purchase coverage only through renewing 
     When Employee enters the identifying info of Patrick Doe
     Then Employee should see the matched employee record form
     And Employee should see the shop market place workflow as default
+
+Scenario: Newly designated should not see the individual market place workflow #We don't support IVL functionality
+    Given Employer exists and logs in and adds and employee
+    And this employer has enrollment_open benefit application with offering health and dental
+    And Acme Inc. employer visit the Employee Roster
+    Then Employer logs out
+    And Employee has not signed up as an HBX user
+    And Patrick Doe visits the employee portal
+    When Patrick Doe creates an HBX account
+    And I select the all security question and give the answer
+    When I have submitted the security questions
+    When Employee goes to register as an employee
+    Then Employee should see the employee search page
+    When Employee enters the identifying info of Patrick Doe
+    Then Employee should see the matched employee record form
+    And Employee should not see the individual market place workflow
