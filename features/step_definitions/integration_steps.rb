@@ -650,6 +650,10 @@ Then(/^Employee should not see the individual market place workflow$/) do
   end
 end
 
+Given(/^Employer exists and logs in and adds and employee$/) do
+  login_as @staff_role, scope: :user
+end
+
 # TODO: needs to be merged
 Then(/^.+ should see the matching employee record form$/) do
   expect(page).to have_content('Turner Agency')
