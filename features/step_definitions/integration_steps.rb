@@ -755,7 +755,7 @@ Then(/^.+ should see the new dependent form$/) do
   expect(page).to have_content('Confirm Member')
 end
 
-When(/^.+ enters? the dependent info of Sorens daughter$/) do
+When(/^.+ enters? the dependent info of .+ daughter$/) do
   fill_in 'dependent[first_name]', with: 'Cynthia'
   fill_in 'dependent[last_name]', with: 'White'
   fill_in 'jq_datepicker_ignore_dependent[dob]', with: '01/15/2011'
@@ -824,6 +824,10 @@ end
 
 When(/^.+ clicks? shop for plans button$/) do
   click_button "Shop for Plans"
+end
+
+When(/^.+ clicks Shop for new plan button$/) do
+  click_button 'Shop for new plan'
 end
 
 Then(/^.+ should see the list of plans$/) do

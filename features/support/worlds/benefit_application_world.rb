@@ -50,7 +50,7 @@ module BenefitApplicationWorld
     ).tap(&:save)
   end
 
-  def assign_sponsred_benefits
+  def assign_sponsored_benefits
   product_package = benefit_market.benefit_market_catalogs.first.product_packages.where(package_kind: :single_issuer).first
 
   end
@@ -165,7 +165,7 @@ And(/^(.*?) employer visit the benefits tab$/) do |legal_name|
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
 end
 
-Then(/^(.*?) should be able to set up benefit aplication, benefits, relationship benefits$/) do |legal_name|
+Then(/^(.*?) should be able to set up benefit aplication$/) do |legal_name|
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
   find(:xpath, "//li[@data-index='1'][contains(., '#{(Date.today + 2.months).year}')]", :wait => 3).click
 
@@ -187,10 +187,9 @@ And(/^Employer creates Benefit package$/) do
   wait_for_ajax
   fill_in 'benefit_package[title]', with: 'Silver PPO Group'
   fill_in 'benefit_package[description]', with: 'Testing'
-  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a/i').trigger("click")
+  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').trigger("click")
   wait_for_ajax
-  find(:xpath, '//*[@id="carrier"]/div[1]/div/label/span').trigger("click")
-
+  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').trigger("click")
   sleep 5
   wait_for_ajax
 end

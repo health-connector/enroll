@@ -2,12 +2,13 @@ Feature: Passive renewal should be updated when EE updates his current coverage
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given Qualifying life events are present
     And there is an employer Acme Inc.
+    And this employer has enrollment_open benefit application with offering health and dental
     And Acme Inc. employer has a staff role
 
   Scenario: Employee enters a SEP
     Given staff role person logged in
-    And this employer has enrollment_open benefit application with offering health and dental
     And Acme Inc. employer visit the Employee Roster
     Then Employer logs out
     And Employee has not signed up as an HBX user
@@ -27,23 +28,24 @@ Feature: Passive renewal should be updated when EE updates his current coverage
     And Employee clicks Confirm
     And Employee sees the Enrollment Submitted page and clicks Continue
 
-    When Employee click the "Had a baby" in qle carousel
+    When Employee click the "Married" in qle carousel
     And Employee select a past qle date
     Then Employee should see confirmation and clicks continue
     Then Employee should see the dependents page
     When Employee clicks Add Member
     Then Employee should see the new dependent form
-    When Employee enters the dependent info of Sorens daughter
+
+    When Employee enters the dependent info of Patrick wife
     When Employee clicks confirm member
     Then Employee should see 1 dependents
-    When Employee clicks continue on family members page
-    When Soren White proceed with continue on the group selection page
-    Then Soren White should see the list of plans
-    When Soren White selects a plan on the plan shopping page
+
+    When Employee clicks continue on group selection page for dependents
+    When Employee clicks Shop for new plan button
+    Then Patrick Doe should see the list of plans
+    When Patrick Doe selects a plan on the plan shopping page
     When Employee clicks on Confirm button on the coverage summary page
     Then Employee clicks back to my account button
-    Then Soren While should see active enrollment with his daughter
-    And Soren White should see updated renewal with his daughter
+    Then Patrick Doe should see active enrollment with their spouse
 
   Scenario: Passively Renewed Employee terminates his coverage
     Given Renewing Employer for Soren White exists with active and renewing plan year

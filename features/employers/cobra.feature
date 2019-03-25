@@ -1,4 +1,41 @@
-Feature: COBRA basic
+# This feature concentrates on "Initiate cobra" link functionality under census employee roster
+
+
+Feature: Census Employee COBRA functionality
+
+  The COBRA functionality provides an ability to plan shop for terminated
+  census employees, Once after employer initiates Cobra eligibility to employee.
+
+  Background: Setup site, employer, and benefit application
+    Given a CCA site exists with a benefit market
+    And there is an employer EnterPrise Limited
+    And EnterPrise Limited employer has a staff role
+    And there are 2 employees for EnterPrise Limited
+
+  Scenario: Employer terminates and Initiate COBRA to Unlinked employee
+    Given staff role person logged in
+    And EnterPrise Limited employer terminates employees
+    And EnterPrise Limited employer visit the Employee Roster
+    Then employer clicks on terminated filter
+    And employer clicks on Actions drop down for one of active employee
+    And employer should see the Initiate cobra button
+    When employer clicks on Initiate cobra button
+    Then employer should see Enter effective date for Initiate cobra Action
+    And employer should see default cobra start date
+    And employer sets cobra start date to two months after termination date
+    When EnterPrise Limited employer clicks on Initiate COBRA button
+    Then employer should see the Initiate cobra success flash notice
+    And employer clicks on all employees
+    And employer should see census employee status as Cobra eligible
+
+
+
+#  Scenario: Employer Terminated and Initiate COBRA to Linked employee
+#  Scenario: Employer Terminates and Initiate COBRA and do Plan shop for census employee
+
+
+
+
   Scenario: An Employer is new to the Exchange and needs to enter COBRA enrollees
     Given shop health plans exist for both last and this year
     Given Employer has not signed up as an HBX user
@@ -101,25 +138,3 @@ Feature: COBRA basic
     Then Jack Employee should not see individual on enrollment title
     Then Set Date back to two months ago
     Then Employee logs out
-
-  Scenario: An Employer Representative has not signed up on the HBX
-    Given Employer has not signed up as an HBX user
-    When I visit the Employer portal
-    Then John Doe creates an HBX account
-    Then I should see a successful sign up message
-    And I select the all security question and give the answer
-    When I have submitted the security questions
-    Then I should click on employer portal
-    Then John Doe creates a new employer profile with default_office_location
-    Then Employer can see the important documents needed
-
-  Scenario: An Employer is new to the Exchange and needs to enter username and email optional
-    Given shop health plans exist for both last and this year
-    Given Employer has not signed up as an HBX user
-    Given vertical and horizontal plan choices are offered
-    When I visit the Employer portal
-    Then I fill employer signup form for Jack Doe
-    And I can see the optional Email field
-    And I fill out the email address with jackdoe@abc.com
-    And I submit button to create account
-    Then I should see a successful sign up message

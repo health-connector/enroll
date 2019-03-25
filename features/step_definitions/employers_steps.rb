@@ -300,7 +300,7 @@ end
 
 When(/^I go to the Profile tab$/) do
   find('.interaction-click-control-update-business-info').click
-  find('.interaction-click-control-cancel').click
+  find('.interaction-click-control-cancel').clickfeatures/employers/step_definitions/cobra_steps.rb
 
   expect(page).to have_content('Business Info')
 end
@@ -525,8 +525,9 @@ When /^they visit the Employer Home page$/ do
   visit employers_employer_profile_path(employer.employer_profile) + "?tab=home"
 end
 
-When /^they visit the Employee Roster$/ do
-  visit employers_employer_profile_path(employer.employer_profile) + "?tab=employees"
+And(/^(.*?) employer visit the Employee Roster$/) do |legal_name|
+  employer_profile = employer_profile(legal_name)
+  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'employees')
 end
 
 When /^click on one of their employees$/ do
@@ -714,7 +715,15 @@ end
 Then /^employer should see the (.*) success flash notice$/ do |status|
   # Phantom JS starts checking before Rails Action complete
   sleep(3)
-  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully rehired Census Employee."
+  result = case status
+           when "terminated"
+             "Successfully terminated Census Employee."
+           when "Initiate cobra"
+             "Successfully update Census Employee."
+           else
+             "Successfully rehired Census Employee."
+           end
+
   expect(page).to have_content result
 end
 
@@ -848,4 +857,35 @@ end
 
 Then(/^employer clicks logout$/) do
   find('.interaction-click-control-logout').trigger('click')
+end
+
+Then /^employer should see Enter effective date for (.*?) Action/ do |action_name|
+  case action_name
+  when "Initiate cobra"
+    page_text = "Enter effective date for COBRA coverage to begin"
+    id = 'cobra-enter-date'
+  end
+
+  find_by_id(id).visible?
+  expect(page).to have_content(page_text)
+end
+
+And(/^employer should see default cobra start date$/) do
+  terminated_on = @census_employees.first.employment_terminated_on.next_month.beginning_of_month.to_s
+  expect(find('input.text-center.date-picker').value).to eq terminated_on
+end
+
+And(/^employer sets cobra start date to two months after termination date$/) do
+  date = @census_employees.first.employment_terminated_on + 2.months
+
+  find('input.text-center.date-picker').set date
+end
+
+When(/^EnterPrise Limited employer clicks on Initiate COBRA button$/) do
+  id = @census_employees.first.id.to_s
+  find(:xpath, "//*[@id='cobra-#{id}']").trigger('click')
+end
+
+And(/^employer should see census employee status as (.*?)$/) do |status|
+  expect(all('td.col-string.col-status')[0].text).to eq status
 end

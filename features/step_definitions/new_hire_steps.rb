@@ -75,7 +75,7 @@ When(/(.*) clicks \"Shop for Plans\" on my account page/) do |named_person|
   find('.interaction-click-control-shop-for-plans').click
 end
 
-When(/Employee clicks continue button on the group selection page/) do
+When(/^Employee clicks continue button on group selection page for dependents$/) do
   if find_all('.interaction-click-control-continue', wait: 10).any?
     find('.interaction-click-control-continue').click
   else
@@ -182,6 +182,12 @@ Then (/(.*) should see renewal policy in active status/) do |named_person|
   enrollment.find('.panel-heading', text: 'Coverage Selected')
 end
 
+Then(/(.*) should see active enrollment with their spouse/) do |named_person|
+  sleep 1 #wait for e-mail nonsense
+  enrollment = page.all('.hbx-enrollment-panel').detect{|e| e.find('.panel-heading .text-right').text == 'Coverage Selected' }
+
+  expect(enrollment.find('.family-members')).to have_content 'Cynthia'
+end
 
 Then(/(.*) should see active enrollment with his daughter/) do |named_person|
   sleep 1 #wait for e-mail nonsense
