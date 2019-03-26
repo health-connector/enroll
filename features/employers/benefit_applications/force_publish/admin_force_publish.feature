@@ -19,7 +19,7 @@ Feature: As an admin user I should have the ability to extend the OE
     Examples:
       | system_date_value  | date_to_compare_with                 | date_compare | action  |
       | greater            | earliest_start_prior_to_effective_on | less         | not see |
-      | less               | monthly open enrollment end_on       | greater      | see     |
+      | less               | monthly_open_enrollment_end_on       | greater      | see     |
 
   Scenario: Draft application published between submission deadline & OE End date
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in

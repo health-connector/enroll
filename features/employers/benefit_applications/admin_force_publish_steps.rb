@@ -1,9 +1,15 @@
 include Config::SiteHelper
 
-When(/^the system date is (greater|less) than the earliest_start_prior_to_effective_on$/) do |compare|
+When(/^the system date is (greater) than the earliest_start_prior_to_effective_on$/) do |compare|
   if compare == 'greater'
     allow(TimeKeeper).to receive(:date_of_record).and_return((initial_application.effective_period.min + 15.days))
     TimeKeeper.date_of_record > initial_application.effective_period.min == true
+  end
+end
+
+When(/^the system date is (less) than the monthly_open_enrollment_end_on$/) do |compare|
+  if compare == "less"
+    TimeKeeper.date_of_record < initial_application.open_enrollment_period.max == true
   end
 end
 
