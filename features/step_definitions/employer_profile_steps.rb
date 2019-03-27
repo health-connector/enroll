@@ -138,7 +138,6 @@ When(/(\w+) accesses the Employer Portal/) do |name|
 end
 
 Then /(\w+) decides to Update Business information/ do |person|
-  FactoryGirl.create(:sic_code, sic_code: "0111")
   find('.interaction-click-control-update-business-info', :wait => 10).click
   wait_for_ajax(10,2)
   screenshot('update_business_info')

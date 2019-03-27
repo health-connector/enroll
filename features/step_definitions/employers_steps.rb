@@ -701,6 +701,10 @@ When /^employer clicks on (.*) button$/ do |status|
   click_link(status.capitalize)
 end
 
+When /^employer clicks on the (.*) link$/ do |status|
+  click_link(status.titleize)
+end
+
 # Then /^employer should see the field to enter (.*) date$/ do |status|
 #   status = status == 'termination' ? 'ENTER DATE OF TERMINATION' : 'ENTER DATE OF REHIRE'
 #   expect(page).to have_content status
