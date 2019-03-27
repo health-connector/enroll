@@ -383,6 +383,8 @@ GEM
       redis (>= 3.2, < 5.0)
     ffi (1.9.25)
     forgery (0.7.0)
+    geckodriver-helper (0.23.0)
+      archive-zip (~> 0.7)
     gherkin (5.1.0)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
@@ -818,6 +820,7 @@ DEPENDENCIES
   factory_girl_rails (= 4.6.0)
   fakeredis
   forgery
+  geckodriver-helper
   haml
   httparty
   interactor (= 3.1.0)
@@ -901,4 +904,4 @@ DEPENDENCIES
   yard-mongoid (~> 0.1.0)
 
 BUNDLED WITH
-   1.16.2
+   1.16.6
