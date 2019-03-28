@@ -54,6 +54,13 @@ And(/Employee has current hired on date/) do
                        :last_name => /Doe/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record)
 end
 
+And(/employee (.*?) has current hired on date$/) do |named_person|
+  person = people[named_person]
+  CensusEmployee.where(:first_name => person[:first_name], :last_name => person[:last_name]).first.update_attributes(:hired_on => TimeKeeper.date_of_record)
+
+end
+
+
 And(/Current hired on date all employments/) do
   CensusEmployee.where(:first_name => /Soren/i, :last_name => /White/i).each do |census_employee|
     census_employee.update_attributes(:hired_on => TimeKeeper.date_of_record)

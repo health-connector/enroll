@@ -2,15 +2,13 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
   In order to make employees purchase coverage only using renewal plan year
   Employee should be blocked from buying coverage under off-exchange plan year
 
-  Background: Setup site, employer, and benefit application
+  Scenario: New Hire should not get effective date before renewing plan year start date
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
     And there is an employer ACME Widgets, Inc.
     # Benefit application model seems to suggest that enrollment_open is considered renewing?
     And this employer has enrollment_open benefit application with offering health and dental
     And ACME Widgets, Inc. employer has a staff role
-
-  Scenario: New Hire should not get effective date before renewing plan year start date
     Given staff role person logged in
     And ACME Widgets, Inc. employer visit the Employee Roster
     Then Employer logs out
@@ -35,12 +33,27 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Then Employee Patrick Doe should see their plan start date on the page
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through Shop for Plans
-    Given Conversion Employer for Soren White exists with active and renewing plan year
-      And Employee has current hired on date
-      And Soren White already matched and logged into employee portal
-      When Employee clicks "Shop for Plans" on my account page
-      When Employee clicks continue on the group selection page
-      Then Employee should see "employer-sponsored benefits not found" error message
+    # Original old model setup
+    # Given Conversion Employer for Soren White exists with active and renewing plan year
+    # Given Conversion Employer and census employee Soren White exist
+    
+    Given a CCA site exists with a benefit market
+    And there is an employer ACME Widgets, Inc.
+
+    # Is a renewing benefit application the same as renewing plan year?
+    # Is "pending" the same as renewing?
+    # And employer Acme Inc. has a active benefit application with offering health and dental
+    
+    And employer ACME Widgets, Inc. has a pending benefit application with offering health and dental
+    And employer ACME Widgets, Inc. has a census employee Soren White
+    And employee Soren White has current hired on date
+    And census employee Soren White has a person and user record
+    
+    When census employee Soren White logs in
+    And census employee Soren White visits the employee portal page
+    When Employee clicks "Shop for Plans" on my account page
+    When Employee clicks continue on the group selection page
+    Then Employee should see "employer-sponsored benefits not found" error message
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through New Hire badge
     Given Conversion Employer for Soren White exists with active and renewing plan year

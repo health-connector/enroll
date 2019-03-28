@@ -19,7 +19,7 @@ def people
       password: 'aA1!aA1!aA1!',
       legal_name: "Acme Inc.",
       dba: "Acme Inc.",
-      fein: "764141112",
+      fein: @organization.values.first.employer_profile.fein || "764141112",
       sic_code: "0111",
       mlegal_name: "Cogswell Cogs, Inc",
       mdba: "Cogswell Cogs, Inc",

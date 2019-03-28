@@ -87,6 +87,15 @@ Then(/Employee (.*) should not see earliest effective date on the page/) do |nam
   expect(page).not_to have_content "coverage starting #{employer_profile.renewing_plan_year.start_on.strftime("%m/%d/%Y")}."
 end
 
+# Record must already be created
+When(/census employee (.*) logs in/) do |named_person|
+  login_as @person_user_record
+end
+
+And(/census employee (.*) visits the employee portal page$/) do |named_person|
+  visit "/families/home"
+end
+
 And(/(.*) already matched and logged into employee portal/) do |named_person|
   person = people[named_person]
   employer_profile = EmployerProfile.find_by_fein(person[:fein])

@@ -22,6 +22,50 @@ module CensusEmployeeWorld
                                            sponsored_benefit_id: benefit_package.sponsored_benefits.first.id)
   end
 
+  def create_person_and_user_from_census_employee(person)
+    employer_profile = @organization.values.first.employer_profile || EmployerProfile.find_by_fein(person[:fein])
+    ce = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
+    @person_record ||= FactoryGirl.create(
+      :person_with_employee_role,
+      first_name: person[:first_name],
+      last_name: person[:last_name],
+      ssn: person[:ssn],
+      dob: person[:dob_date],
+      census_employee_id: ce.id,
+      employer_profile_id: employer_profile.id,
+      hired_on: ce.hired_on
+    )
+    ce.update_attributes(employee_role_id: @person_record.employee_roles.first.id)
+    @person_family_record ||= FactoryGirl.create(:family, :with_primary_family_member, person: @person_record)
+    @person_user_record ||= FactoryGirl.create(
+      :user,
+      person: @person_record,
+      email: person[:email],
+      password: person[:password],
+      password_confirmation: person[:password]
+    )
+  end
+
+  def create_census_employee_from_person(person)
+    organization = @organization.values.first || nil
+    current_sponsorship = benefit_sponsorship(organization)
+    current_benefit_group = @current_application.benefit_packages.first
+    @census_employee ||= FactoryGirl.create(
+      :census_employee,
+      :with_active_assignment,
+      first_name: person[:first_name],
+      last_name: person[:last_name],
+      dob: person[:dob_date],
+      ssn: person[:ssn],
+      benefit_sponsorship: current_sponsorship,
+      employer_profile: organization.employer_profile,
+      benefit_group: current_benefit_group
+    )
+  end
+
+  def census_employee_from_person(person)
+    CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
+  end
 end
 
 World(CensusEmployeeWorld)
