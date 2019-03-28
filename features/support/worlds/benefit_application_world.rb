@@ -40,6 +40,22 @@ module BenefitApplicationWorld
     @sic_code ||= benefit_sponsorship.sic_code
   end
 
+  def initial_application
+    @initial_application ||= BenefitSponsors::BenefitApplications::BenefitApplication.new(
+        benefit_sponsorship: benefit_sponsorship,
+        benefit_sponsor_catalog: benefit_sponsor_catalog,
+        effective_period: effective_period,
+        aasm_state: aasm_state,
+        open_enrollment_period: open_enrollment_period,
+        recorded_rating_area: rating_area,
+        recorded_service_areas: service_areas,
+        recorded_sic_code: sic_code,
+        fte_count: 5,
+        pte_count: 0,
+        msp_count: 0
+    ).tap(&:save)
+  end
+
   def benefit_application_by_employer(organization)
     @current_application ||= BenefitSponsors::BenefitApplications::BenefitApplication.find_or_initialize_by(
         benefit_sponsorship: benefit_sponsorship(organization),
