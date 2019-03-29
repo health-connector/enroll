@@ -142,3 +142,14 @@ And(/^employer (.*?) with employee (.*?) has hbx_enrollment with health product$
   coverage_household = @person_record.families.first.households.first
   build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package, :with_health_product)
 end
+
+And(/^employer (.*?) with employee (.*?) has terminated hbx_enrollment with health product$/) do |legal_name, named_person|
+  person = people[named_person]
+  create_person_and_user_from_census_employee(person)
+  person = @person_record
+  census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
+  bga =  census_employee.active_benefit_group_assignment
+  benefit_package = fetch_benefit_group(legal_name)
+  coverage_household = @person_record.families.first.households.first
+  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package, :terminated, :with_health_product)
+end
