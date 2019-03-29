@@ -210,7 +210,7 @@ end
 
 Then(/(.*) should see primary person/) do |role|
   primary = Person.all.select { |person| person.primary_family.present? }.first
-  expect(page).to have_content "COVERAGE FOR: #{primary.full_name}"
+  expect(page).to have_content "Covered: #{primary.first_name}"
 end
 
 Then(/(.*) should see the enrollment with make changes button/) do |role|
