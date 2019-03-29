@@ -56,4 +56,4 @@ Feature: Employee with future date of hire
 
     Given I reset employee to future enrollment window
     Then Employee tries to complete purchase of another plan
-    Then Employee should see "my account" page with enrollment
+    Then Employee should see the "my account" page

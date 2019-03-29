@@ -1,21 +1,3 @@
-Given(/^I set the eligibility rule to (.*)/) do |rule|
-  offsets = {
-    'first of month following or coinciding with date of hire' => 0,
-    'first of the month following date of hire' => 1,
-    'first of month following 30 days' => 30,
-    'first of month following 60 days' => 60
-  }
-  employer_profile = EmployerProfile.find_by_fein(people['Soren White'][:fein])
-  employer_profile.plan_years.each do |py|
-    py.benefit_groups.each do |bg|
-      bg.update_attributes({
-        'effective_on_kind' => 'first_of_month',
-        'effective_on_offset' => offsets[rule]
-        })
-    end
-  end
-end
-
 Given(/^(.*) eligibility rule has been set to (.*)?/) do |legal_name, rule|
   offsets = {
     'first of month following or coinciding with date of hire' => 0,
@@ -68,8 +50,7 @@ And(/Current hired on date all employments/) do
 end
 
 And(/Employee has past hired on date/) do
-  census_employee = CensusEmployee.where(:first_name => /Soren/i, :last_name => /White/i).first || CensusEmployee.first
-  census_employee.update_attributes(:hired_on => TimeKeeper.date_of_record - 1.year)
+  CensusEmployee.where(:first_name => /Patrick/i, :last_name => /Doe/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record - 1.year)
 end
 
 And(/Employee has future hired on date/) do
@@ -162,18 +143,18 @@ Then(/(.*) should see \"my account\" page with enrollment/) do |named_person|
   sep_enr = enrollments.order_by(:'created_at'.asc).detect{|e| e.enrollment_kind == "special_enrollment"} if enrollments.present?
   enrollment = all('.hbx-enrollment-panel')
   qle  = sep_enr ? true : false
-  # wait_for_condition_until(5) do
-  #   enrollment_selection_badges.count > 0
-  # end
-  # expect(enrollment_selection_badges.any? { |n| n.find_all('.enrollment-effective', text: expected_effective_on(qle: qle).strftime("%m/%d/%Y")).any? }).to be_truthy
+  wait_for_condition_until(5) do
+    enrollment_selection_badges.count > 0
+  end
+  expect(enrollment_selection_badges.any? { |n| n.find_all('.enrollment-effective', text: expected_effective_on(qle: qle).strftime("%m/%d/%Y")).any? }).to be_truthy
 
-  # expect(all('.hbx-enrollment-panel').select{|panel|
-  #   panel.has_selector?('.enrollment-effective', text: expected_effective_on(qle: qle).strftime("%m/%d/%Y"))
-  # }.present?).to be_truthy
+  expect(all('.hbx-enrollment-panel').select{|panel|
+    panel.has_selector?('.enrollment-effective', text: expected_effective_on(qle: qle).strftime("%m/%d/%Y"))
+  }.present?).to be_truthy
 
   # Timekeeper is probably UTC in this case, as we are in a test environment
   # this will cause arbitrary problems with the specs late at night.
-  #  enrollment.find('.enrollment-created-at', text: TimeKeeper.date_of_record.strftime("%m/%d/%Y"))
+   enrollment.find('.enrollment-created-at', text: TimeKeeper.date_of_record.strftime("%m/%d/%Y"))
 end
 
 

@@ -38,19 +38,19 @@ Feature: Employee with current date of hire
 
     Given Acme Inc. eligibility rule has been set to first of month following or coinciding with date of hire
     Then Employee tries to complete purchase of another plan
-    Then Patrick Doe should see "my account" page with enrollment
+    Then Employee should see the "my account" page
 
     Given Acme Inc. eligibility rule has been set to first of the month following date of hire
     Then Employee tries to complete purchase of another plan
-    Then Employee should see "my account" page with enrollment
+    Then Employee should see the "my account" page
 
     Given Acme Inc. eligibility rule has been set to first of month following 30 days
     Then Employee tries to complete purchase of another plan
-    Then Employee should see "my account" page with enrollment
+    Then Employee should see the "my account" page
 
     Given Acme Inc. eligibility rule has been set to first of month following 60 days
     Then Employee tries to complete purchase of another plan
-    Then Employee should see "my account" page with enrollment
+    Then Employee should see the "my account" page
 
     # Requires further testing if follwing still works in the same way:
     # Given Acme Inc. eligibility rule has been set to first of month following or coinciding with date of hire
