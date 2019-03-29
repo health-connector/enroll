@@ -29,7 +29,7 @@ Feature: Employee goes through plan shopping with dependents when employer offer
     Then Employee should see 1 dependents
     When Employee clicks continue on the dependents page
     Then Employee should see the group selection page
-    When Employee clicks continue button on the group selection page
+    When Employee clicks continue button on group selection page for dependents
     Then Employee should see the list of plans
     And I should not see any plan which premium is 0
     When Employee selects a plan on the plan shopping page
