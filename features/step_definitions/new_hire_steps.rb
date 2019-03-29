@@ -68,7 +68,8 @@ And(/Current hired on date all employments/) do
 end
 
 And(/Employee has past hired on date/) do
-  CensusEmployee.where(:first_name => /Soren/i, :last_name => /White/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record - 1.year)
+  census_employee = CensusEmployee.where(:first_name => /Soren/i, :last_name => /White/i).first || CensusEmployee.first
+  census_employee.update_attributes(:hired_on => TimeKeeper.date_of_record - 1.year)
 end
 
 And(/Employee has future hired on date/) do
@@ -264,6 +265,24 @@ When(/(.*) enters termination reason/) do |named_person|
     end
    find('.terminate_reason_submit').click
   end
+end
+
+When(/(.*) enters reason for termination in modal$/) do |named_person|
+  wait_for_ajax
+  select_waiver_select = page.find("#waiver_reason_selection_dropdown")
+  select_waiver_select.trigger('click')
+  # Medicaid option
+  find("option[value='I have coverage through Medicaid']").trigger('click')
+  first_select_option = find("#waiver_reason_selection_dropdown > option:nth-child(7)").text
+  select(first_select_option, :from => "waiver_reason_selection_dropdown")
+  wait_for_ajax
+  inputs = page.all('input')
+  terminate_reason_submit = inputs.detect { |input| input[:id] == "waiver_reason_submit" }
+  terminate_reason_submit.trigger('click')
+end
+
+Then(/(.*) should see a confirmation message of (.*)$/) do |named_person, message|
+  expect(page).to have_content(message)
 end
 
 Then(/(.*) should see termination confirmation/) do |named_person|

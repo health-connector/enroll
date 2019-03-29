@@ -12,38 +12,49 @@ module CensusEmployeeWorld
     @org_by_legal_name ||= @organization[legal_name]
   end
 
-  def build_enrollment(house_hold, benefit_group_assignment, employee_role, benefit_package)
-    @hbx_enrollment ||= FactoryGirl.create(:hbx_enrollment, :with_enrollment_members,
-                                           household: house_hold,
-                                           benefit_group_assignment: benefit_group_assignment,
-                                           sponsored_benefit_package_id: benefit_package.id,
-                                           rating_area_id: benefit_package.benefit_application.recorded_rating_area_id,
-                                           employee_role: employee_role,
-                                           sponsored_benefit_id: benefit_package.sponsored_benefits.first.id)
+  def build_enrollment(house_hold, benefit_group_assignment, employee_role, benefit_package, *traits)
+    @hbx_enrollment ||= FactoryGirl.create(
+      :hbx_enrollment, 
+      :with_enrollment_members,
+      *traits,
+      household: house_hold,
+      benefit_group_assignment: benefit_group_assignment,
+      sponsored_benefit_package_id: benefit_package.id,
+      rating_area_id: benefit_package.benefit_application.recorded_rating_area_id,
+      employee_role: employee_role,
+      sponsored_benefit_id: benefit_package.sponsored_benefits.first.id,
+    )
   end
 
   def create_person_and_user_from_census_employee(person)
-    employer_profile = @organization.values.first.employer_profile || EmployerProfile.find_by_fein(person[:fein])
-    ce = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
+    census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
+    employer = @organization.values.first
+    employer_profile = @organization.values.first.profiles.first
+    employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
     @person_record ||= FactoryGirl.create(
-      :person_with_employee_role,
+      :person,
       first_name: person[:first_name],
       last_name: person[:last_name],
       ssn: person[:ssn],
       dob: person[:dob_date],
-      census_employee_id: ce.id,
+      census_employee_id: census_employee.id,
       employer_profile_id: employer_profile.id,
-      hired_on: ce.hired_on
+      employer_staff_roles:[employer_staff_role],
+      hired_on: census_employee.hired_on
     )
-    ce.update_attributes(employee_role_id: @person_record.employee_roles.first.id)
-    @person_family_record ||= FactoryGirl.create(:family, :with_primary_family_member, person: @person_record)
-    @person_user_record ||= FactoryGirl.create(
-      :user,
-      person: @person_record,
-      email: person[:email],
-      password: person[:password],
-      password_confirmation: person[:password]
-    )
+    census_employee.update_attributes(employee_role_id: employer_staff_role.id)
+    #@person_family_record ||= FactoryGirl.create(:family, :with_primary_family_member, person: @person_record)
+    @person_user_record = FactoryGirl.create(:user, :person => @person_record)
+  end
+
+    def employee(employer=nil)
+    if @employee
+      @employee
+    else
+      employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer.profiles.first.id)
+      person = FactoryGirl.create(:person, employer_staff_roles:[employer_staff_role])
+      @employee = FactoryGirl.create(:user, :person => person)
+    end
   end
 
   def create_census_employee_from_person(person)
@@ -104,9 +115,30 @@ And(/^employees for (.*?) have a selected coverage$/) do |legal_name|
   person = @census_employees.first.employee_role.person
   bga =  @census_employees.first.active_benefit_group_assignment
   benefit_package = fetch_benefit_group(legal_name)
-
   coverage_household = person.primary_family.households.first
 
-  build_enrollment(coverage_household, bga, @census_employees.first.employee_role, benefit_package)
-  @census_user = FactoryGirl.create(:user, person: person)
+  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package)
+end
+
+And(/^employer (.*?) with employee (.*?) is under open enrollment$/) do |legal_name, named_person|
+  person = people[named_person]
+  create_person_and_user_from_census_employee(person)
+  person = @person_record
+  census_employee = CensusEmployee.first
+  bga =  census_employee.active_benefit_group_assignment
+  benefit_package = fetch_benefit_group(legal_name)
+  coverage_household = @person_family_record.households.first
+
+  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package)
+end
+
+And(/^employer (.*?) with employee (.*?) has hbx_enrollment with health product$/) do |legal_name, named_person|
+  person = people[named_person]
+  create_person_and_user_from_census_employee(person)
+  person = @person_record
+  census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
+  bga =  census_employee.active_benefit_group_assignment
+  benefit_package = fetch_benefit_group(legal_name)
+  coverage_household = @person_record.families.first.households.first
+  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package, :with_health_product)
 end

@@ -89,11 +89,21 @@ end
 
 # Record must already be created
 When(/census employee (.*) logs in/) do |named_person|
-  login_as @person_user_record
+  if @person_user_record.present?
+    login_as @person_user_record
+    visit "/"
+  else
+    person = people[named_person]
+    user = User.where(email: person[:email]).first
+    login_as user
+    visit "/"
+  end
 end
 
 And(/census employee (.*) visits the employee portal page$/) do |named_person|
-  visit "/families/home"
+  click_link 'Employee Portal'
+  wait_for_ajax
+  sleep(4)
 end
 
 And(/(.*) already matched and logged into employee portal/) do |named_person|
@@ -178,8 +188,7 @@ end
 
 And(/Employer for (.*) is under open enrollment/) do |named_person|
   person = people[named_person]
-  employer_profile = EmployerProfile.find_by_fein(person[:fein])
-
+  employer_profile = EmployerProfile.find_by_fein(person[:fein]) || @organization.values.first.employer_profile
   employer_profile.renewing_plan_year.update_attributes(:aasm_state => 'renewing_enrolling', open_enrollment_start_on: TimeKeeper.date_of_record.beginning_of_month)
 end
 

@@ -48,16 +48,19 @@ Feature: Passive renewal should be updated when EE updates his current coverage
     Then Patrick Doe should see active enrollment with their spouse
 
   Scenario: Passively Renewed Employee terminates his coverage
-    Given Renewing Employer for Soren White exists with active and renewing plan year
-      And Employee has past hired on date
-      And Employer for Soren White is under open enrollment
-      And Soren White already matched and logged into employee portal
-      And Soren White has active coverage and passive renewal
-      Then Soren White should see active and renewing enrollments
-      When Soren White selects make changes on active enrollment
-      Then Soren White should see page with SelectPlanToTerminate button
-      When Soren White clicks SelectPlanToTerminate button
-      Then Soren White selects active enrollment for termination
-      When Soren White enters termination reason
-      Then Soren White should see termination confirmation
-      Then Soren White should see a waiver instead of passive renewal
+    And Employee has past hired on date
+    And employer Acme Inc. with employee Patrick Doe has hbx_enrollment with health product
+    When census employee Patrick Doe logs in
+    And census employee Patrick Doe visits the employee portal page
+
+    When Patrick Doe selects make changes on active enrollment
+
+    Then Patrick Doe should see page with SelectPlanToTerminate button
+    When Patrick Doe clicks SelectPlanToTerminate button
+
+    When Patrick Doe enters reason for termination in modal
+    Then Patrick Doe should see a confirmation message of Waive Coverage Successful
+    # Then Patrick Doe selects active enrollment for termination
+    # When Patrick Doe enters termination reason
+    # Then Patrick Doe should see termination confirmation
+    # Then Patrick Doe should see a waiver instead of passive renewal
