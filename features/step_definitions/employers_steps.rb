@@ -713,6 +713,7 @@ end
 And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
   date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day  : TimeKeeper.date_of_record - 3.months
   find('input.text-center.date-picker').set date
+  find('#home').click
   find("a", :text => "Terminate Employee").click
 end
 
