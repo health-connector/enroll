@@ -11,7 +11,7 @@ Then(/^the Add SEP option should be enabled$/) do
 end
 
 Then(/^the Add SEP option should be disabled$/) do
-  find_link('Add SEP').should be_disabled
+  find_link('Add SEP')[:disabled] == 'true'
 end
 
 Then(/^the Cancel Enrollment option should be enabled$/) do
@@ -23,11 +23,11 @@ Then(/^the Terminate Enrollment option should be enabled$/) do
 end
 
 Then(/^the Cancel Enrollment option should be disabled$/) do
-  find_link('Cancel Enrollment')['disabled'].should == 'disabled'
+  find_link('Cancel Enrollmen')[:disabled] == 'true'
 end
 
 Then(/^the Terminate Enrollment option should be disabled$/) do
-  find_link('Terminate Enrollment')['disabled'].should == 'disabled'
+  find_link('Terminate Enrollment')[:disabled] == 'true'
 end
 
 #Note this step will be used in the future when APTC is completed
