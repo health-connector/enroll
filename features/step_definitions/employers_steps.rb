@@ -27,7 +27,6 @@ end
 
 Then(/^.+ uploads an attestation document/) do
   if (Settings.aca.enforce_employer_attestation.to_s == "true")
-    find('.interaction-click-control-cancel').click
     find('.interaction-click-control-documents').click
     wait_for_ajax
     find('.interaction-click-control-upload').click

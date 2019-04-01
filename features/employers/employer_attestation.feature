@@ -18,6 +18,7 @@ Feature: Employer Profile
 
   Scenario: Initial employer tries to submit application after submitting the attestation
     When Employer clicks on publish plan year
+    When Employer Staff clicks cancel button in Attestation warning dialog
     Then Employer uploads an attestation document
     And Employer should still see attestation upload button enabled
     When ABC Widgets goes to the benefits tab I should see plan year information
