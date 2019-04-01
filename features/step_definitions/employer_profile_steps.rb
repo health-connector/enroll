@@ -186,7 +186,9 @@ end
 
 Then /(\w+) cannot remove EmployerStaffRole from John/ do |legal_name|
   staff = Person.where(first_name: legal_name).first
-  find(:xpath, '//*[@id="edit_agency"]/div/div/div[1]/table/tbody/tr/td[6]/a').click
+  accept_alert do
+    find(:xpath, '//*[@id="edit_agency"]/div/div/div[1]/table/tbody/tr/td[6]/a').click
+  end
 end
 
 When /(\w+) removes EmployerStaffRole from Sarah/ do |staff2|

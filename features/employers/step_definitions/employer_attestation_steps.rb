@@ -84,7 +84,9 @@ Then (/^Admin should see preview and attestation form$/) do
 end
 
 When (/^Admin clicks submit in employer attestation form$/) do
-  first('#attestation_documents_table .btn-primary',:text=>/SUBMIT/i).click
+  accept_alert do
+    first('#attestation_documents_table .btn-primary',:text=>/SUBMIT/i).click
+  end
 end
 
 Then (/^Admin should see attestation updated message$/) do
@@ -210,8 +212,10 @@ And(/^.+ should be able to enter plan year, benefits, relationship benefits for 
 end
 
 Then(/^Employer clicks delete in actions$/) do
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]').click
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]/div/ul/li[2]/a').click
+  accept_alert do
+    find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]').click
+    find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]/div/ul/li[2]/a').click
+  end
 end
 
 Then(/^Employer should see disabled delete button in actions$/) do

@@ -6,11 +6,15 @@ When(/^the user clicks Change FEIN link in the Actions dropdown for ABC Widgets 
 end
 
 And(/^the user enters FEIN with less than nine digits$/) do
-  find('#organizations_general_organization_new_fein').set("89-42312")
+  accept_alert do
+    find('#organizations_general_organization_new_fein').set("89-42312")
+  end
 end
 
 And(/^the user clicks submit button$/) do
-  page.find_button('Submit').click
+  accept_alert do
+    page.find_button('Submit').click
+  end
 end
 
 Then(/^an warning message will be presented as FEIN must be at least nine digits$/) do

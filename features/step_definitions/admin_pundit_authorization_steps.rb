@@ -11,7 +11,7 @@ Then(/^the Add SEP option should be enabled$/) do
 end
 
 Then(/^the Add SEP option should be disabled$/) do
-  find_link('Add SEP')['disabled'].should == 'disabled'
+  find_link('Add SEP').should be_disabled
 end
 
 Then(/^the Cancel Enrollment option should be enabled$/) do
@@ -37,5 +37,5 @@ end
 
 #Note this step will be used in the future when APTC is completed
 Then(/^the Edit APTC\/CSR option should be disabled$/) do
-  find_link('Edit APTC / CSR')['disabled'].should == 'disabled'
+  find_link('Edit APTC / CSR').should be_disabled
 end
