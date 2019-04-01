@@ -21,7 +21,7 @@ Feature: Employer can view their employees
     Then employer should see the terminated success flash notice
     When employer clicks on button terminated for datatable
     And employer clicks on terminated employee
-    Then employer should see census employee's details
+    Then employer should see terminated census employee's details
     When employer clicks on back button
     And employer should see employee roaster
     Then employer clicks logout

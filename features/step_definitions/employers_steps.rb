@@ -856,9 +856,13 @@ When(/^employer selects one of their employees on Employee Roster$/) do
   click_link census_employee.full_name
 end
 
-Then(/^employer should see census employee's details$/) do
+Then(/^employer should see (terminated )?census employee's details$/) do |terminated|
   sleep(3)
-  expect(page).to have_content "Eligible"
+  if terminated
+    expect(page).to have_content "Terminated"
+  else
+    expect(page).to have_content "Eligible"
+  end
 end
 
 Then(/^employer clicks logout$/) do
