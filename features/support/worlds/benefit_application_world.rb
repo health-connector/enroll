@@ -4,6 +4,10 @@ module BenefitApplicationWorld
     @aasm_state ||= key
   end
 
+  def renewal_state(key = nil)
+    @renewal_state ||= key
+  end
+
   def health_state(key=false)
     @health_state ||= key
   end
@@ -14,6 +18,10 @@ module BenefitApplicationWorld
 
   def package_kind
     @package_kind ||= :single_issuer
+  end
+
+  def dental_package_kind
+    @dental_package_kind ||= :single_product
   end
 
   def dental_sponsored_benefit(default=false)
@@ -79,6 +87,22 @@ module BenefitApplicationWorld
       product_package: find_product_package(:health, :single_issuer),
       dental_product_package: find_product_package(:dental, :single_issuer)
     )
+  end
+
+  def renewal_application
+    @renewal_application ||= FactoryGirl.build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+                                               :with_benefit_package, :with_predecessor_application,
+                                               predecessor_application_state: aasm_state,
+                                               benefit_sponsorship: benefit_sponsorship,
+                                               effective_period: effective_period,
+                                               aasm_state: renewal_state,
+                                               open_enrollment_period: open_enrollment_period,
+                                               recorded_rating_area: rating_area,
+                                               recorded_service_areas: service_areas,
+                                               package_kind: package_kind,
+                                               dental_package_kind: dental_package_kind,
+                                               dental_sponsored_benefit: dental_sponsored_benefit,
+                                               predecessor_application_catalog: true)
   end
 
   def assign_sponsored_benefits
@@ -168,6 +192,39 @@ And(/^this employer has a benefit application$/) do
   initial_application.benefit_packages = [new_benefit_package]
   benefit_sponsorship.save!
   benefit_sponsor_catalog.save!
+end
+
+And(/^this employer had a (.*?)(?: and (.*?) (.*?))? application$/) do |active_app, renewal_app, renewal_state|
+
+  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
+  if renewal_app
+    aasm_state(:active)
+    renewal_state(renewal_state)
+    renewal_application
+  elsif active_app
+    # Fix for active application
+  end
+end
+
+And(/^this employer offering (.*?) contribution to (.*?)$/) do |percent, display_name|
+  benefit_sponsorship.benefit_applications.each do |application|
+    application.benefit_packages.each do |benefit_package|
+      benefit_package.sponsored_benefits.each do |sponsored_benefit|
+        next unless sponsored_benefit.sponsor_contribution.present?
+        sponsored_benefit.sponsor_contribution.contribution_levels.each do |contribution_level|
+          next unless contribution_level.display_name == display_name
+          contribution_level.update_attributes(contribution_factor: percent)
+        end
+      end
+    end
+  end
+end
+
+And(/this employer (.*) has (.*) rule/) do |legal_name, rule|
+  employer_profile = employer_profile(legal_name)
+  employer_profile.active_benefit_sponsorship.benefit_applications.each do |benefit_application|
+    benefit_application.benefit_packages.each{|benefit_package| benefit_package.update_attributes(probation_period_kind: rule.to_sym) }
+  end
 end
 
 And(/^this employer has enrollment_open benefit application with offering health and dental$/) do

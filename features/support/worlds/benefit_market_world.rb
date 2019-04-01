@@ -15,8 +15,12 @@ module BenefitMarketWorld
     @renewal_effective_date = current_effective_date.next_year
   end
 
+  def prior_effective_date
+    @prior_rating_area = current_effective_date - 1.year
+  end
+
   def prior_rating_area
-    @prior_rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year - 1)
+    @prior_rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: prior_effective_date)
   end
 
   def current_rating_area
@@ -51,6 +55,10 @@ module BenefitMarketWorld
     @renewal_service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year + 1)
   end
 
+  def prior_service_area
+    @prior_service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year - 1)
+  end
+
   def health_products
     @health_products ||= FactoryGirl.create_list(:benefit_markets_products_health_products_health_product,
       5,
@@ -61,7 +69,7 @@ module BenefitMarketWorld
       renewal_service_area: renewal_service_area,
       metal_level_kind: :gold,
       issuer_profile_id: issuer_profile.id,
-      premium_ages: 20..20 #Get Trey to remove hack
+      premium_ages: 0..65 #Get Trey to remove hack
     )
   end
 
@@ -75,7 +83,7 @@ module BenefitMarketWorld
       renewal_service_area: renewal_service_area,
       metal_level_kind: :dental,
       issuer_profile_id: issuer_profile.id,
-      premium_ages: 20..20 #Get Trey to remove hack
+      premium_ages: 0..65 #Get Trey to remove hack
     )
   end
 
@@ -100,8 +108,7 @@ module BenefitMarketWorld
   end
 
   def current_benefit_market_catalog
-    @current_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog,
-      :with_product_packages,
+    @current_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
       benefit_market: benefit_market,
       product_kinds: product_kinds,
       title: "SHOP Benefits for #{current_effective_date.year}",
@@ -109,9 +116,16 @@ module BenefitMarketWorld
     )
   end
 
+  def prior_benefit_market_catalog
+    @prior_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+                                                         benefit_market: benefit_market,
+                                                         product_kinds: product_kinds,
+                                                         title: "SHOP Benefits for #{prior_effective_date.year}",
+                                                         application_period: (prior_effective_date.beginning_of_year..prior_effective_date.end_of_year))
+  end
+
   def renewal_benefit_market_catalog
-    @renewal_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog,
-      :with_product_packages,
+    @renewal_benefit_market_catalog ||= FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
       benefit_market: benefit_market,
       product_kinds: product_kinds,
       title: "SHOP Benefits for #{renewal_effective_date.year}",
@@ -119,7 +133,7 @@ module BenefitMarketWorld
     )
   end
 
-  def map_products
+  def map_current_products
     current_benefit_market_catalog.product_packages.each do |product_package|
       if renewal_product_package = renewal_benefit_market_catalog.product_packages.detect{ |p|
         p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind }
@@ -128,6 +142,33 @@ module BenefitMarketWorld
           current_product = product_package.products[i]
           current_product.update(renewal_product_id: renewal_product.id)
         end
+      end
+    end
+  end
+
+  def map_prior_products
+    FactoryGirl.create_list(:benefit_markets_products_health_products_health_product,
+                            5,
+                            application_period: (prior_effective_date.beginning_of_year..prior_effective_date.end_of_year),
+                            product_package_kinds: [:single_issuer, :metal_level, :single_product],
+                            service_area: prior_service_area,
+                            metal_level_kind: :gold,
+                            issuer_profile_id: issuer_profile.id,
+                            premium_ages: 0..65)
+
+    # TODO
+    # build dental products for prior year.
+
+    prior_benefit_market_catalog.product_packages.each do |product_package|
+      current_product_package = current_benefit_market_catalog.product_packages.detect do |p|
+        p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind
+      end
+      next unless current_product_package
+      current_product_package.products.each_with_index do |current_product, i|
+        prior_product = product_package.products[i]
+        BenefitMarkets::Products::Product.where(id: prior_product).first.update_attributes(renewal_product_id: current_product.id)
+        prior_product.renewal_product_id = current_product.id
+        prior_product.save!
       end
     end
   end

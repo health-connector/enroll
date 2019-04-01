@@ -36,12 +36,6 @@ And(/Employee has current hired on date/) do
                        :last_name => /Doe/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record)
 end
 
-And(/employee (.*?) has current hired on date$/) do |named_person|
-  person = people[named_person]
-  CensusEmployee.where(:first_name => person[:first_name], :last_name => person[:last_name]).first.update_attributes(:hired_on => TimeKeeper.date_of_record)
-end
-
-
 And(/Current hired on date all employments/) do
   CensusEmployee.where(:first_name => /Soren/i, :last_name => /White/i).each do |census_employee|
     census_employee.update_attributes(:hired_on => TimeKeeper.date_of_record)
@@ -89,19 +83,7 @@ When(/^Employee clicks continue button on group selection page for dependents$/)
 end
 
 When(/(.*) clicks continue on the group selection page/) do |named_person|
-  # employer_profile = EmployerProfile.all.first
-  # plan_year = EmployerProfile.all.first.plan_years.first.start_on.year
-  # carrier_profile = EmployerProfile.all.first.plan_years.first.benefit_groups.first.reference_plan.carrier_profile
-  # sic_factors = SicCodeRatingFactorSet.new(active_year: plan_year, default_factor_value: 1.0, carrier_profile: carrier_profile).tap do |factor_set|
-  #   factor_set.rating_factor_entries.new(factor_key: employer_profile.sic_code, factor_value: 1.0)
-  # end
-  # sic_factors.save!
-  # group_size_factors = EmployerGroupSizeRatingFactorSet.new(active_year: plan_year, default_factor_value: 1.0, max_integer_factor_key: 5, carrier_profile: carrier_profile).tap do |factor_set|
-  #   [0..5].each do |size|
-  #     factor_set.rating_factor_entries.new(factor_key: size, factor_value: 1.0)
-  #   end
-  # end
-  # group_size_factors.save!
+  reset_product_cache
   wait_for_ajax(2,2)
   if find_all('.interaction-click-control-continue', wait: 10).any?
     find('.interaction-click-control-continue').click
@@ -158,7 +140,7 @@ end
 
 
 Then(/(.*) should see \"my account\" page with active enrollment/) do |named_person|
-  sleep 1 #wait for e-mail nonsense
+  sleep 3 #wait for e-mail nonsense
   enrollments = Person.where(first_name: people[named_person][:first_name]).first.try(:primary_family).try(:active_household).try(:hbx_enrollments) if people[named_person].present?
   sep_enr = enrollments.order_by(:'created_at'.desc).first.enrollment_kind == "special_enrollment" if enrollments.present?
 
@@ -168,11 +150,11 @@ Then(/(.*) should see \"my account\" page with active enrollment/) do |named_per
 end
 
 Then (/(.*) should see passive renewal/) do |named_person|
-  renewal_start = EmployerProfile.find_by_fein(people[named_person][:fein]).renewing_plan_year.start_on.strftime("%m/%d/%Y")
-  renewal = page.all('.hbx-enrollment-panel').detect{|e| e.find('.enrollment-effective').text.match(renewal_start)}
+  renewal_start = benefit_sponsorship.renewal_benefit_application.start_on
+  renewal = page.all('.hbx-enrollment-panel').detect{|e| e.find('.enrollment-effective').text.match(renewal_start.to_s)}
 
   expect(renewal.present?).to be_truthy
-  expect(renewal.find('.panel-heading .text-right').text).to eq "Coverage Selected"
+  expect(renewal.find('.panel-heading .text-right').text).to eq "Auto Renewing"
 end
 
 Then(/(.*) click on make changes button on passive renewal/) do |named_person|

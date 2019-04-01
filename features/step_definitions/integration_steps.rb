@@ -672,10 +672,8 @@ When(/^.+ accepts? the matched employer$/) do
 end
 
 Then(/^Employee (.+) should see coverage effective date/) do |named_person|
-  employer_profile = EmployerProfile.find_by_fein(people[named_person][:fein])
   census_employee = CensusEmployee.where(:first_name => /#{people[named_person][:first_name]}/i, :last_name => /#{people[named_person][:last_name]}/i).first
-
-  find('p', text: employer_profile.legal_name)
+  find('p', text: census_employee.benefit_sponsorship.legal_name)
   find('.coverage_effective_date', text: census_employee.earliest_eligible_date.strftime("%m/%d/%Y"))
 end
 

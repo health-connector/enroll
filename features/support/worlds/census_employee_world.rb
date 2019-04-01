@@ -86,6 +86,54 @@ And(/^there (are|is) (\d+) (employee|employees) for (.*?)$/) do |_, roster_count
   census_employees roster_count.to_i, benefit_sponsorship: sponsorship, employer_profile: sponsorship.profile
 end
 
+Given(/^there exists (.*?) employee for employer (.*?)$/) do |named_person, legal_name|
+  person = people[named_person]
+  sponsorship = org_by_legal_name(legal_name).benefit_sponsorships.first
+  census_employees 1,
+                   benefit_sponsorship: sponsorship, employer_profile: sponsorship.profile,
+                   first_name: person[:first_name],
+                   last_name: person[:last_name],
+                   ssn: person[:ssn],
+                   dob: person[:dob],
+                   email: FactoryGirl.build(:email, address: person[:email])
+
+end
+
+And(/employee (.*?) has current hired on date/) do |named_person|
+  person = people[named_person]
+  CensusEmployee.where(:first_name => /#{person[:first_name]}/i,
+                       :last_name => /#{person[:last_name]}/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record)
+end
+
+And(/employee (.*) already matched with employer (.*?) and logged into employee portal/) do |named_person, legal_name|
+  person = people[named_person]
+  sponsorship = org_by_legal_name(legal_name).benefit_sponsorships.first
+  profile = sponsorship.profile
+  ce = sponsorship.census_employees.where(:first_name => /#{person[:first_name]}/i,
+                                          :last_name => /#{person[:last_name]}/i).first
+  person_record = FactoryGirl.create(:person_with_employee_role,
+                                     first_name: person[:first_name],
+                                     last_name: person[:last_name],
+                                     ssn: person[:ssn],
+                                     dob: person[:dob],
+                                     census_employee_id: ce.id,
+                                     benefit_sponsors_employer_profile_id: profile.id,
+                                     hired_on: ce.hired_on)
+
+  ce.update_attributes(employee_role_id: person_record.employee_roles.first.id)
+  sponsorship.benefit_applications.each do |benefit_application|
+    benefit_application.benefit_packages.each{|benefit_package| ce.add_benefit_group_assignment(benefit_package) }
+  end
+  FactoryGirl.create :family, :with_primary_family_member, person: person_record
+  user = FactoryGirl.create(:user,
+                            person: person_record,
+                            email: person[:email],
+                            password: person[:password],
+                            password_confirmation: person[:password])
+  login_as user
+  visit "/families/home"
+end
+
 And(/^Employees for (.*?) have both Benefit Group Assignments Employee role$/) do |legal_name|
   #make it more generic by name
 
