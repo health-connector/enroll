@@ -200,7 +200,9 @@ end
 
 Then /(\w+) removes EmployerStaffRole from John/ do |name|
   staff = Person.where(first_name: name).first
-  find_all('.fa-trash-alt')[0].click
+  accept_alert do
+    find_all('.fa-trash-alt')[0].click
+  end
 end
 
 When /(\w+) approves EmployerStaffRole for (\w+)/ do |staff1, staff2|
