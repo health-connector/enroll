@@ -104,10 +104,11 @@ Given(/^there exists (.*?) employee for employer (.*?)$/) do |named_person, lega
 
 end
 
-And(/employee (.*?) has current hired on date/) do |named_person|
+And(/employee (.*?) has (.*?) hired on date/) do |named_person, ee_hire_date|
+  date = ee_hire_date == "current" ? TimeKeeper.date_of_record : TimeKeeper.date_of_record - 1.year
   person = people[named_person]
   CensusEmployee.where(:first_name => /#{person[:first_name]}/i,
-                       :last_name => /#{person[:last_name]}/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record)
+                       :last_name => /#{person[:last_name]}/i).first.update_attributes(:hired_on => date, :created_at => date)
 end
 
 And(/employee (.*) already matched with employer (.*?) and logged into employee portal/) do |named_person, legal_name|
@@ -137,6 +138,30 @@ And(/employee (.*) already matched with employer (.*?) and logged into employee 
                             password_confirmation: person[:password])
   login_as user
   visit "/families/home"
+end
+
+And(/(.*) has active coverage and passive renewal/) do |named_person|
+  person = people[named_person]
+  ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
+  person_rec = Person.where(first_name: /#{person[:first_name]}/i, last_name: /#{person[:last_name]}/i).first
+  benefit_package = ce.active_benefit_group_assignment.benefit_package
+  active_enrollment = FactoryGirl.create(:hbx_enrollment,
+                                         household: person_rec.primary_family.active_household,
+                                         coverage_kind: "health",
+                                         effective_on: benefit_package.start_on,
+                                         enrollment_kind: "open_enrollment",
+                                         kind: "employer_sponsored",
+                                         submitted_at: benefit_package.start_on - 20.days,
+                                         employee_role_id: person_rec.active_employee_roles.first.id,
+                                         benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                                         benefit_sponsorship_id: ce.benefit_sponsorship.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         rating_area_id: benefit_package.rating_area.id,
+                                         product_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.id,
+                                         issuer_profile_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.issuer_profile.id)
+  new_benefit_package = benefit_sponsorship.renewal_benefit_application.benefit_packages.first
+  active_enrollment.renew_benefit(new_benefit_package)
 end
 
 And(/^Employees for (.*?) have both Benefit Group Assignments Employee role$/) do |legal_name|

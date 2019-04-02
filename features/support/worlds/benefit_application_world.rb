@@ -206,6 +206,13 @@ And(/^this employer had a (.*?)(?: and (.*?) (.*?))? application$/) do |active_a
   end
 end
 
+And(/this employer (.*) application is under open enrollment/) do |application|
+  if application == "renewal" && benefit_sponsorship.renewal_benefit_application.present?
+    application = benefit_sponsorship.renewal_benefit_application
+    application.update_attributes(open_enrollment_period: (TimeKeeper.date_of_record..application.end_on), aasm_state: :enrollment_open)
+  end
+end
+
 And(/^this employer offering (.*?) contribution to (.*?)$/) do |percent, display_name|
   benefit_sponsorship.benefit_applications.each do |application|
     application.benefit_packages.each do |benefit_package|
