@@ -61,13 +61,27 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Then Employee should see "employer-sponsored benefits not found" error message
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through New Hire badge
-    Given Conversion Employer for Soren White exists with active and renewing plan year
-      And Employer for Soren White published renewing plan year
-      And Employee has current hired on date
-      And Soren White already matched and logged into employee portal
-      When Employee clicks on New Hire Badge
-      When Employee clicks continue on the group selection page
-      Then Soren White should see "open enrollment not yet started" error message
+    Given a CCA site exists with a benefit market
+    And benefit market has prior benefit market catalog
+    And there is an employer ABC Widgets
+    And this employer had a active and renewing draft application
+
+    Given there exists Patrick Doe employee for employer ABC Widgets
+    And employee Patrick Doe has current hired on date
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    When Employee clicks on New Hire Badge
+    When Employee clicks continue on the group selection page
+
+    # Currently they can select plans
+    # They shouldn't be able to do these steps
+    And Employee selects the first plan available
+    And Employee clicks Confirm
+    When Employee clicks continue on the group selection page
+
+
+
+    # This should be the intended result
+    Then Patrick Doe should see "open enrollment not yet started" error message
 
   Scenario: New Hire can't buy coverage under off-exchange plan year using QLE
     Given Conversion Employer for Soren White exists with active and renewing plan year
