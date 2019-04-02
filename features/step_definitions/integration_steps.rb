@@ -714,7 +714,6 @@ And(/^.+ sees the (.*) page and clicks Continue$/) do |which_page|
   expect(page).to have_content(which_page)
   find("#btn-continue").click
   wait_for_ajax
-  binding.pry
 end
 
 And(/^.+ clicks Confirm$/) do
