@@ -42,7 +42,7 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
-    And census employees new_hire_enrollment_period is greater than date of record
+    And census employee Patrick Doe new_hire_enrollment_period is greater than date of record
 
     When Employee clicks "Shop for Plans" on my account page
     Then Employee should see the group selection page
@@ -60,7 +60,7 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
-    And census employees new_hire_enrollment_period is greater than date of record
+    And census employee Patrick Doe new_hire_enrollment_period is greater than date of record
 
 
     When Employee clicks on New Hire Badge
