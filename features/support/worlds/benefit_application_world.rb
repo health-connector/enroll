@@ -90,7 +90,7 @@ module BenefitApplicationWorld
   end
 
   def renewal_application
-    @renewal_application ||= FactoryGirl.build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+    @renewal_application ||= FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                :with_benefit_package, :with_predecessor_application,
                                                predecessor_application_state: aasm_state,
                                                benefit_sponsorship: benefit_sponsorship,

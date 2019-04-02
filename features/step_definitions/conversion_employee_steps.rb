@@ -232,10 +232,7 @@ Then(/(.*) should see the 2st ER name/) do |named_person|
 end
 
 Then(/(.*) should see \"open enrollment not yet started\" error message/) do |named_person|
-  person = people[named_person]
-  employer_profile = EmployerProfile.find_by_fein(person[:fein])
-  find('.alert', text: "Open enrollment for your employer-sponsored benefits not yet started. Please return on #{employer_profile.renewing_plan_year.open_enrollment_start_on.strftime("%m/%d/%Y")} to enroll for coverage.")
-  visit '/families/home'
+  expect(page).to have_content("You're not yet eligible under your employer-sponsored benefits.")
 end
 
 Then(/(.*) should get plan year start date as coverage effective date/) do |named_person|
