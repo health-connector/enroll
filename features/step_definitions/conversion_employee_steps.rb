@@ -93,11 +93,15 @@ When(/census employee (.*) logs in/) do |named_person|
     login_as @person_user_record
     visit "/"
   else
+    binding.pry
     person = people[named_person]
     user = User.where(email: person[:email]).first
     login_as user
     visit "/"
   end
+  wait_for_ajax
+  sleep(2)
+  expect(page).to have_link("Logout")
 end
 
 And(/census employee (.*) visits the employee portal page$/) do |named_person|

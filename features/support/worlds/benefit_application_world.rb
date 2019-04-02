@@ -323,25 +323,6 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
   update_benefit_sponsorship
 end
 
-And(/^employer (.*?) has a (.*?) benefit application with offering health and dental$/) do |legal_name, state|
-  health_products
-  aasm_state(state.to_sym)
-  organization = @organization[legal_name]
-  # Mirrors the original step minus the census employee declaration
-  current_application = benefit_application_by_employer(organization)
-  current_package = new_benefit_package_by_application(current_application)
-  current_sponsorship = benefit_sponsorship(organization)
-
-  current_application.benefit_packages << current_package
-  current_application.save!
-  current_sponsorship.benefit_applications << current_application
-  current_sponsorship.save!
-  current_catalog = benefit_sponsor_catalog(organization)
-  current_catalog.save!
-  expect(current_application.benefit_packages.present?).to eq(true)
-  expect(current_sponsorship.benefit_applications.present?).to eq(true)
-end
-
 And(/^employer (.*?) has a census employee (.*?)$/) do |legal_name, named_person|
   person = people[named_person]
   create_census_employee_from_person(person)
