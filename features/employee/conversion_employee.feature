@@ -6,7 +6,7 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
     And there is an employer ACME Widgets, Inc.
-    # Benefit application model seems to suggest that enrollment_open is considered renewing?
+
     And this employer has enrollment_open benefit application with offering health and dental
     And ACME Widgets, Inc. employer has a staff role
     Given staff role person logged in
