@@ -19,7 +19,6 @@ Feature:  Employee passive renewal should be canceled when Employee waived cover
       And I should not see any plan which premium is 0
       When Employee selects waiver on the plan shopping page
       When Employee submits waiver reason
-      Then Employee should see waiver summary page
+      Then Employee should see waiver summary page 
       When Employee clicks continue on waiver summary page
-      #Working on this step W.I.P
-      #Then Employee should see "my account" page with waiver and passive renewal should be canceled
+      Then Employee should able to see Waiver tile

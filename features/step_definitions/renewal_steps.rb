@@ -85,6 +85,13 @@ When(/^.+ clicks continue on waiver summary page/) do
   page.find('.interaction-click-control-continue').click
 end
 
+Then("Employee should able to see Waiver tile") do
+  expect(page).to have_content 'Waived'
+  expect(page).to have_content 'Waived Date'
+  expect(page).to have_content 'Reason Waived'
+end
+
+
 Then(/(.+) should see \"my account\" page with waiver and passive renewal should be canceled/) do |named_person|
   sleep 1
 
