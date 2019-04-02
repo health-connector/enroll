@@ -95,7 +95,7 @@ FactoryGirl.define do
     end
 
     trait :special_enrollment do
-      enrollment_kind special_enrollment
+      enrollment_kind "special_enrollment"
     end
 
     trait :terminated do

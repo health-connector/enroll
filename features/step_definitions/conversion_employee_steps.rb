@@ -93,11 +93,15 @@ When(/census employee (.*) logs in/) do |named_person|
     login_as @person_user_record
     visit "/"
   else
+    binding.pry
     person = people[named_person]
     user = User.where(email: person[:email]).first
     login_as user
     visit "/"
   end
+  wait_for_ajax
+  sleep(2)
+  expect(page).to have_link("Logout")
 end
 
 And(/census employee (.*) visits the employee portal page$/) do |named_person|
@@ -186,12 +190,6 @@ And(/Employer for (.*) published renewing plan year/) do |named_person|
   employer_profile.renewing_plan_year.update_attributes(:aasm_state => 'renewing_published')
 end
 
-And(/Employer for (.*) is under open enrollment/) do |named_person|
-  person = people[named_person]
-  employer_profile = EmployerProfile.find_by_fein(person[:fein]) || @organization.values.first.employer_profile
-  employer_profile.renewing_plan_year.update_attributes(:aasm_state => 'renewing_enrolling', open_enrollment_start_on: TimeKeeper.date_of_record.beginning_of_month)
-end
-
 And(/Other Employer for (.*) is also under open enrollment/) do |named_person|
   person = people[named_person]
   employer_profile = EmployerProfile.find_by_fein(person[:mfein])
@@ -242,8 +240,8 @@ end
 
 Then(/(.*) should get plan year start date as coverage effective date/) do |named_person|
   person = people[named_person]
-  employer_profile = EmployerProfile.find_by_fein(person[:fein])
-  find('.coverage_effective_date', text: employer_profile.renewing_plan_year.start_on.strftime("%m/%d/%Y"))
+  renewal_start = benefit_sponsorship.renewal_benefit_application.start_on
+  find('.coverage_effective_date', text: renewal_start.strftime("%m/%d/%Y"))
 end
 
 Then(/(.*) should get qle effective date as coverage effective date/) do |named_person|
@@ -252,7 +250,7 @@ Then(/(.*) should get qle effective date as coverage effective date/) do |named_
   find('.coverage_effective_date', text: effective_on.strftime("%m/%d/%Y"))
 end
 
-When(/(.+) should see coverage summary page with renewing plan year start date as effective date/) do |named_person|
+When(/(.+) should see coverage summary page with renewing benefit application start date as effective date/) do |named_person|
   step "#{named_person} should get plan year start date as coverage effective date"
   find('.interaction-click-control-confirm').click
 end

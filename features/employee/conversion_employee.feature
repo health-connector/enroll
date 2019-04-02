@@ -33,23 +33,31 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Then Employee Patrick Doe should see their plan start date on the page
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through Shop for Plans
+
     Given a CCA site exists with a benefit market
-    And there is an employer Acme Inc.
+    And benefit market has prior benefit market catalog
+    And there is an employer ABC Widgets
+    And this employer had a active and renewing draft application
 
-    # Is enrollment_closed benefit application same as a renewing plan year?
-    And employer has Acme Inc. has a enrollment_closed benefit application with offering health and dental
-    And Acme Inc. employer has a staff role
-
-    And employer Acme Inc. has a census employee Patrick Doe
+    Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
-
-    And employer Acme Inc. with employee Patrick Doe has terminated hbx_enrollment with health product
-
-    When census employee Patrick Doe logs in
-    And census employee Patrick Doe visits the employee portal page
-
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
     When Employee clicks "Shop for Plans" on my account page
+    Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
+
+    # At this point renewal applicaiton open enrollmetn period is Wed, 01 May 2019..Wed, 22 May 2019
+    # but today's date April 2nd. So they shouldn't be able to buy coverage?
+    # Plan selection page
+    # Shouldn't see the plans here?
+    Then Employee should see the list of plans
+
+    # Shouldn't be able to select plan?
+    And Employee selects the first plan available
+    And Employee clicks Confirm
+    When Employee clicks continue on the group selection page
+
+    # This is the intended result
     Then Employee should see "employer-sponsored benefits not found" error message
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through New Hire badge

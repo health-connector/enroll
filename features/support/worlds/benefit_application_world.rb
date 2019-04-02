@@ -206,6 +206,13 @@ And(/^this employer had a (.*?)(?: and (.*?) (.*?))? application$/) do |active_a
   end
 end
 
+And(/this employer (.*) application is under open enrollment/) do |application|
+  if application == "renewal" && benefit_sponsorship.renewal_benefit_application.present?
+    application = benefit_sponsorship.renewal_benefit_application
+    application.update_attributes(open_enrollment_period: (TimeKeeper.date_of_record..application.end_on), aasm_state: :enrollment_open)
+  end
+end
+
 And(/^this employer offering (.*?) contribution to (.*?)$/) do |percent, display_name|
   benefit_sponsorship.benefit_applications.each do |application|
     application.benefit_packages.each do |benefit_package|
@@ -321,25 +328,6 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
     dental_state(true)
   end
   update_benefit_sponsorship
-end
-
-And(/^employer (.*?) has a (.*?) benefit application with offering health and dental$/) do |legal_name, state|
-  health_products
-  aasm_state(state.to_sym)
-  organization = @organization[legal_name]
-  # Mirrors the original step minus the census employee declaration
-  current_application = benefit_application_by_employer(organization)
-  current_package = new_benefit_package_by_application(current_application)
-  current_sponsorship = benefit_sponsorship(organization)
-
-  current_application.benefit_packages << current_package
-  current_application.save!
-  current_sponsorship.benefit_applications << current_application
-  current_sponsorship.save!
-  current_catalog = benefit_sponsor_catalog(organization)
-  current_catalog.save!
-  expect(current_application.benefit_packages.present?).to eq(true)
-  expect(current_sponsorship.benefit_applications.present?).to eq(true)
 end
 
 And(/^employer (.*?) has a census employee (.*?)$/) do |legal_name, named_person|

@@ -1,3 +1,4 @@
+
 module BenefitMarketWorld
   def benefit_market
     @benefit_market ||= site.benefit_markets.first
@@ -175,6 +176,16 @@ module BenefitMarketWorld
 end
 
 World(BenefitMarketWorld)
+
+Given(/^current and renewal benefit market catalogs are present$/) do
+  current_benefit_market_catalog
+  renewal_benefit_market_catalog
+end
+
+Given(/^renewal rating and service areas are present$/) do
+  renewal_rating_area
+  renewal_service_area
+end
 
 Given(/^Qualifying life events are present$/) do
   qualifying_life_events
