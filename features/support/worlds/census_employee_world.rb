@@ -9,11 +9,10 @@ module CensusEmployeeWorld
   end
 
   def org_by_legal_name(legal_name)
-    @org_by_legal_name ||= @organization[legal_name]
+    @organization[legal_name]
   end
 
   def build_enrollment(attributes, *traits)
-    binding.pry
     @hbx_enrollment ||= FactoryGirl.build(
       :hbx_enrollment, 
       :with_enrollment_members,
@@ -247,6 +246,5 @@ And(/^employer (.*?) with employee (.*?) has (.*?) hbx_enrollment with health pr
   attributes[:benefit_package] = benefit_package
   attributes[:sponsored_benefit_id] = benefit_package.sponsored_benefits.first.id
   attributes[:sponsored_benefit_package_id] = benefit_package.id
-  binding.pry
   build_enrollment(attributes, :with_health_product)
 end
