@@ -48,7 +48,7 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
 
-    Then Patrick Doe should see "open enrollment not yet started" error message
+    Then Patrick Doe should see "You're not yet eligible under your employer-sponsored benefits" error message
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through New Hire badge
     Given a CCA site exists with a benefit market
@@ -66,7 +66,7 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     When Employee clicks on New Hire Badge
     When Employee clicks continue on the group selection page
 
-    Then Patrick Doe should see "open enrollment not yet started" error message
+    Then Patrick Doe should see "You're not yet eligible under your employer-sponsored benefits" error message
 
   Scenario: New Hire can't buy coverage under off-exchange plan year using QLE
 
@@ -79,27 +79,37 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    And census employee Patrick Doe new_hire_enrollment_period is greater than date of record
     When Employee click the "Married" in qle carousel
     And Employee select a past qle date
     Then Employee should see confirmation and clicks continue
     Then Employee should see family members page and clicks continue
     Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
-    Then Employee should see "employer-sponsored benefits not found" error message
+
+    Then Patrick Doe should see "You're not yet eligible under your employer-sponsored benefits" error message
 
   Scenario: New Hire can buy coverage during open enrollment of renewing plan year
-    Given Conversion Employer for Soren White exists with active and renewing plan year
-      And Employer for Soren White is under open enrollment
-      And Employee has current hired on date
-      And Soren White already matched and logged into employee portal
-      When Employee clicks on New Hire Badge
-      When Employee clicks continue on the group selection page
-      Then Employee should see the list of plans
-      And I should not see any plan which premium is 0
-      When Employee selects a plan on the plan shopping page
-      Then Soren White should see coverage summary page with renewing plan year start date as effective date
-      Then Soren White should see the receipt page with renewing plan year start date as effective date
-      Then Employee should see "my account" page with enrollment
+    Given a CCA site exists with a benefit market
+    And benefit market has prior benefit market catalog
+    And there is an employer ABC Widgets
+    And ACME Widgets, Inc. employer has a staff role
+    And this employer had a active and renewing draft application
+
+    Given there exists Patrick Doe employee for employer ABC Widgets
+    And employee Patrick Doe has current hired on date
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+
+
+     When Employee clicks on New Hire Badge
+     When Employee clicks continue on the group selection page
+     Then Employee should see the list of plans
+     # And I should not see any plan which premium is 0
+     When Employee selects a plan on the plan shopping page
+     When Employee clicks on Confirm button on the coverage summary page
+     And Employee sees Enrollment Submitted and clicks Continue
+
+     Then Patrick Doe should see enrollment on my account page
 
   Scenario: Existing Employee should not get effective date before renewing plan year start date
     Given Conversion Employer for Soren White exists with active and renewing plan year
