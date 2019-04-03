@@ -27,13 +27,17 @@ module CensusEmployeeWorld
     )
   end
 
-  def person_record_from_census_employee(person)
+  def person_record_from_census_employee(person, legal_name = nil)
     census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
-    employer = @organization.values.first
+    if legal_name.nil?
+      employer = @organization.values.first
+    else
+      employer = @organization[legal_name]
+    end
     employer_profile = employer.profiles.first
     @employer_staff_role ||= FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
     @person_record ||= FactoryGirl.create(
-      :person,
+      :person_with_employee_role,
       :with_family,
       first_name: person[:first_name],
       last_name: person[:last_name],
@@ -61,8 +65,12 @@ module CensusEmployeeWorld
     end
   end
 
-  def create_census_employee_from_person(person)
-    organization = @organization.values.first || nil
+  def create_census_employee_from_person(person, legal_name = nil)
+    if legal_name.nil?
+      organization = @organization.values.first
+    else
+      organization = employer(legal_name)
+    end
     sponsorship = benefit_sponsorship(organization)
     benefit_group = fetch_benefit_group(organization.legal_name)
     @census_employee ||= FactoryGirl.create(
@@ -96,9 +104,14 @@ And(/^there (are|is) (\d+) (employee|employees) for (.*?)$/) do |_, roster_count
   census_employees roster_count.to_i, benefit_sponsorship: sponsorship, employer_profile: sponsorship.profile
 end
 
+And(/^there is a census employee record for (.*?) for employer (.*?)$/) do |named_person, legal_name|
+  person = people[named_person]
+  create_census_employee_from_person(person, legal_name)
+end
+
 Given(/^there exists (.*?) employee for employer (.*?)$/) do |named_person, legal_name|
   person = people[named_person]
-  sponsorship = org_by_legal_name(legal_name).benefit_sponsorships.first
+  sponsorship =  employer(legal_name).benefit_sponsorships.first
   census_employees 1,
                    benefit_sponsorship: sponsorship, employer_profile: sponsorship.profile,
                    first_name: person[:first_name],

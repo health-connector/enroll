@@ -42,6 +42,13 @@ And(/Current hired on date all employments/) do
   end
 end
 
+And(/employee (.*?) has current hired on date for all each of their employers/) do |named_person|
+  person = people[named_person]
+  CensusEmployee.where(:first_name => person[:first_name], :last_name => person[:last_name]).each do |census_employee|
+    census_employee.update_attributes(:hired_on => TimeKeeper.date_of_record)
+  end
+end
+
 And(/Employee has past hired on date/) do
   CensusEmployee.where(:first_name => /Patrick/i, :last_name => /Doe/i).first.update_attributes(:hired_on => TimeKeeper.date_of_record - 1.year)
 end

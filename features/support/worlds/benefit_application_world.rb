@@ -89,11 +89,11 @@ module BenefitApplicationWorld
     )
   end
 
-  def renewal_application
+  def renewal_application(legal_name = nil)
     @renewal_application ||= FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                :with_benefit_package, :with_predecessor_application,
                                                predecessor_application_state: aasm_state,
-                                               benefit_sponsorship: benefit_sponsorship,
+                                               benefit_sponsorship: benefit_sponsorship(legal_name),
                                                effective_period: effective_period,
                                                aasm_state: renewal_state,
                                                open_enrollment_period: open_enrollment_period,
@@ -201,6 +201,18 @@ And(/^this employer had a (.*?)(?: and (.*?) (.*?))? application$/) do |active_a
     aasm_state(:active)
     renewal_state(renewal_state)
     renewal_application
+  elsif active_app
+    # Fix for active application
+  end
+end
+
+And(/^employer (.*?) has a (.*?)(?: and (.*?) (.*?))? application$/) do |legal_name, active_app, renewal_app, renewal_state|
+
+  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
+  if renewal_app
+    aasm_state(:active)
+    renewal_state(renewal_state)
+    renewal_application(legal_name)
   elsif active_app
     # Fix for active application
   end
