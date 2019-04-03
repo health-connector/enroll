@@ -86,6 +86,12 @@ end
 
 World(CensusEmployeeWorld)
 
+And(/^census employee (.*?) new_hire_enrollment_period is greater than date of record$/) do |named_person|
+  person = people[named_person]
+  ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
+  ce.update_attributes(hired_on: TimeKeeper.date_of_record + 1.month)
+end
+
 And(/^there (are|is) (\d+) (employee|employees) for (.*?)$/) do |_, roster_count, _, legal_name|
   sponsorship = org_by_legal_name(legal_name).benefit_sponsorships.first
   census_employees roster_count.to_i, benefit_sponsorship: sponsorship, employer_profile: sponsorship.profile

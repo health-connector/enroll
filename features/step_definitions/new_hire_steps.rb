@@ -118,6 +118,11 @@ When(/(.*) clicks on Continue button on receipt page/) do |named_person|
   find('.interaction-click-control-continue').click
 end
 
+Then(/(.*) should see enrollment on my account page/) do |named_person|
+  expect(page).to have_content(named_person)
+  expect(page).to have_content("Plan Selected: #{TimeKeeper.date_of_record.to_s}")
+end
+
 Then(/(.*) should see \"my account\" page with enrollment/) do |named_person|
   sleep 1 #wait for e-mail nonsense
   enrollments = Person.where(first_name: people[named_person][:first_name]).first.try(:primary_family).try(:active_household).try(:hbx_enrollments) if people[named_person].present?

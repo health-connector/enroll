@@ -6,7 +6,7 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
     And there is an employer ACME Widgets, Inc.
-    # Benefit application model seems to suggest that enrollment_open is considered renewing?
+
     And this employer has enrollment_open benefit application with offering health and dental
     And ACME Widgets, Inc. employer has a staff role
     Given staff role person logged in
@@ -42,72 +42,74 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    And census employee Patrick Doe new_hire_enrollment_period is greater than date of record
+
     When Employee clicks "Shop for Plans" on my account page
     Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
 
-    # At this point renewal applicaiton open enrollmetn period is Wed, 01 May 2019..Wed, 22 May 2019
-    # but today's date April 2nd. So they shouldn't be able to buy coverage?
-    # Plan selection page
-    # Shouldn't see the plans here?
-    Then Employee should see the list of plans
-
-    # Shouldn't be able to select plan?
-    And Employee selects the first plan available
-    And Employee clicks Confirm
-    When Employee clicks continue on the group selection page
-
-    # This is the intended result
-    Then Employee should see "employer-sponsored benefits not found" error message
+    Then Patrick Doe should see "You're not yet eligible under your employer-sponsored benefits" error message
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through New Hire badge
     Given a CCA site exists with a benefit market
     And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
+    And ACME Widgets, Inc. employer has a staff role
     And this employer had a active and renewing draft application
 
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    And census employee Patrick Doe new_hire_enrollment_period is greater than date of record
+
+
     When Employee clicks on New Hire Badge
     When Employee clicks continue on the group selection page
 
-    # Currently they can select plans
-    # They shouldn't be able to do these steps
-    And Employee selects the first plan available
-    And Employee clicks Confirm
-    When Employee clicks continue on the group selection page
-
-
-
-    # This should be the intended result
-    Then Patrick Doe should see "open enrollment not yet started" error message
+    Then Patrick Doe should see "You're not yet eligible under your employer-sponsored benefits" error message
 
   Scenario: New Hire can't buy coverage under off-exchange plan year using QLE
-    Given Conversion Employer for Soren White exists with active and renewing plan year
-      And Employee has current hired on date
-      And Soren White already matched and logged into employee portal
-      When Employee click the "Married" in qle carousel
-      And Employee select a past qle date
-      Then Employee should see confirmation and clicks continue
-      Then Employee should see family members page and clicks continue
-      Then Employee should see the group selection page
-      When Employee clicks continue on the group selection page
-      Then Employee should see "employer-sponsored benefits not found" error message
+
+    Given a CCA site exists with a benefit market
+    Given Qualifying life events are present
+    And benefit market has prior benefit market catalog
+    And there is an employer ABC Widgets
+    And this employer had a active and renewing draft application
+    
+    Given there exists Patrick Doe employee for employer ABC Widgets
+    And employee Patrick Doe has current hired on date
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    And census employee Patrick Doe new_hire_enrollment_period is greater than date of record
+    When Employee click the "Married" in qle carousel
+    And Employee select a past qle date
+    Then Employee should see confirmation and clicks continue
+    Then Employee should see family members page and clicks continue
+    Then Employee should see the group selection page
+    When Employee clicks continue on the group selection page
+
+    Then Patrick Doe should see "You're not yet eligible under your employer-sponsored benefits" error message
 
   Scenario: New Hire can buy coverage during open enrollment of renewing plan year
-    Given Conversion Employer for Soren White exists with active and renewing plan year
-      And Employer for Soren White is under open enrollment
-      And Employee has current hired on date
-      And Soren White already matched and logged into employee portal
-      When Employee clicks on New Hire Badge
-      When Employee clicks continue on the group selection page
-      Then Employee should see the list of plans
-      And I should not see any plan which premium is 0
-      When Employee selects a plan on the plan shopping page
-      Then Soren White should see coverage summary page with renewing plan year start date as effective date
-      Then Soren White should see the receipt page with renewing plan year start date as effective date
-      Then Employee should see "my account" page with enrollment
+    Given a CCA site exists with a benefit market
+    And benefit market has prior benefit market catalog
+    And there is an employer ABC Widgets
+    And ACME Widgets, Inc. employer has a staff role
+    And this employer had a active and renewing draft application
+
+    Given there exists Patrick Doe employee for employer ABC Widgets
+    And employee Patrick Doe has current hired on date
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+
+
+     When Employee clicks on New Hire Badge
+     When Employee clicks continue on the group selection page
+     Then Employee should see the list of plans
+     # And I should not see any plan which premium is 0
+     When Employee selects a plan on the plan shopping page
+     When Employee clicks on Confirm button on the coverage summary page
+     And Employee sees Enrollment Submitted and clicks Continue
+
+     Then Patrick Doe should see enrollment on my account page
 
   Scenario: Existing Employee should not get effective date before renewing plan year start date
     Given Conversion Employer for Soren White exists with active and renewing plan year
