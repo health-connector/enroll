@@ -41,8 +41,8 @@ Feature: As an admin user I should have the ability to extend the OE
     And ABC widgets primary address state <state_check> MA
     And the user clicks Action for that Employer
     And the user clicks on Force Publish button
-    Then a warning message will appear
-    And ask to confirm intention to publish.
+    Then a <compare_fte> warning message will appear
+    # And ask to confirm intention to publish.
 
     Examples:
       |compare_fte         |     state_check    |

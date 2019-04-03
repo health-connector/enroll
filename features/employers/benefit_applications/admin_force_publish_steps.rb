@@ -66,8 +66,12 @@ And (/^(.*?) primary address state (is|is not) MA$/) do |employer, compare|
   end
 end
 
-Then(/^a warning message will appear$/) do
-  expect(page.driver.browser.modal_message).to have_content('Can not publish due to fte count out range or primary office location out of MA, Publish anyway?')
+Then (/^a (less than or equal|more than) warning message will appear$/) do |compare|
+  if compare == 'less than or equal'
+    expect(page).to have_content("Small business NOT located in #{Settings.aca.state_name}")
+  elsif compare == 'more than'
+    expect(page).to have_content("Small business should have 1 - #{Settings.aca.shop_market.small_market_employee_count_maximum} full time equivalent employees")
+  end
 end
 
 And(/^ask to confirm intention to publish.$/) do
