@@ -43,12 +43,15 @@ describe "shared/_my_portal_links.html.haml" do
     let!(:employee_role) { FactoryGirl.create(:employee_role, person: person)}
     let(:user) { FactoryGirl.create(:user, person: person, roles: %w(employer_staff employee)) }
     let(:profile) { person.employer_staff_roles.first.profile}
+    let(:benefit_sponsorship) {profile.add_benefit_sponsorship}
     let(:person) {FactoryGirl.create(:person, :with_employer_staff_role)}
-    let(:census_employee) {FactoryGirl.create(:benefit_sponsors_census_employee, employee_role_id: employee_role.id)}
-
+    let!(:existing_census_employee) {FactoryGirl.create(:benefit_sponsors_census_employee,
+                                                        employer_profile: profile,
+                                                        benefit_sponsorship: benefit_sponsorship
+    )}
     context "Associated to a single employer profile" do
       it "should able to switch between 2 accounts" do
-        employee_role.new_census_employee = census_employee
+        employee_role.new_census_employee = existing_census_employee
         allow(user).to receive(:has_employee_role?).and_return(true)
         sign_in(user)
         render 'shared/my_portal_links'
@@ -65,7 +68,7 @@ describe "shared/_my_portal_links.html.haml" do
       let!(:employer_staff_role) { FactoryGirl.create(:employer_staff_role, person: person, employer_profile_id: second_employer_profile.id, benefit_sponsor_employer_profile_id: second_employer_profile.id)}
 
       it "should able to switch between 2 accounts" do
-        employee_role.new_census_employee = census_employee
+        employee_role.new_census_employee = existing_census_employee
         allow(user).to receive(:has_employee_role?).and_return(true)
         sign_in(user)
         render 'shared/my_portal_links'
@@ -78,4 +81,3 @@ describe "shared/_my_portal_links.html.haml" do
     end
   end
 end
-
