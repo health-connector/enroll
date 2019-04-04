@@ -105,10 +105,10 @@ module BenefitApplicationWorld
                                                predecessor_application_catalog: true)
   end
 
-  def expired_and_active_application
+  def expired_and_active_application(legal_name = nil)
     @expired_and_active_application ||= FactoryGirl.build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                           :with_benefit_package, :with_predecessor_expired_application,
-                                                          benefit_sponsorship: benefit_sponsorship,
+                                                          benefit_sponsorship: benefit_sponsorship(legal_name),
                                                           aasm_state: :active,
                                                           effective_period: effective_period,
                                                           open_enrollment_period: open_enrollment_period,
@@ -206,30 +206,18 @@ And(/^this employer has a benefit application$/) do
   benefit_sponsor_catalog.save!
 end
 
-And(/^this employer had a (.*?)(?: and (.*?)(?: (.*?))?)? application$/) do |application1, application2, application2_state|
-
+And(/^this employer(?: (.*?))? had a (.*?)(?: and (.*?)(?: (.*?))?)? application$/) do |legal_name, application1, application2, application2_state|
+  legal_name = @organization[legal_name]
   if application1 == "active" && application2 == "renewing"
     renewal_state = application2_state.present? ? application2_state.to_sym : :draft
     aasm_state(:active)
     renewal_state(renewal_state)
-    renewal_application
+    renewal_application(legal_name)
   end
 
   if application1 == "expired" && application2 == "active" || application1 == "active"
     @effective_period = (TimeKeeper.date_of_record.beginning_of_month..TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day)
     expired_and_active_application
-  end
-end
-
-And(/^employer (.*?) has a (.*?)(?: and (.*?) (.*?))? application$/) do |legal_name, active_app, renewal_app, renewal_state|
-
-  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
-  if renewal_app
-    aasm_state(:active)
-    renewal_state(renewal_state)
-    renewal_application(legal_name)
-  elsif active_app
-    # Fix for active application
   end
 end
 
