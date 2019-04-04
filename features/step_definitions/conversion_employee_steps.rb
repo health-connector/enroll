@@ -69,6 +69,13 @@ And(/^Employee sees Enrollment Submitted and clicks Continue$/) do
   wait_for_ajax
 end
 
+And(/^Employee sees Enrollment Submitted and clicks Go to My Account$/) do
+  expect(page).to have_content("Enrollment Submitted")
+  click_link 'GO TO MY ACCOUNT'
+  wait_for_ajax
+end
+
+
 Then(/Employee (.*) should have the (.*) plan year start date as earliest effective date/) do |named_person, plan_year|
   person = people[named_person]
   census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
@@ -135,41 +142,22 @@ end
 
 And(/(.*) matches all employee roles to employers and is logged in/) do |named_person|
   person = people[named_person]
-  organizations = Organization.in(fein: [person[:fein], person[:mfein]])
-  employer_profiles = organizations.map(&:employer_profile)
-  counter = 0
-  used_person = nil
-  user = nil
+  organizations = BenefitSponsors::Organizations::GeneralOrganization.all.to_a
+  employer_profiles = organizations.map(&:employer_profile).compact
   employer_profiles.each do |employer_profile|
-    if used_person.nil?
-      ce = employer_profile.census_employees.where(:first_name => /#{person[:first_name]}/i,
-                                                   :last_name => /#{person[:last_name]}/i).first
-      person_record = FactoryGirl.create(:person_with_employee_role, first_name: person[:first_name],
-                                                                     last_name: person[:last_name],
-                                                                     ssn: person[:ssn],
-                                                                     dob: person[:dob_date],
-                                                                     census_employee_id: ce.id,
-                                                                     employer_profile_id: employer_profile.id,
-                                                                     hired_on: ce.hired_on)
-      FactoryGirl.create :family, :with_primary_family_member, person: person_record
-      user = FactoryGirl.create(:user, person: person_record,
-                                       email: person[:email],
-                                       password: person[:password],
-                                       password_confirmation: person[:password])
-      used_person = person_record
-    else
-      ce = employer_profile.census_employees.where(:first_name => /#{person[:first_name]}/i,
-                                                   :last_name => /#{person[:last_name]}/i).first
-      used_person.employee_roles.create!(employer_profile_id: employer_profile.id,
-                                         ssn: ce.ssn,
-                                         dob: ce.dob,
-                                         hired_on: ce.hired_on,
-                                         census_employee_id: ce.id)
-    end
+    legal_name = employer_profile.organization.legal_name
+    ce = employer_profile.census_employees.where(
+      :first_name => /#{person[:first_name]}/i,
+      :last_name => /#{person[:last_name]}/i
+    ).first
+    # Creates the employee staff roles too
+    person_record = person_record_from_census_employee(person, legal_name)
+    user = user_record_from_census_employee(person)
   end
-  login_as used_person.user
-  expect(used_person.employee_roles.count).to eq(2)
-  visit "/families/home"
+  login_as user
+  visit "/"
+  click_link 'Employee Portal'
+  click_link "CONTINUE"
 end
 
 Then(/Employee should see \"employer-sponsored benefits not found\" error message/) do

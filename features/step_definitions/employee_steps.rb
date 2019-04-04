@@ -34,6 +34,20 @@ Given (/(.*) has a matched employee role/) do |name|
   }
 end
 
+def employee_by_legal_name(legal_name, person)
+  org = org_by_legal_name(legal_name)
+  employee_role = FactoryGirl.create(:employee_role, person: person, benefit_sponsors_employer_profile_id: org.employer_profile.id)
+  ce = FactoryGirl.create(:census_employee,
+    first_name: person.first_name,
+    last_name: person.last_name,
+    ssn: person.ssn,
+    dob: person.dob,
+    employer_profile: org.employer_profile,
+    benefit_sponsorship: benefit_sponsorship(org),
+    employee_role_id: employee_role.id
+  )
+end
+
 Given (/a person exists with dual roles/) do
   FactoryGirl.create(:user)
   FactoryGirl.create(:person, :with_employee_role, :with_consumer_role, :with_family, first_name: "Dual Role Person", last_name: "E", user: user)
@@ -64,3 +78,38 @@ end
 Then (/Employee redirects to ivl flow/) do
   expect(page).to have_content("Personal Information")
 end
+
+And(/^person has multiple employee roles with benefits from employers (.*?) and (.*?)$/) do |legal_name1, legal_name2|
+  user = FactoryGirl.create(:user)
+  person = FactoryGirl.create(:person, :with_family, user_id: user.id)
+  employee1 = employee_by_legal_name(legal_name1, person)
+  employee2 = employee_by_legal_name(legal_name2, person)
+  employee1.employee_role.update_attributes(census_employee_id: employee1.id)
+  employee2.employee_role.update_attributes(census_employee_id: employee2.id)
+end
+
+And(/^(.*?) ER does not offer dental benefits to spouse$/) do |legal_name|
+  benefit_group = fetch_benefit_group(legal_name)
+  relationship_benefit = [FactoryGirl.build_stubbed(:dental_relationship_benefit, benefit_group: benefit_group, relationship: :employee, premium_pct: 49, employer_max_amt: 1000.00),
+    FactoryGirl.build_stubbed(:dental_relationship_benefit, benefit_group: benefit_group, relationship: :spouse, premium_pct: 40, employer_max_amt:  200.00, offered: false)]
+end
+
+And(/^(.*?) ER does not offer health benefits to spouse$/) do |legal_name|
+  benefit_group = fetch_benefit_group(legal_name)
+  relationship_benefit = [FactoryGirl.build_stubbed(:relationship_benefit, benefit_group: benefit_group, relationship: :employee, premium_pct: 49, employer_max_amt: 1000.00),
+    FactoryGirl.build_stubbed(:relationship_benefit, benefit_group: benefit_group, relationship: :spouse, premium_pct: 40, employer_max_amt:  200.00, offered: false)]
+end
+
+And(/employee (.*) with a dependent has (.*) relationship with age (.*) than 26/) do |name, kind, var|
+  dob = (var == "greater" ? TimeKeeper.date_of_record - 35.years : TimeKeeper.date_of_record - 5.years)
+  @family = Family.all.first
+  dependent = FactoryGirl.create :person, dob: dob
+  fm = FactoryGirl.create :family_member, family: @family, person: dependent
+  person = Person.where(first_name: "#{name}").first
+  person.person_relationships << PersonRelationship.new(kind: kind, relative_id: dependent.id)
+  ch = @family.active_household.immediate_family_coverage_household
+  ch.coverage_household_members << CoverageHouseholdMember.new(family_member_id: fm.id)
+  ch.save
+  person.save
+end
+

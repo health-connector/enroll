@@ -89,11 +89,11 @@ module BenefitApplicationWorld
     )
   end
 
-  def renewal_application
+  def renewal_application(legal_name = nil)
     @renewal_application ||= FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                :with_benefit_package, :with_predecessor_application,
                                                predecessor_application_state: aasm_state,
-                                               benefit_sponsorship: benefit_sponsorship,
+                                               benefit_sponsorship: benefit_sponsorship(legal_name),
                                                effective_period: effective_period,
                                                aasm_state: renewal_state,
                                                open_enrollment_period: open_enrollment_period,
@@ -221,6 +221,18 @@ And(/^this employer had a (.*?)(?: and (.*?)(?: (.*?))?)? application$/) do |app
   end
 end
 
+And(/^employer (.*?) has a (.*?)(?: and (.*?) (.*?))? application$/) do |legal_name, active_app, renewal_app, renewal_state|
+
+  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
+  if renewal_app
+    aasm_state(:active)
+    renewal_state(renewal_state)
+    renewal_application(legal_name)
+  elsif active_app
+    # Fix for active application
+  end
+end
+
 And(/this employer (.*) application is under open enrollment/) do |application|
   if application == "renewal" && benefit_sponsorship.renewal_benefit_application.present?
     application = benefit_sponsorship.renewal_benefit_application
@@ -343,6 +355,25 @@ And(/^this benefit application has a benefit package containing (.*?)(?: and (.*
     dental_state(true)
   end
   update_benefit_sponsorship
+end
+
+And(/^employer (.*?) has (a|an) (.*?) benefit application with offering health and dental$/) do |legal_name, _, state|
+  health_products
+  aasm_state(state.to_sym)
+  organization = @organization[legal_name]
+  # Mirrors the original step minus the census employee declaration
+  current_application = benefit_application_by_employer(organization)
+  current_package = new_benefit_package_by_application(current_application)
+  current_sponsorship = benefit_sponsorship(organization)
+
+  current_application.benefit_packages << current_package
+  current_application.save!
+  current_sponsorship.benefit_applications << current_application
+  current_sponsorship.save!
+  current_catalog = benefit_sponsor_catalog(organization)
+  current_catalog.save!
+  expect(current_application.benefit_packages.present?).to eq(true)
+  expect(current_sponsorship.benefit_applications.present?).to eq(true)
 end
 
 And(/^employer (.*?) has a census employee (.*?)$/) do |legal_name, named_person|

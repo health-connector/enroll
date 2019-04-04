@@ -28,6 +28,7 @@ def people
     "Patrick Doe" => {
       first_name: "Patrick",
       last_name: "Doe",
+      ssn: "009764587",
       dob: "01/01/1980",
       dob_date: "01/01/1980".to_date,
       ssn: "786120965",
