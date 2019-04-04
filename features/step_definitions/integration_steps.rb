@@ -844,12 +844,12 @@ Then(/^.+ should see the list of plans$/) do
 end
 
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
-  employer_profile = CensusEmployee.where(first_name: people[named_person][:first_name]).first.employee_role.employer_profile
+  benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
   # cannot select a SEP date from expired plan year on 31st.
   if TimeKeeper.date_of_record.day != 31 || plan_year_state != "expired"
-    expect(page).to have_content "#{employer_profile.plan_years.where(aasm_state: plan_year_state ).first.benefit_groups.first.reference_plan.name}"
+    expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
   else
-    expect(page).to have_content "#{employer_profile.plan_years.where(:aasm_state.ne => plan_year_state ).first.benefit_groups.first.reference_plan.name}"
+    expect(page).to have_content benefit_sponsorship.benefit_applications.where(:aasm_state.ne => plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
   end
 end
 
@@ -1095,14 +1095,27 @@ Then(/Employee should see their current plan/) do
   expect(page).to have_content "YOUR CURRENT #{TimeKeeper.date_of_record.year} PLAN"
 end
 
-And(/Employee should have a ER sponsored enrollment/) do
-  person = Person.all.first
-  bg = Organization.all.first.employer_profile.plan_years[0].benefit_groups[0]
-  enrollment = FactoryGirl.create :hbx_enrollment, household: person.primary_family.active_household, aasm_state: "coverage_selected",
-                                    plan: Plan.all.first, benefit_group_id: bg.id
-  enrollment.hbx_enrollment_members << HbxEnrollmentMember.new(is_subscriber: true, applicant_id: person.primary_family.family_members[0].id,
-                                        eligibility_date: TimeKeeper.date_of_record - 1.month, coverage_start_on: TimeKeeper.date_of_record)
-  enrollment.save
+And(/(.*) should have a ER sponsored enrollment/) do |named_person|
+  person = people[named_person]
+  ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
+  ce.save # to update benefit group assignment that needs to updated.
+  person_rec = Person.where(first_name: /#{person[:first_name]}/i, last_name: /#{person[:last_name]}/i).first
+  benefit_package = ce.active_benefit_group_assignment.benefit_package
+  FactoryGirl.create(:hbx_enrollment,
+                     household: person_rec.primary_family.active_household,
+                     coverage_kind: "health",
+                     effective_on: benefit_package.start_on,
+                     enrollment_kind: "open_enrollment",
+                     kind: "employer_sponsored",
+                     submitted_at: benefit_package.start_on - 20.days,
+                     employee_role_id: person_rec.active_employee_roles.first.id,
+                     benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                     benefit_sponsorship_id: ce.benefit_sponsorship.id,
+                     sponsored_benefit_package_id: benefit_package.id,
+                     sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                     rating_area_id: benefit_package.rating_area.id,
+                     product_id: benefit_package.health_sponsored_benefit.reference_product_id,
+                     issuer_profile_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.issuer_profile.id)
 end
 
 Then(/Devops can verify session logs/) do

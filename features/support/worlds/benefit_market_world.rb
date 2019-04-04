@@ -92,7 +92,7 @@ module BenefitMarketWorld
     @qualifying_life_events ||= [
       :effective_on_event_date,
       :effective_on_first_of_month
-    ].map { |event_trait| FactoryGirl.create(:qualifying_life_event_kind, event_trait) }
+    ].map { |event_trait| FactoryGirl.create(:qualifying_life_event_kind, event_trait, market_kind: "shop") }
   end
 
   def build_product_package(product_kind, package_kind)

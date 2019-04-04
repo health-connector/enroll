@@ -105,6 +105,18 @@ module BenefitApplicationWorld
                                                predecessor_application_catalog: true)
   end
 
+  def expired_and_active_application
+    @expired_and_active_application ||= FactoryGirl.build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+                                                          :with_benefit_package, :with_predecessor_expired_application,
+                                                          benefit_sponsorship: benefit_sponsorship,
+                                                          aasm_state: :active,
+                                                          effective_period: effective_period,
+                                                          open_enrollment_period: open_enrollment_period,
+                                                          recorded_rating_area: rating_area,
+                                                          recorded_service_areas: service_areas,
+                                                          package_kind: package_kind)
+  end
+
   def assign_sponsored_benefits
   product_package = benefit_market.benefit_market_catalogs.first.product_packages.where(package_kind: :single_issuer).first
 
@@ -194,15 +206,18 @@ And(/^this employer has a benefit application$/) do
   benefit_sponsor_catalog.save!
 end
 
-And(/^this employer had a (.*?)(?: and (.*?) (.*?))? application$/) do |active_app, renewal_app, renewal_state|
+And(/^this employer had a (.*?)(?: and (.*?)(?: (.*?))?)? application$/) do |application1, application2, application2_state|
 
-  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
-  if renewal_app
+  if application1 == "active" && application2 == "renewing"
+    renewal_state = application2_state.present? ? application2_state.to_sym : :draft
     aasm_state(:active)
     renewal_state(renewal_state)
     renewal_application
-  elsif active_app
-    # Fix for active application
+  end
+
+  if application1 == "expired" && application2 == "active" || application1 == "active"
+    @effective_period = (TimeKeeper.date_of_record.beginning_of_month..TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day)
+    expired_and_active_application
   end
 end
 
