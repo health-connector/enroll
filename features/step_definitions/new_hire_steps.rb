@@ -230,7 +230,6 @@ end
 
 When(/(.*) enters termination reason/) do |named_person|
   wait_for_ajax
-
   waiver_modal = find('.terminate_confirm')
   within('.terminate_confirm .modal-dialog') do
     find('p', text: 'Please select terminate reason').click
@@ -253,6 +252,13 @@ When(/(.*) enters reason for termination in modal$/) do |named_person|
   inputs = page.all('input')
   terminate_reason_submit = inputs.detect { |input| input[:id] == "waiver_reason_submit" }
   terminate_reason_submit.trigger('click')
+end
+
+When(/^.+ submits termination reason$/) do
+  waiver_modal = find('#waive_confirm')
+  waiver_modal.find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'Please select waive reason')]]").click
+  waiver_modal.find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), 'I have coverage through Medicaid')]").click
+  waiver_modal.find('#waiver_reason_submit').click
 end
 
 Then(/(.*) should see a confirmation message of (.*)$/) do |named_person, message|
