@@ -90,10 +90,15 @@ module BenefitApplicationWorld
   end
 
   def renewal_application(legal_name = nil)
+    if legal_name.present?
+      organization = @organization[legal_name]
+    else
+      organization = @organization.values.first
+    end
     @renewal_application ||= FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                :with_benefit_package, :with_predecessor_application,
                                                predecessor_application_state: aasm_state,
-                                               benefit_sponsorship: benefit_sponsorship(legal_name),
+                                               benefit_sponsorship: benefit_sponsorship(organization),
                                                effective_period: effective_period,
                                                aasm_state: renewal_state,
                                                open_enrollment_period: open_enrollment_period,
@@ -106,15 +111,45 @@ module BenefitApplicationWorld
   end
 
   def expired_and_active_application(legal_name = nil)
+    if legal_name.present?
+      organization = @organization[legal_name]
+    else
+      organization = @organization.values.first
+    end
     @expired_and_active_application ||= FactoryGirl.build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                           :with_benefit_package, :with_predecessor_expired_application,
-                                                          benefit_sponsorship: benefit_sponsorship(legal_name),
+                                                          benefit_sponsorship: benefit_sponsorship(organization),
                                                           aasm_state: :active,
                                                           effective_period: effective_period,
                                                           open_enrollment_period: open_enrollment_period,
                                                           recorded_rating_area: rating_area,
                                                           recorded_service_areas: service_areas,
                                                           package_kind: package_kind)
+  end
+
+  def second_employer_renewal_application(legal_name = nil)
+    if legal_name.present?
+      organization = @organization[legal_name]
+    else
+      organization = @organization.values.first
+    end
+    @second_renewal_application ||= FactoryGirl.create(
+      :benefit_sponsors_benefit_application,
+      :with_benefit_sponsor_catalog,
+      :with_benefit_package,
+      :with_predecessor_application,
+      predecessor_application_state: aasm_state,
+      benefit_sponsorship: benefit_sponsorship(organization),
+      effective_period: effective_period,
+      aasm_state: renewal_state,
+      open_enrollment_period: open_enrollment_period,
+      recorded_rating_area: rating_area,
+      recorded_service_areas: service_areas,
+      package_kind: package_kind,
+      dental_package_kind: dental_package_kind,
+      dental_sponsored_benefit: dental_sponsored_benefit,
+      predecessor_application_catalog: true
+    )
   end
 
   def assign_sponsored_benefits
@@ -218,6 +253,18 @@ And(/^this employer(?: (.*?))? had a (.*?)(?: and (.*?)(?: (.*?))?)? application
   if application1 == "expired" && application2 == "active" || application1 == "active"
     @effective_period = (TimeKeeper.date_of_record.beginning_of_month..TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day)
     expired_and_active_application
+  end
+end
+
+And(/^second employer (.*?) has a (.*?)(?: and (.*?) (.*?))? application$/) do |legal_name, active_app, renewal_app, renewal_state|
+
+  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
+  if renewal_app
+    aasm_state(:active)
+    renewal_state(renewal_state)
+    second_employer_renewal_application(legal_name)
+  elsif active_app
+    # Fix for active application
   end
 end
 
