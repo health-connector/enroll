@@ -166,7 +166,7 @@ And(/employee (.*?) has (.*?) hired on date/) do |named_person, ee_hire_date|
                        :last_name => /#{person[:last_name]}/i).first.update_attributes(:hired_on => date, :created_at => date)
 end
 
-And(/employee (.*) already matched with employer (.*?) and(?: (.*?)) and logged into employee portal/) do |named_person, legal_name, legal_name2|
+And(/employee (.*) already matched with employer (.*?)(?: and (.*?))? and logged into employee portal/) do |named_person, legal_name, legal_name2|
   person = people[named_person]
   sponsorship = org_by_legal_name(legal_name).benefit_sponsorships.first
   profile = sponsorship.profile
