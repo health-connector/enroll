@@ -176,8 +176,12 @@ And(/Employer not offers dental benefits for spouse in renewal plan year/) do
   @renewal_benefit_group.save
 end
 
-And(/(.*) should also see the reason for ineligibility/) do |role|
-  if role == "employee"
+And(/(.*) should also see the reason for ineligibility/) do |named_person|
+  person_hash = people[named_person]
+
+  person = Person.where(:first_name => /#{person_hash[:first_name]}/i,
+                        :last_name => /#{person_hash[:last_name]}/i).first
+  if person.active_employee_roles.present?
     expect(page).to have_content "This dependent is ineligible for employer-sponsored"
   else
     expect(page).to have_content "eligibility failed on family_relationships"

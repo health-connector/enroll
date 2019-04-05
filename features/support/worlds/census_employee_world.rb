@@ -109,7 +109,7 @@ And(/^there is a census employee record for (.*?) for employer (.*?)$/) do |name
   create_census_employee_from_person(person, legal_name)
 end
 
-Given(/^there exists (.*?) employee for employer (.*?)$/) do |named_person, legal_name|
+Given(/^there exists (.*?) employee for employer (.*?)(?: and (.*?))?$/) do |named_person, legal_name, legal_name2|
   person = people[named_person]
   sponsorship =  employer(legal_name).benefit_sponsorships.first
   census_employees 1,
@@ -119,7 +119,17 @@ Given(/^there exists (.*?) employee for employer (.*?)$/) do |named_person, lega
                    ssn: person[:ssn],
                    dob: person[:dob],
                    email: FactoryGirl.build(:email, address: person[:email])
-
+  if legal_name2.present?
+    sponsorship2 = employer(legal_name2).benefit_sponsorships.first
+    FactoryGirl.create_list(:census_employee, 1,
+                            benefit_sponsorship: sponsorship2,
+                            employer_profile: sponsorship2.profile,
+                            first_name: person[:first_name],
+                            last_name: person[:last_name],
+                            ssn: person[:ssn],
+                            dob: person[:dob],
+                            email: FactoryGirl.build(:email, address: person[:email]))
+  end
 end
 
 And(/employee (.*?) has (.*?) hired on date/) do |named_person, ee_hire_date|
@@ -129,7 +139,7 @@ And(/employee (.*?) has (.*?) hired on date/) do |named_person, ee_hire_date|
                        :last_name => /#{person[:last_name]}/i).first.update_attributes(:hired_on => date, :created_at => date)
 end
 
-And(/employee (.*) already matched with employer (.*?) and logged into employee portal/) do |named_person, legal_name|
+And(/employee (.*) already matched with employer (.*?) and(?: (.*?)) and logged into employee portal/) do |named_person, legal_name, legal_name2|
   person = people[named_person]
   sponsorship = org_by_legal_name(legal_name).benefit_sponsorships.first
   profile = sponsorship.profile
@@ -154,6 +164,14 @@ And(/employee (.*) already matched with employer (.*?) and logged into employee 
                             email: person[:email],
                             password: person[:password],
                             password_confirmation: person[:password])
+  if legal_name2.present?
+    sponsorship2 = org_by_legal_name(legal_name2).benefit_sponsorships.first
+    profile2 = sponsorship2.profile
+    ce1 = CensusEmployee.where(:first_name => /#{person[:first_name]}/i,
+                               :last_name => /#{person[:last_name]}/i, benefit_sponsorship_id: sponsorship2.id).first
+    employee_role = FactoryGirl.create(:employee_role, person: person_record, benefit_sponsors_employer_profile_id: profile2.id, census_employee_id: ce1.id)
+    ce1.update_attributes(employee_role_id: employee_role.id)
+  end
   login_as user
   visit "/families/home"
 end
