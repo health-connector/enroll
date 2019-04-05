@@ -61,6 +61,11 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employers').click
 end
 
+And(/^the user is on the Family Index of the Admin Dashboard$/) do
+  visit exchanges_hbx_profiles_path
+  find('.interaction-click-control-families').click
+end
+
 When(/^the user clicks Action for that Employer$/) do
   find('.dropdown.pull-right', text: 'Actions').click
 end
@@ -154,6 +159,15 @@ Then(/^the user will( not)? see the Force Publish button$/) do |visible|
     expect(page).to_not have_css('.btn.btn-xs', text: 'Force Publish')
   end
 end
+
+Then(/^the user will( not)? see the Edit DOB SSN button$/) do |visible|
+  if visible.blank?
+    find_link('Edit DOB / SSN').visible?
+  else
+    find_link('Edit DOB / SSN').visible? == false
+  end
+end
+
 
 And(/^system date is between submission deadline & OE End date$/) do
   allow(TimeKeeper).to receive(:date_of_record).and_return((initial_application.open_enrollment_period.max - 1.day))
