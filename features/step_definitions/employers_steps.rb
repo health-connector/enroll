@@ -918,8 +918,7 @@ end
 
 And(/^employer sets cobra start date to two months after termination date$/) do
   date = @census_employees.first.employment_terminated_on + 2.months
-
-  find('input.text-center.date-picker').set date
+  page.execute_script("$('.datepicker').val(#{date.to_s})")
 end
 
 When(/^EnterPrise Limited employer clicks on Initiate COBRA button$/) do

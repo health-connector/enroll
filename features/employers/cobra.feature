@@ -1,4 +1,3 @@
-@wip
 Feature: Census Employee COBRA functionality
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market

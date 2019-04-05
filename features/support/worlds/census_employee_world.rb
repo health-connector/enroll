@@ -13,7 +13,7 @@ module CensusEmployeeWorld
   end
 
   def build_enrollment(attributes, *traits)
-    @hbx_enrollment ||= FactoryGirl.build(
+    @hbx_enrollment ||= FactoryGirl.create(
       :hbx_enrollment, 
       :with_enrollment_members,
       *traits,
@@ -21,7 +21,6 @@ module CensusEmployeeWorld
       benefit_group_assignment: attributes[:benefit_group_assignment],
       employee_role: attributes[:employee_role],
       rating_area_id: attributes[:rating_area_id],
-      benefit_package: attributes[:benefit_package],
       sponsored_benefit_id: attributes[:sponsored_benefit_id],
       sponsored_benefit_package_id: attributes[:sponsored_benefit_package_id]
     )
@@ -258,20 +257,35 @@ And(/^employees for (.*?) have a selected coverage$/) do |legal_name|
   bga =  @census_employees.first.active_benefit_group_assignment
   benefit_package = fetch_benefit_group(legal_name)
   coverage_household = person.primary_family.households.first
+  rating_area_id =  benefit_package.benefit_application.recorded_rating_area_id
+  sponsored_benefit_id = benefit_package.sponsored_benefits.first.id
 
-  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package)
+  build_enrollment({household: coverage_household,
+                    benefit_group_assignment: bga,
+                    employee_role: @census_employees.first.employee_role,
+                    sponsored_benefit_package_id: benefit_package.id,
+                    rating_area_id: rating_area_id,
+                    sponsored_benefit_id: sponsored_benefit_id})
 end
 
 And(/^employer (.*?) with employee (.*?) is under open enrollment$/) do |legal_name, named_person|
   person = people[named_person]
   person_record = person_record_from_census_employee(person)
   user_record_from_census_employee(person)
+  # we should not fetch like this
   census_employee = CensusEmployee.first
   bga =  census_employee.active_benefit_group_assignment
   benefit_package = fetch_benefit_group(legal_name)
+  rating_area_id =  benefit_package.benefit_application.recorded_rating_area_id
   coverage_household = @person_family_record.households.first
+  sponsored_benefit_id = benefit_package.sponsored_benefits.first.id
 
-  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package)
+  build_enrollment({household: coverage_household,
+                    benefit_group_assignment: bga,
+                    employee_role: @census_employees.first.employee_role,
+                    sponsored_benefit_package_id: benefit_package.id,
+                    rating_area_id: rating_area_id,
+                    sponsored_benefit_id: sponsored_benefit_id})
 end
 
 And(/^employer (.*?) with employee (.*?) has hbx_enrollment with health product$/) do |legal_name, named_person|
@@ -280,8 +294,15 @@ And(/^employer (.*?) with employee (.*?) has hbx_enrollment with health product$
   census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
   bga =  census_employee.active_benefit_group_assignment
   benefit_package = fetch_benefit_group(legal_name)
+  rating_area_id =  benefit_package.benefit_application.recorded_rating_area_id
   coverage_household = person_record.families.first.households.first
-  build_enrollment(coverage_household, bga, census_employee.employee_role, benefit_package, :with_health_product)
+  sponsored_benefit_id = benefit_package.sponsored_benefits.first.id
+  build_enrollment({household: coverage_household,
+                    benefit_group_assignment: bga,
+                    employee_role: @census_employees.first.employee_role,
+                    sponsored_benefit_package_id: benefit_package.id,
+                    rating_area_id: rating_area_id,
+                    sponsored_benefit_id: sponsored_benefit_id}, :with_health_product)
 end
 
 And(/^employer (.*?) with employee (.*?) has has person and user record present$/) do |legal_name, named_person|
@@ -302,7 +323,8 @@ And(/^employer (.*?) with employee (.*?) has (.*?) hbx_enrollment with health pr
   # Will return the proper package if optional enrollment type arugmenet is set
   benefit_package = fetch_benefit_group(legal_name)
   attributes[:rating_area_id] = benefit_package.benefit_application.recorded_rating_area_id
-  attributes[:benefit_package] = benefit_package
+  # get rid of this we no longer set benefit_package on hbx_enrollment object
+  # attributes[:benefit_package] = benefit_package
   attributes[:sponsored_benefit_id] = benefit_package.sponsored_benefits.first.id
   attributes[:sponsored_benefit_package_id] = benefit_package.id
   build_enrollment(attributes, :with_health_product)
