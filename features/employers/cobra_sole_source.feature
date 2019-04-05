@@ -1,4 +1,3 @@
-@wip
 Feature: COBRA basic
 
   Background: Setup site, employer, and benefit application
@@ -40,4 +39,3 @@ Scenario: Employer terminates and Initiate COBRA to enrolled employee
     Then employer should see the Initiate cobra success flash notice
     And employer clicks on all employees
     And employer should see census employee status as Cobra Enrolled
-
