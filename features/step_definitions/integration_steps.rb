@@ -559,6 +559,11 @@ When(/^(?:.+) go(?:es)? to the employee account creation page$/) do
   click_link 'Employee Portal'
 end
 
+And(/^employee visits the Employee Portal page$/) do
+  visit "/"
+  click_link 'Employee Portal'
+end
+
 Then(/^(?:.+) should be logged on as an unlinked employee$/) do
   screenshot("logged_in_welcome")
   @browser.a(href: /consumer\/employee\/search/).wait_until_present
@@ -633,6 +638,12 @@ When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
 
   screenshot("information_entered")
   find('.interaction-click-control-continue').click
+end
+
+And(/^(.*?) sees the option to enroll for all employers$/) do |named_person|
+  @organization.keys.each do |legal_name|
+    expect(page).to have_content("Enroll as an employee of " + legal_name)
+  end
 end
 
 Then(/^.+ should not see the matched employee record form$/) do

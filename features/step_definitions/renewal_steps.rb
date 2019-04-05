@@ -4,9 +4,8 @@ Then(/(.*) should see active and renewing enrollments/) do |named_person|
   person = people[named_person]
   ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
   effective_date = ce.benefit_sponsorship.renewal_benefit_application.start_on
-
   wait_for_condition_until(5) do
-    find_all('.hbx-enrollment-panel').count { |n| n.find_all("h3", :text => "Coverage").any? } > 1
+    find_all('.hbx-enrollment-panel').count { |n| n.find_all("h3", :text => /Coverage/i).any? } > 1
   end
 
   expect(page.find_all('.hbx-enrollment-panel').any?{|e|
@@ -16,7 +15,7 @@ Then(/(.*) should see active and renewing enrollments/) do |named_person|
 
   expect(page.find_all('.hbx-enrollment-panel').any?{|e|
     (e.find('.label-success').text() == 'Coverage Selected') &&
-    (e.find('.enrollment-effective').text() == "Plan Start: " + (effective_date - 1.year).strftime('%m/%d/%Y'))
+    (e.find('.enrollment-effective').text() == "Plan Start: " + (effective_date - 14.months).strftime('%m/%d/%Y'))
   }).to be_truthy
 end
 
@@ -111,4 +110,3 @@ end
 When(/^.+ clicks continue on family members page/) do
   page.find('#dependent_buttons').find('.interaction-click-control-continue').click
 end
-

@@ -27,27 +27,55 @@ module CensusEmployeeWorld
     )
   end
 
-  def person_record_from_census_employee(person, legal_name = nil)
+  def person_record_from_census_employee(person, legal_name = nil, organizations = nil)
+    organizations.reject! { |organization| @organization.values.include?(organization) == false }
     census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
     if legal_name.nil?
       employer = @organization.values.first
     else
       employer = @organization[legal_name]
     end
-    employer_profile = employer.profiles.first
-    @employer_staff_role ||= FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
-    @person_record ||= FactoryGirl.create(
-      :person_with_employee_role,
-      :with_family,
-      first_name: person[:first_name],
-      last_name: person[:last_name],
-      ssn: person[:ssn],
-      dob: person[:dob_date],
-      census_employee_id: census_employee.id,
-      employer_profile_id: employer_profile.id,
-      employer_staff_roles:[@employer_staff_role],
-      hired_on: census_employee.hired_on
+    employer_prof = employer.profiles.first
+    emp_staff_role = FactoryGirl.create(
+      :benefit_sponsor_employer_staff_role,
+      aasm_state: 'is_active',
+      benefit_sponsor_employer_profile_id: employer_prof.id
     )
+    if Person.where(first_name: person[:first_name], last_name: person[:last_name]).present?
+      person_record = Person.where(first_name: person[:first_name], last_name: person[:last_name]).first
+      person_record.employer_staff_roles << emp_staff_role
+      person_record.save
+    else
+      person_record = FactoryGirl.build(
+        :person_with_employee_role,
+        :with_family,
+        first_name: person[:first_name],
+        last_name: person[:last_name],
+        ssn: person[:ssn],
+        dob: person[:dob_date],
+        census_employee_id: census_employee.id,
+        employer_profile_id: employer_prof.id,
+        employer_staff_roles:[emp_staff_role],
+        hired_on: census_employee.hired_on
+      )
+    end
+    if organizations.present?
+      emp_staff_roles = []
+      organizations.each do |organization|
+        employer_prof = employer.profiles.first
+        emp_staff_role = FactoryGirl.create(
+          :benefit_sponsor_employer_staff_role,
+          aasm_state: 'is_active',
+          benefit_sponsor_employer_profile_id: employer_prof.id
+        )
+        emp_staff_roles << emp_staff_role
+      end
+      person_record.employer_staff_roles = emp_staff_roles
+      person_record.save!
+    else
+      person_record.save!
+    end
+    person_record
   end
 
   def user_record_from_census_employee(person)
@@ -69,11 +97,11 @@ module CensusEmployeeWorld
     if legal_name.nil?
       organization = @organization.values.first
     else
-      organization = employer(legal_name)
+      organization = @organization[legal_name]
     end
     sponsorship = benefit_sponsorship(organization)
     benefit_group = fetch_benefit_group(organization.legal_name)
-    @census_employee ||= FactoryGirl.create(
+    FactoryGirl.create(
       :census_employee,
       :with_active_assignment,
       first_name: person[:first_name],
