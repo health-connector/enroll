@@ -1,4 +1,3 @@
-@wip
 Feature: HBX Admin should be able to send the broker application to pending state
 
   Background: Setup site, employer, and benefit application
