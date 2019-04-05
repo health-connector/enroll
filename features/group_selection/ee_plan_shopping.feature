@@ -88,7 +88,7 @@ Feature: EE plan purchase
     When Employee clicks continue on group selection page for dependents
     And employee should see the ineligible family member disabled and unchecked
     And employee should see the eligible family member enabled and checked
-    And employee should also see the reason for ineligibility
+    And Patrick Doe should also see the reason for ineligibility
     When Employee clicks Shop for new plan button
     Then Patrick Doe should see the list of plans
     When Patrick Doe selects a plan on the plan shopping page
