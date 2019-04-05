@@ -1,4 +1,3 @@
-@wip
 Feature: Add, Edit and Delete security questions
 
   Background: Setup Site
@@ -42,5 +41,5 @@ Feature: Add, Edit and Delete security questions
     And user click on Security Question link
     And there is 3 questions available in the list
     When Hbx Admin click on Delete Question link
+    Then Hbx Admin confirm popup
     Then user should see already in use text
-    

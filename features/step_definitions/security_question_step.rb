@@ -88,6 +88,9 @@ When(/^Hbx Admin click on Delete Question link$/) do
   find(:xpath, "(//a[text()='Delete'])[2]").click
 end
 
+When /^Hbx Admin confirm popup$/ do
+  page.driver.browser.switch_to.alert.accept
+end
 
 Then(/^I can(not)? see the security modal dialog$/) do |negate|
   if negate
