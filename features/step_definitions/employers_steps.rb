@@ -31,7 +31,7 @@ And(/^(.*?) employer visit the benefits tab$/) do |legal_name|
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
 end
 
-Then(/^(.*?) should be able to set up benefit aplication$/) do
+Then(/^(.*?) should be able to set up benefit aplication$/) do |legal_name|
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
   find(:xpath, "//li[@data-index='1'][contains(., '#{(Date.today + 2.months).year}')]", :wait => 3).click
   find('.interaction-field-control-fteemployee').click
