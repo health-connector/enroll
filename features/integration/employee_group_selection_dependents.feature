@@ -1,6 +1,5 @@
-@wip
 Feature: Employee goes through plan shopping with dependents when employer offers health and dental coverage
-  
+
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer Acme Inc.
