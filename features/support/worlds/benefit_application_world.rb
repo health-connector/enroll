@@ -69,7 +69,7 @@ module BenefitApplicationWorld
   end
 
   def current_benefit_package
-    @current_benefit_package ||= FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package,
+    @current_benefit_package ||= FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package,
       health_sponsored_benefit: health_state,
       dental_sponsored_benefit: dental_state,
       product_package: find_product_package(:health, :single_issuer),
@@ -98,7 +98,7 @@ module BenefitApplicationWorld
   end
 
   def new_benefit_package
-    FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: find_product_package(:health, :single_issuer), dental_product_package: find_product_package(:dental, :single_issuer))
+    FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: find_product_package(:health, :single_issuer), dental_product_package: find_product_package(:dental, :single_issuer))
   end
 
   def ce

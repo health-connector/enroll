@@ -1,8 +1,8 @@
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/my_account/_census_employees.html.erb", dbclean: :after_each do
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:census_employee) { FactoryGirl.create(:census_employee) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:census_employee) { FactoryBot.create(:census_employee) }
 
   before :each do
     allow(employer_profile).to receive(:census_employees).and_return [census_employee]

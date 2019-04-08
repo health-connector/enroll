@@ -113,7 +113,7 @@ group :development, :test do
   gem 'capistrano', '3.3.5'
   gem 'capistrano-rails', '1.1.6'
   gem 'email_spec', '2.0.0'
-  gem 'factory_girl_rails', '4.6.0'
+  gem 'factory_bot_rails', '~> 4.11'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
   gem 'puma'

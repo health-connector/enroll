@@ -64,7 +64,7 @@ class DefinePermissions < MigrationTask
     u7 = User.create(email: 'themanda.csr_tier3@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
     u8 = User.create(email: 'themanda.super_admin@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
 
-    hbx_profile_id = FactoryGirl.create(:hbx_profile).id
+    hbx_profile_id = FactoryBot.create(:hbx_profile).id
     p1 = Person.create(first_name: 'staff', last_name: "amanda#{rand(1000000)}", user: u1)
     p2 = Person.create(first_name: 'read_only', last_name: "amanda#{rand(1000000)}", user: u2)
     p3 = Person.create(first_name: 'supervisor', last_name: "amanda#{rand(1000000)}", user: u3)

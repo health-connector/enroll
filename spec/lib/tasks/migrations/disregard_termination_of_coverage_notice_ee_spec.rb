@@ -5,8 +5,8 @@ require File.join(Rails.root, "app/helpers/config/site_helper")
 require File.join(Rails.root, "app/helpers/config/contact_center_helper")
 
 RSpec.describe 'The employees of MA new groups received a notice in their accounts that their coverage was terminated because no payment was received from their employer', :type => :task do
-  let!(:person1) { FactoryGirl.create(:person, :with_work_email, hbx_id: "3382429") }
-  let!(:person2) { FactoryGirl.create(:person, :with_work_email, hbx_id: "3504641") }
+  let!(:person1) { FactoryBot.create(:person, :with_work_email, hbx_id: "3382429") }
+  let!(:person2) { FactoryBot.create(:person, :with_work_email, hbx_id: "3504641") }
   
   before do
     load File.expand_path("#{Rails.root}/lib/tasks/migrations/disregard_termination_of_coverage_notice_ee.rake", __FILE__)
