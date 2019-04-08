@@ -17,6 +17,12 @@ When(/^Hbx Admin clicks on the Action button$/) do
   end
 end
 
+When(/^Hbx Admin click Action button$/) do
+  within('.effective-datatable') do
+    find_all('.dropdown-toggle', :wait => 10).last.click
+  end
+end
+
 When("user enters an invalid SSN and clicks on update") do
   find('#person_ssn').set("212-31-31")
   sleep 1
