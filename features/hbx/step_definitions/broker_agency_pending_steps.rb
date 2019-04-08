@@ -7,7 +7,7 @@ And(/^Hbx Admin should see broker application with carrier appointments$/) do
   end
 end
 
-And(/^Hbx Admin clicks on the pending button$/) do
+And(/^Admin clicks on the pending button$/) do
   find('.interaction-click-control-broker-pending').click
 end
 
