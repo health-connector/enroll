@@ -50,5 +50,10 @@ FactoryGirl.define do
       end
     end
 
+    trait :with_employee_role do
+      after(:create) do |p, _evaluator|
+        create_list(:benefit_sponsors_employee_role, 1, person: p)
+      end
+    end
   end
 end
