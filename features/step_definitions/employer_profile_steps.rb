@@ -248,9 +248,20 @@ Given(/the user is on the Admin Tab of the Admin Dashboard/) do
   find(tab_class, wait: 10).click
 end
 
+Given("the user is on the User Accounts tab of the Admin Dashboard") do
+  visit exchanges_hbx_profiles_path
+  tab_class = '.interaction-click-control-user-accounts'
+  find(tab_class, wait: 10).click
+end
+
 Given /Admin selects Hannahs company/ do
   company = find('a', text: 'Turner Agency, Inc', :wait => 3)
   company.click
+end
+
+Then("user will click on action tab") do
+  sleep(3)
+  find_all('.dropdown.pull-right', text: 'Actions')[0].click
 end
 
 Given /(\w+) has HBXAdmin privileges/ do |name|
