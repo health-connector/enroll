@@ -25,36 +25,15 @@ Then(/^.+ should see an initial fieldset to enter my name, ssn and dob$/) do
   @browser.button(value: /Search Person/).fire_event("onclick")
 end
 
-And(/^(.*?) employer visit the benefits tab$/) do |legal_name|
-  organization = @organization[legal_name]
+Then(/^(.*?) should be able to set up benefit aplication$/) do |legal_name|
+  wait_for_ajax
+  click_button "OK"
+end
+
+Then(/^(.*?) Employer visit the benefits page$/) do |legal_name|
+  organization = ::BenefitSponsors::Organizations::Organization.where(legal_name: legal_name).first
   employer_profile = organization.employer_profile
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
-end
-
-Then(/^(.*?) should be able to set up benefit aplication$/) do |legal_name|
-  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
-  find(:xpath, "//li[@data-index='1'][contains(., '#{(Date.today + 2.months).year}')]", :wait => 3).click
-  find('.interaction-field-control-fteemployee').click
-  fill_in 'benefit_application[fte_count]', with: '3'
-  fill_in 'benefit_application[pte_count]', with: '3'
-  fill_in 'benefit_application[msp_count]', with: '3'
-  find('.interaction-click-control-continue').click
-  sleep(3)
-end
-
-Then(/^Employer visit the benefits page$/) do
-  click_link 'Benefits'
-end
-
-And(/^Employer creates Benefit package$/) do
-  wait_for_ajax
-  fill_in 'benefit_package[title]', with: 'Silver PPO Group'
-  fill_in 'benefit_package[description]', with: 'Testing'
-  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').click
-  wait_for_ajax
-  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').click
-  sleep 5
-  wait_for_ajax
 end
 
 Then(/^.+ uploads an attestation document/) do
@@ -424,8 +403,7 @@ And(/^.+ should be able to enter plan year, benefits, relationship benefits with
 end
 
 And(/^.+ should see a success message after clicking on create plan year button$/) do
-  expect(page).to have_content('Plan Year successfully created')
-  screenshot("employer_plan_year_success_message")
+  expect(page).to have_content('Benefit Package successfully created.')
 end
 
 When(/^.+ enters filter in plan selection page$/) do
