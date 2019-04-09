@@ -4,8 +4,8 @@ Feature: EE with multiple employers plan purchase
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
     And there is an employer DEF Sales
-    When employer ABC Widgets has an active benefit application with offering health and dental
-    And employer DEF Sales has an active benefit application with offering health and dental
+    And employer ABC Widgets has active benefit application
+    And employer DEF Sales has active benefit application
     Then person has multiple employee roles with benefits from employers ABC Widgets and DEF Sales
 
   Scenario: when EE purchase plan for self & having ineligible family member - 

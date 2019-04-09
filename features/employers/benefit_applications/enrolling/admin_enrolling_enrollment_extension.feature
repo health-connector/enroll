@@ -4,8 +4,7 @@ Feature: As an admin user I should have the ability to extend the OE
   Background: Setup site, employer, and enrolling/renewing benefit application
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
-    And this employer has a enrollment_open benefit application
-    And this benefit application has a benefit package containing health benefits
+    And employer ABC Widgets has enrollment_open benefit application
 
   Scenario: As an HBX Staff with Super Admin subroles I want to extend Open Enrollment for an Employer with an Enrolling/Renewing_Enrolling benefit application
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in

@@ -6,9 +6,10 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
     And there is an employer ACME Widgets, Inc.
-
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer ACME Widgets, Inc. has imported and renewing enrollment_open benefit applications
     And ACME Widgets, Inc. employer has a staff role
+    And there is a census employee record for Patrick Doe for employer ACME Widgets, Inc.
+    
     Given staff role person logged in
     And ACME Widgets, Inc. employer visit the Employee Roster
     Then Employer logs out
@@ -34,9 +35,8 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through Shop for Plans
     Given a CCA site exists with a benefit market
-    And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
-    And this employer had a active and renewing draft application
+    And employer ABC Widgets has imported and renewing draft benefit applications
 
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
@@ -51,10 +51,9 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
 
   Scenario: New Hire can't buy coverage before open enrollment of renewing plan year through New Hire badge
     Given a CCA site exists with a benefit market
-    And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
     And ACME Widgets, Inc. employer has a staff role
-    And this employer had a active and renewing draft application
+    And employer ABC Widgets has imported and renewing draft benefit applications
 
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
@@ -69,9 +68,8 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
   Scenario: New Hire can't buy coverage under off-exchange plan year using QLE
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
-    And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
-    And this employer had a active and renewing draft application
+    And employer ABC Widgets has imported and renewing enrollment_open benefit applications
     
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
@@ -88,10 +86,9 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
 
   Scenario: New Hire can buy coverage during open enrollment of renewing plan year
     Given a CCA site exists with a benefit market
-    And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
     And ACME Widgets, Inc. employer has a staff role
-    And this employer had a active and renewing draft application
+    And employer ABC Widgets has imported and renewing enrollment_open benefit applications
 
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
@@ -150,9 +147,8 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
   Scenario: Existing Employee can buy coverage during open enrollment of renewing plan year using QLE
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
-    And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
-    And this employer had a active and renewing draft application
+    And employer ABC Widgets has imported and renewing enrollment_open benefit applications
     
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has current hired on date
@@ -190,11 +186,11 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     Given a CCA site exists with a benefit market
     And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
-    And this employer had a active and renewing draft application
+    And employer ABC Widgets has imported and renewing enrollment_open benefit applications
     Given there is a census employee record for Patrick Doe for employer ABC Widgets
 
     And there is an employer ACME Inc
-    And employer ACME Inc has a active and renewing draft application
+    And employer ACME Inc has imported and renewing enrollment_open benefit applications
     Given there is a census employee record for Patrick Doe for employer ACME Inc
 
     And employee Patrick Doe has current hired on date for each of their employers

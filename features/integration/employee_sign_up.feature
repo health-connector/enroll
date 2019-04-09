@@ -27,7 +27,7 @@ Feature: Employee Sign Up when Employer exists and has a matching roster employe
 
   Scenario: New employee with existing person
     Given staff role person logged in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
     Then Employer logs out
     And Employee has not signed up as an HBX user

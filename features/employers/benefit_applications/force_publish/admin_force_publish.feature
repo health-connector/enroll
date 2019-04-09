@@ -4,9 +4,8 @@ Feature: As an admin user I should have the ability to extend the OE
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
-    And this employer has a draft benefit application
-    And this benefit application has a benefit package containing health benefits
-
+    And employer ABC Widgets has draft benefit application
+    
   Scenario Outline: As an HBX Staff with Super Admin subroles I should <action> force publish button based on <date_to_compare_with> and publish_due_day_of_month of benefit application
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard

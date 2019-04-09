@@ -9,7 +9,7 @@ Feature: EE plan purchase
 
   Scenario: when EE purchase plan for self
     When staff role person logged in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
     Then Employer logs out
     And Employee has not signed up as an HBX user
@@ -35,7 +35,7 @@ Feature: EE plan purchase
 
   Scenario: when EE purchase plan for self & dependent
     When staff role person logged in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
     Then Employer logs out
     And Employee has not signed up as an HBX user
@@ -58,7 +58,7 @@ Feature: EE plan purchase
 
   Scenario: EE having an ineligible family member & doing plan shop
     When staff role person logged in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
     Then Employer logs out
     And Employee has not signed up as an HBX user

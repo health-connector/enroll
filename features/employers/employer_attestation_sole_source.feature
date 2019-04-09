@@ -5,7 +5,7 @@ Feature: Employer Profile
     Given a CCA site exists with a benefit market
     And it has an employer ABC Widgets with no attestation submitted
     And ABC Widgets employer has a staff role
-    And has a draft application
+    And employer ABC Widgets has draft benefit application
     And staff role person logged in
     And ABC Widgets goes to the benefits tab I should see plan year information
 

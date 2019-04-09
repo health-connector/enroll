@@ -11,8 +11,9 @@ Feature: Employee with future date of hire
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
     And there is an employer Acme Inc.
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer has a staff role
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
 
   Scenario: New hire has enrollment period based on hired date
     Given staff role person logged in

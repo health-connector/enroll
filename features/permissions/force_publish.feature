@@ -4,8 +4,7 @@ Feature: As a Super Admin I will be the only user
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
-    And this employer has a draft benefit application
-    And this benefit application has a benefit package containing health benefits
+    And employer ABC Widgets has draft benefit application
 
   Scenario Outline: HBX Staff with <subrole> subroles should <action> Force Publish button
     Given that a user with a HBX staff role with <subrole> subrole exists and is logged in

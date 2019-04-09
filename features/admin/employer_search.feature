@@ -4,8 +4,7 @@ Feature: Add search functionality for admin to search employer
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
-    And this employer has a enrollment_open benefit application
-    And this benefit application has a benefit package containing health benefits
+    And employer ABC Widgets has enrollment_open benefit application
 
   Scenario: HBX Staff with Super Admin subroles should see Change FEIN button
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in

@@ -4,7 +4,7 @@ Feature: Employee termination and Re-hire functionality
     Given a CCA site exists with a benefit market
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
-    And this employer has a benefit application
+    And employer ABC Widgets has active benefit application
     And there are 2 employees for ABC Widgets
     And Employees for ABC Widgets have both Benefit Group Assignments Employee role
 

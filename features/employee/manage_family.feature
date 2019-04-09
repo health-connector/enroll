@@ -7,8 +7,9 @@ Feature: Employees can update their password or security questions
 
   Scenario: An employee can update their password with the correct original password
     Given Employer exists and logs in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal
@@ -44,8 +45,9 @@ Feature: Employees can update their password or security questions
 
   Scenario: An employee cannot update their password without the correct original password
     Given Employer exists and logs in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal
@@ -81,8 +83,9 @@ Feature: Employees can update their password or security questions
 
   Scenario: An employee can update their security question responses
     Given Employer exists and logs in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal

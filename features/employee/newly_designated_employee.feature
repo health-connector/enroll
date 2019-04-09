@@ -5,11 +5,13 @@ Feature: Newly designated employees can purchase coverage only through renewing 
 Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     And there is an employer Acme Inc.
+    And employer Acme Inc. has active and renewing enrollment_open benefit applications
     And Acme Inc. employer has a staff role 
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
 
   Scenario: Newly designated should not get effective date before renewing plan year start date
    Given Employer exists and logs in and adds and employee
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
     Then Employer logs out
     And Employee has not signed up as an HBX user
