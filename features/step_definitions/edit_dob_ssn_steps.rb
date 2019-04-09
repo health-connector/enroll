@@ -27,7 +27,7 @@ When("user enters an invalid SSN and clicks on update") do
   find('#person_ssn').set("212-31-31")
   sleep 1
   page.find_button("Update").click
-  age.driver.browser.switch_to.alert.accept
+  page.driver.browser.switch_to.alert.accept
 end
 
 Given("that a user with a HBX staff role with HBX Staff exists and is logged in") do
