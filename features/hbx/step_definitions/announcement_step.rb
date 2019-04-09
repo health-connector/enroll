@@ -63,6 +63,7 @@ When(/^Hbx admin click the link of all$/) do
 end
 
 Then(/^Hbx admin should see the future announcement$/) do
+  sleep 3
   expect(page).to have_content('announcement for future')
 end
 
