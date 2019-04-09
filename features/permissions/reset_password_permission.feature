@@ -1,4 +1,4 @@
-Feature: Only Super Admin HBX Staff HBX Tier3 will be able to see & access the Reset Password Feature.
+Feature: Only HBX Staff will be able to see & access the Reset Password Feature.
 
   Background: Setup site, employer, benefit application and active employee
     Given a CCA site exists with a benefit market
