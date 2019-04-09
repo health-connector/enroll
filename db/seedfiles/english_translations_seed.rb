@@ -8,7 +8,10 @@ puts "::: Generating English Translations :::"
 MAIN_TRANSLATIONS = {
   "en.shared.my_portal_links.my_insured_portal" => "My Insured Portal",
   "en.shared.my_portal_links.my_broker_agency_portal" => "My Broker Agency Portal",
-  "en.shared.my_portal_links.my_employer_portal" => "My Employer Portal"
+  "en.shared.my_portal_links.my_employer_portal" => "My Employer Portal",
+  "en.shared.my_portal_links.did_you_know" => "Did You Know?",
+  "en.shared.my_portal_links.portals_helpers_message" => "You can move between your insured, employer, broker accounts using this My Portals link.",
+  "en.shared.my_portal_links.add_employee_role" => "Add Employee Role"
 }
 translations = [
   BOOTSTRAP_EXAMPLE_TRANSLATIONS,

@@ -307,7 +307,7 @@ class CensusEmployee < CensusMember
     if (self.benefit_sponsors_employer_profile_id == new_employee_role.benefit_sponsors_employer_profile_id) || slug
       self.employee_role_id = new_employee_role._id
       @employee_role = new_employee_role
-      self.link_employee_role! if employee_record_claimed?(new_employee_role)
+      self.link_employee_role! if employee_record_claimed?(new_employee_role) && new_employee_role.valid?
     else
       message =  "Identifying information mismatch error linking employee role: "\
                  "#{new_employee_role.inspect} "\
@@ -618,7 +618,7 @@ class CensusEmployee < CensusMember
       # return if self.employer_profile.is_a_conversion_employer? ### this check needs to be re-done when loading mid_PY conversion and needs to have more specific check.
 
       if employee_role.present?
-        self.link_employee_role! if may_link_employee_role? && employee_record_claimed?
+        self.link_employee_role! if may_link_employee_role? && employee_record_claimed? && employee_role.valid?
       else
         construct_employee_role_for_match_person if has_benefit_group_assignment?
       end
@@ -634,6 +634,7 @@ class CensusEmployee < CensusMember
 
     return false if person.blank? || (person.present? &&
                                       person.has_active_employee_role_for_census_employee?(self))
+
     Factories::EnrollmentFactory.build_employee_role(person, nil, employer_profile, self, hired_on)
     # self.trigger_notices("employee_eligibility_notice")#sends EE eligibility notice to census employee
     return true
