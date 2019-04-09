@@ -8,16 +8,26 @@ module BenefitMarketWorld
     @rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area)
   end
 
-  def current_effective_date
-    @current_effective_date = (TimeKeeper.date_of_record + 2.months).beginning_of_month
+  def current_effective_date(new_date = nil)
+    if new_date.present?
+      @current_effective_date = new_date
+    else
+      return @current_effective_date if defined? @current_effective_date
+      @current_effective_date = (TimeKeeper.date_of_record + 2.months).beginning_of_month
+    end
   end
 
-  def renewal_effective_date
-    @renewal_effective_date = current_effective_date.next_year
+  def renewal_effective_date(new_date = nil)
+    if new_date.present?
+      @renewal_effective_date = new_date
+    else
+      return @renewal_effective_date if defined? @renewal_effective_date
+      @renewal_effective_date = current_effective_date.next_year
+    end
   end
 
   def prior_effective_date
-    @prior_rating_area = current_effective_date - 1.year
+    @prior_rating_area ||= current_effective_date - 1.year
   end
 
   def prior_rating_area
