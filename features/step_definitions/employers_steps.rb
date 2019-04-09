@@ -25,6 +25,38 @@ Then(/^.+ should see an initial fieldset to enter my name, ssn and dob$/) do
   @browser.button(value: /Search Person/).fire_event("onclick")
 end
 
+And(/^(.*?) employer visit the benefits tab$/) do |legal_name|
+  organization = @organization[legal_name]
+  employer_profile = organization.employer_profile
+  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
+end
+
+Then(/^(.*?) should be able to set up benefit aplication$/) do |legal_name|
+  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
+  find(:xpath, "//li[@data-index='1'][contains(., '#{(Date.today + 2.months).year}')]", :wait => 3).click
+  find('.interaction-field-control-fteemployee').click
+  fill_in 'benefit_application[fte_count]', with: '3'
+  fill_in 'benefit_application[pte_count]', with: '3'
+  fill_in 'benefit_application[msp_count]', with: '3'
+  find('.interaction-click-control-continue').click
+  sleep(3)
+end
+
+Then(/^Employer visit the benefits page$/) do
+  click_link 'Benefits'
+end
+
+And(/^Employer creates Benefit package$/) do
+  wait_for_ajax
+  fill_in 'benefit_package[title]', with: 'Silver PPO Group'
+  fill_in 'benefit_package[description]', with: 'Testing'
+  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').click
+  wait_for_ajax
+  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').click
+  sleep 5
+  wait_for_ajax
+end
+
 Then(/^.+ uploads an attestation document/) do
   if (Settings.aca.enforce_employer_attestation.to_s == "true")
     find('.interaction-click-control-documents').click
@@ -886,8 +918,7 @@ end
 
 And(/^employer sets cobra start date to two months after termination date$/) do
   date = @census_employees.first.employment_terminated_on + 2.months
-
-  find('input.text-center.date-picker').set date
+  page.execute_script("$('.datepicker').val(#{date.to_s})")
 end
 
 When(/^EnterPrise Limited employer clicks on Initiate COBRA button$/) do

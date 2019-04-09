@@ -8,11 +8,14 @@ end
 And(/^the user enters FEIN with less than nine digits$/) do
   accept_alert do
     find('#organizations_general_organization_new_fein').set("89-42312")
+    # Submit already within the alert block
+    page.find_button('Submit').click
   end
 end
 
 And(/^the user clicks submit button$/) do
-  accept_alert do
+  # Needed accept confirm vs alert
+  accept_confirm do
     page.find_button('Submit').click
   end
 end

@@ -88,6 +88,9 @@ When(/^Hbx Admin click on Delete Question link$/) do
   find(:xpath, "(//a[text()='Delete'])[2]").click
 end
 
+When /^Hbx Admin confirm popup$/ do
+  page.driver.browser.switch_to.alert.accept
+end
 
 Then(/^I can(not)? see the security modal dialog$/) do |negate|
   if negate
@@ -97,11 +100,28 @@ Then(/^I can(not)? see the security modal dialog$/) do |negate|
   end
 end
 
+# Old one, doesn't seem to be working for choosing the questions
 Then(/^I select the all security question and give the answer$/) do
   (0..2).each do |num|
     page.all('.security-question-select', visible: false)[num].set("Security Question #{num + 1}")
     page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num+1}")
   end
+end
+
+When(/^user fills out the security questions modal$/) do
+  security_questions = SecurityQuestion.all.to_a.map(&:id)
+  (0..2).each do |num|
+    question_select_id = "sec-#{num}"
+    page.execute_script("document.getElementById('#{question_select_id}').value = '#{security_questions[num].to_s}';")
+    page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num+1}")
+  end
+end
+
+When(/^.+ submits termination reason$/) do
+  waiver_modal = find('#waive_confirm')
+  waiver_modal.find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'Please select waive reason')]]").click
+  waiver_modal.find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), 'I have coverage through Medicaid')]").click
+  waiver_modal.find('#waiver_reason_submit').click
 end
 
 When(/I have submitted the security questions$/) do

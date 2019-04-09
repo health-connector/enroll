@@ -17,13 +17,24 @@ When(/^Hbx Admin clicks on the Action button$/) do
   end
 end
 
+When("user enters an invalid SSN and clicks on update") do
+  find('#person_ssn').set("212-31-31")
+  sleep 1
+  page.find_button("Update").click
+  age.driver.browser.switch_to.alert.accept
+end
+
+Given("that a user with a HBX staff role with HBX Staff exists and is logged in") do
+  expect(page).to have_css('.btn.btn-xs', text: 'Change FEIN')
+end
+
 # FIXME: Make this take a 'for' argument, that way we can select which user
 Then(/^Hbx Admin should see an edit DOB\/SSN link$/) do
   find_link('Edit DOB / SSN').visible?
 end
 
 # FIXME: Make this take a 'for' argument, that way we can select which user
-When(/^Hbx Admin clicks on edit DOB\/SSN link$/) do
+When(%r{^user clicks on edit DOB/SSN link$}) do
   click_link('Edit DOB / SSN')
 end
 
@@ -40,6 +51,7 @@ end
 When(/^Hbx Admin enters a valid DOB and SSN and clicks on update$/) do
   fill_in 'person[ssn]', :with => '212-31-3131'
   page.find_button("Update").click
+  page.driver.browser.switch_to.alert.accept
 end
 
 Then(/^Hbx Admin should see the update partial rendered with update sucessful message$/) do

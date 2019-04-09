@@ -45,7 +45,7 @@ Feature: Employees can purchase coverage from both active and renewing plan year
     Then Patrick Doe should see the receipt page with qle effective date as effective date
     Then Patrick Doe should see "my account" page with enrollment
 
-
+  @bug @wip
    Scenario: Employee should be blocked from plan shopping if their eligibility date greater than their effective date
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employer ABC Widgets has active and renewing enrollment_open benefit applications
@@ -56,8 +56,8 @@ Feature: Employees can purchase coverage from both active and renewing plan year
     Then Employee should see confirmation and clicks continue
     Then Employee should see family members page and clicks continue
     Then Employee should see the group selection page
-  # TODO # WIP
-    #Then Employee should see "You are attempting to purchase coverage through qle proir to your eligibility date" error message
+  # TODO # Fix scenario after bug fixed
+    Then Employee should see "You are attempting to purchase coverage through qle proir to your eligibility date" error message
 
   Scenario: Employee should see the correct EE contribution on their current plan when doing plan shop
 

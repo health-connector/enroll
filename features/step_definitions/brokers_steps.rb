@@ -111,7 +111,8 @@ end
 And(/^.+ should see the list of broker applicants$/) do
 end
 
-Then(/^.+ clicks? on the current broker applicant show button$/) do
+
+Then(/^.+ click the current broker applicant show button$/) do
   find('.interaction-click-control-broker-show').click
 end
 
@@ -124,7 +125,7 @@ And(/^.+ should see the broker application with carrier appointments$/) do
   end
 end
 
-And(/^.+ clicks? on approve broker button$/) do
+And(/^.+ click approve broker button$/) do
   find('.interaction-click-control-broker-approve').click
 end
 

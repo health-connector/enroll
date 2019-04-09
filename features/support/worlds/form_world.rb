@@ -182,3 +182,14 @@ Then(/^user should see the broker registration successful message$/) do
   expect(page).to have_content('Your registration has been submitted. A response will be sent to the email address you provided once your application is reviewed.')
 end
 
+And(/^user (.*?) fills out personal information form$/) do |named_person|
+  person = people[named_person]
+  fill_in 'person[first_name]', :with => person[:first_name]
+  fill_in 'person[last_name]', :with => person[:last_name]
+  fill_in 'jq_datepicker_ignore_person[dob]', :with => person[:dob]
+  fill_in 'person[ssn]', :with => person[:ssn]
+  find(:xpath, '//label[@for="radio_male"]').click
+  screenshot("register")
+  find('.btn', text: 'CONTINUE').click
+end
+

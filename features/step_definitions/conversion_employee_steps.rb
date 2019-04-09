@@ -146,18 +146,13 @@ And(/(.*) matches all employee roles to employers and is logged in/) do |named_p
   employer_profiles = organizations.map(&:employer_profile).compact
   employer_profiles.each do |employer_profile|
     legal_name = employer_profile.organization.legal_name
-    ce = employer_profile.census_employees.where(
-      :first_name => /#{person[:first_name]}/i,
-      :last_name => /#{person[:last_name]}/i
-    ).first
     # Creates the employee staff roles too
-    person_record = person_record_from_census_employee(person, legal_name)
-    user = user_record_from_census_employee(person)
+    person_record_from_census_employee(person, legal_name, organizations)
   end
+  user = user_record_from_census_employee(person)
   login_as user
   visit "/"
   click_link 'Employee Portal'
-  click_link "CONTINUE"
 end
 
 Then(/Employee should see \"employer-sponsored benefits not found\" error message/) do
@@ -194,13 +189,17 @@ end
 
 When(/(.*) click the first button of new hire badge/) do |named_person|
   person = people[named_person]
-  expect(find_all(".alert-notice").first.text).to match person[:legal_name]
+  expect(find_all(".alert-notice").first.text).to include("Congratulations")
   find_all('#shop_for_employer_sponsored_coverage').first.click
 end
 
 Then(/(.*) should see the 1st ER name/) do |named_person|
   person = people[named_person]
   expect(page).to have_content(person[:legal_name])
+end
+
+Then(/employee should see text for employer (.*)/) do |employer_legal_name|
+  expect(page).to have_content(employer_legal_name)
 end
 
 Then(/(.*) should see New Hire Badges for 2st ER/) do |named_person|

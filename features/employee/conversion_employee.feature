@@ -193,36 +193,44 @@ Feature: Conversion employees can purchase coverage only through renewing plan y
     And employer ACME Inc has imported and renewing enrollment_open benefit applications
     Given there is a census employee record for Patrick Doe for employer ACME Inc
 
-    And employee Patrick Doe has current hired on date for each of their employers
+    And census employee records for Patrick Doe have current hired on date for each employers
     And Patrick Doe matches all employee roles to employers and is logged in
-    And Patrick Doe has New Hire Badges for all employers
-    When Soren White click the first button of new hire badge
-    Then Employee should see the group selection page
-    When Employee clicks continue on the group selection page
-    Then Employee should see the plan shopping welcome page
-    Then Soren White should see the 1st ER name
-    Then Employee should see the list of plans
-    When Employee selects a plan on the plan shopping page
-    Then Employee should see the coverage summary page
-    Then Soren White should see the 1st ER name
-    When Employee clicks on Confirm button on the coverage summary page
-    Then Soren White should see the 1st ER name
-    Then Employee should see the receipt page
-    Then Employee should see the "my account" page
-    Then Soren White should see the 1st ER name
-    And Soren White should see New Hire Badges for 2st ER
+    
+    Then Patrick Doe should see the employee privacy text
+    When Patrick Doe enters the identifying info of Patrick Doe
+    And Patrick Doe sees the option to enroll for all employers
+    When Patrick Doe accepts the matched employer
+    When Employee completes the matched employee form for Patrick Doe
+    And Employee sees the Household Info: Family Members page and clicks Continue    
+    And employee visits the Employee Portal page
 
-    When Soren White click the button of new hire badge for 2st ER
+    And Patrick Doe has New Hire Badges for all employers
+    When Patrick Doe click the first button of new hire badge
+
     Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
-    Then Soren White should see the 2st ER name
     Then Employee should see the plan shopping welcome page
     Then Employee should see the list of plans
+    Then employee should see text for employer ABC Widgets
     When Employee selects a plan on the plan shopping page
     Then Employee should see the coverage summary page
-    Then Soren White should see the 2st ER name
+    Then employee should see text for employer ABC Widgets
     When Employee clicks on Confirm button on the coverage summary page
-    Then Soren White should see the 2st ER name
+    Then employee should see text for employer ABC Widgets
     Then Employee should see the receipt page
     Then Employee should see the "my account" page
-    Then Soren White should see the 2st ER name
+
+    When Patrick Doe click the button of new hire badge for 2st ER
+
+    Then Employee should see the group selection page
+    When Employee clicks continue on the group selection page
+    Then Employee should see the plan shopping welcome page
+    Then Employee should see the list of plans
+    Then employee should see text for employer ACME Inc
+    When Employee selects a plan on the plan shopping page
+    Then Employee should see the coverage summary page
+    Then employee should see text for employer ACME Inc
+    When Employee clicks on Confirm button on the coverage summary page
+    Then employee should see text for employer ACME Inc
+    Then Employee should see the receipt page
+    Then Employee should see the "my account" page

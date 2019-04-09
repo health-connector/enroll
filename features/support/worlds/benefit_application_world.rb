@@ -89,11 +89,11 @@ module BenefitApplicationWorld
     )
   end
 
-  def renewal_application(legal_name = nil)
-    @renewal_application ||= FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+  def renewal_application(employer = nil, dental = false)
+    FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                                :with_benefit_package, :with_predecessor_application,
                                                predecessor_application_state: aasm_state,
-                                               benefit_sponsorship: benefit_sponsorship(legal_name),
+                                               benefit_sponsorship: benefit_sponsorship(employer),
                                                effective_period: effective_period,
                                                aasm_state: renewal_state,
                                                open_enrollment_period: open_enrollment_period,
@@ -101,25 +101,50 @@ module BenefitApplicationWorld
                                                recorded_service_areas: service_areas,
                                                package_kind: package_kind,
                                                dental_package_kind: dental_package_kind,
-                                               dental_sponsored_benefit: dental_sponsored_benefit,
+                                               dental_sponsored_benefit: dental_sponsored_benefit(dental),
                                                predecessor_application_catalog: true)
   end
 
-  def expired_and_active_application(legal_name = nil)
-    @expired_and_active_application ||= FactoryGirl.build(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
-                                                          :with_benefit_package, :with_predecessor_expired_application,
-                                                          benefit_sponsorship: benefit_sponsorship(legal_name),
-                                                          aasm_state: :active,
-                                                          effective_period: effective_period,
-                                                          open_enrollment_period: open_enrollment_period,
-                                                          recorded_rating_area: rating_area,
-                                                          recorded_service_areas: service_areas,
-                                                          package_kind: package_kind)
+  def expired_and_active_application(employer = nil, dental = false)
+    FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+                       :with_benefit_package, :with_predecessor_expired_application,
+                       benefit_sponsorship: benefit_sponsorship(employer),
+                       aasm_state: :active,
+                       effective_period: effective_period,
+                       open_enrollment_period: open_enrollment_period,
+                       recorded_rating_area: rating_area,
+                       recorded_service_areas: service_areas,
+                       dental_sponsored_benefit: dental_sponsored_benefit(dental),
+                       package_kind: package_kind)
+  end
+
+  def second_employer_renewal_application(legal_name = nil)
+    if legal_name.present?
+      organization = @organization[legal_name]
+    else
+      organization = @organization.values.first
+    end
+    @second_renewal_application ||= FactoryGirl.create(
+      :benefit_sponsors_benefit_application,
+      :with_benefit_sponsor_catalog,
+      :with_benefit_package,
+      :with_predecessor_application,
+      predecessor_application_state: aasm_state,
+      benefit_sponsorship: benefit_sponsorship(organization),
+      effective_period: effective_period,
+      aasm_state: renewal_state,
+      open_enrollment_period: open_enrollment_period,
+      recorded_rating_area: rating_area,
+      recorded_service_areas: service_areas,
+      package_kind: package_kind,
+      dental_package_kind: dental_package_kind,
+      dental_sponsored_benefit: dental_sponsored_benefit,
+      predecessor_application_catalog: true
+    )
   end
 
   def assign_sponsored_benefits
   product_package = benefit_market.benefit_market_catalogs.first.product_packages.where(package_kind: :single_issuer).first
-
   end
 
   def roster_size(count=5)
@@ -314,18 +339,30 @@ And(/^this employer has a benefit application$/) do
   benefit_sponsor_catalog.save!
 end
 
-And(/^this employer(?: (.*?))? had a (.*?)(?: and (.*?)(?: (.*?))?)? application$/) do |legal_name, application1, application2, application2_state|
-  legal_name = @organization[legal_name]
+And(/^this employer(?: (.*?))? had a (.*?)(?: and (.*?)(?: (.*?))?)? application$/) do |org_name, application1, application2, application2_state|
+  employer = @organization[org_name]
   if application1 == "active" && application2 == "renewing"
     renewal_state = application2_state.present? ? application2_state.to_sym : :draft
     aasm_state(:active)
     renewal_state(renewal_state)
-    renewal_application(legal_name)
+    renewal_application(employer, true)
   end
 
   if application1 == "expired" && application2 == "active" || application1 == "active"
     @effective_period = (TimeKeeper.date_of_record.beginning_of_month..TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day)
-    expired_and_active_application
+    expired_and_active_application(employer, true)
+  end
+end
+
+And(/^second employer (.*?) has a (.*?)(?: and (.*?) (.*?))? application$/) do |legal_name, active_app, renewal_app, renewal_state|
+
+  renewal_state = renewal_state.present? ? renewal_state.to_sym : :draft
+  if renewal_app
+    aasm_state(:active)
+    renewal_state(renewal_state)
+    second_employer_renewal_application(legal_name)
+  elsif active_app
+    # Fix for active application
   end
 end
 
@@ -345,6 +382,20 @@ And(/^this employer offering (.*?) contribution to (.*?)$/) do |percent, display
           next unless contribution_level.display_name == display_name
           contribution_level.update_attributes(contribution_factor: percent)
         end
+      end
+    end
+  end
+end
+
+And(/^this employer (.*?) not offering (.*?) benefits to (.*?)$/) do |legal_name, sponsored_benefit, display_name|
+  legal_name = @organization[legal_name]
+  benefit_sponsorship = benefit_sponsorship(legal_name)
+  benefit_sponsorship.benefit_applications.each do |application|
+    application.benefit_packages.each do |benefit_package|
+      sponsored_benefit = sponsored_benefit == "dental" ? benefit_package.dental_sponsored_benefit : benefit_package.health_sponsored_benefit
+      sponsored_benefit.sponsor_contribution.contribution_levels.each do |contribution_level|
+        next unless contribution_level.display_name == display_name
+        contribution_level.update_attributes(is_offered: false)
       end
     end
   end
@@ -397,41 +448,6 @@ And(/^has a draft application$/) do
   properly_associate_benefit_package
   benefit_sponsorship.save!
   benefit_sponsor_catalog.save!
-end
-
-And(/^(.*?) employer visit the benefits tab$/) do |legal_name|
-  organization = @organization[legal_name]
-  employer_profile = organization.employer_profile
-  visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
-end
-
-Then(/^(.*?) should be able to set up benefit aplication$/) do |legal_name|
-  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
-  find(:xpath, "//li[@data-index='1'][contains(., '#{(Date.today + 2.months).year}')]", :wait => 3).click
-
-  find('.interaction-field-control-fteemployee').click
-  fill_in 'benefit_application[fte_count]', with: '3'
-  fill_in 'benefit_application[pte_count]', with: '3'
-  fill_in 'benefit_application[msp_count]', with: '3'
-
-  find('.interaction-click-control-continue').click
-  sleep(3)
-
-end
-
-Then(/^Employer visit the benefits page$/) do
-  click_link 'Benefits'
-end
-
-And(/^Employer creates Benefit package$/) do
-  wait_for_ajax
-  fill_in 'benefit_package[title]', with: 'Silver PPO Group'
-  fill_in 'benefit_package[description]', with: 'Testing'
-  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').click
-  wait_for_ajax
-  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').click
-  sleep 5
-  wait_for_ajax
 end
 
 And(/^this employer has a (.*?) benefit application$/) do |status|

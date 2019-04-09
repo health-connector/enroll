@@ -1,4 +1,3 @@
-@wip
 Feature: HBX Admin should be able to send the broker application to pending state
 
   Background: Setup site, employer, and benefit application
@@ -24,5 +23,5 @@ Feature: HBX Admin should be able to send the broker application to pending stat
     Then Hbx Admin should see the list of broker applicants
     And Hbx Admin the clicks on current broker applicant show button
     And Hbx Admin should see broker application with carrier appointments
-    When Hbx Admin clicks on the pending button
+    When Admin clicks on the pending button
     Then Hbx Admin views a successful message

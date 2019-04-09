@@ -43,7 +43,7 @@ module BenefitMarketWorld
   end
 
   def product_kinds
-    @product_kinds = [:health]
+    @product_kinds = [:health, :dental]
   end
 
   def service_area
@@ -167,8 +167,16 @@ module BenefitMarketWorld
                             issuer_profile_id: issuer_profile.id,
                             premium_ages: 0..65)
 
-    # TODO
-    # build dental products for prior year.
+    FactoryGirl.create_list(:benefit_markets_products_dental_products_dental_product,
+                            5,
+                            :with_renewal_product,
+                            application_period: (prior_effective_date.beginning_of_year..prior_effective_date.end_of_year),
+                            product_package_kinds: [:single_product,:single_issuer],
+                            service_area: prior_service_area,
+                            renewal_service_area: prior_service_area,
+                            metal_level_kind: :dental,
+                            issuer_profile_id: issuer_profile.id,
+                            premium_ages: 0..65)
 
     prior_benefit_market_catalog.product_packages.each do |product_package|
       current_product_package = current_benefit_market_catalog.product_packages.detect do |p|
