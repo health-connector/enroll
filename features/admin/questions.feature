@@ -17,7 +17,7 @@ Feature: Add, Edit and Delete security questions
     When Hbx Admin submit the question form
     Then there is 4 questions available in the list
 
-  Scenario: Hbx Admin can add new security question
+  Scenario: Hbx Admin can edit security question
     Given Admin is a person
     Given Admin has already provided security question responses
     Given Admin has HBXAdmin privileges
@@ -30,6 +30,7 @@ Feature: Add, Edit and Delete security questions
     And Hbx Admin update the question title
     When Hbx Admin submit the question form
     Then there is 0 questions available in the list
+    #Fix Me Created a ticket 40436
     And the question title updated successfully
 
   Scenario: Hbx Admin should see already in use text when existing security question already present
