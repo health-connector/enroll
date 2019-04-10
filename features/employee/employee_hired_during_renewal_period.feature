@@ -8,9 +8,9 @@ Feature: Employee hired during renewal period
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    And benefit market has prior benefit market catalog
+    Given benefit market catalog exists for enrollment_open renewal employer with health benefits
     And there is an employer ABC Widgets
-    And this employer had a active and renewing enrollment_open application
+    And employer ABC Widgets has active and renewing enrollment_open benefit applications
     And this employer offering 0.75 contribution to Employee
     And this employer ABC Widgets has first_of_month rule
 

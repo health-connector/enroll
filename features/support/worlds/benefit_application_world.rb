@@ -216,38 +216,40 @@ module BenefitApplicationWorld
     @census_employees ||= create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: initial_application.benefit_packages.first)
   end
 
-  def create_rating_area(calender_year, type)
-    instance_variable_set("@#{type}_rating_area", FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: calender_year))
-  end
+  # def create_rating_area(calender_year, type)
+  #   instance_variable_set("@#{type}_rating_area", FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: calender_year))
+  # end
 
-  def create_service_area(calender_year, type)
-    instance_variable_set("@#{type}_service_area", FactoryGirl.create(:benefit_markets_locations_service_area, active_year: calender_year))
-  end
+  # def create_service_area(calender_year, type)
+  #   instance_variable_set("@#{type}_service_area", FactoryGirl.create(:benefit_markets_locations_service_area, active_year: calender_year))
+  # end
 
-  def create_benefit_market_catalog_for(effective_date, type)
-    create_rating_area(effective_date.year, type)
-    create_service_area(effective_date.year, type)
+  # def create_benefit_market_catalog_for(effective_date, type)
+  #   create_rating_area(effective_date.year, type)
+  #   create_service_area(effective_date.year, type)
 
-    if benefit_market.benefit_market_catalog_for(effective_date).blank?
-      FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-        benefit_market: benefit_market,
-        product_kinds: product_kinds,
-        title: "SHOP Benefits for #{effective_date.year}",
-        application_period: (effective_date.beginning_of_year..effective_date.end_of_year),
-        service_area: (type == :new ? @new_service_area : @earlier_service_area),
-        issuer_profile: issuer_profile)
-    end
-  end
+  #   if benefit_market.benefit_market_catalog_for(effective_date).present?
+  #     benefit_market.benefit_market_catalog_for(effective_date)
+  #   else
+  #     FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+  #       benefit_market: benefit_market,
+  #       product_kinds: product_kinds,
+  #       title: "SHOP Benefits for #{effective_date.year}",
+  #       application_period: (effective_date.beginning_of_year..effective_date.end_of_year),
+  #       service_area: (type == :new ? @new_service_area : @earlier_service_area),
+  #       issuer_profile: issuer_profile)
+  #   end
+  # end
 
-  def set_earlier_effective_date(earlier_status, new_status)
-    date = (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year
+  # def set_earlier_effective_date(earlier_status, new_status)
+  #   date = (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year
 
-    if [:expired, :imported].include?(earlier_status) && new_status == :active
-      date = (TimeKeeper.date_of_record - 2.months).beginning_of_month.prev_year
-    end
+  #   if [:expired, :imported].include?(earlier_status) && new_status == :active
+  #     date = (TimeKeeper.date_of_record - 2.months).beginning_of_month.prev_year
+  #   end
 
-    current_effective_date(date)
-  end
+  #   current_effective_date(date)
+  # end
 
   def application_dates_for(effective_date, aasm_state)
     oe_period = if effective_date >= TimeKeeper.date_of_record
@@ -263,11 +265,11 @@ module BenefitApplicationWorld
   end
 
   def create_application(new_application_status: new_application_status)
-    if new_application_status == :active
-      current_effective_date(TimeKeeper.date_of_record.beginning_of_month - 2.months)
-    end
+    # if new_application_status == :active
+    #   current_effective_date(TimeKeeper.date_of_record.beginning_of_month - 2.months)
+    # end
 
-    create_benefit_market_catalog_for(current_effective_date, :new)
+    # create_benefit_market_catalog_for(current_effective_date, :new)
     application_dates = application_dates_for(current_effective_date, new_application_status)
 
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
@@ -276,25 +278,42 @@ module BenefitApplicationWorld
                        effective_period: application_dates[:effective_period],
                        aasm_state: new_application_status,
                        open_enrollment_period: application_dates[:open_enrollment_period],
-                       recorded_rating_area: @new_rating_area,
-                       recorded_service_areas: [@new_service_area],
+                       recorded_rating_area: rating_area,
+                       recorded_service_areas: [service_area],
                        package_kind: package_kind)
   end
 
+  # def map_products(prior_market_catalog, new_market_catalog)
+  #   prior_market_catalog.product_packages.each do |product_package|
+  #     current_product_package = new_market_catalog.product_packages.detect do |p|
+  #       p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind
+  #     end
+
+  #     next unless current_product_package
+
+  #     current_product_package.products.each_with_index do |current_product, i|
+  #       prior_product = product_package.products[i]
+  #       prior_product.renewal_product_id = current_product.id
+  #     end
+  #   end
+
+  #   prior_market_catalog.benefit_market.save!
+  # end
+
   def create_applications(predecessor_status: , new_application_status: )
     if predecessor_status
-      set_earlier_effective_date(predecessor_status, new_application_status)
+      # set_earlier_effective_date(predecessor_status, new_application_status)
       aasm_state(predecessor_status)
-      create_benefit_market_catalog_for(current_effective_date, :earlier)
+      # prior_market_catalog = create_benefit_market_catalog_for(current_effective_date, :earlier)
     end
 
     if new_application_status
       renewal_state(new_application_status)
-      create_benefit_market_catalog_for(renewal_effective_date, :new)
+      # new_market_catalog = create_benefit_market_catalog_for(renewal_effective_date, :new)
+      # map_products(prior_market_catalog, new_market_catalog)
     end
 
     application_dates = application_dates_for(renewal_effective_date, renewal_state)
-
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package, :with_predecessor_application,
                        predecessor_application_state: aasm_state,
@@ -302,15 +321,13 @@ module BenefitApplicationWorld
                        effective_period: application_dates[:effective_period],
                        aasm_state: renewal_state,
                        open_enrollment_period: application_dates[:open_enrollment_period],
-                       recorded_rating_area: @new_rating_area,
-                       recorded_service_areas: [@new_service_area],
+                       recorded_rating_area: renewal_rating_area,
+                       recorded_service_areas: [renewal_service_area],
                        package_kind: package_kind,
                        # dental_package_kind: dental_package_kind,
                        # dental_sponsored_benefit: dental_sponsored_benefit,
                        predecessor_application_catalog: true)
-
   end
-
 
   def initial_application
     @new_application
@@ -417,7 +434,7 @@ end
 And(/^employer (.*) has (.*) and renewing (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
   create_applications(predecessor_status: earlier_application_status.to_sym, new_application_status: new_application_status.to_sym)
-  reset_product_cache
+  # reset_product_cache
 end
 
 
@@ -429,7 +446,7 @@ end
 And(/^employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
   create_application(new_application_status: new_application_status.to_sym)
-  reset_product_cache
+  # reset_product_cache
 end
 
 And(/^this employer has enrollment_open benefit application with offering health and dental$/) do

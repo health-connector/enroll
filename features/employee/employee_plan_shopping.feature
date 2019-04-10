@@ -4,6 +4,7 @@ Feature: Employees can purchase coverage from both active and renewing plan year
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for active renewal employer with health benefits
     Given Qualifying life events are present
     And there is an employer ABC Widgets
 

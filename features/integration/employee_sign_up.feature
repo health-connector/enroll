@@ -9,6 +9,7 @@ Feature: Employee Sign Up when Employer exists and has a matching roster employe
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for enrollment_open initial employer with health benefits
     And there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
 
@@ -28,6 +29,7 @@ Feature: Employee Sign Up when Employer exists and has a matching roster employe
     Given staff role person logged in
     And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal

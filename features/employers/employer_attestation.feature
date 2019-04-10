@@ -4,6 +4,7 @@ Feature: Employer Profile
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for draft initial employer with health benefits
     And it has an employer ABC Widgets with no attestation submitted
     And ABC Widgets employer has a staff role
     And employer ABC Widgets has draft benefit application

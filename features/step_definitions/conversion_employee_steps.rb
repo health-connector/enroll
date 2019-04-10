@@ -84,10 +84,9 @@ end
 
 Then(/^Employee (.*) should see their plan start date on the page$/) do |named_person|
   employer_profile = employer_profile(@organization[@organization.keys.first].legal_name)
-  benefit_sponsorship_created_at = Date.strptime(employer_profile.benefit_sponsorships.first.created_at.to_s, "%m/%d/%Y").to_s
-  expect(page).to have_content(benefit_sponsorship_created_at)
+  exchange_date = TimeKeeper.date_according_to_exchange_at(employer_profile.benefit_sponsorships.first.created_at)
+  expect(page).to have_content(exchange_date.strftime("%m/%d/%Y"))
 end
-
 
 Then(/Employee (.*) should not see earliest effective date on the page/) do |named_person|
   person = people[named_person]
@@ -278,7 +277,8 @@ end
 When(/Employee select a past qle date/) do
   expect(page).to have_content "Married"
   screenshot("past_qle_date")
-  fill_in "qle_date", :with => (TimeKeeper.date_of_record - 5.days).strftime("%m/%d/%Y")
+  date = [renewal_effective_date - 5.days, TimeKeeper.date_of_record - 5.days].min
+  fill_in "qle_date", :with => date.strftime("%m/%d/%Y")
   within '#qle-date-chose' do
     find('.interaction-click-control-continue').click
   end

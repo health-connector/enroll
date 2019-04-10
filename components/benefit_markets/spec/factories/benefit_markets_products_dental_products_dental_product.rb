@@ -22,6 +22,7 @@ FactoryGirl.define do
     trait :with_renewal_product do
       transient do
         renewal_service_area nil
+        renewal_issuer_profile_id nil
       end
 
       before(:create) do |product, evaluator|
@@ -29,7 +30,8 @@ FactoryGirl.define do
           application_period: (product.application_period.min.next_year..product.application_period.max.next_year),
           product_package_kinds: product.product_package_kinds,
           service_area: evaluator.renewal_service_area,
-          metal_level_kind: product.metal_level_kind)
+          metal_level_kind: product.metal_level_kind,
+          issuer_profile_id: evaluator.renewal_issuer_profile_id)
 
         product.renewal_product_id = renewal_product.id
       end

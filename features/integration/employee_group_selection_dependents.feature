@@ -2,6 +2,7 @@ Feature: Employee goes through plan shopping with dependents when employer offer
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for enrollment_open initial employer with health benefits
     And there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
 

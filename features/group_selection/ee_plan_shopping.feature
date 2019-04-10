@@ -2,6 +2,7 @@ Feature: EE plan purchase
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for enrollment_open renewal employer with health benefits
     Given Qualifying life events are present
 
   Scenario: when EE purchase plan for self
@@ -10,6 +11,7 @@ Feature: EE plan purchase
     When staff role person logged in
     And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal
@@ -38,6 +40,7 @@ Feature: EE plan purchase
     When staff role person logged in
     And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal
@@ -71,6 +74,7 @@ Feature: EE plan purchase
     When staff role person logged in
     And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal
@@ -105,8 +109,9 @@ Feature: EE plan purchase
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
     When staff role person logged in
-    And this employer has enrollment_open benefit application with offering health and dental
+    And employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
     And Employee has not signed up as an HBX user
     And Patrick Doe visits the employee portal
@@ -127,12 +132,11 @@ Feature: EE plan purchase
     And Employee logs out
 
   Scenario: EE having an ineligible family member & doing plan shop for renewals
-    Given benefit market has prior benefit market catalog
     Then there is an employer ABC Widgets
-    And ACME Widgets, Inc. employer has a staff role
-    And this employer had a active and renewing draft application
+    And ABC Widgets employer has a staff role
+    And employer ABC Widgets has active and renewing enrollment_open benefit applications
     And this employer renewal application is under open enrollment
-    And there exists Patrick Doe employee for employer ABC Widgets
+    And there is a census employee record for Patrick Doe for employer ABC Widgets
     And employee Patrick Doe has current hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
     And Patrick Doe has active coverage and passive renewal

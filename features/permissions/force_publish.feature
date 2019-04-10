@@ -3,6 +3,7 @@ Feature: As a Super Admin I will be the only user
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for draft initial employer with health benefits
     And there is an employer ABC Widgets
     And employer ABC Widgets has draft benefit application
 

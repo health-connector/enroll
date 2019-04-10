@@ -3,6 +3,7 @@ Feature: As an admin user I should have the ability to extend the OE
 
   Background: Setup site, employer, and enrolling/renewing benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for enrollment_open initial employer with health benefits
     And there is an employer ABC Widgets
     And employer ABC Widgets has enrollment_open benefit application
 
