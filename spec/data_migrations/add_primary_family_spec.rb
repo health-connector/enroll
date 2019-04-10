@@ -12,7 +12,7 @@ describe AddPrimaryFamily, dbclean: :after_each do
     end
   end
   describe "Add Primary Family to the Person" do
-    let(:person) { FactoryGirl.create(:person)}
+    let(:person) { FactoryBot.create(:person)}
     before(:each) do
       load File.expand_path("#{Rails.root}/lib/tasks/migrations/add_primary_family.rake", __FILE__)
       Rake::Task.define_task(:environment)

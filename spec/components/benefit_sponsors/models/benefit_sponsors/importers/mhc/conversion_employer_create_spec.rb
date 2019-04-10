@@ -36,11 +36,11 @@ module BenefitSponsors
     }
 
     let!(:registered_on) {TimeKeeper.date_of_record.beginning_of_month}
-    let!(:site) {FactoryGirl.create(:benefit_sponsors_site, :cca, :with_owner_exempt_organization)}
-    let!(:benefit_market) {FactoryGirl.create(:benefit_markets_benefit_market, site: site)}
+    let!(:site) {FactoryBot.create(:benefit_sponsors_site, :cca, :with_owner_exempt_organization)}
+    let!(:benefit_market) {FactoryBot.create(:benefit_markets_benefit_market, site: site)}
 
     let!(:fein) {record_attrs[:fein]}
-    let!(:carrier_profile) { FactoryGirl.create(:carrier_profile, issuer_hios_ids: ['11111'], abbrev: 'BMCHP') }
+    let!(:carrier_profile) { FactoryBot.create(:carrier_profile, issuer_hios_ids: ['11111'], abbrev: 'BMCHP') }
 
     subject { BenefitSponsors::Importers::Mhc::ConversionEmployerCreate.new(record_attrs.merge({:registered_on => registered_on})) }
 

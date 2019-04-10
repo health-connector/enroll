@@ -9,11 +9,11 @@ module BenefitSponsors
 
     describe "Action #Update", dbclean: :after_each do
       let(:hios_id) {"11821MA0040003"}
-      let!(:dental_product) {FactoryGirl.create(:benefit_markets_products_dental_products_dental_product, hios_id: hios_id)}
+      let!(:dental_product) {FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: hios_id)}
 
-      let(:contribution_model) {[FactoryGirl.create(:benefit_markets_contribution_models_contribution_model)]}
+      let(:contribution_model) {[FactoryBot.create(:benefit_markets_contribution_models_contribution_model)]}
 
-      let!(:general_sponsorer) {FactoryGirl.create :benefit_sponsors_benefit_sponsorship,
+      let!(:general_sponsorer) {FactoryBot.create :benefit_sponsors_benefit_sponsorship,
                                                    :with_benefit_market,
                                                    :with_organization_cca_profile,
                                                    :with_initial_benefit_application}
@@ -21,7 +21,7 @@ module BenefitSponsors
       # we are already creating site in :benefit_sponsors_benefit_sponsorship in this factory
       let(:site) {BenefitSponsors::Site.by_site_key(:cca).first}
 
-      let!(:issuer_profile) {FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, abbrev: "DDA", assigned_site: site)}
+      let!(:issuer_profile) {FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, abbrev: "DDA", assigned_site: site)}
 
       let(:formed_params) {
         {

@@ -119,10 +119,10 @@ GEM
       dry-types (~> 0.13.1)
     equalizer (0.0.11)
     erubis (2.7.0)
-    factory_girl (4.5.0)
+    factory_bot (4.11.1)
       activesupport (>= 3.0.0)
-    factory_girl_rails (4.6.0)
-      factory_girl (~> 4.5.0)
+    factory_bot_rails (4.11.1)
+      factory_bot (~> 4.11.1)
       railties (>= 3.0.0)
     forgery (0.7.0)
     globalid (0.4.1)
@@ -243,7 +243,7 @@ DEPENDENCIES
   benefit_markets!
   capybara (= 2.6.2)
   database_cleaner
-  factory_girl_rails (= 4.6.0)
+  factory_bot_rails (~> 4.11)
   forgery
   mongoid_rails_migrations
   rspec-rails
