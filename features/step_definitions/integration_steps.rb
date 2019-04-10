@@ -1106,6 +1106,10 @@ Then(/Employee should see their current plan/) do
   expect(page).to have_content "YOUR CURRENT #{TimeKeeper.date_of_record.year} PLAN"
 end
 
+Then("user will click on New Employee Paper Application link") do
+  find('.new_employee_paper_application').click
+end
+
 And(/(.*) should have a ER sponsored enrollment/) do |named_person|
   person = people[named_person]
   ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first

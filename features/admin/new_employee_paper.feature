@@ -1,15 +1,23 @@
-@wip
 Feature: Phone and Paper Enrollment options exist
   In order to support paper enrollments
   Link is provided that will track paper enrollment
 
-  Background:
-    Given a Hbx admin with read and write permissions exists
-    When Hbx Admin logs on to the Hbx Portal
-    And the Hbx Admin clicks on the Families tab
+   Background: Setup site, employer, and benefit application
+    Given a CCA site exists with a benefit market
+    Given Qualifying life events are present
+    And benefit market has prior benefit market catalog
+    And there is an employer ABC Widgets
 
-
-  Scenario: Phone and Phone Enrollment
+  Scenario Outline: Phone and Phone Enrollment
+    Given that a user with a HBX staff role with <subrole> subrole exists and is logged in
+    And the user is on the Family Index of the Admin Dashboard
     Then I see the Paper link
-    And Hbx Admin clicks on the link of New Employee Paper Application
+    And user will click on New Employee Paper Application link
     Then HBX admin start new employee enrollment
+
+    Examples:
+      | subrole       | action  |
+      | Super Admin   | see     | 
+      | HBX Tier3     | see     |
+      | HBX Staff     | see     |
+      | HBX Read Only | not see |
