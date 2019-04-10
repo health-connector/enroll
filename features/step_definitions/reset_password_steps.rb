@@ -14,7 +14,7 @@ Then(/^Hbx Admin should see (.*?) link in action drop down$/) do |text|
   find_link(text).visible?
 end
 
-When(/^Hbx Admin clicks on (.*?) link in action drop down$/) do |link|
+When(/^Hbx Admin click on (.*?) link in action drop down$/) do |link|
   click_link(link)
   wait_for_ajax
 end

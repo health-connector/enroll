@@ -257,7 +257,7 @@ When(/(.*) enters reason for termination in modal$/) do |named_person|
   terminate_reason_submit.trigger('click')
 end
 
-When(/^.+ submits termination reason$/) do
+When(/^.+ submits termination reason in modal$/) do
   waiver_modal = find('#waive_confirm')
   waiver_modal.find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'Please select waive reason')]]").click
   waiver_modal.find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), 'I have coverage through Medicaid')]").click
