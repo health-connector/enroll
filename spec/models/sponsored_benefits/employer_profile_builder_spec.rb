@@ -40,19 +40,19 @@ module SponsoredBenefits
                                               title: "SHOP Benefits for #{current_effective_date.year}",
                                               application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
                                       }
-      let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-      let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
+      let!(:rating_area)   { FactoryBot.create_default :benefit_markets_locations_rating_area }
+      let!(:service_area)  { FactoryBot.create_default :benefit_markets_locations_service_area }
       let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let(:benefit_sponsor_organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:benefit_sponsor_organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:sponsor_benefit_sponsorship) { benefit_sponsor_organization.employer_profile.add_benefit_sponsorship }
 
       let(:plan_design_organization)  { SponsoredBenefits::Organizations::PlanDesignOrganization.new(legal_name: "xyz llc", office_locations: [office_location]) }
       let(:plan_design_proposal)      { SponsoredBenefits::Organizations::PlanDesignProposal.new(title: "New Proposal") }
       let(:profile) {SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new}
 
-      let(:product)  { FactoryGirl.create :benefit_markets_products_health_products_health_product }
-      let(:plan )    { FactoryGirl.create(:plan, hios_id: product.hios_id) }
-      let(:benefit_group)             { FactoryGirl.create(:benefit_group, reference_plan_id: plan.id, title: 'benefit group') }
+      let(:product)  { FactoryBot.create :benefit_markets_products_health_products_health_product }
+      let(:plan )    { FactoryBot.create(:plan, hios_id: product.hios_id) }
+      let(:benefit_group)             { FactoryBot.create(:benefit_group, reference_plan_id: plan.id, title: 'benefit group') }
 
       before(:each) do
         sponsor_benefit_sponsorship.rating_area = rating_area

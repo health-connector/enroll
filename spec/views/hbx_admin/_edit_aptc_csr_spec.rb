@@ -2,8 +2,8 @@ require 'rails_helper'
 
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   RSpec.describe "hbx_admin/_edit_aptc_csr", :dbclean => :after_each do
-    let(:person) { FactoryGirl.create(:person, :with_family ) }
-    let(:user) { FactoryGirl.create(:user, person: person) }
+    let(:person) { FactoryBot.create(:person, :with_family ) }
+    let(:user) { FactoryBot.create(:user, person: person) }
     let(:year) { TimeKeeper.date_of_record.year }
     
     before :each do
@@ -18,8 +18,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       family = person.primary_family
       active_household = family.households.first
       hbx_enrollments = active_household.hbx_enrollments
-      tax_household = FactoryGirl.create(:tax_household, household: active_household )
-      eligibility_determination = FactoryGirl.create(:eligibility_determination, tax_household: tax_household)
+      tax_household = FactoryBot.create(:tax_household, household: active_household )
+      eligibility_determination = FactoryBot.create(:eligibility_determination, tax_household: tax_household)
       allow(family).to receive(:active_household).and_return active_household
       allow(active_household).to receive(:latest_active_tax_household).and_return tax_household
       allow(tax_household).to receive(:latest_eligibility_determination).and_return eligibility_determination
@@ -56,10 +56,10 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     context "with enrollment" do
-      let(:family)       { FactoryGirl.create(:family, :with_primary_family_member) }
-      let(:household) {FactoryGirl.create(:household, family: family)}
-      let!(:hbx_with_aptc_1) {FactoryGirl.create(:hbx_enrollment, household: household, is_active: true, aasm_state: 'coverage_selected', changing: false, effective_on: (TimeKeeper.date_of_record.beginning_of_month - 40.days), applied_aptc_amount: 100)}
-      let!(:hbx_with_aptc_2) {FactoryGirl.create(:hbx_enrollment, household: household, is_active: true, aasm_state: 'coverage_selected', changing: false, effective_on: (TimeKeeper.date_of_record.beginning_of_month + 10.days), applied_aptc_amount: 210)}
+      let(:family)       { FactoryBot.create(:family, :with_primary_family_member) }
+      let(:household) {FactoryBot.create(:household, family: family)}
+      let!(:hbx_with_aptc_1) {FactoryBot.create(:hbx_enrollment, household: household, is_active: true, aasm_state: 'coverage_selected', changing: false, effective_on: (TimeKeeper.date_of_record.beginning_of_month - 40.days), applied_aptc_amount: 100)}
+      let!(:hbx_with_aptc_2) {FactoryBot.create(:hbx_enrollment, household: household, is_active: true, aasm_state: 'coverage_selected', changing: false, effective_on: (TimeKeeper.date_of_record.beginning_of_month + 10.days), applied_aptc_amount: 210)}
       let!(:hbx_enrollments) {[hbx_with_aptc_1, hbx_with_aptc_2]} 
       let!(:hbxs) { double("hbxs") }
       before :each do

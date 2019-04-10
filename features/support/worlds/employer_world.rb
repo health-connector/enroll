@@ -3,7 +3,7 @@ module EmployerWorld
     attributes = traits.extract_options!
     traits.push(:with_aca_shop_cca_employer_profile) unless traits.include? :with_aca_shop_cca_employer_profile_no_attestation
     @organization ||= {}
-    @organization[legal_name] ||= FactoryGirl.create(
+    @organization[legal_name] ||= FactoryBot.create(
       :benefit_sponsors_organizations_general_organization, *traits,
       attributes.merge(site: site)
     )
@@ -14,7 +14,7 @@ module EmployerWorld
   end
 
   def registering_employer
-    @registering_organization ||= FactoryGirl.build(
+    @registering_organization ||= FactoryBot.build(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
       site: site
@@ -43,9 +43,9 @@ end
 
 And(/^(.*?) employer has a staff role$/) do |legal_name|
   employer_profile = employer_profile(legal_name)
-  employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
-  person = FactoryGirl.create(:person, employer_staff_roles: [employer_staff_role])
-  @staff_role ||= FactoryGirl.create(:user, :person => person)
+  employer_staff_role = FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
+  person = FactoryBot.create(:person, employer_staff_roles: [employer_staff_role])
+  @staff_role ||= FactoryBot.create(:user, :person => person)
 end
 
 And(/^staff role person logged in$/) do

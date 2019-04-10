@@ -48,13 +48,13 @@ module BenefitSponsors
         }
       end
 
-      let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application) }
+      let(:benefit_application_form) { FactoryBot.build(:benefit_sponsors_forms_benefit_application) }
       let!(:invalid_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new}
       let!(:invalid_benefit_application) { BenefitSponsors::BenefitApplications::BenefitApplication.new }
 
-      let!(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let!(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:benefit_sponsorship) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :benefit_sponsors_benefit_sponsorship,
           :with_rating_area,
           :with_service_areas,
@@ -117,15 +117,15 @@ module BenefitSponsors
     end
 
     describe ".load_form_params_from_resource" do
-      let!(:site)  { FactoryGirl.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :with_benefit_market_catalog_and_product_packages, :cca) }
-      let!(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
-      let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-      let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
+      let!(:site)  { FactoryBot.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :with_benefit_market_catalog_and_product_packages, :cca) }
+      let!(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let!(:rating_area)   { FactoryBot.create_default :benefit_markets_locations_rating_area }
+      let!(:service_area)  { FactoryBot.create_default :benefit_markets_locations_service_area }
       let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
       let!(:benefit_market) { site.benefit_markets.first }
 
       let(:benefit_sponsorship) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :benefit_sponsors_benefit_sponsorship,
           :with_rating_area,
           :with_service_areas,
@@ -137,8 +137,8 @@ module BenefitSponsors
           employer_attestation: employer_attestation)
       end
 
-      let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
-      let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id ) }
+      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
+      let(:benefit_application_form) { FactoryBot.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id ) }
       let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
 
       it "should assign the form attributes from benefit application" do
@@ -153,10 +153,10 @@ module BenefitSponsors
     end
 
     describe '.can_create_draft_ba?' do
-      let!(:rating_area)                  { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-      let!(:service_area)                 { FactoryGirl.create_default :benefit_markets_locations_service_area }
+      let!(:rating_area)                  { FactoryBot.create_default :benefit_markets_locations_rating_area }
+      let!(:service_area)                 { FactoryBot.create_default :benefit_markets_locations_service_area }
       let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
       let(:benefit_sponsorship)           { bs = employer_profile.add_benefit_sponsorship
                                             bs.save!
@@ -167,7 +167,7 @@ module BenefitSponsors
 
       [:active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :termination_pending].each do |active_state|
         context 'for imported' do
-          let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :draft) }
+          let!(:ba) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :draft) }
 
           context 'without dt active state' do
             it 'should return true as no bas has dt active state' do
@@ -177,7 +177,7 @@ module BenefitSponsors
           end
 
           context 'with dt active state' do
-            let!(:ba2) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: active_state) }
+            let!(:ba2) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: active_state) }
 
             it 'should return false as dt active state exists for one of the bas' do
               set_bs_for_service(init_form_for_create)
@@ -188,8 +188,8 @@ module BenefitSponsors
       end
 
       context 'for termination_pending' do
-        let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :termination_pending) }
-        let!(:ba2) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
+        let!(:ba) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :termination_pending) }
+        let!(:ba2) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
 
         context 'with dt active state' do
           it 'should return false as dt active state exists for one of the bas' do
@@ -201,11 +201,11 @@ module BenefitSponsors
     end
 
     describe '.create_or_cancel_draft_ba' do
-      let!(:rating_area)                  { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-      let!(:service_area)                 { FactoryGirl.create_default :benefit_markets_locations_service_area }
+      let!(:rating_area)                  { FactoryBot.create_default :benefit_markets_locations_rating_area }
+      let!(:service_area)                 { FactoryBot.create_default :benefit_markets_locations_service_area }
       let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:benefit_market)                { site.benefit_markets.first }
-      let(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
       let(:benefit_sponsorship)           { bs = employer_profile.add_benefit_sponsorship
                                             bs.save!
@@ -222,8 +222,8 @@ module BenefitSponsors
       end
 
       context 'for admin_datatable_action' do
-        let!(:ba)   { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported) }
-        let!(:ba2)  { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
+        let!(:ba)   { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported) }
+        let!(:ba2)  { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
 
         before :each do
           create_ba_params.merge!({ pte_count: '0', msp_count: '0', admin_datatable_action: true })
@@ -257,9 +257,9 @@ module BenefitSponsors
     end
 
     # describe ".publish" do
-    #   let(:benefit_sponsorship) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_full_package)}
-    #   let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
-    #   let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id ) }
+    #   let(:benefit_sponsorship) { FactoryBot.create(:benefit_sponsors_benefit_sponsorship, :with_full_package)}
+    #   let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
+    #   let(:benefit_application_form) { FactoryBot.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id ) }
     #   let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
     #
     #   context "has to publish and " do

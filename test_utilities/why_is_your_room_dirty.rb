@@ -37,7 +37,7 @@ at_exit do
   DirtyDbRoom.format_unmatched_examples!
 end
 
-module FactoryGirl::Syntax::Methods
+module FactoryBot::Syntax::Methods
   def create_with_log(name, *traits_and_overrides, &block)
     DirtyDbRoom.room_made_dirty!(name)
     create_without_log(name, *traits_and_overrides, &block)

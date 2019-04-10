@@ -102,10 +102,10 @@ GEM
       dry-logic (~> 0.4, >= 0.4.0)
       dry-types (~> 0.12.0)
     erubis (2.7.0)
-    factory_girl (4.9.0)
+    factory_bot (4.11.1)
       activesupport (>= 3.0.0)
-    factory_girl_rails (4.9.0)
-      factory_girl (~> 4.9.0)
+    factory_bot_rails (4.11.1)
+      factory_bot (~> 4.11.1)
       railties (>= 3.0.0)
     forgery (0.7.0)
     globalid (0.4.1)
@@ -211,7 +211,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   database_cleaner
-  factory_girl_rails
+  factory_bot_rails (~> 4.11)
   forgery
   rspec-rails
   shoulda-matchers
