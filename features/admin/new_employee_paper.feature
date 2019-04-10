@@ -1,4 +1,4 @@
-Feature: Phone and Paper Enrollment options exist
+Feature: Paper Enrollment options exist
   In order to support paper enrollments
   Link is provided that will track paper enrollment
 
@@ -8,7 +8,7 @@ Feature: Phone and Paper Enrollment options exist
     And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
 
-  Scenario Outline: Phone and Phone Enrollment
+  Scenario Outline: Super Admin HBX Tier3 HBX Staff Can able to do Paper Application
     Given that a user with a HBX staff role with <subrole> subrole exists and is logged in
     And the user is on the Family Index of the Admin Dashboard
     Then I see the Paper link
