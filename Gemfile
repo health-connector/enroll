@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.5.1'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '6.0.0.beta3', github: 'rails/rails', ref: '45511fa8b20c621e2cf193ddaeb7d6fbe8432fea'
 
 #######################################################
 # FIXME

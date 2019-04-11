@@ -13,6 +13,7 @@ gemspec
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
 
+gem 'devise', git: 'https://github.com/plataformatec/devise.git', ref: 'e91b8ee0bac0503af119bf7333499d7729166a4d'
 gem "notifier", path: "../notifier"
 gem "benefit_markets", path: "../benefit_markets"
 gem "sponsored_benefits", path: "../sponsored_benefits"

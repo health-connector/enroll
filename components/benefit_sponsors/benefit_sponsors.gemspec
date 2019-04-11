@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"]
 
-  s.add_dependency "rails",                     "~> 5.2.3"
+  s.add_dependency "rails",                     "6.0.0.beta3"
 
   s.add_dependency "mongoid",                   "~> 7.0.2"
   s.add_dependency 'mongoid-autoinc',           '~> 6.0'
@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency "aasm",                      "~> 4.8"
   s.add_dependency 'active_model_serializers',  '~> 0.10'
   s.add_dependency 'config',                    '~> 1.7'
-  s.add_dependency 'devise',                    '~> 4.5'
+  s.add_dependency 'devise'
   s.add_dependency 'interactor',                '~> 3.0'
   s.add_dependency 'interactor-rails',          '~> 2.2'
   s.add_dependency 'language_list',             '~> 1'
