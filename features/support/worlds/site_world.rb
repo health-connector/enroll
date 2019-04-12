@@ -13,15 +13,7 @@ World(SiteWorld)
 
 Given(/^a (.*?) site exists with a benefit market$/) do |key|
   site
-  # health_products
-  # dental_products
-  # map_current_products
-  # reset_product_cache
   make_all_permissions
   generate_sic_codes
-end
-
-And(/^benefit market has prior benefit market catalog$/) do
-  map_prior_products
 end
 

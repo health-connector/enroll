@@ -4,7 +4,6 @@ Feature: EE with multiple employers plan purchase
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
-    And benefit market has prior benefit market catalog
     And there is an employer ABC Widgets
     And there is an employer DEF Sales
     And employer ABC Widgets has active benefit application

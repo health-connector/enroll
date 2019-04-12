@@ -905,5 +905,5 @@ When(/^EnterPrise Limited employer clicks on Initiate COBRA button$/) do
 end
 
 And(/^employer should see census employee status as (.*?)$/) do |status|
-  expect(all('td.col-string.col-status')[0].text).to eq status
+  expect(page).to have_content status
 end
