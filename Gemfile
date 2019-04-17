@@ -100,6 +100,7 @@ gem 'virtus',                   '~> 1.0'
 gem 'wicked_pdf',               '~> 1.1.0'
 gem 'wkhtmltopdf-binary-edge',  '~> 0.12.3.0'
 gem 'webpacker',                '~> 3.4'
+gem 'fast_jsonapi'
 
 
 group :doc do
@@ -138,6 +139,7 @@ group :development, :test do
   gem 'yard-mongoid',           '~> 0.1',     require: false
   gem 'rails-controller-testing'
   gem 'climate_control', '~> 0.2.0'
+  gem 'pry'
 end
 
 group :test do

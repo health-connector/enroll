@@ -1,7 +1,18 @@
 h1.heading-text Employers
 
-= render_datatable(@datatable)
-
-javascript:
-  initializeDataTables()
-  disableSelectric = true
+div.col-12
+  table#ee-ajax-dt.table.table-striped
+    thead
+      tr
+        th
+          input.all-chkbx type="checkbox" onclick="selectAllCheckboxes(this)"
+        th Legal Name
+        th Fein
+        th HBX ID
+        th Broker
+        th Source Kind
+        th Plan Year State
+        th Effective Date
+        th Invoiced
+        th Attestation Status
+        th Actions

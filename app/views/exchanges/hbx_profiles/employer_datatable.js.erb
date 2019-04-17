@@ -1,1 +1,154 @@
 set_tab_content("<%= escape_javascript render "invoice"%>")
+  var selected_employer_ids = [];
+
+  var table = $('#ee-ajax-dt').DataTable( {
+    "ajax": {
+      "url": "/exchanges/hbx_profiles/employer_datatable",
+      "dataSrc": "data"
+    },
+    "type": "get",
+    "ordering": false,
+    "deferRender": true,
+    // Call back event when table renders
+    "drawCallback": function() {
+      resetMainCheckbox()
+    },
+    // Creates a custom toolbar
+    "dom": '<"toolbar">frtip',
+    "columns": [
+      { "data": null,
+        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+          $(nTd).html(buildCheckboxes(sData));
+        }
+    },
+      { "data": "attributes.legal_name" },
+      { "data": "attributes.fein" },
+      { "data": "attributes.hbx_id" },
+      { "data": "attributes.broker" },
+      { "data": "attributes.source_kind" },
+      { "data": "attributes.plan_year_state" },
+      { "data": "attributes.effective_date" },
+      { "data": "attributes.invoiced?" },
+      { "data": "attributes.attestation_status" },
+      // Builds Actions Menu
+      { "data": null,
+        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+          $(nTd).html(buildDropDownMenu(sData));
+        }
+      }
+    ]
+});
+// Custom Toolbar HTML
+$("div.toolbar").html(
+  `<div class="btn-group main-group" role="group" aria-label="...">
+    <button type="button" class="btn btn-default" onclick="filterEmployerDataTable(this.innerText)">All</button>
+    <button type="button" class="btn btn-default" onclick="filterEmployerDataTable(this.innerText)">Applicants</button>
+    <button type="button" class="btn btn-default" onclick="filterEmployerDataTable(this.innerText)">Enrolling</button>
+    <button type="button" class="btn btn-default" onclick="filterEmployerDataTable(this.innerText)">Enrolled</button>
+   </div> <br />
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-default er-bulk-action-btn dropdown-toggle" data-toggle="dropdown" disabled>Bulk Actions <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Generate Invoice</a></li>
+          <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Mark Binder Paid</a></li>
+          <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Disable SSN Requirements</a></li>
+          <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Enable SSN Requirements</a></li>
+        </ul>
+    </div>
+    <button type="button" class="btn btn-default">CSV</button>
+    <button type="button" class="btn btn-default">Excel</button>
+  </div>`
+);
+// Actions Menu List Items
+function buildDropDownMenu(sData) {
+  return `<div class="btn-group">
+            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Actions
+            </button>
+            <ul class="dropdown-menu">
+              <li class="disabled"><a>Transmit XML</a></li>
+              <li><a href="/exchanges/hbx_profiles/generate_invoice">Generate Invoice</a></li>
+              <li class="<%= pundit_allow(HbxProfile, :can_create_benefit_application?) ? 'ajax' : 'hide' %>"><a href="/exchanges/hbx_profiles/new_benefit_application">Create Plan Year</a></li>
+              <li class="<%= pundit_allow(HbxProfile, :can_change_fein?) ? "ajax" : "hide" %>"><a href="/exchanges/hbx_profiles/edit_fein">Change FEIN</a></li>
+              <li><a href="/exchanges/hbx_profiles/edit_force_publish">Force Publish</a></li>
+            </ul>
+          </div>`
+}
+
+function buildCheckboxes(sData) {
+  var aasm_state = sData['attributes']['plan_year_state'];
+  var benefit_sponsor_id = sData['id'];
+
+  if (aasm_state === "Draft") {
+    return `<input type="checkbox" class="ee-main-checkbox" data-benefit-sponsor-id='${benefit_sponsor_id}' disabled>`
+  } else {
+    return `<input type="checkbox" class="ee-main-checkbox" data-benefit-sponsor-id='${benefit_sponsor_id}'>`
+  }
+}
+
+function selectAllCheckboxes(element) {
+  // Selects All Checkboxes
+  if (element.checked) {
+    $('.ee-main-checkbox').each(function() {
+      $(this)[0].disabled ? $(this)[0].checked = false : $(this)[0].checked = true
+    })
+    // Enables Bulk Action Button
+    $('.er-bulk-action-btn').prop('disabled', false);
+  // Deselects All Checkboxes
+  } else {
+    $('.ee-main-checkbox').each(function() {
+      $(this)[0].checked = false;
+    })
+    // Disables Bulk Action Button
+    $('.er-bulk-action-btn').prop('disabled', true);
+  }
+}
+// Filter Table based on button text
+function filterEmployerDataTable(type) {
+  var url = '';
+  switch (type) {
+    case 'All':
+      url = '/exchanges/hbx_profiles/employer_datatable?query=all';
+      break;
+    case 'Applicants':
+      url = '/exchanges/hbx_profiles/employer_datatable?query=applicants';
+      break;
+    case 'Enrolling':
+      url = '/exchanges/hbx_profiles/employer_datatable?query=enrolling';
+      break;
+    case 'Enrolled':
+      url = '/exchanges/hbx_profiles/employer_datatable?query=enrolled';
+  }
+  table.ajax.url(url).load();
+}
+
+function resetMainCheckbox() {
+  var element = $('.all-chkbx');
+  selectAllCheckboxes(element);
+  $('.all-chkbx')[0].checked = false;
+}
+
+function getSelectedCheckboxes() {
+  selected_employer_ids = []
+  $('.ee-main-checkbox').each(function() {
+    if ($(this)[0].checked) {
+      benefit_sponsor_id = $(this).data('benefitSponsorId')
+      selected_employer_ids.push(benefit_sponsor_id);
+    }
+  })
+}
+
+function performBulkAction(name) {
+  getSelectedCheckboxes()
+  var path = ''
+  switch (name) {
+    case 'Generate Invoice':
+      path = 'general_invoice_path';
+      break;
+    case 'Mark Binder Paid':
+      path = 'mark_binder_paid_path';
+      break;
+  }
+  console.log(selected_employer_ids, name, path)
+}

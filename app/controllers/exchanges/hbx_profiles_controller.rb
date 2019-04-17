@@ -4,7 +4,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Pundit
   include ::SepAll
   include ::Config::AcaHelper
-
+  
   before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :set_hbx_profile, only: [:edit, :update, :destroy]
@@ -154,11 +154,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   def force_publish
     @element_to_replace_id = params[:employer_actions_id]
     @benefit_application   = @benefit_sponsorship.benefit_applications.draft_state.last
-    
+
     if @benefit_application.present?
       @service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
       if @service.may_force_submit_application? || params[:publish_with_warnings] == 'true'
-        @service.force_submit_application      
+        @service.force_submit_application
       end
     end
 
@@ -181,9 +181,12 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def employer_datatable
-  @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    benefit_sponsorships = BenefitSponsors::Services::EmployerDataTableService.new({filter: request.query_parameters[:query]})
+    table_data = benefit_sponsorships.get_table_data
+    @data = BenefitSponsors::EmployerDatatableSerializer.new(table_data).serialized_json
     respond_to do |format|
       format.js
+      format.json { render json: @data }
     end
   end
 
