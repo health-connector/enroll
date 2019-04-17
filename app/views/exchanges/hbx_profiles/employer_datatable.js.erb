@@ -52,8 +52,6 @@ $("div.toolbar").html(
         <ul class="dropdown-menu">
           <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Generate Invoice</a></li>
           <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Mark Binder Paid</a></li>
-          <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Disable SSN Requirements</a></li>
-          <li><a href="javascript:void(0)" onclick="performBulkAction(this.innerText)">Enable SSN Requirements</a></li>
         </ul>
     </div>
     <button type="button" class="btn btn-default">CSV</button>
@@ -62,13 +60,14 @@ $("div.toolbar").html(
 );
 // Actions Menu List Items
 function buildDropDownMenu(sData) {
+  var benefit_sponsor_id = sData['id'];
   return `<div class="btn-group">
             <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Actions
             </button>
             <ul class="dropdown-menu">
               <li class="disabled"><a>Transmit XML</a></li>
-              <li><a href="/exchanges/hbx_profiles/generate_invoice">Generate Invoice</a></li>
+              <li><a href="javascript:void(0)" onclick="toAction(this)" data-benefit-sponsor-id='${benefit_sponsor_id}'>Generate Invoice</a></li>
               <li class="<%= pundit_allow(HbxProfile, :can_create_benefit_application?) ? 'ajax' : 'hide' %>"><a href="/exchanges/hbx_profiles/new_benefit_application">Create Plan Year</a></li>
               <li class="<%= pundit_allow(HbxProfile, :can_change_fein?) ? "ajax" : "hide" %>"><a href="/exchanges/hbx_profiles/edit_fein">Change FEIN</a></li>
               <li><a href="/exchanges/hbx_profiles/edit_force_publish">Force Publish</a></li>
@@ -141,14 +140,39 @@ function getSelectedCheckboxes() {
 
 function performBulkAction(name) {
   getSelectedCheckboxes()
-  var path = ''
+  var path = '';
   switch (name) {
     case 'Generate Invoice':
-      path = 'general_invoice_path';
+      path = '/exchanges/hbx_profiles/generate_invoice';
       break;
     case 'Mark Binder Paid':
-      path = 'mark_binder_paid_path';
+      path = '/exchanges/hbx_profiles/binder_paid';
       break;
   }
-  console.log(selected_employer_ids, name, path)
+
+    $.ajax({
+      url: `${path}?ids=${JSON.stringify(selected_employer_ids)}`,
+      type: "POST",
+      dataType: "script"
+    })
+}
+
+function toAction(element) {
+
+  var name = element.innerText;
+  var id = $(element).data('benefitSponsorId');
+  switch (name) {
+    case 'Generate Invoice':
+      path = '/exchanges/hbx_profiles/generate_invoice';
+      break;
+    case 'Force Publish':
+      path = '';
+      break;
+  }
+
+  $.ajax({
+    url: `${path}?ids=${JSON.stringify([id])}`,
+    type: "POST",
+    dataType: "script"
+  })
 }
