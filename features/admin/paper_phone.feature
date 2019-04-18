@@ -5,7 +5,7 @@ Feature: Paper Enrollment options exist
    Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given Qualifying life events are present
-    And benefit market has prior benefit market catalog
+    And benefit market catalog exists for enrollment_open renewal employer with health benefits
     And there is an employer ABC Widgets
 
   Scenario Outline: Super Admin HBX Tier3 HBX Staff Can able to do Paper Application
