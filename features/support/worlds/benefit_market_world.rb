@@ -170,6 +170,9 @@ Given(/^Qualifying life events are present$/) do
   qualifying_life_events
 end
 
+# Following step can be used to initialize benefit market catalog for initial employer with health/dental benefits
+# It will also create products needed for requested coverage kinds
+# ex: benefit market catalog exists for enrollment_open initial employer with health benefits
 Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefits$/) do |status, coverage_kinds|
   coverage_kinds = [:health]
   set_initial_application_dates(status.to_sym)
@@ -177,6 +180,9 @@ Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefi
   create_benefit_market_catalog_for(current_effective_date)
 end
 
+# Following step can be used to initialize benefit market catalog for renewing employer with health/dental benefits
+# It will also create products needed for requested coverage kinds
+# ex: benefit market catalog exists for enrollment_open renewal employer with health benefits
 Given(/^benefit market catalog exists for (.*) renewal employer with (.*) benefits$/) do |status, coverage_kinds|
   coverage_kinds = [:health]
   set_renewal_application_dates(status.to_sym)

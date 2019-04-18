@@ -147,26 +147,23 @@ And(/this employer (.*) has (.*) rule/) do |legal_name, rule|
   end
 end
 
-# employer Acme Inc. has expired  and active applications
-# employer Acme Inc. has active   and renewing enrollment_open applications
-# employer Acme Inc. has imported and renewing enrollment_open applications
-# employer Acme Inc. has expired  and renewing draft applications
-# employer Acme Inc. has expired  and renewing enrollment_closed applications 
-# employer Acme Inc. has expired  and renewing enrollment_eligible applications 
+# Following step will create renewal benefit application and predecessor application with given states
+# ex: employer Acme Inc. has imported and renewing enrollment_open benefit applications
+#     employer Acme Inc. has expired  and renewing draft benefit applications
+#     employer Acme Inc. has expired  and renewing enrollment_eligible benefit applications
+#     employer Acme Inc. has expired  and renewing active benefit applications
 And(/^employer (.*) has (.*) and renewing (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
   create_applications(predecessor_status: earlier_application_status.to_sym, new_application_status: new_application_status.to_sym)
-  # reset_product_cache
 end
 
 
-# employer Acme Inc. has enrollment_open application 
-# employer Acme Inc. has active application 
-# employer Acme Inc. has terminated application 
-# employer Acme Inc. has expired application 
-# employer Acme Inc. has draft application
+# Following step will create initial benefit application with given state
+# ex: employer Acme Inc. has enrollment_open benefit application 
+#     employer Acme Inc. has active benefit application 
+#     employer Acme Inc. has expired benefit application 
+#     employer Acme Inc. has draft benefit application
 And(/^employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
   create_application(new_application_status: new_application_status.to_sym)
-  # reset_product_cache
 end
