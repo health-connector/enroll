@@ -27,10 +27,6 @@ module BenefitSponsors
         (contribution_factor * 100).round(2)
       end
 
-      def contribution_factor
-        self.contribution_factor ||= 0.0 #Existing
-      end
-
       def offered?
         is_offered
       end
