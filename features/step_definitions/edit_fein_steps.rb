@@ -14,7 +14,7 @@ And(/^the user enters FEIN with less than nine digits$/) do
 end
 
 And(/^the user clicks submit button$/) do
-  # Needed accept confirm vs alert
+  # TODO: Research if accept_confirm block no longer needed
   accept_confirm do
     page.find_button('Submit').click
   end
