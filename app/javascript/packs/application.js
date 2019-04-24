@@ -3,6 +3,10 @@ import Turbolinks from 'turbolinks';
 import { Application } from "stimulus"
 import { definitionsFromContext } from "stimulus/webpack-helpers"
 import 'bootstrap';
+import '../src/application.scss';
+import '@fortawesome/fontawesome-free';
+import '@fortawesome/fontawesome-free/scss/solid.scss';
+import '@fortawesome/fontawesome-free/scss/fontawesome.scss';
 
 Rails.start()
 Turbolinks.start()

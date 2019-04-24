@@ -1,0 +1,17 @@
+nav.navbar.navbar-expand-lg.main-navbar.pt-0.pb-0
+  .container
+    a.navbar-brand href="/"
+      .mt-2.pr-3 = image_tag Settings.site.logo_file_name
+    button.navbar-toggler type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+      span.navbar-toggler-icon
+    .collapse.navbar-collapse#navbarNav
+      ul.navbar-nav.mr-auto
+        li.nav-item
+          .nav-link.header-text href="#" = get_header_text(controller_name)
+      div
+        ul.list-group.list-group-flush
+          li.list-group-item.pt-0.pb-0
+            a.call-customer-service href="tel:1-888-813-9220" Call Customer Service
+          li.list-group-item.pt-0.pb-0.ml-4.call-customer-service
+            i.fas.fa-phone.mr-2 data-fa-transform="rotate-180"
+            = Settings.contact_center.phone_number
