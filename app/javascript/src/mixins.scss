@@ -1,0 +1,9 @@
+@import 'variables';
+
+.btn-primary {
+    @include button-variant($blue, darken($blue, 7.5%), darken($blue, 10%), lighten($blue,5%), lighten($blue, 10%), darken($blue,30%));
+}
+
+.btn-outline-primary {
+    @include button-outline-variant($blue, $white, lighten($blue,5%), $blue);
+}

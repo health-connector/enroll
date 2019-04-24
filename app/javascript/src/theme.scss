@@ -1,0 +1,60 @@
+@import 'variables';
+
+footer {
+  margin-top: 20px;
+  position: absolute;
+  bottom: 0;
+  background-color: $blue;
+  font-size: 14px;
+  color: $white;
+  width: 100%;
+  a, a:hover {
+    color: $white;
+  }
+}
+
+.heading-text {
+  color: $orange;
+  font-weight: 300;
+}
+
+.main-navbar {
+  background-color: $white;
+  border-bottom: solid 3px $blue;
+  min-height: 70px;
+  .navbar-brand {
+    border-right: 1px solid $medium_gray;
+    min-height: 70px;
+    img {
+      max-height: 40px;
+      width: 126px;
+    }
+  }
+  .call-customer-service {
+    color: $dark_gray;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+    float: right;
+  }
+  .header-text {
+    font-weight: 600;
+    color: $darker_gray;
+  }
+  .list-group-item {
+    border: 0px;
+  }
+}
+
+.sign-in-container, .sign-up-container {
+  margin-top: 70px;
+}
+
+.sub-text {
+  color: $blue;
+  font-weight: 100;
+}
+
+.welcome-section {
+  margin-top: 100px;
+}
