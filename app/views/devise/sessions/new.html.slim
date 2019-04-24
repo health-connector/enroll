@@ -1,7 +1,7 @@
 = render partial: 'devise/shared/captcha' if aca_recaptcha_enabled
 .sign-in-container
   .row.justify-content-center
-    .col-5
+    .col-4
       h2.text-center.heading-text Sign In
 
       = form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|

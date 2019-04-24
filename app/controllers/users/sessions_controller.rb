@@ -1,5 +1,5 @@
 class Users::SessionsController < Devise::SessionsController
-  layout 'application'
+  layout 'bs4'
   include RecaptchaConcern if Settings.aca.recaptcha_enabled
 
   after_action :log_failed_login, :only => :new
