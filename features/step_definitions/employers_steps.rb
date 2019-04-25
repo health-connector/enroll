@@ -700,7 +700,9 @@ Then /^employer should see the (.*) button$/ do |status|
 end
 
 And /^employer clicks on (.*) button$/ do |status|
-  click_link(status.titleize)
+  wait_for_ajax
+  links = page.all('a')
+  links.detect { |link| link.text == status.titleize }.click
 end
 
 When /^employer clicks on the (.*) link$/ do |status|
@@ -721,7 +723,7 @@ end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
   # This should say 'rehired' or should say 'updated' rather than 'update'
-  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully update Census Employee."
+  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully rehired Census Employee."
   expect(page).to have_content result
 end
 
@@ -821,10 +823,16 @@ Then(/^the employer should see Download,Print Option/) do
 end
 
 And(/^employer (.*?) clicks on Actions drop down for one of (.*?) employee$/) do |legal_name, status|
-  employer_profile = employer_profile(legal_name)
-  census_employees = employer_profile.census_employees
-  census_id = @census_employees.first.id.to_s
-  find(:xpath, "//*[@id='dropdown_for_census_employeeid_#{census_id}']").click
+  # Has intermittent failures even when button there
+  census_id = employer_profile(legal_name).census_employees.first.id.to_s
+  actions_dropdown_id = "dropdown_for_census_employeeid_#{census_id}"
+  buttons = page.all('button')
+  button_by_id = buttons.detect { |button| button[:id] == actions_dropdown_id }
+  if button_by_id.present?
+    button_by_id.click
+  else
+    buttons.detect { |button| button.text == 'Actions' }.click
+  end
 end
 
 Then /^employer should see Enter effective date for (.*?) Action/ do |action_name|
@@ -847,20 +855,17 @@ When(/^employer clicks on button terminated for datatable$/)do
 end
 
 And /^employer (.*?) clicks on submit button by entering todays date$/ do |legal_name|
+  wait_for_ajax
   date = TimeKeeper.date_of_record
-  employer_profile = employer_profile(legal_name)
-  census_employees = employer_profile.census_employees
-  census_id = census_employees.first.id.to_s
+  census_id = employer_profile(legal_name).census_employees.first.id.to_s
   find('input.text-center.date-picker').set date
-  terminated_id = census_employees.first.id.to_s
-  submit_button = page.all('a').detect { |link| link[:id] == "rehire_#{terminated_id}" }
+  submit_button = page.all('a').detect { |link| link[:id] == "rehire_#{census_id}" }
   submit_button.trigger('click')
 end
 
 And(/^employer (.*?) should see default cobra start date$/) do |legal_name|
-  employer_profile = employer_profile(legal_name)
-  census_employees = employer_profile.census_employees
-  terminated_on = census_employees.first.employment_terminated_on.next_month.beginning_of_month.to_s
+  census_employee = employer_profile(legal_name).census_employees.first
+  terminated_on = census_employee.employment_terminated_on.next_month.beginning_of_month.to_s
   expect(find('input.text-center.date-picker').value).to eq terminated_on
 end
 

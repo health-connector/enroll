@@ -5,11 +5,7 @@ module CensusEmployeeWorld
   end
 
   def fetch_benefit_group(legal_name)
-    org_by_legal_name(legal_name).benefit_sponsorships.first.benefit_applications.first.benefit_packages.first
-  end
-
-  def org_by_legal_name(legal_name)
-    @organization[legal_name]
+    employer_profile(legal_name).organization.benefit_sponsorships.first.benefit_applications.first.benefit_packages.first
   end
 
   def build_enrollment(attributes, *traits)
@@ -29,12 +25,8 @@ module CensusEmployeeWorld
   def person_record_from_census_employee(person, legal_name = nil, organizations = nil)
     organizations.reject! { |organization| @organization.values.include?(organization) == false }
     census_employee = CensusEmployee.where(first_name: person[:first_name], last_name: person[:last_name]).first
-    if legal_name.nil?
-      employer = @organization.values.first
-    else
-      employer = @organization[legal_name]
-    end
-    employer_prof = employer.profiles.first
+    employer_prof = employer_profile(legal_name)
+    employer = employer_prof.organization
     emp_staff_role = FactoryGirl.create(
       :benefit_sponsor_employer_staff_role,
       aasm_state: 'is_active',
@@ -93,11 +85,8 @@ module CensusEmployeeWorld
   end
 
   def create_census_employee_from_person(person, legal_name = nil)
-    if legal_name.nil?
-      organization = @organization.values.first
-    else
-      organization = @organization[legal_name]
-    end
+    employer_profile = employer_profile(legal_name)
+    organization = employer_profile.organization
     sponsorship = benefit_sponsorship(organization)
     benefit_group = fetch_benefit_group(organization.legal_name)
     FactoryGirl.create(
@@ -108,7 +97,7 @@ module CensusEmployeeWorld
       dob: person[:dob_date],
       ssn: person[:ssn],
       benefit_sponsorship: sponsorship,
-      employer_profile: organization.profiles.first,
+      employer_profile: employer_profile,
       benefit_group: benefit_group
     )
   end
@@ -127,7 +116,7 @@ end
 
 And(/^Employees for (.*?) have both Benefit Group Assignments Employee role$/) do |legal_name|
   step "Assign benefit group assignments to #{legal_name} employee"
-  employer_profile = org_by_legal_name(legal_name).employer_profile
+  employer_profile = employer_profile(legal_name)
   census_employees = employer_profile.census_employees
   census_employees.each do |employee|
     person = FactoryGirl.create(:person, :with_family, first_name: employee.first_name, last_name: employee.last_name, dob: employee.dob, ssn: employee.ssn)
@@ -138,7 +127,7 @@ end
 
 And(/^Assign benefit group assignments to (.*?) employee$/) do |legal_name|
   benefit_package = fetch_benefit_group(legal_name)
-  employer_profile = org_by_legal_name(legal_name).employer_profile
+  employer_profile = employer_profile(legal_name)
   census_employees = employer_profile.census_employees
 
   census_employees.each do |employee|
@@ -148,7 +137,7 @@ end
 
 And(/^employees for (.*?) have a selected coverage$/) do |legal_name|
   benefit_package = fetch_benefit_group(legal_name)
-  employer_profile = org_by_legal_name(legal_name).employer_profile
+  employer_profile = employer_profile(legal_name)
   census_employees = employer_profile.census_employees
 
   step "Employees for #{legal_name} have both Benefit Group Assignments Employee role"
