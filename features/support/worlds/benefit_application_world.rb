@@ -60,10 +60,6 @@ module BenefitApplicationWorld
     return count
   end
 
-  def census_employees
-    create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package)
-  end
-
   def dental_product_package
     @dental_product_package ||= initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.product_kind == :dental }
   end

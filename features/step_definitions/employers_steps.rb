@@ -696,11 +696,15 @@ And /^employer click on pencil symbol next to employee status bar$/ do
 end
 
 Then /^employer should see the (.*) button$/ do |status|
-  find_link(status.capitalize).visible?
+  find_link(status.titleize).visible?
 end
 
 And /^employer clicks on (.*) button$/ do |status|
-  click_link(status.capitalize)
+  click_link(status.titleize)
+end
+
+When /^employer clicks on the (.*) link$/ do |status|
+  click_link(status.titleize)
 end
 
 Then /^employer should see the field to enter (.*) date$/ do |status|
@@ -812,4 +816,20 @@ Then(/^the employer should see Download,Print Option/) do
 
   expect(page).to have_content('Download')
   expect(page).to have_content('Print')
+end
+
+And(/^employer clicks on Actions drop down for one of (.*?) employee$/) do |status|
+  census_id = census_employees.first.id.to_s
+  find(:xpath, "//*[@id='dropdown_for_census_employeeid_#{census_id}']").click
+end
+
+Then /^employer should see Enter effective date for (.*?) Action/ do |action_name|
+  case action_name
+  when "Initiate cobra"
+    page_text = "Enter effective date for COBRA coverage to begin"
+    id = 'cobra-enter-date'
+  end
+
+  find_by_id(id).visible?
+  expect(page).to have_content(page_text)
 end
