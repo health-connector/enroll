@@ -135,7 +135,7 @@ group :test do
   gem 'fakeredis', :require => 'fakeredis/rspec'
   gem 'mongoid-rspec', '3.0.0'
   gem 'selenium-webdriver', '3.141.0'
-  gem 'chromedriver-helper'
+  gem 'webdriver'
   gem 'rspec-instafail'
   gem 'ruby-progressbar', '~> 1.7'
   gem 'shoulda-matchers', '3.1.1'
