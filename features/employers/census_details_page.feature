@@ -12,22 +12,22 @@ Feature: Employee termination and Re-hire functionality
   Scenario: Successful termination and rehire of an employee
     Given staff role person logged in
     And ABC Widgets employer visit the Employee Roster
-    When employer clicks on Actions drop down for one of active employee
+    When employer ABC Widgets clicks on Actions drop down for one of active employee
     Then employer should see the terminate button
     When employer clicks on terminate button
     Then employer should see Enter termination date to remove text
     And employer clicks on Terminate Employee button with date as pastdate
     Then employer should see the terminated success flash notice
     When employer clicks on button terminated for datatable
-    And employer clicks on Actions drop down for one of terminated employee
+    And employer ABC Widgets clicks on Actions drop down for one of terminated employee
     When employer clicks on rehire button
-    And employer clicks on submit button by entering todays date
+    And employer ABC Widgets clicks on submit button by entering todays date
     Then employer should see the rehired success flash notice
 
   Scenario: Employer terminated EE with DOT in past greater than 60 days
     Given staff role person logged in
     And ABC Widgets employer visit the Employee Roster
-    And employer clicks on Actions drop down for one of active employee
+    And employer ABC Widgets clicks on Actions drop down for one of active employee
     And employer should see the terminate button
     When employer clicks on terminate button
     Then employer should see Enter termination date to remove text

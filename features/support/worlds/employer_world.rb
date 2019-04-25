@@ -72,7 +72,33 @@ end
 
 And(/^(.*?) employer terminates employees$/) do |legal_name|
   termination_date = TimeKeeper.date_of_record - 1.day
+  employer_profile = employer_profile(legal_name)
+  census_employees = employer_profile.census_employees
   census_employees.each do |employee|
     employee.terminate_employment(termination_date)
   end
+end
+
+And(/^(.*?) employer should see default cobra start date$/) do |legal_name|
+  employer_profile = employer_profile(legal_name)
+  census_employees = employer_profile.census_employees
+  terminated_on = census_employees.first.employment_terminated_on.next_month.beginning_of_month.to_s
+  expect(find('input.text-center.date-picker').value).to eq terminated_on
+end
+
+And(/^employer (.*?) sets cobra start date to two months after termination date$/) do |legal_name|
+  employer_profile = employer_profile(legal_name)
+  census_employees = employer_profile.census_employees
+  date = census_employees.first.employment_terminated_on + 2.months
+  page.execute_script("$('.datepicker').val(#{date.to_s})")
+end
+
+When(/^(.*?) employer clicks on Initiate COBRA button$/) do |legal_name|
+  census_employees = employer_profile(legal_name).census_employees
+  id = census_employees.first.id.to_s
+  find(:xpath, "//*[@id='cobra-#{id}']").trigger('click')
+end
+
+And(/^employer should see census employee status as (.*?)$/) do |status|
+  expect(page).to have_content status
 end

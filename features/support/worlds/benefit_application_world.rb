@@ -40,6 +40,19 @@ module BenefitApplicationWorld
     @sic_code ||= benefit_sponsorship.sic_code
   end
 
+   def application_dates_for(effective_date, aasm_state)
+    oe_period = if effective_date >= TimeKeeper.date_of_record
+      TimeKeeper.date_of_record.beginning_of_month..(effective_date.prev_month + 20.days)
+    else
+      effective_date.prev_month..(effective_date.prev_month + 20.days)
+    end
+
+    {
+      effective_period: effective_date..effective_date.next_year.prev_day,
+      open_enrollment_period: oe_period
+    }
+  end
+
   def initial_application
     @initial_application ||= BenefitSponsors::BenefitApplications::BenefitApplication.new(
         benefit_sponsorship: benefit_sponsorship,
@@ -54,6 +67,20 @@ module BenefitApplicationWorld
         pte_count: 0,
         msp_count: 0
     ).tap(&:save)
+  end
+
+  def create_application(new_application_status: new_application_status)
+    application_dates = application_dates_for(current_effective_date, new_application_status)
+
+    @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+                       :with_benefit_package,
+                       benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
+                       effective_period: application_dates[:effective_period],
+                       aasm_state: new_application_status,
+                       open_enrollment_period: application_dates[:open_enrollment_period],
+                       recorded_rating_area: rating_area,
+                       recorded_service_areas: [service_area],
+                       package_kind: package_kind)
   end
 
   def roster_size(count=5)
@@ -188,4 +215,15 @@ And(/^employer (.*?) has a (.*?) benefit application with offering health and de
   current_catalog.save!
   expect(current_application.benefit_packages.present?).to eq(true)
   expect(current_sponsorship.benefit_applications.present?).to eq(true)
+end
+
+
+# Following step will create initial benefit application with given state
+# ex: employer Acme Inc. has enrollment_open benefit application 
+#     employer Acme Inc. has active benefit application 
+#     employer Acme Inc. has expired benefit application 
+#     employer Acme Inc. has draft benefit application
+And(/^employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
+  @employer_profile = @organization[legal_name].employer_profile
+  create_application(new_application_status: new_application_status.to_sym)
 end

@@ -11,12 +11,12 @@ Feature: Census Employee COBRA functionality
     And EnterPrise Limited employer terminates employees
     And EnterPrise Limited employer visit the Employee Roster
     Then employer clicks on terminated filter
-    And employer clicks on Actions drop down for one of active employee
+    And employer EnterPrise Limited clicks on Actions drop down for one of active employee
     And employer should see the Initiate cobra button
     When employer clicks on Initiate cobra button
     Then employer should see Enter effective date for Initiate cobra Action
-    And employer should see default cobra start date
-    And employer sets cobra start date to two months after termination date
+    And employer EnterPrise Limited should see default cobra start date
+    And employer EnterPrise Limited sets cobra start date to two months after termination date
     When EnterPrise Limited employer clicks on Initiate COBRA button
     Then employer should see the Initiate cobra success flash notice
     And employer clicks on all employees
@@ -29,12 +29,12 @@ Feature: Census Employee COBRA functionality
     And EnterPrise Limited employer visit the Employee Roster
     And EnterPrise Limited employer terminates employees
     Then employer clicks on terminated filter
-    And employer clicks on Actions drop down for one of active employee
+    And employer EnterPrise Limited clicks on Actions drop down for one of active employee
     And employer should see the Initiate cobra button
     When employer clicks on Initiate cobra button
     Then employer should see Enter effective date for Initiate cobra Action
-    And employer should see default cobra start date
-    And employer sets cobra start date to two months after termination date
+    And employer EnterPrise Limited should see default cobra start date
+    And employer EnterPrise Limited sets cobra start date to two months after termination date
     When EnterPrise Limited employer clicks on Initiate COBRA button
     Then employer should see the Initiate cobra success flash notice
     And employer clicks on all employees
@@ -47,12 +47,12 @@ Feature: Census Employee COBRA functionality
     And EnterPrise Limited employer visit the Employee Roster
     And EnterPrise Limited employer terminates employees
     Then employer clicks on terminated filter
-    And employer clicks on Actions drop down for one of active employee
+    And employer EnterPrise Limited clicks on Actions drop down for one of active employee
     And employer should see the Initiate cobra button
     When employer clicks on Initiate cobra button
     Then employer should see Enter effective date for Initiate cobra Action
-    And employer should see default cobra start date
-    And employer sets cobra start date to two months after termination date
+    And employer EnterPrise Limited should see default cobra start date
+    And employer EnterPrise Limited sets cobra start date to two months after termination date
     When EnterPrise Limited employer clicks on Initiate COBRA button
     Then employer should see the Initiate cobra success flash notice
     And employer clicks on all employees

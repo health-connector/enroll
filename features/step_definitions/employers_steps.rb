@@ -713,13 +713,15 @@ Then /^employer should see the field to enter (.*) date$/ do |status|
 end
 
 And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
-  date = date == 'today' ? TimeKeeper.date_of_record : TimeKeeper.date_of_record - 3.months
-  find('.date-picker.date-field').set date
-  find('.btn-primary.btn-sm').click
+  date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day  : TimeKeeper.date_of_record - 3.months
+  find('input.text-center.date-picker').set date
+  find('#home').click
+  find("a", :text => "Terminate Employee").click
 end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
-  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully rehired Census Employee."
+  # This should say 'rehired' or should say 'updated' rather than 'update'
+  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully update Census Employee."
   expect(page).to have_content result
 end
 
@@ -818,8 +820,10 @@ Then(/^the employer should see Download,Print Option/) do
   expect(page).to have_content('Print')
 end
 
-And(/^employer clicks on Actions drop down for one of (.*?) employee$/) do |status|
-  census_id = census_employees.first.id.to_s
+And(/^employer (.*?) clicks on Actions drop down for one of (.*?) employee$/) do |legal_name, status|
+  employer_profile = employer_profile(legal_name)
+  census_employees = employer_profile.census_employees
+  census_id = @census_employees.first.id.to_s
   find(:xpath, "//*[@id='dropdown_for_census_employeeid_#{census_id}']").click
 end
 
@@ -833,3 +837,30 @@ Then /^employer should see Enter effective date for (.*?) Action/ do |action_nam
   find_by_id(id).visible?
   expect(page).to have_content(page_text)
 end
+
+And(/^employer should see (.*?) to remove text$/) do |text|
+  expect(page).to have_content(text)
+end
+
+When(/^employer clicks on button terminated for datatable$/)do
+  find(:xpath, "//*[@id='Tab:terminated']").click
+end
+
+And /^employer (.*?) clicks on submit button by entering todays date$/ do |legal_name|
+  date = TimeKeeper.date_of_record
+  employer_profile = employer_profile(legal_name)
+  census_employees = employer_profile.census_employees
+  census_id = census_employees.first.id.to_s
+  find('input.text-center.date-picker').set date
+  terminated_id = census_employees.first.id.to_s
+  submit_button = page.all('a').detect { |link| link[:id] == "rehire_#{terminated_id}" }
+  submit_button.trigger('click')
+end
+
+And(/^employer (.*?) should see default cobra start date$/) do |legal_name|
+  employer_profile = employer_profile(legal_name)
+  census_employees = employer_profile.census_employees
+  terminated_on = census_employees.first.employment_terminated_on.next_month.beginning_of_month.to_s
+  expect(find('input.text-center.date-picker').value).to eq terminated_on
+end
+
