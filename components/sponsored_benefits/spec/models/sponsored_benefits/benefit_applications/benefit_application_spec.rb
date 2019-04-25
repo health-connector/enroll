@@ -1,8 +1,9 @@
 require 'rails_helper'
+require "#{SponsoredBenefits::Engine.root}/spec/shared_contexts/sponsored_benefits"
 
 module SponsoredBenefits
   RSpec.describe BenefitApplications::BenefitApplication, type: :model, dbclean: :around_each do
-    let(:subject) { BenefitApplications::BenefitApplication.new }
+    include_context "set up broker agency profile for BQT, by using configuration settings"
 
     # let(:date_range) { (Date.today..1.year.from_now) }
 

@@ -27,7 +27,7 @@ module SponsoredBenefits
         if benefit_group.relationship_benefits.empty?
           benefit_group.build_relationship_benefits
         end
-        if benefit_group.composite_tier_contributions.empty?
+        if benefit_group.sole_source? && benefit_group.composite_tier_contributions.empty?
           benefit_group.build_composite_tier_contributions
         end
         benefit_group
@@ -51,12 +51,15 @@ module SponsoredBenefits
         update_benefits(attrs) if benefit_group.persisted?
         benefit_group.elected_plans = benefit_group.elected_plans_by_option_kind
 
+        if benefit_group.sole_source? && benefit_group.composite_tier_contributions.empty?
+          benefit_group.build_composite_tier_contributions
+        end
+
         if benefit_group.sole_source?
           benefit_group.build_relationship_benefits
           benefit_group.estimate_composite_rates
-        else
-          benefit_group.build_composite_tier_contributions
         end
+
         benefit_group.set_bounding_cost_plans
       end
 
@@ -81,7 +84,7 @@ module SponsoredBenefits
       end
 
       def reset_health_benefits
-        benefit_group.composite_tier_contributions.destroy_all
+        benefit_group.composite_tier_contributions.destroy_all if benefit_group.sole_source?
         benefit_group.relationship_benefits.destroy_all
       end
 
