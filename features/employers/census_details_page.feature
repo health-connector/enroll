@@ -14,13 +14,13 @@ Feature: Employee termination and Re-hire functionality
     And ABC Widgets employer visit the Employee Roster
     When employer ABC Widgets clicks on Actions drop down for one of active employee
     Then employer should see the terminate button
-    When employer clicks on terminate button
+    When employer clicks on the terminate link
     Then employer should see Enter termination date to remove text
     And employer clicks on Terminate Employee button with date as pastdate
     Then employer should see the terminated success flash notice
     When employer clicks on button terminated for datatable
     And employer ABC Widgets clicks on Actions drop down for one of terminated employee
-    When employer clicks on rehire button
+    When employer clicks on the rehire link
     And employer ABC Widgets clicks on submit button by entering todays date
     Then employer should see the rehired success flash notice
 
@@ -29,7 +29,7 @@ Feature: Employee termination and Re-hire functionality
     And ABC Widgets employer visit the Employee Roster
     And employer ABC Widgets clicks on Actions drop down for one of active employee
     And employer should see the terminate button
-    When employer clicks on terminate button
+    When employer clicks on the terminate link
     Then employer should see Enter termination date to remove text
     And employer clicks on Terminate Employee button with date as past greater than 60 days
     Then employer should see the error flash notice

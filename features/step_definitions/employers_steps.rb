@@ -701,12 +701,22 @@ end
 
 And /^employer clicks on (.*) button$/ do |status|
   wait_for_ajax
-  links = page.all('a')
-  links.detect { |link| link.text == status.titleize }.click
+  click_link(status.titleize)
 end
 
 When /^employer clicks on the (.*) link$/ do |status|
-  click_link(status.titleize)
+  wait_for_ajax
+  links = page.all('a')
+  # Because of same coordinates and visibility issues
+  link = links.detect { |link| link.text == status.titleize }
+  if link.present?
+    link.trigger('click')
+  else
+    Capybara.ignore_hidden_elements = false
+    link = find(:link, status.titleize)
+    link.trigger('click')
+    Capybara.ignore_hidden_elements = true
+  end
 end
 
 Then /^employer should see the field to enter (.*) date$/ do |status|
@@ -722,8 +732,15 @@ And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
 end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
+  case status
+  when 'terminated'
+    result = "Successfully terminated Census Employee."
   # This should say 'rehired' or should say 'updated' rather than 'update'
-  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully rehired Census Employee."
+  when 'Initiate cobra'
+    result = "Successfully update Census Employee."
+  else
+    result = "Successfully rehired Census Employee."
+  end
   expect(page).to have_content result
 end
 
