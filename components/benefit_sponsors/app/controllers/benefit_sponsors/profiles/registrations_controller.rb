@@ -51,13 +51,11 @@ module BenefitSponsors
 
       def index
         # this should not invoke in UI 
-        # but some times 
         redirect_to main_app.new_user_registration_path
       end
 
       def show
         # this should not invoke in UI 
-        # but some times 
         redirect_to main_app.new_user_registration_path
       end
 
