@@ -26,7 +26,7 @@ $(document).on('page:load', pageInit);
 
 function pageInit() {
   var kind = fetchBenefitKind();
-  
+
   if(kind == "dental") {
     var dental_reference_plan_id = $("#dental_reference_plan_id").val();
     if(dental_reference_plan_id != '' && dental_reference_plan_id != undefined) {
@@ -255,7 +255,7 @@ function planSelected() {
 }*/
 function setMyPlans(element) {
   // Need to remove jQuery Selectors
-  
+
   var reference_plan_id = element.dataset.planid.replace(/['"]+/g, '');
   var kind = fetchBenefitKind();
 
@@ -423,11 +423,11 @@ function setRadioBtn(element) {
   dotIcons = document.querySelectorAll('.fa-dot-circle');
   icons = document.querySelectorAll('.fa-circle');
   iconId = element.target.dataset.tempId;
-  
+
   dotIcons.forEach(function(icon) {
     icon.classList.add('fa-circle')
   });
-  
+
   icons.forEach(function(icon) {
     if (icon.dataset.tempId == iconId) {
       icon.classList.add('fa-dot-circle')
@@ -666,7 +666,7 @@ function viewComparisons() {
 function clearComparisons() {
   $('.reference-plan').each(function() {
     var checkboxes = $(this).find('input[type=checkbox]');
-    //checkboxes.attr('checked', false);
+    checkboxes.attr('checked', false);
     removeA($.unique(selected_rpids), checkboxes.val());
     disableCompareButton();
   });
@@ -743,3 +743,9 @@ function setCarrierRadio(element) {
   element.checked = true;
 }
 
+function setMyPlans(element) {
+  clearComparisons();
+  selected_rpids = [];
+  var planid = element.dataset.planid.replace(/"/g, '');
+  selected_rpids.push(planid);
+}
