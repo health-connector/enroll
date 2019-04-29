@@ -50,13 +50,12 @@ module BenefitSponsors
       end
 
       def index
-        # this should not invoke in UI 
-        redirect_to main_app.new_user_registration_path
+        redirect_to main_app.root_path
       end
 
       def show
         # this should not invoke in UI 
-        redirect_to main_app.new_user_registration_path
+        redirect_to main_app.root_path
       end
 
       def update

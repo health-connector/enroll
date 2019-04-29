@@ -99,6 +99,10 @@ module BenefitSponsors
       }
     }
 
+    def main_app
+      Rails.application.class.routes.url_helpers
+    end
+
     before :each do
       allow(Settings.site).to receive(:key).and_return(:dc)
     end
@@ -303,6 +307,7 @@ module BenefitSponsors
 
         before do
           sign_in edit_user
+          binding.pry
           @id = self.send(profile_type).profiles.first.id.to_s
           get :edit, id: @id
         end
@@ -341,6 +346,17 @@ module BenefitSponsors
       # it_behaves_like "initialize profile for new", :edit, { profile_type: "general_agency" }
       # it_behaves_like "initialize profile for new", :edit, { profile_type: "contact_center" }
       # it_behaves_like "initialize profile for new", :edit, { profile_type: "fedhb" }
+    end
+
+    describe "GET index", dbclean: :after_each do
+        before do
+          sign_in edit_user
+          get :index
+        end
+
+        it "should redirect to root path for index action" do
+          expect(response).to redirect_to(main_app.root_path)
+        end
     end
 
     describe "PUT update", dbclean: :after_each do
