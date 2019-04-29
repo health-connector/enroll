@@ -307,7 +307,6 @@ module BenefitSponsors
 
         before do
           sign_in edit_user
-          binding.pry
           @id = self.send(profile_type).profiles.first.id.to_s
           get :edit, id: @id
         end
@@ -357,6 +356,19 @@ module BenefitSponsors
         it "should redirect to root path for index action" do
           expect(response).to redirect_to(main_app.root_path)
         end
+    end
+
+    shared_examples_for "initialize profile for new" do |profile_type|
+      describe "GET show", dbclean: :after_each do
+        before do
+          sign_in edit_user
+          get :show, :agency => self.send("#{profile_type}_params"), :id => self.send("#{profile_type}_params")[:id]
+        end
+  
+        it "should redirect to root path for index action" do
+          expect(response).to redirect_to(main_app.root_path)
+        end
+      end
     end
 
     describe "PUT update", dbclean: :after_each do
