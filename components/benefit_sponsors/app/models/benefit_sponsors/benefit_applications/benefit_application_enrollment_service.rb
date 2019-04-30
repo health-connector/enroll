@@ -253,6 +253,19 @@ module BenefitSponsors
     end
 
     def reinstate
+      if business_policy_satisfied_for?(:terminate_benefit)
+        if benefit_application.may_terminate_enrollment?
+          benefit_application.update_attributes!(terminated_on: nil, effective_period: new_start_date..new_end_date)
+          benefit_application.update_attributes!(aasm_state: :active)
+          benefit_application.workflow_state_transitions << WorkflowStateTransition.new(
+          from_state: from_state,
+          to_state: benefit_application
+          )
+          benefit_application.reinstate_enrollment!
+        end
+      else
+        [false, benefit_application, business_policy.fail_results]
+      end
     end
 
     def benefit_sponsorship

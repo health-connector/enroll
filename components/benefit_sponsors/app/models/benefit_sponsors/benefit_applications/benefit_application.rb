@@ -624,6 +624,12 @@ module BenefitSponsors
       end
     end
 
+    def reinstate_terminated_benefit_package_members
+      if aasm.from_state == :terminated
+        benefit_packages.each { |benefit_package| benefit_package.reinstate_terminated_member_benefits}
+      end
+    end
+
     def transition_benefit_package_members
       transition_kind = BENEFIT_PACKAGE_MEMBERS_TRANSITION_MAP[aasm_state]
       return if transition_kind.blank?
@@ -844,7 +850,7 @@ module BenefitSponsors
 
       # Coverage reinstated
       event :reinstate_enrollment do
-        transitions from: [:suspended, :terminated], to: :active #, after: :reset_termination_and_end_date
+        transitions from: [:suspended, :terminated], to: :active , :after => [:reinstate_terminated_benefit_package_members]#, after: :reset_termination_and_end_date
       end
 
       event :extend_open_enrollment do
