@@ -67,8 +67,6 @@ class ModifyBenefitApplication< MongoidMigrationTask
 
   def reinstate_benefit_application(benefit_applications)
     effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
-    new_start_date = Date.strptime(ENV['new_start_date'], "%m/%d/%Y")
-    new_end_date = Date.strptime(ENV['new_end_date'], "%m/%d/%Y")
     benefit_application = benefit_applications.where(:"effective_period.min" => effective_date, :aasm_state => :terminated).first
     service = initialize_service(benefit_application)
     service.reinstate

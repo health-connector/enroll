@@ -8,6 +8,7 @@ require File.join(File.dirname(__FILE__), "..", "..", "app", "data_migrations", 
 # RAILS_ENV=production bundle exec rake migrations:modify_benefit_application fein=640826 action="begin_open_enrollment" effective_date="09/01/2018"
 # RAILS_ENV=production bundle exec rake migrations:modify_benefit_application fein=640826 action="force_submit_application" effective_date="09/01/2018"
 # RAILS_ENV=production bundle exec rake migrations:modify_benefit_application fein=531828 effective_date="12/01/2016" new_start_date="12/01/2016" new_end_date="12/01/2016" action="update_effective_period_and_approve"
+# RAILS_ENV=production bundle exec rake migrations:modify_benefit_application fein=531828 effective_date="12/01/2016" action="reinstate"
 
 namespace :migrations do
   desc "Modifying benefit applications - Cancel, Terminate, Re-instate, Update Aasm State"
