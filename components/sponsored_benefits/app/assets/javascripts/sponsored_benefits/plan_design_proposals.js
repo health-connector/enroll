@@ -645,22 +645,26 @@ function comparisonPlans() {
 }
 
 function viewComparisons() {
-  var url = $("#plan_comparison_url").val();
-  $('.view-plans-button').hide();
-  $('.loading-plans-button').show();
+  if (selected_rpids.length < 2) {
+    alert('Please select at least two plans to compare')
+  } else {
+    var url = $("#plan_comparison_url").val();
+    $('.view-plans-button').hide();
+    $('.loading-plans-button').show();
+      console.log(selected_rpids);
+      $.ajax({
+        type: "GET",
+        url: url,
+        dataType: 'script',
+        data: { plans: selected_rpids, sort_by: '' },
+      }).done(function() {
+        $('#compare_plans_table').dragtable({dragaccept: '.movable'});
+        $('.view-plans-button').show();
+        $('.loading-plans-button').hide();
+      });
 
-    $.ajax({
-      type: "GET",
-      url: url,
-      dataType: 'script',
-      data: { plans: selected_rpids, sort_by: '' },
-    }).done(function() {
-      $('#compare_plans_table').dragtable({dragaccept: '.movable'});
-      $('.view-plans-button').show();
-      $('.loading-plans-button').hide();
-    });
-
-    $('.plan-comparison-container').show();
+      $('.plan-comparison-container').show();
+  }
 }
 
 function clearComparisons() {
@@ -741,11 +745,4 @@ function sortPlans() {
 
 function setCarrierRadio(element) {
   element.checked = true;
-}
-
-function setMyPlans(element) {
-  clearComparisons();
-  selected_rpids = [];
-  var planid = element.dataset.planid.replace(/"/g, '');
-  selected_rpids.push(planid);
 }
