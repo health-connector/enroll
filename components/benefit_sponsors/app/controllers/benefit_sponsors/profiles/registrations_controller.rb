@@ -25,7 +25,7 @@ module BenefitSponsors
         authorize @agency
         begin
           saved, result_url = @agency.save
-          result_url = send(result_url)
+          result_url = self.send(result_url)
           if saved
             if is_employer_profile?
               person = current_person
@@ -62,7 +62,7 @@ module BenefitSponsors
         @agency = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_update(registration_params)
         authorize @agency
         updated, result_url = @agency.update
-        result_url = send(result_url)
+        result_url = self.send(result_url)
         if updated
           flash[:notice] = 'Employer successfully Updated.' if is_employer_profile?
           flash[:notice] = 'Broker Agency Profile successfully Updated.' if is_broker_profile?
@@ -100,10 +100,7 @@ module BenefitSponsors
 
       def registration_params
         current_user_id = current_user.present? ? current_user.id : nil
-        params[:agency].merge!({
-                                 :profile_id => params["id"],
-                                 :current_user_id => current_user_id
-                               })
+        params[:agency].merge!({:profile_id => params["id"],:current_user_id => current_user_id})
         params[:agency].permit!
       end
 
@@ -122,14 +119,14 @@ module BenefitSponsors
         case action
         when :redirect_home?
           if current_user
-            redirect_to send(:agency_home_url, exception.record.profile_id)
+            redirect_to self.send(:agency_home_url, exception.record.profile_id)
           else
             session[:custom_url] = main_app.new_user_session_path
             super
           end
         when :new?
           session[:portal] = url_for(params)
-          redirect_to send(:sign_up_url)
+          redirect_to self.send(:sign_up_url)
         else
           session[:custom_url] = main_app.new_user_registration_path unless current_user
           super
