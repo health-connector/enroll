@@ -18,9 +18,8 @@ class ModifyBenefitApplication< MongoidMigrationTask
       extend_open_enrollment
     when "force_submit_application"
       force_submit_application(benefit_application_for_force_submission)
-    end
     when "reinstate"
-      reinstate_benefit_application(benefit_applications)
+      reinstate_benefit_application(benefit_applications_for_aasm_state_update)
     end
   end
 
@@ -148,9 +147,6 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_applications_for_aasm_state_update
     benefit_sponsorship = get_benefit_sponsorship
     benefit_sponsorship.benefit_applications
-  end
-
-  def benefit_applications_for_reinstate
   end
 
   def benefit_application_for_force_submission

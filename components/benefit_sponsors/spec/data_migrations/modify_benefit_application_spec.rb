@@ -107,6 +107,25 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         end
     end
 
+    context "reinstate benefit_application", dbclean: :after_each do 
+      let(:effective_date) { start_on }
+      let!(:benefit_application) {
+      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :terminated)
+      application
+      }
+
+      before do 
+        allow(ENV).to receive(:[]).with("action").and_return("reinstate")
+        allow(ENV).to receive(:[]).with("effective_date").and_return(effective_date.strftime("%m/%d/%Y"))
+        subject.migrate
+      end
+ 
+      it "should reinstate the benefit application" do 
+        benefit_application.reload
+        expect(benefit_application.aasm_state).to eq :active
+      end
+    end
+
     context "Update assm state to enrollment open" do
       context "update aasm state to enrollment open for non renewing ER" do
         let(:effective_date) { start_on }
