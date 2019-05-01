@@ -10,7 +10,8 @@ class SessionTimeoutController < ApplicationController
   skip_before_filter :authenticate_user!, only: [:has_user_timed_out]
 
   def check_time_until_logout
-    @time_left = Devise.timeout_in - (valid_time_check).to_i.round
+    @time_left = Devise.timeout_in - (Time.now - (user_session["last_request_at"] || (Time.now - (Devise.timeout_in + 1.second)))).to_i.round
+
     if @time_left <= 0
       sign_out(current_user)
       respond_to do |format|
@@ -20,15 +21,6 @@ class SessionTimeoutController < ApplicationController
       respond_to do |format|
         format.js { render 'devise/sessions/session_expiration_warning' }
       end
-    end
-  end
-
-  def valid_time_check 
-    time = Time.now - user_session["last_request_at"]
-    if time != nil
-      time
-    else
-      return Devise.timeout_in
     end
   end
 
