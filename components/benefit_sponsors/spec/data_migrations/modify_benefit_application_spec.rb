@@ -64,7 +64,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     let(:family) { double }
     let(:hbx_enrollment) { double(kind: "employer_sponsored", effective_on: start_on, employee_role_id: employee_role.id,
                             sponsored_benefit_package_id: benefit_package.id, benefit_group_assignment_id: benefit_group_assignment.id,
-                            aasm_state: 'coverage_selected') }
+                            aasm_state: 'coverage_terminated') }
 
     before(:each) do
       allow(ENV).to receive(:[]).with("fein").and_return(organization.fein)
