@@ -257,8 +257,8 @@ module BenefitSponsors
         if benefit_application.may_reinstate_enrollment?
           start_on = benefit_application.start_on
           new_end_on = ((benefit_application.start_on - 1.day).next_year)
-          benefit_application.update_attributes!(terminated_on: nil, effective_period: start_on..new_end_on)
           benefit_application.reinstate_enrollment!
+          benefit_application.update_attributes!(terminated_on: nil, effective_period: start_on..new_end_on)
         end
       else
         [false, benefit_application, business_policy.fail_results]

@@ -124,6 +124,10 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         benefit_application.reload
         expect(benefit_application.aasm_state).to eq :active
       end
+
+      it "should reinstate terminated employee enrollments" do
+        benefit_application.hbx_enrollments.each { |hbx_enrollment| expect(hbx_enrollment.aasm_state).to eq "coverage_enrolled"}
+      end
     end
 
     context "Update assm state to enrollment open" do

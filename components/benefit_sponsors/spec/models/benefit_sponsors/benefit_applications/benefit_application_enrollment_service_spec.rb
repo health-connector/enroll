@@ -735,7 +735,26 @@ module BenefitSponsors
     describe '.terminate' do
     end
 
-    describe '.reinstate' do
+    describe '.reinstate' do 
+      let(:business_policy) { instance_double("some_policy", success_results: "validated successfully")}
+      subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
+      context "when initial employer eligible for renewal" do
+
+        include_context "setup initial benefit application"
+        let(:aasm_state) { :terminated }
+        let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+
+        it "should reinstate the terminated benefit application" do
+          allow(subject).to receive(:business_policy).and_return(business_policy)
+          allow(business_policy).to receive(:reinstate_benefit).with(initial_application).and_return(true)
+          initial_application.update_attributes!(terminated_on: initial_application.end_on - 2.months)
+          subject.reinstate
+          initial_application.reload
+          benefit_sponsorship.reload
+          expect(initial_application.terminated_on).to eq nil
+          expect(initial_application.aasm_state).to eq :active
+        end
+      end
     end
 
     describe '.extend_open_enrollment' do
