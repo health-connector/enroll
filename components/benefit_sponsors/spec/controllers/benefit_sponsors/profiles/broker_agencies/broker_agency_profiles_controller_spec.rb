@@ -2,16 +2,16 @@ require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-module BenefitSponsors
+module BenefitSponsor
   RSpec.describe Profiles::BrokerAgencies::BrokerAgencyProfilesController, type: :controller, dbclean: :after_each do
 
     routes { BenefitSponsors::Engine.routes }
     let!(:security_question)  { FactoryGirl.create_default :security_question }
 
     let!(:user_with_hbx_staff_role) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-    let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role )}
+    let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role)}
     let!(:person01) { FactoryGirl.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryGirl.create(:user, person: person01 ) }
+    let!(:user_with_broker_role) { FactoryGirl.create(:user, person: person01) }
 
     let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization_with_hbx_profile)  { site.owner_organization }
@@ -24,6 +24,29 @@ module BenefitSponsors
       allow(organization.broker_agency_profile).to receive(:primary_broker_role).and_return(person01.broker_role)
       user_with_hbx_staff_role.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id)
       user_with_hbx_staff_role.person.hbx_staff_role.save!
+    end
+
+    describe 'find_broker_agency_profile' do
+      let(:organization_with_hbx_profile)  { site.owner_organization }
+      let!(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
+      let(:broker_agency_profile)  {organization.broker_agency_profile}
+
+
+      context "if broker agency profile id is present" do
+        before :each do
+          sign_in(user_with_hbx_staff_role)
+        end
+
+        it "retruns true when organization found" do
+          response = subject.send(:find_broker_agency_profile, broker_agency_profile.id)
+          expect(response).to eq true
+        end
+
+        it "Dont't throw errors when no id sent" do
+          response = subject.send(:find_broker_agency_profile)
+          expect(response).to eq nil
+        end
+      end
     end
 
     describe "for broker_agency_profile's index" do
