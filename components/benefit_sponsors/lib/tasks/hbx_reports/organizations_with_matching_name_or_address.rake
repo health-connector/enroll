@@ -28,11 +28,11 @@ namespace :reports do
             organizations.each do |organization|
               primary_address_1 = organization.profiles.first.primary_office_location.address.address_1 rescue nil
               csv << [
-                organization.legal_name,
-                organization.dba,
-                primary_address_1,
-                organization.fein,
-                attribute
+                  organization.legal_name,
+                  organization.dba,
+                  primary_address_1,
+                  organization.fein,
+                  attribute
               ]
               processed_count += 1
             end
@@ -48,48 +48,48 @@ namespace :reports do
     def find_organizations_by_attribute(attribute)
       @orgs = (BenefitSponsors::Organizations::Organization.employer_profiles)
       case attribute
-      when "legal_name"
-        organization_legal_names = @orgs.map(&:legal_name).uniq
-        organization_legal_names.compact!
-        organization_legal_names.delete("")
-        organizations = organization_legal_names.inject([]) do |array, legal_name|
-          legal_name = legal_name.gsub(/[^0-9a-z ]/i, '')
-          orgs = @orgs.where(legal_name: /#{legal_name}/i)
-          array << orgs if orgs.count > 1
-          array.compact
-          array.flatten
-        end
-        organizations.uniq
-      when "dba"
-        organization_dbas = @orgs.map(&:dba).uniq
-        organization_dbas.compact!
-        organization_dbas.delete("")
-        organization_dbas.delete(" ")
-        organizations = []
-        organization_dbas.each do |dba|
-          actual_dba = dba
-          dba = dba.gsub(/[^0-9a-z ]/i, '')
-          if dba.present?
-            dba = /#{dba}/i rescue ""
-            next if dba.blank?
-            orgs = @orgs.where(dba: dba).to_a
-            organizations << orgs if orgs.count > 1
+        when "legal_name"
+          organization_legal_names = @orgs.map(&:legal_name).uniq
+          organization_legal_names.compact!
+          organization_legal_names.delete("")
+          organizations = organization_legal_names.inject([]) do |array, legal_name|
+            legal_name = legal_name.gsub(/[^0-9a-z ]/i, '')
+            orgs = @orgs.where(legal_name: /#{legal_name}$/i)
+            array << orgs if orgs.count > 1
+            array.compact
+            array.flatten
           end
-        end
-        organizations.flatten!
-        organizations.compact!
-        organizations.uniq
-      when "address_1"
-        organization_primary_address1s = @orgs.flat_map(&:profiles).map(&:primary_office_location).map(&:address).map(&:address_1).uniq
-        organization_primary_address1s.compact!
-        organization_primary_address1s.delete("")
-        organizations = organization_primary_address1s.inject([]) do |array, address1|
-          orgs = @orgs.where(:"profiles.office_locations.is_primary" => true).where(:"profiles.office_locations.address.address_1" => address1)
-          array << orgs if orgs.count > 1
-          array.compact
-          array.flatten
-        end
-        organizations.uniq
+          organizations.uniq
+        when "dba"
+          organization_dbas = @orgs.map(&:dba).uniq
+          organization_dbas.compact!
+          organization_dbas.delete("")
+          organization_dbas.delete(" ")
+          organizations = []
+          organization_dbas.each do |dba|
+            actual_dba = dba
+            dba = dba.gsub(/[^0-9a-z ]/i, '')
+            if dba.present?
+              dba = /#{dba}/i rescue ""
+              next if dba.blank?
+              orgs = @orgs.where(dba: dba).to_a
+              organizations << orgs if orgs.count > 1
+            end
+          end
+          organizations.flatten!
+          organizations.compact!
+          organizations.uniq
+        when "address_1"
+          organization_primary_address1s = @orgs.flat_map(&:profiles).map(&:primary_office_location).map(&:address).map(&:address_1).uniq
+          organization_primary_address1s.compact!
+          organization_primary_address1s.delete("")
+          organizations = organization_primary_address1s.inject([]) do |array, address1|
+            orgs = @orgs.where(:"profiles.office_locations.is_primary" => true).where(:"profiles.office_locations.address.address_1" => address1)
+            array << orgs if orgs.count > 1
+            array.compact
+            array.flatten
+          end
+          organizations.uniq
       end
     end
   end
