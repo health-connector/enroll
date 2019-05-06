@@ -43,9 +43,9 @@ module BenefitSponsors
         allow(user).to receive(:person).and_return(person)
         @form = BenefitSponsors::Forms::RosterUploadForm.new
         service_class.new({file: file, profile: benefit_sponsorship.profile}).load_form_metadata(@form)
-        expect{service_class.new().save(@form)}.to raise_error(ImportErrorDate, "Row 4: Can't Import Hire on date 30/30/2010")
+        expect{service_class.new().save(@form)}.to raise_error(ImportErrorDate, "Row 4: Can't Import Hire incorrect date format - 30/30/2010")
       end
-      
+
     end
   end
 end

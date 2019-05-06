@@ -292,13 +292,13 @@ module BenefitSponsors
       end
 
       def sanitize_params(form)
-        begin 
+        begin
           Date.strptime(form.hired_on, "%m/%d/%Y") unless form.hired_on.nil?
         rescue
           raise ImportErrorDate, "Row #{@index + 4}: Can't Import Hire incorrect date format - #{form.hired_on}"
         end
         form.attributes.slice(:employer_assigned_family_id, :employee_relationship, :last_name, :first_name, :middle_name, :name_sfx, :ssn, :gender).merge({
-          dob: begin 
+          dob: begin
             Date.strptime(form.dob, "%m/%d/%Y")
           rescue
             raise ImportErrorDate, "Row #{@index + 4}: Can't Import DOB incorrect date format - #{form.dob}"
