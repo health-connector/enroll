@@ -28,5 +28,24 @@ module BenefitSponsors
       end
 
     end
+
+    describe "load form date" do
+      it "Doesn't raise erroe when all data is correct" do
+        file = Dir.glob(File.join(Rails.root, "spec/test_data/census_employee_import/DCHL Employee Census.xlsx")).first
+        allow(user).to receive(:person).and_return(person)
+        @form = BenefitSponsors::Forms::RosterUploadForm.new
+        service_class.new({file: file, profile: benefit_sponsorship.profile}).load_form_metadata(@form)
+        expect{service_class.new().save(@form)}.to_not raise_error
+      end
+
+      it "should return date in date format" do
+        file = Dir.glob(File.join(Rails.root, "spec/test_data/census_employee_import/DCHL Employee Census WrongDate.xlsx")).first
+        allow(user).to receive(:person).and_return(person)
+        @form = BenefitSponsors::Forms::RosterUploadForm.new
+        service_class.new({file: file, profile: benefit_sponsorship.profile}).load_form_metadata(@form)
+        expect{service_class.new().save(@form)}.to raise_error(ImportErrorDate, "Row 4: Can't Import Hire on date 30/30/2010")
+      end
+      
+    end
   end
 end

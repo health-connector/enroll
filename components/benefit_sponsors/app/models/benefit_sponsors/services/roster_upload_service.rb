@@ -42,7 +42,11 @@ module BenefitSponsors
       end
 
       def load_form_metadata(form)
-        roster = Roo::Spreadsheet.open(file.tempfile.path)
+        if Rails.env.test?
+          roster = Roo::Spreadsheet.open(file)
+        else
+          roster = Roo::Spreadsheet.open(file.tempfile.path)
+        end
         @sheet = roster.sheet(0)
         row = sheet.row(1)
         form.file = file
@@ -288,8 +292,17 @@ module BenefitSponsors
       end
 
       def sanitize_params(form)
+        begin 
+          Date.strptime(form.hired_on, "%m/%d/%Y") unless form.hired_on.nil?
+        rescue
+          raise ImportErrorDate, "Row #{@index + 4}: Can't Import Hire incorrect date format - #{form.hired_on}"
+        end
         form.attributes.slice(:employer_assigned_family_id, :employee_relationship, :last_name, :first_name, :middle_name, :name_sfx, :ssn, :gender).merge({
-          dob: Date.strptime(form.dob, "%m/%d/%Y")
+          dob: begin 
+            Date.strptime(form.dob, "%m/%d/%Y")
+          rescue
+            raise ImportErrorDate, "Row #{@index + 4}: Can't Import DOB incorrect date format - #{form.dob}"
+          end
         })
       end
 
@@ -325,9 +338,13 @@ module BenefitSponsors
 
       def parse_date(cell)
         return nil if cell.blank?
-        return Date.strptime(sanitize_value(cell), "%m/%d/%Y") rescue raise ImportErrorValue, cell if cell.class == String
-        return sanitize_value(cell.to_s).to_time.strftime("%m-%d-%Y") rescue raise ImportErrorDate, cell if cell.class == String
+        return Date.strptime(sanitize_value(cell), "%m/%d/%Y") rescue date_error(cell) if cell.class == String && cell.match(/\d{1,}\/\d{1,}\/\d{4}/)
+        return sanitize_value(cell.to_s).try(:to_time).strftime("%m-%d-%Y") rescue date_error(cell) if cell.class == String && cell.match(/\d{1,}\-\d{1,}\-\d{4}/)
         cell.blank? ? nil : cell
+      end
+
+      def date_error(cell)
+        self.errors.add :base, "Can't Import date #{cell}"
       end
 
       def parse_ssn(cell)
