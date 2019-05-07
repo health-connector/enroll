@@ -101,16 +101,16 @@ module BenefitSponsors
       end
     end
 
-    def retrieve_inbox(provider, folder: 'inbox')
-      broker_agency_mailbox = inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
+    def retrieve_inbox(provider, options={})
+      broker_agency_mailbox = inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: options[:folder], broker_profile_id: options[:broker_profile_id])
       return broker_agency_mailbox if provider.try(:broker_role)
       case (provider.model_name.name.split('::').last)
         when "AcaShopDcEmployerProfile"
-          inbox_profiles_employers_employer_profile_path(id: provider.id.to_s, folder: folder)
+          inbox_profiles_employers_employer_profile_path(id: provider.id.to_s, folder: options[:folder])
         when "HbxProfile"
           #TODO fix it for HBX profile
         when "BrokerAgencyProfile"
-          inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
+          inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: options[:folder])
         when "GeneralAgencyProfile"
           #TODO FIX IT for GA
       end

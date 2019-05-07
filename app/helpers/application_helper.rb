@@ -377,20 +377,20 @@ module ApplicationHelper
     end
   end
 
-  def retrieve_inbox_path(provider, folder: 'inbox')
-    broker_agency_mailbox =  broker_agencies_profile_inbox_path(profile_id: provider.id, folder: folder)
+  def retrieve_inbox_path(provider, options={})
+    broker_agency_mailbox = inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: options[:folder], broker_profile_id: options[:broker_profile_id])
     return broker_agency_mailbox if provider.try(:broker_role)
     case(provider.model_name.name)
     when "EmployerProfile"
-      inbox_employers_employer_profiles_path(id: provider.id, folder: folder)
+      inbox_employers_employer_profiles_path(id: provider.id, folder: options[:folder])
     when "HbxProfile"
-      inbox_exchanges_hbx_profile_path(provider, folder: folder)
+      inbox_exchanges_hbx_profile_path(provider, folder: options[:folder])
     when "BrokerAgencyProfile"
-      broker_agencies_profile_inbox_path(profile_id: provider.id, folder: folder)
+      broker_agencies_profile_inbox_path(profile_id: provider.id, folder: options[:folder])
     when "Person"
-      inbox_insured_families_path(profile_id: provider.id, folder: folder)
+      inbox_insured_families_path(profile_id: provider.id, folder: options[:folder])
     when "GeneralAgencyProfile"
-      inbox_general_agencies_profiles_path(profile_id: provider.id, folder: folder)
+      inbox_general_agencies_profiles_path(profile_id: provider.id, folder: options[:folder])
     end
   end
 

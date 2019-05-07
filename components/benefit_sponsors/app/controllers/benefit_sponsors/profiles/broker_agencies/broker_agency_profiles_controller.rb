@@ -147,7 +147,7 @@ module BenefitSponsors
 
         def inbox
           @sent_box = true
-          id = params["id"] || params['profile_id']
+          id = params['broker_profile_id'] || params["id"] || params['profile_id']
           @broker_agency_provider = find_broker_agency_profile(BSON::ObjectId(id))
           @folder = (params[:folder] || 'Inbox').capitalize
           @provider = if current_user.person._id.to_s == id
@@ -169,7 +169,9 @@ module BenefitSponsors
           organizations = BenefitSponsors::Organizations::Organization.where(:"profiles._id" => id)
           if organizations.present?
             @broker_agency_profile = organizations.first.broker_agency_profile
-            authorize @broker_agency_profile, :access_to_broker_agency_profile?
+            if authorize @broker_agency_profile, :access_to_broker_agency_profile?
+              @broker_agency_profile
+            end
           end
         end
 
