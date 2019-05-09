@@ -16,7 +16,7 @@ RSpec.describe Employers::BrokerAgencyController do
     @org2.broker_agency_profile.update_attributes(primary_broker_role: @broker_role2)
     @broker_role2.update_attributes(broker_agency_profile_id: @org2.broker_agency_profile.id)
     @org2.broker_agency_profile.approve!
-   
+
     @user = FactoryGirl.create(:user)
     p=FactoryGirl.create(:person, user: @user)
     @hbx_staff_role = FactoryGirl.create(:hbx_staff_role, person: p)
@@ -27,6 +27,12 @@ RSpec.describe Employers::BrokerAgencyController do
   end
 
   describe ".index" do
+
+    it "should render js template" do
+      sign_in(@user)
+      xhr :get, :index, employer_profile_id: @employer_profile.id, q: @org2.broker_agency_profile.legal_name
+      expect(response.content_type).to eq Mime::JS
+    end
 
     context 'with out search string' do
       before(:each) do
@@ -58,6 +64,41 @@ RSpec.describe Employers::BrokerAgencyController do
         expect(assigns(:broker_agency_profiles)).to eq([@org2.broker_agency_profile])
       end
     end
+
+    context 'with search string and pagination' do
+      before :each do
+        sign_in(@user)
+        xhr :get, :index, employer_profile_id: @employer_profile.id, q: @org2.broker_agency_profile.legal_name, organization_page: 1, format: :js
+      end
+
+      it 'should return matching agency' do
+        expect(assigns(:broker_agency_profiles)).to eq([@org2.broker_agency_profile])
+      end
+    end
+
+    context 'with page label and pagination' do
+      before :each do
+        sign_in(@user)
+        xhr :get, :index, employer_profile_id: @employer_profile.id, page: @org2.broker_agency_profile.legal_name[0].upcase, organization_page: 1, format: :js
+      end
+
+      it 'should return matching agency' do
+        expect(assigns(:broker_agency_profiles).count).to eq 2
+        expect(assigns(:broker_agency_profiles)).to eq([@org1.broker_agency_profile,@org2.broker_agency_profile])
+      end
+    end
+
+    context 'with page label and invalid pagination number' do
+      before :each do
+        sign_in(@user)
+        xhr :get, :index, employer_profile_id: @employer_profile.id, page: @org2.broker_agency_profile.legal_name[0].upcase, organization_page: 120, format: :js
+      end
+      it 'should return matching agency' do
+        expect(assigns(:broker_agency_profiles).count).to eq 0
+        expect(assigns(:broker_agency_profiles)).to eq([])
+      end
+    end
+
   end
 
   describe ".create" do
@@ -65,6 +106,7 @@ RSpec.describe Employers::BrokerAgencyController do
     context 'with out search string - with modify_employer permission' do
       before(:each) do
         allow(@hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_employer: true))
+        allow(SponsoredBenefits::Organizations::BrokerAgencyProfile).to receive(:assign_employer).and_return(true)
         sign_in(@user)
         post :create, employer_profile_id: @employer_profile.id, broker_role_id: @broker_role2.id, broker_agency_id: @org2.broker_agency_profile.id
       end
@@ -74,6 +116,14 @@ RSpec.describe Employers::BrokerAgencyController do
         expect(response).to redirect_to(employers_employer_profile_path(@employer_profile, tab:'brokers'))
       end
     end
+
+    context 'post create' do
+      before(:each) do
+        allow(@hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_employer: true))
+        sign_in(@user)
+      end
+    end
+
 
     context 'with out search string - WITHOUT modify_employer permission' do
       before(:each) do
@@ -86,6 +136,7 @@ RSpec.describe Employers::BrokerAgencyController do
         expect(flash[:error]).to match(/Access not allowed/)
       end
     end
+
   end
 
   describe ".active_broker" do
@@ -152,13 +203,13 @@ RSpec.describe Employers::BrokerAgencyController do
 
       end
     end
-
   end
 
   describe ".create for invalid plan year" do
     let(:general_agency_profile) { FactoryGirl.create(:general_agency_profile) }
     before (:each) do
           allow(@hbx_staff_role).to receive_message_chain('permission.modify_employer').and_return(true)
+          allow(SponsoredBenefits::Organizations::BrokerAgencyProfile).to receive(:assign_employer).and_return(true)
           sign_in(@user)
           @employer_profile.plan_years=[]
           invalid_plan=FactoryGirl.build(:plan_year, open_enrollment_end_on: Date.today)

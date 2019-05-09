@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "broker_agencies/profiles/_families_table_for_broker.html.erb" do
 
-context "shows families" do
+context "shows families", dbclean: :after_each do
 
     let(:family1) { FactoryGirl.create(:family, :with_primary_family_member)}
 
@@ -36,5 +36,5 @@ context "shows families" do
       render partial: 'broker_agencies/profiles/families_table_for_broker', :collection => [families] , as: :families
       expect(rendered).not_to have_selector("a", text: /phone/)
     end
-  end	
+  end  
 end

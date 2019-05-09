@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ShopEmployerNotices::ZeroEmployeesOnRoster do
+RSpec.describe ShopEmployerNotices::ZeroEmployeesOnRoster, dbclean: :after_each do
   let(:employer_profile){ create :employer_profile}
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
   let(:person){ create :person}
@@ -10,8 +10,8 @@ RSpec.describe ShopEmployerNotices::ZeroEmployeesOnRoster do
                             :name =>'Zero Employees on Roster',
                             :notice_template => 'notices/shop_employer_notices/notice_for_employers_with_zero_employees_on_roster',
                             :notice_builder => 'ShopEmployerNotices::ZeroEmployeesOnRoster',
-                            :mpi_indicator => 'MPI_SHOP6',
                             :event_name => 'zero_employees_on_roster',
+                            :mpi_indicator => 'MPI_SHOP6',
                             :title => "Action Needed – Add all Eligible Employees to your Roster"})
                           }
     let(:valid_parmas) {{

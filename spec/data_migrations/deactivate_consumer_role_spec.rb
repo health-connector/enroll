@@ -1,4 +1,5 @@
 require "rails_helper"
+if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 require File.join(Rails.root, "app", "data_migrations", "deactivate_consumer_role")
 describe DeactivateConsumerRole, dbclean: :after_each do
 
@@ -7,13 +8,13 @@ describe DeactivateConsumerRole, dbclean: :after_each do
 
   describe "given a task name" do
 
-  	it "has the given task name" do
-  	  expect(subject.name).to eql given_task_name
-  	end
+    it "has the given task name" do
+      expect(subject.name).to eql given_task_name
+    end
   end
 
   describe "deactivate consumer role" do
-  	let(:person) { FactoryGirl.create(:person, :with_consumer_role, hbx_id: "12345678")}
+    let(:person) { FactoryGirl.create(:person, :with_consumer_role, hbx_id: "12345678")}
 
    before(:each) do
     allow(ENV).to receive(:[]).with("hbx_id").and_return("12345678")
@@ -28,4 +29,5 @@ describe DeactivateConsumerRole, dbclean: :after_each do
      expect(person.consumer_role.is_active).to eq false
     end
   end
+end
 end

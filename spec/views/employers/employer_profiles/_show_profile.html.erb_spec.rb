@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "employers/employer_profiles/_show_profile" do
+RSpec.describe "employers/employer_profiles/_show_profile", dbclean: :after_each do
   let(:employer_profile) { FactoryGirl.create(:employer_profile) }
   let(:census_employee1) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
   let(:census_employee2) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
@@ -11,6 +11,7 @@ RSpec.describe "employers/employer_profiles/_show_profile" do
     stub_template "shared/alph_paginate" => ''
     assign(:census_employees, [census_employee1, census_employee2, census_employee3])
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true, list_enrollments?: nil))
+    allow(view).to receive(:generate_checkbook_urls_employers_employer_profile_path).and_return('/')
     sign_in user
   end
 

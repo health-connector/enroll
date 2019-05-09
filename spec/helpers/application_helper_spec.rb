@@ -1,6 +1,60 @@
 require "rails_helper"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe ApplicationHelper, :type => :helper do
+
+  describe "#can_employee_shop??" do
+    it "should return false if date is empty" do
+      expect(helper.can_employee_shop?(nil)).to eq false
+    end
+
+    it "should return true if date is present and rates are present" do
+      allow(Plan).to receive(:has_rates_for_all_carriers?).and_return(false)
+      expect(helper.can_employee_shop?("10/01/2018")).to eq true
+    end
+  end
+
+  describe "#rates_available?" do
+    let(:employer_profile){ double("EmployerProfile") }
+
+    it "should return blocking when true" do
+      allow(employer_profile).to receive(:applicant?).and_return(true)
+      allow(Plan).to receive(:has_rates_for_all_carriers?).and_return(false)
+      expect(helper.rates_available?(employer_profile)).to eq "blocking"
+    end
+
+    it "should return empty string when false" do
+      allow(employer_profile).to receive(:applicant?).and_return(false)
+      expect(helper.rates_available?(employer_profile)).to eq ""
+    end
+  end
+
+  describe "#product_rates_available?", :dbclean => :after_each  do
+    let!(:product) { FactoryGirl.create(:benefit_markets_products_health_products_health_product) }
+    let(:benefit_sponsorship){ double("benefit_sponsorship") }
+
+    context "when active_benefit_application is present" do
+      it "should return false" do
+        allow(benefit_sponsorship).to receive(:active_benefit_application).and_return(true)
+        expect(helper.product_rates_available?(benefit_sponsorship)).to eq false
+      end
+    end
+
+    context "when active_benefit_application is not present" do
+      before(:each) do
+        allow(benefit_sponsorship).to receive(:active_benefit_application).and_return(false)
+        allow(benefit_sponsorship).to receive(:applicant?).and_return(true)
+      end
+      it "should return false if not in late rates" do
+        expect(helper.product_rates_available?(benefit_sponsorship)).to eq false
+      end
+
+      it "should return true if during late rates" do
+        expect(helper.product_rates_available?(benefit_sponsorship, TimeKeeper.date_of_record + 1.year)).to eq true
+      end
+    end
+  end
 
   describe "#deductible_display" do
     let(:hbx_enrollment) {double(hbx_enrollment_members: [double, double])}
@@ -30,14 +84,10 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
   describe "#display_carrier_logo" do
     let(:carrier_profile){ FactoryGirl.build(:carrier_profile, legal_name: "Kaiser")}
-    let(:plan){ FactoryGirl.build(:plan, carrier_profile: carrier_profile) }
+    let(:plan){ Maybe.new(FactoryGirl.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
 
-    before do
-      allow(plan).to receive(:carrier_profile).and_return(carrier_profile)
-      allow(carrier_profile).to receive_message_chain(:legal_name, :extract_value).and_return('kaiser')
-    end
     it "should return the named logo" do
-      expect(helper.display_carrier_logo(plan)).to eq "<img width=\"50\" src=\"/images/logo/carrier/kaiser.jpg\" alt=\"Kaiser\" />"
+      expect(helper.display_carrier_logo(plan)).to eq "<img width=\"50\" src=\"/assets/logo/carrier/kaiser.jpg\" alt=\"Kaiser\" />"
     end
 
   end
@@ -80,19 +130,40 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
 
-  describe "#enrollment_progress_bar" do
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-    let(:plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile) }
+  describe "#enrollment_progress_bar", :dbclean => :after_each  do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application" do
+      let(:aasm_state) { :enrollment_open }
+    end
+
+    let!(:employer_profile)    { abc_profile }
+    let!(:plan_year) { initial_application }
 
     it "display progress bar" do
       expect(helper.enrollment_progress_bar(plan_year, 1, minimum: false)).to include('<div class="progress-wrapper employer-dummy">')
     end
 
-    context ">100 census employees" do
-      let!(:employees) { FactoryGirl.create_list(:census_employee, 101, employer_profile: employer_profile) }
+    context ">200 census employees" do
+      let!(:census_employees) { create_list(:census_employee, 201, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
+      context "greater than 200 employees " do
+        context "active employees count greater than 200" do
+          it "does not display if active census employees > 200" do
+            expect(helper.enrollment_progress_bar(plan_year, 1, minimum: false)).to eq nil
+          end
+        end
 
-      it "does not display" do
-        expect(helper.enrollment_progress_bar(plan_year, 1, minimum: false)).to eq nil
+        context "active employees count greater than 200" do
+
+          before do
+            census_employees.take(5).each do |census_employee|
+              census_employee.terminate_employee_role!
+            end
+          end
+
+          it "should display progress bar if active census employees < 200" do
+            expect(helper.enrollment_progress_bar(plan_year, 1, minimum: false)).to include('<div class="progress-wrapper employer-dummy">')
+          end
+        end
       end
     end
 
@@ -209,7 +280,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
 
     it "should calculate eligible_to_enroll_count when not zero" do
-      expect(helper.calculate_participation_minimum).to eq 3
+      expect(helper.calculate_participation_minimum.ceil).to eq 4
     end
   end
 
@@ -317,7 +388,27 @@ RSpec.describe ApplicationHelper, :type => :helper do
       expect(helper.show_default_ga?(general_agency_profile, broker_agency_profile)).to eq false
     end
   end
+   describe "#show_oop_pdf_link" , dbclean: :after_each do
+       context 'valid aasm_state' do
+         it "should return true" do
+           PlanYear::PUBLISHED.each do |state|
+             expect(helper.show_oop_pdf_link(state)).to be true
+           end
 
+          PlanYear::RENEWING_PUBLISHED_STATE.each do |state|
+             expect(helper.show_oop_pdf_link(state)).to be true
+           end
+         end
+       end
+
+        context 'invalid aasm_state' do
+          it "should return false" do
+            ["draft", "renewing_draft"].each do |state|
+              expect(helper.show_oop_pdf_link(state)).to be false
+            end
+          end
+        end
+     end
 
 
   describe "find_plan_name", dbclean: :after_each do
@@ -390,39 +481,66 @@ end
     end
   end
 
-  describe ".notify_employer_when_employee_terminate_coverage" do
-    let(:enrollment) { double("HbxEnrollment", effective_on: double("effective_on", year: double), applied_aptc_amount: 0) }
-    it "should trigger notify_employer_when_employee_terminate_coverage job in queue" do
-      allow(enrollment).to receive(:is_shop?).and_return(true)
-      allow(enrollment).to receive(:enrollment_kind).and_return('health')
-      allow(enrollment).to receive_message_chain("census_employee.present?").and_return(true)
-      allow(enrollment).to receive_message_chain("census_employee.id.to_s").and_return("8728346")
-      ActiveJob::Base.queue_adapter = :test
-      ActiveJob::Base.queue_adapter.enqueued_jobs = []
-      helper.notify_employer_when_employee_terminate_coverage(enrollment)
-      queued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.find do |job_info|
-        job_info[:job] == ShopNoticesNotifierJob
-      end
-      expect(queued_job[:args]).to eq ["8728346", 'notify_employer_when_employee_terminate_coverage']
+  describe "#previous_year" do
+    it "should return past year" do
+      expect(helper.previous_year).to eq (TimeKeeper.date_of_record.year - 1)
+    end
+
+    it "should not return current year" do
+      expect(helper.previous_year).not_to eq (TimeKeeper.date_of_record.year)
+    end
+
+    it "should not return next year" do
+      expect(helper.previous_year).not_to eq (TimeKeeper.date_of_record.year + 1)
     end
   end
 
-  describe ".notify_employee_confirming_coverage_termination" do
-    let(:enrollment) { double("HbxEnrollment", effective_on: double("effective_on", year: double), applied_aptc_amount: 0) }
-    let(:census_employee) {FactoryGirl.create(:census_employee)}
-    it "should trigger notify_employee_confirming_coverage_termination job in queue" do
-      allow(enrollment).to receive(:is_shop?).and_return(true)
-      allow(enrollment).to receive(:coverage_kind).and_return("health")
-      allow(enrollment).to receive(:enrollment_kind).and_return('health')
-      allow(enrollment).to receive_message_chain("census_employee.present?").and_return(true)
-      allow(enrollment).to receive_message_chain("census_employee.id.to_s").and_return("8728346")
-      ActiveJob::Base.queue_adapter = :test
-      ActiveJob::Base.queue_adapter.enqueued_jobs = []
-      helper.notify_employee_confirming_coverage_termination(enrollment)
-      queued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.find do |job_info|
-        job_info[:job] == ShopNoticesNotifierJob
-      end
-      expect(queued_job[:args]).to eq ["8728346", 'notify_employee_confirming_coverage_termination']
+  describe "convert_to_bool" do
+    let(:val1) {true }
+    let(:val2) {false }
+    let(:val3) {"true" }
+    let(:val4) {"false" }
+    let(:val5) {0 }
+    let(:val6) {1 }
+    let(:val7) {"0" }
+    let(:val8) {"1" }
+    let(:val9) {"khsdbfkjs" }
+
+
+    it "should be true when true is passed" do
+      expect(helper.convert_to_bool(val1)).to eq true
+    end
+
+    it "should be false when false is passed" do
+      expect(helper.convert_to_bool(val2)).to eq false
+    end
+
+    it "should be true when string 'true' is passed" do
+      expect(helper.convert_to_bool(val3)).to eq true
+    end
+
+    it "should be false when string 'false' is passed" do
+      expect(helper.convert_to_bool(val4)).to eq false
+    end
+
+    it "should be false when int 0 is passed" do
+      expect(helper.convert_to_bool(val5)).to eq false
+    end
+
+    it "should be true when int 1 is passed" do
+      expect(helper.convert_to_bool(val6)).to eq true
+    end
+
+    it "should be false when string '0' is passed" do
+      expect(helper.convert_to_bool(val7)).to eq false
+    end
+
+    it "should be true when string '1' is passed" do
+      expect(helper.convert_to_bool(val8)).to eq true
+    end
+
+    it "should raise error when non boolean values are passed" do
+      expect{helper.convert_to_bool(val9)}.to raise_error(ArgumentError)
     end
   end
 end

@@ -70,18 +70,15 @@ describe BenefitGroup, dbclean: :after_each do
   end
 end
 
-describe BenefitGroup, "instance methods" do
+describe BenefitGroup, "instance methods", dbclean: :after_each do
   let!(:benefit_group)            { FactoryGirl.build(:benefit_group) }
   let!(:plan_year)                { FactoryGirl.build(:plan_year, benefit_groups: [benefit_group], start_on: Date.new(2015,1,1)) }
   let!(:employer_profile)         { FactoryGirl.create(:employer_profile, plan_years: [plan_year]) }
   let!(:benefit_group_assignment) { FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_group) }
   let!(:census_employees) do
     [1,2].collect do
-      FactoryGirl.create(:census_employee, employer_profile: employer_profile, benefit_group_assignments: [benefit_group_assignment] )
+      FactoryGirl.create(:census_employee, :old_case, employer_profile: employer_profile, benefit_group_assignments: [benefit_group_assignment] )
     end.sort_by(&:id)
-  end
-
-  context "" do
   end
 
   context "census_employees and benefit_group.census_employees" do
@@ -169,28 +166,31 @@ describe BenefitGroup, "instance methods" do
   end
 end
 
-describe BenefitGroup, type: :model do
+describe BenefitGroup, type: :model, dbclean: :after_each do
 
-  context 'deleting the benefit group' do
+  context 'disabling the benefit group' do
     let(:plan_year) { FactoryGirl.create(:plan_year)}
     let!(:benefit_group_one) { FactoryGirl.create(:benefit_group, plan_year: plan_year, title: "1st one") }
     let!(:benefit_group_two) { FactoryGirl.create(:benefit_group, plan_year: plan_year, title: "2nd one")}
-    let!(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: benefit_group_one.plan_year.employer_profile)}
+    let!(:census_employee) { FactoryGirl.create(:census_employee, :old_case, employer_profile: benefit_group_one.plan_year.employer_profile)}
 
     it "should have a default benefit group assignment with 1st benefit group" do
-      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_one.id).size).to eq 1
+      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_one.id).first.is_active).to be_truthy
+      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_two.id).size).to eq 0
     end
 
-    it "should delete the benfit group assignments under the 1st benefit group" do
-      benefit_group_one.destroy!
+    it "should disable the benfit group assignments under the 1st benefit group" do
+      benefit_group_one.disable_benefits
       census_employee.reload
-      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_one.id).size).to eq 0
+
+      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_one.id).first.is_active).to be_falsey
     end
 
     it "should create new benefit group assignment for census employee with 2nd benefit group" do
-      benefit_group_one.destroy!
+      benefit_group_one.disable_benefits
       census_employee.reload
-      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_two.id).size).to eq 1
+
+      expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_two.id).first.is_active).to be_truthy
     end
 
     context 'when deleting the new benefit group & EE already has bga with old benefit group in inactive state' do
@@ -204,26 +204,25 @@ describe BenefitGroup, type: :model do
       end
 
       it "should move the existing benefit group assignment from inactive to active" do
-        benefit_group_two.destroy!
+        benefit_group_two.disable_benefits
         census_employee.reload
-        expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_two.id).size).to eq 0
-        expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_one.id).size).to eq 1
         expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_one.id).first.is_active).to be_truthy
+        expect(census_employee.benefit_group_assignments.where(benefit_group_id: benefit_group_two.id).first.is_active).to be_falsey
       end
     end
   end
 end
 
-describe BenefitGroup, type: :model do
+describe BenefitGroup, type: :model, dbclean: :after_each do
   let!(:benefit_group)            { FactoryGirl.build(:benefit_group) }
   let!(:plan_year)                { FactoryGirl.build(:plan_year, benefit_groups: [benefit_group], start_on: (TimeKeeper.date_of_record + 2.months).beginning_of_month) }
   let!(:benefit_group_assignment) { FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_group) }
   let!(:employer_profile)         { FactoryGirl.create(:employer_profile, plan_years: [plan_year]) }
 
-  let!(:census_employee_1){FactoryGirl.create(:census_employee, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
-  let!(:census_employee_2){FactoryGirl.create(:census_employee, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
-  let!(:census_employee_3){FactoryGirl.create(:census_employee, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
-  let!(:census_employee_4){FactoryGirl.create(:census_employee, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
+  let!(:census_employee_1){FactoryGirl.create(:census_employee, :old_case, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
+  let!(:census_employee_2){FactoryGirl.create(:census_employee, :old_case, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
+  let!(:census_employee_3){FactoryGirl.create(:census_employee, :old_case, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
+  let!(:census_employee_4){FactoryGirl.create(:census_employee, :old_case, employer_profile_id: employer_profile.id, benefit_group_assignments: [benefit_group_assignment])}
   let(:census_employees) {[census_employee_1, census_employee_2, census_employee_3, census_employee_4]}
 
   context "#participation_rate" do
@@ -266,8 +265,7 @@ describe BenefitGroup, type: :model do
   end
 end
 
-
-describe BenefitGroup, type: :model do
+describe BenefitGroup, type: :model, dbclean: :after_each do
 
   let!(:employer_profile)               { FactoryGirl.create(:employer_profile) }
   let(:valid_plan_year_start_on)        { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
@@ -298,7 +296,6 @@ describe BenefitGroup, type: :model do
   let(:terminate_on_kind_default)     { "end_of_month" }
 
   let(:elected_plans)                 { reference_plan.to_a }
-
 
   let(:relationship_benefits) do
     [
@@ -334,6 +331,7 @@ describe BenefitGroup, type: :model do
       before do
         subject.build_composite_tier_contributions
       end
+
       it "assigns each composite tier type" do
         expect(subject.composite_tier_contributions).to_not be_empty
       end
@@ -513,10 +511,23 @@ describe BenefitGroup, type: :model do
     end
   end
 
+  context "#monthly_min_employee_cost" do
+    let(:params)                { valid_params }
+    let(:benefit_group)         { BenefitGroup.create(**params) }
+    let(:census_employees)      {create_list(:census_employee, 200, :old_case, employer_profile_id: benefit_group.plan_year.employer_profile.id)}
+
+    it "should return zero" do
+      expect(census_employees.size).to eq 200
+      expect(benefit_group.monthly_employee_cost).to eq [0]
+      expect(benefit_group.monthly_min_employee_cost).to eq 0
+      expect(benefit_group.monthly_max_employee_cost).to eq 0
+    end
+  end
+
   context "and a reference plan is selected" do
     let(:params)                { valid_params }
     let(:benefit_group)         { BenefitGroup.new(**params) }
-    let(:reference_plan_choice) { Plan.first }
+    let(:reference_plan_choice) { FactoryGirl.create(:plan, :with_rating_factors, :with_premium_tables) }
 
     context "and the 'single plan' option is chosen" do
       before do
@@ -571,7 +582,7 @@ describe BenefitGroup, type: :model do
       end
     end
 
-    context "and the 'carrier plans' option is offered" do
+    context "and the 'carrier plans' option is offered", dbclean: :after_each do
       let(:organization)            { employer_profile.organization }
       let(:carrier_profile)         { FactoryGirl.create(:carrier_profile, organization: organization) }
       let(:carrier_profile_1)       { FactoryGirl.create(:carrier_profile) }
@@ -599,7 +610,7 @@ describe BenefitGroup, type: :model do
         end
       end
 
-      context "and the reference plan is not in the elected plan set" do
+      context "and the reference plan is not in the elected plan set", dbclean: :after_each do
         before do
           benefit_group.plan_option_kind = :single_carrier
           benefit_group.reference_plan = reference_plan_choice
@@ -622,8 +633,7 @@ describe BenefitGroup, type: :model do
 
         it "should be invalid" do
           expect(benefit_group.valid?).to be_falsey
-          expect(benefit_group.errors[:elected_plans].any?)
-          .to be_truthy
+          expect(benefit_group.errors[:elected_plans].any?).to be_truthy
           expect(benefit_group.errors[:elected_plans].first).to match(/not all from the same carrier as reference plan/)
         end
       end
@@ -988,5 +998,25 @@ describe BenefitGroup, type: :model do
       end
     end
 
+    describe 'set_lowest_and_highest', dbclean: :after_each do
+      let(:benefit_group) { FactoryGirl.create(:benefit_group, plan_option_kind: 'sole_source', reference_plan: plan)}
+      let(:organization)            { employer_profile.organization }
+      let(:carrier_profile)         { FactoryGirl.create(:carrier_profile, organization: organization) }
+      let(:carrier_profile_1)       { FactoryGirl.create(:carrier_profile) }
+      let(:reference_plan_choice)   { FactoryGirl.create(:plan, :with_premium_tables, active_year: benefit_group.start_on.year, carrier_profile: carrier_profile, metal_level: "gold") }
+      let(:bronze_plan_choice)      { FactoryGirl.create(:plan, active_year: benefit_group.start_on.year, carrier_profile: carrier_profile, metal_level: "bronze", is_vertical: false) }
+      let(:plan) { FactoryGirl.create(:plan, carrier_profile: carrier_profile)}
+      let(:elected_plan_set) do
+        plans = [1, 2].collect do
+          FactoryGirl.create(:plan, :with_premium_tables, active_year: benefit_group.start_on.year, carrier_profile: carrier_profile)
+        end
+        plans.concat([reference_plan_choice, bronze_plan_choice])
+        plans
+      end
+
+      it "should sort plans only when premiun tables are present" do
+        expect(benefit_group.set_lowest_and_highest(elected_plan_set).present?).to eq true
+      end
+    end
   end
 end

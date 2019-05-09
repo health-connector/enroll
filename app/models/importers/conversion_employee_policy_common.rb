@@ -10,7 +10,6 @@ module Importers
     attr_converter :subscriber_gender, :as => :gender
 
     attr_reader :warnings, :fein, :subscriber_dob, :subscriber_zip, :benefit_begin_date
-    
     attr_accessor :action,
       :default_policy_start,
       :hios_id,
@@ -25,7 +24,8 @@ module Importers
       :subscriber_city,
       :subscriber_state,
       :default_hire_date,
-      :market
+      :market,
+      :sponsored_benefit_kind
 
       (1..8).to_a.each do |num|
         attr_converter "dep_#{num}_ssn".to_sym, :as => :optimistic_ssn
@@ -70,7 +70,7 @@ module Importers
     end
 
     def benefit_begin_date=(val)
-      @benefit_begin_date = val.blank? ? nil : (Date.strptime(val, "%m/%d/%Y") rescue nil)
+      @benefit_begin_date = val.blank? ? nil : (Date.strptime(val.to_s, "%m/%d/%Y") rescue nil)
     end
 
     def subscriber_zip=(val)
@@ -82,7 +82,7 @@ module Importers
           @subscriber_zip = val[0..4]
         else
           @subscriber_zip = val.strip.rjust(5, "0")
-        end 
+        end
       end
     end
 
@@ -99,7 +99,11 @@ module Importers
     end
 
     def start_date
-      [default_policy_start].detect { |item| !item.blank? }
+      if benefit_begin_date > default_policy_start
+        benefit_begin_date
+      else
+        default_policy_start
+      end
     end
 
     (1..8).to_a.each do |num|

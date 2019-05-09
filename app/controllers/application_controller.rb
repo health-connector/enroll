@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   include Acapi::Notifiers
 
   after_action :update_url, :unless => :format_js?
+  helper BenefitSponsors::Engine.helpers
 
   def format_js?
    request.format.js?
@@ -18,9 +19,6 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   ## Devise filters
-  ##before_filter :require_login, unless: :authentication_not_required?
-  ##before_filter :authenticate_user_from_token!
-  ##before_filter :authenticate_me!
   before_filter :require_login, unless: :authentication_not_required?
   before_filter :authenticate_user_from_token!
   before_filter :authenticate_me!
@@ -105,16 +103,21 @@ class ApplicationController < ActionController::Base
       msg_box.save
     end
 
-    def set_locale
-      I18n.locale = ((request.env['HTTP_ACCEPT_LANGUAGE'] || 'en').scan(/^[a-z]{2}/).first.presence || 'en').to_sym
+  def set_locale
+    I18n.locale = extract_locale_or_default
 
-      # TODO: (Clinton De Young) - I have set the locale to be set by the browser for convenience.  We will
-      # need to add this into the appropriate place below after we have finished testing everything.
-      #
-      # requested_locale = params[:locale] || user_preferred_language || extract_locale_from_accept_language_header || I18n.default_locale
-      # requested_locale = I18n.default_locale unless I18n.available_locales.include? requested_locale.try(:to_sym)
-      # I18n.locale = requested_locale
-    end
+    # TODO: (Clinton De Young) - I have set the locale to be set by the browser for convenience.  We will
+    # need to add this into the appropriate place below after we have finished testing everything.
+    #
+    # requested_locale = params[:locale] || user_preferred_language || extract_locale_from_accept_language_header || I18n.default_locale
+    # requested_locale = I18n.default_locale unless I18n.available_locales.include? requested_locale.try(:to_sym)
+    # I18n.locale = requested_locale
+  end
+
+  def extract_locale_or_default
+    requested_locale = ((request.env['HTTP_ACCEPT_LANGUAGE'] || 'en').scan(/^[a-z]{2}/).first.presence || 'en').try(:to_sym)
+    I18n.available_locales.include?(requested_locale) ? requested_locale : I18n.default_locale
+  end
 
     def extract_locale_from_accept_language_header
       if request.env['HTTP_ACCEPT_LANGUAGE']
@@ -154,10 +157,10 @@ class ApplicationController < ActionController::Base
 
     def check_for_special_path
       if site_sign_in_routes.include? request.path
-        redirect_to new_user_session_path
+        redirect_to main_app.new_user_session_path
         return
       elsif site_create_routes.include? request.path
-        redirect_to new_user_registration_path
+        redirect_to main_app.new_user_registration_path
         return
       else
         return
@@ -171,9 +174,9 @@ class ApplicationController < ActionController::Base
         end
         if site_uses_default_devise_path?
           check_for_special_path
-          redirect_to new_user_session_path
+          redirect_to main_app.new_user_session_path
         else
-          redirect_to new_user_registration_path
+          redirect_to main_app.new_user_registration_path
         end
       end
     rescue Exception => e

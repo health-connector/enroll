@@ -1,7 +1,16 @@
 require "rails_helper"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe TimeHelper, :type => :helper do
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
+RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application"
+
+  let(:employer_profile) { abc_profile }
+  let(:plan_year) { initial_application }
+  let(:person) { FactoryGirl.create(:person) }
+  let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: employer_profile)}
+  let(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
   let(:enrollment) {FactoryGirl.create(:hbx_enrollment, household: family.active_household)}
   let(:individual_family) { FactoryGirl.create(:family, :with_primary_family_member)}
   let(:individual_enrollment) {FactoryGirl.create(:hbx_enrollment, :individual_unassisted, household: individual_family.active_household)}
@@ -43,16 +52,11 @@ RSpec.describe TimeHelper, :type => :helper do
   end
 
   describe "set_default_termination_date_value" do
-    let(:employer_profile) {FactoryGirl.create(:employer_profile)}
-    let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: employer_profile)}
-    let(:plan_year) {double("PlanYear")}
-    let(:person) { FactoryGirl.create(:person) }
     before do
       allow(family).to receive_message_chain("primary_applicant.person").and_return(person)
       allow(person).to receive(:has_consumer_role?).and_return true
       allow(person).to receive(:active_employee_roles).and_return([employee_role])
       allow(employer_profile).to receive(:plan_years).and_return(plan_year)
-      allow(plan_year).to receive(:published_or_renewing_published).and_return(plan_year)
     end
     it "sets to todays date if current_date is within the enrollments plan_year" do
       enrollment.effective_on = (TimeKeeper.date_of_record - 1.month)
@@ -68,17 +72,11 @@ RSpec.describe TimeHelper, :type => :helper do
   describe "SET optional_effective_on date on a SEP" do
     let(:person_with_consumer_role) { FactoryGirl.create(:person, :with_consumer_role) }
     let(:person_with_employee_role) { FactoryGirl.create(:person, :with_employee_role) }
-    let(:person) { FactoryGirl.create(:person) }
-    let(:employer_profile) {FactoryGirl.create(:employer_profile)}
-    let(:employee_role1) {FactoryGirl.create(:employee_role, person: person, employer_profile: employer_profile)}
-    let(:plan_year) {double("PlanYear")}
-    let(:family) {FactoryGirl.create(:family, :with_primary_family_member,person: person)}
 
     context "for shop market" do
       before do
-        allow(person).to receive(:active_employee_roles).and_return([employee_role1])
+        allow(person).to receive(:active_employee_roles).and_return([employee_role])
         allow(employer_profile).to receive(:plan_years).and_return(plan_year)
-        allow(plan_year).to receive(:published_or_renewing_published).and_return(plan_year)
         allow(plan_year).to receive(:start_on).and_return(TimeKeeper.date_of_record - 1.month)
         allow(plan_year).to receive(:end_on).and_return(TimeKeeper.date_of_record - 1.month + 1.year - 1.day)
       end
@@ -98,36 +96,32 @@ RSpec.describe TimeHelper, :type => :helper do
         allow(person).to receive(:has_consumer_role?).and_return false
       end
 
-      it "returns minmum range as beginning of the year" do
-        beginning_of_year = TimeKeeper.date_of_record.beginning_of_year
-        expect(helper.sep_optional_date(family, 'min')).to eq(beginning_of_year)
+      it "should return nil as minmum range" do
+        expect(helper.sep_optional_date(family, 'min')).to eq nil
       end
 
-      it "returns maximum range as end of the year" do
+      it "should return nil as maximum range" do
         end_of_year = TimeKeeper.date_of_record.end_of_year
-        expect(helper.sep_optional_date(family, 'max')).to eq(end_of_year)
+        expect(helper.sep_optional_date(family, 'max')).to eq nil
       end
     end
 
     context "for person with dual roles" do
-      let(:beginning_of_year) {TimeKeeper.date_of_record.beginning_of_year}
-      let(:end_of_year) {TimeKeeper.date_of_record.end_of_year}
       before do
         allow(family).to receive_message_chain("primary_applicant.person").and_return(person)
         allow(person).to receive(:has_consumer_role?).and_return true
-        allow(person).to receive(:active_employee_roles).and_return([employee_role1])
+        allow(person).to receive(:active_employee_roles).and_return([employee_role])
         allow(employer_profile).to receive(:plan_years).and_return(plan_year)
-        allow(plan_year).to receive(:published_or_renewing_published).and_return(plan_year)
         allow(plan_year).to receive(:start_on).and_return(TimeKeeper.date_of_record - 1.month)
         allow(plan_year).to receive(:end_on).and_return(TimeKeeper.date_of_record - 1.month + 1.year - 1.day)
       end
 
-      it "returns minmum range as beginning of the year when market kind is ivl" do
-        expect(helper.sep_optional_date(family, 'min', 'ivl')).to eq(beginning_of_year)
+      it "returns minmum range as nil when market kind is ivl" do
+        expect(helper.sep_optional_date(family, 'min', 'ivl')).to eq nil
       end
 
-      it "returns maximum range as end of the year when market kind is ivl" do
-        expect(helper.sep_optional_date(family, 'max', 'ivl')).to eq(end_of_year)
+      it "returns maximum range as nil when market kind is ivl" do
+        expect(helper.sep_optional_date(family, 'max', 'ivl')).to eq nil
       end
 
       it "returns minmum range as start_date of plan_year when market kind is shop" do
@@ -138,14 +132,13 @@ RSpec.describe TimeHelper, :type => :helper do
         expect(helper.sep_optional_date(family, 'max', 'shop')).to eq(plan_year.end_on)
       end
 
-      it "returns minimum range as MIN of(start_date of plan_year, beginning_of_year) when market kind is nil" do
-        expect(helper.sep_optional_date(family, 'min', nil)).to eq([plan_year.start_on, beginning_of_year].min)
+      it "returns minimum range as nil when market kind is nil" do
+        expect(helper.sep_optional_date(family, 'min', nil)).to eq nil
       end
 
-      it "returns maximum range as MAX of(end_date of plan_year, end_of_year) when market kind is nil" do
-        expect(helper.sep_optional_date(family, 'max', nil)).to eq([plan_year.end_on, end_of_year].max)
+      it "returns maximum range as nil when market kind is nil" do
+        expect(helper.sep_optional_date(family, 'max', nil)).to eq nil
       end
-
     end
 
     context "for person with no consumer or active employee roles" do
@@ -155,15 +148,14 @@ RSpec.describe TimeHelper, :type => :helper do
         allow(person).to receive(:active_employee_roles).and_return []
       end
 
-      it "returns minmum range as beginning of the year" do
-        beginning_of_year = TimeKeeper.date_of_record.beginning_of_year
-        expect(helper.sep_optional_date(family, 'min')).to eq(beginning_of_year)
+      it "returns minmum range as nil" do
+        expect(helper.sep_optional_date(family, 'min')).to eq nil
       end
 
-      it "returns maximum range as end of the year" do
-        end_of_year = TimeKeeper.date_of_record.end_of_year
-        expect(helper.sep_optional_date(family, 'max')).to eq(end_of_year)
+      it "returns maximum range as nil" do
+        expect(helper.sep_optional_date(family, 'max')).to eq nil
       end
     end
   end
 end
+

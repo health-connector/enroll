@@ -222,7 +222,7 @@ RSpec.describe Organization, dbclean: :after_each do
         }
       end
       let(:renewing_plan_year)    { FactoryGirl.build(:plan_year, start_on: TimeKeeper.date_of_record.next_month.beginning_of_month - 1.year, end_on: TimeKeeper.date_of_record.end_of_month, aasm_state: 'renewing_enrolling') }
-      let(:new_plan_year)    { FactoryGirl.build(:plan_year, start_on: TimeKeeper.date_of_record.next_month.beginning_of_month , end_on: TimeKeeper.date_of_record.end_of_month + 1.year, aasm_state: 'enrolling') }
+      let(:new_plan_year)    { FactoryGirl.build(:plan_year, start_on: TimeKeeper.date_of_record.next_month.beginning_of_month , end_on: (TimeKeeper.date_of_record + 1.year).end_of_month, aasm_state: 'enrolling') }
       let(:new_employer)     { EmployerProfile.new(**valid_params, plan_years: [new_plan_year]) }
       let(:renewing_employer)     { EmployerProfile.new(**valid_params, plan_years: [renewing_plan_year]) }
 
@@ -283,11 +283,13 @@ RSpec.describe Organization, dbclean: :after_each do
         end
       end
 
-      context 'by_broker_agency_profile' do
-        let(:organization6)  {FactoryGirl.create(:organization, fein: "024897585")}
-        let(:broker_agency_profile)  {organization6.create_broker_agency_profile(market_kind: "shop", primary_broker_role_id: "8754985")}
-        let(:organization7)  {FactoryGirl.create(:organization, fein: "724897585")}
-        let(:broker_agency_profile7)  {organization7.create_broker_agency_profile(market_kind: "shop", primary_broker_role_id: "7754985")}
+      context 'by_broker_agency_profile', dbclean: :after_each do
+        let(:organization6)  {FactoryGirl.create(:organization, fein: "024897585", legal_name: "organization 6")}
+        let(:broker_role6) { FactoryGirl.create(:broker_role)}
+        let!(:broker_agency_profile)  {FactoryGirl.create(:broker_agency_profile, organization: organization6, primary_broker_role_id: broker_role6.id)}
+        let!(:organization7)  {FactoryGirl.create(:organization, fein: "724897585", legal_name: "organization 7")}
+        let!(:broker_agency_profile7)  {FactoryGirl.create(:broker_agency_profile, organization: organization7, primary_broker_role_id: broker_role7.id)}
+        let(:broker_role7) { FactoryGirl.create(:broker_role)}
         let(:organization3)  {FactoryGirl.create(:organization, fein: "034267123")}
 
         it 'should match employers with active broker agency_profile' do
@@ -297,6 +299,7 @@ RSpec.describe Organization, dbclean: :after_each do
         end
 
         it 'broker agency_profile match does not count unless active account' do
+          allow(SponsoredBenefits::Organizations::BrokerAgencyProfile).to receive(:assign_employer).and_return(true)
           employer = organization3.create_employer_profile(entity_kind: "partnership", broker_agency_profile: broker_agency_profile, sic_code: '1111');
           employers = Organization.by_broker_agency_profile(broker_agency_profile.id)
           expect(employers.size).to eq(1)
@@ -459,8 +462,28 @@ RSpec.describe Organization, dbclean: :after_each do
     end
   end
 
+  context "primary_mailing_address" do
+    let!(:organization) {FactoryGirl.build(:organization)}
+    let!(:office_location) {FactoryGirl.build(:office_location, :with_mailing_address)}
+
+    before :each do
+      organization.office_locations = [office_location]
+      organization.primary_mailing_address
+    end
+
+    it 'should return a valid primary_mailing_address for organization' do
+      expect(organization.primary_mailing_address).to eq office_location.address
+      expect(organization.primary_mailing_address.kind).to eq "mailing"
+    end
+
+    it "should not return an invalid address" do
+      expect(organization.primary_mailing_address.kind).not_to eq "branch"
+    end
+  end
+
   context "Invoice Upload" do
-    let(:organization) {FactoryGirl.build(:organization, :hbx_id => 'hbxid')}
+    let!(:organization) {FactoryGirl.create(:organization, :hbx_id => 'hbxid')}
+    let!(:employer_profile) { FactoryGirl.create(:employer_profile, organization: organization) }
     before do
       allow(Aws::S3Storage).to receive(:save).and_return("urn:openhbx:terms:v1:file_storage:s3:bucket:invoices:asdds123123")
       allow(Organization).to receive(:by_invoice_filename).and_return(organization)
@@ -471,7 +494,7 @@ RSpec.describe Organization, dbclean: :after_each do
         Organization.upload_invoice(file_path,valid_file_names.first)
       end
        it "should upload invoice to the organization" do
-        expect(organization.documents.size).to eq 1
+        expect(organization.invoices.size).to eq 1
       end
     end
     context "with duplicate files" do
@@ -479,7 +502,7 @@ RSpec.describe Organization, dbclean: :after_each do
        it "should upload invoice to the organization only once" do
         Organization.upload_invoice(file_path,valid_file_names.first)
         Organization.upload_invoice(file_path,valid_file_names.first)
-        expect(organization.documents.size).to eq 1
+        expect(organization.invoices.size).to eq 1
       end
     end
 
@@ -488,7 +511,7 @@ RSpec.describe Organization, dbclean: :after_each do
         Organization.upload_invoice("test/hbxid_invoice_R.pdf",'dummyfile.pdf')
       end
        it "should Not Upload invoice" do
-        expect(organization.documents.size).to eq 0
+        expect(organization.invoices.size).to eq 0
       end
     end
   end

@@ -6,6 +6,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
     let(:start_on){TimeKeeper.date_of_record.beginning_of_year}
     let(:end_on){TimeKeeper.date_of_record.end_of_year}
     let(:end_on_negative){ TimeKeeper.date_of_record.beginning_of_year - 2.years }
+    let(:active_employees) { double("CensusEmployee", count: 10) }
 
 
     def new_organization
@@ -113,6 +114,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         reference_plan: reference_plan_1,
         reference_plan_id: double("id"),
         dental_reference_plan: reference_plan_1,
+        sponsored_benefits: [sponsored_benefit],
         dental_reference_plan_id: "498523982893",
         monthly_employer_contribution_amount: "monthly_employer_contribution_amount_1",
         monthly_min_employee_cost: "monthly_min_employee_cost_1",
@@ -139,6 +141,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         reference_plan: reference_plan_2,
         reference_plan_id: double("id"),
         dental_reference_plan: reference_plan_2,
+        sponsored_benefits: [sponsored_benefit],
         dental_reference_plan_id: "498523982893",
         monthly_employer_contribution_amount: "monthly_employer_contribution_amount_2",
         monthly_min_employee_cost: "monthly_min_employee_cost_2",
@@ -164,7 +167,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
     end
 
     def plan_year
-      instance_double(
+      double(
         "PlanYear",
         start_on: start_on,
         end_on: end_on,
@@ -174,13 +177,16 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         covered_count: 4,
         waived_count: 4,
         total_enrolled_count: 10,
+        enrollment_progress_bar: 2,
+        progressbar_covered_count: 3,
         employee_participation_percent: 40,
         non_business_owner_enrolled: 10.times.map{|i| double },
         hbx_enrollments: [hbx_enrollment],
         additional_required_participants_count: 5,
         benefit_groups: benefit_groups,
         aasm_state: 'draft',
-        employer_profile: double(census_employees: double(count: 10))
+        predecessor_id: nil,
+        employer_profile: double(census_employees: double(active: active_employees))
         )
     end
 
@@ -218,11 +224,45 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         )
     end
 
+    def sponsored_benefit
+      double("BenefitSponsors::SponsoredBenefits::SponsoredBenefit",
+             product_kind: "rspec_kind",
+             reference_product: reference_product,
+             product_package_kind: :single_product,
+             pricing_determinations: [],
+             sponsor_contribution: sponsored_contribution)
+    end
+
+    def sponsored_contribution
+      double("SponsoredContributoon",
+             contribution_levels: [double("RelationShipBenefits", is_offered: true, display_name: "rspec_display_name", contribution_pct: 200.00)]
+      )
+    end
+
+    def reference_product
+     double("BenefitMarkets::Products::Product",
+            kind: :metal_level,
+            name: "rspec-name",
+            product_type: "rspec-product",
+            metal_level: "Rspec-level",
+            issuer_profile: double("BenefitSponsors::Organizations::IssuerProfile", legal_name: "rspec_legal_name"))
+
+    end
+
     let(:new_office_locations){[office_location,office_location]}
     let(:current_plan_year){employer_profile.published_plan_year}
     let(:benefit_groups){ [benefit_group_1, benefit_group_2] }
+    let(:cost_estimator) { double("BenefitSponsors::Services::SponsoredBenefitCostEstimationService")}
+    let(:estimator) {{
+        estimated_total_cost: 100,
+        estimated_enrollee_minimum: 33,
+        estimated_enrollee_maximum: 100
+    }
+    }
 
     before :each do
+      allow(::BenefitSponsors::Services::SponsoredBenefitCostEstimationService).to receive(:new).and_return(cost_estimator)
+      allow(cost_estimator).to receive(:calculate_estimates_for_home_display).and_return(estimator)
       allow(view).to receive(:pundit_class).and_return(double("EmployerProfilePolicy", updateable?: true))
       allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true))
 
@@ -243,7 +283,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
       current_plan_year.benefit_groups.each do |bg|
         expect(rendered).to match(/.*#{bg.title}.*/mi)
         expect(rendered).to match(/.*#{bg.description}.*/mi)
-        expect(rendered).to match(/.*#{bg.reference_plan.plan_type}.*/mi)
+        expect(rendered).to match(/.*#{bg.sponsored_benefits.first.reference_product.name.try(:upcase)}.*/mi)
       end
     end
 
@@ -254,7 +294,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
 
   end
 
-  context "employer profile without current plan year" do
+  context "employer profile without current plan year", :pending => "This Route is no longer used since similar view is there in engine" do
     let(:employer_profile){ FactoryGirl.create(:employer_profile) }
 
     before :each do

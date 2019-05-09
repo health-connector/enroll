@@ -7,7 +7,7 @@ Feature: COBRA basic
     Then Jack Doe create a new account for employer
     Then I should see a successful sign up message
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     Then I should click on employer portal
     Then Jack Doe creates a new employer profile with default_office_location
     When I go to the Profile tab
@@ -41,7 +41,7 @@ Feature: COBRA basic
     When Jack Cobra visits the employee portal
     When Jack Cobra creates an HBX account
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     When Employee goes to register as an employee
     Then Employee should see the employee search page
     When Employee enters the identifying info of Jack Cobra
@@ -60,7 +60,7 @@ Feature: COBRA basic
     When Jack Employee visits the employee portal
     When Jack Employee creates an HBX account
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     When Employee goes to register as an employee
     Then Employee should see the employee search page
     When Employee enters the identifying info of Jack Employee
@@ -108,7 +108,18 @@ Feature: COBRA basic
     Then John Doe creates an HBX account
     Then I should see a successful sign up message
     And I select the all security question and give the answer
-    When I have submit the security questions
+    When I have submitted the security questions
     Then I should click on employer portal
     Then John Doe creates a new employer profile with default_office_location
     Then Employer can see the important documents needed
+
+  Scenario: An Employer is new to the Exchange and needs to enter username and email optional
+    Given shop health plans exist for both last and this year
+    Given Employer has not signed up as an HBX user
+    Given vertical and horizontal plan choices are offered
+    When I visit the Employer portal
+    Then I fill employer signup form for Jack Doe
+    And I can see the optional Email field
+    And I fill out the email address with jackdoe@abc.com
+    And I submit button to create account
+    Then I should see a successful sign up message

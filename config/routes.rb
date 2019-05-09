@@ -1,12 +1,13 @@
 Rails.application.routes.draw do
-
+  require 'resque/server'
+#  mount Resque::Server, at: '/jobs'
+  mount BenefitSponsors::Engine,      at: "/benefit_sponsors"
+  mount BenefitMarkets::Engine,       at: "/benefit_markets"
   mount TransportGateway::Engine,       at: "/transport_gateway"
   mount TransportProfiles::Engine,      at: "/transport_profiles"
   mount SponsoredBenefits::Engine,      at: "/sponsored_benefits"
   mount Notifier::Engine, at: "/notifier"
 
-  require 'resque/server'
-  mount Resque::Server, at: '/jobs'
   devise_for :users, :controllers => { :registrations => "users/registrations", :sessions => 'users/sessions', :passwords => 'users/passwords' }
 
   namespace :uis do
@@ -87,13 +88,17 @@ Rails.application.routes.draw do
       collection do
         get :family_index
         get :family_index_dt
+        get :outstanding_verification_dt
         post :families_index_datatable
         get :employer_index
         get :employer_poc
         post :employer_poc_datatable
         get :employer_invoice
+        get :employer_datatable
         post :employer_invoice_datatable
         post :generate_invoice
+        get :edit_force_publish
+        post :force_publish
         get :broker_agency_index
         get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
@@ -109,7 +114,6 @@ Rails.application.routes.draw do
         get :binder_index_datatable
         post :binder_paid
         get :verification_index
-        get :verifications_index_datatable
         get :cancel_enrollment
         post :update_cancel_enrollment
         get :terminate_enrollment
@@ -122,6 +126,16 @@ Rails.application.routes.draw do
         get :show_sep_history
         get :calendar_index
         get :user_account_index
+        get :get_user_info
+        get :oe_extendable_applications
+        get :oe_extended_applications
+        get :edit_open_enrollment
+        post :extend_open_enrollment
+        post :close_extended_open_enrollment
+        get :new_benefit_application
+        post :create_benefit_application
+        get :edit_fein
+        post :update_fein
       end
 
       member do
@@ -177,7 +191,7 @@ Rails.application.routes.draw do
         get 'print_waiver'
         post 'checkout'
         get 'thankyou'
-        post 'waive'
+        get 'waive'
         post 'terminate'
         post 'set_elected_aptc'
       end
@@ -190,6 +204,7 @@ Rails.application.routes.draw do
       get 'new'
       member do
         delete 'delete_consumer_broker'
+        get 'generate_out_of_pocket_url'
       end
 
       collection do
@@ -206,6 +221,7 @@ Rails.application.routes.draw do
         get 'check_qle_date'
         get 'check_move_reason'
         get 'check_insurance_reason'
+        get 'check_marriage_reason'
         get 'purchase'
         get 'family'
         get 'upload_notice_form'
@@ -261,8 +277,14 @@ Rails.application.routes.draw do
   end
 
   namespace :employers do
+
+    # Redirect from Enroll old model to Enroll new model
+    match '/employer_profiles/new' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
+    #match '/employer_profiles/:id/*path' , to: redirect('/'), via: [:get, :post]
+    #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
+    match '/' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
+
     post 'search', to: 'employers#search'
-    root 'employer_profiles#new'
 
     resources :premium_statements, :only => [:show]
 
@@ -298,11 +320,13 @@ Rails.application.routes.draw do
       post 'bulk_employee_upload'
 
       member do
+        #match '/:id/*path' , to: redirect('/'), via: [:get, :post]
         get "download_invoice"
         get 'new_document'
         post 'download_documents'
         post 'delete_documents'
         post 'upload_document'
+        post 'generate_checkbook_urls'
       end
 
       collection do
@@ -314,6 +338,7 @@ Rails.application.routes.draw do
         get 'generate_sic_tree'
       end
       resources :plan_years do
+        get "late_rates_check"
         get 'reference_plans'
         get 'dental_reference_plans'
         get 'generate_dental_carriers_and_plans'
@@ -358,7 +383,7 @@ Rails.application.routes.draw do
 
   # match 'thank_you', to: 'broker_roles#thank_you', via: [:get]
 
-  match 'broker_registration', to: 'broker_agencies/broker_roles#new_broker_agency', via: [:get]
+  match 'broker_registration', to: redirect('benefit_sponsors/profiles/registrations/new?profile_type=broker_agency'), via: [:get]
   match 'check_ach_routing_number', to: 'broker_agencies/broker_roles#check_ach_routing', via: [:get]
 
   namespace :carriers do
@@ -381,6 +406,7 @@ Rails.application.routes.draw do
         get :staff_index
         get :agency_messages
         get :assign_history
+        get  :commission_statements
       end
       member do
         if Settings.aca.general_agency_enabled
@@ -393,6 +419,8 @@ Rails.application.routes.draw do
         post :employer_datatable
         post :family_datatable
         post :set_default_ga
+        get :download_commission_statement
+        get :show_commission_statement
       end
 
       resources :applicants
@@ -561,11 +589,11 @@ Rails.application.routes.draw do
       get :show_docs
       put :update_verification_type
       get :enrollment_verification
-      put :enrollment_docs_state
       put :extend_due_date
       get :fed_hub_request
       post 'download_documents'
       post 'delete_documents'
+      post :fed_hub_request
     end
 
     member do

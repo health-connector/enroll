@@ -1,22 +1,30 @@
 require 'rails_helper'
 module DataTablesAdapter
 end
+
 module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignProposalsController, type: :controller, dbclean: :around_each do
     routes { SponsoredBenefits::Engine.routes }
     let(:broker_double) { double(id: '12345') }
     let(:current_person) { double(:current_person) }
-    let(:broker_role) { double(:broker_role, broker_agency_profile_id: '12345') }
     let(:datatable) { double(:datatable) }
-    let(:sponsor) { double(:sponsor, id: '555', sic_code: '1111') }
+    let(:sponsor) { double(:sponsor, id: '5ac4cb58be0a6c3ef400009a', sic_code: '1111') }
     let(:active_user) { double(:has_hbx_staff_role? => false) }
 
-    let!(:plan_design_organization) { 
-      create(:plan_design_organization, sponsor_profile_id: sponsor.id, owner_profile_id: '12345', plan_design_proposals: [ plan_design_proposal ], sic_code: sponsor.sic_code ) 
+    let!(:plan_design_organization) {
+        create(:sponsored_benefits_plan_design_organization, sponsor_profile_id: sponsor.id, owner_profile_id: '5ac4cb58be0a6c3ef400009b', plan_design_proposals: [ plan_design_proposal ], sic_code: sponsor.sic_code )
     }
 
-    let!(:broker_organization) { create(:sponsored_benefits_organization, broker_agency_profile: broker_agency_profile) }
-    let(:broker_agency_profile) { build(:sponsored_benefits_broker_agency_profile) }
+    let(:broker_agency_profile_id) { "5ac4cb58be0a6c3ef400009b" }
+    let(:broker_agency_profile) do
+      double(
+        :sponsored_benefits_broker_agency_profile,
+        id: broker_agency_profile_id, persisted: true, fein: "5555", hbx_id: "123312", legal_name: "ba-name",
+        dba: "alternate", is_active: true, organization: plan_design_organization, office_locations: []
+      )
+    end
+
+    let(:broker_role) { double(:broker_role, broker_agency_profile_id: broker_agency_profile.id) }
 
     let(:sponsorship) { build(:plan_design_benefit_sponsorship,
                         benefit_market: :aca_shop_cca,
@@ -24,16 +32,17 @@ module SponsoredBenefits
                         annual_enrollment_period_begin_month: beginning_of_next_month.month,
                         benefit_applications: [ benefit_application ]
                         ) }
-    let(:benefit_application) { build(:plan_design_benefit_application, effective_period: initial_enrollment_period, open_enrollment_period: (Date.today..end_of_month)) }
-    let(:cca_employer_profile) { 
+    let(:benefit_application) { build(:plan_design_benefit_application, effective_period: initial_enrollment_period, open_enrollment_period: (open_enrollment_start_on..(open_enrollment_start_on+20.days))) }
+    let(:cca_employer_profile) {
       employer = build(:shop_cca_employer_profile)
       employer.benefit_sponsorships = [sponsorship]
-      employer 
+      employer
     }
     let(:plan_design_proposal) { build(:plan_design_proposal, profile: cca_employer_profile) }
+    let(:open_enrollment_start_on) { (beginning_of_next_month - 15.days).prev_month }
     let(:beginning_of_next_month) { Date.today.next_month.beginning_of_month }
     let(:end_of_month) { Date.today.end_of_month }
-    let(:initial_enrollment_period) { (beginning_of_next_month..(end_of_month + 1.year)) }
+    let(:initial_enrollment_period) { (beginning_of_next_month..(beginning_of_next_month + 1.year - 1.day)) }
 
     let(:valid_attributes) {
       {
@@ -76,13 +85,16 @@ module SponsoredBenefits
     let(:valid_session) { {} }
 
     before do
-      # allow(BrokerAgencyProfile).to receive(:find).with('12345').and_return(broker_double)
       allow(subject).to receive(:current_person).and_return(current_person)
       allow(subject).to receive(:active_user).and_return(active_user)
       allow(current_person).to receive(:broker_role).and_return(broker_role)
       allow(broker_role).to receive(:broker_agency_profile_id).and_return(broker_agency_profile.id)
       allow(subject).to receive(:effective_datatable).and_return(datatable)
       allow(subject).to receive(:employee_datatable).and_return(datatable)
+      allow(broker_role).to receive(:benefit_sponsors_broker_agency_profile_id).and_return(broker_agency_profile.id)
+      allow(controller).to receive(:set_broker_agency_profile_from_user).and_return(broker_agency_profile)
+      allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(BSON::ObjectId.from_string(broker_agency_profile.id)).and_return(broker_agency_profile)
+      allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(BSON::ObjectId.from_string(sponsor.id)).and_return(sponsor)
     end
 
     describe "GET #index" do

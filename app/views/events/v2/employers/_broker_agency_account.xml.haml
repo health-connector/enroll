@@ -4,7 +4,8 @@
       %id= broker_agency_account.broker_agency_profile.organization.hbx_id
     %name= broker_agency_account.broker_agency_profile.legal_name
     %display_name= ""  #field not available
-    %fein= broker_agency_account.broker_agency_profile.fein
+    - if broker_agency_account.broker_agency_profile.fein.present?
+      %fein= broker_agency_account.broker_agency_profile.fein
     %npn= broker_agency_account.broker_agency_profile.corporate_npn
   %writing_agent
     %id
@@ -29,7 +30,7 @@
   %start_on= simple_date_for(broker_agency_account.start_on)
   - if !broker_agency_account.end_on.blank?
     %end_on= simple_date_for(broker_agency_account.end_on)
-  - if defined?(employer_profile)
+  - if defined?(employer_profile) && employer_profile.general_agency_enabled?
     - ga_accounts = employer_profile.general_agency_accounts.unscoped.select { |gaa| gaa.for_broker_agency_account?(broker_agency_account) }
     - if ga_accounts.any?
       %ga_assignments

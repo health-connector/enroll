@@ -97,12 +97,18 @@ class PersonRelationship
   field :relative_id, type: BSON::ObjectId
   field :kind, type: String
 
-	validates_presence_of :relative_id, message: "Choose a relative"
+  validates_presence_of :relative_id, message: "Choose a relative"
   validates :kind,
             presence: true,
             allow_blank: false,
             allow_nil:   false,
             inclusion: {in: Kinds, message: "%{value} is not a valid person relationship"}
+
+  after_save :notify_updated
+
+  def notify_updated
+    person.notify_updated
+  end
 
   def parent
     raise "undefined parent class: Person" unless person?

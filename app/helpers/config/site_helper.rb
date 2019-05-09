@@ -16,6 +16,10 @@ module Config::SiteHelper
     Settings.site.website_name
   end
 
+  def site_privacy_policy
+    Settings.site.privacy_policy
+  end
+
   def site_website_link
     link_to site_website_name, site_website_name
   end
@@ -96,12 +100,20 @@ module Config::SiteHelper
     Settings.site.main_web_address
   end
 
+  def site_main_web_address_url
+    Settings.site.main_web_address_url
+  end
+
   def site_main_web_link
     link_to site_website_name, site_main_web_address_url
   end
 
   def site_make_their_premium_payments_online
     Settings.site.make_their_premium_payments_online
+  end
+
+  def link_to_make_their_premium_payments_online
+    link_to "make your premium payments online", site_make_their_premium_payments_online
   end
 
   def health_care_website
@@ -114,10 +126,6 @@ module Config::SiteHelper
 
   def ivl_login_url
     Settings.site.ivl_login_url
-  end
-
-  def site_main_web_address_url
-     Settings.site.main_web_address_url
   end
 
   def site_uses_default_devise_path?
@@ -148,6 +156,18 @@ module Config::SiteHelper
     Settings.site.employer_application_deadline_link
   end
 
+  def site_initial_earliest_start_prior_to_effective_on
+    Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.months.abs
+  end
+
+  def publish_due_day_of_month
+    Settings.aca.shop_market.initial_application.publish_due_day_of_month
+  end
+
+  def site_guidance_for_business_owners_url
+    Settings.site.guidance_for_business_owners_url
+  end
+
   def site_non_discrimination_complaint_url
     link_to non_discrimination_complaint_url, non_discrimination_complaint_url
   end
@@ -159,4 +179,33 @@ module Config::SiteHelper
   def site_invoice_bill_url
     Settings.site.invoice_bill_url
   end
+
+  def site_user_sign_in_url
+    Settings.site.user_sign_in_url
+  end
+
+  def mail_address
+    Settings.site.mail_address
+  end
+
+  def certification_url
+    Settings.site.certification_url
+  end
+
+  def site_title
+    Settings.site.site_title
+  end
+
+  def fte_max_count
+    Settings.aca.shop_market.small_market_employee_count_maximum
+  end
+
+  def site_tufts_url
+     Settings.site.tufts_premier_url
+  end
+
+  def site_tufts_premier_link
+    link_to site_tufts_url, site_tufts_url
+  end
+
 end

@@ -1,16 +1,22 @@
 class Employers::PlanYearsController < ApplicationController
-  before_action :find_employer
+  include Config::AcaConcern
+  before_action :find_employer, expect: [:late_rates_check]
   before_action :generate_carriers_and_plans, only: [:create, :reference_plan_options, :update, :edit]
   before_action :updateable?, only: [:new, :edit, :create, :update, :revert, :publish, :force_publish, :make_default_benefit_group]
   layout "two_column"
 
   def new
     @plan_year = build_plan_year
-    if @employer_profile.service_areas.any?
-      @carriers_cache = CarrierProfile.all.inject({}){|carrier_hash, carrier_profile| carrier_hash[carrier_profile.id] = carrier_profile.legal_name; carrier_hash;}
-    else
+    if @employer_profile.constrain_service_areas? && @employer_profile.service_areas.blank?
       redirect_to employers_employer_profile_path(@employer_profile, :tab => "benefits"), :flash => { :error => no_products_message(@plan_year) }
+    else
+      @carriers_cache = CarrierProfile.all.inject({}){|carrier_hash, carrier_profile| carrier_hash[carrier_profile.id] = carrier_profile.legal_name; carrier_hash;}
     end
+  end
+
+  def late_rates_check
+    date = params[:start_on_date].to_date rescue nil
+    render json: Plan.has_rates_for_all_carriers?(date)
   end
 
   def dental_reference_plans
@@ -89,7 +95,7 @@ class Employers::PlanYearsController < ApplicationController
     plan_year = PlanYear.find(params[:plan_year_id])
     if plan_year.benefit_groups.count > 1
       benefit_group = plan_year.benefit_groups.find(params[:benefit_group_id])
-      benefit_group.destroy!
+      benefit_group.disable_benefits
 
       if plan_year.save
         flash[:notice] = "Benefit Group: #{benefit_group.title} successfully deleted."
@@ -128,6 +134,11 @@ class Employers::PlanYearsController < ApplicationController
   def create
     @plan_year = ::Forms::PlanYearForm.build(@employer_profile, plan_year_params)
 
+    if Plan.has_rates_for_all_carriers?(plan_year_params[:start_on].to_date) == false
+      params["plan_year"]["benefit_groups_attributes"] = {}
+      @plan_year.benefit_groups.each{|a| a.delete}
+    end
+
     @plan_year.benefit_groups.each_with_index do |benefit_group, i|
       benefit_group.elected_plans = benefit_group.elected_plans_by_option_kind
       benefit_group.elected_dental_plans = if benefit_group.dental_plan_option_kind == "single_plan"
@@ -159,7 +170,7 @@ class Employers::PlanYearsController < ApplicationController
     end
 
     if @employer_profile.default_benefit_group.blank?
-      @plan_year.benefit_groups[0].default= true
+      @plan_year.benefit_groups[0].default= true if @plan_year.benefit_groups[0].present?
     end
 
     if @plan_year.save
@@ -276,6 +287,10 @@ class Employers::PlanYearsController < ApplicationController
 
   def update
     plan_year = @employer_profile.plan_years.where(id: params[:id]).last
+    if Plan.has_rates_for_all_carriers?(plan_year_params[:start_on].to_date) == false
+      params["plan_year"]["benefit_groups_attributes"] = {}
+      plan_year.benefit_groups.each{|a| a.delete}
+    end
     @plan_year = ::Forms::PlanYearForm.rebuild(plan_year, plan_year_params)
     @plan_year.benefit_groups.each_with_index do |benefit_group, i|
       benefit_group.elected_plans = benefit_group.elected_plans_by_option_kind
@@ -430,8 +445,10 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def generate_dental_carriers_and_plans
+
     @location_id = params[:location_id]
     @plan_year_id = params[:plan_year_id]
+    @object_id = params[:object_id]
     @dental_carrier_names = Plan.valid_for_carrier(params.permit(:active_year)[:active_year])
     @dental_carriers_array = Organization.valid_dental_carrier_names_for_options
     respond_to do |format|
@@ -443,8 +460,11 @@ class Employers::PlanYearsController < ApplicationController
     @plan_year = build_plan_year
     @benefit_group = params[:benefit_group]
     @location_id = params[:location_id]
+    @panel_id = params[:panel_id]
     @start_on = params[:start_on]
     @carrier_search_level = params[:selected_carrier_level]
+    @object_id = @location_id.split('-').last
+    @panel_id = params[:panel_id] || @object_id
 
     ## TODO: different if we dont have service areas enabled
     ## TODO: awfully slow
@@ -531,7 +551,7 @@ class Employers::PlanYearsController < ApplicationController
     ]
     )
 
-    plan_year_params["benefit_groups_attributes"].delete_if {|k, v| v.count < 2 }
+    plan_year_params["benefit_groups_attributes"].delete_if {|k, v| v.count < 2 } if plan_year_params["benefit_groups_attributes"].present?
     plan_year_params
   end
 

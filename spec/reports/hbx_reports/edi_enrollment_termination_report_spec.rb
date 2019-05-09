@@ -1,8 +1,9 @@
 require "rails_helper"
 require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "edi_enrollment_termination_report")
+require "#{Rails.root}/app/helpers/config/aca_helper"
 
-describe TerminatedHbxEnrollments do
+describe TerminatedHbxEnrollments, dbclean: :after_each do
 
   let(:given_task_name) { "enrollment_termination_on" }
   let(:person1) {FactoryGirl.create(:person,
@@ -26,16 +27,21 @@ describe TerminatedHbxEnrollments do
   let(:valid_params2) { {from_state: from_state, to_state: to_state2, transition_at: transition_at} }
   let(:params2) { valid_params2 }
   let(:workflow_state_transition2) { WorkflowStateTransition.new(params2) }
-  let(:family1) { FactoryGirl.create(:family, :with_primary_family_member, :person => person1)}
-  let(:hbx_enrollment1) { FactoryGirl.create(:hbx_enrollment,
+  let!(:family1) { FactoryGirl.create(:family, :with_primary_family_member, :person => person1)}
+  let!(:site)                  { build(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:product) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, issuer_profile: issuer_profile)}
+  let!(:hbx_enrollment1) { FactoryGirl.create(:hbx_enrollment,
                                              household: family1.active_household,
+                                              product: product,
                                              aasm_state:"coverage_terminated",
                                              hbx_enrollment_members: [hbx_enrollment_member1],
                                              termination_submitted_on: Date.yesterday.midday,
                                              workflow_state_transitions: [workflow_state_transition1])}
-  let(:family2) { FactoryGirl.create(:family, :with_primary_family_member, :person => person2)}
-  let(:hbx_enrollment2) { FactoryGirl.create(:hbx_enrollment,
+  let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, :person => person2)}
+  let!(:hbx_enrollment2) { FactoryGirl.create(:hbx_enrollment,
                                              household: family2.active_household,
+                                              product: product,
                                              aasm_state:"coverage_termination_pending",
                                              hbx_enrollment_members: [hbx_enrollment_member2],
                                              termination_submitted_on: Date.yesterday.midday,
@@ -43,6 +49,10 @@ describe TerminatedHbxEnrollments do
 
 
   let(:publisher) { double }
+
+  before :all do
+    DatabaseCleaner.clean
+  end
 
   describe "correct data input" do
     it "has the given task name" do
@@ -62,10 +72,14 @@ describe TerminatedHbxEnrollments do
 
   shared_examples_for "returns csv file list with terminated hbx_enrollments" do |field_name, result|
     let(:time_now) { Time.now }
+    let!(:date) { Date.new(2018,1,1) }
+    let!(:fixed_time) { Time.parse("Jan 1 2018 10:00:00") }
 
     before :each do
-     time_str = time_now.utc.strftime("%Y%m%d_%H%M%S")
-     @file = File.expand_path("#{Rails.root}/public/edi_enrollment_termination_report_#{time_str}.csv")
+      ENV['start_date'] = nil
+      allow(TimeKeeper).to receive(:date_of_record).and_return(date)
+      allow(TimeKeeper).to receive(:datetime_of_record).and_return(fixed_time)
+     @file = File.expand_path("#{Rails.root}/public/CCA_test_EDIENROLLMENTTERMINATION_2018_01_01_10_00_00.csv")
      allow(Time).to receive(:now).and_return(time_now)
      allow(Publishers::Legacy::EdiEnrollmentTerminationReportPublisher).to receive(:new).and_return(publisher)
      allow(publisher).to receive(:publish).with(URI.join("file://", @file))
