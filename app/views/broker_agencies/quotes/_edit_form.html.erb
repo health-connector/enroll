@@ -29,7 +29,7 @@
 						<div class="form-group col-sm-6">Type:
 							<%= f.select(:employer_type, options_for_select([["Prospect","prospect"]],selected: @quote.employer_type), {:include_blank => "SELECT TYPE"}, {:class => "floatlabel custom_selectric form-control employer_type", :prompt => true, required: true}) %>
 						</div>
-						<div class="form-group col-sm-6">Employer Name:
+						<div class="form-group col-sm-6"><%= l10n("hbx_profiles.employer_name") %>:
 							<div class="type">
 								<%= render 'families', type: @quote.employer_type %>
 							</div>

@@ -1,5 +1,3 @@
-
-
 <div class='hide'>
   <%=	select_tag "benefit_group_select", options_from_collection_for_select(@benefit_groups, "id", "title", benefit_id.try(:to_s)), { } %>
 </div>
@@ -9,7 +7,7 @@
     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#feature-mgmt" aria-expanded="true" aria-controls="feature-mgmt">
     <b><%= l10n("broker_agencies.quotes.panels.health_features_and_cost_criteria")%></b>
     <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></a>
-    <span style='margin-left: 50px; font-size: 120%;'  id='show_plan_criteria_count'>Plan count</span>
+    <span style='margin-left: 50px; font-size: 120%;'  id='show_plan_criteria_count'><%= l10n('plan_count')%></span>
     <label class='btn btn-normal hide' id='reset_criteria'><%= l10n("reset_criteria")%></label>
   </div>
   <div id="feature-mgmt" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
@@ -44,7 +42,7 @@
             </div>
           </div>
           <br>
-          <% submit_tag "Compare Costs", class: 'btn btn-primary', id: 'QuoteCalculation' %>
+          <% submit_tag l10n('compare_costs'), class: 'btn btn-primary', id: 'QuoteCalculation' %>
           <div class='btn btn-primary' id='CostComparison'><%= l10n("compare_costs_select_plan")%></div>
           <br>
         </div>
