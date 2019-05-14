@@ -1,4 +1,4 @@
-  <h3>Detailed Employee cost breakdown for selected dental plans:</h3>
+  <h3><%= l10n('.detailed_ee_cost_breakdown_for_selected_plans')%>:</h3>
   <div class="mygrid-wrapper-div">
     <table class="quote-detail-cost">
       <tr>
@@ -8,9 +8,9 @@
           <td colspan="1" class="quote_detail_plan_header">
             <div style='width: 300px'>
               <b><%= qr[0] %></b><br>
-              <sm>Employee: 
+              <sm><%= l10n('employee') %>:
               $<%= qr[1][:total_employee_cost].ceil %>,
-              Employer: 
+              <%= l10n('employer') %>:
 
               <span >$<%= qr[1][:total_employer_cost].ceil %></span>
               <br>
@@ -20,11 +20,11 @@
         <% end %>
       </tr>
       <tr style="font-weight: bolder; ">
-        <td class="quote_detail_results_header">Name</td>
-        <td class="quote_detail_results_header">Relationship (%)</td>
-        <td class="quote_detail_results_header">Age</td>
+        <td class="quote_detail_results_header"><%= l10n('name')%></td>
+        <td class="quote_detail_results_header"><%= l10n('relationship')%> (%)</td>
+        <td class="quote_detail_results_header"><%= l10n('age')%></td>
         <% quote_results.keys.each do |de| %>
-          <td class="quote_detail_results_header" style='padding-left: 100px'>Employee Cost</td>
+          <td class="quote_detail_results_header" style='padding-left: 100px'><%= l10n('employee_cost')%></td>
         <% end %>
       </tr>
       <% quote_results.first[1][:detail].flatten.each_with_index do |qr, index| %>
