@@ -3,10 +3,6 @@ module BenefitMarketWorld
     @benefit_market ||= site.benefit_markets.first
   end
 
-  def rating_area
-    @rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area)
-  end
-
   def current_effective_date(new_date = nil)
     if new_date.present?
       @current_effective_date = new_date
