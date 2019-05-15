@@ -1,6 +1,6 @@
 Feature: EE with multiple employers plan purchase
 
-  Scenario: when EE purchase plan for self & having ineligible family member - 
+  Scenario: when EE purchase plan for self & having ineligible family member -
             ER1 - Health & dental benefits - not offers dental benefits to spouse
             ER2 - Only Health benefits - not offers to spouse
     Given a matched Employee exists with multiple employee roles

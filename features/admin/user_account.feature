@@ -23,12 +23,12 @@ Feature: User Account page
     Given a locked user exists with employer staff role
     And a locked user exists with employee role
     And a locked user exists with broker role
-    
+
     When I click Employee and Locked button
     Then I should only see locked user with employee role
     When I click Employee and Unlocked button
     Then I should only see unlocked user with employee role
-    
+
   Scenario: Search for an user
     Given a Hbx admin with read and write permissions and employers
     And a user exists with employer staff role

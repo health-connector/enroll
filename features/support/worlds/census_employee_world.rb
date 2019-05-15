@@ -10,7 +10,7 @@ module CensusEmployeeWorld
 
   def build_enrollment(attributes, *traits)
     @hbx_enrollment ||= FactoryGirl.create(
-      :hbx_enrollment, 
+      :hbx_enrollment,
       :with_enrollment_members,
       *traits,
       household: attributes[:household],
@@ -136,7 +136,6 @@ And(/^Assign benefit group assignments to (.*?) employee$/) do |legal_name|
 end
 
 And(/^employees for (.*?) have a selected coverage$/) do |legal_name|
-  benefit_package = fetch_benefit_group(legal_name)
   employer_profile = employer_profile(legal_name)
   census_employees = employer_profile.census_employees
 

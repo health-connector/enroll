@@ -69,7 +69,7 @@ And(/^the user clicks publish anyways$/) do
   find('a', :text => "Publish Anyways").click
 end
 
-Then(/^the force publish successful message should be displayed$/) do 
+Then(/^the force publish successful message should be displayed$/) do
   expect(page).to have_content('Force Publish Successful')
 end
 

@@ -2,7 +2,7 @@ module CapybaraHelpers
   # Perform an action then wait for the page to reload before proceeding
   def wait_for_page_reload_until(timeout, slice_size = 0.2, &blk)
     execute_script(<<-JSCODE)
-      window.document['_test_waiting_for_page_reload'] = true; 
+      window.document['_test_waiting_for_page_reload'] = true;
     JSCODE
     blk.call
     wait_for_condition_until(timeout, slice_size) do
@@ -22,7 +22,7 @@ module CapybaraHelpers
   def with_datatable_load_wait(timeout, slice_size = 0.2, &blk)
     execute_script(<<-JSCODE)
       $('.effective-datatable').DataTable().one('draw.dt', function() {
-        window['ef_datatables_done_loading'] = true; 
+        window['ef_datatables_done_loading'] = true;
       });
     JSCODE
     blk.call

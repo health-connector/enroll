@@ -712,10 +712,8 @@ When /^employer clicks on the (.*) link$/ do |status|
   if link.present?
     link.trigger('click')
   else
-    Capybara.ignore_hidden_elements = false
-    link = find(:link, status.titleize)
+    link = find(:link, status.titleize, visible: false)
     link.trigger('click')
-    Capybara.ignore_hidden_elements = true
   end
 end
 

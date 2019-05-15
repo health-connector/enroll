@@ -219,9 +219,9 @@ end
 
 
 # Following step will create initial benefit application with given state
-# ex: employer Acme Inc. has enrollment_open benefit application 
-#     employer Acme Inc. has active benefit application 
-#     employer Acme Inc. has expired benefit application 
+# ex: employer Acme Inc. has enrollment_open benefit application
+#     employer Acme Inc. has active benefit application
+#     employer Acme Inc. has expired benefit application
 #     employer Acme Inc. has draft benefit application
 And(/^employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
