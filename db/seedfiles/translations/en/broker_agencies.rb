@@ -181,6 +181,7 @@ BROKER_AGENCIES_TRANSLATIONS = {
 	"en.broker_agencies.quotes.template_upload"=> "If you completed your employee roster offline using our Microsoft Excel template, find the file on your computer and upload it here.",
 	"en.broker_agencies.quotes.need_the_template" => "Need the template?",
 	"en.broker_agencies.quotes.download_it_now" => "Download it now.",
+	"en.broker_agencies.quotes.dental_plan_offering_spectrum" => "Below is your Employer's Dental Plan offering Spectrum. Your offerings are based on",
 	"en.save_changes" => "Save Changes",
 	"en.back_to_quotes" => "Back to Quotes",
 	"en.add_family" => "Add Family",
@@ -212,5 +213,6 @@ BROKER_AGENCIES_TRANSLATIONS = {
 	"en.carrier_appointments" => "Carrier Appointments",
 	"en.reason" => "Reason",
 	"en.broker_carrier_appointments_enabled_note" => "Note: Carrier appointments for broker are not necessary for participation in %{site_long_name}.",
-	"en.write_here" => "Write here"
+	"en.write_here" => "Write here",
+	/Users/sripoosa/Desktop/ma/enroll/app/views/broker_agencies/quotes/_publish.html.erb
 }

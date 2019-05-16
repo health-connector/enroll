@@ -6,7 +6,7 @@
 
         <p><%= l10n("quote")%>: "<%=@q.quote_name %>" effective <b><%=@q.start_on %></b></p>
 
-        <p>Costs are based on the roster associated with this quote of <b><%= @q.quote_households.count %></b> families:</p>
+        <p><%= l10n("costs_based_on_roster")%> <b><%= @q.quote_households.count %></b> <%= l10n("fam_ily")%>:</p>
         <br>
         <% @q.quote_benefit_groups.each do |benefit_group| %>
           <%  unless benefit_group.plan.nil? %>
@@ -17,7 +17,7 @@
                   <section class="col-xs-10">
                     <header class="row">
                       <h3 class="title no-buffer">
-                        <%= "Quote for Benefit Group: #{benefit_group.title}" %>
+                        <%= l10n("broker_agencies.quotes.quote_for_benefit_group", title: benefit_group.title) %>
                       </h3>
                     </header>
                   </section>
@@ -123,12 +123,12 @@
                   </div>
                   <div class="col-xs-12 quote-details">
                     <div class="col-xs-12 quote-health-details">
-                      <p>Below is your Employer's <strong>Health</strong> Plan offering Spectrum. Your offerings are based on <%=benefit_group.plan_option_kind.titleize%>.</p>
+                      <p><%= l10n("below_is_your")%> <strong><%= l10n("health")%></strong> <%= l10n("plan_offering_spectrum")%> <%=benefit_group.plan_option_kind.titleize%>.</p>
                       <% if benefit_group.plan %>
                         <table class = "employer-health-contribution">
                           <tr>
-                            <th>Offered</th>
-                            <th>Employer Contribution</th>
+                            <th><%= l10n("offered")%></th>
+                            <th><%= l10n("employer_contribution")%></th>
                           </tr>
                           <% benefit_group.quote_relationship_benefits.each do|rb| %>
                             <% next if rb.relationship == "child_26_and_over" %>
@@ -148,7 +148,7 @@
                             <div class="row">
                               <div class="col-xs-4">
                                 <div class="row">
-                                  <span>Employer Estimated Maximum Monthly Cost</span>
+                                  <span><%= l10n("employer_estimated_maximum_monthly_cost")%></span>
                                   <h2><%= number_to_currency(benefit_group.published_employer_cost)%></h2>
                                 </div>
                               </div>
@@ -157,11 +157,11 @@
                                   <table>
                                     <tr>
                                       <th colspan ="2" ></th>
-                                      <th>Min</th>
-                                      <th>Max</th>
+                                      <th><%= l10n("min")%></th>
+                                      <th><%= l10n("max")%></th>
                                     </tr>
                                     <tr>
-                                      <td colspan="2">Total Estimated Monthly Cost for Plan Participants</td>
+                                      <td colspan="2"><%= l10n("total_estimated_monthly_cost_for_plan_participants")%></td>
                                   <% cost_range = benefit_group.employee_cost_min_max %>
                                   <td><%= number_to_currency(cost_range[0])%></td>
                                   <td><%= number_to_currency(cost_range[1])%></td>
@@ -175,12 +175,12 @@
                       <%end%>
                     </div>
                     <div class="col-xs-12 quote-dental-details">
-                      <p>Below is your Employer's Dental Plan offering Spectrum. Your offerings are based on <%=benefit_group.plan_option_kind.titleize%>.</p>
+                      <p><%= l10n("broker_agencies.quotes.dental_plan_offering_spectrum")%> <%=benefit_group.plan_option_kind.titleize%>.</p>
                       <% if benefit_group.dental_plan %>
                         <table class = "employer-dental-contribution">
                           <tr>
-                            <th>Offered</th>
-                            <th>Employer Contribution</th>
+                            <th><%= l10n("offered")%></th>
+                            <th><%= l10n("employer_contribution")%></th>
                           </tr>
                           <% benefit_group.quote_dental_relationship_benefits.each do|rb| %>
                             <% next if rb.relationship == "child_26_and_over" %>
@@ -200,7 +200,7 @@
                             <div class="row">
                               <div class="col-xs-4">
                                 <div class="row">
-                                  <span>Employer Estimated Maximum Monthly Cost</span>
+                                  <span><%= l10n("employer_estimated_maximum_monthly_cost")%></span>
                                   <h2><%= number_to_currency(benefit_group.published_dental_employer_cost)%></h2>
                                 </div>
                               </div>
@@ -209,11 +209,11 @@
                                   <table>
                                     <tr>
                                       <th colspan ="2" ></th>
-                                      <th>Min</th>
-                                      <th>Max</th>
+                                      <th><%= l10n("min")%></th>
+                                      <th><%= l10n("max")%></th>
                                     </tr>
                                     <tr>
-                                      <td colspan="2">Total Estimated Monthly Cost for Plan Participants</td>
+                                      <td colspan="2"><%= l10n("total_estimated_monthly_cost_for_plan_participants")%></td>
                                   <% cost_range = benefit_group.employee_cost_min_max('dental') %>
                                   <td><%= number_to_currency(cost_range[0])%></td>
                                   <td><%= number_to_currency(cost_range[1])%></td>
