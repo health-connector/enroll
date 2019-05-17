@@ -38,7 +38,7 @@
             <% end %>
         </div>
         <div id='dc_in_network'>
-             <b>DC Network</b> <br>
+             <b><%= l10n("dc_network")%></b> <br>
              <%- @health_selectors[:dc_network].each do |choice| %>
                  <div class='criteria_style'>
                      <%- if choice == 'any' %>
@@ -50,7 +50,7 @@
             <% end %>
         </div>
         <div id='nationwide'>
-            <b>Nationwide</b> <br>
+            <b><%= l10n("nationwide") %></b> <br>
             <%- @health_selectors[:nationwide].each do |choice| %>
                 <div class='criteria_style'>
                     <%- if choice == 'any' %>

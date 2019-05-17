@@ -114,9 +114,9 @@ BROKER_AGENCIES_TRANSLATIONS = {
 	"en.plan" => "Plan",
 	"en.reference" => "Reference",
 	"en.lowest_reference_highest" => "Lowest / Reference / Highest",
-	"en.detailed_employer_cost_breakdown_for_selected_plans" => "Detailed Employer cost breakdown for selected plans",
-	"en.detailed_ee_cost_breakdown_for_selected_plans" => "Detailed Employee cost breakdown for selected dental plans",
-	"en.detailed_ee_cost_breakdown_for_selected_health" => "Detailed Employee cost breakdown for selected health plans",
+	"en.broker_agencies.quotes.detailed_employer_cost_breakdown_for_selected_plans" => "Detailed Employer cost breakdown for selected plans",
+	"en.broker_agencies.quotes.detailed_ee_cost_breakdown_for_selected_plans" => "Detailed Employee cost breakdown for selected dental plans",
+	"en.broker_agencies.quotes.detailed_ee_cost_breakdown_for_selected_health" => "Detailed Employee cost breakdown for selected health plans",
 	"en.employer_cost" => "Employer Cost",
 	"en.carriers" => "Carriers",
 	"en.broker_agencies.quotes.coverage_level" => "Coverage Level",
@@ -214,5 +214,8 @@ BROKER_AGENCIES_TRANSLATIONS = {
 	"en.reason" => "Reason",
 	"en.broker_carrier_appointments_enabled_note" => "Note: Carrier appointments for broker are not necessary for participation in %{site_long_name}.",
 	"en.write_here" => "Write here",
-	/Users/sripoosa/Desktop/ma/enroll/app/views/broker_agencies/quotes/_publish.html.erb
+	"en.family_id" => "Family Id",
+	"en.save_and_go_back_to_quotes" => "Save and Go Back to Quotes",
+	"en.name_of_the_quote" => "Name of the Quote",
+	
 }
