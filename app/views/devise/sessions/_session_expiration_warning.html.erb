@@ -2,21 +2,21 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Warning</h4>
+        <h4 class="modal-title"><%= l10n('uis.bootstrap3_examples.index.warning') %></h4>
       </div>
       <div class="modal-body">
         <p>
-          Your session will expire in
+          <%= l10n('devise.sessions.session_expiration') %>
           <strong>
             <%= @time_left %>
           </strong>
-          seconds. If you would like to remain logged in click "Stay Logged In" below.
+          <%= l10n('devise.sessions.session_expiration_ext_message') %>
         </p>
         <ul class="application-warnings"></ul>
       </div>
       <div class="modal-footer">
-        <%= link_to "Logout", destroy_user_session_path, method: "delete", class: "btn btn-default btn-small" %>
-        <span id="stay-logged-in" class="btn btn-primary  mtz btn-small" data-dismiss="modal">Stay Logged In</span>
+        <%= link_to l10n('layouts.application_brand.logout'), destroy_user_session_path, method: "delete", class: "btn btn-default btn-small" %>
+        <span id="stay-logged-in" class="btn btn-primary  mtz btn-small" data-dismiss="modal"><%= l10n('stay_log_in') %></span>
       </div>
     </div>
   </div>
