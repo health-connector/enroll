@@ -1,17 +1,17 @@
 <div id="change-password" class="container top-pd module">
   <div class="col-md-6 col-md-offset-3 col-sm-8 col-xs-12">
-    <h1>Change your password</h1>
+    <h1><%= l10n('devise.passwords.change_your_pswd') %></h1>
 
       <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
       <%= devise_error_messages! %>
       <%= f.hidden_field :reset_password_token %>
 
       <div class="form-group">
-        <%= f.label :password, "New Password" %><br />
+        <%= f.label :password, l10n('devise.passwords.new_pswd') %><br />
         <%= f.password_field :password, autofocus: true, class: "form-control" %>
       </div>
       <div id="pswd_info" class="tooltip_box" style="display: none;">
-        <p>Your password must:</p>
+        <p>><%= l10n('devise.passwords.password_error_text') %></p>
         <ul>
           <li id="length" class="valid">Be at least 8 characters</li>
           <li id="longer" class="invalid">Not be longer than 20 characters</li>
@@ -26,7 +26,7 @@
 
       <div class="form-group">
         <br />
-         <%= f.label :password_confirmation, "Confirm New Password" %>
+         <%= f.label :password_confirmation, l10n('devise.passwords.confirm_new_pswd') %>
             <span class="pull-right con-pass"></span>
             <br />
         <%= f.password_field :password_confirmation, autofocus: true, class: "form-control" %>

@@ -3,31 +3,31 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="passwordChangeModalLabel">Change my password</h4>
+        <h4 class="modal-title" id="passwordChangeModalLabel"><%= l10n('devise.passwords.change_my_pswd') %></h4>
       </div>
       <%= form_for(current_user, as: User, url: change_password_user_path(current_user), html: { method: :post }) do |f| %>
         <div class="modal-body">
             <%= devise_error_messages! %>
 
             <div class="form-group">
-              <%= f.label :password, "Current Password" %><br />
+              <%= f.label :password, l10n('devise.passwords.current_pswd') %><br />
               <%= f.password_field :password, autofocus: true, class: "form-control" %>
             </div>
 
             <div class="form-group">
-              <%= f.label :new_password, "New Password" %><br />
+              <%= f.label :new_password, l10n('devise.passwords.new_pswd') %><br />
               <%= f.password_field :new_password, autofocus: true, class: "form-control" %>
             </div>
 
             <div class="form-group">
-              <%= f.label :password_confirmation, "Confirm New Password" %><br />
+              <%= f.label :password_confirmation, l10n('devise.passwords.confirm_new_pswd') %><br />
               <%= f.password_field :password_confirmation, autofocus: true, class: "form-control" %>
             </div>
         </div>
         <div class="modal-footer">
           <div class="form-group form-group-actions">
-           <%= f.submit "Change my password", class: "btn btn-primary sm_full_width" %>
-           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+           <%= f.submit l10n('devise.passwords.change_my_pswd'), class: "btn btn-primary sm_full_width" %>
+           <button type="button" class="btn btn-default" data-dismiss="modal"><%= l10n('close')%></button>
           </div>
         </div>
       <% end %>
