@@ -14,6 +14,7 @@ default: &default
   cache_manifest: false
 
   extensions:
+    - .ts
     - .js
     - .sass
     - .scss
@@ -62,7 +63,7 @@ production:
   <<: *default
 
   # Production depends on precompilation of packs prior to booting for performance.
-  compile: false
+  compile: false 
 
   # Cache manifest.json for performance
   cache_manifest: true

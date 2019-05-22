@@ -34,6 +34,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'mongoid-autoinc'
   s.add_dependency 'interactor', '3.1.0'
   s.add_dependency 'interactor-rails', '2.0.2'
+  s.add_dependency 'dry-types'
+  s.add_dependency 'dry-initializer', '~> 1.4.1'
+  s.add_dependency 'dry-validation', '~> 0.12.1'
+  s.add_dependency 'mail'
 
   s.test_files = Dir["spec/**/*"]
 
