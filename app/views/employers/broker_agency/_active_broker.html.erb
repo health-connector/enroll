@@ -18,7 +18,7 @@
           <div class="panel-heading vertically-aligned-row">
             <div>
               <h3 class="panel-title">
-                Active Broker
+                <%= l10n('employers.broker_agency.active_broker') %>
               </h3>
             </div>
             <div class="text-right">
@@ -46,7 +46,7 @@
                         <div class="confirm-terminate">
                           <input class="text-center date-picker" placeholder="e.g. 5/1/2015" type="text"><br/>
                           <a class="delete_confirm" data-link="<%= employers_employer_profile_broker_agency_terminate_path(@employer_profile.id, @employer_profile.broker_agency_profile.id) %>" href="javascript:;" id="remove_<%= @employer_profile.broker_agency_profile.id %>">
-                            <strong>Submit</strong>
+                            <strong><%= l10n('submit') %></strong>
                           </a>
                         </div>
                         <%= image_tag "enter_date_termination.png", width: "300", height: "" %>
@@ -61,7 +61,7 @@
             <div class="vertically-aligned-row">
               <div>
                 <strong>
-                  Broker Name:
+                  <%= l10n('broker_name') %>:
                 </strong>
                 <span>
                   <%= active_broker.person.full_name.titleize %>
@@ -69,7 +69,7 @@
               </div>
               <div>
                 <strong>
-                  Phone:
+                  <%= l10n('phone') %>:
                 </strong>
                 <span>
                   <% if active_broker.phone %>
@@ -82,7 +82,7 @@
             <div class="vertically-aligned-row">
               <div>
                 <strong>
-                  Broker Agency:
+                  <%= l10n('broker_agency') %>:
                 </strong>
                 <span>
                   <%= @employer_profile.broker_agency_profile.legal_name.titleize %>
@@ -90,7 +90,7 @@
               </div>
               <div>
                 <strong>
-                  Email:
+                  <%= l10n('email') %>:
                 </strong>
                 <span>
                   <a href="mailto:<%= active_broker.email.address %>">
@@ -102,7 +102,7 @@
             <div class="vertically-aligned-row">
               <div>
                 <strong>
-                  Address:
+                  <%= l10n('address') %>:
                 </strong>
                 <span>
                   <% if @employer_profile.broker_agency_profile.organization.office_locations.any? %>
@@ -117,7 +117,7 @@
             <div class="vertically-aligned-row">
               <div>
                 <strong>
-                  Accepting New Clients:
+                  <%= l10n('employers.broker_agency.accepting_new_client') %>:
                 </strong>
                 <span>
                   <%= @employer_profile.broker_agency_profile.accept_new_clients? ? 'Yes' : 'No' %>
@@ -125,7 +125,7 @@
               </div>
               <div>
                 <strong>
-                  Language:
+                  <%= l10n("language")%>:
                 </strong>
                 <span>
                   <%= @employer_profile.broker_agency_profile.languages %>
@@ -135,7 +135,7 @@
             <div class="vertically-aligned-row">
               <div>
                 <strong>
-                  Weekend/Evening Hours:
+                  <%= l10n("broker_agencies.profiles.weekend_evening_hours")%>:
                 </strong>
                 <span>
                   <%= @employer_profile.broker_agency_profile.working_hours? ? 'Yes' : 'No' %>
@@ -143,7 +143,7 @@
               </div>
               <div>
                 <strong>
-                  Assignment Date:
+                  <%= l10n('assignment_date') %>:
                 </strong>
                 <span>
                   <%= format_date(assignment_date(@employer_profile)) %>
@@ -164,14 +164,14 @@
         <div class="modal-content">
           <div class="modal-header">
             <button class="close" data-dismiss="modal" type="button">&times;</button>
-            <h4 class="modal-title">Broker Termination Confirmation</h4>
+            <h4 class="modal-title"><%= l10n('employers.broker_agency.broker_term_confirm') %></h4>
           </div>
           <div class="modal-body">
-            <p>Select 'Terminate' to unhire the selected Broker. They will be terminated effective immediately.</p>
+            <p><%= l10n('employers.broker_agency.unhire_broker_msg') %></p>
           </div>
           <div class="modal-footer">
-            <%= link_to 'Terminate Broker'.html_safe, employers_employer_profile_broker_agency_terminate_path(@employer_profile.id, @employer_profile.broker_agency_profile.id, termination_date: date, direct_terminate: true), class: "btn btn-primary  mtz" %>
-            <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+            <%= link_to l10n('terminate_broker').html_safe, employers_employer_profile_broker_agency_terminate_path(@employer_profile.id, @employer_profile.broker_agency_profile.id, termination_date: date, direct_terminate: true), class: "btn btn-primary  mtz" %>
+            <button class="btn btn-default" data-dismiss="modal" type="button"><%= l10n('close')%></button>
           </div>
         </div>
       </div>

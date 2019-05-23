@@ -5,5 +5,18 @@ EMPLOYER_TRANSLATIONS = {
   "en.employers.plan_years.coinsurance" => "COINSURANCE",
   "en.employers.plan_years.more_details" => "More Details",
   "en.employers.employer_profiles.my_account.important_documents_needed" => "Important Documents Needed",
-  "en.employers.employer_profiles.my_account.eligibility_documents_needed" => "After you complete your application, you will need to submit proof of your eligibility to shop as a small business through the Health Connector. You will need to submit this proof before you are able to shop for a plan. Please review <a href="'https://www.mahealthconnector.org/business/employers/employer-verification-checklist'" target="'_blank'">our list of documents</a> that can be used as proof and make sure that you have the right documentation available."
+  "en.employers.employer_profiles.my_account.eligibility_documents_needed" => "After you complete your application, you will need to submit proof of your eligibility to shop as a small business through the Health Connector. You will need to submit this proof before you are able to shop for a plan. Please review <a href="'https://www.mahealthconnector.org/business/employers/employer-verification-checklist'" target="'_blank'">our list of documents</a> that can be used as proof and make sure that you have the right documentation available.",
+  'en.employers.broker_agency.active_broker' => 'Active Broker',
+  'en.employers.broker_agency.accepting_new_client' => 'Accepting New Clients',
+  'en.assignment_date' => 'Assignment Date',
+  'en.employers.broker_agency.broker_term_confirm' => 'Broker Termination Confirmation',
+  'en.employers.broker_agency.unhire_broker_msg' => "Select 'Terminate' to unhire the selected Broker. They will be terminated effective immediately.",
+  'en.terminate_broker' => 'Terminate Broker',
+  'en.select_broker' => 'Select Broker',
+  'en.employers.broker_agency.broker_sel_confirm' => 'Broker Selection Confirmation',
+  'en.employers.broker_agency.broker_hire_warning' => "Select 'Confirm' to hire the selected Broker. Warning: if you already have an existing Broker, they will be terminated effective immediately.",
+  'en.language_spoken' => 'Language(s) spoken',
+  'en.evng_weekend_hr' => 'Evening/Weekend Hours',
+  'en.contact_phone' => 'Contact Phone',
+  'en.agency' => 'Agency'
 }

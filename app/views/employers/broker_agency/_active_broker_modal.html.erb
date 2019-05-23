@@ -29,7 +29,7 @@
 			                  <%= broker_agency_profile.organization.primary_office_location.address.state %>
 			                  <%= broker_agency_profile.organization.primary_office_location.address.zip %>
 			                <% else %>
-			                No Address
+			                <%= l10n('broker_agencies.profiles.no_address')%>
 			                <% end %>
 			              </header>
 			            </td>
@@ -39,7 +39,7 @@
 			                  <%= active_broker.phone.to_s %>
 			                  <% else %>
 			                  <i class="fa fa-phone"></i>
-			                  No Phone Number
+			                  <%= l10n('broker_agencies.profiles.no_phone_number') %>
 			                <% end %>
 			                <br/>
 			                <i class="fa fa-at"></i>
@@ -57,14 +57,14 @@
 		        <div class="row">
 		          <div class="col-xs-6">
 		            <span class="lg ttu twelve">
-		              New Clients:
+		              <%= l10n('broker_agencies.profiles.new_clients')%>:
 		            </span>
 		            <span class="dg">
 		              <%= broker_agency_profile.accept_new_clients? ? 'Yes' : 'No' %>
 		            </span>
 		            <br/>
 		            <span class="lg ttu twelve">
-		              Weekend/Evening Hours:
+		              <%= l10n("broker_agencies.profiles.weekend_evening_hours")%>:
 		            </span>
 		            <span class="dg">
 		              <%= broker_agency_profile.working_hours? ? 'Yes' : 'No' %>
@@ -72,7 +72,7 @@
 		          </div>
 		          <div class="col-xs-6">
 		            <span class="lg ttu twelve">
-		              Language:
+		              <%= l10n('language') %>:
 		            </span>
 		            <span class="dg">
 		              <%= broker_agency_profile.languages %>
