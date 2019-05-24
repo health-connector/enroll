@@ -22,4 +22,9 @@ EMPLOYER_TRANSLATIONS = {
   'en.evng_weekend_availability' => 'Evening/Weekend Availability',
   'en.contact_phone' => 'Contact Phone',
   'en.agency' => 'Agency'
+  'en.employers.census_employees.cobra_check_msg' => 'Check the box if this person is already in enrolled into COBRA/Continuation outside of',
+  'en.employers.census_employees.cobra_begin_date' => 'COBRA Begin Date',
+  'en.date_display' => 'mm/dd/yyyy',
+  'en.dependent' => 'Dependent',
+
 }

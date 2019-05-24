@@ -7,10 +7,10 @@
       <h4><%= name_to_listing(@census_employee) %>'s Details</h4>
       <div class="form-border">
         <p>
-          Name:
+          <%= l10n('name') %>:
           <%= name_to_listing(@census_employee) %>
           <br/>
-          DOB:
+          <%= l10n('dob') %>:
           <%= format_date @census_employee.dob %>
           <br/>
           Hired On:
@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="col-xs-6">
-      <h4>Address</h4>
+      <h4><%= l10n('address') %></h4>
       <div class="form-border">
         <% if address.present? %>
         <%= address.to_html %>
