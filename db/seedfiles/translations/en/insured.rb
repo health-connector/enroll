@@ -280,6 +280,7 @@ INSURED_TRANSLATIONS = {
   "en.city" => "City",
   "en.state" => "State",
   "en.zip" => "Zip",
+  'en.selected_state' => 'Select State',
   "en.race_or_ethnicity" => "Race/Ethinicity",
   "en.language" => "Language",
   "en.is_incarcerated" => "Incarcerated?",

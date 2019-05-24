@@ -8,6 +8,8 @@ EMPLOYER_TRANSLATIONS = {
   "en.employers.employer_profiles.my_account.eligibility_documents_needed" => "After you complete your application, you will need to submit proof of your eligibility to shop as a small business through the Health Connector. You will need to submit this proof before you are able to shop for a plan. Please review <a href="'https://www.mahealthconnector.org/business/employers/employer-verification-checklist'" target="'_blank'">our list of documents</a> that can be used as proof and make sure that you have the right documentation available.",
   'en.employers.broker_agency.active_broker' => 'Active Broker',
   'en.employers.broker_agency.accepting_new_client' => 'Accepting New Clients',
+  'en.employers.broker_agency.advanced_options' => 'Advanced Options',
+  'en.employers.broker_agency.seach_broker_and_select' => "Search for a Broker near you. When you find the Broker you want to use, choose 'Select Broker' to hire the Broker.",
   'en.assignment_date' => 'Assignment Date',
   'en.employers.broker_agency.broker_term_confirm' => 'Broker Termination Confirmation',
   'en.employers.broker_agency.unhire_broker_msg' => "Select 'Terminate' to unhire the selected Broker. They will be terminated effective immediately.",
@@ -17,6 +19,7 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.broker_agency.broker_hire_warning' => "Select 'Confirm' to hire the selected Broker. Warning: if you already have an existing Broker, they will be terminated effective immediately.",
   'en.language_spoken' => 'Language(s) spoken',
   'en.evng_weekend_hr' => 'Evening/Weekend Hours',
+  'en.evng_weekend_availability' => 'Evening/Weekend Availability',
   'en.contact_phone' => 'Contact Phone',
   'en.agency' => 'Agency'
 }
