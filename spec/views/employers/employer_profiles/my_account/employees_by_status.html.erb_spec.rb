@@ -40,8 +40,8 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
     )}
 
   before :each do
+    allow(Pundit).to receive(:authorize).with(user,employer_profile,:show?).and_return(true)
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true, revert_application?: true))
-    allow(EmployerProfile).to receive(:find).and_return(employer_profile)
 
     sign_in(user)
     assign(:employer_profile, employer_profile)

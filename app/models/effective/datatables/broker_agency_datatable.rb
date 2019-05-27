@@ -59,6 +59,10 @@ module Effective
         }
 
       end
+
+      def authorize!
+        Pundit.authorize(current_user, HbxProfile, :view_admin_tabs?)
+      end
     end
   end
 end

@@ -9,7 +9,11 @@ module Effective
       @datatable = find_datatable(params[:id]).try(:new, attributes.merge(scopes))
       @datatable.view = view_context if !@datatable.nil?
 
-      EffectiveDatatables.authorized?(self, :index, @datatable.try(:collection_class) || @datatable.try(:class))
+      if @datatable.respond_to?(:authorize!)
+        @datatable.authorize! || raise(Effective::AccessDenied.new)
+      else
+        EffectiveDatatables.authorized?(self, :index, @datatable.try(:collection_class) || @datatable.try(:class))
+      end
 
       respond_to do |format|
         format.html

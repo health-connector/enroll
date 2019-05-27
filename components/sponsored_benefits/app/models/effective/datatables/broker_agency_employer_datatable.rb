@@ -146,8 +146,12 @@
           }
         end
 
+        def authorize!
+          @broker_agency_profile ||= BenefitSponsors::Organizations::Profile.find(attributes[:profile_id])
+          Pundit.authorize(current_user, @broker_agency_profile, :access_to_broker_agency_profile?)
+        end
 
       end
     end
   end
-# end
+  # end

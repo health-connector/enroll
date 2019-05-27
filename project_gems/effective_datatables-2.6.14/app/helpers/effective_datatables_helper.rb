@@ -7,7 +7,11 @@ module EffectiveDatatablesHelper
     datatable.view ||= self
 
     begin
-      EffectiveDatatables.authorized?(controller, :index, datatable.try(:collection_class) || datatable.try(:class)) || raise('unauthorized')
+      if datatable.respond_to?(:authorize!)
+        datatable.authorize! || raise(Effective::AccessDenied.new)
+      else
+        EffectiveDatatables.authorized?(controller, :index, datatable.try(:collection_class) || datatable.try(:class)) || raise('unauthorized')
+      end
     rescue => e
       return content_tag(:p, "You are not authorized to view this datatable. (cannot :index, #{datatable.try(:collection_class) || datatable.try(:class)})")
     end
@@ -23,7 +27,11 @@ module EffectiveDatatablesHelper
     datatable.simple = true
 
     begin
-      EffectiveDatatables.authorized?(controller, :index, datatable.try(:collection_class) || datatable.try(:class)) || raise('unauthorized')
+      if datatable.respond_to?(:authorize!)
+        datatable.authorize! || raise(Effective::AccessDenied.new)
+      else
+        EffectiveDatatables.authorized?(controller, :index, datatable.try(:collection_class) || datatable.try(:class)) || raise('unauthorized')
+      end
     rescue => e
       return content_tag(:p, "You are not authorized to view this datatable. (cannot :index, #{datatable.try(:collection_class) || datatable.try(:class)})")
     end

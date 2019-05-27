@@ -119,6 +119,14 @@ module Effective
         :datatable_search
       end
 
+      def authorize!
+        @employer_profile_record ||= find_employer_profile(attributes[:id])
+        Pundit.authorize(current_user, @employer_profile_record, :show?)
+      end
+
+      def find_employer_profile(profile_id)
+        ::BenefitSponsors::Organizations::Profile.find(profile_id) || EmployerProfile.find(profile_id.to_s)
+      end
     end
   end
 end

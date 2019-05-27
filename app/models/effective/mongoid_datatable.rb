@@ -1,7 +1,14 @@
 module Effective
   class MongoidDatatable < Effective::Datatable
+    delegate :current_user, :to => :@view
+
     def global_search_method
       :datatable_search
+    end
+
+    def authorize!
+      Rails.logger.warn("PUNDIT") { "Access policy not specified for Effective Datatable: #{self.class.name}" }
+      current_user.present?
     end
 
     protected
