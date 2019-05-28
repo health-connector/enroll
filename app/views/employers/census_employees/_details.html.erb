@@ -1,10 +1,10 @@
 <% dependents = @census_employee.try(:employee_role).try(:person).try(:primary_family).try(:active_family_members) || @census_employee.census_dependents %>
 <% address =  @census_employee.try(:employee_role).try(:person).try(:addresses).try(:last) || @census_employee.address %>
 <div class="col-xs-12">
-  <h1>Census Employee Details</h1>
+  <h1><%= l10n('employers.census_employees.ce_details')%></h1>
   <div class="row">
     <div class="col-xs-6">
-      <h4><%= name_to_listing(@census_employee) %>'s Details</h4>
+      <h4><%= name_to_listing(@census_employee) %><%= l10n('employers.census_employees.ce_detail') %></h4>
       <div class="form-border">
         <p>
           <%= l10n('name') %>:
@@ -13,7 +13,7 @@
           <%= l10n('dob') %>:
           <%= format_date @census_employee.dob %>
           <br/>
-          Hired On:
+          <%= l10n('hired_on') %>:
           <%= format_date @census_employee.hired_on %>
           <br/>
           Owner:
@@ -34,17 +34,17 @@
 
 
     <div class="col-xs-6">
-      <h4>Medical Plan</h4>
+      <h4><%= l10n('medical_plan') %></h4>
       <div class="form-border">
-        <p>Benefit Group: <%= @benefit_group.try(:title) %></p>
+        <p><%= l10n('benefit_group') %>: <%= @benefit_group.try(:title) %></p>
         <% if @benefit_group_assignment.try(:coverage_waived?) %>
-        <p>Enrollment Status: Coverage Waived</p>
-        <p>Waiver Reason: <%= @hbx_enrollment.try(:waiver_reason) %></p>
+        <p><%= l10n('enrollment_status') %>: Coverage Waived</p>
+        <p><%= l10n('waiver_reason') %>: <%= @hbx_enrollment.try(:waiver_reason) %></p>
         <% elsif @benefit_group_assignment.try(:coverage_selected?) %>
-        <p>Plan Name: <%= @hbx_enrollment.try(:plan).try(:name) %></p>
-        <p>Plan Start: <%= @hbx_enrollment.try(:effective_on) %></p>
+        <p><%= l10n('plan_name') %>: <%= @hbx_enrollment.try(:plan).try(:name) %></p>
+        <p><%= l10n('plan_start') %>: <%= @hbx_enrollment.try(:effective_on) %></p>
         <% if @census_employee.employee_role.try(:present?) && employee_role = @census_employee.employee_role %>
-        <p>HIRED: <%= employee_role.try(:hired_on) %></p>
+        <p><%= l10n('hired').to_s.upcase %>: <%= employee_role.try(:hired_on) %></p>
         <% end %>
         <% if @plan.present? && @hbx_enrollment.present? %>
 
@@ -53,12 +53,12 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Relationship</th>
-              <th>Age</th>
-              <th>Premium</th>
-              <th>Employer Contribution</th>
-              <th>You Pay</th>
+              <th><%= l10n('name') %></th>
+              <th><%= l10n('relationship') %></th>
+              <th><%= l10n('age') %></th>
+              <th><%= l10n('premium') %></th>
+              <th><%= l10n('employer_contribution') %></th>
+              <th><%= l10n('you_pay') %></th>
             </tr>
           </thead>
 
@@ -74,7 +74,7 @@
                 </tr>
               <%# end %> -->
               <tr class="gray-row">
-                <td class="capital"><strong>Totals</strong></td>
+                <td class="capital"><strong><%= l10n('totals') %></strong></td>
                 <td></td>
                 <td></td>
                 <td><strong><%= number_to_currency(@plan.total_premium) %></strong></td>
@@ -87,20 +87,20 @@
         </div>
     </div>
     <div class="col-xs-6">
-      <h4>Dependents</h4>
+      <h4><%= l10n('dependent').to_s.pluralize %></h4>
       <div class="form-border">
         <% if dependents.present? %>
         <table style='width:100%;'>
 
           <% dependents.each do |dependent| %>
           <% if dependent.relationship == "self" && dependents.count == 1 %>
-          <h4>You have no dependents at this time.</h4>
+          <h4><%= l10n('employers.census_employees.no_dep_msg_this_time') %></h4>
           <% else %>
             <tr>
-              <th>Name</th>
-              <th>DOB</th>
-              <th>Relationship</th>
-              <th>Gender</th>
+              <th><%= l10n('name') %></th>
+              <th><%= l10n('dob') %></th>
+              <th><%= l10n('relationship') %></th>
+              <th><%= l10n('gender') %></th>
             </tr>
           <tr>
             <td>
@@ -122,7 +122,7 @@
         </table>
 
         <% else %>
-        <h4>You Currently have no dependents.</h4>
+        <h4><%= l10n('employers.census_employees.no_dep_msg') %></h4>
         <% end %>
       </div>
     </div>
@@ -135,5 +135,5 @@
 <br><br>
 <div class="col-xs-12">
   <br/>
-<%= link_to 'Back'.html_safe, 'javascript:;', class: 'btn btn-default return_to_employee_roster' %>
+<%= link_to l10n('back').html_safe, 'javascript:;', class: 'btn btn-default return_to_employee_roster' %>
 </div>

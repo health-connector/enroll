@@ -8,6 +8,8 @@ EMPLOYEE_TRANSLATIONS = {
 	'en.thanks' => 'Thanks',
 	'en.employees.match_error' => 'We were not able to find your information. Double check your social security number and birthdate',
 	'en.try_again' => 'Try Again',
-	'en.auto_fill' => 'Autofill'
+	'en.auto_fill' => 'Autofill',
+	'en.plan_start' => 'Plan Start',
+	'en.hired' => 'hired'
 
 }
