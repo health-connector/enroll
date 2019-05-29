@@ -2,10 +2,10 @@
   <div class="col-md-10 no-pd col-sm-9 col-xs-12 first">
     <div class="row top-row">
       <div class="col-md-6 col-sm-6 col-xs-12 form-group form-group-lg no-pd">
-        <%= f.text_field :legal_name, class: "floatlabel form-control", required: true, placeholder: 'LEGAL NAME*' %>
+        <%= f.text_field :legal_name, class: "floatlabel form-control", required: true, placeholder: "#{l10n('legal_name').to_s.upcase}*" %>
       </div>
       <div class="col-md-6 col-sm-6 col-xs-12 form-group form-group-lg no-pd">
-        <%= f.text_field :dba, class: "floatlabel form-control", placeholder: 'DBA (OPTIONAL)' %>
+        <%= f.text_field :dba, class: "floatlabel form-control", placeholder: "#{l10n('dba').to_s.upcase} #{l10n('devise.passwords.new.optional').to_s.upcase}" %>
       </div>
     </div>
 
