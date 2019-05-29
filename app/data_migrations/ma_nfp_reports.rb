@@ -176,6 +176,6 @@ def non_detailed_report(start_on)
   end
 end  
 
-start_on = Date.new(2019,6,1)
-reports = MaNfpReports.new(Date.new(2019,6,1))
+# start_on = Date.new(2019,6,1)
+# reports = MaNfpReports.new(Date.new(2019,6,1))
 # reports.rub(start_on)
