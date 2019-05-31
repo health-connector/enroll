@@ -77,6 +77,8 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.employer_attestations.er_attestation_ready' => 'This Employer Attestation is already',
   'en.employers.employer_attestations.er_cant_be_modified' => "It can't be modified.",
   'en.employers.employer_attestations.req_add_info' => 'Request Additional Information',
+  'en.employers.people.my_info' => 'This is my info',
+  'en.employers.people.click_for_help' => "If you don't see your info below, click here for help."
 
 
 }

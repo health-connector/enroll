@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-md-12 col-sm-12 col-xs-12">
-    <p>If you don't see your info below, click here for help.</p>
+    <p><%= l10n('employers.people.click_for_help') %></p>
   </div>
 </div>
 <% Array(@person).each do |person| %>
@@ -11,19 +11,19 @@
         <div class="row">
           <div class="col-md-6 col-sm-6 col-xs-12">
             <dl class="dl-horizontal">
-              <dt>First Name</dt>
+              <dt><%= l10n('first_name') %></dt>
               <dd>
                 <%= person.first_name %>
               </dd>
-              <dt>Last Name</dt>
+              <dt><%= l10n('last_name') %></dt>
               <dd>
                 <%= person.last_name %>
               </dd>
-              <dt>SSN</dt>
+              <dt><%= l10n('ssn') %></dt>
               <dd>
                 <%= person.ssn %>
               </dd>
-              <dt>Dob</dt>
+              <dt><%= l10n('dob').to_s.camelcase %></dt>
               <dd>
                 <%= person.dob %>
               </dd>
@@ -33,7 +33,7 @@
             &nbsp;
           </div>
           <div class="col-md-4 col-sm-4 col-xs-12">
-            <%= f.submit "This is my info", :class => "btn btn-primary pull-right" %>
+            <%= f.submit l10n('employers.people.my_info'), :class => "btn btn-primary pull-right" %>
             <%= f.hidden_field :first_name %>
             <%= f.hidden_field :last_name %>
             <%= f.hidden_field :ssn %>
