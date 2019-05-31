@@ -66,5 +66,17 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.census_employees.add_er_census_family' => 'Add Employer Census Family',
   'en.er_roster' => 'Employer Roster',
   'en.ee_name' => 'Employee Name',
-  'en.hire_date' => 'Hire Date'
+  'en.hire_date' => 'Hire Date',
+  'en.employers.census_employees.del_family' => 'Are you sure you want to delete this family?',
+  'en.employers.employer_attestations.docs' => 'Attestation Documents',
+  'en.employers.employer_attestations.doc_status' => 'Doc Status',
+  'en.employers.employer_attestations.doc_name' => 'Doc Name',
+  'en.employers.employer_attestations.doc_type' => 'Doc Type',
+  'en.employers.employer_attestations.size' => 'Size',
+  'en.employers.employer_attestations.document_name' => 'Document Name',
+  'en.employers.employer_attestations.er_attestation_ready' => 'This Employer Attestation is already',
+  'en.employers.employer_attestations.er_cant_be_modified' => "It can't be modified.",
+  'en.employers.employer_attestations.req_add_info' => 'Request Additional Information',
+
+
 }
