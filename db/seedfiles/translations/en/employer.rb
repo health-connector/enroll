@@ -107,6 +107,5 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.employer_profiles.er_login_success' => 'Thank you for logging into your #{site_short_name} employer account.',
   'en.employers.employer_profiles.poc_confirm_text' => "Before we get started, we need to confirm the primary point of contact for your business. Please confirm that the name and email address listed below are correct, update the information or provide the name and email address for your primary point of contact. When you're finished, select 'Save'.",
   'en.employers.employer_profiles.staff_role_status_text' => 'If the organization already has a staff role you will will be placed in applicant status for an additional staff role.',
-
-
+  'en.none_selected' => 'None selected',
 }

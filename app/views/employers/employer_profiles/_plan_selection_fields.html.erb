@@ -3,13 +3,13 @@
     <div class="col-md-12 col-sm-12 no-pd form-group form-group-lg">
       <div class="dropdown">
         <button aria-expanded="true" data-toggle="dropdown" id="dropdownMenu1" type="button" class="form-control float-label plan-selection form_group_lg dropdown-toggle">
-          Choose One
+          <%= l10n('choose_one') %>
           <span class="caret"></span>
         </button>
         <ul aria-labelledby="dropdownMenu1" role="menu" class="dropdown-menu">
-          <li role="presentation"><a href="#" tabindex="-1" role="menuitem"> All plans from 1 Metal Level</a></li>
-          <li role="presentation"><a href="#" tabindex="-1" role="menuitem">All plans from 1 Carrier</a></li>
-          <li role="presentation"><a href="#" tabindex="-1" role="menuitem">One plan only</a></li>
+          <li role="presentation"><a href="#" tabindex="-1" role="menuitem"> <%= l10n('employers.census_employees.metal_level_plans') %></a></li>
+          <li role="presentation"><a href="#" tabindex="-1" role="menuitem"><%= l10n('employers.census_employees.one_carrier_plans') %></a></li>
+          <li role="presentation"><a href="#" tabindex="-1" role="menuitem"><%= l10n('employers.census_employees.one_plan_only') %></a></li>
         </ul>
       </div>  
     </div>
