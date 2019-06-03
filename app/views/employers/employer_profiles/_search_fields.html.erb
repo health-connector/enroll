@@ -1,4 +1,4 @@
-<h3>Employer Information</h3>
+<h3><%= l10n('er_info') %></h3>
 
 <div class="row">
   <div id="personal_info" class="focus_effect personal-info-row col-md-12">
@@ -11,14 +11,14 @@
 
 <div class="row top-buffer">
   <div class="col-md-9 col-sm-9 col-xs-12">
-      <%= f.submit "Search Employers", class: "btn btn-success btn-search" %>
-      &nbsp; <span><i class="fa fa-lock icon-large"></i> Your information is secure.</span>
+      <%= f.submit l10n('search_er'), class: "btn btn-success btn-search" %>
+      &nbsp; <span><i class="fa fa-lock icon-large"></i> <%= l10n('secure_your_info') %></span>
   </div>
 </div>
 
 <div id ="new_employer_button" style="display:none">
-  <p> Please click the following button to create an employer profile.
-    <%= f.submit "CREATE EMPLOYER", name: "create_employer", class: "btn btn-primary btn-search" %>
+  <p> <%= l10n('employers.employer_profiles.er_profile_button_text') %>
+    <%= f.submit l10n('create_er').to_s.upcase, name: "create_employer", class: "btn btn-primary btn-search" %>
   </p>
 </div>
 
