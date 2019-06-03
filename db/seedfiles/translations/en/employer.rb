@@ -125,4 +125,8 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.employer_profiles.sic_rating_group' => 'SIC (Standard Industrial Classifications) codes are used to categorize your business into the appropriate rating group',
   'en.employers.employer_profiles.er_account_access_pending_text' => 'Thank you for submitting your request to access the employer account. Your application for access is pending. The current account owner can log into the account and provide you with access. If you need help, #{contact_center_alt_name} can also assist in approving your application for access to this employer account. Contact us at #{contact_center_phone_number}.',
   'en.employers.employer_profiles.prohibit_csv_process' => 'prohibited this csv from being processed',
+  'en.employers.people.pii' => 'Personal Information2',
+  'en.search_person' => 'Search Person',
+  'en.create_person' => 'Create Person',
+  'en.create_person_button' => 'Please click the following button to create a person.',
 }
