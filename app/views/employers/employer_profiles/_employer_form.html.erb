@@ -1,5 +1,5 @@
 <div class="employer-edit-tab">
-    <h1>Business Info</h1>
+    <h1><%= l10n('business_info') %></h1>
       <% if @organization.errors.any? %>
         <div class="alert alert-error">
           <h4>
@@ -37,16 +37,16 @@
       <% end %>
 
       <div class="module employer-staff-table <%= pundit_class(EmployerProfile, :updateable?)%>">
-        <h3>Employer Staff Points-of-Contact</h3>
+        <h3><%= l10n('employers.employer_profiles.er_poc') %></h3>
         <div class='table-responsive col-12' >
           <table style='width: 100%; border-collapse: collapse; border: 1px solid #d5d5d5'>
             <thead style='height: 40px;'>
-             <th style='width: 18%; height: 40px; padding: 10px'>First Name </th>
-             <th style='width: 18%'>Last Name    </th>
-             <th style='width: 18%'> Email       </th>
-             <th style='width: 18%'> Phone       </th>
-             <th style='width: 18%'> Status      </th>
-             <th style='width: 9%'> Remove Role  </th>
+             <th style='width: 18%; height: 40px; padding: 10px'><%= l10n('first_name') %> </th>
+             <th style='width: 18%'><%= l10n('last_name') %>    </th>
+             <th style='width: 18%'> <%= l10n('email') %>       </th>
+             <th style='width: 18%'> <%= l10n('phone') %>       </th>
+             <th style='width: 18%'> <%= l10n('status') %>      </th>
+             <th style='width: 9%'> <%= l10n('rmv_role') %>  </th>
              </thead>
             <% @staff.each do |staff| %>
               <tr style='border: 1px solid #d5d5d5; height: 50px; '>
@@ -70,7 +70,7 @@
                   <%= staff.user_id ? 'Linked' : 'Unlinked' %>
                 </td>
                 <td>
-                  <%= link_to(employers_employer_staff_role_path(id: @employer_profile.id, staff_id: staff.id), method: 'delete', id: 'delete_' + staff.id.to_s, data: {confirm: 'Delete this role?'}) do %>
+                  <%= link_to(employers_employer_staff_role_path(id: @employer_profile.id, staff_id: staff.id), method: 'delete', id: 'delete_' + staff.id.to_s, data: {confirm: l10n('employers.employer_profiles.del_role')}) do %>
                     <i class="fa fa-trash-o fa-2x role-trashcan"></i>
                   <%end%>
                 </td>
@@ -82,16 +82,16 @@
     <% if @add_staff == 'yes' %>
       <%= form_for @organization,{as: :organization, url: employers_employer_staff_roles_path(id: @employer_profile.id), method: :post} do |f| %>
         <div>
-          <h4>Add Employer Contact</h4>
+          <h4><%= l10n('add_er_contact') %></h4>
           <div class="row no-buffer row-form-wrapper">
             <div class="col-md-4 col-sm-4 col-xs-12 form-group form-group-lg no-pd">
-              <%= text_field_tag :first_name, @employer.try(:first_name), class: "floatlabel form-control", required: true, placeholder: 'FIRST NAME *' %>
+              <%= text_field_tag :first_name, @employer.try(:first_name), class: "floatlabel form-control", required: true, placeholder: "#{l10n('first_name').to_s.upcase} *" %>
             </div>
             <div class="col-md-4 col-sm-4 col-xs-12 form-group-lg no-pd">
-              <%= text_field_tag :last_name, @employer.try(:last_name), class: "floatlabel form-control", required: true, placeholder: 'LAST NAME *' %>
+              <%= text_field_tag :last_name, @employer.try(:last_name), class: "floatlabel form-control", required: true, placeholder: "#{l10n('last_name').to_s.upcase} *" %>
             </div>
             <div class="col-md-4 col-sm-4 col-xs-12 form-group form-group-lg no-pd">
-              <%= text_field_tag :dob, @employer.try(:dob), class: "date-picker floatlabel form-control", required: true, placeholder: 'DATE OF BIRTH *' %>
+              <%= text_field_tag :dob, @employer.try(:dob), class: "date-picker floatlabel form-control", required: true, placeholder: "#{l10n('date_of_birth').to_s.upcase} *" %>
             </div>
           </div>
         </div>
@@ -101,21 +101,20 @@
         <%= link_to 'Cancel', edit_employers_employer_profile_path(@employer_profile.organization, add_staff: 'no'), class:'btn btn-default btn-sm' %>
       <% end %>
 
-
     <% else %>
 
       <%= form_for @organization,{as: :organization, url: employers_employer_profile_path(id: @organization.id), method: :put} do |f| %>
         <div class="form-group">
-          <%= link_to 'Add Employer Contact', edit_employers_employer_profile_path(@employer_profile.organization, add_staff: 'yes'), class: 'btn btn-default btn-sm' %>
+          <%= link_to l10n('add_er_contact'), edit_employers_employer_profile_path(@employer_profile.organization, add_staff: 'yes'), class: 'btn btn-default btn-sm' %>
         </div>
 
         <br/>
-        <h3> Employer Information</h3>
+        <h3> <%= l10n('er_info')%></h3>
         <%= f.fields_for :employer_profile, errors: {}, fieldset: false do |emp|  %>
           <%= render "shared/employer_profile_fields", f: emp %><br>
         <% end %>
 
-        <h2> Office Locations </h2>
+        <h2> <%= l10n('office_locations') %> </h2>
         <% @row = false %>
         <%= f.fields_for :office_locations, errors: {}, fieldset: false do |office_location,block| %>
           <%= render partial: 'shared/office_location_fields', locals: {f: office_location, child_index: f.object.office_locations.length - 1} %>
@@ -124,9 +123,9 @@
         <br>
         <div class="form-inputs">
           <%= pundit_span(EmployerProfile,:updateable?) %>
-             <%= link_to_add_fields 'Add Office Location'.html_safe, f, :office_locations, 'btn btn-default btn-sm' %>
+             <%= link_to_add_fields l10n('.add_office_loc').html_safe, f, :office_locations, 'btn btn-default btn-sm' %>
           </span>
-          <%= link_to "Cancel", employers_employer_profile_path(id: @organization.employer_profile.id, tab: 'home'), class:'btn btn-default btn-sm' %>
+          <%= link_to l10n('cancel'), employers_employer_profile_path(id: @organization.employer_profile.id, tab: 'home'), class:'btn btn-default btn-sm' %>
         </div>
 
         <%= f.fields_for :employer_profile, errors: {}, fieldset: false do |f| %>
