@@ -145,7 +145,12 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.plan_years.er_app_submit_on' => 'Employer initial application earliest submit on',
   'en.employers.plan_years.er_app_latest_submit_on' => 'Employer initial application latest submit on',
   'en.employers.plan_years.binder_payment_date' => 'Binder payment due date',
-
-
+  'en.employers.plan_years.sel_ref_plan' => 'SELECT REFERENCE PLAN',
+  'en.employers.plan_years.prohibit_py_saving' => 'prohibited this plan year from being saved:',
+  'en.employers.plan_years.remove_bg' => 'Remove Benefit Group',
+  'en.employers.plan_years.ref_plan_summary' => 'Reference Plan Summary',
+  'en.employers.plan_years.del_benefit_pkg' => 'Delete Benefit Package',
+  'en.sure_to' => 'Are you sure you want to',
+  'en.employers.plan_years.re_assign_benefit_pkg' => '<strong>Note:</strong> If employees are assigned to this benefit package you will have to reassign them to a different benefit package.'
 
 }
