@@ -1,6 +1,6 @@
 <td>
   <span>
-    <span class="coverage-kind"><%= mixed_case(enrollment.coverage_kind) %></span> | # Dep(s) Covered: <%= enrollment.humanized_dependent_summary %>
+    <span class="coverage-kind"><%= mixed_case(enrollment.coverage_kind) %></span> | # <%= l10n('dep_covered') %>: <%= enrollment.humanized_dependent_summary %>
   </span>
   <br/>
   <span>
@@ -10,12 +10,12 @@
 </td>
 <td>
   <span>
-    Employer Contribution: <%= number_to_currency enrollment.total_employer_contribution %>
+    <%= l10n('employer_contribution') %>: <%= number_to_currency enrollment.total_employer_contribution %>
   </span>
   <br/>
   <span>
-    Employee Contribution: <%= number_to_currency enrollment.total_employee_cost %>
+    <%= l10n('ee_contribution') %>: <%= number_to_currency enrollment.total_employee_cost %>
   </span>
   <br/>
-  <strong>Total:</strong> <%= number_to_currency enrollment.total_premium %></td>
+  <strong><%= l10n('total').to_s.capitalize %>:</strong> <%= number_to_currency enrollment.total_premium %></td>
 </td>

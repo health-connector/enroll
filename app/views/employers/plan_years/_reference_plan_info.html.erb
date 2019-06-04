@@ -6,8 +6,8 @@
       <div class="col-md-3 col-sm-3 col-xs-12">
         <table class="table table-bordered">
           <tr>
-            <th>age</th>
-            <th>cost</th>
+            <th><%= l10n('age').to_s.downcase %></th>
+            <th><%= l10n('cost') %></th>
           </tr>
           <% premiums.each do |premium| %>
             <tr>

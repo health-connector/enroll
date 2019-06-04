@@ -129,4 +129,23 @@ EMPLOYER_TRANSLATIONS = {
   'en.search_person' => 'Search Person',
   'en.create_person' => 'Create Person',
   'en.create_person_button' => 'Please click the following button to create a person.',
+  'en.dep_covered' => 'Dep(s) Covered',
+  'en.no_ee_enrolled' => 'No employees enrolled.',
+  'en.employers.premium_statements.not_invoice' => 'This is not an invoice.',
+  'en.employers.premium_statements.coverage_period_sel' => 'Select the Coverage Period',
+  'en.revert_py' => 'Revert Plan Year',
+  'en.employers.plan_years.py_reverted_text' => 'Plan years should not be reverted after employees have already enrolled or renewed in a benefit package from this plan year.',
+  'en.employers.plan_years.py_revert_to_draft' => 'Are you sure you want to revert this plan year to draft?',
+  'en.cost' => 'cost',
+  'en.employers.plan_years.payment_deadline' => 'Payment Deadline',
+  'en.employers.plan_years.payment_due_text' => 'Your first payment to #{site_short_name} is due no later than:',
+  'en.employers.plan_years.application_submission_text' => 'Based on the dates you entered, the latest you can submit this application is:',
+  'en.employers.plan_years.app_deadline' => 'Your Application Deadline',
+  'en.employers.plan_years.er_app_start_on' => 'Employer initial application earliest start on',
+  'en.employers.plan_years.er_app_submit_on' => 'Employer initial application earliest submit on',
+  'en.employers.plan_years.er_app_latest_submit_on' => 'Employer initial application latest submit on',
+  'en.employers.plan_years.binder_payment_date' => 'Binder payment due date',
+
+
+
 }
