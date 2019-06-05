@@ -10,14 +10,14 @@
     <table class="table table-bg-white table-employee-2">
       <thead>
         <tr>
-          <th class="text-center">Employee</th>
-          <th class="text-center">Dependent Count</th>
+          <th class="text-center"><%= l10n('ee') %></th>
+          <th class="text-center"><%= l10n('dep_count') %></th>
           <% if !@benefit_group.single_plan_type? || @coverage_type == '.dental' %>
-          <th class="text-right">Lowest Cost Available Plan</th>
+          <th class="text-right"><%= l10n('employers.plan_years.low_cst_plan') %></th>
           <% end %>
-          <th class="text-right">Reference Plan</th>
+          <th class="text-right"><%= l10n('reference_plan') %></th>
           <% if !@benefit_group.single_plan_type? || @coverage_type == '.dental'%>
-          <th class="text-right">Highest Cost Available Plan</th>
+          <th class="text-right"><%= l10n('employers.plan_years.high_cst_plan') %></th>
           <% end %>
         </tr>
       </thead>
@@ -25,7 +25,7 @@
         <% if @employer_profile.census_employees.active.any? %>
           <%= render 'employee_costs' %>
         <% else %>
-        <tr> <td> No employees enrolled.</td></tr>
+        <tr> <td> <%= l10n('no_ee_enrolled') %></td></tr>
         <% end %>
       </tbody>
     </table>

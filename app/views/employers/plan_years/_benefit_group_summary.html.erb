@@ -4,8 +4,8 @@
       <tr>
         <th>Member Type</th>
         <th class="text-center">Employer Share</th>
-        <th class="text-right">Employee</th>
-        <th class="text-right">Employer</th>
+        <th class="text-right"><%= l10n('ee') %></th>
+        <th class="text-right"><%= l10n('employer') %></th>
         <th class="text-right">Total</th>
       </tr>
       <% bg.sorted_composite_tier_contributions.each_with_index do |ct, i| %>
@@ -32,10 +32,10 @@
   <div class="col-xs-12">
     <table class="benefit-group-contribution-table">
       <tr>
-        <th>Offered</th>
-        <th>Employer
-          <% if bg.is_offering_dental? %>Health
-          <% end %>Contribution</th>
+        <th><%= l10n('offered') %></th>
+        <th><%= l10n('employer') %>
+          <% if bg.is_offering_dental? %><%= l10n('health') %>
+          <% end %><%= l10n('contribution') %></th>
       </tr>
       <% bg.relationship_benefits.each_with_index do |rb, i| %>
       <tr class="<% if rb.offered %>offered<% else %>not-offered <% end %>">

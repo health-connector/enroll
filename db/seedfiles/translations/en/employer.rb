@@ -151,6 +151,12 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.plan_years.ref_plan_summary' => 'Reference Plan Summary',
   'en.employers.plan_years.del_benefit_pkg' => 'Delete Benefit Package',
   'en.sure_to' => 'Are you sure you want to',
-  'en.employers.plan_years.re_assign_benefit_pkg' => '<strong>Note:</strong> If employees are assigned to this benefit package you will have to reassign them to a different benefit package.'
+  'en.employers.plan_years.re_assign_benefit_pkg' => '<strong>Note:</strong> If employees are assigned to this benefit package you will have to reassign them to a different benefit package.',
+  'en.employers.plan_years.create_py_claim_bq' => 'Create Plan Year by claiming a broker quote',
+  'en.proceed' => 'Proceed',
+  'en.dep_count' => 'Dependent Count',
+  'en.employers.plan_years.low_cst_plan' => 'Lowest Cost Available Plan',
+  'en.employers.plan_years.high_cst_plan' => 'Highest Cost Available Plan',
+  'en.contribution' => 'Contribution',
 
 }
