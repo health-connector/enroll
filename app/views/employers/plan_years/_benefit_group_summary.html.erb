@@ -2,11 +2,11 @@
   <div class="col-xs-12">
     <table class="benefit-group-contribution-table">
       <tr>
-        <th>Member Type</th>
-        <th class="text-center">Employer Share</th>
+        <th><%= l10n('member') %> <%= l10n('type') %></th>
+        <th class="text-center"><%= l10n('er_share') %></th>
         <th class="text-right"><%= l10n('ee') %></th>
         <th class="text-right"><%= l10n('employer') %></th>
-        <th class="text-right">Total</th>
+        <th class="text-right"><%= l10n('total').to_s.capitalize %></th>
       </tr>
       <% bg.sorted_composite_tier_contributions.each_with_index do |ct, i| %>
       <tr class="<% if ct.offered %>offered<% else %>not-offered <% end %>">

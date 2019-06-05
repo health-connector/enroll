@@ -25,31 +25,31 @@
               </ul>
             </p>
           <% else %>
-            <p>If you submit this application as is, the small business application may be ineligible for coverage through the <%= Settings.site.short_name %> because it does not meet the eligibility reason(s) identified below: </p>
+            <p><%= l10n('employers.plan_years.eligibility_reasons_text') %> </p>
             <p><ul class="application-warnings"></ul></p>
-            <p>Click Cancel if you want to go back and review your application information for accuracy. If the information provided on your application is accurate, you may click Publish Anyways to proceed. If you choose to proceed and the application is determined to be ineligible, you will be notified with the reason for the eligibility determination along with what your options are to appeal this determination.</p>
+            <p><%= l10n('employers.plan_years.app_warning_text') %></p>
           <% end %>
         </div>
         <div class="modal-footer">
           <% unless plan_year.no_documents_uploaded? %>
-            <%= link_to 'Cancel', employers_employer_profile_path(@employer_profile.id, :tab=>'benefits'), :class => 'btn btn-default' %>
-            <%= link_to 'Publish Anyways', employers_employer_profile_plan_year_force_publish_path(@employer_profile,plan_year), method: :post, :class => 'btn btn-danger' %>
+            <%= link_to l10n('cancel'), employers_employer_profile_path(@employer_profile.id, :tab=>'benefits'), :class => 'btn btn-default' %>
+            <%= link_to l10n('publish_anyway'), employers_employer_profile_plan_year_force_publish_path(@employer_profile,plan_year), method: :post, :class => 'btn btn-danger' %>
           <% else %>
-            <%= link_to 'Cancel', employers_employer_profile_path(@employer_profile.id, :tab=>'benefits'), :class => 'btn btn-default' %>
+            <%= link_to l10n('cancel'), employers_employer_profile_path(@employer_profile.id, :tab=>'benefits'), :class => 'btn btn-default' %>
           <% end %>
           <% error_page = plan_year.application_eligibility_warnings[:primary_office_location].present? ? edit_employers_employer_profile_path(@employer_profile, plan_year_id: plan_year.id) : edit_employers_employer_profile_plan_year_path(@employer_profile,plan_year, publish: true) %>
         </div>
       <%else%>
         <div class="modal-body">
           <p>
-            As submitted, this application is ineligible for coverage under the <%= Settings.site.short_name %> exchange for reasons identified below. Click Cancel to go back and correct inaccurate information. If the information provided is accurate, you may click Publish to proceed. However, if you choose to proceed and the eligibility determination is deemed correct by <%= Settings.site.short_name %> officials, this organization may not again apply for coverage for 90 days, or until the reason for ineligibility changes, whichever is later.
+            <%= l10n('employers.plan_years.application_ineligible_text') %>
           </p>
           <ul class="application-warnings"></ul>
         </div>
         <div class="modal-footer">
-          <%= link_to 'Force Publish', employers_employer_profile_plan_year_force_publish_path(@employer_profile,plan_year), method: :post, :class => 'btn btn-danger' %>
+          <%= link_to l10n('force_publish'), employers_employer_profile_plan_year_force_publish_path(@employer_profile,plan_year), method: :post, :class => 'btn btn-danger' %>
           <% error_page = plan_year.application_eligibility_warnings[:primary_office_location].present? ? edit_employers_employer_profile_path(@employer_profile.organization, plan_year_id: plan_year.id) : edit_employers_employer_profile_plan_year_path(@employer_profile,plan_year, publish: true) %>
-          <%= link_to 'Cancel', error_page, method: :get, :class => 'btn btn-default' %>
+          <%= link_to l10n('cancel'), error_page, method: :get, :class => 'btn btn-default' %>
         </div>
       <%end%>
     </div>

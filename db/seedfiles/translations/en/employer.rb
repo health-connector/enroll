@@ -158,5 +158,16 @@ EMPLOYER_TRANSLATIONS = {
   'en.employers.plan_years.low_cst_plan' => 'Lowest Cost Available Plan',
   'en.employers.plan_years.high_cst_plan' => 'Highest Cost Available Plan',
   'en.contribution' => 'Contribution',
+  'en.er_share' => 'Employer Share',
+  'en.pl_offering' => 'Plan Offerings',
+  'en.er_low_ref_high' => 'Employer Lowest/Reference/Highest',
+  'en.claim_code' => 'Claim Code',
+  'en.br_quote_claim' => 'Please enter your claim code to create a Plan Year and Benefit Package based on the quote provided by your broker.',
+  'en.py_cost_impact' => 'PY Cost Impact',
+  'en.force_publish' => 'Force Publish',
+  'en.publish_anyway' => 'Publish Anyways',
+  'en.employers.plan_years.application_ineligible_text' => 'As submitted, this application is ineligible for coverage under the %{site_short_name} exchange for reasons identified below. Click Cancel to go back and correct inaccurate information. If the information provided is accurate, you may click Publish to proceed. However, if you choose to proceed and the eligibility determination is deemed correct by %{site_short_name} officials, this organization may not again apply for coverage for 90 days, or until the reason for ineligibility changes, whichever is later.',
+  'en.employers.plan_years.app_warning_text' => 'Click Cancel if you want to go back and review your application information for accuracy. If the information provided on your application is accurate, you may click Publish Anyways to proceed. If you choose to proceed and the application is determined to be ineligible, you will be notified with the reason for the eligibility determination along with what your options are to appeal this determination.',
+  'en.employers.plan_years.eligibility_reasons_text' => 'If you submit this application as is, the small business application may be ineligible for coverage through the %{site_short_name} because it does not meet the eligibility reason(s) identified below:'
 
 }
