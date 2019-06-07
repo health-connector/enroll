@@ -45,7 +45,7 @@ class ShopEnrollmentReport < MongoidMigrationTask
           next unless hbx_enrollment.is_shop?
           employer_profile = hbx_enrollment.employer_profile
           enrollment_reason = enrollment_kind(hbx_enrollment)
-          plan_year = hbx_enrollment.benefit_group.plan_year
+          plan_year = hbx_enrollment.sponsored_benefit_package.benefit_application
           plan_year_start = plan_year.start_on.to_s
           subscriber = hbx_enrollment.subscriber
           if subscriber.present? && subscriber.person.present?
@@ -55,8 +55,8 @@ class ShopEnrollmentReport < MongoidMigrationTask
           end
           in_glue = glue_list.include?(id) if glue_list.present?
           csv << [employer_profile.hbx_id,employer_profile.fein,employer_profile.legal_name,plan_year_start,plan_year.aasm_state,
-                  employer_profile.aasm_state,id,hbx_enrollment.created_at,hbx_enrollment.effective_on,hbx_enrollment.coverage_kind,
-                  hbx_enrollment.aasm_state,subscriber_hbx_id,first_name,last_name,hbx_enrollment.plan.hios_id,hbx_enrollment.hbx_enrollment_members.size,
+                  plan_year.benefit_sponsorship.aasm_state,id,hbx_enrollment.created_at,hbx_enrollment.effective_on,hbx_enrollment.coverage_kind,
+                  hbx_enrollment.aasm_state,subscriber_hbx_id,first_name,last_name,hbx_enrollment.product.hios_id,hbx_enrollment.hbx_enrollment_members.size,
                   enrollment_reason,in_glue]
         rescue StandardError => e
           @logger = Logger.new("#{Rails.root}/log/shop_enrollment_report_error.log")
