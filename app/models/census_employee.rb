@@ -1156,11 +1156,15 @@ def self.to_csv
     end
   end
 
+  def past_benefit_group_assignments
+    benefit_group_assignments - [active_benefit_group_assignment, renewal_benefit_group_assignment].compact
+  end
+
+  # Pull expired enrollments as well
   def past_enrollments
     if employee_role.present?
-      employee_role.person.primary_family.active_household.hbx_enrollments.shop_market.where({
-        :"aasm_state".in => ["coverage_terminated", "coverage_termination_pending"],
-        :"benefit_group_assignment_id".in => benefit_group_assignments.map(&:id)
+      employee_role.person.primary_family.active_household.hbx_enrollments.non_external.shop_market.enrolled_and_terminated.where({
+        :"benefit_group_assignment_id".in => past_benefit_group_assignments.map(&:id)
       })
     end
   end
@@ -1231,8 +1235,16 @@ def self.to_csv
   end
 
   def benefit_package_for_date(coverage_date)
-    benefit_package = active_benefit_group_assignment.benefit_package.package_for_date(coverage_date)
+    benefit_assignment = benefit_group_assignment_for_date(coverage_date)
+    benefit_package = benefit_assignment.benefit_package  if benefit_assignment.present?
     (benefit_package.present? && benefit_package.is_conversion?) ? nil : benefit_package
+  end
+
+  def benefit_group_assignment_for_date(coverage_date)
+    assignments = benefit_group_assignments.select do |assignment|
+      (assignment.start_on..assignment.benefit_end_date).cover?(coverage_date) && assignment.benefit_package.is_active
+    end
+    assignments.detect{|assignment| assignment.is_active} || assignments.first
   end
 
   def earliest_benefit_package_after(coverage_date)

@@ -97,6 +97,8 @@ Rails.application.routes.draw do
         get :employer_datatable
         post :employer_invoice_datatable
         post :generate_invoice
+        get :edit_force_publish
+        post :force_publish
         get :broker_agency_index
         get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
@@ -125,6 +127,15 @@ Rails.application.routes.draw do
         get :calendar_index
         get :user_account_index
         get :get_user_info
+        get :oe_extendable_applications
+        get :oe_extended_applications
+        get :edit_open_enrollment
+        post :extend_open_enrollment
+        post :close_extended_open_enrollment
+        get :new_benefit_application
+        post :create_benefit_application
+        get :edit_fein
+        post :update_fein
       end
 
       member do
@@ -137,6 +148,15 @@ Rails.application.routes.draw do
       # resources :hbx_staff_roles, shallow: true do
       resources :hbx_staff_roles do
         # root 'hbx_profiles/hbx_staff_roles#show'
+      end
+    end
+
+    resources :employer_applications do
+      put :terminate
+      put :cancel
+      put :reinstate
+      collection do
+        get :get_term_reasons
       end
     end
 

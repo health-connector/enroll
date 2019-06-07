@@ -49,25 +49,14 @@ end
 describe ".coverage_effective_on" do
 
   context 'when both active and renewal benefit groups present', dbclean: :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup renewal application"
 
+    let(:renewal_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+    let(:current_effective_date)  { renewal_effective_date.prev_year }
+    let(:employer_profile) { abc_profile }  
+    let(:organization) { abc_organization }
     let(:hired_on) {TimeKeeper.date_of_record.beginning_of_month}
-    let(:site) {FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :dc, :as_hbx_profile)}
-
-    let(:organization) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-                                           :with_aca_shop_dc_employer_profile_renewal_application,
-                                           site: site
-    )}
-
-    let(:employer_profile) {organization.employer_profile}
-    let!(:rating_area) {FactoryGirl.create_default :benefit_markets_locations_rating_area}
-    let!(:service_area) {FactoryGirl.create_default :benefit_markets_locations_service_area}
-    #    let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
-
-
-    let(:start_on) {(TimeKeeper.date_of_record + 2.months).beginning_of_month - 1.year}
-    let(:end_on) {start_on + 1.year - 1.day}
-    let(:open_enrollment_start_on) {start_on - 2.months}
-    let(:open_enrollment_end_on) {open_enrollment_start_on.next_month + 9.days}
 
     let!(:census_employees) {
       FactoryGirl.create :benefit_sponsors_census_employee, :owner, employer_profile: employer_profile, benefit_sponsorship: organization.active_benefit_sponsorship
@@ -80,7 +69,6 @@ describe ".coverage_effective_on" do
       person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
       FactoryGirl.create(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
     }
-
 
     context 'when called with benefit group' do
       let(:renewal_benefit_group) {employer_profile.renewal_benefit_application.benefit_packages.first}
@@ -727,8 +715,10 @@ describe "#benefit_package", dbclean: :after_each do
   context "plan shop through qle and having active & renewal plan years" do
 
     it "should return the active benefit group if sep effective date covers active plan year" do
+      sep.update_attribute(:effective_on, benefit_package.start_on + 2.days)
       allow(family).to receive(:current_sep).and_return sep
-      expect(employee_role.benefit_package(qle: true)).to eq predecessor_application.benefit_groups.first
+      allow(predecessor_application).to receive(:benefit_packages).and_return census_employee.benefit_group_assignments.first.benefit_package
+      expect(employee_role.benefit_package(qle: true)).to eq predecessor_application.benefit_groups
     end
 
     it "should return the renewal benefit group if sep effective date covers renewal plan year" do

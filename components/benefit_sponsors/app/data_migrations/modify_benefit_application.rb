@@ -28,7 +28,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
     oe_end_date = Date.strptime(ENV['oe_end_date'], "%m/%d/%Y") if ENV['oe_end_date'].present?
 
     benefit_sponsorship = get_benefit_sponsorship
-    benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state.in => [:enrollment_ineligible, :canceled], :"effective_period.min" => effective_date).first
+    benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state.in => [:canceled, :enrollment_ineligible, :enrollment_extended, :enrollment_open, :enrollment_closed], :"effective_period.min" => effective_date).first
 
     raise "Unable to find benefit application!!" if benefit_application.blank?
 
@@ -49,15 +49,17 @@ class ModifyBenefitApplication< MongoidMigrationTask
         benefit_application.recalc_pricing_determinations
         benefit_application.renew_benefit_package_members
       end
-      benefit_sponsorship = benefit_application.benefit_sponsorship
-      unless benefit_application.is_renewing?
-        bs_from_state = benefit_sponsorship.aasm_state
-        benefit_sponsorship.update_attributes!(aasm_state: "initial_enrollment_open")
-        benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
-            from_state: bs_from_state,
-            to_state: "initial_enrollment_open"
-        )
-      end
+      # We don't have the intermediate(initial) states on benefit_sponsorship any more
+      # BS transitions from applicant to active
+      # benefit_sponsorship = benefit_application.benefit_sponsorship
+      # unless benefit_application.is_renewing?
+      #   bs_from_state = benefit_sponsorship.aasm_state
+      #   benefit_sponsorship.update_attributes!(aasm_state: "initial_enrollment_open")
+      #   benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
+      #       from_state: bs_from_state,
+      #       to_state: "initial_enrollment_open"
+      #   )
+      # end
       puts "aasm state has been changed to enrolling" unless Rails.env.test?
     else
       raise "FAILED: Unable to find application or application is in invalid state"
@@ -109,19 +111,33 @@ class ModifyBenefitApplication< MongoidMigrationTask
   end
 
   def terminate_benefit_application(benefit_applications)
-    termination_notice = ENV['termination_notice'].to_s
+    termination_kind = ENV['termination_kind']
+    termination_reason = ENV['termination_reason']
+    off_cycle_renewal = ENV['off_cycle_renewal']
     termination_date = Date.strptime(ENV['termination_date'], "%m/%d/%Y")
+    notify_trading_partner = (ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true) ? true : false
     end_on = Date.strptime(ENV['end_on'], "%m/%d/%Y")
     benefit_applications.each do |benefit_application|
       service = initialize_service(benefit_application)
-      service.terminate(end_on, termination_date)
-      trigger_advance_termination_request_notice(benefit_application) if benefit_application.terminated? && (termination_notice == "true")
+      service.terminate(end_on, termination_date, termination_kind, termination_reason, notify_trading_partner)
     end
+    revert_benefit_sponsorhip_to_applicant(benefit_applications.first.benefit_sponsorship) if benefit_applications.present? && off_cycle_renewal && (off_cycle_renewal.to_s.downcase == "true")
+  end
+
+  def revert_benefit_sponsorhip_to_applicant(benefit_sponsorship)
+    from_state = benefit_sponsorship.aasm_state
+    benefit_sponsorship.update_attributes!(aasm_state: :applicant)
+    benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
+      from_state: from_state,
+      to_state: :applicant,
+      reason: 'modify_benefit_application'
+      )
   end
 
   def cancel_benefit_application(benefit_application)
     service = initialize_service(benefit_application)
-    service.cancel
+    notify_trading_partner = (ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true) ? true : false
+    service.cancel(notify_trading_partner)
   end
 
   def force_submit_application(benefit_application)
@@ -169,9 +185,5 @@ class ModifyBenefitApplication< MongoidMigrationTask
 
   def initialize_service(benefit_application)
     BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(benefit_application)
-  end
-
-  def trigger_advance_termination_request_notice(benefit_application)
-    benefit_application.trigger_model_event(:group_advance_termination_confirmation)
   end
 end
