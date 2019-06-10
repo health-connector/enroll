@@ -51,6 +51,7 @@ class Insured::GroupSelectionController < ApplicationController
   end
 
   def create
+    
     @market_kind = @adapter.create_action_market_kind(params)
     return redirect_to purchase_insured_families_path(change_plan: @change_plan, terminate: 'terminate') if params[:commit] == "Terminate Plan"
 
@@ -193,6 +194,8 @@ class Insured::GroupSelectionController < ApplicationController
     @enrollment_kind = @adapter.enrollment_kind
     @shop_for_plans = @adapter.shop_for_plans
     @optional_effective_on = @adapter.optional_effective_on
+
+    authorize @family, :can_manage_coverage?
 
     @adapter.if_employee_role do |emp_role|
       @employee_role = emp_role

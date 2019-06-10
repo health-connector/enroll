@@ -280,7 +280,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
   context "GET terminate_selection" do
     it "return http success and render" do
-      sign_in
+      sign_in user
       get :terminate_selection, person_id: person.id
       expect(response).to have_http_status(:success)
       expect(response).to render_template(:terminate_selection)
@@ -352,7 +352,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     end
 
     it "with change_plan" do
-      user = FactoryGirl.create(:user, id: 98, person: FactoryGirl.create(:person))
       sign_in user
       allow(hbx_enrollment).to receive(:save).and_return(true)
       post :create, person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids, change_plan: 'change'
@@ -366,7 +365,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       let(:old_hbx) {hbx_enrollment}
 
       before :each do
-        user = FactoryGirl.create(:user, person: FactoryGirl.create(:person))
         sign_in user
         allow(old_hbx).to receive(:is_shop?).and_return true
         family.active_household.reload
@@ -425,7 +423,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     end
 
     it "for cobra with invalid date" do
-      user = FactoryGirl.create(:user, id: 196, person: FactoryGirl.create(:person))
       sign_in user
       allow(census_employee).to receive(:have_valid_date_for_cobra?).and_return(false)
       allow(census_employee).to receive(:coverage_terminated_on).and_return(TimeKeeper.date_of_record)
@@ -440,6 +437,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     end
 
     it "should render group selection page if without family_member_ids" do
+      sign_in user
       post :create, person_id: person.id, employee_role_id: employee_role.id
       expect(response).to have_http_status(:redirect)
       expect(flash[:error]).to eq 'You must select at least one Eligible applicant to enroll in the healthcare plan'

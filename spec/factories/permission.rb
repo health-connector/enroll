@@ -24,7 +24,7 @@ FactoryGirl.define do
     end
 
     trait :hbx_read_only do
-      modify_family true
+      modify_family false
       modify_employer false
       revert_application false
       list_enrollments true
