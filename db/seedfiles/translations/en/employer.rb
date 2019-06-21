@@ -168,6 +168,18 @@ EMPLOYER_TRANSLATIONS = {
   'en.publish_anyway' => 'Publish Anyways',
   'en.employers.plan_years.application_ineligible_text' => 'As submitted, this application is ineligible for coverage under the %{site_short_name} exchange for reasons identified below. Click Cancel to go back and correct inaccurate information. If the information provided is accurate, you may click Publish to proceed. However, if you choose to proceed and the eligibility determination is deemed correct by %{site_short_name} officials, this organization may not again apply for coverage for 90 days, or until the reason for ineligibility changes, whichever is later.',
   'en.employers.plan_years.app_warning_text' => 'Click Cancel if you want to go back and review your application information for accuracy. If the information provided on your application is accurate, you may click Publish Anyways to proceed. If you choose to proceed and the application is determined to be ineligible, you will be notified with the reason for the eligibility determination along with what your options are to appeal this determination.',
-  'en.employers.plan_years.eligibility_reasons_text' => 'If you submit this application as is, the small business application may be ineligible for coverage through the %{site_short_name} because it does not meet the eligibility reason(s) identified below:'
+  'en.employers.plan_years.eligibility_reasons_text' => 'If you submit this application as is, the small business application may be ineligible for coverage through the %{site_short_name} because it does not meet the eligibility reason(s) identified below:',
+  'en.benefits_cov_offered' => 'Benefits - Coverage You Offer',
+  'en.claim_quote' => 'Claim Quote',
+  'en.add_plan_yr' => 'Add Plan Year',
+  'en.employers.employer_profiles.my_account.plan_info_and_pricing_text' => "Carefully review the plan information and pricing below. If you haven't added employees to your plan yet, select 'Employees' in the blue menu bar to the left and edit each of your employees to add them to your benefit package. If you want to
+        create more than one benefit package and offer different benefits to different employees, select 'Edit Plan Year' and then select 'Add Benefit Group' at bottom of the page. When you're satisfied with your benefit package(s), select 'Publish Plan Year'.",
+  'en.employers.employer_profiles.my_account.publish_plan_yr_notification_text' => "<strong>
+          IMPORTANT
+        </strong>
+        – Once you select 'Publish Plan Year', your employees will receive a notification and open enrollment will begin according to the timeline you selected for your plan year.",
+  'en.eligibility' => 'Eligibility',
+  'en.oe_dates' => 'Open Enrollment Dates',
+
 
 }
