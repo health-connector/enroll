@@ -1,7 +1,4 @@
 require 'spec_helper'
-require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
-require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
-
 
 RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :after_each do
   include BenefitSponsors::ApplicationHelper
