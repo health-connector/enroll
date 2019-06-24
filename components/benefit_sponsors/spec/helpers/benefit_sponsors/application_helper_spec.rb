@@ -64,6 +64,14 @@ RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :afte
       it {expect(add_plan_year_button_business_rule(abc_profile.benefit_applications)).to eq false}
     end
 
+    context 'should return false when with a published initial and termination pending renewal PY' do
+      before do
+        predecessor_application.update_attributes(:aasm_state => :enrollment_open)
+        renewal_application.update_attributes(:aasm_state => :termination_pending)
+      end
+      it {expect(add_plan_year_button_business_rule(abc_profile.benefit_applications)).to eq false}
+    end
+
     context 'should return true when with an inactive initial and termination pending renewal PY' do
       before do
         predecessor_application.update_attributes(:aasm_state => :expired)

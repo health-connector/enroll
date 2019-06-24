@@ -103,9 +103,10 @@ module BenefitSponsors
 
     def add_plan_year_button_business_rule(benefit_applications)
       active_benefit_applications = benefit_applications.active
+      published_benefit_applications = benefit_applications.published
+      term_pending_applications = benefit_applications.termination_pending
       canceled_rule_check = active_benefit_applications.present? && benefit_applications.canceled.select{ |ba| ba.start_on > active_benefit_applications.first.end_on }.present?
-      term_pending_rule_check = benefit_applications.termination_pending.present? && !active_benefit_applications.present?
-      benefit_applications.published.blank? || canceled_rule_check || term_pending_rule_check && benefit_applications.none?(&:is_renewing?)
+      ((published_benefit_applications - term_pending_applications).blank? || canceled_rule_check) && benefit_applications.none?(&:is_renewing?)
     end
 
     def retrieve_inbox(provider, folder: 'inbox')
