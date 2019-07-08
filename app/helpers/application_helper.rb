@@ -754,6 +754,10 @@ module ApplicationHelper
     }
 
     renewing = benefit_application.predecessor_id.present? && benefit_application.aasm_state != :active ? "Renewing" : ""
+
+    # fix https://devops.dchbx.org/redmine/issues/33038
+    renewing = "" if benefit_application.predecessor_id.present? && benefit_application.predecessor.aasm_state == :imported
+
     summary_text = aasm_map[benefit_application.aasm_state] || benefit_application.aasm_state
     summary_text = "#{renewing} #{summary_text.to_s.humanize.titleize}"
     return summary_text.strip

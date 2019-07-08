@@ -56,6 +56,24 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
   end
 
+  describe "#benefit_application_summarized_state" do
+    let(:imported_benefit_application) do
+      double(:benefit_application,
+             aasm_state: :imported,
+             id: "id")
+    end
+    let(:benefit_application) do
+      double(:benefit_application,
+             aasm_state: :terminated,
+             predecessor: imported_benefit_application,
+             predecessor_id: imported_benefit_application.id)
+    end
+
+    it "should return terminated state when benefit application was imported via converstion " do
+      expect(helper.benefit_application_summarized_state(benefit_application)).to eq benefit_application.aasm_state.to_s.capitalize
+    end
+  end
+
   describe "#deductible_display" do
     let(:hbx_enrollment) {double(hbx_enrollment_members: [double, double])}
     let(:plan) { double("Plan", deductible: "$500", family_deductible: "$500 per person | $1000 per group",) }
