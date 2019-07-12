@@ -10,14 +10,17 @@ module SponsoredBenefits
         @census_employees = sponsorship.census_employees
 
         if @benefit_group
+          @service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: @benefit_group})
           @benefit_group.build_estimated_composite_rates if @benefit_group.sole_source?
           @plan = @benefit_group.reference_plan
-          @employer_contribution_amount = @benefit_group.monthly_employer_contribution_amount
-          @benefit_group_costs = @benefit_group.employee_costs_for_reference_plan
+          dental_plan = @benefit_group.dental_reference_plan
+          @employer_contribution_amount = @service.monthly_employer_contribution_amount(@plan)
+          @employer_dental_contribution_amount = @service.monthly_employer_contribution_amount(dental_plan) if dental_plan.present?
+          @benefit_group_costs = @benefit_group.employee_costs_for_reference_plan(@service)
           @qhps = ::Products::QhpCostShareVariance.find_qhp_cost_share_variances(plan_array(@plan), plan_design_proposal.effective_date.year, "Health")
         end
 
-        render pdf: 'plan_details_export',
+        render pdf: 'plan_details_export', dpi: 72,
                template: 'sponsored_benefits/organizations/plan_design_proposals/plan_exports/_plan_details.html.erb',
                disposition: 'attachment',
                locals: { benefit_group: @benefit_group, plan_design_proposal: plan_design_proposal, qhps: @qhps, plan: @plan, visit_types: visit_types, sbc_included: sbc_included }

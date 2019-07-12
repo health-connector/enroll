@@ -11,6 +11,14 @@ module Config::AcaHelper
     Settings.aca.market_kinds.first
   end
 
+  def allow_mid_month_voluntary_terms?
+    Settings.aca.shop_market.mid_month_benefit_application_terminations.voluntary
+  end
+
+  def allow_mid_month_non_payment_terms?
+    Settings.aca.shop_market.mid_month_benefit_application_terminations.non_payment
+  end
+
   def aca_shop_market_employer_family_contribution_percent_minimum
     @aca_shop_market_employer_family_contribution_percent_minimum ||= Settings.aca.shop_market.employer_family_contribution_percent_minimum
   end
@@ -151,6 +159,26 @@ module Config::AcaHelper
 
   def fetch_plan_title_for_single_plan
     Settings.plan_option_titles.single_plan
+  end
+
+  def fetch_health_product_option_choice_description_for_sole_source
+    Settings.plan_option_descriptions.sole_source
+  end
+
+  def fetch_health_product_option_choice_description_for_metal_level
+    Settings.plan_option_descriptions.metal_level
+  end
+
+  def fetch_health_product_option_choice_description_for_single_carrier
+    Settings.plan_option_descriptions.single_carrier
+  end
+
+  def fetch_health_product_option_choice_description_for_single_plan
+    Settings.plan_option_descriptions.single_plan
+  end
+
+  def fetch_dental_product_option_choice_description_for_single_plan
+    Settings.plan_option_descriptions.dental.single_plan
   end
 
   def fetch_invoices_addendum

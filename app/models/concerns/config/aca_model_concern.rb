@@ -30,6 +30,8 @@ module Config::AcaModelConcern
     delegate :employer_attestation_is_enabled?, to: :class
     delegate :plan_match_tool_is_enabled?, to: :class
     delegate :dental_market_enabled?, to: :class
+    delegate :allow_mid_month_voluntary_terms?, to: :class
+    delegate :allow_mid_month_non_payment_terms?, to: :class
     delegate :enabled_metal_levels, to: :class
     delegate :offerings_constrained_to_service_areas?, to: :class
   end
@@ -143,6 +145,14 @@ module Config::AcaModelConcern
       @dental_market_enabled ||= Settings.aca.dental_market_enabled
     end
 
+    def allow_mid_month_voluntary_terms?
+      @allow_mid_month_voluntary_terms ||= Settings.aca.shop_market.mid_month_benefit_application_terminations.voluntary
+    end
+
+    def allow_mid_month_non_payment_terms?
+      @allow_mid_month_non_payment_terms ||= Settings.aca.shop_market.mid_month_benefit_application_terminations.non_payment
+    end
+
     def enrollment_shopping_start_day_offset
       @@enrollment_shopping_start_day_offset ||= Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.day_of_month.days
     end
@@ -161,6 +171,10 @@ module Config::AcaModelConcern
 
     def offerings_constrained_to_service_areas?
       @@offerings_constrained_to_service_areas ||= Settings.aca.offerings_constrained_to_service_areas
+    end
+
+    def offers_nationwide_plans?
+      @offers_nationwide_plans ||= Settings.aca.nationwide_markets
     end
   end
 end

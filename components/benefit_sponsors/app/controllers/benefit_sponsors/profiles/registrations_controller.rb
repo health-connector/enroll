@@ -60,16 +60,17 @@ module BenefitSponsors
         else
           org_error_msg = @agency.errors.full_messages.join(",").humanize if @agency.errors.present?
 
-          flash[:error] = "Employer information not saved. #{org_error_msg}."
+          flash[:error] = "Employer information not saved. #{org_error_msg}." if is_employer_profile?
+          flash[:error] = "Broker Agency information not saved. #{org_error_msg}." if is_broker_profile?
         end
         redirect_to result_url
       end
 
-			def counties_for_zip_code
+      def counties_for_zip_code
         @counties = BenefitMarkets::Locations::CountyZip.where(zip: params[:zip_code]).pluck(:county_name).uniq
 
         render json: @counties
-			end
+      end
 
       private
 
