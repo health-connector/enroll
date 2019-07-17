@@ -165,7 +165,7 @@ module BenefitSponsors
                                               "open_enrollment_start_on"=>"01/15/2019", "open_enrollment_end_on"=>"01/20/2019",
                                               "benefit_sponsorship_id"=> benefit_sponsorship.id.to_s} }
 
-      [:active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :termination_pending].each do |active_state|
+      [:active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible].each do |active_state|
         context 'for imported' do
           let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :draft) }
 
@@ -181,7 +181,7 @@ module BenefitSponsors
 
             it 'should return false as dt active state exists for one of the bas' do
               set_bs_for_service(init_form_for_create)
-              expect(subject.can_create_draft_ba?).to be_falsey
+              expect(subject.can_create_draft_ba?).to be_truthy
             end
           end
         end
@@ -194,7 +194,7 @@ module BenefitSponsors
         context 'with dt active state' do
           it 'should return false as dt active state exists for one of the bas' do
             set_bs_for_service(init_form_for_create)
-            expect(subject.can_create_draft_ba?).to be_falsey
+            expect(subject.can_create_draft_ba?).to be_truthy
           end
         end
       end
