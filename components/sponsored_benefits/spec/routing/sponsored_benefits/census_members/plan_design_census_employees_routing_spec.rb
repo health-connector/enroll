@@ -1,5 +1,8 @@
 require "rails_helper"
 
+module DataTablesAdapter
+end
+
 module SponsoredBenefits
   RSpec.describe CensusMembers::PlanDesignCensusEmployeesController, type: :routing do
     routes { SponsoredBenefits::Engine.routes }

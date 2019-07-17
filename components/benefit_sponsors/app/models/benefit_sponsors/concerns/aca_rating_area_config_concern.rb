@@ -7,15 +7,20 @@ module BenefitSponsors
     included do
       delegate :market_rating_areas, to: :class
       delegate :use_simple_employer_calculation_model?, to: :class
+      delegate :is_general_agency_enabled?, to: :class
     end
 
     class_methods do
       def market_rating_areas
-        @@market_rating_areas ||= Settings.aca.rating_areas
+        @market_rating_areas ||= Settings.aca.rating_areas
       end
 
       def use_simple_employer_calculation_model?
-        @@use_simple_employer_calculation_model ||= (Settings.aca.use_simple_employer_calculation_model.to_s.downcase == "true")
+        @use_simple_employer_calculation_model ||= (Settings.aca.use_simple_employer_calculation_model.to_s.downcase == "true")
+      end
+
+      def is_general_agency_enabled?
+        @is_general_agency_enabled ||= Settings.aca.general_agency_enabled
       end
     end
   end

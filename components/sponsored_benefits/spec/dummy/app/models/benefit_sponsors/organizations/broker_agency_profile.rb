@@ -1,7 +1,8 @@
 module BenefitSponsors
   module Organizations
     class BrokerAgencyProfile < BenefitSponsors::Organizations::Profile
-      include AASM
+      # include SetCurrentUser
+      # include AASM
       include ::Config::AcaModelConcern
 
       MARKET_KINDS = individual_market_is_enabled? ? [:individual, :shop, :both] : [:shop]
@@ -31,6 +32,22 @@ module BenefitSponsors
       field :home_page, type: String
 
       # embeds_many :documents, as: :documentable
+      accepts_nested_attributes_for :inbox
+
+      # has_many :broker_agency_contacts, class_name: "Person", inverse_of: :broker_agency_contact
+      # accepts_nested_attributes_for :broker_agency_contacts, reject_if: :all_blank, allow_destroy: true
+
+      validates_presence_of :market_kind
+
+      validates :corporate_npn,
+        numericality: {only_integer: true},
+        length: { minimum: 1, maximum: 10 },
+        uniqueness: true,
+        allow_blank: true
+
+      validates :market_kind,
+        inclusion: { in: Organizations::BrokerAgencyProfile::MARKET_KINDS, message: "%{value} is not a valid practice area" },
+        allow_blank: false
 
       after_initialize :build_nested_models
 
@@ -53,64 +70,19 @@ module BenefitSponsors
         @primary_broker_role = BrokerRole.find(self.primary_broker_role_id) unless primary_broker_role_id.blank?
       end
 
-      def active_broker_roles
-        @active_broker_roles = BrokerRole.find_active_by_broker_agency_profile(self)
-      end
-
-      def employer_clients
-      end
-
-      def family_clients
-      end
-
-      def market_kinds
-        MARKET_KINDS_OPTIONS
-      end
-
-      def language_options
-        LanguageList::COMMON_LANGUAGES
-      end
-
-      def languages
-        if languages_spoken.any?
-          return languages_spoken.map {|lan| LanguageList::LanguageInfo.find(lan).name if LanguageList::LanguageInfo.find(lan)}.compact.join(",")
+      def default_general_agency_profile=(new_default_general_agency_profile = nil)
+        if new_default_general_agency_profile.present?
+          raise ArgumentError.new("expected GeneralAgencyProfile class") unless new_default_general_agency_profile.is_a? BenefitSponsors::Organizations::GeneralAgencyProfile
+          self.default_general_agency_profile_id = new_default_general_agency_profile.id
+        else
+          unset("default_general_agency_profile_id")
         end
+        @default_general_agency_profile = new_default_general_agency_profile
       end
 
-      def commission_statements
-        documents.where(subject: "commission-statement")
-      end
-
-      def families
-        linked_active_employees = linked_employees.select{ |person| person.has_active_employee_role? }
-        employee_families = linked_active_employees.map(&:primary_family).to_a
-        consumer_families = Family.by_broker_agency_profile_id(self.id).to_a
-        families = (consumer_families + employee_families).uniq
-        families.sort_by{|f| f.primary_applicant.person.last_name}
-      end
-
-      aasm do #no_direct_assignment: true do
-        state :is_applicant, initial: true
-        state :is_approved
-        state :is_rejected
-        state :is_suspended
-        state :is_closed
-
-        event :approve do
-          transitions from: [:is_applicant, :is_suspended], to: :is_approved
-        end
-
-        event :reject do
-          transitions from: :is_applicant, to: :is_rejected
-        end
-
-        event :suspend do
-          transitions from: [:is_applicant, :is_approved], to: :is_suspended
-        end
-
-        event :close do
-          transitions from: [:is_approved, :is_suspended], to: :is_closed
-        end
+      def default_general_agency_profile
+        return @default_general_agency_profile if defined? @default_general_agency_profile
+        @default_general_agency_profile = BenefitSponsors::Organizations::GeneralAgencyProfile.find(self.default_general_agency_profile_id) if default_general_agency_profile_id.present?
       end
 
       private
@@ -124,9 +96,8 @@ module BenefitSponsors
       end
 
       def build_nested_models
-        # build_inbox if inbox.nil?
+        build_inbox if inbox.nil?
       end
-
     end
   end
 end

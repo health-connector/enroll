@@ -132,6 +132,7 @@ invoices:
   addendum: 'ma_non_discrimination_and_language_tags.pdf'
 
 aca:
+  state_key : "cca"
   state_name: "Massachusetts"
   state_abbreviation: "MA"
   market_kinds: ["shop"]

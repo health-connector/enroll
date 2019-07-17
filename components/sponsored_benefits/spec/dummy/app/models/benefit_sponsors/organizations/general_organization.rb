@@ -21,6 +21,7 @@ module BenefitSponsors
         numericality: true,
         uniqueness: true
 
+
     end
   end
 end

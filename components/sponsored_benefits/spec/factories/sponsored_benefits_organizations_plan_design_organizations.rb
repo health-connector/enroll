@@ -1,10 +1,10 @@
 FactoryGirl.define do
   factory :sponsored_benefits_plan_design_organization, class: 'SponsoredBenefits::Organizations::PlanDesignOrganization' do
-    legal_name  "Turner Agency, Inc"
-    dba         "Turner Brokers"
+    legal_name  { "Turner Agency, Inc" }
+    dba         { "Turner Brokers" }
 
     sequence :sic_code do |n|
-      "765#{n}"
+      Settings.aca.state_abbreviation == "DC" ? nil : "765#{n}"
     end
 
     sequence :sponsor_profile_id do |n|
@@ -33,5 +33,4 @@ FactoryGirl.define do
     end
   end
 end
-
 
