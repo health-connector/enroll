@@ -1,6 +1,6 @@
 <% if @employee.errors.any? %>
   <div class="alert alert-error">
-    <h4><%= pluralize(@employee.errors.count, "error") %> prohibited this employee from being saved:</h4>
+    <h4><%= pluralize(@employee.errors.count, "error") %> <%= l10n('employee.ee_prohibited') %></h4>
     <ul>
       <% @employee.errors.full_messages.each do |msg| %>
         <li><%= msg %></li>
@@ -18,7 +18,7 @@
  -->
 
 <div class="col-md-11 col-sm-12 col-xs-12">
-  <h3>Personal Information</h3>
+  <h3><%= l10n('personal_information') %></h3>
   <div id="overlay"></div>
     <div id="personal_info" class="focus_effect row personal-info-row" style="opacity: 0.5;">
       <div class="col-md-10 no-pd col-sm-9 col-xs-12 first">
@@ -33,9 +33,9 @@
       </div>
 
       <div class="col-md-2 key no-pd-right col-sm-3 col-xs-12" style="display: none;">
-        <a href="#" class="btn btn-save <%=pundit_class EmployerProfile,:updateable?%>">Save & Exit</a>
+        <a href="#" class="btn btn-save <%=pundit_class EmployerProfile,:updateable?%>"><%= l10n('save_exit') %></a>
         <p class="top-pad">
-          <span>Your personal information is secure.</span>
+          <span><%= l10n('employees.pi_secure') %></span>
           <span><i></i></span>
         </p>
       </div>
@@ -64,7 +64,7 @@
         <div class="col-md-10 col-sm-9 no-pd">
         </div>
         <div class="col-md-2 col-sm-3 no-pd">
-          <a href="#" class="btn disable-btn <%=pundit_class EmployerProfile,:updateable?%>">Continue</a>
+          <a href="#" class="btn disable-btn <%=pundit_class EmployerProfile,:updateable?%>"><%= l10n('continue') %></a>
         </div>
       </div>
     </div>
@@ -76,11 +76,11 @@
           <span class="close"></span>
         </div>
         <p>
-          We may be able to auto-fill your information with data from our records.
+          <%= l10n('employees.auto_fill_info') %>
         </p>
-        <a href="#" class="btn btn-ok autofill_yes">Yes</a>
+        <a href="#" class="btn btn-ok autofill_yes"><%= l10n('yes') %></a>
         <div class="clearfix"></div>
-        <a href="#" class="btn btn-cancel autofill_no">No Thanks</a>
+        <a href="#" class="btn btn-cancel autofill_no"><%= l10n('no') %> <%= l10n('thanks') %></a>
       </div>
     </div>
     <div class="autofill-cloud autofill-failed hidden">
@@ -90,13 +90,13 @@
           <span class="close"></span>
         </div>
         <p>
-          We were not able to find your information. Double check your social security number and birthdate
+          <%= l10n('employees.match_error') %>
         </p>
-        <a href="#" class="btn btn-try-again btn-primary">Try Again</a>
+        <a href="#" class="btn btn-try-again btn-primary"><%= l10n('try_again') %></a>
       </div>
     </div>
     <div class="less-opacity hidden">
       <%= image_tag 'autofill-cloud.png' %>
-      <p>Autofill</p>
+      <p><%= l10n('auto_fill') %></p>
     </div>
   </div>

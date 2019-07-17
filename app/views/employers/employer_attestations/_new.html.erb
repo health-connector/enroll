@@ -12,8 +12,8 @@
   </div>
   <%= form_for @document, :url => url_for(:controller => 'employer_attestations', :action => 'create'), method: 'post', :html => { :multipart => true } do |f| %>
     <%= file_field_tag :file, :accept => 'application/pdf' %>
-    <%= label_tag :file, 'Select File To Upload', class: 'select btn btn-primary ' %>
+    <%= label_tag :file, l10n('select_file_upload'), class: 'select btn btn-primary ' %>
     <%= f.autocomplete_field :creator, autocomplete_organization_legal_name_documents_path %>
-    <%= f.submit 'Upload', class: 'btn btn-primary ' %>
+    <%= f.submit l10n('upload'), class: 'btn btn-primary ' %>
   <% end %>
 </div>

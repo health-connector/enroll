@@ -8,22 +8,22 @@
     <div class="panel panel-default module premium-reports-widget widget">
       <div class="panel-heading">
         <h3 class="no-buffer text-green">
-          <strong>Enrollment Report</strong>
+          <strong><%= l10n('enrollment_report') %></strong>
         </h3>
         <span><%= billing_date.beginning_of_month %> - <%= billing_date.end_of_month %></span>
       </div>
       <div class="panel-body">
         <table>
           <tr>
-            <td style="padding-right: 10px;">Total Premium:</td>
+            <td style="padding-right: 10px;"><%= l10n('tot_premium') %>:</td>
             <td><%= number_to_currency(bill.total_premium || 0)%></td>
           </tr>
           <tr>
-            <td style="padding-right: 10px;">Employee Contributions:</td>
+            <td style="padding-right: 10px;"><%= l10n('ee_contribution').to_s.pluralize %>:</td>
             <td><%= number_to_currency(bill.total_employee_cost || 0) %></td>
           </tr>
           <tr>
-            <td style="padding-right: 10px;">Employer Contributions:</td>
+            <td style="padding-right: 10px;"><%= l10n('employer_contribution').to_s.pluralize %>:</td>
             <td><%= number_to_currency(bill.total_employer_contribution || 0) %></td>
           </tr>
         </table>

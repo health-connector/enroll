@@ -200,7 +200,7 @@
             <br>
             <% if benefit_group.elected_health_plan_ids.present? %>
               <% quote_health_results = get_health_cost_comparison(benefit_group: benefit_group) %>
-              <h3>Detailed Employee cost breakdown for selected health plans:</h3>
+              <h3><%= l10n('.detailed_ee_cost_breakdown_for_selected_health')%>:</h3>
               <table class="table table-striped table-hover table-sm panel panel-default">
                 <tr>
                   <td colspan="3" class="thead-default">
@@ -209,9 +209,9 @@
                     <td colspan="1" class="thead-default">
                       <div style='width: 300px'>
                         <b><%= qr[0] %></b><br>
-                        <sm>Employee:
+                        <sm><%= l10n('employee') %>:
                         $<%= qr[1][:total_employee_cost].ceil %>,
-                        Employer:
+                        <%= l10n('employer') %>:
                         <span >$<%= qr[1][:total_employer_cost].ceil %></span>
                         <br>
                         <%#= qr[1][:buy_up]  %>
@@ -222,11 +222,11 @@
                 </tr>
 
                 <tr style="font-weight: bolder; ">
-                  <td class="thead-default">Name</td>
-                  <td class="thead-default">Relationship Contribution</td>
-                  <td class="thead-default">Age</td>
+                  <td class="thead-default"><%= l10n('name')%></td>
+                  <td class="thead-default"><%= l10n('relationship_contribution')%></td>
+                  <td class="thead-default"><%= l10n('age')%></td>
                   <% quote_health_results.keys.each do |de| %>
-                    <td class="thead-default" style='padding-left: 100px'>Employee Cost</td>
+                    <td class="thead-default" style='padding-left: 100px'><%= l10n('employee_cost')%></td>
                   <% end %>
                 </tr>
                 <% quote_health_results.first[1][:detail].flatten.each_with_index do |qr, index| %>
@@ -251,7 +251,7 @@
             <% end %>
             <% if benefit_group.elected_dental_plan_ids.present? %>
               <% quote_dental_results = get_dental_cost_comparison(benefit_group: benefit_group) %>
-              <h3>Detailed Employee cost breakdown for selected dental plans:</h3>
+              <h3><%= l10n('.detailed_ee_cost_breakdown_for_selected_plans')%>:</h3>
               <table class="table table-striped table-hover table-sm panel panel-default">
                 <tr>
                   <td colspan="3" class="thead-default">
@@ -260,9 +260,9 @@
                     <td colspan="1" class="thead-default">
                       <div style='width: 300px'>
                         <b><%= qr[0] %></b><br>
-                        <sm>Employee:
+                        <sm><%= l10n('employee') %>:
                         $<%= qr[1][:total_employee_cost].ceil %>,
-                        Employer:
+                        <%= l10n('employer') %>:
 
                         <span >$<%= qr[1][:total_employer_cost].ceil %></span>
                         <br>
@@ -272,11 +272,11 @@
                   <% end %>
                 </tr>
                 <tr style="font-weight: bolder; ">
-                  <td class="thead-default">Name</td>
-                  <td class="thead-default">Relationship (%)</td>
-                  <td class="thead-default">Age</td>
+                  <td class="thead-default"><%= l10n('name')%></td>
+                  <td class="thead-default"><%= l10n('relationship')%> (%)</td>
+                  <td class="thead-default"><%= l10n('age')%></td>
                   <% quote_dental_results.keys.each do |de| %>
-                    <td class="thead-default" style='padding-left: 100px'>Employee Cost</td>
+                    <td class="thead-default" style='padding-left: 100px'><%= l10n('employee_cost')%></td>
                   <% end %>
                 </tr>
                 <% quote_dental_results.first[1][:detail].flatten.each_with_index do |qr, index| %>

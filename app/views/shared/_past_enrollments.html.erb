@@ -1,20 +1,20 @@
 <% hbx_enrollments = @census_employee.past_enrollments %>
 <% if hbx_enrollments.present? %>
   <h3>
-    Past Enrollments
+    <%= l10n("past_enrollments") %>
   </h3>
   <div class="panel panel-default module past-enrollments table-responsive">
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th class="text-center">Termination Date</th>
-          <th class="text-center">Plan Name</th>
-          <th class="text-center">Market</th>
-          <th class="text-center">Coverage</th>
-          <th class="text-center">Premium</th>
-          <th class="text-center">Effective Date</th>
-          <th class="text-center">Covered</th>
-          <th class="text-center">Status</th>
+          <th class="text-center"><%= l10n("term_date") %></th>
+          <th class="text-center"><%= l10n("plan_name") %></th>
+          <th class="text-center"><%= l10n("market") %></th>
+          <th class="text-center"><%= l10n("coverage") %></th>
+          <th class="text-center"><%= l10n("premium") %></th>
+          <th class="text-center"><%= l10n("effective_date") %></th>
+          <th class="text-center"><%= l10n("covered") %></th>
+          <th class="text-center"><%= l10n("status") %></th>
         </tr>
       </thead>
       <tbody>

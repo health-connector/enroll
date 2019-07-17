@@ -6,8 +6,7 @@
 
     <% unless @census_employee.persisted? %>
         <p class="twenty">
-          Enter employee information. Select 'Add Dependent' if applicable. When you're finished, select 'Create
-          Employee' to continue.
+          <%= l10n('employers.census_employees.ee_information_dependents_text') %>
         </p>
     <% end %>
 
@@ -28,7 +27,7 @@
     </div>
     <div class="vertically-aligned-row">
       <div>
-        <%= link_to 'Cancel', benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab => "employees"), class: 'btn btn-default btn-lg return_to_employee_roster' %>
+        <%= link_to l10n('cancel'), benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab => "employees"), class: 'btn btn-default btn-lg return_to_employee_roster' %>
       </div>
       <div class="key-btn text-right <%= pundit_class EmployerProfile, :updateable? %>">
         <% button_label = @census_employee.persisted? ? 'Update Employee' : 'Create Employee' %>

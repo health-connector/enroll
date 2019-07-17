@@ -3,14 +3,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Create Plan Year by claiming a broker quote</h4>
+        <h4 class="modal-title"><%= l10n('employers.plan_years.create_py_claim_bq') %></h4>
       </div>
       <div class="modal-body">
        <%= raw(warnings[0]) %>
       </div>
       <div class="modal-footer">
-        <%= link_to "Proceed", "", data: { toggle: "modal", target: "#claimBenefitApplicationQuoteModal", 'dismiss': 'modal' }, class: 'btn btn-default' %>
-        <%= link_to 'Cancel', "", class: 'btn btn-default', data: {'dismiss': 'modal' } %>
+        <%= link_to l10n('proceed'), "", data: { toggle: "modal", target: "#claimBenefitApplicationQuoteModal", 'dismiss': 'modal' }, class: 'btn btn-default' %>
+        <%= link_to l10n('cancel'), "", class: 'btn btn-default', data: {'dismiss': 'modal' } %>
       </div>
     </div>
   </div>

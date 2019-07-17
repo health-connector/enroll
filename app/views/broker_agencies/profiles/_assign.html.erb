@@ -47,7 +47,7 @@
                         &nbsp;
                       <% end %>
                       <%= pundit_span(HbxProfile, :modify_admin_tabs?) %>
-                        <%= link_to 'clear assign', clear_assign_for_employer_broker_agencies_profile_path(id: @broker_agency_profile.id, employer_id: er.id), method: :post, remote: true if er.active_general_agency_account.present? %>
+                        <%= link_to l10n('clear_assign'), clear_assign_for_employer_broker_agencies_profile_path(id: @broker_agency_profile.id, employer_id: er.id), method: :post, remote: true if er.active_general_agency_account.present? %>
                       </span>
                     </td>
                   </tr>

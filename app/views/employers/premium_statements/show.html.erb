@@ -10,9 +10,9 @@
         <div class="row">
           <div class="col-xs-8">
            <button class="btn btn-lg btn-warning hidden" id="loader">
-            <span id="loader" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...
+            <span id="loader" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> <%= l10n('loading') %>
           </button>
-            <span style="float: right; margin-top: 10px;">Select the Coverage Period</span>
+            <span style="float: right; margin-top: 10px;"><%= l10n('employers.premium_statements.coverage_period_sel') %></span>
           </div>
           <div class="col-xs-4">
             <%= billing_period_dropdown %>

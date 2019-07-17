@@ -1,4 +1,4 @@
-<h1 class="">Broker Agencies</h1>
+<h1 class=""><%= l10n('broker_agencies.profiles.broker_agencies')%></h1>
 <div>
   <div class="row no-buffer">
     <div class="pull-right broker_agencies_search">
@@ -6,7 +6,7 @@
       <div class="search-wp">
         <%= render 'shared/search', url: "/employers/employer_profiles/#{@employer_profile.id}/broker_agency", q: @q, remote: true, placeholder: 'Agency/Broker Name, NPN' %>
         <span class="pull-right">
-          <a class="broker-advanced-search-options" style="cursor: pointer;">Advanced Options</a>
+          <a class="broker-advanced-search-options" style="cursor: pointer;"><%= l10n('employers.broker_agency.advanced_options') %></a>
         </span>
       </div>
 
@@ -18,14 +18,14 @@
           </div>
           <div>
             <label class="pull-right">
-              <%= check_box_tag :working_hours, {id: 'working_hours'} %> Evening/Weekend Availability
+              <%= check_box_tag :working_hours, {id: 'working_hours'} %> <%= l10n('evng_weekend_availability') %>
             </label>
           </div>
       </div>
     </div>
   </div>
 
-  <h4>Search for a Broker near you. When you find the Broker you want to use, choose 'Select Broker' to hire the Broker.</h4>
+  <h4><%= l10n('employers.broker_agency.seach_broker_and_select') %></h4>
 
   <div class="row no-buffer" id="broker_agencies_listing">
     <%= render "broker_agencies_listing" %>

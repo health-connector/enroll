@@ -14,7 +14,7 @@
               </strong>
             </h2>
             <span>
-              Days
+              <%= l10n('day').to_s.pluralize %>
             </span>
         </figcaption>
       </span>
@@ -23,7 +23,7 @@
     <div class="text-left">
       <h3 class="no-buffer">
         <strong>
-          Until Open Enrollment Ends
+          <%= l10n('employers.employer_profiles.until_oe_ends')%>
         </strong>
       </h3>
       <span><%= @current_plan_year.open_enrollment_end_on.to_date.to_formatted_s :long_ordinal %></span>
