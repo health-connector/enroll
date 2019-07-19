@@ -38,7 +38,7 @@ module SponsoredBenefits
       field :has_active_broker_relationship, type: Boolean, default: false
 
       embeds_many :plan_design_proposals, class_name: "SponsoredBenefits::Organizations::PlanDesignProposal", cascade_callbacks: true
-      embeds_many :general_agency_accounts, class_name: "SponsoredBenefits::Accounts::GeneralAgencyAccount", cascade_callbacks: true, if: :is_general_agency_enabled?
+      embeds_many :general_agency_accounts, class_name: "SponsoredBenefits::Accounts::GeneralAgencyAccount", cascade_callbacks: true
 
       validates_presence_of   :legal_name, :has_active_broker_relationship
       validates_presence_of :sic_code, if: :sic_code_exists_for_employer?
