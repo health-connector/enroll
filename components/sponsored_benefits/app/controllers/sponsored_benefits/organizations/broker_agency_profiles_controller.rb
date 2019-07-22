@@ -3,6 +3,7 @@ require_dependency "sponsored_benefits/application_controller"
 module SponsoredBenefits
   class Organizations::BrokerAgencyProfilesController < ApplicationController
     include DataTablesAdapter
+    include Config::BrokerAgencyHelper
     before_action :find_profile, :general_agency_profiles, only: [:employers]
 
     def employers
@@ -18,6 +19,7 @@ module SponsoredBenefits
     end
 
     def general_agency_profiles
+      return unless general_agency_enabled?
       return @general_agency_profiles if defined? @general_agency_profiles
       @general_agency_profiles = BenefitSponsors::Organizations::GeneralAgencyProfile.all
     end

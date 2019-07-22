@@ -21,7 +21,7 @@
     </div>
   </div>
 </div>
-
+<% if general_agency_enabled? %>
 <div class="modal fade" id="assign_ga" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -52,6 +52,7 @@
     </div>
   </div>
 </div>
+<% end %>
 
 <script>
   initializeDataTables();
