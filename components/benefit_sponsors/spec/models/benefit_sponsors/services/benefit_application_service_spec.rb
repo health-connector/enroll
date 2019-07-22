@@ -187,6 +187,16 @@ module BenefitSponsors
         end
       end
 
+      [:terminated, :canceled, :suspended].each do |non_active_state|
+        context 'for benefit applications in non active states' do
+          let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: non_active_state) }
+          it 'should return true as no bas has dt active state' do
+            set_bs_for_service(init_form_for_create)
+            expect(subject.can_create_draft_ba?).to be_falsy
+          end
+        end
+      end
+
       context 'for termination_pending' do
         let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :termination_pending) }
         let!(:ba2) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
