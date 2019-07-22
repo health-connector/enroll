@@ -349,7 +349,16 @@ module BenefitSponsors
         bs
       end
 
-      let(:create_ba_params)              { { "start_on" => "02/01/2019", "end_on" => "01/31/2020", "fte_count" => "11", "open_enrollment_start_on" => "01/15/2019", "open_enrollment_end_on" => "01/20/2019", "benefit_sponsorship_id" => benefit_sponsorship.id.to_s} }
+      let(:create_ba_params) do
+        {
+          "start_on" => "02/01/2019",
+          "end_on" => "01/31/2020",
+          "fte_count" => "11",
+          "open_enrollment_start_on" => "01/15/2019",
+          "open_enrollment_end_on" => "01/20/2019",
+          "benefit_sponsorship_id" => benefit_sponsorship.id.to_s
+        }
+      end
 
       [:active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible].each do |active_state|
         context 'for benefit applications in active states' do
