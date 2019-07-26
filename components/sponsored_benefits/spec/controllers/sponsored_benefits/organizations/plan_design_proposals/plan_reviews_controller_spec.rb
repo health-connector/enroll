@@ -15,10 +15,10 @@ module SponsoredBenefits
       person.broker_role.update_attributes(broker_agency_profile_id: plan_design_organization.owner_profile_id)
       sign_in user_with_broker_role
     end
- 
+
     describe "GET #new" do
       before do
-        get :new, params: {plan_design_proposal_id: plan_design_proposal.id}
+        get :new, {plan_design_proposal_id: plan_design_proposal.id}
       end
 
       it "should return a success response" do
@@ -40,7 +40,7 @@ module SponsoredBenefits
 
     describe "GET #show" do
       before do
-        get :show, params: {plan_design_proposal_id: plan_design_proposal.id}
+        get :show, {plan_design_proposal_id: plan_design_proposal.id}
       end
 
       it "should return a success response" do

@@ -37,9 +37,9 @@ module SponsoredBenefits
       @plan_design_census_employee.benefit_sponsorship_id = @plan_design_proposal.profile.benefit_sponsorships.first.id
 
       if @plan_design_census_employee.save
-        redirect_back fallback_location: main_app.root_path, flash: {:success => "Employee record created successfully."}
+        redirect_to :back, :flash => {:success => "Employee record created successfully."}
       else
-        redirect_back fallback_location: main_app.root_path, flash: {:error => "Unable to create employee record. #{@plan_design_census_employee.errors.full_messages}"}
+        redirect_to :back, :flash => {:error => "Unable to create employee record. #{@plan_design_census_employee.errors.full_messages}"}
       end
     end
 
@@ -86,7 +86,7 @@ module SponsoredBenefits
 
     def export_plan_design_employees
       sponsorship = @plan_design_proposal.profile.benefit_sponsorships[0]
-     
+
       respond_to do |format|
         format.csv { send_data sponsorship.census_employees.to_csv, filename: "#{@plan_design_proposal.plan_design_organization.legal_name.parameterize.underscore}_census_employees_#{TimeKeeper.date_of_record}.csv" }
       end

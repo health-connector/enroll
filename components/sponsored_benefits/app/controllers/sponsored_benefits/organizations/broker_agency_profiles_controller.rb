@@ -15,7 +15,8 @@ module SponsoredBenefits
 
     def find_profile
       @profile = BenefitSponsors::Organizations::BrokerAgencyProfile.find(params[:id]) || BenefitSponsors::Organizations::GeneralAgencyProfile.find(params[:id])
-      @provider = provider
+      # find out whats true purpose of this
+      # @provider = provider
     end
 
     def general_agency_profiles

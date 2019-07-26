@@ -30,7 +30,8 @@ module SponsoredBenefits
       def load_profile
         @profile = ::BrokerAgencyProfile.find(params[:profile_id]) || ::GeneralAgencyProfile.find(params[:profile_id])
         @profile ||= BenefitSponsors::Organizations::Profile.find(params[:profile_id])
-        @provider = provider
+        # find out whats true purpose of this
+        # @provider = provider
       end
 
       def plan_design_form

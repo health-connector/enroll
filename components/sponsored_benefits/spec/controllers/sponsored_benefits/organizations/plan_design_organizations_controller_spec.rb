@@ -67,14 +67,13 @@ module SponsoredBenefits
       FactoryGirl.create(:user, person: person)
     end
 
-
     describe "GET new" do
       USER_ROLES.each do |role|
 
         before :each do
           person = person(role)
           sign_in user(person)
-          get :new, params: {broker_agency_id: broker_agency_profile.id.to_s}
+          get :new, {broker_agency_id: broker_agency_profile.id.to_s}
         end
 
         it "should assign organization  with user role as #{role}" do
@@ -95,7 +94,7 @@ module SponsoredBenefits
           before :each do
             person = person(role)
             sign_in user(person)
-            post :create, params: {organization: valid_attributes, broker_agency_id: broker_profile.id, format: 'js'}
+            post :create, {organization: valid_attributes, broker_agency_id: broker_profile.id, format: 'js'}
           end
 
 
@@ -114,7 +113,7 @@ module SponsoredBenefits
          before :each do
            person = person(role)
            sign_in user(person)
-           post :create, params: {organization: invalid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}
+           post :create, {organization: invalid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}
          end
 
          it " should not create a new Organizations::PlanDesignOrganization" do
@@ -133,7 +132,7 @@ module SponsoredBenefits
         before :each do
           person = person(role)
           sign_in user(person)
-          get :edit, params: {id: prospect_plan_design_organization.id}
+          get :edit, {id: prospect_plan_design_organization.id}
         end
         context "for user #{role}" do
 
@@ -154,7 +153,7 @@ module SponsoredBenefits
           before :each do
             person = person(role)
             sign_in user(person)
-            patch :update, params: {organization: updated_params, id: prospect_organization.id.to_s, profile_id: prospect_organization.broker_agency_profile}
+            patch :update, {organization: updated_params, id: prospect_organization.id.to_s, profile_id: prospect_organization.broker_agency_profile}
           end
 
           it "should update plan design organization legal_name" do
@@ -172,7 +171,7 @@ module SponsoredBenefits
           before :each do
             person = person(role)
             sign_in user(person)
-            patch :update, params: {organization: with_out_office_params, id: prospect_organization.id.to_s, profile_id: prospect_organization.broker_agency_profile}
+            patch :update, {organization: with_out_office_params, id: prospect_organization.id.to_s, profile_id: prospect_organization.broker_agency_profile}
           end
 
           it "should not update legal_name and throw flash error" do
@@ -187,7 +186,7 @@ module SponsoredBenefits
           before :each do
             person = person(role)
             sign_in user(person)
-            patch :update, params: {id: organization.id.to_s, profile_id: organization.broker_agency_profile}
+            patch :update, {id: organization.id.to_s, profile_id: organization.broker_agency_profile}
           end
 
           it "should throw a flash Error" do
@@ -206,7 +205,7 @@ module SponsoredBenefits
           before :each do
             person = person(role)
             sign_in user(person)
-            delete :destroy, params: {id: organization.id.to_s}
+            delete :destroy, {id: organization.id.to_s}
           end
 
           it "should throw a flash Error and should re-direct" do
@@ -228,12 +227,12 @@ module SponsoredBenefits
           context "when quotes are present" do
             it "should not delete proposals" do
               expect(plan_proposal.valid?).to be_truthy
-              delete :destroy, params: {id: plan_design_org_with_praposals.id.to_s}
+              delete :destroy, {id: plan_design_org_with_praposals.id.to_s}
               expect(plan_design_org_with_praposals.plan_design_proposals.present?).to be_truthy
             end
 
             it "should re-direct and throw a flash error" do
-              delete :destroy, params: {id: plan_design_org_with_praposals.id.to_s}
+              delete :destroy, {id: plan_design_org_with_praposals.id.to_s}
               expect(response).to have_http_status(303)
               expect(subject).to redirect_to(employers_organizations_broker_agency_profile_path(plan_design_org_with_praposals.broker_agency_profile))
             end

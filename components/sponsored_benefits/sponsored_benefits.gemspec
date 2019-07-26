@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'config'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'roo', '~> 2.1.0'
+  s.add_dependency 'virtus', '~> 1.0.5'
 
   s.test_files = Dir["spec/**/*"]
 
@@ -33,4 +34,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_girl_rails'
   s.add_development_dependency 'forgery'
   s.add_development_dependency "rspec-benchmark"
+  s.add_dependency 'devise', '~> 3.5.4'
 end

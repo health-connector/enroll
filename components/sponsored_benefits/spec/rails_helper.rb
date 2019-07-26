@@ -10,14 +10,6 @@ require 'shoulda/matchers'
 require 'database_cleaner'
 require 'capybara/rails'
 require 'capybara/rspec'
-require 'factory_bot_rails'
-
-
-FactoryGirl.definition_file_paths = [
-  File.expand_path(File.join(File.dirname(__FILE__),'../../benefit_markets/spec/factories')),
-  File.expand_path(File.join(File.dirname(__FILE__),'dummy/spec/factories'))
-]
-# FactoryGirl.find_definitions
 
 # Shoulda::Matchers.configure do |config|
 #   config.integrate do |with|
@@ -73,7 +65,7 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 #  config.include ModelMatcherHelpers, :type => :model
-  config.include Mongoid::Matchers, type: :model
+  # config.include Mongoid::Matchers, type: :model
   config.include Devise::TestHelpers, :type => :controller
   config.include Devise::TestHelpers, :type => :view
   config.include FactoryGirl::Syntax::Methods

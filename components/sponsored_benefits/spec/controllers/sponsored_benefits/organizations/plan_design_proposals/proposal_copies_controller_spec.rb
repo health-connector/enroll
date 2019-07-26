@@ -13,7 +13,7 @@ module SponsoredBenefits
       it "should return a success response" do
         person.broker_role.update_attributes(broker_agency_profile_id: plan_design_organization.owner_profile_id)
         sign_in user_with_broker_role
-        post :create, params: {plan_design_proposal_id: plan_design_proposal.id.to_s}
+        post :create, {plan_design_proposal_id: plan_design_proposal.id.to_s}
         plan_design_census_employee
         expect(flash[:success]).to eq "Proposal successfully copied"
       end

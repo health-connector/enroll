@@ -1,7 +1,7 @@
 require 'rails_helper'
 require "#{SponsoredBenefits::Engine.root}/spec/shared_contexts/sponsored_benefits"
 
-RSpec.describe SponsoredBenefits::Services::GeneralAgencyManager do
+RSpec.describe SponsoredBenefits::Services::GeneralAgencyManager, :if => (Settings.site.key == :dc) do
   include_context "set up broker agency profile for BQT, by using configuration settings"
 
   let(:subject) { SponsoredBenefits::Services::GeneralAgencyManager.new(form)}

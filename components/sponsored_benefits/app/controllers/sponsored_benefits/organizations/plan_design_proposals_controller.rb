@@ -207,7 +207,8 @@ module SponsoredBenefits
     def load_profile
       @profile = ::BrokerAgencyProfile.find(params[:profile_id]) || ::GeneralAgencyProfile.find(params[:profile_id])
       @profile ||= BenefitSponsors::Organizations::Profile.find(params[:profile_id])
-      @provider = provider
+      # find out why we need this
+      # @provider = provider
     end
   end
 end

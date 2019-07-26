@@ -3,7 +3,7 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
     if Settings.aca.state_abbreviation == "DC"
       nil
     else
-      FactoryGirl.create(:rating_area, zip_code: ofice_location.address.zip, county_name: ofice_location.address.county)
+      FactoryGirl.create(:benefit_markets_locations_rating_area)
     end
   end
 

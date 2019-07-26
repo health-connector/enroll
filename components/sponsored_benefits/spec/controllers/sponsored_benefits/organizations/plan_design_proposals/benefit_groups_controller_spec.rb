@@ -27,13 +27,13 @@ module SponsoredBenefits
         "4" =>{"relationship"=>"child_26_and_over", "premium_pct"=>"0", "offered"=>"false"}
       }
     }
-    
+
     describe "POST #create" do
       before do
         benefit_application.benefit_groups.delete_all
         sign_in user_with_broker_role
         person.broker_role.update_attributes(broker_agency_profile_id: plan_design_organization.owner_profile_id)
-        post :create, params: {plan_design_proposal_id: plan_design_proposal.id, benefit_group: attrs}
+        post :create, {plan_design_proposal_id: plan_design_proposal.id, benefit_group: attrs}
       end
 
       it "should be success" do
@@ -50,7 +50,7 @@ module SponsoredBenefits
       before do
         sign_in user_with_broker_role
         person.broker_role.update_attributes(broker_agency_profile_id: plan_design_organization.owner_profile_id)
-        delete :destroy, params: {plan_design_proposal_id: plan_design_proposal.id, id: benefit_group.id, benefit_group: {kind: 'dental'}}
+        delete :destroy, {plan_design_proposal_id: plan_design_proposal.id, id: benefit_group.id, benefit_group: {kind: 'dental'}}
       end
 
       it "redirects to new_organizations_plan_design_proposal_plan_selection_path" do

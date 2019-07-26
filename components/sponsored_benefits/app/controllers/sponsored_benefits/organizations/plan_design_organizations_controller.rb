@@ -80,7 +80,8 @@ module SponsoredBenefits
 
     def load_broker_agency_profile
       @broker_agency_profile = ::BrokerAgencyProfile.find(params[:broker_agency_id]) || BenefitSponsors::Organizations::Profile.find(params[:broker_agency_id])
-      @provider = @broker_agency_profile.primary_broker_role.person
+      # TODO: Whats true purpose of this provider variable
+      # @provider = @broker_agency_profile.primary_broker_role.person
     end
 
     def init_organization(params={})

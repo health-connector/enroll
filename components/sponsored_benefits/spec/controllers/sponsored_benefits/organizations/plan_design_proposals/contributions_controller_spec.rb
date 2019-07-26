@@ -123,7 +123,7 @@ module SponsoredBenefits
     it 'finished in under 10 seconds' do
       Caches::PlanDetails.load_record_cache! if Caches::PlanDetails.respond_to? :load_record_cache!
       expect do
-        get :index, params: {
+        get :index, {
           plan_design_proposal_id: plan_design_proposal.id,
           benefit_group: {
             reference_plan_id: benefit_group.reference_plan_id.to_s,

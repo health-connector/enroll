@@ -31,13 +31,9 @@ module BenefitSponsors
       ]
 
 
-      belongs_to  :site, inverse_of: :site_organizations, counter_cache: true,
-        class_name: "BenefitSponsors::Site",
-        optional: true
+      belongs_to  :site, inverse_of: :site_organizations, counter_cache: true, class_name: "BenefitSponsors::Site"
 
-      belongs_to  :site_owner, inverse_of: :owner_organization,
-                  class_name: "BenefitSponsors::Site",
-                  optional: true
+      belongs_to  :site_owner, inverse_of: :owner_organization, class_name: "BenefitSponsors::Site"
 
       embeds_many :profiles,
                   class_name: "BenefitSponsors::Organizations::Profile", cascade_callbacks: true

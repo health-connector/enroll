@@ -13,7 +13,7 @@ class SponsoredBenefits::Services::PlanCostService
   end
 
   def reference_plan
-    if plan & plan.dental? && @benefit_group & @benefit_group.dental_reference_plan_id.present?
+    if plan.try(:dental?) && @benefit_group.try(:dental_reference_plan_id)
       @dental_reference_plan ||= Plan.find(@benefit_group.dental_reference_plan_id)
     else
       @reference_plan ||= Plan.find(@reference_plan_id)

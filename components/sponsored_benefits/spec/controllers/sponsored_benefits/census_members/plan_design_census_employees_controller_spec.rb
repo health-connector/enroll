@@ -39,7 +39,7 @@ module SponsoredBenefits
 
       it "returns a success response" do
         sign_in user_with_broker_role
-        get :index, params: { plan_design_proposal_id: plan_design_proposal.id }
+        get :index, { plan_design_proposal_id: plan_design_proposal.id }
         expect(response).to be_successful
       end
     end
@@ -53,7 +53,7 @@ module SponsoredBenefits
 
       it "returns a success response" do
         sign_in user_with_broker_role
-        get :show, params: {plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param}
+        get :show, {plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param}
         expect(response).to be_successful
       end
     end
@@ -67,7 +67,7 @@ module SponsoredBenefits
 
       it "returns a success response" do
         sign_in user_with_broker_role
-        get :new, xhr: true, params: {plan_design_proposal_id: plan_design_proposal.id}
+        xhr :get, :new, {plan_design_proposal_id: plan_design_proposal.id}, format: :js
         expect(assigns(:census_employee)).to be_a(SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee)
         expect(response).to be_successful
         expect(response).to render_template('new')
@@ -76,7 +76,7 @@ module SponsoredBenefits
       context "upload" do
         it "returns a success response" do
           sign_in user_with_broker_role
-          get :new, xhr: true, params: { plan_design_proposal_id: plan_design_proposal.id, modal: "upload"}
+          xhr :get, :new, {plan_design_proposal_id: plan_design_proposal.id, modal: "upload"}, format: :js
           expect(assigns(:census_employee)).to be_a(SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee)
           expect(response).to be_successful
           expect(response).to render_template('upload_employees')
@@ -93,7 +93,7 @@ module SponsoredBenefits
 
       it "returns a success response" do
         sign_in user_with_broker_role
-        get :edit, xhr: true, params: {plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param}
+        xhr :get, :edit, {plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param}, format: :js
         expect(assigns(:census_employee)).to eq plan_design_census_employee
         expect(response).to be_successful
         expect(response).to render_template('edit')
@@ -118,13 +118,13 @@ module SponsoredBenefits
 
         it "creates a new CensusMembers::PlanDesignCensusEmployee" do
           sign_in user_with_broker_role
-          post :create, params: {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
+          post :create, {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
           expect(response).to redirect_to "http://test.host"
         end
 
         it "creates a new CensusMembers::PlanDesignCensusEmployee with dependents" do
           sign_in user_with_broker_role
-          post :create, params: {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
+          post :create, {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
           census_employee = CensusMembers::PlanDesignCensusEmployee.last
           expect(census_employee.census_dependents.size).to eq 2
           spouse = census_employee.census_dependents.detect {|cd| cd.employee_relationship == 'spouse'}
@@ -141,7 +141,7 @@ module SponsoredBenefits
           edit_url = edit_organizations_plan_design_organization_plan_design_proposal_path(plan_design_org, plan_proposal)
           request.env["HTTP_REFERER"] = edit_url
           sign_in user_with_broker_role
-          post :create, params: {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
+          post :create, {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
           expect(flash[:success]).to eq "Employee record created successfully."
           expect(response).to redirect_to edit_url
         end
@@ -156,7 +156,7 @@ module SponsoredBenefits
           it "returns a success response (i.e. to display the 'new' template)" do
             sign_in user_with_broker_role
             valid_attributes["dob"] = nil
-            post :create, params: {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
+            post :create, {plan_design_proposal_id: plan_design_proposal.id, census_members_plan_design_census_employee: valid_attributes}
             expect(flash[:error]).to eq "Unable to create employee record. [\"Dob can't be blank\", \"Dob can't be blank\"]"
 
             expect(response).to redirect_to "http://test.host"
@@ -175,14 +175,14 @@ module SponsoredBenefits
         sign_in user_with_broker_role
         plan_design_census_employee = CensusMembers::PlanDesignCensusEmployee.create! valid_attributes
         expect {
-          delete :destroy, params: {plan_design_proposal_id: plan_design_proposal.id.to_s, id: plan_design_census_employee.id.to_s, format: :js}
+          delete :destroy, {plan_design_proposal_id: plan_design_proposal.id.to_s, id: plan_design_census_employee.id.to_s, format: :js}
         }.to change(CensusMembers::PlanDesignCensusEmployee, :count).by(-1)
       end
 
       it "redirects to the census_members_plan_design_census_employees list" do
         sign_in user_with_broker_role
         plan_design_census_employee = CensusMembers::PlanDesignCensusEmployee.create! valid_attributes
-        delete :destroy, params: { plan_design_proposal_id: plan_design_proposal.id.to_s, id: plan_design_census_employee.id.to_s, format: :js}
+        delete :destroy, { plan_design_proposal_id: plan_design_proposal.id.to_s, id: plan_design_census_employee.id.to_s, format: :js}
         expect(response.code).to eq "200"
       end
     end
@@ -221,7 +221,7 @@ module SponsoredBenefits
         context "when dependent added" do
           it "should add dependents" do
             expect(census_employee.census_dependents).to be_empty
-            put :update, xhr: true, params: {plan_design_proposal_id: praposal.id.to_s, :id => census_employee.id.to_s, :census_members_plan_design_census_employee => new_attributes.merge(census_dependents_attributes: census_dependents_attributes)}
+            xhr :put, :update, {plan_design_proposal_id: praposal.id.to_s, :id => census_employee.id.to_s, :census_members_plan_design_census_employee => new_attributes.merge(census_dependents_attributes: census_dependents_attributes)}, format: :js
             census_employee.reload
             expect(census_employee.census_dependents.size).to eq 2
             expect(response).to be_successful
@@ -237,10 +237,18 @@ module SponsoredBenefits
               "0" => {"id" => spouse.id.to_s, "first_name" => "Lara", "middle_name" => "", "last_name" => "Chan", "dob" => "1979-12-01", "employee_relationship" => "spouse", "ssn" => "", "_destroy" => "false"},
               "1" => {"id" => child.id.to_s}
           }}
+          let(:plan_design_ce_params) {new_attributes.merge(census_dependents_attributes: delete_dependents_attributes)}
+          let(:drop_dep_params) do
+            {
+              plan_design_proposal_id: plan_design_proposal.id,
+              id: census_employee.to_param,
+              census_members_plan_design_census_employee: plan_design_ce_params
+            }
+          end
 
           it "should drop dependents" do
             expect(census_employee.census_dependents.size).to eq 2
-            put :update, xhr: true, params: {plan_design_proposal_id: plan_design_proposal.id, :id => census_employee.to_param, :census_members_plan_design_census_employee => new_attributes.merge(census_dependents_attributes: delete_dependents_attributes)}
+            xhr :put, :update, drop_dep_params, format: :js
             census_employee.reload
             expect(census_employee.census_dependents.size).to eq 1
             expect(census_employee.census_dependents.detect {|cd| cd.employee_relationship == 'child_under_26'}).to be_nil
@@ -268,7 +276,7 @@ module SponsoredBenefits
           }}
 
           it "should update employee and dependents information" do
-            put :update, xhr: true, params: {plan_design_proposal_id: praposal.id, :id => census_employee.to_param, :census_members_plan_design_census_employee => updated_attributes}
+            xhr :put, :update, {plan_design_proposal_id: praposal.id, :id => census_employee.to_param, :census_members_plan_design_census_employee => updated_attributes}, format: :js
             census_employee.reload
             expect((census_employee.email.attributes.to_a & updated_attributes["email_attributes"].to_a).to_h).to eq updated_attributes["email_attributes"]
             expect((census_employee.address.attributes.to_a & updated_attributes["address_attributes"].to_a).to_h).to eq updated_attributes["address_attributes"]
