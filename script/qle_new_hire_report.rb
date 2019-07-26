@@ -30,7 +30,7 @@ def get_plan_details(enrollment, employer)
   data = [
     employer.legal_name,
     employer.fein,
-    enrollment.benefit_package.start_on.strftime("%m/%d/%Y"),
+    enrollment.benefit_group.start_on.strftime("%m/%d/%Y"),
     enrollment.hbx_id,
     enrollment.time_of_purchase.strftime("%m/%d/%Y"),
     enrollment.effective_on.strftime("%m/%d/%Y"),
@@ -149,40 +149,40 @@ CSV.open("#{Rails.root.to_s}/sep_newhire_enrollment_report.csv", "w") do |csv|
   puts "Found #{families.size} families in the system"
 
   families.each do |family|
-    begin
-      count += 1
-      if count % 100 == 0
-        puts "process #{count}"
-      end
+    count += 1
+    if count % 100 == 0
+      puts "process #{count}"
+    end
 
-      active_enrollments = family.active_household.hbx_enrollments.where(sep_query_expression)
-      next if active_enrollments.blank?
+    active_enrollments = family.active_household.hbx_enrollments.where(sep_query_expression)
+    next if active_enrollments.blank?
 
-      active_enrollments.each do |enrollment|
-        employer = enrollment.employer_profile
+    active_enrollments.each do |enrollment|
+      employer = enrollment.benefit_group.plan_year.employer_profile
 
-          data = get_plan_details(enrollment, employer)
+      begin
+        data = get_plan_details(enrollment, employer)
 
-          next if enrollment.hbx_enrollment_members.blank?
+        next if enrollment.hbx_enrollment_members.blank?
 
-          primary_member = enrollment.hbx_enrollment_members.detect{|member| member == enrollment.subscriber }
-          primary_member = enrollment.hbx_enrollment_members.first if primary_member.blank?
+        primary_member = enrollment.hbx_enrollment_members.detect{|member| member == enrollment.subscriber }
+        primary_member = enrollment.hbx_enrollment_members.first if primary_member.blank?
 
 
-          data += get_member_details(primary_member, enrollment)
+        data += get_member_details(primary_member, enrollment)
 
-          enrollment.hbx_enrollment_members.each do |enrollment_member|
-            if enrollment_member == primary_member
-              data
-            else
-              data += get_member_details(enrollment_member, enrollment)
-            end
+        enrollment.hbx_enrollment_members.each do |enrollment_member|
+          if enrollment_member == primary_member
+            data
+          else
+            data += get_member_details(enrollment_member, enrollment)
           end
+        end
 
-          csv << data
+        csv << data
+      rescue Exception => e
+        puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
       end
-    rescue Exception => e
-      puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
     end
   end
 
@@ -190,42 +190,41 @@ CSV.open("#{Rails.root.to_s}/sep_newhire_enrollment_report.csv", "w") do |csv|
   puts "Found #{families.size} families in the system"
 
   families.each do |family|
-    begin
-      count += 1
-      if count % 100 == 0
-        puts "process #{count}"
-      end
+    count += 1
+    if count % 100 == 0
+      puts "process #{count}"
+    end
 
-      active_enrollments = family.active_household.hbx_enrollments.where(newhire_query_expression)
-      next if active_enrollments.blank?
+    active_enrollments = family.active_household.hbx_enrollments.where(newhire_query_expression)
+    next if active_enrollments.blank?
 
-      active_enrollments.each do |enrollment|
-        employer = enrollment.employer_profile
-        next unless enrollment.benefit_group_assignment.census_employee.new_hire_enrollment_period.cover?(enrollment.created_at)
+    active_enrollments.each do |enrollment|
+      employer = enrollment.benefit_group.plan_year.employer_profile
+      next unless enrollment.benefit_group_assignment.census_employee.new_hire_enrollment_period.cover?(enrollment.created_at)
 
-        
-          data = get_plan_details(enrollment, employer)
+      begin
+        data = get_plan_details(enrollment, employer)
 
-          next if enrollment.hbx_enrollment_members.blank?
+        next if enrollment.hbx_enrollment_members.blank?
 
-          primary_member = enrollment.hbx_enrollment_members.detect{|member| member == enrollment.subscriber }
-          primary_member = enrollment.hbx_enrollment_members.first if primary_member.blank?
+        primary_member = enrollment.hbx_enrollment_members.detect{|member| member == enrollment.subscriber }
+        primary_member = enrollment.hbx_enrollment_members.first if primary_member.blank?
 
 
-          data += get_member_details(primary_member, enrollment)
+        data += get_member_details(primary_member, enrollment)
 
-          enrollment.hbx_enrollment_members.each do |enrollment_member|
-            if enrollment_member == primary_member
-              data
-            else
-              data += get_member_details(enrollment_member, enrollment)
-            end
+        enrollment.hbx_enrollment_members.each do |enrollment_member|
+          if enrollment_member == primary_member
+            data
+          else
+            data += get_member_details(enrollment_member, enrollment)
           end
+        end
 
         csv << data
+      rescue Exception => e
+        puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
       end
-    rescue Exception => e
-      puts "bad enrollment #{e.to_s} #{enrollment.hbx_id}"
     end
   end
 end
