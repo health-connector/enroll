@@ -46,7 +46,6 @@ module BenefitSponsors
         bas = benefit_sponsorship.benefit_applications
         term_pending_bas = bas.any_in(aasm_state: :termination_pending)
         if term_pending_bas.present?
-          binding.pry
           can_create_draft_for_tp?(term_pending_bas, form) ? false : true
         else
           bas.active_states_per_dt_action.present? || bas.draft.present?
