@@ -46,6 +46,7 @@ module BenefitSponsors
         bas = benefit_sponsorship.benefit_applications
         term_pending_bas = bas.any_in(aasm_state: :termination_pending)
         if term_pending_bas.present?
+          binding.pry
           can_create_draft_for_tp?(term_pending_bas, form) ? false : true
         else
           bas.active_states_per_dt_action.present? || bas.draft.present?
@@ -80,7 +81,7 @@ module BenefitSponsors
         applications_for_cancel += benefit_sponsorship.benefit_applications.enrollment_ineligible.to_a
         if admin_datatable_action
           applications_for_cancel += benefit_sponsorship.benefit_applications.enrolling.to_a
-          applications_for_cancel += benefit_sponsorship.benefit_applications.where(aasm_state: :enrollment_eligible)
+          applications_for_cancel += benefit_sponsorship.benefit_applications.enrollment_eligible.to_a
         end
         applications_for_cancel.each do |application|
           application.cancel! if application.may_cancel?
