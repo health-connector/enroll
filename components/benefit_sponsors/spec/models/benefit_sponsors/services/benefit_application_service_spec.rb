@@ -328,7 +328,7 @@ module BenefitSponsors
 
         context 'with no benefit applications' do
           it 'should return true and instance as ba succesfully created' do
-            benefit_sponsorship.benefit_applications.each { |ba| ba.destroy!}
+            benefit_sponsorship.benefit_applications.each(&:destroy!)
             set_bs_for_service(@form)
             @model_attrs = subject.form_params_to_attributes(@form)
             result = subject.create_or_cancel_draft_ba(@form, @model_attrs)
