@@ -325,6 +325,17 @@ module BenefitSponsors
             end
           end
         end
+
+        context 'with no benefit applications' do
+          it 'should return true and instance as ba succesfully created' do
+            benefit_sponsorship.benefit_applications.each { |ba| ba.destroy!}
+            set_bs_for_service(@form)
+            @model_attrs = subject.form_params_to_attributes(@form)
+            result = subject.create_or_cancel_draft_ba(@form, @model_attrs)
+            benefit_sponsorship.reload
+            expect(result).to eq [true, benefit_sponsorship.benefit_applications.last]
+          end
+        end
       end
 
       context 'not for admin_datatable_action' do
