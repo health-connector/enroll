@@ -15,6 +15,8 @@ module BenefitSponsors
       subject.find_benefit_sponsorship(ba_form)
     end
 
+    let(:current_year) { TimeKeeper.date_of_record.year }
+
     describe "constructor" do
       let(:benefit_sponser_ship) do
         double("BenefitSponsorship", { :benefit_market => "BenefitMarket",
@@ -96,11 +98,8 @@ module BenefitSponsors
           allow(benefit_application_factory).to receive(:validate).with(invalid_benefit_application).and_return false
           expect(invalid_application_form.valid?).to be_falsy
           expect(invalid_benefit_application.valid?).to be_falsy
-          # TODO: add expectations to match the errors instead of counts
-          # expect(invalid_application_form.errors.count).to eq 4
           service_obj = Services::BenefitApplicationService.new(benefit_application_factory)
           expect(service_obj.store(invalid_application_form, invalid_benefit_application)).to eq [false, nil]
-          # expect(invalid_application_form.errors.count).to eq 8
         end
       end
     end
@@ -166,7 +165,7 @@ module BenefitSponsors
       let(:create_ba_params) do
         {
           "start_on" => start_on, "end_on" => end_on, "fte_count" => "11",
-          "open_enrollment_start_on" => "01/15/2019", "open_enrollment_end_on" => "01/20/2019",
+          "open_enrollment_start_on" => "01/15/#{current_year}", "open_enrollment_end_on" => "01/20/#{current_year}",
           "benefit_sponsorship_id" => benefit_sponsorship.id.to_s
         }
       end
@@ -203,8 +202,8 @@ module BenefitSponsors
 
         context 'with overlapping coverage exists' do
           it 'should return false as dt active state exists for one of the bas' do
-            create_ba_params['start_on'] = '1/1/2019'
-            ba.update_attributes!(:effective_period => @form.start_on.to_date.prev_month..@form.start_on.to_date)
+            ba.update_attributes!(:effective_period => (Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30)))
+            create_ba_params['start_on'] = "1/1/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_falsy
@@ -213,16 +212,18 @@ module BenefitSponsors
 
         context 'with no overlapping coverage' do
           it 'should return false as dt active state exists for one of the bas' do
-            ba.update_attributes!(:effective_period => @form.start_on.to_date.prev_month..@form.start_on.to_date.prev_day)
+            create_ba_params['start_on'] = "1/1/#{current_year}"
+            @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
+            ba.update_attributes!(:effective_period => (Date.new(current_year - 2, 7, 1)..Date.new(current_year - 1, 6, 30)))
             fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_truthy
           end
 
           it 'should return false as dt active state exists for one of the bas' do
-            create_ba_params['start_on'] = '10/1/2019'
-            form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
-            ba.update_attributes!(:effective_period => (Date.new(2018, 7, 1)..Date.new(2019, 6, 30)))
-            fetch_bs_for_service(form)
+            create_ba_params['start_on'] = "10/1/#{current_year}"
+            @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
+            ba.update_attributes!(:effective_period => (Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30)))
+            fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_truthy
           end
         end
@@ -241,11 +242,11 @@ module BenefitSponsors
         bs.save!
         bs
       end
-      let(:effective_period) { Date.new(2019, 2, 1)..Date.new(2020, 1,31) }
+      let(:effective_period) { Date.new(current_year, 2, 1)..Date.new(current_year + 1, 1,31) }
       let(:create_ba_params) do
         {
           "start_on" => effective_period.min.to_s, "end_on" => effective_period.max.to_s, "fte_count" => "11",
-          "open_enrollment_start_on" => "01/15/2019", "open_enrollment_end_on" => "01/20/2019",
+          "open_enrollment_start_on" => "01/15/#{current_year}", "open_enrollment_end_on" => "01/20/#{current_year}",
           "benefit_sponsorship_id" => benefit_sponsorship.id.to_s
         }
       end
@@ -290,7 +291,6 @@ module BenefitSponsors
         end
 
         context 'with dt active state' do
-          # let!(:ba2) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
 
           it 'should return true and instance as ba succesfully created' do
             ba2.update_attribute(:aasm_state, :active)
@@ -363,11 +363,11 @@ module BenefitSponsors
 
       let(:create_ba_params) do
         {
-          "start_on" => "02/01/2019",
-          "end_on" => "01/31/2020",
+          "start_on" => "02/01/#{current_year}",
+          "end_on" => "01/31/#{current_year + 1}",
           "fte_count" => "11",
-          "open_enrollment_start_on" => "01/15/2019",
-          "open_enrollment_end_on" => "01/20/2019",
+          "open_enrollment_start_on" => "01/15/#{current_year}",
+          "open_enrollment_end_on" => "01/20/#{current_year}",
           "benefit_sponsorship_id" => benefit_sponsorship.id.to_s
         }
       end
@@ -393,21 +393,5 @@ module BenefitSponsors
         end
       end
     end
-
-    # describe ".publish" do
-    #   let(:benefit_sponsorship) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_full_package)}
-    #   let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
-    #   let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id ) }
-    #   let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
-    #
-    #   context "has to publish and " do
-    #     it "Should validate " do
-    #       allow(benefit_sponsorship.profile).to receive(:is_primary_office_local?).and_return true
-    #       subject.publish(benefit_application_form)
-    #
-    #
-    #     end
-    #   end
-    # end
   end
 end
