@@ -175,11 +175,11 @@ module BenefitSponsors
       end
 
       #for existing active states in as per active_states_per_dt_action
-      [:draft, :active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :binder_paid].each do |active_state|
+      [:draft, :active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :binder_paid, :suspended, :terminated, :canceled, :expired].each do |active_state|
         context 'with dt active state' do
           let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: active_state) }
 
-          it 'should return false as dt active state exists for one of the bas' do
+          it 'should return true as dt active state exists for one of the bas' do
             fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_truthy
           end
@@ -187,7 +187,7 @@ module BenefitSponsors
       end
 
       #for existing non active states in as per active_states_per_dt_action
-      [:terminated, :canceled, :suspended].each do |non_active_state|
+      [:approved, :denied, :enrollment_extended].each do |non_active_state|
         context 'for benefit applications in non active states' do
           let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: non_active_state) }
           it 'should return true as no bas has dt active state' do
@@ -211,7 +211,7 @@ module BenefitSponsors
         end
 
         context 'with no overlapping coverage' do
-          it 'should return false as dt active state exists for one of the bas' do
+          it 'should return true as dt active state exists for one of the bas' do
             create_ba_params['start_on'] = "1/1/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             ba.update_attributes!(:effective_period => (Date.new(current_year - 2, 7, 1)..Date.new(current_year - 1, 6, 30)))
@@ -219,7 +219,7 @@ module BenefitSponsors
             expect(subject.can_create_draft_ba?(@form)).to be_truthy
           end
 
-          it 'should return false as dt active state exists for one of the bas' do
+          it 'should return true as dt active state exists for one of the bas' do
             create_ba_params['start_on'] = "10/1/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             ba.update_attributes!(:effective_period => (Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30)))
@@ -290,6 +290,21 @@ module BenefitSponsors
           end
         end
 
+        [:draft, :suspended, :terminated, :canceled, :expired].each do |active_state|
+          let!(:ba) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship, aasm_state: :draft) }
+
+          context 'with dt in draft and terminated states' do
+            it 'should return true and instance as ba succesfully created' do
+              ba2.update_attribute(:aasm_state, active_state)
+              fetch_bs_for_service(@form)
+              @model_attrs = subject.form_params_to_attributes(@form)
+              result = subject.create_or_cancel_draft_ba(@form, @model_attrs)
+              benefit_sponsorship.reload
+              expect(result).to eq [true, benefit_sponsorship.benefit_applications.last]
+            end
+          end
+        end
+
         context 'with dt active state' do
 
           it 'should return true and instance as ba succesfully created' do
@@ -311,7 +326,7 @@ module BenefitSponsors
           end
         end
 
-        [:terminated, :canceled, :suspended].each do |non_active_state|
+        [:approved, :denied, :enrollment_extended].each do |non_active_state|
           context 'with dt not in active states' do
 
             before do
