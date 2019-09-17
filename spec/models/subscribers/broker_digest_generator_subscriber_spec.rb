@@ -2,15 +2,6 @@
 
 require "rails_helper"
 
-describe Subscribers::BrokerDigestGeneratorSubscriber, "with an event subscription" do
-
-  subject { Subscribers::BrokerDigestGeneratorSubscriber }
-
-  it "listens for the correct event" do
-    expect(subject.subscription_details).to eq(["acapi.info.events.broker.generate_broker_xml"])
-  end
-end
-
 describe Subscribers::BrokerDigestGeneratorSubscriber, "given active broker exists" do
   let(:broker_agency_organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization,:with_site,:with_broker_agency_profile)}
   let!(:broker_agency_profile) { broker_agency_organization.broker_agency_profile }
@@ -27,7 +18,8 @@ describe Subscribers::BrokerDigestGeneratorSubscriber, "given active broker exis
         expect(hash[:return_status]).to eq "200"
         expect(hash[:body]).to eq subject.instance_variable_get(:@body)
       end
-      subject.call(nil, nil, nil, nil, {})
+      return_status = subject.work_with_params(nil, nil, {})
+      expect(return_status).to eq :ack
     end
   end
 end
