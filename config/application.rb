@@ -69,7 +69,7 @@ module Enroll
       config.acapi.add_async_subscription("Subscribers::EmployeeRenewalInvitationsSubscriber")
       config.acapi.add_amqp_worker("TransportProfiles::Subscribers::TransportArtifactSubscriber")
       config.acapi.add_async_subscription("Notifier::NotificationSubscriber")
-      config.acapi.add_async_subscription("Subscribers::BrokerDigestGeneratorSubscriber")
+      config.acapi.add_amqp_worker("Subscribers::BrokerDigestGeneratorSubscriber")
     end
   end
 end
