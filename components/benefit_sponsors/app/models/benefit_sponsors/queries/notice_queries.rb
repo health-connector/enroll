@@ -49,7 +49,7 @@ module BenefitSponsors
           :"benefit_applications" => { 
             :$elemMatch => {
               :"aasm_state" => :enrollment_ineligible,
-              :"effective_period.max".lte => TimeKeeper.date_of_record
+              :"effective_period.max".gte => TimeKeeper.date_of_record
             }
           }
         })
