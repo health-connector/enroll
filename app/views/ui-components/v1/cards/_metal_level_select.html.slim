@@ -132,34 +132,39 @@ javascript:
 	var productsTotal;
 
   function radioSelected(element) {
-    setCircle(element)
-    disableNewPlanYearButton()
+    setCircle(element);
+    disableNewPlanYearButton();
     // Store radio title to localStorage
     selectedTitle = element.querySelector('a').innerText;
     localStorage.setItem("title",selectedTitle);
   }
 
   function setCircle(element) {
-		var items = document.querySelectorAll('#metal-level-select ul li')
-	
-		for (item of items) {
-			item.querySelector('i').classList.remove('fa-dot-circle');
+		var items = document.querySelectorAll('#metal-level-select ul li');
+
+		for (var i = 0; i < items.length; i ++) {
+      var li = items[i];
+			li.querySelector('i').classList.remove('fa-dot-circle');
 		}
+
 		// Sets radio icon to selected
 		setTimeout(function() {
-			if (element.closest('li').classList.contains('active')) {
-				element.querySelector('i').classList.add('fa-dot-circle')
+			if (element.classList.contains('active')) {
+				element.querySelector('i').classList.add('fa-dot-circle');
 			}
 		},200)
-		
+
     // Gets product option info
     productOptionKind = element.querySelector('a').dataset.name;
     // Sets kind to hidden input field for form submission
-    document.getElementById('ppKind').setAttribute('value', productOptionKind)
+    document.getElementById('ppKind').setAttribute('value', productOptionKind);
     document.getElementById('referencePlans').classList.add('hidden');
   }
 
   function getPlanInfo(element) {
+    if (element.tagName != 'INPUT') {
+      element = element.querySelector('input[type=radio]');
+    }
     var selectedRadio = element.value;
     var selectedName = element.dataset.name;
     filteredProducts = planOptions[productOptionKind][selectedName];
@@ -169,9 +174,9 @@ javascript:
       if (a.title > b.title) return 1;
       return 0;
     })
-    populateReferencePlans(filteredProducts)
-    setTempCL()
-    selectDefaultReferencePlan()
+    populateReferencePlans(filteredProducts);
+    setTempCL();
+    selectDefaultReferencePlan();
   }
 
   function populateReferencePlans(plans) {
@@ -185,36 +190,37 @@ javascript:
     var populatedReferencePlans = document.querySelectorAll("#yourAvailablePlans");
 
     if (populatedReferencePlans) {
-      for(rplans of populatedReferencePlans) {
-        rplans.remove()
+      for (var i = 0; i < populatedReferencePlans.length; i++) {
+        var rplans = populatedReferencePlans[i];
+        rplans.remove();
       }
     }
 
     // Build reference plans to be displayed in UI
-    for (plan of filteredProducts) {
+    for (var i = 0; i < filteredProducts.length; i++) {
+      var plan = filteredProducts[i];
       productsTotal = filteredProducts.length;
-      var div = document.createElement('div')
-      document.getElementById('yourPlanTotals').innerHTML = `<span class="pull-right mr-3">Displaying: <b>${filteredProducts.length} plans</b></span>`
-      div.setAttribute('id', 'yourAvailablePlans')
+      var div = document.createElement('div');
+      document.getElementById('yourPlanTotals').innerHTML = '<span class="pull-right mr-3">Displaying: <b>' + filteredProducts.length + ' plans</b></span>';
+      div.setAttribute('id', 'yourAvailablePlans');
         var network = "";
         if (plan.network_information)
-          network = `NETWORK NOTES <a data-toggle="tooltip" data-placement="top" data-container="body" title='${plan.network_information}'><i class="fas fa-question-circle"></i></a>`
+          network = 'NETWORK NOTES <a data-toggle="tooltip" data-placement="top" data-container="body" title="' + plan.network_information + '"><i class="fas fa-question-circle"></i></a>';
         div.innerHTML =
-        `<div class="col-xs-4 reference-plans">
-          <div class="col-xs-12 p0 mb-1">
-            <label class="container">
-              <p class="heading-text reference-plan-title mb-1"> ${plan.title}</p>
-              <span class="plan-label">Type:</span> <span class="rp-plan-info">${plan.product_type}</span><br>
-              <span class="plan-label">Carrier:</span> <span class="rp-plan-info">${plan.carrier_name}</span><br>
-              <span class="plan-label">Level:</span> <span class="rp-plan-info">${plan.metal_level_kind}</span><br>
-              <span class="plan-label">Network:</span> <span class="rp-plan-info">${network}</span><br>
-              <span class="plan-label mt-1 rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}">View Summary</span><br>
-              <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}">
-              <span class="checkmark"></span>
-            </label>
-          </div>
-        </div>
-        `
+        '<div class="col-xs-4 reference-plans">' +
+          '<div class="col-xs-12 p0 mb-1">' +
+            '<label class="container">' +
+              '<p class="heading-text reference-plan-title mb-1"> ' + plan.title + '</p>' +
+              '<span class="plan-label">Type:</span> <span class="rp-plan-info">' + plan.product_type + '</span><br>' +
+              '<span class="plan-label">Carrier:</span> <span class="rp-plan-info">' + plan.carrier_name + '</span><br>' +
+              '<span class="plan-label">Level:</span> <span class="rp-plan-info">' + plan.metal_level_kind + '</span><br>' +
+              '<span class="plan-label">Network:</span> <span class="rp-plan-info">' + plan.network + '</span><br>' +
+              '<span class="plan-label mt-1 rp-view-summary" onclick="viewSummary(this)" data-plan-title="' + plan.title + '" data-plan-id="' + plan.id + '">View Summary</span><br>' +
+              '<input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="' + plan.id + '" onclick="newContributionAmounts()" value="' + plan.id + '" data-plan-title="' + plan.title + '" data-plan-carrier="' + plan.carrier_name + '" data-plan-id="' + plan.id + '" data-plan-metal-level="' + plan.metal_level_kind + '" data-plan-type="' + plan.product_type + '" data-network="' + plan.network + '">' +
+              '<span class="checkmark"></span>' +
+            '</label>' +
+          '</div>' +
+        '</div>'
 
         document.getElementById('yourPlans').append(div);
     }
@@ -230,7 +236,8 @@ javascript:
     var element = document.getElementById('benefitFields');
     index = 0;
 
-    for (contribution of contributions) {
+    for (var i = 0; i < contributions.length; i++) {
+      var contribution = contributions[i];
       index += 1;
       var attrPrefix = 'benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][' + index + ']';
       var div = document.createElement('div')
@@ -259,7 +266,7 @@ javascript:
 			      </div>\
 			    </div>\
 			</div>'
-      element.append(div)
+      element.insertBefore(div, element.children[-1] || null)
     }
   }
 
@@ -512,8 +519,8 @@ javascript:
         document.getElementById('sbcLink').setAttribute('href', data[2])
 				var tr = document.createElement('tr');
 				var tbody = document.getElementById('modalSummaryData');
-				tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
-				tbody.appendChild(tr)
+				tr.innerHTML = '<td style="background-color:#f5f5f5">' + s.visit_type + '</td><td>' + s.copay_in_network_tier_1 + '</td><td>' + s.co_insurance_in_network_tier_1 + '</td>';
+				tbody.insertBefore(tr, tbody.children[-1] || null)
 				});
 			})
 			.then($('#viewSummaryModal').modal('show'))
@@ -530,8 +537,8 @@ javascript:
 	        document.getElementById('sbcLink').setAttribute('href', data[2])
 					var tr = document.createElement('tr');
 					var tbody = document.getElementById('modalSummaryData');
-					tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
-					tbody.appendChild(tr)
+					tr.innerHTML = '<td style="background-color:#f5f5f5">' + s.visit_type + '</td><td>' + s.copay_in_network_tier_1 + '</td><td>' + s.co_insurance_in_network_tier_1 + '</td>';
+					tbody.insertBefore(tr, tbody.children[-1] || null)
 					})
 				})
 				.then(document.getElementById('btnMoreDetails').innerHTML = "More Details")
@@ -543,8 +550,8 @@ javascript:
 					data[1].map((s)=> {
 					var tr = document.createElement('tr');
 					var tbody = document.getElementById('modalSummaryData');
-					tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
-					tbody.appendChild(tr)
+					tr.innerHTML = '<td style="background-color:#f5f5f5">' + s.visit_type + '</td><td>' + s.copay_in_network_tier_1 + '</td><td>' + s.co_insurance_in_network_tier_1 + '</td>';
+					tbody.insertBefore(tr, tbody.children[-1] || null)
 					})
 				})
 				.then(document.getElementById('btnMoreDetails').innerHTML = "Fewer Details")
@@ -555,7 +562,7 @@ javascript:
 	$('#viewSummaryModal').on('hidden.bs.modal', function (e) {
   	// Clears modal data on close
 		document.getElementById('modalSummaryData').innerHTML = '';
-		document.getElementById('btnMoreDetails').innerHTML = "More Details"
+		document.getElementById('btnMoreDetails').innerHTML = "More Details";
 	})
 
   function setTempCL() {
@@ -651,5 +658,5 @@ javascript:
 		(function() {
 		setTimeout(function() {
 			document.getElementById('submitBenefitPackage').innerHTML = "Save Plan Year";
-		},200)
+		},200);
 		})();
