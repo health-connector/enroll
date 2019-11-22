@@ -26,6 +26,8 @@ class Insured::EmployeeRolesController < ApplicationController
     @employee_candidate = Forms::EmployeeCandidate.new(@person_params)
     @person = @employee_candidate
     if @employee_candidate.valid?
+      # Person record with staff role exist
+      check_and_update_for_staff_role_person(@employee_candidate)
       @found_census_employees = @employee_candidate.match_census_employees.select{|census_employee| census_employee.is_active? }
       if @found_census_employees.empty?
         full_name = @person_params[:first_name] + " " + @person_params[:last_name]
@@ -221,6 +223,15 @@ class Insured::EmployeeRolesController < ApplicationController
     else
       current_user.last_portal_visited = search_insured_employee_index_path
       current_user.save!
+    end
+  end
+
+  def check_and_update_for_staff_role_person(employee_candiate)
+    # staff Role person record do not have SSN and Gender on it. but while building employee role
+    # we need those as part of validation on employee role
+    person = employee_candiate.match_person
+    if person.present? && (person.ssn.blank? || person.gender.blank?)
+      person.update_attributes(encrypted_ssn: CensusMember.encrypt_ssn(employee_candiate.ssn), gender:employee_candiate.gender) if person.has_active_employer_staff_role?
     end
   end
 end
