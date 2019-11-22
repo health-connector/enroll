@@ -1,3 +1,5 @@
+# bundle exec rake sbc:export
+# This is One Time Task & will not be needed after avoiding anonymization of keys while uploading SBC's (oR) with Doc Storage 
 require 'csv'
 
 namespace :sbc do
