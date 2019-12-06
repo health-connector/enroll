@@ -284,6 +284,17 @@ function setNumberInput(element) {
   document.querySelector(".cl-input-"+element.dataset.unitId).value = element.value;
 }
 
+function setPlanOptionKind(element) {
+  var productPackageKind = element.querySelector('a').dataset.name;
+  document.getElementById('sponsored_benefits_product_package_kind').value = productPackageKind;
+  if (productPackageKind == 'multi_product') {
+    document.querySelector('.select_choice_reference_plan').classList.remove("hidden");
+  }
+  else {
+    document.querySelector('.select_choice_reference_plan').classList.add("hidden");
+  }
+}
+
 export const MetalLevelSelect = {
   disableDentalBenefitPackage: disableDentalBenefitPackage,
   enableNewAddBenefitPackageButton: enableNewAddBenefitPackageButton,
