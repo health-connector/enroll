@@ -12,6 +12,8 @@ class ChangeEnrollmentDetails < MongoidMigrationTask
         revert_termination(enrollments)
       when "terminate"
         terminate_enrollment(enrollments)
+      when "termination_pending"
+        termination_pending(enrollments)
       when "revert_cancel"
         # When Enrollment with given policy ID is active in Glue & canceled in Enroll(Mostly you will see this with passive enrollments)
         revert_cancel(enrollments)
@@ -96,7 +98,6 @@ class ChangeEnrollmentDetails < MongoidMigrationTask
       enrollment.hbx_enrollment_members.each {|mem| mem.update_attributes!(coverage_end_on: nil)}
       puts "Reverted Enrollment termination" unless Rails.env.test?
     end
-
   end
 
   def terminate_enrollment(enrollments)
@@ -105,7 +106,14 @@ class ChangeEnrollmentDetails < MongoidMigrationTask
       enrollment.update_attributes!(terminated_on: terminated_on, aasm_state: "coverage_terminated")
       puts "terminate enrollment on #{terminated_on}" unless Rails.env.test?
     end
+  end
 
+  def termination_pending(enrollments)
+    terminated_on = Date.strptime(ENV['terminated_on'].to_s, "%m/%d/%Y")
+    enrollments.each do |enrollment|
+      enrollment.update_attributes!(terminated_on: terminated_on, aasm_state: "coverage_termination_pending")
+      puts "terminate enrollment on #{terminated_on}" unless Rails.env.test?
+    end
   end
 
   def revert_cancel(enrollments)

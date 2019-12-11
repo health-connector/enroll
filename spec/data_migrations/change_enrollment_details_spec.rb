@@ -111,14 +111,34 @@ describe ChangeEnrollmentDetails do
         hbx_enrollment.reload
       end
 
-      shared_examples_for "termination" do |val, result|
+      shared_examples_for "terminate" do |val, result|
         it "should equals #{result}" do
           expect(actual_result(hbx_enrollment, val)).to eq result
         end
       end
 
-      it_behaves_like "termination", "aasm_state", "coverage_terminated"
-      it_behaves_like "termination", "terminated_on", Date.strptime("01/01/2016", "%m/%d/%Y")
+      it_behaves_like "terminate", "aasm_state", "coverage_terminated"
+      it_behaves_like "terminate", "terminated_on", Date.strptime("01/01/2016", "%m/%d/%Y")
+
+    end
+
+    context "move enrollment to termination pending with given termination date" do
+      before do
+        allow(ENV).to receive(:[]).with("hbx_id").and_return(hbx_enrollment.hbx_id)
+        allow(ENV).to receive(:[]).with("action").and_return "termination_pending"
+        allow(ENV).to receive(:[]).with("terminated_on").and_return "01/01/2016"
+        subject.migrate
+        hbx_enrollment.reload
+      end
+
+      shared_examples_for "termination_pending" do |val, result|
+        it "should equals #{result}" do
+          expect(actual_result(hbx_enrollment, val)).to eq result
+        end
+      end
+
+      it_behaves_like "termination_pending", "aasm_state", "coverage_termination_pending"
+      it_behaves_like "termination_pending", "terminated_on", Date.strptime("01/01/2016", "%m/%d/%Y")
 
     end
 
