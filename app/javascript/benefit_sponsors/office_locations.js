@@ -1,4 +1,4 @@
-export function checkOLKind(element) {
+function checkOLKind(element) {
   var addressKind = $(element).val();
   var row = $(element).closest(".row").next(".row").next(".row");
   if (addressKind == "primary") {
@@ -22,3 +22,7 @@ export function checkOLKind(element) {
     // },300)
   }
 }
+
+module.exports = {
+  checkOLKind: checkOLKind
+};

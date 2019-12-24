@@ -1,7 +1,5 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const environment = require('./environment');
-const webpack_environment = environment.toWebpackConfig();
+const environment = require('./environment')
 
-module.exports = webpack_environment;
+module.exports = environment.toWebpackConfig()
