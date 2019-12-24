@@ -3,7 +3,11 @@
     "@rails/webpacker": "3.4",
     "axios": "^0.18.0",
     "npm": "^6.0.0",
-    "stimulus": "^1.0.1"
+    "stimulus": "^1.0.1",
+    "classlist.js": "^1.1.20150312",
+    "custom-event-polyfill": "^1.0.7",
+    "isomorphic-fetch": "^2.2.1",
+    "web-animations-js": "^2.3.2"
   },
   "devDependencies": {
     "babel-jest": "^22.4.3",
