@@ -3,7 +3,8 @@
     "@rails/webpacker": "3.4",
     "axios": "^0.18.0",
     "npm": "^6.0.0",
-    "stimulus": "^1.0.1"
+    "stimulus": "^1.0.1",
+    "snyk": "^1.230.5"
   },
   "devDependencies": {
     "babel-jest": "^22.4.3",
@@ -17,7 +18,9 @@
   },
   "scripts": {
     "test": "jest",
-    "test-watch": "jest --watch"
+    "test-watch": "jest --watch",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "jest": {
     "roots": [
@@ -28,5 +31,6 @@
       "node_modules",
       "app/javascript/packs"
     ]
-  }
+  },
+  "snyk": true
 }
