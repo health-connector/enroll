@@ -25,12 +25,12 @@ module Effective
                       #cancel_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
                       ['Terminate Enrollment', terminate_enrollment_exchanges_hbx_profiles_path(family: row.id, family_actions_id: "family_actions_#{row.id.to_s}"), terminate_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
                       #terminate_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
-                      ['Change Enrollment End Date', view_enrollment_to_update_end_date_exchanges_hbx_profiles_path(family: row.id, person_id: row.primary_applicant.person.id, family_actions_id: "family_actions_#{row.id.to_s}"), update_terminated_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
+                      ['Change Enrollment End Date', view_enrollment_to_update_end_date_exchanges_hbx_profiles_path(family: row.id, person_id: row.primary_applicant.person.id, family_actions_id: "family_actions_#{row.id.to_s}"), update_terminated_enrollment_type(row, pundit_allow(HbxProfile, :can_update_enrollment_end_date?))],
                      ]
                       #this reinstate button is disabled for this project Ref#55048
                      if enrollments_reinstate_enabled?
                         dropdown += [
-                          ['Reinstate', view_terminated_hbx_enrollments_exchanges_hbx_profiles_path(family: row.id, person_id: row.primary_applicant.person.id, family_actions_id: "family_actions_#{row.id.to_s}"), reinstate_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
+                          ['Reinstate', view_terminated_hbx_enrollments_exchanges_hbx_profiles_path(family: row.id, person_id: row.primary_applicant.person.id, family_actions_id: "family_actions_#{row.id.to_s}"), reinstate_enrollment_type(row, pundit_allow(HbxProfile, :can_reinstate_enrollment?))],
                         ]
                      end
                      dropdown += [
