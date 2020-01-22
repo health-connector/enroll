@@ -36,9 +36,27 @@ module BenefitSponsors
         create_or_cancel_draft_ba(form, model_attributes)
       end
 
-      def can_create_draft_ba?
+      def has_an_active_ba?
         bas = benefit_sponsorship.benefit_applications
-        bas.active_states_per_dt_action.present? ? false : true
+        bas.active_states_per_dt_action.present? ? true : false
+      end
+
+      def can_create_draft_ba?(form)
+        bas = benefit_sponsorship.benefit_applications
+        term_pending_bas = bas.any_in(aasm_state: :termination_pending)
+        
+        if bas.blank?
+          true
+        elsif term_pending_bas.present?
+          can_create_draft_for_tp?(term_pending_bas, form) ? false : true
+        else
+          bas.active_states_per_dt_action.present? || bas.draft.present?
+        end
+      end
+
+      def can_create_draft_for_tp?(bas, form)
+        start_on_date = Date.strptime(form.start_on, "%m/%d/%Y")
+        bas.any? { |ba| ba.effective_period.cover?(start_on_date)}
       end
 
       def create_or_cancel_draft_ba(form, model_attributes)
