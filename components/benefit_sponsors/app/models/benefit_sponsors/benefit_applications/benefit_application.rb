@@ -261,7 +261,7 @@ module BenefitSponsors
     end
 
     def rate_schedule_date
-      if benefit_sponsorship.source_kind == :mid_plan_year_conversion && predecessor.blank?
+      if benefit_sponsorship.source_kind == :mid_plan_year_conversion && predecessor.blank? && (self.aasm_state != :terminated && self.end_on != (self.start_on.next_year - 1.day))
         end_on.prev_year + 1.day
       else
         start_on
@@ -736,6 +736,20 @@ module BenefitSponsors
           sponsorship.benefit_applications_by(id)
         end
       end
+    end
+
+    # Employee can plan shop only when application belong to following states.
+    def shoppable?
+      [
+        :enrollment_open,
+        :enrollment_extended,
+        :enrollment_closed,
+        :binder_paid,
+        :enrollment_eligible,
+        :active,
+        :expired,
+        :termination_pending
+      ].include?(aasm_state)
     end
 
     aasm do

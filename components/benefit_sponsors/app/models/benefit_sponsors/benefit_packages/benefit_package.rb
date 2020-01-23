@@ -37,6 +37,7 @@ module BenefitSponsors
       delegate :benefit_market, to: :benefit_application
       delegate :is_conversion?, to: :benefit_application
       delegate :is_renewing?,   to: :benefit_application
+      delegate :shoppable?,   to: :benefit_application
 
       validates_presence_of :title, :probation_period_kind, :is_default, :is_active #, :sponsored_benefits
 
@@ -202,7 +203,7 @@ module BenefitSponsors
       end
 
       def renew_employee_assignments
-        assigned_census_employees = predecessor.census_employees_assigned_on(predecessor.start_on)
+        assigned_census_employees = predecessor.eligible_assigned_census_employees(predecessor.start_on)
 
         assigned_census_employees.each do |census_employee|
           new_benefit_package_assignment = census_employee.benefit_package_assignment_on(start_on)
@@ -261,6 +262,7 @@ module BenefitSponsors
 
       def is_renewal_benefit_available?(enrollment)
         return true if (enrollment.present? && enrollment.is_coverage_waived?)
+        return false if enrollment.present? && enrollment.coverage_termination_pending?
         return false if enrollment.blank? || enrollment.product.blank? || enrollment.product.renewal_product.blank?
         sponsored_benefit = sponsored_benefit_for(enrollment.coverage_kind)
         sponsored_benefit.products(start_on).include?(enrollment.product.renewal_product)
@@ -291,7 +293,7 @@ module BenefitSponsors
         enrolled_families.each do |family|
           enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
 
-          sponsored_benefits.each do |sponsored_benefit|
+          sponsored_benefits.unscoped.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
             hbx_enrollment.expire_coverage! if hbx_enrollment && hbx_enrollment.may_expire_coverage?
           end
@@ -299,6 +301,7 @@ module BenefitSponsors
       end
  
       def terminate_member_benefits
+        terminate_benefit_group_assignments
         enrolled_and_terminated_families.each do |family|
           enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
           sponsored_benefits.each do |sponsored_benefit|
@@ -324,6 +327,7 @@ module BenefitSponsors
       end
 
       def termination_pending_member_benefits
+        terminate_benefit_group_assignments
         enrolled_families.each do |family|
           enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
 
@@ -435,6 +439,15 @@ module BenefitSponsors
         end
       end
 
+      def terminate_benefit_group_assignments
+        self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
+          benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
+          benefit_group_assignments.each do |benefit_group_assignment|
+            benefit_group_assignment.update(end_on: self.end_on)
+          end
+        end
+      end
+
       def deactivate
         self.update_attributes(is_active: false)
       end
@@ -453,8 +466,12 @@ module BenefitSponsors
         sponsored_benefit_for(:dental).present?
       end
 
+      def eligible_assigned_census_employees(effective_date, is_active = true)
+        CensusEmployee.by_benefit_package_and_assignment_on_or_later(self, effective_date, is_active).non_term_and_pending
+      end
+
       def census_employees_assigned_on(effective_date, is_active = true)
-        CensusEmployee.by_benefit_package_and_assignment_on(self, effective_date, is_active).non_terminated
+        CensusEmployee.by_benefit_package_and_assignment_on(self, effective_date, is_active).non_term_and_pending
       end
 
       def self.find(id)

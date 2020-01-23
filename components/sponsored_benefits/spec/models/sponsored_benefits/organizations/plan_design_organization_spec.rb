@@ -107,6 +107,21 @@ module SponsoredBenefits
         end
       end
 
+      describe ".valid_plan_design_organization" do
+        before do
+          allow_any_instance_of(SponsoredBenefits::BenefitApplications::PlanDesignProposalBuilder).to receive(:has_access?).and_return(true)
+          pdp = SponsoredBenefits::Organizations::PlanDesignProposal.new(claim_code: "123-123")
+          plan_design_organization.plan_design_proposals << pdp
+          allow(plan_design_organization).to receive(:valid?).and_return(false)
+        end
+
+        context "active plan year present" do
+          it "should return plan design proposal with renewal effective date and status" do
+            expect(plan_design_organization.valid_plan_design_organization).to eq [false, nil]
+          end
+        end
+      end
+
       describe ".build_proposal_from_existing_employer_profile" do
 
         before do
@@ -160,6 +175,28 @@ module SponsoredBenefits
             allow(SponsoredBenefits::Organizations::Organization).to receive(:by_broker_agency_profile).with("89769").and_return([organization])
             allow(organization).to receive(:employer_profile).and_return(employer_profile_with_out_ga)
             expect(plan_design_organization.general_agency_profile).to be_nil
+          end
+        end
+      end
+
+      describe "address update" do
+        let!(:organization) do
+          create(:sponsored_benefits_plan_design_organization,
+                 sponsor_profile_id: "1234",
+                 owner_profile_id: "5678",
+                 legal_name: "ABC Company",
+                 sic_code: "0345")
+        end
+
+        context "when new address passed" do
+          before do
+            organization.office_locations.first.address.city = 'Boston'
+            organization.save!
+            organization.reload
+          end
+
+          it "should update the address" do
+            expect(organization.office_locations.first.address.city).to eq 'Boston'
           end
         end
       end
