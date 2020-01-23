@@ -72,6 +72,9 @@ module BenefitApplicationWorld
                        recorded_rating_area: rating_area,
                        recorded_service_areas: [service_area],
                        package_kind: package_kind)
+    @new_application.benefit_sponsor_catalog.benefit_application = @new_application
+    @new_application.benefit_sponsor_catalog.save!
+    @new_application
   end
 
   def create_applications(predecessor_status: , new_application_status: )
@@ -184,4 +187,13 @@ end
 And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
   create_application(new_application_status: new_application_status.to_sym)
+end
+
+And(/(.*) is updated on benefit market catalog/) do |min_contribution_factor|
+  @benefit_market_catalog.product_packages.each do |product_package|
+    product_package.contribution_model.contribution_units.each do |contribution_unit|
+      contribution_unit.minimum_contribution_factor = min_contribution_factor
+    end
+  end
+  @benefit_market_catalog.save
 end
