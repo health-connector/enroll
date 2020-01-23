@@ -597,6 +597,96 @@ Then /^employer should see Bulk Actions$/ do
   expect(page).to have_content "Bulk Actions"
 end
 
+Then /^employer should see add plan year button$/ do
+  expect(page).to have_content "Add Plan Year"
+end
+
+And /^employer clicked on add plan year button$/ do
+  find("#AddPlanYearBtn").click
+end
+
+And(/^employer clicked on edit plan year button$/) do
+  find('.interaction-click-control-edit-plan-year').click
+end
+
+And(/^.+ should see a success message after clicking on save plan year button$/) do
+  expect(page).to have_content('Benefit Package successfully updated.')
+end
+
+Then /^employer should see continue button disabled$/ do
+  expect(find("#benefitContinueBtn")[:class].include?('disabled')).to eql true
+end
+
+And /^employer filled all the fields on benefit application form$/ do
+  find(:xpath, "/html/body/div[3]/div/div/div[2]/form/div/div/div/div/div[3]/div/div/div[1]/div/div[2]").click
+  find('li[data-index="1"]').click
+  fill_in 'benefit_application[fte_count]', with: 5
+  fill_in 'benefit_application[pte_count]', with: 5
+end
+
+And /^employer clicked on continue button$/ do
+  find("#benefitContinueBtn").click
+end
+
+Then(/^employer should see form for benefit application and benefit package$/) do
+  expect(page).to have_content 'Benefit Application Details'
+  expect(page).to have_content 'Benefit Package - Set Up'
+end
+
+Then(/^employer should see edit plan year button$/) do
+  expect(page).to have_content "Edit Plan Year"
+end
+
+And /^employer should see form for benefit package$/ do
+  expect(page).to have_content "Benefit Package - Set Up"
+end
+
+And /^employer filled all the fields on benefit package form$/ do
+  fill_in 'benefit_package[title]', with: "Benefit Package"
+  fill_in 'benefit_package[description]', with: "Benefit Package"
+end
+
+And /^employer selected by metal level plan offerings$/ do
+  find(".interaction-click-control-by-metal-level").click
+end
+
+Then /^employer should see gold metal level type$/ do
+  expect(page).to have_content("Gold")
+end
+
+And /^employer clicked on gold metal level$/ do
+  find("#benefit_package_sponsored_benefits_attributes_0_product_option_choice_gold", :visible => false).click
+end
+
+And(/^employer (.*) (.*) contribution percent for the application$/) do |create_or_edit_ba, contribution_percent|
+  fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][1][contribution_factor]", with: contribution_percent.to_i
+  fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][2][contribution_factor]", with: contribution_percent.to_i
+  fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][3][contribution_factor]", with: contribution_percent.to_i
+  if create_or_edit_ba == 'selected'
+    fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][4][contribution_factor]", with: contribution_percent.to_i
+  elsif create_or_edit_ba == 'updated'
+    fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][0][contribution_factor]", with: contribution_percent.to_i
+  end
+  find_all('input[data-displayname="Child Under 26"]')[0].send_keys(:tab)
+end
+
+Then /^employer should see create plan year button disabled$/ do
+  expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
+end
+
+Then /^employer should see your estimated montly cost$/ do
+  expect(page).to have_content("Your Estimated Monthly Cost")
+end
+
+And /^employer clicked on create plan year button$/ do
+  find("#submitBenefitPackage").click
+end
+
+Then /^employer should see a draft benefit application$/ do
+  expect(page).to have_content("Benefit Package")
+  expect(page).to have_content("Draft")
+end
+
 And /^clicks on terminate employee$/ do
   expect(page).to have_content 'Employee Roster'
   employees.first
@@ -727,6 +817,10 @@ end
 Then /^employer should not see termination date column$/ do
   wait_for_ajax
   expect(page).not_to have_content "Terminated On"
+end
+
+And(/^employer clicked on save plan year button$/) do
+  find("#submitBenefitPackage").click
 end
 
 Then /^they should see that employee's details$/ do
@@ -933,6 +1027,14 @@ Then /^employer should see Enter effective date for (.*?) Action/ do |action_nam
 
   find_by_id(id).visible?
   expect(page).to have_content(page_text)
+end
+
+And(/^employer should see that the create plan year is (.*)$/) do |plan_year_btn_enabled|
+  if plan_year_btn_enabled == 'true'
+    expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql false
+  else
+    expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
+  end
 end
 
 And(/^employer should see default cobra start date$/) do
