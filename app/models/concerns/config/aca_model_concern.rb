@@ -35,9 +35,6 @@ module Config::AcaModelConcern
     delegate :allow_mid_month_non_payment_terms?, to: :class
     delegate :enabled_metal_levels, to: :class
     delegate :offerings_constrained_to_service_areas?, to: :class
-    delegate :amnesty_enabled_for_bqt?, to: :class
-    delegate :hbx_shop_market_employer_contribution_percent_minimum, to: :class
-    delegate :shop_market_employer_contribution_percent_minimum, to: :class
   end
 
   class_methods do
@@ -88,6 +85,10 @@ module Config::AcaModelConcern
 
     def shop_market_employer_family_contribution_percent_minimum
       amnesty_enabled_for_bqt? ? hbx_shop_market_employer_family_contribution_percent_minimum : aca_shop_market_employer_family_contribution_percent_minimum
+    end
+
+    def aca_shop_market_transmit_scheduled_employers
+      @@aca_shop_market_transmit_scheduled_employers ||= Settings.aca.shop_market.transmit_scheduled_employers
     end
 
     def aca_shop_market_transmit_scheduled_employers
