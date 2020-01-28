@@ -16,7 +16,7 @@ function radioSelected(element) {
 
 function getPlanInfo(element) {
   let selectedName = element.dataset.name;
-  filteredProducts = planOptions[productOptionKind][selectedName];
+  let filteredProducts = planOptions[productOptionKind][selectedName];
   // Sort by plan title
   filteredProducts.sort(function(a,b) {
     if (a.title < b.title) return -1;
@@ -49,18 +49,18 @@ function populateReferencePlans(plans) {
 
   let referencePlanName;
   if (document.querySelector('input#sponsored_benefits_kind'))
-    referencePlanName = "sponsored_benefits[reference_plan_id]";
+    let referencePlanName = "sponsored_benefits[reference_plan_id]";
   else
-    referencePlanName = "benefit_package[sponsored_benefits_attributes][0][reference_plan_id]"
+    let referencePlanName = "benefit_package[sponsored_benefits_attributes][0][reference_plan_id]"
 
   // Build reference plans to be displayed in UI
   for (let i = 0; i < window.filteredProducts.length; i++) {
-    var plan = window.filteredProducts[i];
+    let plan = window.filteredProducts[i];
     window.productsTotal = window.filteredProducts.length;
-    var div = document.createElement('div');
+    let div = document.createElement('div');
     document.getElementById('yourPlanTotals').innerHTML = '<span class="pull-right mr-3">Displaying: <b>' + window.filteredProducts.length + ' plans</b></span>';
     div.setAttribute('id', 'yourAvailablePlans');
-      var network = "";
+      let network = "";
       if (plan.network_information)
         network = 'NETWORK NOTES <a data-toggle="tooltip" data-placement="top" data-container="body" title="' + plan.network_information + '"><i class="fas fa-question-circle"></i></a>';
       div.innerHTML =
@@ -93,7 +93,7 @@ function populateReferencePlans(plans) {
 function setCircle(element) {
   let items = document.querySelectorAll('#metal-level-select ul li');
 
-  for (var i = 0; i < items.length; i++) {
+  for (let i = 0; i < items.length; i++) {
     let li = items[i];
     li.querySelector('i').classList.remove('fa-dot-circle');
   }
@@ -117,8 +117,8 @@ function newContributionAmounts() {
   let contributionInputs = document.querySelectorAll("[data-contribution-input='true']")
   let contributionHandlers = document.querySelectorAll(".contribution_handler")
 
-  for (var i = 0; i < contributionInputs.length; i++) {
-    var element = contributionInputs[i];
+  for (let i = 0; i < contributionInputs.length; i++) {
+    let element = contributionInputs[i];
     switch (element.dataset.displayname) {
       case 'Employee':
         window.eeContribution = element.value;
@@ -158,12 +158,12 @@ function newContributionAmounts() {
       break;
     }
 
-    var tempLevels = JSON.stringify(window.tempContributionValues);
+    let tempLevels = JSON.stringify(window.tempContributionValues);
     localStorage.setItem("contributionLevels",tempLevels);
   }
 
   for (i = 0; i < contributionHandlers.length; i++) {
-    element = contributionHandlers[i];
+    let element = contributionHandlers[i];
     switch (element.dataset.displayname) {
       case 'Employee':
         if(!(element.checked)) {
@@ -237,7 +237,7 @@ function buildSponsorContributions(contributions) {
       attrPrefix = 'sponsored_benefits[sponsor_contribution_attributes][contribution_levels_attributes][' + index + ']';
     else
       attrPrefix = 'benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][' + index + ']';
-    var div = document.createElement('div');
+    let div = document.createElement('div');
     div.setAttribute('id', 'yourAvailableContributions');
     div.innerHTML =
     '<div class="row">\
@@ -295,7 +295,7 @@ function disableNewAddBenefitPackageButton() {
 function preventSubmissionOnEnter() {
   let newBenefitPackageSubmit = document.getElementById('new_benefit_package') || document.getElementById('new_sponsored_benefits');
   newBenefitPackageSubmit.onkeypress = function(e) {
-    var key = e.charCode || e.keyCode || 0;
+    let key = e.charCode || e.keyCode || 0;
     if (key == 13) {
       e.preventDefault();
     }
@@ -344,7 +344,7 @@ function displayReferencePlanDetails(element, options) {
   if(!(element || options)) {
     return
   }
-  options = options || {};
+  let options = options || {};
   let planTitle = options.planTitle || element.dataset.planTitle;
   let metalLevel = options.metalLevel || element.dataset.planMetalLevel;
   let carrierName = options.carrierName || element.dataset.planCarrier;

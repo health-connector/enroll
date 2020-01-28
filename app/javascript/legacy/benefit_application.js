@@ -4,6 +4,9 @@ function getCostDetails(min,max,cost) {
 }
 
 function showCostDetails(cost,min,max) {
+  let min = min;
+  let max = max;
+  let cost = cost;
   document.getElementById('rpEstimatedMonthlyCost').innerHTML = ('$ '+cost);
 
   if (min == 'NaN') {
@@ -29,7 +32,7 @@ function showCostDetails(cost,min,max) {
 }
 
 function showEmployeeCostDetails(employees_cost) {
-  var table = document.getElementById('eeTableBody');
+  let table = document.getElementById('eeTableBody');
   table.querySelectorAll('tr').forEach(function(element) {
     element.remove()
   });
@@ -38,9 +41,9 @@ function showEmployeeCostDetails(employees_cost) {
   //row.innerHTML = `Plan Offerings - <br/>Employer Lowest/Reference/Highest -`
   //modal.appendChild(row)
 
-  for (var employee in employees_cost) {
-    var tr = document.createElement('tr')
-    estimate = employees_cost[employee];
+  for (let employee in employees_cost) {
+    let tr = document.createElement('tr')
+    let estimate = employees_cost[employee];
     tr.innerHTML =
     `
       <td class="text-center">${estimate.name}</td>
@@ -54,9 +57,9 @@ function showEmployeeCostDetails(employees_cost) {
 }
 
 function debounceRequest(func, wait, immediate) {
-	var timeout;
+	let timeout;
 	return function() {
-		var context = this, args = arguments;
+		let context = this, args = arguments;
 		clearTimeout(timeout);
 		timeout = setTimeout(function() {
 			timeout = null;
@@ -68,8 +71,8 @@ function debounceRequest(func, wait, immediate) {
 
 
 function calculateEmployeeCostsImmediate(productOptionKind,referencePlanID, sponsoredBenefitId, referenceModel = "benefit_package")  {
-  var thing = $("input[name^='"+referenceModel+"['").serializeArray();
-  var submitData = {};
+  let thing = $("input[name^='"+referenceModel+"['").serializeArray();
+  let submitData = {};
   for (item in thing) {
     submitData[thing[item].name] = thing[item].value;
   }
@@ -91,8 +94,8 @@ function calculateEmployeeCostsImmediate(productOptionKind,referencePlanID, spon
 const calculateEmployeeCosts = debounceRequest(calculateEmployeeCostsImmediate, 1000);
 
 function calculateEmployerContributionsImmediate(productOptionKind,referencePlanID, sponsoredBenefitId, referenceModel = "benefit_package")  {
-  var thing = $("input[name^='"+referenceModel+"['").serializeArray();
-  var submitData = { };
+  let thing = $("input[name^='"+referenceModel+"['").serializeArray();
+  let submitData = { };
   for (item in thing) {
     submitData[thing[item].name] = thing[item].value;
   }
@@ -106,9 +109,9 @@ function calculateEmployerContributionsImmediate(productOptionKind,referencePlan
     data: submitData,
     url: "calculate_employer_contributions",
     success: function (d) {
-      var eeMin = parseFloat(d["estimated_enrollee_minimum"]).toFixed(2);
-      var eeCost = parseFloat(d["estimated_sponsor_exposure"]).toFixed(2);
-      var eeMax = parseFloat(d["estimated_enrollee_maximum"]).toFixed(2);
+      let eeMin = parseFloat(d["estimated_enrollee_minimum"]).toFixed(2);
+      let eeCost = parseFloat(d["estimated_sponsor_exposure"]).toFixed(2);
+      let eeMax = parseFloat(d["estimated_enrollee_maximum"]).toFixed(2);
       showCostDetails(eeCost,eeMin,eeMax)
     }
   });
