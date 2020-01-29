@@ -12,9 +12,16 @@ describe FixTitleForExistingQuotes, dbclean: :after_each do
     end
   end
 
-  describe "fix title for existing quotes", dbclean: :after_each do
+  describe "fix title for existing quotes", dbclean: :around_each do
+    let(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key) }
+    let(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, "with_aca_shop_#{Settings.site.key}_employer_profile".to_sym, site: site) }
+    let!(:org_benefit_sponsorship) do
+      bs = organization.employer_profile.add_benefit_sponsorship
+      bs.save
+    end
+
     let(:broker_agency) { FactoryGirl.create(:broker_agency_profile)}
-    let(:plan_design_organization) { FactoryGirl.create(:sponsored_benefits_plan_design_organization, :with_profile, owner_profile_id: broker_agency.id) }
+    let(:plan_design_organization) { FactoryGirl.create(:sponsored_benefits_plan_design_organization, :with_profile, sponsor_profile_id: organization.employer_profile.id, owner_profile_id: broker_agency.id) }
     let(:proposal) { plan_design_organization.plan_design_proposals.first }
     let(:profile) do
       profile = proposal.profile
