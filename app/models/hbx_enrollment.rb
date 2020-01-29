@@ -714,11 +714,15 @@ class HbxEnrollment
     return unless is_shop? && (successor_benefit_package = sponsored_benefit_package.successor)
     successor_application = successor_benefit_package.benefit_application
     passive_renewals_under(successor_application).each{|en| en.cancel_coverage! if en.may_cancel_coverage? }
-    renew_benefit(successor_benefit_package) if active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition?
+    renew_benefit(successor_benefit_package) if active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition? && non_terminated_enrollment?
   end
 
   def non_inactive_transition?
     !(aasm.from_state == :inactive && aasm.to_state == :inactive)
+  end
+
+  def non_terminated_enrollment?
+    ['coverage_terminated', 'coverage_termination_pending'].exclude?(aasm_state)
   end
 
   def renewal_enrollments(successor_application)
