@@ -4,31 +4,31 @@ function getCostDetails(min,max,cost) {
 }
 
 function showCostDetails(cost,min,max) {
-  let min = min;
-  let max = max;
-  let cost = cost;
+  let myMin = min;
+  let myMax = max;
+  let myCost = cost;
   document.getElementById('rpEstimatedMonthlyCost').innerHTML = ('$ '+cost);
 
-  if (min == 'NaN') {
-    min = "0.00"
+  if (myMin == 'NaN') {
+    myMin = "0.00"
   }
 
-  if (max == 'NaN') {
-    max = "0.00"
+  if (myMax == 'NaN') {
+    myMax = "0.00"
   }
 
-  document.getElementById('rpMin').innerHTML = ('$ '+ min);
-  document.getElementById('rpMax').innerHTML = ('$ '+ max);
+  document.getElementById('rpMin').innerHTML = ('$ '+ myMin);
+  document.getElementById('rpMax').innerHTML = ('$ '+ myMax);
   if (document.getElementById('estimatedEEMin')) {
-    document.getElementById('estimatedEEMin').innerHTML = '$ '+ min;
+    document.getElementById('estimatedEEMin').innerHTML = '$ '+ myMin;
   }
   if (document.getElementById('estimatedEEMax')) {
-    document.getElementById('estimatedEEMax').innerHTML = '$ '+ max;
+    document.getElementById('estimatedEEMax').innerHTML = '$ '+ myMax;
   }
   if (document.getElementById('estimatedERCost')) {
-    document.getElementById('estimatedERCost').innerHTML = '$ '+ cost;
+    document.getElementById('estimatedERCost').innerHTML = '$ '+ myCost;
   }
-  getCostDetails(min,max,cost)
+  getCostDetails(myMin,myMax,myCost)
 }
 
 function showEmployeeCostDetails(employees_cost) {

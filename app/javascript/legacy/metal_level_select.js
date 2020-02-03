@@ -49,9 +49,9 @@ function populateReferencePlans(plans) {
 
   let referencePlanName;
   if (document.querySelector('input#sponsored_benefits_kind'))
-    let referencePlanName = "sponsored_benefits[reference_plan_id]";
+    referencePlanName = "sponsored_benefits[reference_plan_id]";
   else
-    let referencePlanName = "benefit_package[sponsored_benefits_attributes][0][reference_plan_id]"
+    referencePlanName = "benefit_package[sponsored_benefits_attributes][0][reference_plan_id]"
 
   // Build reference plans to be displayed in UI
   for (let i = 0; i < window.filteredProducts.length; i++) {
@@ -344,13 +344,13 @@ function displayReferencePlanDetails(element, options) {
   if(!(element || options)) {
     return
   }
-  let options = options || {};
-  let planTitle = options.planTitle || element.dataset.planTitle;
-  let metalLevel = options.metalLevel || element.dataset.planMetalLevel;
-  let carrierName = options.carrierName || element.dataset.planCarrier;
-  let planType = options.planType || element.dataset.planType;
-  let referencePlanID = options.referencePlanID || element.id;
-  let sponsoredBenefitId = options.sponsoredBenefitId;
+  let currentOptions = options || {};
+  let planTitle = currentOptions.planTitle || element.dataset.planTitle;
+  let metalLevel = currentOptions.metalLevel || element.dataset.planMetalLevel;
+  let carrierName = currentOptions.carrierName || element.dataset.planCarrier;
+  let planType = currentOptions.planType || element.dataset.planType;
+  let referencePlanID = currentOptions.referencePlanID || element.id;
+  let sponsoredBenefitId = currentOptions.sponsoredBenefitId;
   showFormButtons();
 
   document.getElementById('yourReferencePlanDetails').innerHTML = window.MetalLevelSelect_ReferencePlanDetailsShell;
