@@ -763,6 +763,10 @@ GEM
       railties (>= 4.0)
       sprockets-rails (>= 2.0, < 4.0)
     webdriver (0.1.0)
+    webdrivers (3.9.4)
+      nokogiri (~> 1.6)
+      rubyzip (~> 1.0)
+      selenium-webdriver (~> 3.0)
     webmock (3.5.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -894,6 +898,7 @@ DEPENDENCIES
   watir
   web-console (= 2.3.0)
   webdriver
+  webdrivers (~> 3.0)
   webmock
   webpacker
   wicked_pdf (= 1.0.6)
