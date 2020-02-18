@@ -696,11 +696,25 @@ And /^employer click on pencil symbol next to employee status bar$/ do
 end
 
 Then /^employer should see the (.*) button$/ do |status|
-  find_link(status.capitalize).visible?
+  find_link(status.titleize).visible?
 end
 
 And /^employer clicks on (.*) button$/ do |status|
-  click_link(status.capitalize)
+  wait_for_ajax
+  click_link(status.titleize)
+end
+
+When /^employer clicks on the (.*) link$/ do |status|
+  wait_for_ajax
+  links = page.all('a')
+  # Because of same coordinates and visibility issues
+  link = links.detect { |link| link.text == status.titleize }
+  if link.present?
+    link.trigger('click')
+  else
+    link = find(:link, status.titleize, visible: false)
+    link.trigger('click')
+  end
 end
 
 Then /^employer should see the field to enter (.*) date$/ do |status|
@@ -709,13 +723,22 @@ Then /^employer should see the field to enter (.*) date$/ do |status|
 end
 
 And /^employer clicks on (.*) button with date as (.*)$/ do |status, date|
-  date = date == 'today' ? TimeKeeper.date_of_record : TimeKeeper.date_of_record - 3.months
-  find('.date-picker.date-field').set date
-  find('.btn-primary.btn-sm').click
+  date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day  : TimeKeeper.date_of_record - 3.months
+  find('input.text-center.date-picker').set date
+  find('#home').click
+  find("a", :text => "Terminate Employee").click
 end
 
 Then /^employer should see the (.*) success flash notice$/ do |status|
-  result = status == 'terminated' ? "Successfully terminated Census Employee." : "Successfully rehired Census Employee."
+  case status
+  when 'terminated'
+    result = "Successfully terminated Census Employee."
+  # This should say 'rehired' or should say 'updated' rather than 'update'
+  when 'Initiate cobra'
+    result = "Successfully update Census Employee."
+  else
+    result = "Successfully rehired Census Employee."
+  end
   expect(page).to have_content result
 end
 
@@ -839,3 +862,51 @@ Then(/^the employer should see Download,Print Option/) do
   expect(page).to have_content('Download')
   expect(page).to have_content('Print')
 end
+
+And(/^employer (.*?) clicks on Actions drop down for one of (.*?) employee$/) do |legal_name, status|
+  # Has intermittent failures even when button there
+  census_id = employer_profile(legal_name).census_employees.first.id.to_s
+  actions_dropdown_id = "dropdown_for_census_employeeid_#{census_id}"
+  buttons = page.all('button')
+  button_by_id = buttons.detect { |button| button[:id] == actions_dropdown_id }
+  if button_by_id.present?
+    button_by_id.click
+  else
+    buttons.detect { |button| button.text == 'Actions' }.click
+  end
+end
+
+Then /^employer should see Enter effective date for (.*?) Action/ do |action_name|
+  case action_name
+  when "Initiate cobra"
+    page_text = "Enter effective date for COBRA coverage to begin"
+    id = 'cobra-enter-date'
+  end
+
+  find_by_id(id).visible?
+  expect(page).to have_content(page_text)
+end
+
+And(/^employer should see (.*?) to remove text$/) do |text|
+  expect(page).to have_content(text)
+end
+
+When(/^employer clicks on button terminated for datatable$/)do
+  find(:xpath, "//*[@id='Tab:terminated']").click
+end
+
+And /^employer (.*?) clicks on submit button by entering todays date$/ do |legal_name|
+  wait_for_ajax
+  date = TimeKeeper.date_of_record
+  census_id = employer_profile(legal_name).census_employees.first.id.to_s
+  find('input.text-center.date-picker').set date
+  submit_button = page.all('a').detect { |link| link[:id] == "rehire_#{census_id}" }
+  submit_button.trigger('click')
+end
+
+And(/^employer (.*?) should see default cobra start date$/) do |legal_name|
+  census_employee = employer_profile(legal_name).census_employees.first
+  terminated_on = census_employee.employment_terminated_on.next_month.beginning_of_month.to_s
+  expect(find('input.text-center.date-picker').value).to eq terminated_on
+end
+

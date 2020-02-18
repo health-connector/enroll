@@ -62,7 +62,11 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
 end
 
 When(/^the user clicks Action for that Employer$/) do
-  find('.dropdown.pull-right', text: 'Actions').click
+  # Ambigious because of two matches
+  # find('.dropdown.pull-right', text: 'Actions').clickw
+  wait_for_ajax
+  page.all('.dropdown.pull-right')[0].click
+  wait_for_ajax
 end
 
 Then(/^the user will see the Extend Open Enrollment button$/) do

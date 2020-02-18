@@ -6,10 +6,10 @@ Given (/a matched Employee exists with only employee role/) do
   bga = FactoryGirl.build :benefit_group_assignment, benefit_group: @benefit_group
   @employee_role = person.employee_roles[0]
   ce =  FactoryGirl.build(:census_employee,
-          first_name: person.first_name, 
-          last_name: person.last_name, 
-          dob: person.dob, 
-          ssn: person.ssn, 
+          first_name: person.first_name,
+          last_name: person.last_name,
+          dob: person.dob,
+          ssn: person.ssn,
           employee_role_id: @employee_role.id,
           employer_profile: org.employer_profile
         )

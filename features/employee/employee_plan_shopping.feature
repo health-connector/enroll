@@ -64,4 +64,4 @@ Feature: Employees can purchase coverage from both active and renewing plan year
       Then Employee should see their current plan
       Then Employee should see the correct employee contribution on plan tile
 
-      
+
