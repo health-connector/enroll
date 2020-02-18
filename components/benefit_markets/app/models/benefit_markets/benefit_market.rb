@@ -61,8 +61,21 @@ module BenefitMarkets
     end
 
     def benefit_sponsor_catalog_for(service_areas, effective_date = ::TimeKeeper.date_of_record)
-      benefit_catalog = benefit_market_catalog_effective_on(effective_date)
-      BenefitSponsorCatalogFactory.call(effective_date, benefit_catalog, service_areas)
+      # benefit_catalog = benefit_market_catalog_effective_on(effective_date)
+      # BenfitMarkets::Operations::BenefitMarketCatalog::Find.new.call(effective_date, market_kind)
+      # BenefitSponsorCatalogFactory.call(effective_date, benefit_catalog, service_areas)
+
+      service_area_entities = service_areas.inject([]) do |entities, service_area| 
+        result = BenefitMarkets::Operations::ServiceAreas::Create.new.call(service_area.attributes)
+
+        if result.success?
+          entities << result.value!
+        else
+          entities
+        end
+      end
+
+      BenefitMarkets::Operations::BenefitMarket::CreateBenefitSponsorCatalog.new.call(effective_date: effective_date, service_areas: service_area_entities, market_kind: kind).value!
     end
 
     # Calculate available effective dates periods using passed date
