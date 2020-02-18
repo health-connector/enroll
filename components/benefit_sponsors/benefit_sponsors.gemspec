@@ -36,6 +36,12 @@ Gem::Specification.new do |s|
   s.add_dependency 'interactor', '3.1.0'
   s.add_dependency 'interactor-rails', '2.0.2'
   s.add_dependency 'browser', '2.7.0'
+  s.add_dependency 'dry-schema',                '~> 1.4'
+  s.add_dependency 'dry-auto_inject',           '~> 0.6.1'
+  s.add_dependency 'dry-monads',                '~> 1.2'
+  s.add_dependency 'dry-validation',            '~> 1.2'
+  s.add_dependency 'dry-struct',                '~> 1.0'
+  s.add_dependency 'dry-types',                 '~> 1.2'
 
   s.test_files = Dir["spec/**/*"]
 

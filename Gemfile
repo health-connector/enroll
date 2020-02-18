@@ -84,6 +84,10 @@ gem 'wicked_pdf', '1.0.6'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'webpacker'
 gem 'rubyXL'
+gem 'dry-monads',               '~> 1.2'
+gem 'dry-validation',           '~> 1.2'
+gem 'dry-struct',               '~> 1.0'
+gem 'dry-types',                '~> 1.2'
 
 #######################################################
 # Removed gems
