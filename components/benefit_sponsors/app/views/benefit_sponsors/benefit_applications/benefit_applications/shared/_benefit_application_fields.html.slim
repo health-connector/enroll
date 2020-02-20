@@ -10,10 +10,10 @@ h1.heading-text Add Benefit Package
   .col-md-12.p0
     - benefit_application_start_dates = f.object.start_on_options.keys
     - formatted_start_on = f.object.start_on.present? ? Date.strptime(f.object.start_on, "%m/%d/%Y") : nil
-    .row.row-form-wrapper#uic-wrapper
+    .row.row-form-wrapper#uic-wrapper data-start-on="#{formatted_start_on}"
       .col-md-6.col-sm-12
         = f.hidden_field :benefit_sponsorship_id
-        = f.select :start_on, benefit_application_start_dates,{:prompt => "SELECT START ON", :selected => formatted_start_on}, class:'floatlabel benefit-application-start-date', onchange:'selectedDate(this)', id:'baStartDate', disabled: (f.object.is_renewing? || formatted_start_on.present?)
+        = f.select :start_on, benefit_application_start_dates,{:prompt => "SELECT START ON", :selected => formatted_start_on}, class:'floatlabel benefit-application-start-date', onchange:'selectedDate(this.value)', id:'baStartDate', disabled: (f.object.is_renewing? || formatted_start_on.present?)
       .col-md-6.col-sm-12
         = f.text_field :end_on, class: "form-control", required: true, placeholder: 'END ON', readonly: true
 .row.pl-1
@@ -47,10 +47,17 @@ h1.heading-text Add Benefit Package
 
 javascript:
 
+  $(document).ready(function() {
+    if (location.pathname.split('/')[6] == 'edit') {
+      startOn = $("#uic-wrapper").data('start-on')
+      selectedDate(startOn)
+    }
+  })
+
   var disableSelectric = false;
 
   function selectedDate(element) {
-    showHideRecommendDates(element.value)
+    showHideRecommendDates(element)
   }
 
   function setDueDates(id,newvalue) {
