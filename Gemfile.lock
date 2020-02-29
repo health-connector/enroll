@@ -539,7 +539,7 @@ GEM
       ruby-rc4
       ttfunk
     powerpack (0.1.2)
-    puma (3.11.2)
+    puma (3.12.4)
     pundit (1.0.1)
       activesupport (>= 3.0.0)
     rack (1.6.9)
