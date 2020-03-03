@@ -59,6 +59,17 @@ module BenefitMarkets
         ]
     end
 
+    def products=(attributes)
+      attributes.each do |attribute|
+        if attribute.is_a?(Hash)
+          kind = attribute[:kind].to_s.titleize
+          self.products.build(attribute.merge(_type: "BenefitMarkets::Products::#{kind}Products::#{kind}Product"))
+        else
+          self.products.push(attribute)
+        end
+      end
+    end
+
     def lowest_cost_product(effective_date, issuer_hios_ids = nil)
       return @lowest_cost_product if defined? @lowest_cost_product
 
