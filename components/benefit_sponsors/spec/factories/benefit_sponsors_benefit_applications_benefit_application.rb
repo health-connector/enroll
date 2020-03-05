@@ -2,7 +2,7 @@ FactoryGirl.define do
 
   sequence(:random_count) do |n|
     @random_counts ||= (1..25).to_a.shuffle
-    @random_counts[n]
+    @random_counts[@random.rand(25)]
   end
 
   factory :benefit_sponsors_benefit_application, class: 'BenefitSponsors::BenefitApplications::BenefitApplication' do

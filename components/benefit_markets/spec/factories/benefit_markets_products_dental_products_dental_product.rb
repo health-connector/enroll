@@ -6,8 +6,9 @@ FactoryGirl.define do
     sequence(:hbx_id)    { |n| n + 98765 }
 
     sequence(:title)     { |n| "Dental BlueChoice Silver#{n} 2,000" }
-    description          "Highest rated and highest value"
-    premium_ages         20..20
+    description          { "Highest rated and highest value" }
+    premium_ages         { 20..65 }
+    dental_level         { 'high' }
     # health_plan_kind     :pos
     ehb                  0.9943
     metal_level_kind     :dental
