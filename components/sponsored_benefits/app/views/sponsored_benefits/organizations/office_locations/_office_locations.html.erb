@@ -1,4 +1,7 @@
-<%= f.fields_for :office_locations, errors: {}, fieldset: false do |office_location| %>
+<%= f.fields_for :office_locations, class: 'office_location_section', errors: {}, fieldset: false do |office_location| %>
+  <%= office_location.hidden_field :is_primary, value: office_location.object.is_primary %>
+  <%= office_location.hidden_field :id, value: office_location.object.id %>
+  <%= office_location.hidden_field :_destroy, value: false, class: 'delete_ol' %>
 	<%= render partial: '/sponsored_benefits/organizations/office_locations/office_location_fields', locals: {f: office_location, child_index: f.object.office_locations.length - 1} %>
 <% end %>
 <div class="form-inputs" id="office_locations_buttons">

@@ -4,6 +4,7 @@
   <div id="address_info" class="row no-buffer focus_effect personal-info-row">
     <div class="col-md-12 no-pd col-sm-12 col-xs-12">
       <%= f.fields_for :address, errors: {}, fieldset: false do |address| %>
+        <%= address.hidden_field :id, value: address.object.id %>
 
         <%
           # address_kind = ''
@@ -67,6 +68,7 @@
       <div class="col-md-2 key col-sm-3 col-xs-12"></div>
     </div><br>
     <%= f.fields_for :phone, errors: {}, fieldset: false do |phone| %>
+    <%= phone.hidden_field :id, value: phone.object.id %>
     <div id="phone_info" class="row no-buffer row-form-wrapper">
       <div class="col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
         <%= phone.select :kind, options_for_select(Phone::OFFICE_KINDS.map {|p| [p.to_s.humanize, p.to_s]},selected:'phone main'),{},class: "form-control", required: true %>
@@ -86,4 +88,8 @@
 
 <script>
 	var disableSelectric = true;
+
+  $(".delete_address").on('click', function() {
+    $(this).parents(".office_location_section").find('.delete_ol').val(true);
+  })
 </script>

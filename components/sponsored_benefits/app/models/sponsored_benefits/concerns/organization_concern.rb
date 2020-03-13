@@ -33,7 +33,7 @@ module SponsoredBenefits
 
       embeds_many :office_locations, class_name: "SponsoredBenefits::Organizations::OfficeLocation", cascade_callbacks: true, validate: true
 
-      accepts_nested_attributes_for :office_locations, class_name: "SponsoredBenefits::Organizations::OfficeLocation"
+      accepts_nested_attributes_for :office_locations, class_name: "SponsoredBenefits::Organizations::OfficeLocation", allow_destroy: true
 
       validates_presence_of :legal_name, :office_locations
 
@@ -59,7 +59,7 @@ module SponsoredBenefits
       end
 
       def office_location_kinds
-        location_kinds = self.office_locations.select{|l| !l.persisted?}.flat_map(&:address).compact.flat_map(&:kind)
+        location_kinds = self.office_locations.flat_map(&:address).compact.flat_map(&:kind)
         # should validate only office location which are not persisted AND kinds ie. primary, mailing, branch
         return if no_primary = location_kinds.detect{|kind| kind == 'work' || kind == 'home'}
         unless location_kinds.empty?
