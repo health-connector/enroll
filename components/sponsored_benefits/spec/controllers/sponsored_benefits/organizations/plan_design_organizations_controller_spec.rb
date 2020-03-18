@@ -47,6 +47,12 @@ module SponsoredBenefits
                         "state"     =>  "",
                         "zip"       =>  "01001",
                         "county"    =>  "Hampden"
+                      },
+                    "phone_attributes" =>
+                      { "kind"      =>  "work",
+                        "area_code" =>  "",
+                        "number"    =>  "",
+                        "extension" =>  ""
                       }
                   }
         }
