@@ -4,7 +4,7 @@ module Services
   class EnrollmentService
     include ::Transcripts::EnrollmentCommon
 
-    attr_accessor :transcript, :market, :other_enrollment
+    attr_accessor :market, :other_enrollment
 
     def process
       @other_enrollment = fix_enrollment_coverage_start(@other_enrollment)
@@ -36,7 +36,7 @@ module Services
       enrollment_transcript = Importers::Transcripts::EnrollmentTranscript.new
       enrollment_transcript.other_enrollment = other_enrollment
       enrollment_transcript.market = market
-      hbx_enrollment =  enrollment_transcript.send(:build_enrollment, family, employee_role, employer_profile)
+      hbx_enrollment = enrollment_transcript.send(:build_enrollment, family, employee_role, employer_profile)
 
       if other_enrollment.terminated_on.present?
         hbx_enrollment.update!(terminated_on: other_enrollment.terminated_on)
@@ -45,15 +45,15 @@ module Services
 
       "Success - Enrollment #{hbx_enrollment.hbx_id} added successfully using EDI source"
     rescue StandardError => e
-      "Failed #{e.inspect.to_s}"
+      "Failed #{e.inspect}"
     end
 
     def find_census_employee(matched_person, employee_role, employer_profile)
       if employee_role.present?
         employee_role.census_employee
       else
-        census_employees = CensusEmployee.matchable_terminated(matched_person.ssn, matched_person.dob).to_a
-        census_employees = census_employees.select{|ce| ce.employer_profile == employer_profile}
+        census_employees = CensusEmployee.terminated_matchable(matched_person.ssn, matched_person.dob).to_a
+        census_employees = census_employees.select {|ce| ce.employer_profile == employer_profile}
         return "found multiple roster entrees for #{matched_person.full_name}" if census_employees.size > 1
         return 'unable to find census employee record' if census_employees.blank?
         census_employees.first
