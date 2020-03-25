@@ -27,6 +27,10 @@ PATH
       aasm (~> 4.8.0)
       active_model_serializers
       config
+      dry-monads
+      dry-struct
+      dry-types
+      dry-validation
       i18n (= 0.7.0)
       mini_portile2 (= 2.4.0)
       mongoid (~> 5.4.0)
@@ -60,9 +64,9 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    active_model_serializers (0.10.10)
-      actionpack (>= 4.1, < 6.1)
-      activemodel (>= 4.1, < 6.1)
+    active_model_serializers (0.10.12)
+      actionpack (>= 4.1, < 6.2)
+      activemodel (>= 4.1, < 6.2)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     activejob (4.2.11.1)
@@ -104,7 +108,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.1.6)
-    config (2.2.1)
+    config (2.2.3)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
     crass (1.0.6)
