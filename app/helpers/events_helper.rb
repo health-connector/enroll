@@ -36,6 +36,8 @@ module EventsHelper
                   "eligibility_change_employer_ineligible"
                 when "employer_sponsored_cobra"
                   "cobra"
+                when "unknown_sep"
+                  "exceptional_circumstances"
                 else
                   eligibility_kind
                 end
@@ -70,8 +72,8 @@ module EventsHelper
                         end
   end
 
-  def employer_plan_years(employer)
-    employer.benefit_applications.select(&:eligible_for_export?)
+  def employer_plan_years(employer, benefit_application_id)
+    employer.benefit_applications.select{|benefit_app| (benefit_app.eligible_for_export? || benefit_app.id.to_s == benefit_application_id) }
   end
   
   def plan_years_for_manual_export(employer)

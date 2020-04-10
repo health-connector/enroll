@@ -479,7 +479,53 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       end
     end
 
-    context "and employer is renewing" do
+    context 'When there are two active benefit applications' do
+      let(:current_year) {TimeKeeper.date_of_record.year}
+      let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
+      let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
+      let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
+      let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(service_areas2, effective_period.min)}
+      let!(:initial_application2) do
+        BenefitSponsors::BenefitApplications::BenefitApplication.new(
+          benefit_sponsor_catalog: benefit_sponsor_catalog2,
+          effective_period: effective_period,
+          aasm_state: :active,
+          open_enrollment_period: open_enrollment_period,
+          recorded_rating_area: rating_area,
+          recorded_service_areas: service_areas2,
+          fte_count: 5,
+          pte_count: 0,
+          msp_count: 0
+        )
+      end
+      let!(:product_package2) {initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
+      let!(:current_benefit_package2) {create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
+
+      before do
+        FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: current_benefit_package2, census_employee: initial_census_employee)
+        initial_application2.benefit_packages = [current_benefit_package2]
+        benefit_sponsorship.benefit_applications = [initial_application2]
+        benefit_sponsorship.save!
+        initial_census_employee.save
+      end
+
+      it 'should only pick active benefit group assignment - first benefit package' do
+        initial_census_employee.benefit_group_assignments[0].update_attributes(is_active: false, created_at: Date.new(current_year, 2, 21))
+        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: true, created_at: Date.new(current_year - 1.year, 2, 21))
+        expect(initial_census_employee.published_benefit_group.title).to eq 'first benefit package'
+      end
+
+      it 'should pick latest benefit group assignment if all the assignments are inactive' do
+        initial_census_employee.benefit_group_assignments[0].update_attributes(is_active: false, created_at: Date.new(current_year, 2, 21))
+        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: false, created_at: Date.new(current_year - 1.year, 2, 21))
+        expect(initial_census_employee.published_benefit_group.title).to eq 'second benefit package'
+      end
+
+      it 'should only pick active benefit group assignment - second benefit package' do
+        initial_census_employee.benefit_group_assignments[0].update_attributes(is_active: true, created_at: Date.new(current_year, 2, 21))
+        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: false, created_at: Date.new(current_year - 1.year, 2, 21))
+        expect(initial_census_employee.published_benefit_group.title).to eq 'second benefit package'
+      end
     end
   end
 
@@ -888,6 +934,40 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     context "and the employee is terminated" do
 
       it "should create an employee_role"
+    end
+  end
+
+  describe 'scopes' do
+    context 'by_benefit_package_and_assignment_on_or_later' do
+      include_context "setup employees"
+      before do
+        date = TimeKeeper.date_of_record.beginning_of_month
+        bga = census_employees.first.benefit_group_assignments.first
+        bga.assign_attributes(start_on: date + 1.month)
+        bga.save(validate: false)
+        bga2 = census_employees.second.benefit_group_assignments.first
+        bga2.assign_attributes(start_on: date - 1.month)
+        bga2.save(validate: false)
+        census_employees.third.benefit_group_assignments.first.update_attributes(is_active: false)
+
+        @census_employees = CensusEmployee.by_benefit_package_and_assignment_on_or_later(initial_application.benefit_packages.first, date, true)
+      end
+
+      it "should return more than one" do
+        expect(@census_employees.count).to eq 3
+      end
+
+      it 'Should include CE' do
+        [census_employees.first.id, census_employees[3].id, census_employees[4].id].each do |ce_id|
+          expect(@census_employees.pluck(:id)).to include(ce_id)
+        end
+      end
+
+      it 'should not include CE' do
+        [census_employees[1].id, census_employees[2].id].each do |ce_id|
+          expect(@census_employees.pluck(:id)).not_to include(ce_id)
+        end
+      end
     end
   end
 
@@ -1718,6 +1798,78 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
+  context '.past_enrollments' do
+    include_context "setup renewal application"
+
+    before do
+      benefit_application.expire!
+    end
+
+    let(:census_employee) {
+      ce = FactoryGirl.create(:benefit_sponsors_census_employee,
+                              employer_profile: employer_profile,
+                              benefit_sponsorship: benefit_sponsorship,
+                              dob: TimeKeeper.date_of_record - 30.years
+      )
+
+      person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+      employee_role = FactoryGirl.build(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+      renewal_benefit_group_assignment = FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: ce, is_active: false)
+      ce.update_attributes({employee_role: employee_role})
+      family = Family.find_or_build_from_employee_role(employee_role)
+      ce
+    }
+
+    let(:past_benefit_group_assignment) { FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_application.benefit_packages.first, census_employee: census_employee, is_active: false) }
+
+    let!(:enrollment) { FactoryGirl.create(:hbx_enrollment,
+                                 household: census_employee.employee_role.person.primary_family.active_household,
+                                 coverage_kind: "health",
+                                 kind: "employer_sponsored",
+                                 benefit_sponsorship_id: benefit_sponsorship.id,
+                                 sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                 employee_role_id: census_employee.employee_role.id,
+                                 benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                                 aasm_state: "coverage_selected"
+      )
+    }
+    let!(:past_expired_enrollment) { FactoryGirl.create(:hbx_enrollment,
+                                 household: census_employee.employee_role.person.primary_family.active_household,
+                                 coverage_kind: "health",
+                                 kind: "employer_sponsored",
+                                 benefit_sponsorship_id: benefit_sponsorship.id,
+                                 sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                 employee_role_id: census_employee.employee_role.id,
+                                 benefit_group_assignment_id: past_benefit_group_assignment.id,
+                                 aasm_state: "coverage_expired"
+      )
+    }
+
+    let!(:canceled_enrollment) { FactoryGirl.create(:hbx_enrollment,
+                                 household: census_employee.employee_role.person.primary_family.active_household,
+                                 coverage_kind: "health",
+                                 kind: "employer_sponsored",
+                                 benefit_sponsorship_id: benefit_sponsorship.id,
+                                 sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                 employee_role_id: census_employee.employee_role.id,
+                                 benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                                 aasm_state: "coverage_canceled"
+      )
+    }
+
+    it 'should return past expired enrollment' do
+      expect(census_employee.past_enrollments.to_a.include?(past_expired_enrollment)).to eq true
+    end
+
+    it 'should NOT return current active enrollment' do
+      expect(census_employee.past_enrollments.to_a.include?(enrollment)).to eq false
+    end
+
+    it 'should NOT return canceled enrollment' do
+      expect(census_employee.past_enrollments.to_a.include?(canceled_enrollment)).to eq false
+    end
+  end
+
   context 'editing a CensusEmployee SSN/DOB that is in a linked status' do
 
     let(:census_employee) {FactoryGirl.create :benefit_sponsors_census_employee,
@@ -2015,6 +2167,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     context "when ER has imported applications" do
+      let(:bga1) {double("BenefitGroupAssignment", created_at: TimeKeeper.date_of_record - 25.days, start_on: TimeKeeper.date_of_record - 2.days, benefit_end_date: TimeKeeper.date_of_record + 2.days, is_active: false, benefit_package: double("benefit_package", is_active: true))}
+      let(:bga2) {double("BenefitGroupAssignment", created_at: TimeKeeper.date_of_record, start_on: TimeKeeper.date_of_record - 2.days, benefit_end_date: TimeKeeper.date_of_record + 2.days, is_active: false, benefit_package: double("benefit_package", is_active: true))}
 
       it "should return nil if given effective_on date is in imported benefit application" do
         initial_application.update_attributes(aasm_state: :imported)
@@ -2026,6 +2180,11 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         initial_application.update_attributes(aasm_state: :imported)
         coverage_date = census_employee.benefit_group_assignments.first.start_on - 1.month
         expect(census_employee.benefit_group_assignment_for_date(coverage_date)).to eq nil
+      end
+
+      it "should return latest bga when multiple present" do
+        allow(census_employee).to receive(:benefit_group_assignments).and_return [bga1, bga2]
+        expect(census_employee.benefit_group_assignment_for_date(TimeKeeper.date_of_record)).to eq bga2
       end
     end
 

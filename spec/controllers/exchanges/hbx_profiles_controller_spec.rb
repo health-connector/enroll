@@ -1,4 +1,7 @@
 require 'rails_helper'
+require File.join(Rails.root, "components/benefit_sponsors/spec/support/benefit_sponsors_product_spec_helpers")
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
@@ -130,6 +133,26 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
   end
 
+  describe "Action # employer_datatable" do
+    let(:user) { double(:user, has_hbx_staff_role?: true, last_portal_visited: "www.google.com")}
+
+      before :each do
+       sign_in(user)
+      end
+
+      it "renders employer_datatable as JS" do
+        get :employer_datatable, format: :js
+        expect(response).not_to redirect_to("www.google.com")
+        expect(response).to render_template("exchanges/hbx_profiles/employer_datatable")
+      end
+
+      it "renders employer_datatable as HTML" do
+        # Open the link in new tab/ new browser "employers" link
+         get :employer_datatable, format: :html
+         expect(response).to redirect_to("www.google.com")
+      end
+  end
+=begin
   describe "#create" do
     let(:user) { double("User")}
     let(:person) { double("Person")}
@@ -210,6 +233,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
   end
+=end
 
   describe "#check_hbx_staff_role" do
     let(:user) { double("user")}
@@ -224,6 +248,81 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 
+  describe "#view_the_configuration_tab?" do
+    let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
+    let(:user_2) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
+    let(:person) { double("person")}
+    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:hbx_profile) { double("hbx_profile")}
+    let(:admin_permission) { double("permission", name: "super_admin", view_the_configuration_tab: true)}
+    let(:admin_permission_with_time_travel) { double("permission", name: "super_admin", can_submit_time_travel_request: true, modify_admin_tabs: true)}
+    let(:staff_permission) { double("permission", name: "hbx_staff")}
+
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
+      allow(user).to receive(:person).and_return(person)
+      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
+      allow(hbx_staff_role).to receive(:can_submit_time_travel_request).and_return(false)
+      allow(hbx_staff_role).to receive(:view_the_configuration_tab)
+      allow(user).to receive(:permission).and_return(admin_permission)
+    end
+
+    it "should render the config index for a super admin" do
+      allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(true)
+      allow(hbx_staff_role).to receive(:permission).and_return(admin_permission)
+      allow(hbx_staff_role).to receive(:subrole).and_return(admin_permission.name)
+      allow(admin_permission).to receive(:name).and_return(admin_permission.name)
+      allow(admin_permission).to receive(:can_submit_time_travel_request).and_return(false)
+      allow(admin_permission).to receive(:view_the_configuration_tab).and_return(true)
+      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      allow(user).to receive(:view_the_configuration_tab?).and_return(true)
+      allow(user).to receive(:can_submit_time_travel_request?).and_return(false)
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
+      sign_in(user)
+      get :configuration
+      expect(response).to have_http_status(:success)
+      post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
+      expect(response).to have_http_status(:redirect)
+    end
+
+    it "should not render the config index for a not super admin" do
+      allow(admin_permission).to receive(:view_the_configuration_tab).and_return(false)
+      allow(staff_permission).to receive(:view_the_configuration_tab).and_return(true)
+      allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(false)
+      allow(hbx_staff_role).to receive(:permission).and_return(staff_permission)
+      allow(hbx_staff_role).to receive(:subrole).and_return(staff_permission.name)
+      allow(staff_permission).to receive(:name).and_return(staff_permission.name)
+      allow(user_2).to receive(:has_hbx_staff_role?).and_return(true)
+      allow(user_2).to receive(:person).and_return(person)
+
+      allow(user_2).to receive(:permission).and_return(staff_permission)
+
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
+      sign_in(user_2)
+      get :configuration
+      expect(response).to have_http_status(:success)
+    end
+
+    it "should not allow super admin to time travel" do
+      allow(admin_permission).to receive(:view_the_configuration_tab).and_return(true)
+      allow(staff_permission).to receive(:view_the_configuration_tab).and_return(true)
+      allow(hbx_staff_role).to receive(:permission).and_return(staff_permission)
+      allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(true)
+      allow(hbx_staff_role).to receive(:subrole).and_return(staff_permission.name)
+      allow(admin_permission).to receive(:can_submit_time_travel_request).and_return(false)
+      allow(user_2).to receive(:has_hbx_staff_role?).and_return(true)
+      allow(user).to receive(:view_the_configuration_tab?).and_return(true)
+      allow(user_2).to receive(:view_the_configuration_tab?).and_return(false)
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
+      allow(user).to receive(:permission).and_return(admin_permission)
+      sign_in(user)
+      post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
+      expect(response).to have_http_status(:redirect)
+    end
+  end
 
   describe "Show" do
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false, :has_csr_role? => false, :last_portal_visited => nil)}
@@ -274,6 +373,82 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 
+  describe "GET edit_force_publish", :dbclean => :around_each do
+
+    context "of an hbx super admin clicks Force Publish" do
+      let(:site) do
+        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+      end
+      let(:employer_organization) do
+        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+          benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
+          benefit_sponsorship.save
+          org
+        end
+      end
+      let(:person) do
+        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+            person.hbx_staff_role.update_attributes(permission_id: permission.id)
+            person
+          end
+        end
+      end
+      let(:user) do
+        FactoryGirl.create(:user, person: person)
+      end
+      let(:benefit_sponsorship) do
+        employer_organization.benefit_sponsorships.first
+      end
+
+      it "renders edit_force_publish" do
+        sign_in(user)
+        @params = {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{employer_organization.employer_profile.id.to_s}", :format => 'js'}
+        xhr :get, :edit_force_publish, @params
+        expect(response).to render_template('edit_force_publish')
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
+
+  describe "POST force_publish" do
+
+    context "of an hbx super admin clicks Submit in Force Publish window" do
+      let(:site) do
+        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+      end
+      let(:employer_organization) do
+        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+          benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
+          benefit_sponsorship.save
+          org
+        end
+      end
+      let(:person) do
+        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+            person.hbx_staff_role.update_attributes(permission_id: permission.id)
+            person
+          end
+        end
+      end
+      let(:user) do
+        FactoryGirl.create(:user, person: person)
+      end
+      let(:benefit_sponsorship) do
+        employer_organization.benefit_sponsorships.first
+      end
+
+      it "renders force_publish" do
+        sign_in(user)
+        @params = {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{employer_organization.employer_profile.id.to_s}", :format => 'js'}
+        xhr :post, :force_publish, @params
+        expect(response).to render_template('force_publish')
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
+
   describe "CSR redirection from Show" do
     let(:user) { double("user", :has_hbx_staff_role? => false, :has_employer_staff_role? => false, :has_csr_role? => true, :last_portal_visited => nil)}
     let(:person) { double("person")}
@@ -303,11 +478,11 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:hbx_profile) { double("hbx_profile")}
 
     before :each do
-      expect(controller).to receive(:find_hbx_profile)
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      expect(controller).to receive(:find_hbx_profile)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
       sign_in(user)
       get :employer_index
@@ -365,21 +540,30 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:person) { double("person")}
     let(:hbx_staff_role) { double("hbx_staff_role")}
     let(:hbx_profile) { double("hbx_profile")}
+    let(:permission) { double("permission", name: "hbx_staff", view_the_configuration_tab: false )}
+
 
     before :each do
-      expect(controller).to receive(:find_hbx_profile)
+      allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(true)
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
       allow(user).to receive(:person).and_return(person)
+      allow(user).to receive(:permission).and_return(permission)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
+      allow(hbx_staff_role).to receive(:permission).and_return(permission)
+      allow(hbx_staff_role).to receive(:subrole).and_return(permission.name)
+
+      allow(hbx_staff_role).to receive(:subrole).and_return(permission.name)
+
+      allow(permission).to receive(:name).and_return(permission.name)
       sign_in(user)
       get :configuration
     end
 
     it "should render the configuration partial" do
-      expect(response).to have_http_status(:success)
-      expect(response).to render_template(:partial => 'exchanges/hbx_profiles/_configuration_index')
+      expect(response).to have_http_status(:redirect)
+      expect(response).to_not render_template(:partial => 'exchanges/hbx_profiles/_configuration_index')
     end
   end
 
@@ -398,17 +582,17 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     it "sends timekeeper a date" do
       timekeeper_form_params = { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
-      allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: true))
+      allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: true, can_submit_time_travel_request: false, name: "hbx_staff", view_the_configuration_tab: false))
+
       allow(Forms::TimeKeeper).to receive(:new).with(timekeeper_form_params).and_return(time_keeper_form)
       allow(time_keeper_form).to receive(:forms_date_of_record).and_return(TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d'))
-      expect(time_keeper_form).to receive(:set_date_of_record).with(TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d'))
       sign_in(user)
       post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
       expect(response).to have_http_status(:redirect)
     end
 
     it "sends timekeeper a date and fails because not updateable" do
-      allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: false))
+      allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: false, can_submit_time_travel_request: false, name: "hbx_staff", view_the_configuration_tab: false))
       sign_in(user)
       expect(TimeKeeper).not_to receive(:set_date_of_record).with( TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d'))
       post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
@@ -545,6 +729,217 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 
+  describe "POST reinstate_enrollment", :dbclean => :around_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+    include_context "setup employees with benefits"
+
+    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryGirl.create(:person)}
+    let(:current_effective_date)  { TimeKeeper.date_of_record }
+    let(:benefit_market)      { site.benefit_markets.first }
+
+    let(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:product_package_kind) { :single_product}
+    let!(:product_package) { current_benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
+    let(:product) { product_package.products.first }
+
+    # let!(:employer_profile) {benefit_sponsorship.profile}
+    # let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
+    let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+    # let!(:household) { FactoryGirl.create(:household, family: family) }
+    # let!(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    # let!(:benefit_market)      { site.benefit_markets.first }
+    # let!(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    # let!(:employer_profile)    { organization.employer_profile }
+    # let(:benefit_sponsor)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_initial_application, site: site) }
+    # let(:benefit_sponsorship)    { benefit_sponsor.active_benefit_sponsorship }
+    # let(:benefit_application)    { benefit_sponsorship.benefit_applications.first }
+    let(:benefit_package)    { initial_application.benefit_packages.first }
+    # let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
+
+    let!(:enrollment) { family.active_household.hbx_enrollments.create!(
+                        household: family.active_household,
+                        coverage_kind: "health",
+                        product:product,
+                        effective_on: TimeKeeper.date_of_record.last_month.beginning_of_month,
+                        aasm_state: 'coverage_termination_pending',
+                        kind:"employer_sponsored",
+                        benefit_sponsorship: benefit_sponsorship,
+                        sponsored_benefit_package: benefit_package,
+                        terminated_on: TimeKeeper.date_of_record.end_of_month,
+      )}
+
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      sign_in user
+    end
+
+    it "should redirect to root path" do
+      xhr :post, :reinstate_enrollment, enrollment_id: enrollment.id
+      expect(response).to have_http_status(:redirect)
+      expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+    end
+  end
+
+  describe "POST view_enrollment_to_update_end_date", :dbclean => :around_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+    include_context "setup employees with benefits"
+
+    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryGirl.create(:person)}
+    let(:current_effective_date)  { TimeKeeper.date_of_record.beginning_of_year - 1.year }
+    let(:primary) { family.primary_family_member }
+    let(:dependents) { family.dependents }
+    let!(:household) { FactoryGirl.create(:household, family: family) }
+    let!(:hbx_en_member1) { FactoryGirl.build(:hbx_enrollment_member, eligibility_date: current_effective_date, coverage_start_on: current_effective_date, applicant_id: dependents.first.id) }
+    let!(:hbx_en_member2) { FactoryGirl.build(:hbx_enrollment_member, eligibility_date: current_effective_date + 2.months, coverage_start_on: current_effective_date + 2.months, applicant_id: hbx_en_member1.applicant_id) }
+    let!(:hbx_en_member3) { FactoryGirl.build(:hbx_enrollment_member, eligibility_date: current_effective_date + 6.months, coverage_start_on: current_effective_date + 6.months, applicant_id: dependents.last.id) }
+    let(:benefit_market)      { site.benefit_markets.first }
+
+    let(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:product_package_kind) { :single_product}
+    let!(:product_package) { current_benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
+    let(:product) { product_package.products.first }
+    let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member_and_dependent, person: person)}
+    let(:benefit_package)    { initial_application.benefit_packages.first }
+    let!(:enrollment1)  { FactoryGirl.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member1], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: current_effective_date.next_month.end_of_month)}
+
+    let!(:enrollment2)  { FactoryGirl.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date + 2.months, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member2], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: (current_effective_date + 5.months).end_of_month)}
+
+    let!(:enrollment3)  { FactoryGirl.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date + 6.months, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member3], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: current_effective_date.end_of_year)}
+
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      sign_in user
+    end
+
+    it "should render template" do
+      xhr :post, :view_enrollment_to_update_end_date, person_id: person.id.to_s, family_actions_id: family.id, format: :js
+      expect(response).to have_http_status(:success)
+      expect(response).to render_template("view_enrollment_to_update_end_date")
+    end
+
+    it "should get duplicate enrollment id's" do
+      xhr :post, :view_enrollment_to_update_end_date, person_id: person.id.to_s, family_actions_id: family.id, format: :js
+      expect(assigns(:dup_enr_ids).include?(enrollment1.id.to_s)).to eq true
+      expect(assigns(:dup_enr_ids).include?(enrollment3.id.to_s)).to eq false
+    end
+  end
+
+  describe "POST update_enrollment_termianted_on_date", :dbclean => :around_each do
+    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryGirl.create(:person)}
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+    let!(:household) { FactoryGirl.create(:household, family: family) }
+    let!(:enrollment) {
+      FactoryGirl.create(:hbx_enrollment,
+                         household: family.active_household,
+                         coverage_kind: "health",
+                         kind: 'employer_sponsored',
+                         effective_on: TimeKeeper.date_of_record.last_month.beginning_of_month,
+                         terminated_on: TimeKeeper.date_of_record.end_of_month,
+                         aasm_state: 'coverage_termination_pending'
+      )}
+    let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
+
+
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      sign_in user
+    end
+
+    context "shop enrollment" do
+      context "with valid params" do
+
+        it "should render template " do
+          xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+          expect(response).to have_http_status(:redirect)
+          expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+        end
+
+        context "enrollment that already terminated with past date" do
+          context "with new past or current termination date" do
+            it "should update enrollment with new end date and notify enrollment" do
+              expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+              enrollment.reload
+              expect(enrollment.aasm_state).to eq "coverage_terminated"
+              expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
+            end
+          end
+
+        end
+
+        context "enrollment that already terminated with future date" do
+          context "with new future termination date" do
+            it "should update enrollment with new end date and notify enrollment" do
+              expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s, format: :js
+              enrollment.reload
+              expect(enrollment.aasm_state).to eq "coverage_termination_pending"
+              expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
+            end
+          end
+        end
+      end
+    end
+
+    context "IVL enrollment", :dbclean => :around_each do
+
+      before do
+        enrollment.kind = "individual"
+        enrollment.save
+      end
+
+      context "with valid params" do
+
+        it "should render template " do
+          xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+          expect(response).to have_http_status(:redirect)
+          expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+        end
+
+        context "enrollment that already terminated with past date" do
+          context "with new past or current termination date" do
+            it "should update enrollment with new end date and notify enrollment" do
+              expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+              enrollment.reload
+              expect(enrollment.aasm_state).to eq "coverage_terminated"
+              expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
+            end
+          end
+
+        end
+
+        context "enrollment that already terminated with future date" do
+          context "with new future termination date" do
+            it "should update enrollment with new end date and notify enrollment" do
+              expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s, format: :js
+              enrollment.reload
+              expect(enrollment.aasm_state).to eq "coverage_terminated"
+              expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
+            end
+          end
+        end
+      end
+    end
+
+    context "with invalid params" do
+      it "should redirect to root path" do
+        xhr :post, :update_enrollment_termianted_on_date, enrollment_id: '', family_actions_id: '', new_termination_date: '', format: :js
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+      end
+    end
+
+  end
+
   describe "GET get_user_info" do
     let(:user) { double("User", :has_hbx_staff_role? => true)}
     let(:person) { double("Person", id: double)}
@@ -617,10 +1012,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
     end
 
-    context '.oe_extendable_applications' do 
+    context '.oe_extendable_applications' do
       let(:benefit_applications) { [ double(may_extend_open_enrollment?: true) ]}
 
-      before do 
+      before do
         allow(benefit_sponsorship).to receive(:oe_extendable_benefit_applications).and_return(benefit_applications)
       end
 
@@ -635,7 +1030,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     context '.oe_extended_applications' do
       let(:benefit_applications) { [ double(enrollment_extended?: true) ]}
 
-      before do 
+      before do
         allow(benefit_sponsorship).to receive(:oe_extended_applications).and_return(benefit_applications)
       end
 
@@ -661,8 +1056,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         expect(response).to render_template("exchanges/hbx_profiles/edit_open_enrollment")
       end
     end
-    
-    context '.extend_open_enrollment' do  
+
+    context '.extend_open_enrollment' do
       let(:benefit_application) { double }
 
       before do
@@ -679,7 +1074,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 
-  describe "close open enrollment" do
+  describe "close open enrollment", :dbclean => :around_each do
 
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
     let(:person) { double("person")}
@@ -698,7 +1093,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
     end
 
-    context '.close_extended_open_enrollment' do 
+    context '.close_extended_open_enrollment' do
       let(:benefit_application) { double }
 
       before do
@@ -711,6 +1106,160 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
         expect(response).to have_http_status(:redirect)
         expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+      end
+    end
+  end
+
+  describe "benefit application creation" do
+    let!(:user)                { FactoryGirl.create(:user) }
+    let!(:person)              { FactoryGirl.create(:person, user: user) }
+    let!(:permission)          { FactoryGirl.create(:permission, :super_admin) }
+    let!(:hbx_staff_role)      { FactoryGirl.create(:hbx_staff_role, person: person, permission_id: permission.id, subrole:permission.name) }
+    let!(:rating_area)         { FactoryGirl.create_default :benefit_markets_locations_rating_area }
+    let!(:service_area)        { FactoryGirl.create_default :benefit_markets_locations_service_area }
+    let!(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let!(:benefit_market)      { site.benefit_markets.first }
+    let!(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let!(:employer_profile)    { organization.employer_profile }
+    let!(:benefit_sponsorship) { bs = employer_profile.add_benefit_sponsorship
+                                bs.save!
+                                bs
+                               }
+    let(:effective_period)     { (TimeKeeper.date_of_record + 3.months)..(TimeKeeper.date_of_record + 1.year + 3.months - 1.day) }
+    let!(:current_benefit_market_catalog) do
+      BenefitSponsors::ProductSpecHelpers.construct_cca_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
+      benefit_market.benefit_market_catalogs.where(
+        "application_period.min" => effective_period.min.to_s
+      ).first
+    end
+
+    let!(:valid_params)   {
+      { admin_datatable_action: true,
+        benefit_sponsorship_id: benefit_sponsorship.id.to_s,
+        start_on: effective_period.min,
+        end_on: effective_period.max,
+        open_enrollment_start_on: TimeKeeper.date_of_record + 2.months,
+        open_enrollment_end_on: TimeKeeper.date_of_record + 2.months + 20.day
+      }
+    }
+
+    before :each do
+      sign_in(user)
+    end
+
+    context 'viewing configuration tab' do
+      before :each do
+        get :configuration
+      end
+
+      it 'should respond with success status' do
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context '.new_benefit_application' do
+      before :each do
+        xhr :get, :new_benefit_application
+      end
+
+      it 'should respond with success status' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'should render new_benefit_application' do
+        expect(response).to render_template("exchanges/hbx_profiles/new_benefit_application")
+      end
+    end
+
+    context '.create_benefit_application' do
+      before :each do
+        xhr :post, :create_benefit_application, valid_params
+      end
+
+      it 'should respond with success status' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'should render new_benefit_application' do
+        expect(response).to render_template("exchanges/hbx_profiles/create_benefit_application")
+      end
+    end
+  end
+
+  describe "GET edit_fein" do
+
+    context "of an hbx super admin clicks Change FEIN" do
+      let(:site) do
+        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+      end
+      let(:employer_organization) do
+        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+          benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
+          benefit_sponsorship.save
+          org
+        end
+      end
+      let(:person) do
+        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+            person.hbx_staff_role.update_attributes(permission_id: permission.id)
+            person
+          end
+        end
+      end
+      let(:user) do
+        FactoryGirl.create(:user, person: person)
+      end
+      let(:benefit_sponsorship) do
+        employer_organization.benefit_sponsorships.first
+      end
+
+      it "renders edit_fein" do
+        sign_in(user)
+        @params = {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{employer_organization.employer_profile.id.to_s}", :format => 'js'}
+        xhr :get, :edit_fein, @params
+        expect(response).to render_template('edit_fein')
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
+
+  describe "POST update_fein" do
+
+    context "of an hbx super admin clicks Submit in Change FEIN window" do
+      let(:site) do
+        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+      end
+      let(:employer_organization) do
+        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+          benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
+          benefit_sponsorship.save
+          org
+        end
+      end
+      let(:person) do
+        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+            person.hbx_staff_role.update_attributes(permission_id: permission.id)
+            person
+          end
+        end
+      end
+      let(:user) do
+        FactoryGirl.create(:user, person: person)
+      end
+      let(:benefit_sponsorship) do
+        employer_organization.benefit_sponsorships.first
+      end
+
+      let(:new_valid_fein) { "23-4508390" }
+
+      it "renders update_fein" do
+        sign_in(user)
+        @params = {:organizations_general_organization => {:new_fein => new_valid_fein}, :id => benefit_sponsorship.id.to_s, :employer_actions_id => "employer_actions_#{employer_organization.employer_profile.id.to_s}"}
+        xhr :post, :update_fein, @params
+        expect(response).to render_template('update_fein')
+        expect(response).to have_http_status(:success)
       end
     end
   end

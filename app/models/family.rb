@@ -217,6 +217,12 @@ class Family
                                                     :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES),
                                                     :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
                                                   ) }
+
+  scope :enrolled_and_terminated_through_benefit_package, ->(benefit_package) { unscoped.where(
+                                                    :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES),
+                                                    :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
+                                                  ) }
+
   scope :all_enrollments_by_benefit_package,    ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments" => {
                                                       :$elemMatch => { :sponsored_benefit_package_id => benefit_package._id, :aasm_state.ne => :shopping }
@@ -302,6 +308,19 @@ class Family
     end
 
     primary_family_member
+  end
+
+  def terminated_enrollments
+    active_household.hbx_enrollments.where(:aasm_state.in=> ["coverage_terminated", "coverage_termination_pending"])
+  end
+
+
+  def set_admin_dt_enrollments(enrollment_set)
+    @admin_dt_enrollments = enrollment_set
+  end
+
+  def admin_dt_enrollments
+    @admin_dt_enrollments || []
   end
 
   # @deprecated Use {primary_applicant}

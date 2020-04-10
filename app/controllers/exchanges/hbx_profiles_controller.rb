@@ -1,4 +1,5 @@
 class Exchanges::HbxProfilesController < ApplicationController
+  include Exchanges::HbxProfilesHelper
   include ::DataTablesAdapter
   include ::DataTablesSearch
   include ::Pundit
@@ -6,13 +7,15 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Config::AcaHelper
 
   before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
-  before_action :check_hbx_staff_role, except: [:request_help, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
+  before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :set_hbx_profile, only: [:edit, :update, :destroy]
-  before_action :find_hbx_profile, only: [:employer_index, :broker_agency_index, :inbox, :configuration, :show, :binder_index]
+  before_action :view_the_configuration_tab?, only: [:configuration, :set_date]
+  before_action :can_submit_time_travel_request?, only: [:set_date]
+  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
   before_action :check_csr_or_hbx_staff, only: [:family_index]
-  before_action :find_benefit_sponsorship, only: [:oe_extendable_applications, :oe_extended_applications, :edit_open_enrollment, :extend_open_enrollment, :close_extended_open_enrollment]
+  before_action :find_benefit_sponsorship, only: [:oe_extendable_applications, :oe_extended_applications, :edit_open_enrollment, :extend_open_enrollment, :close_extended_open_enrollment, :edit_fein, :update_fein, :force_publish, :edit_force_publish]
   # GET /exchanges/hbx_profiles
   # GET /exchanges/hbx_profiles.json
   layout 'single_column'
@@ -49,6 +52,39 @@ class Exchanges::HbxProfilesController < ApplicationController
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).end_open_enrollment(TimeKeeper.date_of_record)
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully closed employer(s) open enrollment." }
+  end
+
+  def new_benefit_application
+    authorize HbxProfile, :can_create_benefit_application?
+    @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_new(new_ba_params)
+    @element_to_replace_id = params[:employer_actions_id]
+  end
+
+  def create_benefit_application
+    @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
+    authorize @ba_form, :updateable?
+    @save_errors = benefit_application_error_messages(@ba_form) unless @ba_form.save
+    @element_to_replace_id = params[:employer_actions_id]
+  end
+
+  def edit_fein
+    @organization = @benefit_sponsorship.organization
+    @element_to_replace_id = params[:employer_actions_id]
+
+    respond_to do |format|
+      format.js { render "edit_fein" }
+    end
+  end
+
+  def update_fein
+    @organization = @benefit_sponsorship.organization
+    @element_to_replace_id = params[:employer_actions_id]
+    service_obj = ::BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: @benefit_sponsorship)
+    @result,  @errors_on_save = service_obj.update_fein(params['organizations_general_organization']['new_fein'])
+    respond_to do |format|
+      format.js { render "edit_fein" } if @errors_on_save
+      format.js { render "update_fein" }
+    end
   end
 
   def binder_paid
@@ -107,6 +143,30 @@ class Exchanges::HbxProfilesController < ApplicationController
      end
   end
 
+  def edit_force_publish
+    @element_to_replace_id = params[:employer_actions_id]
+    @benefit_application = @benefit_sponsorship.benefit_applications.draft_state.last
+
+    respond_to do |format|
+     format.js
+   end
+  end
+
+  def force_publish
+    @element_to_replace_id = params[:employer_actions_id]
+    @benefit_application   = @benefit_sponsorship.benefit_applications.draft_state.last
+    if @benefit_application.present?
+      @service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
+      if @service.may_force_submit_application? || params[:publish_with_warnings] == 'true'
+        @service.force_submit_application
+      end
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def employer_invoice
     # Dynamic Filter values for upcoming 30, 60, 90 days renewals
     @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
@@ -121,10 +181,13 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def employer_datatable
-  @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
-    respond_to do |format|
-      format.js
-    end
+    # copy the link and open in new tab
+    last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
+    @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+      respond_to do |format|
+       format.html { redirect_to(last_visited_url) }
+       format.js
+      end
   end
 
 def employer_poc
@@ -238,6 +301,7 @@ def employer_poc
   end
 
   def user_account_index
+    authorize HbxProfile, :can_access_user_account_tab?
     @datatable = Effective::Datatables::UserAccountDatatable.new
   end
 
@@ -340,6 +404,30 @@ def employer_poc
     end
   end
 
+  def view_enrollment_to_update_end_date
+    @person = Person.find(params[:person_id])
+    @row = params[:family_actions_id]
+    @enrollments = @person.primary_family.terminated_enrollments
+    @coverage_ended_enrollments = @person.primary_family.enrollments.where(:aasm_state.in => ["coverage_terminated", "coverage_termination_pending", "coverage_expired"])
+    @dup_enr_ids = fetch_duplicate_enrollment_ids(@coverage_ended_enrollments).map(&:to_s)
+  end
+
+   def update_enrollment_termianted_on_date
+    begin
+      enrollment = HbxEnrollment.find(params[:enrollment_id])
+      @row = params[:family_actions_id]
+      termination_date = Date.strptime(params["new_termination_date"], "%m/%d/%Y")
+      if enrollment.present? && enrollment.reterm_enrollment_with_earlier_date(termination_date, params["edi_required"].present?)
+        message = {notice: "Enrollment Updated Successfully."}
+      else
+        message = {notice: "Unable to find/update Enrollment."}
+      end
+    rescue Exception => e
+      message = {error: e.to_s}
+    end
+    redirect_to exchanges_hbx_profiles_root_path, flash: message
+  end
+
   def broker_agency_index
 
     @datatable = Effective::Datatables::BrokerAgencyDatatable.new
@@ -429,11 +517,37 @@ def employer_poc
 
   def configuration
     @time_keeper = Forms::TimeKeeper.new
-
     respond_to do |format|
       format.html { render partial: "configuration_index" }
       format.js {}
     end
+  end
+
+  def view_terminated_hbx_enrollments
+    @person = Person.find(params[:person_id])
+    @element_to_replace_id = params[:family_actions_id]
+    @enrollments = @person.primary_family.terminated_enrollments
+  end
+
+  def reinstate_enrollment
+    enrollment = HbxEnrollment.find(params[:enrollment_id])
+     if enrollment.present?
+      begin
+        reinstated_enrollment = enrollment.reinstate(edi: params['edi_required'].present?)
+        if reinstated_enrollment.present?
+          if params['comments'].present?
+            reinstated_enrollment.comments.create(:content => params[:comments], :user => current_user.id)
+          end
+          message = {notice: "Enrollment Reinstated successfully."}
+        end
+      rescue Exception => e
+        message = {error: e.to_s}
+      end
+    else
+      message = {notice: "Unable to find Enrollment."}
+    end
+    
+    redirect_to exchanges_hbx_profiles_root_path, flash: message
   end
 
   def edit_dob_ssn
@@ -504,53 +618,57 @@ def employer_poc
   def edit
   end
 
+# FIXME: I have removed all writes to the HBX Profile models as we
+#        don't seem to have functionality that requires them nor
+#        permission checks around them.
+
   # GET /exchanges/hbx_profiles/1/inbox
-  def inbox
-    @inbox_provider = current_user.person.hbx_staff_role.hbx_profile
-    @folder = params[:folder] || 'inbox'
-    @sent_box = true
-  end
+#  def inbox
+#    @inbox_provider = current_user.person.hbx_staff_role.hbx_profile
+#    @folder = params[:folder] || 'inbox'
+#    @sent_box = true
+#  end
 
   # POST /exchanges/hbx_profiles
   # POST /exchanges/hbx_profiles.json
-  def create
-    @organization = Organization.new(organization_params)
-    @hbx_profile = @organization.build_hbx_profile(hbx_profile_params.except(:organization))
+#  def create
+#    @organization = Organization.new(organization_params)
+#    @hbx_profile = @organization.build_hbx_profile(hbx_profile_params.except(:organization))
 
-    respond_to do |format|
-      if @hbx_profile.save
-        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully created.' }
-        format.json { render :show, status: :created, location: @hbx_profile }
-      else
-        format.html { render :new }
-        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+#    respond_to do |format|
+#      if @hbx_profile.save
+#        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully created.' }
+#        format.json { render :show, status: :created, location: @hbx_profile }
+#      else
+#        format.html { render :new }
+#        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
+#      end
+#    end
+#  end
 
   # PATCH/PUT /exchanges/hbx_profiles/1
   # PATCH/PUT /exchanges/hbx_profiles/1.json
-  def update
-    respond_to do |format|
-      if @hbx_profile.update(hbx_profile_params)
-        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully updated.' }
-        format.json { render :show, status: :ok, location: @hbx_profile }
-      else
-        format.html { render :edit }
-        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+#  def update
+#    respond_to do |format|
+#      if @hbx_profile.update(hbx_profile_params)
+#        format.html { redirect_to exchanges_hbx_profile_path @hbx_profile, notice: 'HBX Profile was successfully updated.' }
+#        format.json { render :show, status: :ok, location: @hbx_profile }
+#      else
+#        format.html { render :edit }
+#        format.json { render json: @hbx_profile.errors, status: :unprocessable_entity }
+#      end
+#    end
+#  end
 
   # DELETE /exchanges/hbx_profiles/1
   # DELETE /exchanges/hbx_profiles/1.json
-  def destroy
-    @hbx_profile.destroy
-    respond_to do |format|
-      format.html { redirect_to exchanges_hbx_profiles_path, notice: 'HBX Profile was successfully destroyed.' }
-      format.json { head :no_content }
-    end
-  end
+#  def destroy
+#    @hbx_profile.destroy
+#    respond_to do |format|
+#      format.html { redirect_to exchanges_hbx_profiles_path, notice: 'HBX Profile was successfully destroyed.' }
+#      format.json { head :no_content }
+#    end
+#  end
 
   def set_date
     authorize HbxProfile, :modify_admin_tabs?
@@ -563,7 +681,6 @@ def employer_poc
     end
     redirect_to exchanges_hbx_profiles_root_path
   end
-
 
   # Enrollments for APTC / CSR
   def aptc_csr_family_index
@@ -602,13 +719,96 @@ def employer_poc
 
 private
 
-   def modify_admin_tabs?
-     authorize HbxProfile, :modify_admin_tabs?
-   end
+  def group_enrollments_by_year_and_market(all_enrollments)
+    current_year = TimeKeeper.date_of_record.year
+    years = (2015..(current_year + 1))
 
-   def view_admin_tabs?
-     authorize HbxProfile, :view_admin_tabs?
-   end
+    years.inject({}) do |hash_map, year|
+      ivl_enrs = all_enrollments.select{ |enrollment| !enrollment.is_shop? && enrollment.effective_on.year == year }
+      shop_enrs = all_enrollments.select do |enrollment|
+        next unless enrollment.present? || enrollment.sponsored_benefit_package.present?
+
+        enrollment.is_shop? && enrollment.sponsored_benefit_package.start_on.year == year
+      end
+      hash_map["ivl_#{year}"] = ivl_enrs if ivl_enrs.present?
+      hash_map["shop_#{year}"] = shop_enrs if shop_enrs.present?
+      hash_map
+    end
+  end
+
+  def duplicate_enrs_by_market_year(market_enrollments)
+    if market_enrollments.first.is_shop?
+      market_enrollments.each_cons(2).select do |enr, next_enr|
+        (enr.subscriber.applicant_id == next_enr.subscriber.applicant_id) &&
+          (enr.market_name == next_enr.market_name) &&
+          (enr.product.id == next_enr.product.id) &&
+          (enr.benefit_sponsorship_id == next_enr.benefit_sponsorship_id) &&
+          (enr.sponsored_benefit_package_id == next_enr.sponsored_benefit_package_id) &&
+          (enr.sponsored_benefit_package.start_on == next_enr.sponsored_benefit_package.start_on)
+      end
+    else
+      market_enrollments.each_cons(2).select do |enr, next_enr|
+        (enr.subscriber.applicant_id == next_enr.subscriber.applicant_id) &&
+          (enr.market_name == next_enr.market_name) &&
+          (enr.product.id == next_enr.product.id)
+      end
+    end
+  end
+
+  def get_duplicate_enrs(market_enrollments)
+    product_ids = market_enrollments.flatten.map(&:product_id)
+    return [] if product_ids.uniq.count == product_ids.count
+
+    dup_enrs = duplicate_enrs_by_market_year(market_enrollments)
+    dup_enr_arrays = dup_enrs.flatten.compact.count > 1 ? dup_enrs.flatten.compact : []
+    dup_enr_arrays
+  end
+
+  def fetch_duplicate_enrollment_ids(enrollments)
+    enrs_mapping_by_year_and_market = group_enrollments_by_year_and_market(enrollments)
+    return [] if enrs_mapping_by_year_and_market.blank?
+
+    enrs_mapping_by_year_and_market.inject([]) do |duplicate_ids, (_market_year, market_enrollments)|
+      next duplicate_ids unless market_enrollments.count > 1
+
+      dups = get_duplicate_enrs(market_enrollments)
+      next duplicate_ids if dups.empty?
+
+      effective_date = dups.map(&:effective_on).max
+      dups.each do |enr|
+        duplicate_ids << enr.id if enr.effective_on < effective_date
+      end
+      duplicate_ids
+    end
+  end
+
+  def benefit_application_error_messages(obj)
+    obj.errors.full_messages.collect { |error| "<li>#{error}</li>".html_safe }
+  end
+
+  def new_ba_params
+    params.merge!({ admin_datatable_action: true }).permit(:benefit_sponsorship_id, :admin_datatable_action)
+  end
+
+  def create_ba_params
+    params.merge!({ pte_count: '0', msp_count: '0', admin_datatable_action: true })
+    params.permit(:start_on, :end_on, :fte_count, :pte_count, :msp_count,
+                  :open_enrollment_start_on, :open_enrollment_end_on, :benefit_sponsorship_id, :admin_datatable_action)
+  end
+
+  def modify_admin_tabs?
+    authorize HbxProfile, :modify_admin_tabs?
+  end
+
+  def can_submit_time_travel_request?
+    unless authorize HbxProfile, :can_submit_time_travel_request?
+      redirect_to root_path, :flash => { :error => "Access not allowed" }
+    end
+  end
+
+  def view_admin_tabs?
+    authorize HbxProfile, :view_admin_tabs?
+  end
 
   def setting_params
     params.require(:setting).permit(:name, :value)
@@ -674,6 +874,12 @@ private
     end
   end
 
+  def view_the_configuration_tab?
+    unless authorize HbxProfile, :view_the_configuration_tab?
+      redirect_to root_path, :flash => { :error => "Access not allowed" }
+    end
+  end
+
   def check_csr_or_hbx_staff
     unless current_user.has_hbx_staff_role? || (current_user.person.csr_role && !current_user.person.csr_role.cac)
       redirect_to root_path, :flash => { :error => "You must be an HBX staff member or a CSR" }
@@ -692,4 +898,5 @@ private
     @benefit_sponsorship = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.find(params[:benefit_sponsorship_id] || params[:id])
     raise "Unable to find benefit sponsorship" if @benefit_sponsorship.blank?
   end
+
 end

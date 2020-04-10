@@ -90,7 +90,11 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
                             sponsored_benefit_package_id: initial_application.benefit_packages.first.id) }
     let(:hbx_enrollments) {double(:enrolled => [hbx_enrollment], :where => collectiondouble)}
     let!(:collectiondouble) { double(where: double(order_by: [hbx_enrollment]))}
-    let!(:hbx_profile) {FactoryGirl.create(:hbx_profile)}
+    let!(:hbx_profile) {
+      profile = FactoryGirl.create(:hbx_profile)
+      profile.benefit_sponsorship.benefit_coverage_periods << FactoryGirl.build(:benefit_coverage_period, :next_years_open_enrollment_coverage_period)
+      profile
+    }
     let(:benefit_group) { FactoryGirl.create(:benefit_group)}
     let(:benefit_package) { FactoryGirl.build(:benefit_package,
         benefit_coverage_period: hbx_profile.benefit_sponsorship.benefit_coverage_periods.first,
@@ -362,6 +366,19 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       expect(response).to redirect_to(insured_plan_shopping_path(id: family.active_household.hbx_enrollments[1].id, change_plan: 'change', coverage_kind: 'health', market_kind: 'shop', enrollment_kind: ''))
     end
 
+    it "should raise error if not shoppable" do
+      user = FactoryGirl.create(:user, id: 98, person: FactoryGirl.create(:person))
+      plan_year.update_attributes(aasm_state: :approved)
+      plan_year.save!
+      plan_year.reload
+      sign_in user
+      allow(hbx_enrollment).to receive(:save).and_return(true)
+      post :create, person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids, change_plan: 'change'
+      family.reload
+      family.active_household.reload
+      expect(flash[:error]).to match(/Open enrollment for your employer-sponsored benefits not yet started. Please return on/)
+    end
+
     context "when keep_existing_plan" do
       let(:old_hbx) {hbx_enrollment}
 
@@ -382,6 +399,50 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
       it "should get special_enrollment_period_id" do
         expect(family.active_household.hbx_enrollments[1].special_enrollment_period_id).to eq family.earliest_effective_shop_sep.id
+      end
+    end
+
+    context "family has active sep" do
+      let(:person1) { FactoryGirl.create(:person, :with_family, :with_employee_role)}
+      let(:family1) { person1.primary_family }
+      let(:family_member_ids) {{"0" => family1.family_members.first.id}}
+      let!(:new_household) {family1.households.where(:id => {"$ne" => family.households.first.id.to_s}).first}
+      let(:start_on) { TimeKeeper.date_of_record }
+
+      let(:qle) do
+        QualifyingLifeEventKind.create(
+          title: "Married",
+          tool_tip: "Enroll or add a family member because of marriage",
+          action_kind: "add_benefit",
+          event_kind_label: "Date of married",
+          market_kind: "shop",
+          ordinal_position: 15,
+          reason: "marriage",
+          edi_code: "32-MARRIAGE",
+          effective_on_kinds: ["first_of_next_month"],
+          pre_event_sep_in_days: 0,
+          post_event_sep_in_days: 30,
+          is_self_attested: true
+        )
+      end
+
+      let(:special_enrollment_period) {[double("SpecialEnrollmentPeriod")]}
+      let!(:sep) { family1.special_enrollment_periods.create(qualifying_life_event_kind: qle, qle_on: qle.created_at, effective_on_kind: qle.event_kind_label, effective_on: current_effective_date, start_on: start_on, end_on: start_on + 30.days) }
+      let(:params) do
+        { :person_id => person1.id,
+          :employee_role_id => person1.employee_roles.first.id,
+          :market_kind => "shop",
+          :change_plan => "change_plan",
+          :hbx_enrollment_id => hbx_enrollment.id,
+          :family_member_ids => family_member_ids,
+          :enrollment_kind => 'special_enrollment',
+          :coverage_kind => hbx_enrollment.coverage_kind}
+      end
+
+      it "should create an hbx enrollment" do
+        sign_in user
+        post :create, params
+        expect(assigns(:change_plan)).to eq "change_by_qle"
       end
     end
 

@@ -98,6 +98,7 @@ class CensusEmployee < CensusMember
   scope :active,            ->{ any_in(aasm_state: EMPLOYMENT_ACTIVE_STATES) }
   scope :terminated,        ->{ any_in(aasm_state: EMPLOYMENT_TERMINATED_STATES) }
   scope :non_terminated,    ->{ where(:aasm_state.nin => EMPLOYMENT_TERMINATED_STATES) }
+  scope :non_term_and_pending,->{ where(:aasm_state.nin => (EMPLOYMENT_TERMINATED_STATES + PENDING_STATES)) }
   scope :newly_designated,  ->{ any_in(aasm_state: NEWLY_DESIGNATED_STATES) }
   scope :linked,            ->{ any_in(aasm_state: LINKED_STATES) }
   scope :eligible,          ->{ any_in(aasm_state: ELIGIBLE_STATES) }
@@ -149,6 +150,13 @@ class CensusEmployee < CensusMember
       :start_on => effective_on,
       :benefit_package_id => benefit_package.id, :is_active => is_active
     }})
+  }
+
+  scope :by_benefit_package_and_assignment_on_or_later,->(benefit_package, effective_on, is_active) {
+    where(:benefit_group_assignments =>
+              { :$elemMatch => { :start_on.gte => effective_on,
+                                 :benefit_package_id => benefit_package.id,
+                                 :is_active => is_active }})
   }
 
   scope :benefit_application_assigned,     ->(benefit_application) { where(:"benefit_group_assignments.benefit_package_id".in => benefit_application.benefit_packages.pluck(:_id)) }
@@ -211,7 +219,6 @@ class CensusEmployee < CensusMember
 
   def assign_to_benefit_package(benefit_package, assignment_on)
     return if benefit_package.blank?
-
     benefit_group_assignments.create(
       start_on: assignment_on,
       end_on:   benefit_package.effective_period.max,
@@ -348,9 +355,11 @@ class CensusEmployee < CensusMember
   end
 
   def published_benefit_group_assignment
-    benefit_group_assignments.detect do |benefit_group_assignment|
+    assignments = benefit_group_assignments.select do |benefit_group_assignment|
       benefit_group_assignment.benefit_group.is_active && benefit_group_assignment.benefit_group.plan_year.employees_are_matchable?
     end
+
+    assignments.detect(&:is_active) || assignments.sort_by(&:created_at).reverse.first
   end
 
   def active_and_renewing_benefit_group_assignments
@@ -410,6 +419,17 @@ class CensusEmployee < CensusMember
 
   def is_business_owner?
     is_business_owner
+  end
+  
+  def can_be_reinstated?
+    self.employment_terminated? || self.cobra_terminated?
+  end
+
+   def reinstate_employment
+    if self.may_reinstate_eligibility?
+      self.update_attributes({:employment_terminated_on => nil, :coverage_terminated_on => nil})
+      reinstate_eligibility!
+    end
   end
 
   def is_covered_or_waived?
@@ -1156,11 +1176,15 @@ def self.to_csv
     end
   end
 
+  def past_benefit_group_assignments
+    benefit_group_assignments - [active_benefit_group_assignment, renewal_benefit_group_assignment].compact
+  end
+
+  # Pull expired enrollments as well
   def past_enrollments
     if employee_role.present?
-      employee_role.person.primary_family.active_household.hbx_enrollments.shop_market.where({
-        :"aasm_state".in => ["coverage_terminated", "coverage_termination_pending"],
-        :"benefit_group_assignment_id".in => benefit_group_assignments.map(&:id)
+      employee_role.person.primary_family.active_household.hbx_enrollments.non_external.shop_market.enrolled_and_terminated.where({
+        :"benefit_group_assignment_id".in => past_benefit_group_assignments.map(&:id)
       })
     end
   end
@@ -1240,7 +1264,7 @@ def self.to_csv
     assignments = benefit_group_assignments.select do |assignment|
       (assignment.start_on..assignment.benefit_end_date).cover?(coverage_date) && assignment.benefit_package.is_active
     end
-    assignments.detect{|assignment| assignment.is_active} || assignments.first
+    assignments.detect{|assignment| assignment.is_active} || assignments.sort_by(&:created_at).reverse.first
   end
 
   def earliest_benefit_package_after(coverage_date)

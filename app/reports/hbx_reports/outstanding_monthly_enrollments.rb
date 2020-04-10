@@ -4,6 +4,20 @@ require 'csv'
 class OutstandingMonthlyEnrollments < MongoidMigrationTask
   include Config::AcaHelper
 
+  def get_enrollment_ids(benefit_applications)
+    benefit_applications.inject([]) do |ids, ba|
+      families = Family.unscoped.where(:"households.hbx_enrollments" => { :$elemMatch => {  :sponsored_benefit_package_id => { "$in" => ba.benefit_packages.pluck(:_id) },
+                                                                                            :aasm_state => { "$nin" => %w[coverage_canceled shopping coverage_terminated] }}})
+      id_list = ba.benefit_packages.collect(&:_id).uniq
+      enrs = families.inject([]) do |enrollments, family|
+        enrollments << family.active_household.hbx_enrollments.where(:sponsored_benefit_package_id.in => id_list).enrolled_and_renewing.to_a
+        enrollments.flatten.compact.uniq
+      end
+      ids += enrs.map(&:hbx_id)
+      ids.flatten.compact.uniq
+    end
+  end
+
   def migrate
     effective_on = Date.strptime(ENV['start_date'],'%m/%d/%Y') 
     file_name = "#{Rails.root}/hbx_report/#{effective_on.strftime('%Y%m%d')}_employer_enrollments_#{Time.now.strftime('%Y%m%d%H%M')}.csv"
@@ -15,8 +29,8 @@ class OutstandingMonthlyEnrollments < MongoidMigrationTask
         end_on = benefit_application.renewal_quiet_period_end(effective_on)
       else
         end_on = benefit_application.initial_quiet_period_end(effective_on)
-      end 
-        return start_on..end_on
+      end
+      (start_on..end_on)
     end
 
     glue_list = File.read("all_glue_policies.txt").split("\n").map(&:strip) if File.exists?("all_glue_policies.txt")
@@ -36,10 +50,11 @@ class OutstandingMonthlyEnrollments < MongoidMigrationTask
                     "Carrier",
                     "Plan",
                     "Plan Hios ID",
+                    "Super Group ID",
                     "Enrollment Purchase Date/Time",
                     "Coverage Start Date",
                     "Enrollment State",
-                    "Subscriber HBX ID", 
+                    "Subscriber HBX ID",
                     "Subscriber First Name",
                     "Subscriber Last Name",
                     "Policy in Glue?",
@@ -49,7 +64,8 @@ class OutstandingMonthlyEnrollments < MongoidMigrationTask
       csv << field_names
       benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where({"benefit_applications" => {"$elemMatch" => {"effective_period.min" => effective_on}}})
       benefit_applications = benefit_sponsorships.to_a.flat_map(&:benefit_applications).to_a.select{|ba| ba.effective_period.min == effective_on}
-      enrollment_ids = benefit_applications.flat_map(&:hbx_enrollments).map(&:hbx_id).compact.uniq
+      enrollment_ids = get_enrollment_ids(benefit_applications)
+      # enrollment_ids = benefit_applications.flat_map(&:hbx_enrollments).map(&:hbx_id).compact.uniq
       enrollment_ids.each do |id|
         begin
           hbx_enrollment = HbxEnrollment.by_hbx_id(id).first
@@ -71,9 +87,10 @@ class OutstandingMonthlyEnrollments < MongoidMigrationTask
           benefit_application_state = benefit_application.aasm_state
           benefit_sponsorship_aasm = benefit_sponsorship.aasm_state
           initial_renewal = benefit_application.predecessor.present? ? "renewal" : "initial"
-          binder_paid = %w(initial_enrollment_eligible active).include?(benefit_sponsorship_aasm.to_s)
+          binder_paid = benefit_application.binder_paid?
           eg_id = id
           product = hbx_enrollment.product rescue ""
+          super_group_id = product.try(:issuer_assigned_id)
           carrier = product.issuer_profile.legal_name rescue ""
           purchase_time = hbx_enrollment.created_at
           coverage_start = hbx_enrollment.effective_on
@@ -87,7 +104,7 @@ class OutstandingMonthlyEnrollments < MongoidMigrationTask
           in_glue = glue_list.include?(id)
           qp = quiet_period_range(benefit_application,effective_on)
           quiet_period_boolean = qp.include?(hbx_enrollment.created_at)
-          csv << [employer_id,fein,legal_name,oe_start,oe_end,benefit_application_start,benefit_application_state, covered_lives, enrollment_reason,benefit_sponsorship_aasm,initial_renewal,binder_paid,eg_id,carrier,product.title, product.hios_id,purchase_time,coverage_start,
+          csv << [employer_id,fein,legal_name,oe_start,oe_end,benefit_application_start,benefit_application_state, covered_lives, enrollment_reason,benefit_sponsorship_aasm,initial_renewal,binder_paid,eg_id,carrier,product.title, product.hios_id,super_group_id,purchase_time,coverage_start,
                   enrollment_state,subscriber_hbx_id,first_name,last_name,in_glue, quiet_period_boolean]
         rescue Exception => e
           puts "#{id} - #{e.inspect}" unless Rails.env.test?
@@ -102,7 +119,7 @@ class OutstandingMonthlyEnrollments < MongoidMigrationTask
 
       if File.exists?(file_name)
         puts 'Report has been successfully generated in the hbx_report directory!' unless Rails.env.test?
-      end 
+      end
     end
   end
 end

@@ -55,7 +55,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
         allow(employer_profile).to receive(:broker_agency_profile).and_return(broker_agency_profile)
         allow(broker_agency_profile).to receive(:active_broker_roles).and_return([broker])
         allow(broker_agency_profile).to receive(:primary_broker_role).and_return(broker)
-        render :template => "events/v2/employers/updated", :locals => { :employer => employer_profile, manual_gen: false }
+        render :template => "events/v2/employers/updated", :locals => { :employer => employer_profile, benefit_application_id:nil, manual_gen: false }
         @doc = Nokogiri::XML(rendered)
       end
 
@@ -104,6 +104,35 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
       end
     end
 
+    context "fein element" do
+      before do
+        allow(employer_profile).to receive(:staff_roles).and_return([staff])
+        allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
+        allow(employer_profile).to receive(:broker_agency_profile).and_return(broker_agency_profile)
+        allow(broker_agency_profile).to receive(:active_broker_roles).and_return([broker])
+        allow(broker_agency_profile).to receive(:primary_broker_role).and_return(broker)
+      end
+
+      subject do
+        render :template => "events/v2/employers/updated", :locals => { :employer => employer_profile, benefit_application_id:nil, manual_gen: false }
+        Nokogiri::XML(rendered)
+      end
+
+      it "should display a tag for FEIN" do
+        expect(subject.xpath("//x:fein", "x"=>"http://openhbx.org/api/terms/1.0").text).to eq(employer_profile.fein)
+      end
+
+      context "for an employer without an fein" do
+        before do
+          allow(employer_profile).to receive(:fein).and_return(nil)
+        end
+
+        it "should not display a tag for FEIN" do
+          expect(subject.xpath("//x:fein", "x"=>"http://openhbx.org/api/terms/1.0")).to be_empty
+        end
+      end
+    end
+
     context "with dental plans" do
       context "is_offering_dental? is true" do
 
@@ -118,7 +147,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
         end
 
         it "shows the dental plan in output" do
-          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: false}
+          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, benefit_application_id: nil, manual_gen: false}
           @doc2 = Nokogiri::XML(rendered)
           expect(@doc2.xpath("//x:benefit_groups/x:benefit_group/x:elected_plans/x:elected_plan/x:is_dental_only", "x"=>"http://openhbx.org/api/terms/1.0").detect {|node| node.text == "true" }.present?).to eq true
         end
@@ -130,7 +159,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
           allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
         end
         it "does not show the dental plan in output" do
-          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: false}
+          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, benefit_application_id: nil, manual_gen: false}
           @doc2 = Nokogiri::XML(rendered)
           expect(@doc2.xpath("//x:benefit_groups/x:benefit_group/x:elected_plans/x:elected_plan/x:is_dental_only", "x"=>"http://openhbx.org/api/terms/1.0").detect {|node| node.text == "true" }.present?).to eq false
         end
@@ -144,7 +173,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
         allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
       end
       it "should be included in xml" do
-        render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: false}
+        render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, benefit_application_id: nil, manual_gen: false}
         expect(rendered).to have_selector('contact', count: 1)
       end
     end
@@ -155,7 +184,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
         allow(employer_profile).to receive(:staff_roles).and_return([staff])
         allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
         allow(staff).to receive(:addresses).and_return([mailing_address,home_address])
-        render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: false}
+        render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, benefit_application_id: nil, manual_gen: false}
         @doc = Nokogiri::XML(rendered)
       end
 
@@ -184,7 +213,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
 
         before :each do
           allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
-          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: true}
+          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, benefit_application_id: nil, manual_gen: true}
           @doc = Nokogiri::XML(rendered)
         end
 
@@ -198,7 +227,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
           benefit_application.aasm_state = :terminated
           benefit_application.save
           allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
-          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: true}
+          render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, benefit_application_id:nil, manual_gen: true}
           @doc = Nokogiri::XML(rendered)
         end
 
@@ -206,6 +235,26 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
           expect(@doc.xpath("//x:plan_years/x:plan_year", "x" => "http://openhbx.org/api/terms/1.0").count).to eq 1
         end
       end
+    end
+
+    context "employer with canceled plan year and is eigible to export" do
+      before :each do
+        benefit_application.aasm_state = :canceled
+        benefit_application.save
+        allow(sponsor_contribution).to receive(:contribution_model).and_return(product_package.contribution_model)
+        render :template => "events/v2/employers/updated", :locals => {:employer => employer_profile, manual_gen: false, benefit_application_id: benefit_application.id.to_s}
+        @doc = Nokogiri::XML(rendered)
+      end
+
+      it "should return eligible for export canceled benefit_application" do
+        expect(@doc.xpath("//x:plan_years/x:plan_year", "x" => "http://openhbx.org/api/terms/1.0").count).to eq 1
+      end
+
+      it "should include canceled plan year" do
+        expect(@doc.xpath("//x:plan_years/x:plan_year/x:plan_year_start", "x" => "http://openhbx.org/api/terms/1.0")[0].text).to eq benefit_application.start_on.strftime("%Y%m%d")
+        expect(@doc.xpath("//x:plan_years/x:plan_year/x:plan_year_end", "x" => "http://openhbx.org/api/terms/1.0")[0].text).to eq benefit_application.start_on.strftime("%Y%m%d")
+      end
+
     end
   end
 end

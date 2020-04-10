@@ -120,6 +120,8 @@ module BenefitSponsors
           expect { create_form.save }.to change { BenefitSponsors::Organizations::Organization.broker_agency_profiles.count }.by(1)
           expect(BenefitSponsors::Organizations::Organization.broker_agency_profiles.first.legal_name).to eq params["organization"]["legal_name"]
         end
+        expect(create_form.organization.profile_type).to eq profile_type
+        expect(create_form.organization.profile.profile_type).to eq profile_type
       end
     end
 
@@ -204,7 +206,7 @@ module BenefitSponsors
                      "office_locations_attributes"=>
                          {"0"=>
                               {"address_attributes"=>
-                                   {"kind"=>"primary", "address_1"=>"new_address", "address_2"=>"", "city"=>"ma_city", "state"=>"MA", "zip"=>"01001"},
+                                   {"kind"=>"primary", "address_1"=>"new_address", "address_2"=>"", "city"=>"ma_city", "state"=>"MA", "zip"=>"01001", "county" => "test"},
                                "phone_attributes"=>{"kind"=>"phone main", "area_code"=>"333", "number"=>"111-2222", "extension"=>"111"}}},
                      "contact_method"=>"paper_and_electronic"}},
            "profile_id"=>employer_profile.id.to_s,
