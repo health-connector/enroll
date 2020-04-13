@@ -13,6 +13,7 @@ module Config::AcaModelConcern
     delegate :aca_shop_market_census_employees_template_file, to: :class
     delegate :individual_market_is_enabled?, to: :class
     delegate :general_agency_enabled?, to: :class
+    delegate :enrollments_reinstate_enabled?, to: :class
     delegate :use_simple_employer_calculation_model?, to: :class
     delegate :market_rating_areas, to: :class
     delegate :multiple_market_rating_areas?, to: :class
@@ -30,6 +31,8 @@ module Config::AcaModelConcern
     delegate :employer_attestation_is_enabled?, to: :class
     delegate :plan_match_tool_is_enabled?, to: :class
     delegate :dental_market_enabled?, to: :class
+    delegate :allow_mid_month_voluntary_terms?, to: :class
+    delegate :allow_mid_month_non_payment_terms?, to: :class
     delegate :enabled_metal_levels, to: :class
     delegate :offerings_constrained_to_service_areas?, to: :class
   end
@@ -81,6 +84,10 @@ module Config::AcaModelConcern
 
     def general_agency_enabled?
       @@genearl_agency_enabled ||= Settings.aca.general_agency_enabled
+    end
+
+    def enrollments_reinstate_enabled?
+      @@enrollments_reinstate_enabled ||= Settings.aca.enrollments_reinstate_enabled
     end
 
     def broker_carrier_appointments_enabled?
@@ -141,6 +148,14 @@ module Config::AcaModelConcern
 
     def dental_market_enabled?
       @dental_market_enabled ||= Settings.aca.dental_market_enabled
+    end
+
+    def allow_mid_month_voluntary_terms?
+      @allow_mid_month_voluntary_terms ||= Settings.aca.shop_market.mid_month_benefit_application_terminations.voluntary
+    end
+
+    def allow_mid_month_non_payment_terms?
+      @allow_mid_month_non_payment_terms ||= Settings.aca.shop_market.mid_month_benefit_application_terminations.non_payment
     end
 
     def enrollment_shopping_start_day_offset

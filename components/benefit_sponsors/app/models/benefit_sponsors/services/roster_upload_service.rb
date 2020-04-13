@@ -62,7 +62,7 @@ module BenefitSponsors
           row = Hash[[columns, sheet.row(id)].transpose]
           result << Forms::CensusRecordForm.new(
             employer_assigned_family_id: parse_text(row["employer_assigned_family_id"]),
-            employee_relationship: parse_relationship(row["employee_relationship"]),
+            employee_relationship: parse_relationship(row["employee_relationship"], parse_date(row["dob"])),
             last_name: parse_text(row["last_name"]),
             first_name: parse_text(row["first_name"]),
             middle_name: parse_text(row["middle_name"]),
@@ -215,8 +215,7 @@ module BenefitSponsors
       end
 
       def init_census_record(member, form)
-        params = sanitize_params(form).merge!({
-          hired_on: form.hired_on,
+        params = sanitize_params(form).merge!({  hired_on: parse_date(form.hired_on),
           is_business_owner: is_business_owner?(form),
           email: build_email(form),
           employee_relationship: form.employee_relationship,
@@ -302,21 +301,27 @@ module BenefitSponsors
         census_employee.may_terminate_employee_role?
       end
 
-      def parse_relationship(cell)
+      def parse_relationship(cell, dob)
         return nil if cell.blank?
+        age = Date.today.year - dob.year
         case parse_text(cell).downcase
-          when "employee"
-            "self"
-          when "spouse"
-            "spouse"
-          when "domestic partner"
-            "domestic_partner"
-          when "child"
+
+        when "employee"
+          "self"
+        when "spouse"
+          "spouse"
+        when "domestic partner"
+          "domestic_partner"
+        when "child"
+          if age <= 26
             "child_under_26"
-          when "disabled child"
-            "disabled_child_26_and_over"
           else
-            nil
+            "child_26_and_over"
+          end
+        when "disabled child"
+          "disabled_child_26_and_over"
+        else
+          nil
         end
       end
 
@@ -326,9 +331,8 @@ module BenefitSponsors
 
       def parse_date(cell)
         return nil if cell.blank?
-        return DateTime.strptime(sanitize_value(cell), "%d/%m/%Y") rescue raise ImportErrorValue, cell if cell.class == String
+        return Date.strptime(sanitize_value(cell), "%m/%d/%Y") rescue raise ImportErrorValue, cell if cell.class == String
         return sanitize_value(cell.to_s).to_time.strftime("%m-%d-%Y") rescue raise ImportErrorDate, cell if cell.class == String
-
         cell.blank? ? nil : cell
       end
 

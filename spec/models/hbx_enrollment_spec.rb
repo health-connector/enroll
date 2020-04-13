@@ -5,10 +5,10 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 
 RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
 
-  describe HbxEnrollment do
+  describe HbxEnrollment, dbclean: :around_each do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup initial benefit application"
-
+    
     context "an employer defines a plan year with multiple benefit groups, adds employees to roster and assigns benefit groups" do
 
       before do
@@ -507,7 +507,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     end
   end
 
-  describe HbxProfile, "class methods", type: :model do
+  describe HbxProfile, "class methods", type: :model, dbclean: :after_each do
 
     # before :all do
     #   create_brady_census_families
@@ -988,18 +988,18 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
   end
 
   context "Benefits are terminated" do
-    let(:effective_on_date) {TimeKeeper.date_of_record.beginning_of_month - 1.month}
+    let(:effective_on_date) {TimeKeeper.date_of_record.beginning_of_month}
     let!(:hbx_profile) {FactoryGirl.create(:hbx_profile)}
 
     context "Individual benefit" do
       let(:ivl_family) {FactoryGirl.create(:family, :with_primary_family_member)}
-      let(:ivl_enrollment) {FactoryGirl.create(:hbx_enrollment,
-                                               household: ivl_family.latest_household,
+      let(:ivl_enrollment) {ivl_family.latest_household.hbx_enrollments.create!(
                                                coverage_kind: "health",
                                                effective_on: effective_on_date,
                                                enrollment_kind: "open_enrollment",
                                                kind: "individual",
-                                               submitted_at: effective_on_date - 10.days
+                                               submitted_at: effective_on_date - 10.days,
+                                               aasm_state:"coverage_selected"
       )
       }
       let(:ivl_termination_date) {TimeKeeper.date_of_record}
@@ -1030,7 +1030,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     let(:broker_agency_account_1) {double(:start_on => start_on_1, :end_on => end_on_1)}
     let(:broker_agency_account_2) {double(:start_on => start_on_2, :end_on => end_on_2)}
 
-    describe "with both accounts active before the purchase, and the second one unterminated" do
+    describe "with both accounts active before the purchase, and the second one unterminated", dbclean: :after_each do
       let(:start_on_1) {submitted_at - 12.days}
       let(:start_on_2) {submitted_at - 5.days}
       let(:end_on_1) {nil}
@@ -1041,7 +1041,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       end
     end
 
-    describe "with both accounts active before the purchase, and the later one terminated" do
+    describe "with both accounts active before the purchase, and the later one terminated", dbclean: :after_each do
       let(:start_on_1) {submitted_at - 12.days}
       let(:start_on_2) {submitted_at - 5.days}
       let(:end_on_1) {nil}
@@ -1052,7 +1052,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       end
     end
 
-    describe "with one account active before the purchase, and the other active after" do
+    describe "with one account active before the purchase, and the other active after", dbclean: :after_each do
       let(:start_on_1) {submitted_at - 12.days}
       let(:start_on_2) {submitted_at + 5.days}
       let(:end_on_1) {nil}
@@ -1063,7 +1063,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       end
     end
 
-    describe "with one account active before the purchase and terminated before the purchase, and the other active after" do
+    describe "with one account active before the purchase and terminated before the purchase, and the other active after", dbclean: :after_each do
       let(:start_on_1) {submitted_at - 12.days}
       let(:start_on_2) {submitted_at + 5.days}
       let(:end_on_1) {submitted_at - 3.days}
@@ -1082,7 +1082,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       expect(subject.new_hire_enrollment_for_shop?).to eq false
     end
 
-    describe "and given a special enrollment period, with a reason of 'birth'" do
+    describe "and given a special enrollment period, with a reason of 'birth'", dbclean: :after_each do
       let(:qle_on) {Date.today}
 
       before :each do
@@ -1109,7 +1109,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       expect(subject.eligibility_event_has_date?).to eq false
     end
 
-    describe "in the IVL market" do
+    describe "in the IVL market", dbclean: :after_each do
       before :each do
         subject.kind = "unassisted_qhp"
       end
@@ -1127,7 +1127,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       end
     end
 
-    describe "in the SHOP market, purchased outside of open enrollment" do
+    describe "in the SHOP market, purchased outside of open enrollment", dbclean: :after_each do
 
       include_context "setup benefit market with market catalogs and product packages"
       include_context "setup initial benefit application"
@@ -1169,7 +1169,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       end
     end
 
-    describe "in the SHOP market, purchased during open enrollment" do
+    describe "in the SHOP market, purchased during open enrollment", dbclean: :after_each do
       include_context "setup benefit market with market catalogs and product packages"
       include_context "setup initial benefit application"
 
@@ -1192,7 +1192,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         allow(subject).to receive(:sponsored_benefit_package).and_return(current_benefit_package)
       end
 
-      describe "when coverage start is the same as the plan year" do
+      describe "when coverage start is the same as the plan year", dbclean: :after_each do
         before(:each) do
           subject.effective_on = reference_date
           subject.submitted_at = purchase_time
@@ -1211,7 +1211,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         end
       end
 
-      describe "when coverage start is the different from the plan year" do
+      describe "when coverage start is the different from the plan year", dbclean: :after_each do
         before(:each) do
           subject.effective_on = reference_date + 12.days
         end
@@ -1423,20 +1423,20 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     let(:enrollment_kind) { "open_enrollment" }
     let(:special_enrollment_period_id) { nil }
 
-    let!(:enrollment) { FactoryGirl.create(:hbx_enrollment,
-      household: shop_family.latest_household,
-      coverage_kind: "health",
-      effective_on: effective_on,
-      enrollment_kind: enrollment_kind,
-      kind: "employer_sponsored",
-      submitted_at: effective_on - 20.days,
-      benefit_sponsorship_id: benefit_sponsorship.id,
-      sponsored_benefit_package_id: current_benefit_package.id,
-      sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-      employee_role_id: employee_role.id,
-      benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-      special_enrollment_period_id: special_enrollment_period_id,
-      product_id: current_benefit_package.sponsored_benefits[0].reference_product.id
+    let!(:enrollment) {shop_family.latest_household.hbx_enrollments.create!(
+                          coverage_kind: "health",
+                          effective_on: effective_on,
+                          enrollment_kind: enrollment_kind,
+                          kind: "employer_sponsored",
+                          submitted_at: effective_on - 20.days,
+                          benefit_sponsorship_id: benefit_sponsorship.id,
+                          sponsored_benefit_package_id: current_benefit_package.id,
+                          sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                          employee_role_id: employee_role.id,
+                          benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                          special_enrollment_period_id: special_enrollment_period_id,
+                          product_id: current_benefit_package.sponsored_benefits[0].reference_product.id,
+                          aasm_state:"coverage_selected"
       )
     }
 
@@ -1453,8 +1453,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       }
       let(:new_enrollment_eff_on)  { TimeKeeper.date_of_record.next_month.beginning_of_month }
 
-      let(:new_enrollment) { FactoryGirl.create(:hbx_enrollment,
-                                                household: shop_family.latest_household,
+      let(:new_enrollment) {shop_family.latest_household.hbx_enrollments.create!(
                                                 coverage_kind: "health",
                                                 effective_on: new_enrollment_eff_on,
                                                 enrollment_kind: enrollment_kind,
@@ -1489,6 +1488,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     context 'When family passively renewed', dbclean: :after_each do
       include_context "setup renewal application"
 
+      let(:predecessor_application_catalog) { true }
       let(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month - 1.year }
       let(:renewal_state) { :enrollment_open }
       let(:open_enrollment_period)  { TimeKeeper.date_of_record..(effective_period.min - 10.days) }
@@ -1508,27 +1508,27 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
 
         let(:new_enrollment_product_id) { passive_renewal.product_id }
 
-        let(:new_enrollment) { FactoryGirl.create(:hbx_enrollment,
-          household: shop_family.latest_household,
-          coverage_kind: "health",
-          effective_on: enrollment_effective_on,
-          enrollment_kind: enrollment_kind,
-          kind: "employer_sponsored",
-          submitted_at: TimeKeeper.date_of_record,
-          benefit_sponsorship_id: benefit_sponsorship.id,
-          sponsored_benefit_package_id: benefit_package.id,
-          sponsored_benefit_id: benefit_package.sponsored_benefits[0].id,
-          employee_role_id: employee_role.id,
-          benefit_group_assignment_id: census_employee.renewal_benefit_group_assignment.id,
-          predecessor_enrollment_id: passive_renewal.id,
-          product_id: new_enrollment_product_id,
-          special_enrollment_period_id: special_enrollment_period_id,
-          aasm_state: 'shopping'
-          )
+        let(:new_enrollment) {shop_family.latest_household.hbx_enrollments.create!(
+                                coverage_kind: "health",
+                                effective_on: enrollment_effective_on,
+                                enrollment_kind: enrollment_kind,
+                                kind: "employer_sponsored",
+                                submitted_at: TimeKeeper.date_of_record,
+                                benefit_sponsorship_id: benefit_sponsorship.id,
+                                sponsored_benefit_package_id: benefit_package.id,
+                                sponsored_benefit_id: benefit_package.sponsored_benefits[0].id,
+                                employee_role_id: employee_role.id,
+                                benefit_group_assignment_id: census_employee.renewal_benefit_group_assignment.id,
+                                predecessor_enrollment_id: passive_renewal.id,
+                                product_id: new_enrollment_product_id,
+                                special_enrollment_period_id: special_enrollment_period_id,
+                                aasm_state: 'shopping'
+                                )
         }
 
         before do
           allow(benefit_package).to receive(:is_renewal_benefit_available?).and_return(true)
+          allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
           generate_passive_renewal
         end
 
@@ -1566,30 +1566,31 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
 
       context '.update_renewal_coverage', dbclean: :after_each do
 
+        let(:issuer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile) }
         before do
           allow(benefit_package).to receive(:is_renewal_benefit_available?).and_return(true)
+          allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
           generate_passive_renewal
         end
 
         context 'when EE enters SEP and picks new plan' do
           let(:enrollment_effective_on) { renewal_effective_date - 3.months }
 
-          let(:new_enrollment) { FactoryGirl.create(:hbx_enrollment,
-            household: shop_family.latest_household,
-            coverage_kind: "health",
-            effective_on: enrollment_effective_on,
-            enrollment_kind: enrollment_kind,
-            kind: "employer_sponsored",
-            submitted_at: TimeKeeper.date_of_record,
-            benefit_sponsorship_id: benefit_sponsorship.id,
-            sponsored_benefit_package_id: current_benefit_package.id,
-            sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-            employee_role_id: employee_role.id,
-            benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-            predecessor_enrollment_id: enrollment.id,
-            product_id: new_enrollment_product.id,
-            special_enrollment_period_id: special_enrollment_period_id,
-            aasm_state: 'shopping'
+          let(:new_enrollment) { shop_family.latest_household.hbx_enrollments.create(
+                                  coverage_kind: "health",
+                                  effective_on: enrollment_effective_on,
+                                  enrollment_kind: enrollment_kind,
+                                  kind: "employer_sponsored",
+                                  submitted_at: TimeKeeper.date_of_record,
+                                  benefit_sponsorship_id: benefit_sponsorship.id,
+                                  sponsored_benefit_package_id: current_benefit_package.id,
+                                  sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                  employee_role_id: employee_role.id,
+                                  benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                                  predecessor_enrollment_id: enrollment.id,
+                                  product_id: new_enrollment_product.id,
+                                  special_enrollment_period_id: special_enrollment_period_id,
+                                  aasm_state: 'shopping'
             )
           }
 
@@ -1662,6 +1663,19 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
             expect(passive_renewal.coverage_canceled?).to be_truthy
             passive_waiver = shop_family.reload.enrollments.where(:aasm_state => 'renewing_waived').first
             expect(passive_waiver.present?).to be_truthy
+          end
+
+          it 'should cancel passive renewal and should not generate a duplicate waiver' do
+            expect(passive_renewal).not_to be_nil
+            new_enrollment.waive_coverage!
+            new_enrollment.schedule_coverage_termination!
+            passive_renewal.reload
+            enrollment.reload
+            new_enrollment.reload
+            expect(new_enrollment.inactive?).to be_truthy
+            expect(passive_renewal.coverage_canceled?).to be_truthy
+            passive_waiver = shop_family.reload.enrollments.where(:aasm_state => 'renewing_waived').first
+            expect(passive_waiver.present?).to be_falsey
           end
         end
       end
@@ -1873,18 +1887,16 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     let(:person) {family.primary_applicant.person}
 
     context 'Employer Sponsored Coverage' do
-      let!(:enrollment) {
-        FactoryGirl.create(:hbx_enrollment,
-         household: family.active_household,
-         coverage_kind: "health",
-         effective_on: benefit_group.start_on,
-         enrollment_kind: "open_enrollment",
-         kind: "employer_sponsored",
-         sponsored_benefit_package_id: benefit_group.id,
-         employee_role_id: person.active_employee_roles.first.id,
-         benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
-         plan_id: plan.id
-         )
+      let!(:enrollment) { family.active_household.hbx_enrollments.create!(
+                            coverage_kind: "health",
+                            effective_on: benefit_group.start_on,
+                            enrollment_kind: "open_enrollment",
+                            kind: "employer_sponsored",
+                            sponsored_benefit_package_id: benefit_group.id,
+                            employee_role_id: person.active_employee_roles.first.id,
+                            benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                            plan_id: plan.id
+        )
       }
 
       context 'for congression employer' do
@@ -1913,14 +1925,12 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     end
 
     context 'Individual Coverage' do
-      let!(:enrollment) {
-        FactoryGirl.create(:hbx_enrollment,
-         household: family.active_household,
-         coverage_kind: "health",
-         effective_on: TimeKeeper.date_of_record.beginning_of_month,
-         enrollment_kind: "open_enrollment",
-         kind: "individual",
-         plan_id: plan.id
+      let!(:enrollment) { family.active_household.hbx_enrollments.create!(
+                            coverage_kind: "health",
+                            effective_on: TimeKeeper.date_of_record.beginning_of_month,
+                            enrollment_kind: "open_enrollment",
+                            kind: "individual",
+                            plan_id: plan.id
          )
       }
 
@@ -1991,8 +2001,8 @@ describe HbxEnrollment, type: :model, :dbclean => :after_each do
     let(:dental_sponsored_benefit) { true }
   end
 
-  describe ".renew_benefit" do
-    describe "given an renewing employer just entered open enrollment" do
+  describe ".renew_benefit", :dbclean => :after_each do
+    describe "given an renewing employer just entered open enrollment", dbclean: :after_each do
       describe "with employees who have made the following plan selections previous year:
         - employee A has purchased:
           - One health enrollment (Enrollment 1)         
@@ -2007,7 +2017,7 @@ describe HbxEnrollment, type: :model, :dbclean => :after_each do
           - One health waiver (Enrollment 7)
           - One dental waiver (Enrollment 8)
         - employee E has none
-      " do
+      ", dbclean: :after_each do
 
 
         let(:census_employees) {
@@ -2094,6 +2104,7 @@ describe HbxEnrollment, type: :model, :dbclean => :after_each do
 
         before do 
           allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(100.0)
+          allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
           renewal_benefit_package.sponsored_benefits.each do |sponsored_benefit|
             allow(sponsored_benefit).to receive(:products).and_return(sponsored_benefit.product_package.products)
           end
@@ -2218,6 +2229,650 @@ describe HbxEnrollment, type: :model, :dbclean => :after_each do
             product: sponsored_benefit.reference_product,
             aasm_state: status
             )
+        end
+      end
+    end
+  end
+
+  describe "#notify_enrollment_cancel_or_termination_event", :dbclean => :after_each do
+    let(:family) { FactoryGirl.build(:family, :with_primary_family_member_and_dependent)}
+    let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: family.active_household, kind: "employer_sponsored", aasm_state: "coverage_terminated") }
+    let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
+
+    it "should notify event" do # loud transaction
+      expect(hbx_enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => hbx_enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => true})
+      hbx_enrollment.notify_enrollment_cancel_or_termination_event(true)
+    end
+
+    it "should notify event, with trading_partner_publishable flag false" do # silent transaction
+      expect(hbx_enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => hbx_enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+      hbx_enrollment.notify_enrollment_cancel_or_termination_event(false)
+    end
+  end
+
+end
+
+
+describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean => :around_each do
+
+  context "Terminated enrollment re-instatement" do
+    let(:current_date) { Date.new(TimeKeeper.date_of_record.year, 6, 1) }
+    let(:effective_on_date)         { Date.new(TimeKeeper.date_of_record.year, 3, 1) }
+    let(:terminated_on_date)        {effective_on_date + 10.days}
+
+    before do
+      TimeKeeper.set_date_of_record_unprotected!(current_date)
+    end
+
+    context "for Individual market" do
+      let(:ivl_family)        { FactoryGirl.create(:family, :with_primary_family_member) }
+
+      let(:ivl_enrollment)    {ivl_family.latest_household.hbx_enrollments.create!(
+                                household: ivl_family.latest_household,
+                                coverage_kind: "health",
+                                effective_on: effective_on_date,
+                                enrollment_kind: "open_enrollment",
+                                kind: "individual",
+                                aasm_state: "coverage_terminated",
+                                terminated_on: terminated_on_date)
+            }
+
+      it "should re-instate enrollment" do
+        ivl_enrollment.reinstate
+        reinstated_enrollment = ivl_family.active_household.hbx_enrollments.detect{|e| e.coverage_selected?}
+
+        expect(reinstated_enrollment.present?).to be_truthy
+        expect(reinstated_enrollment.workflow_state_transitions.where(:to_state => 'coverage_reinstated').present?).to be_truthy
+        expect(reinstated_enrollment.effective_on).to eq terminated_on_date.next_day
+      end
+    end
+
+    context "for SHOP market" do
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
+
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
+      let(:effective_on) { current_effective_date }
+      let(:hired_on) { TimeKeeper.date_of_record - 3.months }
+      let(:employee_created_at) { hired_on }
+      let(:employee_updated_at) { employee_created_at }
+
+      let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
+      let(:shop_family) {FactoryGirl.create(:family, :with_primary_family_member)}
+      let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.first.benefit_packages.first.health_sponsored_benefit}
+      let!(:update_sponsored_benefit) {sponsored_benefit.update_attributes(product_package_kind: :single_product)}
+
+      let(:aasm_state) { :active }
+      let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
+      let(:employee_role) { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: census_employee.hired_on, census_employee_id: census_employee.id) }
+      let(:enrollment_kind) { "open_enrollment" }
+      let(:special_enrollment_period_id) { nil }
+      let!(:shop_enrollment) { shop_family.latest_household.hbx_enrollments.create(
+                                                coverage_kind: "health",
+                                                effective_on: effective_on,
+                                                enrollment_kind: enrollment_kind,
+                                                kind: "employer_sponsored",
+                                                benefit_sponsorship_id: benefit_sponsorship.id,
+                                                sponsored_benefit_package_id: current_benefit_package.id,
+                                                sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                                employee_role_id: employee_role.id,
+                                                product: sponsored_benefit.reference_product,
+                                                benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                                                aasm_state:"coverage_selected")
+      }
+
+      before do
+        census_employee.update_attributes(employee_role_id: employee_role.id)
+        census_employee.terminate_employment(effective_on + 1.days)
+        shop_enrollment.reload
+        census_employee.reload
+      end
+
+      it "should have terminated enrollment & cenuss employee" do
+        expect(shop_enrollment.coverage_termination_pending?).to be_truthy
+        expect(census_employee.employee_termination_pending?).to be_truthy
+      end
+
+      context 'when re-instated' do
+        before do
+          census_employee.terminate_employee_role!
+          shop_enrollment.reinstate
+        end
+
+        it "should have re-instate enrollment" do
+          reinstated_enrollment = shop_family.active_household.hbx_enrollments.detect{|e| e.coverage_enrolled?}
+
+          expect(reinstated_enrollment.present?).to be_truthy
+          expect(reinstated_enrollment.workflow_state_transitions.where(:to_state => 'coverage_reinstated').present?).to be_truthy
+          expect(reinstated_enrollment.effective_on).to eq shop_enrollment.terminated_on.next_day
+        end
+
+        it 'should re-instate census employee' do
+          census_employee.reload
+          expect(census_employee.employee_role_linked?).to be_truthy
+        end
+      end
+    end
+  end
+
+  ###########
+
+  describe "#is_reinstated_enrollment?" do
+    let(:hbx_enrollment) { HbxEnrollment.new(kind: 'employer_sponsored') }
+    let(:workflow_state_transition) {FactoryGirl.build(:workflow_state_transition,:from_state => "coverage_reinstated", :to_state => "coverage_selected")}
+    context 'when enrollment has been reinstated' do
+      it "should have reinstated enrollmentt" do
+        allow(hbx_enrollment).to receive(:workflow_state_transitions).and_return([workflow_state_transition])
+        expect(hbx_enrollment.is_reinstated_enrollment?).to be_truthy
+      end
+    end
+    context 'when enrollment has not been reinstated' do
+      it "should have reinstated enrollmentt" do
+        allow(hbx_enrollment).to receive(:workflow_state_transitions).and_return([])
+        expect(hbx_enrollment.is_reinstated_enrollment?).to be_falsey
+      end
+    end
+  end
+
+  describe "#can_be_reinstated?" do
+
+    context "for Individual market" do
+      let(:ivl_family)        { FactoryGirl.create(:family, :with_primary_family_member) }
+
+      let(:ivl_enrollment)    {ivl_family.latest_household.hbx_enrollments.create!(
+                                  coverage_kind: "health",
+                                  effective_on: TimeKeeper.date_of_record.last_year.beginning_of_year,
+                                  enrollment_kind: "open_enrollment",
+                                  kind: "individual",
+                                  aasm_state: "coverage_terminated",
+                                  terminated_on: TimeKeeper.date_of_record.last_year.end_of_year)
+      }
+
+      it "enrollment termianted previous year can't be reinstated?" do
+        expect(ivl_enrollment.can_be_reinstated?).to be_falsey
+      end
+
+      it "enrollment termianted during current year can be reinstated?" do
+        ivl_enrollment.update_attributes(effective_on: TimeKeeper.date_of_record.beginning_of_year, terminated_on: TimeKeeper.date_of_record.end_of_month)
+        ivl_enrollment.reload
+        expect(ivl_enrollment.can_be_reinstated?).to be_truthy
+      end
+
+    end
+
+    context "for SHOP market" do
+
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
+
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
+      let(:effective_on) { current_effective_date }
+      let(:hired_on) { TimeKeeper.date_of_record - 3.months }
+      let(:employee_created_at) { hired_on }
+      let(:employee_updated_at) { employee_created_at }
+
+      let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
+      let(:shop_family) {FactoryGirl.create(:family, :with_primary_family_member)}
+      let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.first.benefit_packages.first.health_sponsored_benefit}
+      let!(:update_sponsored_benefit) {sponsored_benefit.update_attributes(product_package_kind: :single_product)}
+
+      let(:aasm_state) { :active }
+      let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
+      let(:employee_role) { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: census_employee.hired_on, census_employee_id: census_employee.id) }
+      let(:enrollment_kind) { "open_enrollment" }
+      let(:special_enrollment_period_id) { nil }
+      let!(:enrollment) {shop_family.latest_household.hbx_enrollments.create!(
+                                                 coverage_kind: "health",
+                                                 effective_on: effective_on,
+                                                 enrollment_kind: enrollment_kind,
+                                                 kind: "employer_sponsored",
+                                                 benefit_sponsorship_id: benefit_sponsorship.id,
+                                                 sponsored_benefit_package_id: current_benefit_package.id,
+                                                 sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                                 employee_role_id: employee_role.id,
+                                                 product: sponsored_benefit.reference_product,
+                                                 benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id)
+      }
+
+
+      context "reinstating coverage_terminated enrollment" do
+        context 'reinstated effective date falls outside active plan year' do
+          before do
+            enrollment.update_attributes(aasm_state: 'coverage_terminated', terminated_on: current_benefit_package.benefit_application.end_on)
+            enrollment.reload
+          end
+
+          it "should return false" do
+            expect(enrollment.can_be_reinstated?).to be_falsey
+          end
+        end
+
+        context 'reinstated effective date falls with in range of active plan year' do
+          before do
+            enrollment.update_attributes(aasm_state: 'coverage_terminated', terminated_on: current_benefit_package.benefit_application.end_on - 1.month)
+            enrollment.reload
+          end
+
+          it "should return true" do
+            expect(enrollment.can_be_reinstated?).to be_truthy
+          end
+        end
+      end
+
+      context "reinstating coverage_terminated pending enrollment" do
+        context 'reinstated effective date falls outside active plan year' do
+          before do
+            enrollment.update_attributes(aasm_state: 'coverage_termination_pending', terminated_on: current_benefit_package.benefit_application.end_on)
+            enrollment.reload
+          end
+
+          it "should return false" do
+            expect(enrollment.can_be_reinstated?).to be_falsey
+          end
+        end
+
+        context 'reinstated effective date falls with in range of active plan year' do
+          before do
+            enrollment.update_attributes(aasm_state: 'coverage_termination_pending', terminated_on: current_benefit_package.benefit_application.end_on - 1.month)
+            enrollment.reload
+          end
+
+          it "should return true" do
+            expect(enrollment.can_be_reinstated?).to be_truthy
+          end
+        end
+      end
+
+      context 'for reinstated enrollment no active coverage offering by employer' do
+
+        before do
+          current_benefit_package.benefit_application.update_attributes(aasm_state: :terminated)
+          enrollment.update_attributes(aasm_state: 'coverage_terminated', terminated_on: current_benefit_package.benefit_application.end_on - 1.month)
+          enrollment.reload
+        end
+
+        it "should return true" do
+          expect(enrollment.can_be_reinstated?).to be_falsey
+        end
+      end
+
+      context "reinstating employer sponsored enrollment for cobra employee" do
+
+        before do
+          enrollment.update_attributes(aasm_state: 'coverage_terminated', terminated_on: current_benefit_package.benefit_application.end_on - 1.month)
+          enrollment.employee_role.census_employee.update_attributes(aasm_state:'cobra_linked', cobra_begin_date: TimeKeeper.date_of_record)
+        end
+
+        it "should return false" do
+          expect(enrollment.can_be_reinstated?).to be_falsey
+        end
+      end
+
+      context "reinstating cobra enrollment for active employee" do
+
+        before do
+          enrollment.update_attributes(kind:'employer_sponsored_cobra', aasm_state: 'coverage_terminated', terminated_on: current_benefit_package.benefit_application.end_on - 1.month)
+        end
+
+        it "should return false" do
+          expect(enrollment.can_be_reinstated?).to be_falsey
+        end
+
+      end
+    end
+  end
+
+  describe "#has_active_or_term_exists_for_reinstated_date?" do
+
+    context "for Individual market" do
+      let(:ivl_family)        { FactoryGirl.create(:family, :with_primary_family_member) }
+
+      let(:ivl_enrollment)    { ivl_family.active_household.hbx_enrollments.create( 
+                                  coverage_kind: "health",
+                                  effective_on: TimeKeeper.date_of_record.last_year.beginning_of_month,
+                                  enrollment_kind: "open_enrollment",
+                                  kind: "individual",
+                                  aasm_state: "coverage_terminated",
+                                  terminated_on: TimeKeeper.date_of_record.end_of_month)
+      }
+
+      let!(:ivl_enrollment2)    { ivl_family.active_household.hbx_enrollments.create( 
+                                    coverage_kind: "health",
+                                    enrollment_kind: "open_enrollment",
+                                    kind: "individual",
+                                    aasm_state: "coverage_selected",
+                                    effective_on: TimeKeeper.date_of_record.end_of_month + 1.day)
+      }
+
+
+      it "should return true if active enrollment exists for reinstated date " do
+        expect(ivl_enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+      end
+
+      it "should return true if termianted enrollment exists for reinstated date" do
+        ivl_enrollment2.update_attributes(effective_on: TimeKeeper.date_of_record.end_of_month + 1.day, aasm_state: "coverage_terminated",)
+        ivl_enrollment2.reload
+        expect(ivl_enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+      end
+
+      it "should return true if future active enrollment exists" do
+        ivl_enrollment2.update_attributes(aasm_state: "coverage_selected", effective_on: TimeKeeper.date_of_record.beginning_of_month + 1.months)
+        ivl_enrollment2.reload
+        expect(ivl_enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+      end
+
+      it "should return false if no active enrollment exists for reinstated date" do
+        ivl_enrollment2.update_attributes(effective_on: TimeKeeper.date_of_record.end_of_month + 1.day, aasm_state: "coverage_canceled",)
+        ivl_enrollment2.reload
+        expect(ivl_enrollment.has_active_or_term_exists_for_reinstated_date?).to be_falsey
+      end
+
+    end
+
+    context "for SHOP market" do
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
+
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
+      let(:effective_on) { current_effective_date }
+      let(:hired_on) { TimeKeeper.date_of_record - 3.months }
+      let(:employee_created_at) { hired_on }
+      let(:employee_updated_at) { employee_created_at }
+
+      let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
+      let(:shop_family) {FactoryGirl.create(:family, :with_primary_family_member)}
+      let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.first.benefit_packages.first.health_sponsored_benefit}
+      let!(:update_sponsored_benefit) {sponsored_benefit.update_attributes(product_package_kind: :single_product)}
+
+      let(:aasm_state) { :active }
+      let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
+      let(:employee_role) { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: census_employee.hired_on, census_employee_id: census_employee.id) }
+      let(:enrollment_kind) { "open_enrollment" }
+      let(:special_enrollment_period_id) { nil }
+      let!(:enrollment) { shop_family.latest_household.hbx_enrollments.create(
+                                            coverage_kind: "health",
+                                            effective_on: effective_on,
+                                            enrollment_kind: enrollment_kind,
+                                            kind: "employer_sponsored",
+                                            benefit_sponsorship_id: benefit_sponsorship.id,
+                                            sponsored_benefit_package_id: current_benefit_package.id,
+                                            sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                            employee_role_id: employee_role.id,
+                                            product: sponsored_benefit.reference_product,
+                                            aasm_state: "coverage_terminated",
+                                            benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                                            terminated_on: effective_on.end_of_month)
+      }
+      let!(:enrollment2) { shop_family.latest_household.hbx_enrollments.create(
+                                            coverage_kind: "health",
+                                            effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                                            enrollment_kind: enrollment_kind,
+                                            kind: "employer_sponsored",
+                                            benefit_sponsorship_id: benefit_sponsorship.id,
+                                            sponsored_benefit_package_id: current_benefit_package.id,
+                                            sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                            employee_role_id: employee_role.id,
+                                            product: sponsored_benefit.reference_product,
+                                             aasm_state: "coverage_selected",
+                                            benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id)
+
+      }
+
+      it "should return true if active enrollment exists for reinstated date " do
+        expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+      end
+
+      it "should return true if termianted enrollment exists for reinstated date" do
+        enrollment2.update_attributes(effective_on:effective_on.end_of_month + 1.day, aasm_state: "coverage_terminated")
+        enrollment2.reload
+        expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+      end
+
+      it "should return true if future active enrollment exists" do
+        enrollment2.update_attributes(effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.month)
+        enrollment2.reload
+        expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+      end
+
+      it "should return false if no active enrollment exists for reinstated date" do
+        enrollment2.update_attributes(effective_on: effective_on.end_of_month + 1.day, aasm_state: "coverage_canceled")
+        enrollment2.reload
+        expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_falsey
+      end
+
+      context "with employer_sponsored & active cobra enrollment" do
+
+        it "should return true if active enrollment exists for reinstated date " do
+          enrollment2.update_attributes(kind: "employer_sponsored_cobra")
+          enrollment2.reload
+          expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+        end
+
+        it "should return true if future active enrollment exists" do
+          enrollment2.update_attributes(kind: "employer_sponsored_cobra", effective_on: effective_on.end_of_month + 1.day)
+          enrollment2.reload
+          expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_truthy
+        end
+
+        it "should return false if no active enrollment exists for reinstated date" do
+          enrollment2.update_attributes(kind: "employer_sponsored_cobra", effective_on: effective_on.end_of_month + 1.day, aasm_state: "coverage_canceled")
+          enrollment2.reload
+          expect(enrollment.has_active_or_term_exists_for_reinstated_date?).to be_falsey
+        end
+      end
+
+      context "enrollment from two mutiple employers." do
+
+        include_context "setup benefit market with market catalogs and product packages"
+        include_context "setup initial benefit application"
+
+        let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
+        let(:effective_on) { current_effective_date }
+        let(:hired_on) { TimeKeeper.date_of_record - 3.months }
+        let(:employee_created_at) { hired_on }
+        let(:employee_updated_at) { employee_created_at }
+
+        let!(:sponsored_benefit2) {benefit_sponsorship.benefit_applications.first.benefit_packages.first.health_sponsored_benefit}
+        let!(:update_sponsored_benefit) {sponsored_benefit.update_attributes(product_package_kind: :single_product)}
+
+        let(:aasm_state) { :active }
+        let(:census_employee2) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
+        let(:employee_role2) { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: census_employee2.hired_on, census_employee_id: census_employee2.id) }
+        let(:enrollment_kind) { "open_enrollment" }
+        let(:special_enrollment_period_id) { nil }
+
+        let!(:enrollment3) { shop_family.latest_household.hbx_enrollments.create!(
+                                               coverage_kind: "health",
+                                               effective_on: effective_on.end_of_month,
+                                               enrollment_kind: enrollment_kind,
+                                               kind: "employer_sponsored",
+                                               benefit_sponsorship_id: benefit_sponsorship.id,
+                                               sponsored_benefit_package_id: current_benefit_package.id,
+                                               sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                               employee_role_id: employee_role2.id,
+                                               product: sponsored_benefit2.reference_product,
+                                               aasm_state: "coverage_selected",
+                                               benefit_group_assignment_id: census_employee2.active_benefit_group_assignment.id,
+                                               terminated_on: effective_on.end_of_month)}
+
+
+        it "should return false when reinstated date enrollment exits with different employer " do
+          expect(enrollment3.has_active_or_term_exists_for_reinstated_date?).to be_falsey
+        end
+      end
+    end
+  end
+
+  describe "#reterm_enrollment_with_earlier_date" do
+    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryGirl.create(:person)}
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+    let!(:household) { FactoryGirl.create(:household, family: family) }
+    let!(:enrollment) { family.active_household.hbx_enrollments.create(
+                         coverage_kind: "health",
+                         kind: 'employer_sponsored',
+                         effective_on: TimeKeeper.date_of_record.last_month.beginning_of_month,
+                         terminated_on: TimeKeeper.date_of_record.end_of_month,
+                         aasm_state: 'coverage_termination_pending'
+      )}
+    let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
+
+    context "shop enrollment" do
+      context "enrollment that already terminated with past date" do
+        context "with new past or current termination date" do
+          it "should update enrollment with new end date and notify enrollment" do
+            expect(enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+            enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq "coverage_terminated"
+            expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
+          end
+        end
+
+        context "new term date greater than current termination date" do
+          it "return false" do
+            expect(enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record + 2.months, false)).to eq false
+          end
+        end
+      end
+
+      context "enrollment that already terminated with future date" do
+        context "with new future termination date" do
+          it "should update enrollment with new end date and notify enrollment" do
+            expect(enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+            enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record + 1.day, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq "coverage_termination_pending"
+            expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
+          end
+        end
+      end
+
+      context "enrollment that has effective date older than prior year date" do
+        it "should return false" do
+          enrollment.effective_on = Date.new(2018,1,1)
+          enrollment.save
+          expect(enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record, false)).to eq false
+        end
+      end
+    end
+
+    context "IVL enrollment" do
+
+      before do
+        enrollment.kind = "individual"
+        enrollment.save
+      end
+
+      context "enrollment that already terminated with past date" do
+        context "with new past or current termination date" do
+          it "should update enrollment with new end date and notify enrollment" do
+            expect(enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+            enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq "coverage_terminated"
+            expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
+          end
+        end
+      end
+
+      context "enrollment that already terminated with future date" do
+        context "with new future termination date" do
+          it "should update enrollment with new end date and notify enrollment" do
+            expect(enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+            enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record + 1.day, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq "coverage_terminated"
+            expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
+          end
+        end
+      end
+    end
+  end
+
+  describe '#cancel_terminated_enrollment' do
+    let(:user) { FactoryGirl.create(:user, roles: ['hbx_staff']) }
+    let!(:person) { FactoryGirl.create(:person)}
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+    let!(:household) { FactoryGirl.create(:household, family: family) }
+    let!(:enrollment) { family.active_household.hbx_enrollments.create(
+                         coverage_kind: 'health',
+                         kind: 'employer_sponsored',
+                         effective_on: TimeKeeper.date_of_record.last_month.beginning_of_month,
+                         terminated_on: TimeKeeper.date_of_record.end_of_month,
+                         aasm_state: 'coverage_termination_pending'
+      )}
+    let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
+
+    context 'shop enrollment' do
+      context 'enrollment that already terminated with past date' do
+        context 'with new termination date == enrollment effective date' do
+
+          before do
+            enrollment.update_attributes(aasm_state:'coverage_terminated', terminated_on: TimeKeeper.date_of_record - 1.day)
+            enrollment.reload
+          end
+          it 'should cancel enrollment' do
+            expect(enrollment).to receive(:notify).with('acapi.info.events.hbx_enrollment.terminated', {:reply_to=>glue_event_queue_name, 'hbx_enrollment_id' => enrollment.hbx_id, 'enrollment_action_uri' => 'urn:openhbx:terms:v1:enrollment#terminate_enrollment', 'is_trading_partner_publishable' => false})
+            enrollment.cancel_terminated_enrollment(TimeKeeper.date_of_record.last_month.beginning_of_month, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq 'coverage_canceled'
+            expect(enrollment.terminated_on).to eq nil
+            expect(enrollment.termination_submitted_on).to eq nil
+            expect(enrollment.terminate_reason).to eq nil
+          end
+        end
+      end
+
+      context 'enrollment that already terminated with future date' do
+        context 'with new termination date == enrollment effective date' do
+          it 'should cancel enrollment' do
+            expect(enrollment).to receive(:notify).with('acapi.info.events.hbx_enrollment.terminated', {:reply_to=>glue_event_queue_name, 'hbx_enrollment_id' => enrollment.hbx_id, 'enrollment_action_uri' => 'urn:openhbx:terms:v1:enrollment#terminate_enrollment', 'is_trading_partner_publishable' => false})
+            enrollment.cancel_terminated_enrollment(TimeKeeper.date_of_record.last_month.beginning_of_month, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq 'coverage_canceled'
+            expect(enrollment.terminated_on).to eq nil
+            expect(enrollment.termination_submitted_on).to eq nil
+            expect(enrollment.terminate_reason).to eq nil
+          end
+        end
+      end
+    end
+
+    context 'IVL enrollment' do
+
+      before do
+        enrollment.kind = 'individual'
+        enrollment.aasm_state= 'coverage_terminated'
+        enrollment.save
+      end
+
+      context 'enrollment that already terminated with past date' do
+        context 'with new termination date == enrollment effective date' do
+          it 'should cancel enrollment' do
+            enrollment.update_attributes(terminated_on: TimeKeeper.date_of_record - 1.day)
+            expect(enrollment).to receive(:notify).with('acapi.info.events.hbx_enrollment.terminated', {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, 'enrollment_action_uri' => 'urn:openhbx:terms:v1:enrollment#terminate_enrollment', 'is_trading_partner_publishable' => false})
+            enrollment.cancel_terminated_enrollment(TimeKeeper.date_of_record.last_month.beginning_of_month, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq 'coverage_canceled'
+            expect(enrollment.terminated_on).to eq nil
+            expect(enrollment.termination_submitted_on).to eq nil
+            expect(enrollment.terminate_reason).to eq nil
+          end
+        end
+      end
+
+      context 'enrollment that already terminated with future date' do
+        context 'with new termination date == enrollment effective date' do
+          it 'should cancel enrollment' do
+            expect(enrollment).to receive(:notify).with('acapi.info.events.hbx_enrollment.terminated', {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
+            enrollment.cancel_terminated_enrollment(TimeKeeper.date_of_record.last_month.beginning_of_month, false)
+            enrollment.reload
+            expect(enrollment.aasm_state).to eq 'coverage_canceled'
+            expect(enrollment.terminated_on).to eq nil
+            expect(enrollment.termination_submitted_on).to eq nil
+            expect(enrollment.terminate_reason).to eq nil
+          end
         end
       end
     end

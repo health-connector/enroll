@@ -30,14 +30,20 @@ describe "load_dummy_rates" do
     end
 
     it "should load the dummy data" do
+      start_date = @application_period.min.beginning_of_year.to_date
+      end_date = @application_period.max.end_of_year.to_date
+      pre_table = @hp1.premium_tables.where(:'effective_period.min' => start_date, :'effective_period.max' => end_date).first
+      pre_table.update_attributes(effective_period: @application_period)
+
+      @hp1.reload
       expect(@hp1.premium_tables.count).to eq 4
       invoke_dummy_rates_tasks
       @hp1.reload
-      expect(@hp1.premium_tables.count).to eq 7
+      expect(@hp1.premium_tables.count).to eq 8
     end
 
     it "should have premium_tables for dummy" do
-      expect(@hp1.premium_tables.where(:"effective_period.min" => @application_period.max.next_month.beginning_of_month).count).to eq 3
+      expect(@hp1.premium_tables.where(:"effective_period.min" => @application_period.max.next_month.beginning_of_month).count).to eq 4
     end
 
     it "should have premium_tuples" do
@@ -55,7 +61,7 @@ describe "load_dummy_rates" do
     end
 
     it "should cleanup the dummy data" do
-      expect(@hp1.premium_tables.count).to eq 7
+      expect(@hp1.premium_tables.count).to eq 8
       invoke_dummy_rates_tasks
       @hp1.reload
       expect(@hp1.premium_tables.count).to eq 4

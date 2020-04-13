@@ -84,8 +84,10 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
     end
 
     context "when renewal_plan_year_passive_renewal" do
+      let(:benefit_app) { abc_organization.active_benefit_sponsorship.active_benefit_application }
 
       before(:each) do
+        allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:age_bounding).and_return(20)
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(15)
         allow(ENV).to receive(:[]).with("fein").and_return(abc_organization.fein)
@@ -98,6 +100,9 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
         reference_product.save!
         sponsored_benefit.product_option_choice = issuer_profile.id
         sponsored_benefit.save
+        abc_organization.reload
+        benefit_app.benefit_packages = [benefit_app.benefit_packages.first]
+        benefit_app.save!
       end
 
       it "should create renewing plan year and passive enrollments" do

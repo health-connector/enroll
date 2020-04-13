@@ -221,6 +221,7 @@ class BenefitGroup
 
   def set_lowest_and_highest(plans)
     if plans.size > 0
+      plans = plans.select{|a| a.premium_tables.present?}
       plans_by_cost = plans.sort_by { |plan| plan.premium_tables.first.cost }
 
       self.lowest_cost_plan_id  = plans_by_cost.first.id
@@ -384,16 +385,15 @@ class BenefitGroup
       build_composite_tier_contributions
       estimate_composite_rates
     end
-    targeted_census_employees.active.collect do |ce|
+    targeted_census_employees.active.inject(0.00) do |acc, ce|
 
       if plan_option_kind == 'sole_source' && plan.coverage_kind == "health"
         pcd = CompositeRatedPlanCostDecorator.new(plan, self, effective_composite_tier(ce), ce.is_cobra_status?)
       else
         pcd = PlanCostDecorator.new(plan, ce, self, rp)
       end
-
-      pcd.total_employer_contribution
-    end.sum
+      BigDecimal.new((acc + pcd.total_employer_contribution).to_s).round(2)
+    end
   end
 
   def monthly_employee_cost(coverage_kind=nil)

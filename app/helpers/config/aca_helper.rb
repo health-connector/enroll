@@ -11,6 +11,14 @@ module Config::AcaHelper
     Settings.aca.market_kinds.first
   end
 
+  def allow_mid_month_voluntary_terms?
+    Settings.aca.shop_market.mid_month_benefit_application_terminations.voluntary
+  end
+
+  def allow_mid_month_non_payment_terms?
+    Settings.aca.shop_market.mid_month_benefit_application_terminations.non_payment
+  end
+
   def aca_shop_market_employer_family_contribution_percent_minimum
     @aca_shop_market_employer_family_contribution_percent_minimum ||= Settings.aca.shop_market.employer_family_contribution_percent_minimum
   end
@@ -41,6 +49,10 @@ module Config::AcaHelper
   # @return { False } otherwise
   def general_agency_enabled?
     Settings.aca.general_agency_enabled
+  end
+
+  def enrollments_reinstate_enabled?
+    Settings.aca.enrollments_reinstate_enabled
   end
 
   def broker_carrier_appointments_enabled?

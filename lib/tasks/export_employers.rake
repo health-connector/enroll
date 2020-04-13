@@ -17,7 +17,7 @@ namespace :export do
 
     def published_on(application)
       return nil if application.blank? || application.workflow_state_transitions.blank?
-      application.workflow_state_transitions.where(:event => "approve_application").first.try(:transition_at)
+      application.workflow_state_transitions.where(:"event".in => ["approve_application", "approve_application!", "publish", "force_publish", "publish!", "force_publish!"]).first.try(:transition_at)
     end
 
     def rating_area_code(application)
@@ -129,29 +129,29 @@ namespace :export do
       broker_account ||= benefit_sponsorship.broker_agency_accounts.first
       broker_role ||= broker_account.broker_agency_profile.primary_broker_role if broker_account.present?
 
-      staff_role = profile.staff_roles.first
+      staff_role = profile.staff_roles.detect {|person| person.user.present? }
       intial_tier, final_tier = composite_premiums(package)
       similar_params = [reference_product.try(:issuer_profile_id),
-        reference_product.try(:metal_level),
-        single_product?(package),
-        reference_product.try(:title),
-        package.try(:effective_on_kind),
-        package.try(:effective_on_offset),
-        package.try(:start_on),
-        package.try(:end_on),
-        package.try(:open_enrollment_start_on),
-        package.try(:open_enrollment_end_on),
-        renewal_plan_rates_flag(application),
-        application.try(:fte_count),
-        application.try(:pte_count),
-        application.try(:msp_count),
-        application.try(:aasm_state),
-        published_on(application),
-        broker_role.try(:broker_agency_profile).try(:npn),
-        broker_account.try(:broker_agency_profile).try(:legal_name),
-        broker_role.try(:person).try(:full_name),
-        broker_role.try(:npn), 
-        broker_account.try(:start_on)]
+      reference_product.try(:metal_level),
+      single_product?(package),
+      reference_product.try(:title),
+      package.try(:effective_on_kind),
+      package.try(:effective_on_offset),
+      package.try(:start_on),
+      package.try(:end_on),
+      package.try(:open_enrollment_start_on),
+      package.try(:open_enrollment_end_on),
+      renewal_plan_rates_flag(application),
+      application.try(:fte_count),
+      application.try(:pte_count),
+      application.try(:msp_count),
+      application.try(:aasm_state),
+      published_on(application),
+      broker_role.try(:broker_agency_profile).try(:npn),
+      broker_account.try(:broker_agency_profile).try(:legal_name),
+      broker_role.try(:person).try(:full_name),
+      broker_role.try(:npn), 
+      broker_account.try(:start_on)]
 
       csv << [
         profile.legal_name,

@@ -42,8 +42,8 @@ Rails.application.routes.draw do
     post "/security_question_responses/replace", controller: "users/security_question_responses", action: 'replace'
 
     member do
-      get :reset_password, :lockable, :confirm_lock, :login_history, :edit
-      put :confirm_reset_password, :update
+      get :reset_password, :lockable, :confirm_lock, :login_history, :edit, :change_username_and_email
+      put :confirm_reset_password, :confirm_change_username_and_email, :update
       post :unlock, :change_password
     end
   end
@@ -86,6 +86,7 @@ Rails.application.routes.draw do
       root 'hbx_profiles#show'
 
       collection do
+        post :reinstate_enrollment
         get :family_index
         get :family_index_dt
         get :outstanding_verification_dt
@@ -97,6 +98,8 @@ Rails.application.routes.draw do
         get :employer_datatable
         post :employer_invoice_datatable
         post :generate_invoice
+        get :edit_force_publish
+        post :force_publish
         get :broker_agency_index
         get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
@@ -122,6 +125,9 @@ Rails.application.routes.draw do
         get :add_sep_form
         get :hide_form
         get :show_sep_history
+        get :view_terminated_hbx_enrollments
+        get :view_enrollment_to_update_end_date
+        post :update_enrollment_termianted_on_date
         get :calendar_index
         get :user_account_index
         get :get_user_info
@@ -130,6 +136,10 @@ Rails.application.routes.draw do
         get :edit_open_enrollment
         post :extend_open_enrollment
         post :close_extended_open_enrollment
+        get :new_benefit_application
+        post :create_benefit_application
+        get :edit_fein
+        post :update_fein
       end
 
       member do
@@ -142,6 +152,15 @@ Rails.application.routes.draw do
       # resources :hbx_staff_roles, shallow: true do
       resources :hbx_staff_roles do
         # root 'hbx_profiles/hbx_staff_roles#show'
+      end
+    end
+
+    resources :employer_applications do
+      put :terminate
+      put :cancel
+      put :reinstate
+      collection do
+        get :get_term_reasons
       end
     end
 

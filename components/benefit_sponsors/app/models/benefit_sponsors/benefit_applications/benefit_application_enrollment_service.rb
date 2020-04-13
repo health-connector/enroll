@@ -2,11 +2,13 @@ module BenefitSponsors
   class BenefitApplications::BenefitApplicationEnrollmentService
     include Config::AcaModelConcern
 
-    attr_reader   :benefit_application, :business_policy
+    attr_reader   :benefit_application, :business_policy, :errors, :messages
 
 
     def initialize(benefit_application)
       @benefit_application = benefit_application
+      @errors = []
+      @messages = {}
     end
 
     def renew_application
@@ -41,6 +43,7 @@ module BenefitSponsors
       if benefit_application.may_approve_application?
         if is_application_eligible?
           if business_policy_satisfied_for?(:submit_benefit_application)
+            benefit_application.update_attributes(recorded_sic_code: benefit_application.employer_profile.sic_code)
             benefit_application.approve_application!
             oe_period = benefit_application.open_enrollment_period
 
@@ -75,17 +78,38 @@ module BenefitSponsors
     end
 
     def force_submit_application
-      if is_application_valid? && is_application_eligible?
+      if business_policy_satisfied_for?(:force_submit_benefit_application) && is_application_eligible?
+        benefit_application.update_attributes(recorded_sic_code: benefit_application.employer_profile.sic_code)
         if benefit_application.may_approve_application?
           benefit_application.auto_approve_application!
+          
           if today >= benefit_application.open_enrollment_period.begin
             benefit_application.begin_open_enrollment!
+            @messages['notice'] = 'Employer(s) Plan Year was successfully published.'
+          else
+            raise 'Employer(s) Plan Year date has not matched.'
           end
+        else
+          @messages['notice'] = 'Employer(s) Plan Year could not be processed.'
         end
+      elsif benefit_application.may_submit_for_review?
+        benefit_application.submit_for_review!
+        @messages['notice'] = 'Employer(s) Plan Year was successfully submitted for review.'
+        @messages['warnings'] = force_publish_warnings unless force_publish_warnings.empty?
       else
-        benefit_application.submit_for_review! if benefit_application.may_submit_for_review?
-        errors = application_errors.merge(open_enrollment_date_errors)
-        [false, benefit_application, errors]
+        @messages['notice'] = 'Employer(s) Plan Year could not be processed.'
+        @messages['warnings'] = force_publish_warnings unless force_publish_warnings.empty?
+      end
+    rescue => e
+      @errors = [e.message]
+    end
+
+    def may_force_submit_application?
+      if business_policy_satisfied_for?(:force_submit_benefit_application) && is_application_eligible?
+        true
+      else
+        @messages['warnings'] = force_publish_warnings #business_policy.fail_results.merge(application_eligibility_warnings)
+        false
       end
     end
 
@@ -139,10 +163,10 @@ module BenefitSponsors
       end
     end
 
-    def cancel
+    def cancel(notify_trading_partner = false)
       if business_policy_satisfied_for?(:cancel_benefit)
         if benefit_application.may_cancel?
-          benefit_application.cancel!
+          benefit_application.cancel!(notify_trading_partner)
         else
           raise StandardError, "Benefit cancel state transition failed"
         end
@@ -163,15 +187,37 @@ module BenefitSponsors
       end
     end
 
-    def terminate(end_on, termination_date)
-      if business_policy_satisfied_for?(:terminate_benefit)
-        if benefit_application.may_terminate_enrollment?
+    def terminate(end_on, termination_date, termination_kind, termination_reason, notify_trading_partner = false)
+      result, errors = validate_benefit_application_termination_date(end_on, termination_kind)
+      if result
+        if business_policy_satisfied_for?(:terminate_benefit)
+          if benefit_application.may_terminate_enrollment?
             updated_dates = benefit_application.effective_period.min.to_date..end_on
-            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date)
-            benefit_application.terminate_enrollment!
+            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date, termination_kind: termination_kind, termination_reason: termination_reason)
+            benefit_application.terminate_enrollment!(notify_trading_partner)
           end
+        else
+          [false, benefit_application, business_policy.fail_results]
+        end
       else
-        [false, benefit_application, business_policy.fail_results]
+        [false, benefit_application, errors]
+      end
+    end
+
+    def schedule_termination(end_on, termination_date, termination_kind, termination_reason, notify_trading_partner = false)
+      result, errors = validate_benefit_application_termination_date(end_on, termination_kind)
+      if result
+        if business_policy_satisfied_for?(:terminate_benefit)
+          if benefit_application.may_schedule_enrollment_termination?
+            updated_dates = benefit_application.effective_period.min.to_date..end_on
+            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date, termination_kind: termination_kind, termination_reason: termination_reason)
+            benefit_application.schedule_enrollment_termination!(notify_trading_partner)
+          end
+        else
+          [false, benefit_application, business_policy.fail_results]
+        end
+      else
+        [false, benefit_application, errors]
       end
     end
 
@@ -248,9 +294,9 @@ module BenefitSponsors
 
     def hbx_enrollments_by_month(date)
       s_benefits = benefit_application.benefit_packages.map(&:sponsored_benefits).flatten
-      collection = s_benefits.map { |s_benefit| [s_benefit, query(s_benefit, date)] }
-      enrollments = collection[0].last.map do |col|
-        col["hbx_enrollments"]
+      collection = s_benefits.map { |s_benefit| [s_benefit, query(s_benefit, date)] }.reject { |pair| pair.last.nil? }
+      enrollments = collection.inject([]) do |enrollments, coll|
+        enrollments += coll.last.map { |x| x["hbx_enrollments"]}
       end
       enrollments
     end
@@ -287,6 +333,34 @@ module BenefitSponsors
     end
 
     private
+
+    def submit_application_warnings
+      [application_errors.values + application_eligibility_warnings.values].flatten.reject(&:blank?)
+    end
+    
+    def force_publish_warnings
+      submit_warnings = []
+      submit_warnings += business_policy.fail_results.values unless business_policy.fail_results.values.blank?
+      submit_warnings += submit_application_warnings unless submit_application_warnings.blank?
+      submit_warnings
+    end
+
+    def validate_benefit_application_termination_date(end_on, termination_kind)
+      errors = {}
+      result = true
+      if termination_kind == 'voluntary'
+        if !allow_mid_month_voluntary_terms? && end_on != end_on.end_of_month
+          result = false
+          errors[:mid_month_voluntary_term] = "Exchange doesn't allow mid month voluntary terminations"
+        end
+      elsif termination_kind == 'nonpayment'
+        if !allow_mid_month_non_payment_terms? && end_on != end_on.end_of_month
+          result = false
+          errors[:mid_month_non_payment_term] = "Exchange doesn't allow mid month non payment terminations"
+        end
+      end
+      [result, errors]
+    end
 
     def business_policy_satisfied_for?(event_name)
       business_policy_name = policy_name(event_name)

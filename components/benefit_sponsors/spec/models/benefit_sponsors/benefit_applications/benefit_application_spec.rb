@@ -1,5 +1,7 @@
 require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "..", "..", "support/benefit_sponsors_site_spec_helpers")
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 module BenefitSponsors
   RSpec.describe BenefitApplications::BenefitApplication, type: :model, :dbclean => :after_each do
@@ -43,6 +45,7 @@ module BenefitSponsors
     describe "A new model instance" do
      it { is_expected.to be_mongoid_document }
      it { is_expected.to have_fields(:effective_period, :open_enrollment_period, :terminated_on)}
+     it { is_expected.to have_field(:expiration_date).of_type(Date)}
      it { is_expected.to have_field(:aasm_state).of_type(Symbol).with_default_value_of(:draft)}
      it { is_expected.to have_field(:fte_count).of_type(Integer).with_default_value_of(0)}
      it { is_expected.to have_field(:pte_count).of_type(Integer).with_default_value_of(0)}
@@ -346,21 +349,62 @@ module BenefitSponsors
               end
 
               context "and binder payment is made" do
-                before { benefit_application.approve_enrollment_eligiblity! }
+                before {benefit_application.credit_binder!}
 
-                it "should transition to state: :enrollment_eligible" do
-                  expect(benefit_application.aasm_state).to eq :enrollment_eligible
+                it "should transition to state :binder_paid" do
+                  expect(benefit_application.aasm_state).to eq :binder_paid
                 end
 
-                context "and effective period begins" do
-                  before { benefit_application.activate_enrollment! }
+                context "and application is eligible" do
+                  before { benefit_application.approve_enrollment_eligiblity! }
 
-                  it "should transition to state: :approved" do
-                    expect(benefit_application.aasm_state).to eq :active
+                  it "should transition to state: :enrollment_eligible" do
+                    expect(benefit_application.aasm_state).to eq :enrollment_eligible
+                  end
+
+                  context "and effective period begins" do
+                    before { benefit_application.activate_enrollment! }
+
+                    it "should transition to state: :approved" do
+                      expect(benefit_application.aasm_state).to eq :active
+                    end
                   end
                 end
               end
             end
+          end
+        end
+
+        context 'revert reverse_enrollment_eligibility' do
+          before do
+            benefit_application.update_attributes(aasm_state: :binder_paid)
+            benefit_application.reverse_enrollment_eligibility!
+          end
+
+          it "should transition to state: :enrollment_closed" do
+            expect(benefit_application.aasm_state).to eq :enrollment_closed
+          end
+        end
+
+        context 'revert benefit_application' do
+          before do
+            benefit_application.update_attributes(aasm_state: :binder_paid)
+            benefit_application.revert_application!
+          end
+
+          it "should transition to state: :draft" do
+            expect(benefit_application.aasm_state).to eq :draft
+          end
+        end
+
+        context 'activate_enrollment' do
+          before do
+            benefit_application.update_attributes(aasm_state: :binder_paid)
+            benefit_application.activate_enrollment!
+          end
+
+          it "should transition to state: :active" do
+            expect(benefit_application.aasm_state).to eq :active
           end
         end
       end
@@ -545,6 +589,45 @@ module BenefitSponsors
           xit "should deactivate active benefit group assignment" do
             expect(census_employee.benefit_group_assignments.where(benefit_package_id:benefit_package.id).first.is_active).to eq false
           end
+        end
+      end
+    end
+
+    describe "enrollments_till_given_effective_on" do
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
+      context "No hbx_enrollments for the benefit application" do
+        it "No hbx_enrollment under the benefit application" do
+          expect(benefit_sponsorship.benefit_applications.first.hbx_enrollments.count).to eq 0
+        end
+      end
+
+      context "HbxEnrollment avalaibale for benefit application return the enrollment with the given date" do
+        before do
+          enrollment = HbxEnrollment.new(effective_on: Date.today.next_month.beginning_of_month)
+          enrollment1 = HbxEnrollment.new(effective_on: Date.today.next_month.beginning_of_month + 2.months)
+          benefit_sponsorship.benefit_applications.first.hbx_enrollments << enrollment
+          benefit_sponsorship.benefit_applications.first.hbx_enrollments << enrollment1
+          benefit_sponsorship.benefit_applications.first.save
+        end
+        it "Benefit application should have enrollment under the application" do
+          expect(benefit_sponsorship.benefit_applications.first.hbx_enrollments.count).not_to eq 0
+        end
+
+        it "Benefit application should have enrollment under the application" do
+          expect(benefit_sponsorship.benefit_applications.first.hbx_enrollments.count).to eq 2
+        end
+
+        it "Should return the enrollments only with the effective date as next month start date" do
+          expect(benefit_sponsorship.benefit_applications.first.enrollments_till_given_effective_on(Date.today.next_month.beginning_of_month).count).not_to eq 0
+        end
+
+        it "should not return enrollment outside given date" do
+          expect(benefit_sponsorship.benefit_applications.first.enrollments_till_given_effective_on(Date.today.next_month.beginning_of_month).count).to eq 1
+        end
+
+        it "should return enrollments within the given date" do
+          expect(benefit_sponsorship.benefit_applications.first.enrollments_till_given_effective_on(Date.today.next_month.beginning_of_month + 2.months).count).to eq 2
         end
       end
     end
@@ -743,6 +826,117 @@ module BenefitSponsors
       end
     end
 
+    describe "after_create actions" do
+      let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
+      let(:benefit_application)     { described_class.new(valid_params) }
 
+      before do
+        benefit_application.benefit_sponsorship = benefit_sponsorship
+        benefit_application.save!
+      end
+
+      context "for expiration_date" do
+        it "should default to min date of effective_period" do
+          expect(benefit_application.expiration_date).to eq (benefit_application.effective_period.min)
+        end
+
+        it "should not default to max date of effective_period" do
+          expect(benefit_application.expiration_date).not_to eq (benefit_application.effective_period.max)
+        end
+      end
+    end
+
+    describe ".open_enrollment_length" do
+      let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
+      let(:min_open_enrollment_length) { 5 }
+      let(:start_date) {Date.new(2019,11,16)}
+      let(:end_date) {Date.new(2019,11,20)}
+
+      it 'open_enrollment_length should be greater than min_open_enrollment_length' do
+        initial_application.update_attributes(open_enrollment_period: (start_date..(end_date + 1.day)))
+        expect(initial_application.open_enrollment_length).to be > min_open_enrollment_length
+      end
+
+      it 'open_enrollment_length should be equal to min_open_enrollment_length ' do
+        initial_application.update_attributes(open_enrollment_period: (start_date..end_date))
+        expect(initial_application.open_enrollment_length).to eq min_open_enrollment_length
+      end
+
+      it 'open_enrollment_length should be less than min_open_enrollment_length ' do
+        initial_application.update_attributes(open_enrollment_period: (start_date..(end_date - 1.day)))
+        expect(initial_application.open_enrollment_length).to be < min_open_enrollment_length
+      end
+
+    end
+
+    describe ".rate_schedule_date" do
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
+
+      it 'should return start on for general PY' do
+        expect(initial_application.rate_schedule_date).to eq initial_application.start_on
+      end
+
+      it 'should return start on for mid plan year general PY' do
+        expect(initial_application.rate_schedule_date).to eq initial_application.start_on
+        benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
+        expect(initial_application.rate_schedule_date).to eq initial_application.start_on
+      end
+
+      it 'should not return start on when non terminated mid plan year converted PY' do
+        expect(initial_application.rate_schedule_date).to eq initial_application.start_on
+        benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
+        initial_application.update_attributes(effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months))
+        expect(initial_application.rate_schedule_date).not_to eq initial_application.start_on
+      end
+
+      it 'should return start on for terminated and mid plan year PY' do
+        # this is a temporary fix for the bug, need to have more clarity on not to calculated for terminated PY.
+        expect(initial_application.rate_schedule_date).to eq initial_application.start_on
+        benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
+        initial_application.update_attributes(effective_period: initial_application.start_on..(initial_application.start_on + 4.months), :aasm_state => :terminated)
+        expect(initial_application.rate_schedule_date).to eq initial_application.start_on
+      end
+    end
+
+    describe '.enrollment_quiet_period', dbclean: :after_each do
+      include_context 'setup benefit market with market catalogs and product packages'
+      include_context 'setup initial benefit application'
+
+      let(:current_effective_date) {TimeKeeper.date_of_record.beginning_of_month}
+
+      context 'when intital application open enrollment end date inside plan year start date', dbclean: :after_each do
+
+        it 'should return next day of open_enrollment_end date as quiet_period start date' do
+          quiet_period = initial_application.enrollment_quiet_period
+          expect(quiet_period.min.to_date).to eq initial_application.open_enrollment_period.max + 1.day
+        end
+
+        it 'should return default quiet_period end date' do
+          quiet_period = initial_application.enrollment_quiet_period
+          initial_quiet_period_end = initial_application.start_on + Settings.aca.shop_market.initial_application.quiet_period.month_offset.months + (Settings.aca.shop_market.initial_application.quiet_period.mday - 1).days
+          expect(quiet_period.max).to eq TimeKeeper.end_of_exchange_day_from_utc(initial_quiet_period_end)
+        end
+      end
+
+      context 'when intital application open enrollment end date outside plan year start date', dbclean: :after_each do
+
+        before do
+          initial_application.open_enrollment_period = (initial_application.effective_period.min + 7.days..initial_application.effective_period.min + 11.days)
+          initial_application.save
+        end
+
+        it 'should return next day of open_enrollment_end date as quiet_period start date' do
+          quiet_period = initial_application.enrollment_quiet_period
+          expect(quiet_period.min.to_date).to eq initial_application.open_enrollment_period.max + 1.day
+        end
+
+        it 'should return next day of quiet_period start date as quiet_period end date' do
+          quiet_period = initial_application.enrollment_quiet_period
+          expect(quiet_period.max).to eq quiet_period.min + 1.day
+        end
+      end
+    end
   end
 end

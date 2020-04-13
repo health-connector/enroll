@@ -38,6 +38,7 @@ BenefitSponsors::Engine.routes.draw do
         end
         member do
           get :inbox
+          get :show_invoice if Settings.aca.autopay_enabled
           get :download_invoice
         end
 
@@ -74,6 +75,7 @@ BenefitSponsors::Engine.routes.draw do
 
   resources :benefit_sponsorships do
     resources :benefit_applications, controller: "benefit_applications/benefit_applications" do
+      get 'late_rates_check', on: :collection
       post 'revert'
       post 'submit_application'
       post 'force_submit_application'

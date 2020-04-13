@@ -59,9 +59,15 @@ module SponsoredBenefits
     def new
       if @plan_design_organization.employer_profile.present?
         begin
-          plan_design_proposal = @plan_design_organization.build_proposal_from_existing_employer_profile
-          flash[:success] = "Imported quote and employee information from your client #{@plan_design_organization.employer_profile.legal_name}."
-          redirect_to action: :edit, id: plan_design_proposal.id
+          saved, plan_design_proposal = @plan_design_organization.valid_plan_design_organization
+          if saved
+            flash[:success] = "Imported quote and employee information from your client #{@plan_design_organization.employer_profile.legal_name}."
+            redirect_to action: :edit, id: plan_design_proposal.id
+          else
+            flash[:error] = "Could not create new plan design proposal."
+            @plan_design_proposal = SponsoredBenefits::Forms::PlanDesignProposal.new(organization: @plan_design_organization)
+            init_employee_datatable
+          end
         rescue Exception => e
           flash[:error] = e.to_s
           @plan_design_proposal = SponsoredBenefits::Forms::PlanDesignProposal.new(organization: @plan_design_organization)
@@ -78,14 +84,16 @@ module SponsoredBenefits
       @benefit_group = @plan_design_proposal.active_benefit_group
       sponsorship = @plan_design_proposal.profile.benefit_sponsorships.first
       @census_employees = sponsorship.census_employees
+      @broker_agency_profile = broker_agency_profile
 
       if @benefit_group
+        @service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: @benefit_group})
         @plan = @benefit_group.reference_plan
         @dental_plan = @benefit_group.dental_reference_plan
-        @employer_health_contribution_amount = @benefit_group.monthly_employer_contribution_amount(@plan)
-        @employer_dental_contribution_amount = @benefit_group.monthly_employer_contribution_amount(@dental_plan) if @dental_plan.present?
-        @benefit_group_costs = @benefit_group.employee_costs_for_reference_plan
-        @benefit_group_dental_costs = @benefit_group.employee_costs_for_dental_reference_plan
+        @employer_health_contribution_amount = @service.monthly_employer_contribution_amount(@plan)
+        @employer_dental_contribution_amount = @service.monthly_employer_contribution_amount(@dental_plan) if @dental_plan.present?
+        @benefit_group_costs = @benefit_group.employee_costs_for_reference_plan(@service)
+        @benefit_group_dental_costs = @benefit_group.employee_costs_for_dental_reference_plan(@service) if @dental_plan.present?
       end
     end
 
