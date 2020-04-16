@@ -954,27 +954,6 @@ When(/^.+ clicks? on the add employee button$/) do
   wait_for_ajax
 end
 
-When(/^.+ clicks? to add the first employee$/) do
-  find('.interaction-click-control-add-new-employee', :wait => 10).click
-end
-
-When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab_name|
-  find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
-  wait_for_ajax
-end
-
-When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
-  target_dropdown = page.all('a').detect { |a| a.text == tab_name }
-  target_dropdown.click
-  wait_for_ajax
-end
-
-When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) option$/) do |tab_name|
-  find(".interaction-click-control-#{tab_name.downcase.gsub(' ','-')}").click
-  wait_for_ajax
-  find('#myTabContent').click
-end
-
 And(/^clicks on the person in families tab$/) do
   login_as hbx_admin, scope: :user
   visit exchanges_hbx_profiles_root_path
@@ -1005,4 +984,156 @@ When(/^I click on continue on qle confirmation page$/) do
   expect(page).to have_content "Enrollment Submitted"
   screenshot("qle_confirm")
   click_link "GO TO MY ACCOUNT"
+end
+
+
+When(/^I select a future qle date$/) do
+  expect(page).to have_content "Married"
+  screenshot("future_qle_date")
+  fill_in "qle_date", :with => (TimeKeeper.date_of_record + 5.days).strftime("%m/%d/%Y")
+  click_link "CONTINUE"
+end
+
+Then(/^I should see not qualify message$/) do
+  expect(page).to have_content "The date you submitted does not qualify for special enrollment"
+  screenshot("not_qualify")
+end
+
+When(/^I select a past qle date$/) do
+  expect(page).to have_content "Married"
+  screenshot("past_qle_date")
+  fill_in "qle_date", :with => (TimeKeeper.date_of_record - 5.days).strftime("%m/%d/%Y")
+  find(".navbar-brand").click #to stop datepicker blocking shit
+  within '#qle-date-chose' do
+    click_link "CONTINUE"
+  end
+end
+
+Then(/^I should see confirmation and continue$/) do
+  expect(page).to have_content "Based on the information you entered, you may be eligible to enroll now but there is limited time"
+  screenshot("valid_qle")
+  click_button "Continue"
+end
+
+Then(/^I can click on Shop for Plan button$/) do
+  click_button "Shop for Plans"
+end
+
+Then(/^Page should contain existing qle$/) do
+  expect(page).to have_content 'You qualify for a Special Enrollment Period (SEP) because you "Married"'
+end
+
+Then(/^I can click Shop with existing SEP link$/) do
+  click_link "Shop Now"
+end
+
+Then(/^I should see the dependents and group selection page$/) do
+  #@browser.element(text: /Household Info: Family Members/i).wait_until_present
+  expect(@browser.element(text: /Household Info: Family Members/i).visible?).to be_truthy
+  @browser.element(class: /interaction-click-control-continue/).wait_until_present
+  @browser.execute_script("$('.interaction-click-control-continue')[1].click();")
+  @browser.element(text: /Choose Benefits: Covered Family Members/i).wait_until_present
+  expect(@browser.element(text: /Choose Benefits: Covered Family Members/i).visible?).to be_truthy
+  scroll_then_click(@browser.button(class: /interaction-click-control-shop-for-new-plan/))
+  @browser.element(text: /Choose Plan/i).wait_until_present
+  expect(@browser.element(text: /Choose Plan/i).visible?).to be_truthy
+  @browser.execute_script("$('.interaction-click-control-select-plan')[1].click()")
+  @browser.element(text: /Confirm Your Plan Selection/i).wait_until_present
+  expect(@browser.element(text: /Confirm Your Plan Selection/i).visible?).to be_truthy
+  scroll_then_click(@browser.a(class: /interaction-click-control-purchase/))
+end
+
+And(/I select three plans to compare/) do
+  wait_for_ajax
+  expect(page).to have_content("Select Plan")
+  if page.all("span.checkbox-custom-label").count > 3
+    #modal plan data for IVL not really seeded in.
+    page.all("span.checkbox-custom-label")[0].click
+    page.all("span.checkbox-custom-label")[1].click
+    page.all("span.checkbox-custom-label")[2].click
+    all('.compare-selected-plans-link')[1].click
+
+    wait_for_ajax(10)
+    expect(page).to have_content("Choose Plan - Compare Selected Plans")
+    find(:xpath, '//*[@id="plan-details-modal-body"]/div[2]/button[2]').click
+  end
+end
+
+And(/I should not see any plan which premium is 0/) do
+  page.all("h2.plan-premium").each do |premium|
+    expect(premium).not_to have_content("$0.00")
+  end
+end
+
+And(/^.+ clicks on the link of New Employee Paper Application$/) do
+  find('.new_employee_paper_application').click
+end
+
+Then (/HBX admin start new employee enrollment/) do
+  expect(page).to have_content("Personal Information")
+end
+
+Then(/Employee should see the correct employee contribution on plan tile/) do
+  enrollment = Person.all.first.primary_family.active_household.hbx_enrollments.where(:"aasm_state".ne => "shopping").first
+  expect(page).to have_content "$#{enrollment.total_employee_cost.round(2)}"
+end
+
+Then(/Employee should see their current plan/) do
+  expect(page).to have_content "YOUR CURRENT #{TimeKeeper.date_of_record.year} PLAN"
+end
+
+Then("user will click on New Employee Paper Application link") do
+  find('.new_employee_paper_application').click
+end
+
+And(/(.*) should have a ER sponsored enrollment/) do |named_person|
+  person = people[named_person]
+  ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
+  ce.save # to update benefit group assignment that needs to updated.
+  person_rec = Person.where(first_name: /#{person[:first_name]}/i, last_name: /#{person[:last_name]}/i).first
+  benefit_package = ce.active_benefit_group_assignment.benefit_package
+  FactoryGirl.create(:hbx_enrollment,
+                     household: person_rec.primary_family.active_household,
+                     coverage_kind: "health",
+                     effective_on: benefit_package.start_on,
+                     enrollment_kind: "open_enrollment",
+                     kind: "employer_sponsored",
+                     submitted_at: benefit_package.start_on - 20.days,
+                     employee_role_id: person_rec.active_employee_roles.first.id,
+                     benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                     benefit_sponsorship_id: ce.benefit_sponsorship.id,
+                     sponsored_benefit_package_id: benefit_package.id,
+                     sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                     rating_area_id: benefit_package.rating_area.id,
+                     product_id: benefit_package.health_sponsored_benefit.reference_product_id,
+                     issuer_profile_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.issuer_profile.id)
+end
+
+Then(/Devops can verify session logs/) do
+  log_entries = `tail -n 15 log/test.log`.split("\n")
+  #log with a logged out session
+  session_id = log_entries.last.match(/\[([^\]]*)\]/)[1]
+  session_history = SessionIdHistory.where(session_id: session_id).first
+  expect(session_history.present?).to be true
+  expect(session_history.session_user_id).to be nil
+  #earlier in log was logged on
+  logged_on_session = SessionIdHistory.all[-2]
+  user = User.find(logged_on_session.session_user_id)
+  expect(log_entries.first).to match(/#{logged_on_session.session_id}/)
+  #user was a consumer
+  expect(user.person.consumer_role).not_to be nil
+end
+
+Given(/^a Hbx admin with read and write permissions and employers$/) do
+  p_staff=FactoryGirl.create :permission, :hbx_update_ssn, can_access_user_account_tab: true
+  person = people['Hbx AdminEnrollments']
+  hbx_profile = FactoryGirl.create :hbx_profile
+  user = FactoryGirl.create :user, :with_family, :hbx_staff, email: person[:email], password: person[:password], password_confirmation: person[:password]
+  @user_1 = FactoryGirl.create :user, :with_family, :employer_staff, oim_id: "Employer1"
+  @user_2 = FactoryGirl.create :user, :with_family, :employer_staff, oim_id: "Employer2"
+  FactoryGirl.create :hbx_staff_role, person: user.person, hbx_profile: hbx_profile, permission_id: p_staff.id
+  org1 = FactoryGirl.create(:organization, legal_name: 'Acme Agency', hbx_id: "123456")
+  employer_profile = FactoryGirl.create :employer_profile, organization: org1
+  org2 = FactoryGirl.create(:organization, legal_name: 'Chase & Assoc', hbx_id: "67890")
+  employer_profile = FactoryGirl.create :employer_profile, organization: org2
 end
