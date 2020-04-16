@@ -606,3 +606,196 @@ When(/^(.*) creates an HBX account$/) do |named_person|
   click_button "Create account"
 end
 
+And(/^Primary Broker select the all security question and give the answer$/) do
+  step 'I select the all security question and give the answer'
+end
+
+When(/^Primary Broker have submit the security questions$/) do
+  step 'I have submitted the security questions'
+end
+
+And(/^Broker Assisted select the all security question and give the answer$/) do
+  step 'I select the all security question and give the answer'
+end
+
+When(/^Broker Assisted have submit the security questions$/) do
+  step 'I have submitted the security questions'
+end
+
+When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
+  person = people[named_person]
+
+  fill_in 'person[first_name]', :with => person[:first_name]
+  fill_in 'person[last_name]', :with => person[:last_name]
+  fill_in 'jq_datepicker_ignore_person[dob]', :with => person[:dob]
+  fill_in 'person[ssn]', :with => person[:ssn]
+  find(:xpath, '//label[@for="radio_male"]').click
+
+  screenshot("information_entered")
+  find('.interaction-click-control-continue').click
+end
+
+And(/^(.*?) sees the option to enroll for all employers$/) do |named_person|
+  @organization.keys.each do |legal_name|
+    expect(page).to have_content("Enroll as an employee of " + legal_name)
+  end
+end
+
+Then(/^.+ should not see the matched employee record form$/) do
+  find('.fa-exclamation-triangle')
+  expect(page).to_not have_css('.interaction-click-control-this-is-my-employer')
+end
+
+Then(/^Employee should see the matched employee record form$/) do
+  expect(page).to have_content(@organization[@organization.keys.first].legal_name)
+  screenshot("employer_search_results")
+end
+
+Then(/^Employee should see the shop market place workflow as default$/) do
+  within('.select-employer') do
+    expect(page).to have_content('Enroll as an employee of Acme Inc.')
+  end
+end
+
+Then(/^Employee should not see the individual market place workflow$/) do
+  within('.select-employer') do
+    expect(page).not_to have_css('#individual-benefits')
+  end
+end
+
+Given(/^Employer exists and logs in and adds and employee$/) do
+  login_as @staff_role, scope: :user
+end
+
+# TODO: needs to be merged
+Then(/^.+ should see the matching employee record form$/) do
+  expect(page).to have_content('Turner Agency')
+  screenshot("employer_search_results")
+end
+
+When(/^.+ accepts? the matched employer$/) do
+  screenshot("update_personal_info")
+  find_by_id('btn-continue').click
+end
+
+Then(/^Employee (.+) should see coverage effective date/) do |named_person|
+  census_employee = CensusEmployee.where(:first_name => /#{people[named_person][:first_name]}/i, :last_name => /#{people[named_person][:last_name]}/i).first
+  find('p', text: census_employee.benefit_sponsorship.legal_name)
+  find('.coverage_effective_date', text: census_employee.earliest_eligible_date.strftime("%m/%d/%Y"))
+end
+
+When(/^.+ completes? the matched employee form for (.*)$/) do |named_person|
+
+  # Sometimes bombs due to overlapping modal
+  # TODO: fix this bombing issue
+  wait_for_ajax
+  page.evaluate_script("window.location.reload()")
+  wait_for_ajax(3,2)
+  person = people[named_person]
+  screenshot("before modal")
+  # find('.interaction-click-control-click-here').click
+  screenshot("during modal")
+  # find('.interaction-click-control-close').click
+  screenshot("after modal")
+  expect(page).to have_css('input.interaction-field-control-person-phones-attributes-0-full-phone-number')
+  wait_for_ajax(3,2)
+
+  #find("#person_addresses_attributes_0_address_1", :wait => 10).click
+  # find("#person_addresses_attributes_0_address_1").click
+  # find("#person_addresses_attributes_0_address_2").click
+  # there is a flickering failure here due to over-lapping modals
+  # find("#person_addresses_attributes_0_city").click
+  # find("#person_addresses_attributes_0_zip").click
+  find_by_id("person_phones_attributes_0_full_phone_number", wait: 10)
+  fill_in "person[phones_attributes][0][full_phone_number]", :with => person[:home_phone]
+
+  screenshot("personal_info_complete")
+  wait_for_ajax
+  fill_in "person[phones_attributes][0][full_phone_number]", :with => person[:home_phone] #because why not...
+  expect(page).to have_field("HOME PHONE", with: "(#{person[:home_phone][0..2]}) #{person[:home_phone][3..5]}-#{person[:home_phone][6..9]}") if person[:home_phone].present?
+  #find("#btn-continue").click
+  click_button 'CONTINUE'
+end
+
+And(/^.+ sees the (.*) page and clicks Continue$/) do |which_page|
+  expect(page).to have_content(which_page)
+  find("#btn-continue").click
+  wait_for_ajax
+end
+
+And(/^.+ clicks Confirm$/) do
+  click_link 'Confirm'
+end
+
+And(/^.+ selects the first plan available$/) do
+  links = page.all('a')
+  first_plan_html_class = "btn btn-default btn-right plan-select select interaction-click-control-select-plan"
+  first_plan_select_link = links.detect { |link| link.text == "Select Plan" }
+  first_plan_select_link.click
+end
+
+Then(/^.+ should see the dependents page$/) do
+  expect(page).to have_content('Add Member')
+  screenshot("dependents_page")
+end
+
+When(/^.+ clicks? edit on baby Soren$/) do
+  scroll_then_click(@browser.span(text: "07/03/2014").as(xpath: "./preceding::a[contains(@href, 'edit')]").last)
+end
+
+Then(/^.+ should see the edit dependent form$/) do
+  @browser.button(:text => /Confirm Member/i).wait_until_present
+end
+
+When(/^.+ clicks? delete on baby Soren$/) do
+  scroll_then_click(@browser.form(id: 'edit_dependent').a())
+  @browser.div(id: 'remove_confirm').wait_until_present
+  scroll_then_click(@browser.a(class: /confirm/))
+  @browser.button(text: /Confirm Member/i).wait_while_present
+end
+
+Then(/^.+ should see (\d+) dependents*$/) do |n|
+  expect(page).to have_selector('li.dependent_list', :count => n.to_i)
+end
+
+When(/^.+ clicks? Add Member$/) do
+  click_link("Add Member", :visible => true)
+end
+
+Then(/^.+ should see the new dependent form$/) do
+
+  expect(page).to have_content('Confirm Member')
+end
+
+When(/^.+ enters? the dependent info of .+ daughter$/) do
+  fill_in 'dependent[first_name]', with: 'Cynthia'
+  fill_in 'dependent[last_name]', with: 'White'
+  date = TimeKeeper.date_of_record - 28.years
+  dob = date.to_s
+  fill_in 'jq_datepicker_ignore_dependent[dob]', with: dob
+  find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
+  find(:xpath, "//li[@data-index='3'][contains(., 'Child')]").click
+  find(:xpath, "//label[@for='radio_female']").click
+end
+
+When(/^.+ enters? the dependent info of Patrick wife$/) do
+  fill_in 'dependent[first_name]', with: 'Cynthia'
+  fill_in 'dependent[last_name]', with: 'Patrick'
+  fill_in 'dependent[ssn]', with: '123445678'
+  fill_in 'jq_datepicker_ignore_dependent[dob]', with: '01/15/1996'
+  find('#dependents_info_wrapper').click
+  find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
+  find(:xpath, "//li[@data-index='1'][contains(., 'Spouse')]").click
+  find(:xpath, "//label[@for='radio_female']").click
+  fill_in 'dependent[addresses][0][address_1]', with: '123 STREET'
+  fill_in 'dependent[addresses][0][city]', with: 'WASHINGTON'
+  find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
+  find(:xpath, "//li[@data-index='24'][contains(., 'MA')]").click
+  fill_in 'dependent[addresses][0][zip]', with: '01001'
+end
+
+When(/^.+ clicks? confirm member$/) do
+  all(:css, ".mz").last.click
+  expect(page).to have_link('Add Member')
+end
+
