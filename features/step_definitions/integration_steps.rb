@@ -905,3 +905,104 @@ When(/^.+ clicks? a qle event$/) do
   scroll_then_click(@browser.element(class: /interaction-click-control-keep-existing-plan/))
 end
 
+Then(/^.+ can purchase a plan$/) do
+  @browser.element(text: /Confirm Your Plan Selection/i).wait_until_present
+  expect(@browser.element(text: /Confirm Your Plan Selection/i).visible?).to be_truthy
+  scroll_then_click(@browser.element(class: /interaction-click-control-purchase/))
+  @browser.element(text: /Purchase confirmation/i).wait_until_present
+  expect(@browser.element(text: /Purchase confirmation/i).visible?).to be_truthy
+  scroll_then_click(@browser.element(class: /interaction-click-control-continue/))
+  @browser.element(text: /Your PLAN/i).wait_until_present
+  expect(@browser.element(text: /YOUR PLAN/i).visible?).to be_truthy
+end
+
+When(/^Employer publishes a plan year$/) do
+  find('.interaction-click-control-benefits').click
+
+  find('.interaction-click-control-publish-plan-year').click
+end
+
+When(/^.+ should see a published success message$/) do
+  expect(find('.alert')).to have_content('Plan Year successfully published')
+end
+
+When(/^.+ goes to to home tab$/) do
+  @browser.element(class: /interaction-click-control-my-dc-health-link/).fire_event('onclick')
+end
+
+Then(/^.+ should see the current plan year$/) do
+  @browser.element(text: /My Health Benefits Program/i).wait_until_present
+  # expect(@browser.h5(text: /Plan Year/i).visible?).to be_truthy
+end
+
+And(/^.+ should see the premium billings report$/) do
+  # expect(@browser.h3(text: /Enrollment Report/i).visible?).to be_truthy
+end
+
+When(/^.+ should see a published success message without employee$/) do
+  # TODO: Fix checking for flash messages. We will need to check using
+  #       xpath for an element that may not be visible, but has already
+  #       been faded away by jQuery.
+  wait_for_ajax
+  expect(page).to have_content('You have 0 non-owner employees on your roster')
+end
+
+When(/^.+ clicks? on the add employee button$/) do
+  evaluate_script(<<-JSCODE)
+  $('.interaction-click-control-add-new-employee')[0].click()
+  JSCODE
+  wait_for_ajax
+end
+
+When(/^.+ clicks? to add the first employee$/) do
+  find('.interaction-click-control-add-new-employee', :wait => 10).click
+end
+
+When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab_name|
+  find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
+  wait_for_ajax
+end
+
+When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
+  target_dropdown = page.all('a').detect { |a| a.text == tab_name }
+  target_dropdown.click
+  wait_for_ajax
+end
+
+When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) option$/) do |tab_name|
+  find(".interaction-click-control-#{tab_name.downcase.gsub(' ','-')}").click
+  wait_for_ajax
+  find('#myTabContent').click
+end
+
+And(/^clicks on the person in families tab$/) do
+  login_as hbx_admin, scope: :user
+  visit exchanges_hbx_profiles_root_path
+  page.find('.families.dropdown-toggle.interaction-click-control-families').click
+  find(:xpath, "//a[@href='/exchanges/hbx_profiles/family_index_dt']").click
+  wait_for_ajax(10,2)
+  family_member = page.find('a', :text => "#{user.person.full_name}")
+  family_member.click
+  visit verification_insured_families_path
+  find(:xpath, "//ul/li/a[contains(@class, 'interaction-click-control-documents')]").click
+end
+
+When(/^.+ clicks? on the tab for (.+)$/) do |tab_name|
+  @browser.element(class: /interaction-click-control-#{tab_name}/).wait_until_present
+  scroll_then_click(@browser.element(class: /interaction-click-control-#{tab_name}/))
+end
+
+When(/^I click the "(.*?)" in qle carousel$/) do |qle_event|
+  click_link "#{qle_event}"
+end
+
+When(/^I click on "(.*?)" button on household info page$/) do |select_action|
+  click_link "Continue"
+  click_button "Shop for new plan"
+end
+
+When(/^I click on continue on qle confirmation page$/) do
+  expect(page).to have_content "Enrollment Submitted"
+  screenshot("qle_confirm")
+  click_link "GO TO MY ACCOUNT"
+end
