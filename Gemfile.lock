@@ -66,7 +66,7 @@ PATH
       active_model_serializers
       config
       i18n (= 0.7.0)
-      mini_portile2 (= 2.0.0)
+      mini_portile2 (= 2.4.0)
       mongoid (~> 5.4.0)
       nokogiri
       pundit (~> 1.0.1)
@@ -461,7 +461,7 @@ GEM
       mime-types (>= 1.16, < 3)
     maskedinput-rails (1.4.1.0)
     mime-types (2.99.3)
-    mini_portile2 (2.0.0)
+    mini_portile2 (2.4.0)
     minitest (5.11.3)
     monetize (1.1.0)
       money (~> 6.5.0)
@@ -517,7 +517,7 @@ GEM
     newrelic_rpm (5.0.0.342)
     nio4r (2.3.0)
     nokogiri (1.9.1)
-      mini_portile2 (~> 2.0.0.rc2)
+      mini_portile2 (~> 2.4.0)
     nokogiri-happymapper (0.6.0)
       nokogiri (~> 1.5)
     non-stupid-digest-assets (1.0.9)
