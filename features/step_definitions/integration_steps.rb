@@ -828,7 +828,7 @@ When(/^.+ clicks? health radio on the group selection page$/) do
   find(:xpath, '//label[@for="coverage_kind_dental"]').click
 end
 
-When(/^(?:(?!Employee).)+ clicks? continue on the group selection page$/) do
+When(/^(?:(^Employee).)+ clicks? continue on the group selection page$/) do
   find('#btn-continue').click
 end
 
