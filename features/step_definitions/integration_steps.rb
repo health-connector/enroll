@@ -799,3 +799,109 @@ When(/^.+ clicks? confirm member$/) do
   expect(page).to have_link('Add Member')
 end
 
+When(/^.+ clicks? continue on the dependents page$/) do
+  screenshot("group_selection")
+  find('#btn-continue').click
+end
+
+Then(/^.+ should see the group selection page$/) do
+  expect(page).to have_css('form')
+end
+
+When(/^.+ clicks? health radio on the group selection page$/) do
+  find(:xpath, '//label[@for="coverage_kind_dental"]').click
+end
+
+When(/^(?:(?!Employee).)+ clicks? continue on the group selection page$/) do
+  find('#btn-continue').click
+end
+
+Then(/^.+ should see the plan shopping welcome page$/) do
+  expect(page).to have_content('Choose Plan')
+  screenshot("plan_shopping_welcome")
+end
+
+Then(/^.+ should see the plan shopping page with no dependent$/) do
+  expect(page).to have_content("Soren White")
+end
+
+Then(/^.+ should see the plan shopping page with one dependent$/) do
+  expect(page).to have_content("Soren White + 1 Dependent")
+end
+
+When(/^.+ clicks? continue on the plan shopping welcome page$/) do
+  scroll_then_click(@browser.a(text: "Continue"))
+end
+
+When(/^.+ clicks? my insured portal link$/) do
+  click_link 'My Insured Portal'
+end
+
+When(/^.+ clicks? shop for plans button$/) do
+  click_button "Shop for Plans"
+end
+
+When(/^.+ clicks Shop for new plan button$/) do
+  click_button 'Shop for new plan'
+end
+
+Then(/^.+ should see the list of plans$/) do
+  expect(page).to have_link('Select')
+  screenshot("plan_shopping")
+end
+
+And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
+  benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
+  # cannot select a SEP date from expired plan year on 31st.
+  if TimeKeeper.date_of_record.day != 31 || plan_year_state != "expired"
+    expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
+  else
+    expect(page).to have_content benefit_sponsorship.benefit_applications.where(:aasm_state.ne => plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
+  end
+end
+
+When(/^.+ selects? a plan on the plan shopping page$/) do
+  first(:link, 'Select Plan').click
+end
+
+Then(/^.+ should see the coverage summary page$/) do
+  expect(page).to have_content('Confirm Your Plan Selection')
+  screenshot("summary_page")
+end
+
+When(/^.+ clicks? on Confirm button on the coverage summary page$/) do
+  find('.interaction-click-control-confirm').click
+end
+
+Then(/^.+ should see the receipt page$/) do
+  expect(page).to have_content('Enrollment Submitted')
+  screenshot("receipt_page")
+  find('.interaction-click-control-continue').click
+end
+
+Then(/^.+ should see the "my account" page$/) do
+  find('.my-account-page')
+  expect(page).to have_content("My #{Settings.site.short_name}")
+  screenshot("my_account")
+end
+
+Then(/^.+ should see the "Your Enrollment History" section/) do
+  @browser.element(text: /YOUR ENROLLMENT HISTORY/i).wait_until_present
+  expect(@browser.element(text: /YOUR ENROLLMENT HISTORY/i).visible?).to be_truthy
+end
+
+When(/^.+ clicks? a qle event$/) do
+  scroll_then_click(@browser.a(text: /Divorce/))
+  @browser.text_field(class: "interaction-field-control-qle-date").set((Date.today + 5).strftime("%m/%d/%Y"))
+  scroll_then_click(@browser.a(class: /interaction-click-control-submit/))
+  @browser.element(text: /You may be eligible for a special enrollment period./i).wait_until_present
+  expect(@browser.element(text: /You may be eligible for a special enrollment period./i).visible?).to be_truthy
+  scroll_then_click(@browser.element(class: /interaction-click-control-continue/))
+  @browser.element(text: /Household Info: Family Members/i).wait_until_present
+  expect(@browser.element(text: /Household Info: Family Members/i).visible?).to be_truthy
+  scroll_then_click(@browser.a(id: /btn_household_continue/))
+  @browser.element(text: /Choose Benefits: Covered Family Members/i).wait_until_present
+  expect(@browser.element(text: /Choose Benefits: Covered Family Members/i).visible?).to be_truthy
+  scroll_then_click(@browser.element(class: /interaction-click-control-keep-existing-plan/))
+end
+
