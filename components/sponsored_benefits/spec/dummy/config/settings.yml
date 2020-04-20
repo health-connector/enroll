@@ -181,13 +181,6 @@ aca:
       new_enrollment_transmit_on: 16
       update_transmit_day_of_week: "friday"
 
-    broker_quoting_tool:
-      flexible_contribution_model:
-        initial_application_period: <%= Date.new(2020,03,01)..Date.new(2020,12,31) %>
-        enabled_for_renewal_applications: false
-        employer_contribution_percent_minimum: 0
-        employer_family_contribution_percent_minimum: 0
-
     use_simple_employer_calculation_model: false
 
   carrier_special_plan_identifier_namespace: "urn:MA:terms:v1:plan:super_group_id#"
