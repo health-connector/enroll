@@ -12,7 +12,7 @@ module BenefitSponsors
       field :contribution_unit_id, type: BSON::ObjectId
       field :is_offered, type: Boolean
       field :order, type: Integer
-      field :contribution_factor, type: Float
+      field :contribution_factor, type: Float, default: 0.0
       field :min_contribution_factor, type: Float
       field :contribution_cap, type: Float
       field :flat_contribution_amount, type: Float

@@ -7,7 +7,8 @@ module BenefitSponsors
         {
           :display_name => "Employee Only",
           :order => 1,
-          :contribution_unit_id => 1
+          :contribution_unit_id => 1,
+          :contribution_factor => nil
         }
       }
 

@@ -12,6 +12,13 @@ module BenefitSponsors
         subject.valid?
         expect(subject.errors.has_key?(:contribution_unit_id)).to be_truthy
       end
+
+      it "contribution_factor should be 0.0" do
+        subject.valid?
+        expect(subject.contribution_factor).to eq(0.0)
+      end
     end
   end
 end
+
+
