@@ -57,7 +57,6 @@ javascript:
   var disableSelectric = false;
   var defaultOEStartOn = '';
   var defaultOEEndOn = '';
-
   function setDefaultDates() {
     defaultOEStartOn = document.querySelector("input#benefit_application_open_enrollment_start_on").value;
     defaultOEEndOn = document.querySelector("input#benefit_application_open_enrollment_end_on").value
@@ -144,7 +143,6 @@ javascript:
     var minDate = $(open_enrollment_start_on).attr("data-oe-min-Date") || $(open_enrollment_end_on).attr("data-oe-start-date");
     var open_enrollment_end_on = document.querySelector("input#benefit_application_open_enrollment_end_on");
     var maxDate  = $(open_enrollment_end_on).attr("data-oe-max-Date") || $(open_enrollment_end_on).attr("data-oe-end-date");
-
     if (minDate) {
         initDatepicker(id, new Date(minDate), new Date(maxDate));
     } else {
