@@ -10,6 +10,8 @@ class ModifyBenefitApplication< MongoidMigrationTask
       cancel_benefit_application(benefit_applications_for_cancel)
     when "terminate"
       terminate_benefit_application(benefit_applications_for_terminate)
+    when "update_from_terminate_pending_to_terminated"
+      terminate_benefit_application(benefit_applications_for_terminate_pending)
     when "reinstate"
       reinstate_benefit_application(benefit_applications_for_reinstate)
     when "begin_open_enrollment"
@@ -164,6 +166,14 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_applications_for_terminate
     benefit_sponsorship = get_benefit_sponsorship
     benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(TimeKeeper.date_of_record)
+  end
+
+  def benefit_applications_for_terminate_pending
+    benefit_application_end_on = Date.strptime(ENV['plan_year_end_on'].to_s, "%m/%d/%Y")
+    benefit_sponsorship = get_benefit_sponsorship
+    benefit_applications = benefit_sponsorship.benefit_applications.where(:"effective_period.max" => benefit_application_end_on)
+    raise "Found #{benefit_applications.count} benefit applications with that end date" if benefit_applications.count != 1
+    [benefit_applications.first]
   end
 
   def benefit_applications_for_cancel
