@@ -169,7 +169,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
   end
 
   def benefit_applications_for_terminate_pending
-    benefit_application_end_on = Date.strptime(ENV['plan_year_end_on'].to_s, "%m/%d/%Y")
+    benefit_application_end_on = Date.strptime(ENV['end_on'].to_s, "%m/%d/%Y")
     benefit_sponsorship = get_benefit_sponsorship
     benefit_applications = benefit_sponsorship.benefit_applications.where(:"effective_period.max" => benefit_application_end_on)
     raise "Found #{benefit_applications.count} benefit applications with that end date" if benefit_applications.count != 1

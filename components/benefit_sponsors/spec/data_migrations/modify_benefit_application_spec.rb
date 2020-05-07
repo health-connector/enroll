@@ -208,6 +208,53 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       end
     end
 
+    context "update_from_terminate_pending_to_terminated", dbclean: :after_each do
+      let(:effective_date) { start_on.prev_year.beginning_of_month..start_on - 1.day }
+      let(:termination_date) { effective_date.max }
+      let(:end_on)           { effective_date.max }
+
+      before do
+        benefit_application.update_attributes(effective_period: effective_date)
+        allow(ENV).to receive(:[]).with("termination_kind").and_return("voluntary")
+        allow(ENV).to receive(:[]).with("termination_reason").and_return("Company went out of business/bankrupt")
+        allow(ENV).to receive(:[]).with("notify_trading_partner").and_return("false")
+        allow(ENV).to receive(:[]).with('off_cycle_renewal').and_return('false')
+        allow(ENV).to receive(:[]).with("action").and_return("update_from_terminate_pending_to_terminated")
+        allow(ENV).to receive(:[]).with("termination_date").and_return(termination_date.strftime("%m/%d/%Y"))
+        allow(ENV).to receive(:[]).with("end_on").and_return(end_on.strftime("%m/%d/%Y"))
+        subject.migrate
+        benefit_application.reload
+      end
+
+      it "should terminate the benefit application" do
+        expect(benefit_application.aasm_state).to eq :terminated
+      end
+
+      it "should update end on date on benefit application" do
+        expect(benefit_application.end_on).to eq end_on
+      end
+
+      it "should update end on date on benefit application" do
+        expect(benefit_application.terminated_on).to eq termination_date
+      end
+
+      it "should update the termination kind" do
+        expect(benefit_application.termination_kind).to eq "voluntary"
+      end
+
+      it "should update the termination reason" do
+        expect(benefit_application.termination_reason).to eq "Company went out of business/bankrupt"
+      end
+
+      it "should terminate any active employee enrollments" do
+        benefit_application.hbx_enrollments.each { |hbx_enrollment| expect(hbx_enrollment.aasm_state).to eq "coverage_terminated"}
+      end
+
+      it "should terminate any active employee enrollments with termination date as on Benefit Application" do
+        benefit_application.hbx_enrollments.each { |hbx_enrollment| expect(hbx_enrollment.terminated_on).to eq end_on }
+      end
+    end
+
     context "cancel benefit application", dbclean: :after_each do
       let(:past_start_on) { Date.new(current_effective_date.year, 10, 1) }
       let(:start_on)  { past_start_on }
