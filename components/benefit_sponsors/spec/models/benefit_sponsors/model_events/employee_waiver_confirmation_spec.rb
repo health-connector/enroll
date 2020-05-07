@@ -112,6 +112,8 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeWaiverConfirmation', dbcle
 
     context "when notice event received" do
       before do
+        allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([model_instance])
+        allow(employee_role.census_employee).to receive(:active_benefit_group_assignment).and_return(benefit_group_assignment)
         allow(subject).to receive(:resource).and_return(employee_role)
         allow(subject).to receive(:payload).and_return(payload)
       end
