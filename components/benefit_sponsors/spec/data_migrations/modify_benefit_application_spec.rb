@@ -214,7 +214,8 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       let(:end_on)           { effective_date.max }
 
       before do
-        benefit_application.update(effective_period: effective_date, aasm_state: :termination_pending)
+        benefit_application.update(effective_period: effective_date)
+        benefit_application.schedule_enrollment_termination!
         allow(ENV).to receive(:[]).with("termination_kind").and_return("voluntary")
         allow(ENV).to receive(:[]).with("termination_reason").and_return("Company went out of business/bankrupt")
         allow(ENV).to receive(:[]).with("notify_trading_partner").and_return("false")
