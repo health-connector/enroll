@@ -120,6 +120,9 @@ class ModifyBenefitApplication< MongoidMigrationTask
     notify_trading_partner = (ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true) ? true : false
     end_on = Date.strptime(ENV['end_on'], "%m/%d/%Y")
     benefit_applications.each do |benefit_application|
+      termination_kind ||= benefit_application.termination_kind
+      termination_reason ||= benefit_application.termination_reason
+      termination_date ||= benefit_application.termination_date
       service = initialize_service(benefit_application)
       service.terminate(end_on, termination_date, termination_kind, termination_reason, notify_trading_partner)
     end
