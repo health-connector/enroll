@@ -48,7 +48,7 @@ describe GoldenSeed, dbclean: :after_each do
   let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area, active_year: effective_period_start_on.year }
   let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: effective_period_start_on.year }
   let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let(:benefit_sponsor_organization) do 
+  let(:benefit_sponsor_organization) do
     FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site, legal_name: 'Broadcasting llc'
     )
@@ -124,20 +124,19 @@ describe GoldenSeed, dbclean: :after_each do
       end
 
       it "should modify benefit application coverage end_on" do
-
+        expect(subject.get_benefit_applications_of_sponsorships.last.effective_period.max.to_date.to_s).to eq("03/31/2020")
       end
 
       it "should modify benefit application open_enrollment_start_on" do
-
+        expect(subject.get_benefit_applications_of_sponsorships.last.open_enrollment_start_on.to_date.to_s).to eq("11/01/2019")
       end
 
       it "should modify benefit application open_enrollment_end_on" do
-
-
+        expect(subject.get_benefit_applications_of_sponsorships.last.open_enrollment_end_on.to_date.to_s).to eq("12/20/2019")
       end
 
       it "should modify recalculate the appropriate prices" do
-
+        
       end
     end
   end
