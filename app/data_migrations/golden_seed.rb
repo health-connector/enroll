@@ -39,8 +39,9 @@ class GoldenSeed < MongoidMigrationTask
     else
       @benefit_applications = []
       get_benefit_sponsorships_of_organizations.each do |benefit_sponsorship|
-        if benefit_sponsorship.benefit_applications
-          @benefit_applications << benefit_sponsorship.benefit_applications
+        if benefit_sponsorship.benefit_applications.each do |application|
+            @benefit_applications << application
+          end
         end
       end
       @benefit_applications
@@ -70,13 +71,15 @@ class GoldenSeed < MongoidMigrationTask
       raise("Please provide coverage start on and coverage end on (effective period) dates.") unless Rails.env.test?
       return
     else
-      @coverage_start_on = ENV['coverage_start_on'].to_date
-      @coverage_end_on = ENV['coverage_end_on'].to_date
+      @coverage_start_on = Date.strptime(coverage_start_on, "%m/%d/%Y")
+      @coverage_end_on = Date.strptime(coverage_end_on, "%m/%d/%Y")
     end
     puts('Executing migration') unless Rails.env.test?
     get_default_organizations
     get_benefit_sponsorships_of_organizations
     get_benefit_applications_of_sponsorships
+    # TODO: Remove this, just keeping it here for testing since binding pry isn't working
+    # raise("No benefit applications detected.") if get_benefit_applications_of_sponsorships.blank?
     update_dates_of_benefit_applications
     recalc_prices_of_benefit_applications
   end
