@@ -10,6 +10,18 @@ describe GoldenSeed, dbclean: :after_each do
     it "has the given task name" do
       expect(subject.name).to eql given_task_name
     end
+
+    describe "instance variables" do
+      it "sets organization_collection as instance variable" do
+
+      end
+      it "sets benefit_sponsorships as instance variable" do
+
+      end
+      it "sets benefit_applications as instance variable" do
+
+      end
+    end
   end
 
   describe "updating benefit applications", dbclean: :after_each do
@@ -31,6 +43,10 @@ describe GoldenSeed, dbclean: :after_each do
       end
 
       it "should modify benefit application coverage start_on" do
+
+      end
+
+      it "should modify benefit application coverage end_on" do
 
       end
 
