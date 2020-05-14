@@ -50,7 +50,6 @@ class GoldenSeed < MongoidMigrationTask
 
   def update_dates_of_benefit_applications
     get_benefit_applications_of_sponsorships.each do |benefit_application|
-      puts("Benefit application is a " + benefit_application.class.to_s)
       benefit_application.update_attributes!(effective_period: @coverage_start_on..@coverage_end_on)
       benefit_application.reload
       open_enrollment_period = SponsoredBenefits::BenefitApplications::BenefitApplication.open_enrollment_period_by_effective_date(

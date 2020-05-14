@@ -2,8 +2,6 @@ require"rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "golden_seed")
 
 describe GoldenSeed, dbclean: :after_each do
-  let(:benefit_application) { BenefitApplications::BenefitApplication.new }
-
   # let(:date_range) { (Date.today..1.year.from_now) }
 
   let(:effective_period_start_on) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
@@ -61,7 +59,6 @@ describe GoldenSeed, dbclean: :after_each do
   let(:plan_design_proposal)      { SponsoredBenefits::Organizations::PlanDesignProposal.new(title: "New Proposal") }
   let(:sic_code) { "123345" }
   let(:profile) {SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new(sic_code: sic_code) }
-  #let(:general_org_benefit_app) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsor_organization) }
 
   before(:each) do
     plan.hios_id = product.hios_id
@@ -76,10 +73,14 @@ describe GoldenSeed, dbclean: :after_each do
     benefit_sponsorship.benefit_applications = [benefit_application]
     benefit_application.benefit_groups << benefit_group
     plan_design_organization.save!
+    benefit_sponsor_organization.active_benefit_sponsorship.benefit_applications.build(
+      effective_period: effective_period,
+      open_enrollment_period: open_enrollment_period
+    )
+    benefit_sponsor_organization.active_benefit_sponsorship.save!
     expect(BenefitSponsors::Organizations::Organization.all.count).to eq(2)
     expect(BenefitSponsors::Organizations::Organization.all.where(legal_name: "Broadcasting llc").first.present?).to eq(true)
-    # TODO: The spec isn't properly creating benefit applications for the benefit sponsor organizaton Broadcasting LLC
-    # expect(BenefitSponsors::Organizations::Organization.all.where(legal_name: "Broadcasting llc").first.active_benefit_sponsorship.benefit_applications.present?).to eq(true)
+    expect(BenefitSponsors::Organizations::Organization.all.where(legal_name: "Broadcasting llc").first.active_benefit_sponsorship.benefit_applications.present?).to eq(true)
   end
 
   let(:given_task_name) { "golden_seed" }
@@ -105,7 +106,7 @@ describe GoldenSeed, dbclean: :after_each do
         expect(subject.get_benefit_sponsorships_of_organizations.last.class.to_s).to eq("BenefitSponsors::BenefitSponsorships::BenefitSponsorship")
       end
       it "sets benefit_applications as instance variable" do
-        expect(subject.get_benefit_applications_of_sponsorships.last.class.to_s).to eq("BenefitApplication")
+        expect(subject.get_benefit_applications_of_sponsorships.last.class.to_s).to eq("BenefitSponsors::BenefitApplications::BenefitApplication")
       end
     end
   end
@@ -119,23 +120,23 @@ describe GoldenSeed, dbclean: :after_each do
 
     describe "requirements" do
       it "should modify benefit application coverage start_on" do
-        expect(subject.get_benefit_applications_of_sponsorships.last.effective_on.min.to_s).to eq("01/01/2020")
+        expect(subject.get_benefit_applications_of_sponsorships.last.effective_period.min.to_date.to_s).to eq("01/01/2020")
       end
 
-      xit "should modify benefit application coverage end_on" do
-
-      end
-
-      xit "should modify benefit application open_enrollment_start_on" do
+      it "should modify benefit application coverage end_on" do
 
       end
 
-      xit "should modify benefit application open_enrollment_end_on" do
+      it "should modify benefit application open_enrollment_start_on" do
+
+      end
+
+      it "should modify benefit application open_enrollment_end_on" do
 
 
       end
 
-      xit "should modify recalculate the appropriate prices" do
+      it "should modify recalculate the appropriate prices" do
 
       end
     end
