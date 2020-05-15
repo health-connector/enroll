@@ -1,7 +1,43 @@
 require"rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_benefit_application_dates")
+require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
 
 describe "Golden Seed Rake Tasks", dbclean: :after_each do
+  describe "Generate Employers, Employees, and Dependents for SHOP" do
+    let(:given_task_name) { "golden_seed_shop" }
+    subject { GoldenSeedSHOP.new(given_task_name, double(:current_scope => nil)) }
+
+    describe "given a task name" do
+      it "has the given task name" do
+        expect(subject.name).to eql given_task_name
+      end
+    end
+
+    describe "requirements" do
+      xit "should create employers" do
+        subject.migrate
+        expect(BenefitSponsors::Organizations::Organization.all.present?).to eq(true)
+      end
+
+      it "should create census employees belonging to a specific employer/employee_role" do
+
+      end
+
+      it "should create dependents for a family" do
+
+
+      end
+
+      it "should not modify existing plans" do
+
+      end
+
+      it "should create benefit applications for a given employer benefit package" do
+
+      end
+    end
+  end
+
   describe "Update Benefit Application Dates" do
     # let(:date_range) { (Date.today..1.year.from_now) }
 
