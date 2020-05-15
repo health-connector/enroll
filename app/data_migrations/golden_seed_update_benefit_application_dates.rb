@@ -50,17 +50,20 @@ class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
 
   def update_dates_of_benefit_applications
     get_benefit_applications_of_sponsorships.each do |benefit_application|
+      legal_name = benefit_application.benefit_sponsorship.organization.legal_name
       benefit_application.update_attributes!(effective_period: @coverage_start_on..@coverage_end_on)
       benefit_application.reload
       open_enrollment_period = SponsoredBenefits::BenefitApplications::BenefitApplication.open_enrollment_period_by_effective_date(
         benefit_application.effective_period.min
       )
       benefit_application.update_attributes!(open_enrollment_period: open_enrollment_period)
+      puts("Finished updating benefit application for employer " + legal_name) unless Rails.env.test?
     end
   end
 
   def recalc_prices_of_benefit_applications
     get_benefit_applications_of_sponsorships.each { |benefit_application| benefit_application.recalc_pricing_determinations }
+    puts("Finished recalculating prices of benefit applications.") unless Rails.env.test?
   end
 
   def migrate
@@ -82,8 +85,6 @@ class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
     get_default_organizations
     get_benefit_sponsorships_of_organizations
     get_benefit_applications_of_sponsorships
-    # TODO: Remove this, just keeping it here for testing since binding pry isn't working
-    # raise("No benefit applications detected.") if get_benefit_applications_of_sponsorships.blank?
     update_dates_of_benefit_applications
     recalc_prices_of_benefit_applications
   end

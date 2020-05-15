@@ -12,8 +12,8 @@ require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
 # RAILS_ENV=production bundle exec rake migrations:golden_seed_shop
 
 namespace :migrations do
-  desc "Generates Employers, Employees, and Dependents from existing carriers and plans. Can be run on any environment without affecting existing data. Uses existing carreirs/plans."
-  GoldenSeedSHOP.define_task :golden_seed_shop => :environment
+  # desc "Generates Employers, Employees, and Dependents from existing carriers and plans. Can be run on any environment without affecting existing data. Uses existing carreirs/plans."
+  # GoldenSeedSHOP.define_task :golden_seed_shop => :environment
   desc "Updates effective on periods for employer benefit applications from employer list a specific dump. Can be enhanced to ingest employer legal name list."
   GoldenSeedUpdateBenefitApplicationDates.define_task :golden_seed_update_benefit_applications => :environment
 end
