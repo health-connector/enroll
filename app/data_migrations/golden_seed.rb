@@ -1,6 +1,6 @@
 require File.join(Rails.root, 'lib/mongoid_migration_task')
 
-class GoldenSeed < MongoidMigrationTask
+class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
   # Default organization legal names are the employers created in the database dump
   DEFAULT_ORGANIZATION_LEGAL_NAMES = ["Broadcasting llc", "Electric Motors Corp", "MRNA Pharma", "Mobile manf crop", "cuomo family Inc"].freeze
 

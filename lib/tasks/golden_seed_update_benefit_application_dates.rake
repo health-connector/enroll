@@ -1,4 +1,4 @@
-require File.join(Rails.root, "app", "data_migrations", "golden_seed")
+require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_benefit_applications")
 # This rake task should be used in conjunction with the database seed with employers for testing
 # Rake takes in default employer list from seed
 # and takes coverage_start_on and end_on dates to form effective period
@@ -6,5 +6,5 @@ require File.join(Rails.root, "app", "data_migrations", "golden_seed")
 
 namespace :migrations do
   desc "Updates effective on periods for employer benefit applications"
-  GoldenSeed.define_task :golden_seed => :environment
+  GoldenSeedUpdateBenefitApplicationDates.define_task :golden_seed => :environment
 end
