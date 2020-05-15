@@ -74,6 +74,11 @@ class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
       @coverage_end_on = Date.strptime(coverage_end_on, "%m/%d/%Y")
     end
     puts('Executing migration') unless Rails.env.test?
+    # TODO: Enhance code to get specific organizations (working from an existing database)
+    # if ENV['target_employer_name_list']
+    #   employer_name_list = ENV['target_employer_name_list'].split(",")
+    #   get_target_organizations(employer_name_list)
+    # end
     get_default_organizations
     get_benefit_sponsorships_of_organizations
     get_benefit_applications_of_sponsorships
