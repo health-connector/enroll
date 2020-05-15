@@ -1,5 +1,5 @@
 require"rails_helper"
-require File.join(Rails.root, "app", "data_migrations", "golden_seed")
+require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_benefit_application_dates")
 
 describe "Golden Seed Rake Tasks", dbclean: :after_each do
   describe "Update Benefit Application Dates" do
