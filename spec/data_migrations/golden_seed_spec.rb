@@ -14,9 +14,23 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
     end
 
     describe "requirements" do
-      xit "should create employers" do
+      let(:test_employer) do
+        BenefitSponsors::Organizations::Organization.where(legal_name: /Golden Seed/).first
+      end
+
+      before :each do
         subject.migrate
-        expect(BenefitSponsors::Organizations::Organization.all.present?).to eq(true)
+      end
+
+      it "should create employers" do
+        expect(test_employer.persisted?).to eq(true)
+        expect(BenefitSponsors::Organizations::Organization.all.count).to eq(6)
+        # TODO: Should create an employer for every family in the plans/families hash
+        # expect(BenefitSponsors::Organizations::Organization.all.count).to eq(24)
+      end
+
+      it "should create employers with sic code" do
+        expect(test_employer.employer_profile.sic_code).to eq("0111")
       end
 
       it "should create census employees belonging to a specific employer/employee_role" do

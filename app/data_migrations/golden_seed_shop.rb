@@ -3,7 +3,8 @@ require File.join(Rails.root, 'lib/mongoid_migration_task')
 class GoldenSeedSHOP < MongoidMigrationTask
   # Site is a prerequisite to create employer
   def site
-    @site = BenefitSponsors::Site.by_site_key(Settings.site.key).first
+    # TODO: Remove the factory bot
+    @site = BenefitSponsors::Site.by_site_key(:cca).first || FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, :cca)
   end
 
   #### SOURCE DATA METHODS
@@ -90,19 +91,27 @@ class GoldenSeedSHOP < MongoidMigrationTask
   end
 
   def migrate
-    puts('Executing migration')
+    puts('Executing migration') unless Rails.env.test?
     carriers_plans_and_employee_dependent_count('health').each do |carrier_name, plan_list|
+      plan_name_counter = 1
       plan_list.each do |plan_name, family_structure_list|
         family_structure_list.each_with_index do |family_structure, counter_number|
-          employer = generate_and_return_new_employer(counter_number)
-          census_employee = generate_and_return_census_employee(employer)
-          person = census_employee.employee_role.person
-          family = person.primary_family
-          if family_structure.length > 1
-            dependents_list = family_stucture.reject { |family_member| family_member == 'employee' }.each do |personal_relationship_kind|
-              generate_and_return_dependents(family, personal_relatonship_kind)   
-            end
-          end
+          #puts("family structure is " + family_structure.to_s)
+          counter_number = counter_number + 1
+          family_structure_counter = 1
+          plan_name_counter = plan_name_counter + 1
+          # TODO: Should be creating an employer every family. Is only creating 6.
+          employer_profile = generate_and_return_employer_profile(counter_number + plan_name_counter)
+          family_structure_counter = family_structure_counter + 1
+          employer = employer_profile.organization
+          # census_employee = generate_and_return_employee(employer)
+          #person = census_employee.employee_role.person
+          #family = person.primary_family
+          #if family_structure.length > 1
+          #  dependents_list = family_stucture.reject { |family_member| family_member == 'employee' }.each do |personal_relationship_kind|
+          #    generate_and_return_dependents(family, personal_relatonship_kind)   
+          #  end
+          #åend
         end
       end
     end
@@ -123,16 +132,56 @@ class GoldenSeedSHOP < MongoidMigrationTask
     # return person ?
   end
 
+  def generate_address_and_phone(counter_number)
+    address = Address.new(
+      kind: "primary",
+      address_1: "60" + counter_number.to_s + ('a'..'z').to_a.sample + ' ' + ['Street', 'Ave', 'Drive'].sample,
+      city: "Boston",
+      state: "MA",
+      zip: "02109",
+      county: "Suffolk"
+    )
+    phone = Phone.new(
+      kind: "main",
+      area_code: %w[339 351 508 617 774 781 857 978 413].sample,
+      number: "55" + counter_number.to_s.split("").sample + "-999" + counter_number.to_s.split("").sample
+    )
+    raise("Address invalid." + address.errors.to_s) unless address.valid?
+    raise("Phone invalid. " + phone.errors.to_s) unless phone.valid?
+    [address, phone]
+  end
+
+  def generate_office_location(address_and_phone)
+    OfficeLocation.new(
+      is_primary: true,
+      address: address_and_phone[0],
+      phone: address_and_phone[1]
+    )
+  end
+
+  def generate_and_return_employer_profile(counter_number)
+    address_and_phone = generate_address_and_phone(counter_number)
+    office_location = generate_office_location(address_and_phone)
+    BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.create!(
+      organization: generate_and_return_new_employer(counter_number),
+      sic_code: '0111', # Real example for Agriculture, Forestry, And Fishing industry,
+      office_locations: [office_location]
+    )
+  end
+
   # TODO: Figure out if we can user faker gem?
   def generate_and_return_new_employer(counter_number)
     company_name = "Golden Seed" + ' ' + counter_number.to_s
-    fein = "11111" + counter_number.to_s
-    BenefitSponsors::Organizations::GeneralOrganization.create!(
+    fein = ("11111111" + counter_number.to_s)[0..8]
+    employer = BenefitSponsors::Organizations::GeneralOrganization.new(
       site: site,
       legal_name: company_name,
       dba: company_name + " " + ["Inc.", "LLC"].sample,
-      fein: fein
+      fein: fein,
+      entity_kind: :c_corporation
     )
+    #employer.general_agency_profile = generate_employer_profile(counter_number)
+
   end
 
   def generate_benefit_sponsorship
