@@ -20,6 +20,7 @@ module BenefitSponsors
         auto_cancel_ineligible_applications
         auto_transmit_monthly_benefit_sponsors
         close_enrollment_quiet_period
+        transmit_weekly_broker_xml
       end
 
       def shop_daily_events
@@ -130,6 +131,11 @@ module BenefitSponsors
           effective_on = (new_date.prev_day.beginning_of_month - Settings.aca.shop_market.initial_application.quiet_period.month_offset.months).to_s(:db)
           notify("acapi.info.events.employer.initial_employer_quiet_period_ended", {:effective_on => effective_on})
         end
+      end
+
+      def transmit_weekly_broker_xml
+        return unless new_date.strftime("%A").casecmp(Settings.aca.broker_xml_transmit_day_of_week.to_s).zero?
+        notify("acapi.info.events.broker.generate_broker_xml", {})
       end
 
       private
