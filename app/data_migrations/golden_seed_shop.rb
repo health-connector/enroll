@@ -4,7 +4,20 @@ class GoldenSeedSHOP < MongoidMigrationTask
   # Site is a prerequisite to create employer
   def site
     # TODO: Remove the factory bot
-    @site = BenefitSponsors::Site.by_site_key(:cca).first || FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, :cca)
+    @site = BenefitSponsors::Site.by_site_key(:cca).first
+  end
+
+  def feins
+    @feins = []
+  end
+
+  def generate_and_return_unique_fein
+    fein = SecureRandom.hex(100).tr('^0-9', '')[0..8]
+    until feins.exclude?(fein)
+      fein = SecureRandom.hex(100).tr('^0-9', '')[0..8]
+    end
+    feins << fein
+    fein
   end
 
   #### SOURCE DATA METHODS
@@ -101,9 +114,9 @@ class GoldenSeedSHOP < MongoidMigrationTask
           family_structure_counter = 1
           plan_name_counter = plan_name_counter + 1
           # TODO: Should be creating an employer every family. Is only creating 6.
-          employer_profile = generate_and_return_employer_profile(counter_number + plan_name_counter)
-          family_structure_counter = family_structure_counter + 1
-          employer = employer_profile.organization
+          employer_profile = initialize_and_return_employer_profile(counter_number + plan_name_counter)
+          family_structure_counter = family_structure_counter + plan_name_counter + 1
+          employer = create_and_return_new_employer(family_structure_counter, employer_profile)
           # census_employee = generate_and_return_employee(employer)
           #person = census_employee.employee_role.person
           #family = person.primary_family
@@ -146,8 +159,6 @@ class GoldenSeedSHOP < MongoidMigrationTask
       area_code: %w[339 351 508 617 774 781 857 978 413].sample,
       number: "55" + counter_number.to_s.split("").sample + "-999" + counter_number.to_s.split("").sample
     )
-    raise("Address invalid." + address.errors.to_s) unless address.valid?
-    raise("Phone invalid. " + phone.errors.to_s) unless phone.valid?
     [address, phone]
   end
 
@@ -159,29 +170,27 @@ class GoldenSeedSHOP < MongoidMigrationTask
     )
   end
 
-  def generate_and_return_employer_profile(counter_number)
+  def initialize_and_return_employer_profile(counter_number)
     address_and_phone = generate_address_and_phone(counter_number)
     office_location = generate_office_location(address_and_phone)
-    BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.create!(
-      organization: generate_and_return_new_employer(counter_number),
-      sic_code: '0111', # Real example for Agriculture, Forestry, And Fishing industry,
-      office_locations: [office_location]
-    )
+    employer_profile = BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.new
+    employer_profile.office_locations << office_location
+    employer_profile.sic_code = '0111'
+    employer_profile
   end
 
   # TODO: Figure out if we can user faker gem?
-  def generate_and_return_new_employer(counter_number)
+  def create_and_return_new_employer(counter_number, employer_profile)
     company_name = "Golden Seed" + ' ' + counter_number.to_s
-    fein = ("11111111" + counter_number.to_s)[0..8]
     employer = BenefitSponsors::Organizations::GeneralOrganization.new(
       site: site,
       legal_name: company_name,
       dba: company_name + " " + ["Inc.", "LLC"].sample,
-      fein: fein,
+      fein: generate_and_return_unique_fein,
+      profiles: [employer_profile],
       entity_kind: :c_corporation
     )
-    #employer.general_agency_profile = generate_employer_profile(counter_number)
-
+    employer.save!
   end
 
   def generate_benefit_sponsorship

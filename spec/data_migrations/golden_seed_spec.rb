@@ -18,35 +18,39 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
         BenefitSponsors::Organizations::Organization.where(legal_name: /Golden Seed/).first
       end
 
+      let!(:site) { FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, :cca) }
+
       before :each do
         subject.migrate
       end
 
-      it "should create employers" do
+      it "should create employers and employer profiles" do
         expect(test_employer.persisted?).to eq(true)
-        expect(BenefitSponsors::Organizations::Organization.all.count).to eq(6)
-        # TODO: Should create an employer for every family in the plans/families hash
-        # expect(BenefitSponsors::Organizations::Organization.all.count).to eq(24)
+        expect(BenefitSponsors::Organizations::GeneralOrganization.all.count).to eq(26)
       end
 
       it "should create employers with sic code" do
         expect(test_employer.employer_profile.sic_code).to eq("0111")
       end
 
-      it "should create census employees belonging to a specific employer/employee_role" do
+      it "should create an MA office location for employer profile" do
+        expect(test_employer.employer_profile.office_locations.first.class).to eq(BenefitSponsors::Locations::OfficeLocation)
+        expect(test_employer.employer_profile.office_locations.first.address.state).to eq("MA")
+      end
+
+      xit "should create census employees belonging to a specific employer/employee_role" do
 
       end
 
-      it "should create dependents for a family" do
-
-
-      end
-
-      it "should not modify existing plans" do
+      xit "should create dependents for a family" do
 
       end
 
-      it "should create benefit applications for a given employer benefit package" do
+      xit "should not modify existing plans" do
+
+      end
+
+      xit "should create benefit applications for a given employer benefit package" do
 
       end
     end
