@@ -204,10 +204,6 @@ class GoldenSeedSHOP < MongoidMigrationTask
     end
   end
 
-  def generate_benefit_sponsorship
-
-  end
-
   def generate_and_return_hbx_enrollment(primary_family, aasm_state: nil)
 
   end
