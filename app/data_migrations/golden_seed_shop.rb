@@ -1,10 +1,8 @@
 require File.join(Rails.root, 'lib/mongoid_migration_task')
 
 class GoldenSeedSHOP < MongoidMigrationTask
-  # Site is a prerequisite to create employer
   def site
-    # TODO: Remove the factory bot
-    @site = BenefitSponsors::Site.by_site_key(:cca).first
+    @site = BenefitSponsors::Site.all.first
   end
 
   def feins
@@ -104,7 +102,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
   end
 
   def migrate
-    puts('Executing migration') unless Rails.env.test?
+    puts('Executing Golden Seed SHOP migration.') unless Rails.env.test?
+    raise("No site present. Please load a site to the database.") if site.blank?
     carriers_plans_and_employee_dependent_count('health').each do |carrier_name, plan_list|
       plan_name_counter = 1
       plan_list.each do |plan_name, family_structure_list|
@@ -117,6 +116,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
           employer_profile = initialize_and_return_employer_profile(counter_number + plan_name_counter)
           family_structure_counter = family_structure_counter + plan_name_counter + 1
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
+          create_or_return_benefit_sponsorship(employer)
           # census_employee = generate_and_return_employee(employer)
           #person = census_employee.employee_role.person
           #family = person.primary_family
@@ -128,6 +128,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
         end
       end
     end
+    puts("Golden Seed SHOP migration complete.") unless Rails.env.test?
   end
 
   def generate_and_return_employee(employer)
@@ -175,6 +176,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
     office_location = generate_office_location(address_and_phone)
     employer_profile = BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.new
     employer_profile.office_locations << office_location
+    # sic_code required for MA only
     employer_profile.sic_code = '0111'
     employer_profile
   end
@@ -191,6 +193,15 @@ class GoldenSeedSHOP < MongoidMigrationTask
       entity_kind: :c_corporation
     )
     employer.save!
+    employer
+  end
+
+  def create_or_return_benefit_sponsorship(employer)
+    if employer.employer_profile.benefit_sponsorships.present?
+      employer.benefit_sponsorships.last
+    else
+      employer.employer_profile.add_benefit_sponsorship.save!
+    end
   end
 
   def generate_benefit_sponsorship

@@ -1,6 +1,7 @@
 require"rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_benefit_application_dates")
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
+require File.join(Rails.root, "components", "benefit_sponsors", "spec", "support", "benefit_sponsors_site_spec_helpers")
 
 describe "Golden Seed Rake Tasks", dbclean: :after_each do
   describe "Generate Employers, Employees, and Dependents for SHOP" do
@@ -18,7 +19,15 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
         BenefitSponsors::Organizations::Organization.where(legal_name: /Golden Seed/).first
       end
 
-      let!(:site) { FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, :cca) }
+      #let!(:site) { FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, :cca) }
+      let!(:previous_rating_area) { create_default(:benefit_markets_locations_rating_area, active_year: Date.current.year - 1) }
+      let!(:previous_service_area) { create_default(:benefit_markets_locations_service_area, active_year: Date.current.year - 1) }
+      let!(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
+      let!(:service_area) { create_default(:benefit_markets_locations_service_area) }
+      let!(:next_rating_area) { create_default(:benefit_markets_locations_rating_area, active_year: Date.current.year + 1) }
+      let!(:next_service_area) { create_default(:benefit_markets_locations_service_area, active_year: Date.current.year + 1) }
+    
+      let!(:site) { ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market }
 
       before :each do
         subject.migrate
@@ -50,7 +59,14 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
 
       end
 
-      xit "should create benefit applications for a given employer benefit package" do
+      describe "benefits" do
+        it "should create employers with benefit sponsnorships" do
+          expect(test_employer.benefit_sponsorships.last.class).to eq(BenefitSponsors::BenefitSponsorships::BenefitSponsorship)
+        end
+
+        xit "should create benefit applications for a given employer benefit package" do
+
+        end
 
       end
     end
@@ -138,7 +154,7 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       expect(BenefitSponsors::Organizations::Organization.all.where(legal_name: "Broadcasting llc").first.active_benefit_sponsorship.benefit_applications.present?).to eq(true)
     end
 
-    let(:given_task_name) { "golden_seed_update_benefit_applications" }
+    let(:given_task_name) { "golden_seed_update_benefit_application_dates" }
     subject { GoldenSeedUpdateBenefitApplicationDates.new(given_task_name, double(:current_scope => nil)) }
 
     describe "given a task name" do
