@@ -2,19 +2,34 @@ require File.join(Rails.root, 'lib/mongoid_migration_task')
 
 class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
   # Default organization legal names are the employers created in the database dump
+  # Otherwise pass in specific names
   DEFAULT_ORGANIZATION_LEGAL_NAMES = ["Broadcasting llc", "Electric Motors Corp", "MRNA Pharma", "Mobile manf crop", "cuomo family Inc"].freeze
 
-  def get_default_organizations
+  def employer_legal_name_list
+    return @employer_legal_name_list if @employer_legal_name_list.present?
+    if ENV['target_employer_name_list'].blank?
+      puts("No employer name list provided. Using default organizations.")
+      @employer_legal_name_list = DEFAULT_ORGANIZATION_LEGAL_NAMES
+    else
+      puts(
+        "Employer name list provided. Changing dates for " + ENV['target_employer_name_list']
+      )
+      @employer_legal_name_list = ENV['target_employer_name_list'].split(",")
+    end
+  end
+
+  def get_target_organizations
     if @organization_collection
       @organization_collection
     else
       organization_record_ids = []
-      DEFAULT_ORGANIZATION_LEGAL_NAMES.each do |legal_name|
+      employer_legal_name_list.each do |legal_name|
         organization = BenefitSponsors::Organizations::Organization.where(legal_name: legal_name).first
         if organization.present?
           organization_record_ids << organization.id.to_s
         end
       end
+      raise("No organization record IDs present. Please check legal names.") if organization_record_ids.blank?
       @organization_collection = BenefitSponsors::Organizations::Organization.where(:"_id".in => organization_record_ids)
     end
   end
@@ -24,7 +39,7 @@ class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
       @benefit_sponsorships
     else
       @benefit_sponsorships = []
-      get_default_organizations.each do |employer|
+      get_target_organizations.each do |employer|
         if employer.active_benefit_sponsorship
           @benefit_sponsorships << employer.active_benefit_sponsorship
         end
@@ -78,11 +93,8 @@ class GoldenSeedUpdateBenefitApplicationDates < MongoidMigrationTask
     end
     puts('Executing migration') unless Rails.env.test?
     # TODO: Enhance code to get specific organizations (working from an existing database)
-    # if ENV['target_employer_name_list']
-    #   employer_name_list = ENV['target_employer_name_list'].split(",")
-    #   get_target_organizations(employer_name_list)
-    # end
-    get_default_organizations
+    employer_legal_name_list
+    get_target_organizations
     get_benefit_sponsorships_of_organizations
     get_benefit_applications_of_sponsorships
     update_dates_of_benefit_applications

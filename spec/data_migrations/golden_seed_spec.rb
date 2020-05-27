@@ -155,22 +155,34 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
     end
 
     let(:given_task_name) { "golden_seed_update_benefit_application_dates" }
-    subject { GoldenSeedUpdateBenefitApplicationDates.new(given_task_name, double(:current_scope => nil)) }
+    subject! { GoldenSeedUpdateBenefitApplicationDates.new(given_task_name, double(:current_scope => nil)) }
 
     describe "given a task name" do
       it "has the given task name" do
         expect(subject.name).to eql given_task_name
       end
 
-      describe "instance variables" do
+      describe "Passing specific employer legal names: instance variables" do
+        it "should target the specific legal name organization" do
+          benefit_sponsor_organization.update_attributes!(legal_name: "Pizza Planet")
+          ENV['coverage_start_on'] = "01/01/2021"
+          ENV['coverage_end_on'] = "03/31/2021"
+          ENV['target_employer_name_list'] = "Pizza Planet"
+          subject.migrate
+          expect(subject.get_target_organizations.last.legal_name).to eq("Pizza Planet")
+        end
+      end
+
+      describe "Default database dump: instance variables" do
         before :each do
           ENV['coverage_start_on'] = "01/01/2021"
           ENV['coverage_end_on'] = "03/31/2021"
+          ENV['target_employer_name_list'] = nil
           subject.migrate
         end
 
         it "sets organization_collection as instance variable" do
-          expect(subject.get_default_organizations.last.class.to_s).to eq('BenefitSponsors::Organizations::GeneralOrganization')
+          expect(subject.get_target_organizations.last.class.to_s).to eq('BenefitSponsors::Organizations::GeneralOrganization')
         end
 
         it "sets benefit_sponsorships as instance variable" do
@@ -186,6 +198,7 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       before :each do
         ENV['coverage_start_on'] = "01/01/2020"
         ENV['coverage_end_on'] = "03/31/2020"
+        ENV['target_employer_name_list'] = nil
         subject.migrate
       end
 

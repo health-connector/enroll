@@ -2,9 +2,10 @@ require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_bene
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
 # golden_seed_update_benefit_application_dates
 # This rake task should be used in conjunction with the database seed with employers for testing
-# Rake takes in default employer list from seed
+# Rake takes EITHER default employer list from seed (provide no value for target_employer_name_list)
+# OR a list of legal names
 # and takes coverage_start_on and end_on dates to form effective period
-# RAILS_ENV=production bundle exec rake migrations:golden_seed_update_benefit_application_dates coverage_start_on="01/01/2020" coverage_end_on "05/01/2020"
+# RAILS_ENV=production bundle exec rake migrations:golden_seed_update_benefit_application_dates coverage_start_on="01/01/2020" coverage_end_on="05/01/2020" target_employer_name_list="Pizza Planet, Fake Corporation1"
 
 # golden_seed_shop
 # This rake task generates employers, employees, and dependents for specific, pre existing plans and carriers.
