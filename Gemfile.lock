@@ -59,17 +59,6 @@ GIT
       ttfunk (~> 1.0.3)
 
 PATH
-  remote: project_gems/effective_datatables-2.6.14
-  specs:
-    effective_datatables (2.6.14)
-      coffee-rails
-      haml-rails
-      kaminari
-      rails (>= 3.2.0)
-      sass-rails
-      simple_form
-
-PATH
   remote: components/benefit_markets
   specs:
     benefit_markets (0.0.1)
@@ -161,6 +150,17 @@ PATH
       rubyzip (= 1.2.1)
       symmetric-encryption (~> 3.6.0)
       transport_gateway
+
+PATH
+  remote: project_gems/effective_datatables-2.6.14
+  specs:
+    effective_datatables (2.6.14)
+      coffee-rails
+      haml-rails
+      kaminari
+      rails (>= 3.2.0)
+      sass-rails
+      simple_form
 
 GEM
   remote: https://rubygems.org/
@@ -386,6 +386,7 @@ GEM
       railties (>= 3.0.0)
     fakeredis (0.8.0)
       redis (~> 4.1)
+    ffaker (2.11.0)
     ffi (1.12.2)
     forgery (0.7.0)
     gherkin (5.1.0)
@@ -833,6 +834,7 @@ DEPENDENCIES
   eye (= 0.8.0)
   factory_girl_rails (= 4.6.0)
   fakeredis
+  ffaker
   forgery
   haml
   httparty

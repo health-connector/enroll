@@ -5,17 +5,30 @@ class GoldenSeedSHOP < MongoidMigrationTask
     @site = BenefitSponsors::Site.all.first
   end
 
+  def ssns
+    @ssns = []
+  end
+
   def feins
     @feins = []
   end
 
-  def generate_and_return_unique_fein
-    fein = SecureRandom.hex(100).tr('^0-9', '')[0..8]
-    until feins.exclude?(fein)
-      fein = SecureRandom.hex(100).tr('^0-9', '')[0..8]
+  # Both fein and SSN have 9 numbers
+  def generate_and_return_unique_fein_or_ssn(data_field)
+    case data_field
+    when 'fein'
+      data_array = feins
+      index_length = 8
+    when 'ssn'
+      data_array = ssns
+      index_length = 8
     end
-    feins << fein
-    fein
+    return_value = SecureRandom.hex(100).tr('^0-9', '')[0..index_length]
+    until data_array.exclude?(return_value)
+      return_value = SecureRandom.hex(100).tr('^0-9', '')[0..index_length]
+    end
+    data_array << return_value
+    return_value
   end
 
   def benefit_application_start_on_end_on_dates
@@ -140,7 +153,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
           benefit_sponsorship = create_or_return_benefit_sponsorship(employer)
           benefit_application = create_and_return_benefit_application(benefit_sponsorship)
-          # census_employee = generate_and_return_employee(employer)
+          generate_and_return_employee(employer)
           #person = census_employee.employee_role.person
           #family = person.primary_family
           #if family_structure.length > 1
@@ -154,19 +167,86 @@ class GoldenSeedSHOP < MongoidMigrationTask
     puts("Golden Seed SHOP migration complete.") unless Rails.env.test?
   end
 
-  def generate_and_return_employee(employer)
-    # Create person
-    # Create employee role
-    # Create census employee (associate with employee role)
-    # return census employee
+  def generate_random_birthday(person_type)
+    case person_type
+    when 'adult'
+      birthday = FFaker::Time.between(Date.new(1950, 01, 01), Date.new(2000, 01, 01))
+    when 'child'
+      birthday = FFaker::Time.between(Date.new(2005, 01, 01), Date.new(2020, 01, 01))
+    end
+    Date.strptime(birthday.to_s, "%m/%d/%Y")
+  end
 
+  def create_and_return_person(first_name, last_name, gender, person_type = 'adult')
+    person = Person.new(
+      first_name: first_name,
+      last_name: last_name,
+      gender: gender,
+      ssn: generate_and_return_unique_fein_or_ssn('ssn'),
+      dob: generate_random_birthday(person_type)
+    )
+    person.save!
+    person
+  end
+
+  def create_and_return_family(primary_person)
+    family = Family.new
+    family.person_id = primary_person.id
+    fm = family.family_members.build(
+      person_id: primary_person.id,
+      is_primary_applicant: true
+    )
+    fm.save!
+    family.save!
+    family
+  end
+
+  def create_and_return_user(person)
+    providers = ["gmail", "yahoo", "hotmail"]
+    email = person.first_name + person.last_name + "@#{providers.sample}.com"
+    user = User.new
+    user.email = email
+    user.oim_id = email
+    user.password = "P@ssw0rd!"
+    user.person = person
+    user.save!
+    user
+  end
+
+  def create_and_return_employee_role(employer, person)
+    employee_role = person.employee_roles.build
+    employee_role.employer_profile_id = employer.employer_profile.id
+    employee_role.benefit_sponsors_employer_profile_id = employer.employer_profile.benefit_sponsorships.last.id
+    employee_role.ssn = person.ssn
+    employee_role.gender = person.gender
+    employee_role.dob = person.dob
+    employee_role.hired_on = Date.today
+    employee_role.save!
+    employee_role
+  end
+
+  def generate_and_return_employee(employer)
+    genders = ['male', 'female']
+    gender = genders.sample
+    first_name = FFaker::Name.send("first_name_" + gender)
+    last_name = FFaker::Name.last_name
+    primary_person = create_and_return_person(first_name, last_name, gender)
+    family = create_and_return_family(primary_person)
+    create_and_return_user(primary_person)
+    create_and_return_employee_role(employer, primary_person)
+    # Create employee role - ignore this for now since we don't have employers yet
+    # Create census employee (associate with employee role) - maybe ignore this for now since no employee roles
+    # return census employee - ignore this for now
   end
 
   def generate_and_return_dependent(family, personal_relationship_kind)
-    # Create person
-    # create family member
-    # create relationships with person
-    # return person ?
+    # maybe make this a case?
+    # case personal_relationship_kind
+    # when 'child'
+    ## Create person
+    ## create family member
+    ## create relationships with person
+    ## return person ?
   end
 
   def generate_address_and_phone(counter_number)
@@ -211,7 +291,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
       site: site,
       legal_name: company_name,
       dba: company_name + " " + ["Inc.", "LLC"].sample,
-      fein: generate_and_return_unique_fein,
+      fein: generate_and_return_unique_fein_or_ssn('fein'),
       profiles: [employer_profile],
       entity_kind: :c_corporation
     )

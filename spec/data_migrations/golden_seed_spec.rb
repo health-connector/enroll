@@ -61,6 +61,22 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
 
       end
 
+      it "should create families" do
+        expect(Family.all.count).to eq(26)
+      end
+
+      it "should create employee roles" do
+        expect(EmployeeRole.first.class).to eq(EmployeeRole)
+      end
+
+      it "should create person records with employee roles" do
+        expect(Person.all.count).to eq(26)
+      end
+
+      it "should create users" do
+        expect(User.all.count).to eq(26)
+      end
+
       xit "should create dependents for a family" do
 
       end
