@@ -8,8 +8,11 @@ require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
 # RAILS_ENV=production bundle exec rake migrations:golden_seed_update_benefit_application_dates coverage_start_on="01/01/2020" coverage_end_on="05/01/2020" target_employer_name_list="Pizza Planet, Fake Corporation1"
 
 # golden_seed_shop
-# This rake task generates employers, employees, and dependents for specific, pre existing plans and carriers.
+# This rake task generates employers (complete), employees (TODO), and dependents (TODO) for specific,
+# pre existing plans (TODO) and carriers (TODO).
 # and takes coverage_start_on and end_on dates to form effective period
+# will use default coverage_start_on and coverage_end_on unless they are passed through
+# as arguement here: coverage_start_on="1/1/2020" coverage_end_on="1/1/2021"
 # RAILS_ENV=production bundle exec rake migrations:golden_seed_shop
 
 namespace :migrations do

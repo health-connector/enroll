@@ -18,6 +18,28 @@ class GoldenSeedSHOP < MongoidMigrationTask
     fein
   end
 
+  def benefit_application_start_on_end_on_dates
+    custom_coverage_start_on = ENV['coverage_start_on'].to_s
+    custom_coverage_end_on = ENV['coverage_end_on'].to_s
+    default_coverage_start_on = 2.months.from_now.at_beginning_of_month
+    default_coverage_end_on = (default_coverage_start_on + 1.year)
+    if custom_coverage_start_on.blank?
+      @coverage_start_on = Date.strptime(default_coverage_start_on.to_s, "%m/%d/%Y")
+    else
+      @coverage_start_on = Date.strptime(custom_coverage_start_on, "%m/%d/%Y")
+    end
+    if custom_coverage_end_on.blank?
+      # one year out from there
+      @coverage_end_on = Date.strptime(default_coverage_end_on.to_s, "%m/%d/%Y")
+    else
+      @coverage_end_on = Date.strptime(custom_coverage_end_on, "%m/%d/%Y")
+    end
+    {
+      coverage_start_on: @coverage_start_on,
+      coverage_end_on: @coverage_end_on
+    }
+  end
+
   #### SOURCE DATA METHODS
   # TODO: Replace these with a source csv, with ruby friendly parameterized rows organized like so:
   # Health:
@@ -116,7 +138,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
           employer_profile = initialize_and_return_employer_profile(counter_number + plan_name_counter)
           family_structure_counter = family_structure_counter + plan_name_counter + 1
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
-          create_or_return_benefit_sponsorship(employer)
+          benefit_sponsorship = create_or_return_benefit_sponsorship(employer)
+          benefit_application = create_and_return_benefit_application(benefit_sponsorship)
           # census_employee = generate_and_return_employee(employer)
           #person = census_employee.employee_role.person
           #family = person.primary_family
@@ -196,11 +219,38 @@ class GoldenSeedSHOP < MongoidMigrationTask
     employer
   end
 
+  def create_and_return_benefit_application(benefit_sponsorship)
+    create_ba_params = create_benefit_application_params(benefit_sponsorship)
+    ba_form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
+    ba_form.persist
+    benefit_sponsorship.benefit_applications.last
+  end
+
+  # TODO: Potentially add arguements here to pass the FTE and other info
+  # TODO: Create benefit packages
+  def create_benefit_application_params(benefit_sponsorship)
+    {
+      start_on: benefit_application_start_on_end_on_dates[:coverage_start_on], # Required
+      end_on: benefit_application_start_on_end_on_dates[:coverage_end_on], # Required
+      open_enrollment_start_on: benefit_application_start_on_end_on_dates[:coverage_start_on], # Required
+      open_enrollment_end_on: benefit_application_start_on_end_on_dates[:coverage_end_on], # Required
+      fte_count: 0,
+      pte_count: 0,
+      msp_count: 0,
+      benefit_packages: nil, #Array[::BenefitSponsors::Forms::BenefitPackageForm],
+      id: "",
+      benefit_sponsorship_id: benefit_sponsorship.id,
+      start_on_options: {},
+      admin_datatable_action: false,
+    }
+  end
+
   def create_or_return_benefit_sponsorship(employer)
     if employer.employer_profile.benefit_sponsorships.present?
       employer.benefit_sponsorships.last
     else
       employer.employer_profile.add_benefit_sponsorship.save!
+      employer.benefit_sponsorships.last
     end
   end
 

@@ -26,8 +26,18 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       let!(:service_area) { create_default(:benefit_markets_locations_service_area) }
       let!(:next_rating_area) { create_default(:benefit_markets_locations_rating_area, active_year: Date.current.year + 1) }
       let!(:next_service_area) { create_default(:benefit_markets_locations_service_area, active_year: Date.current.year + 1) }
-    
       let!(:site) { ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market }
+      let(:benefit_market)      { site.benefit_markets.first }
+      let(:current_effective_date)  { TimeKeeper.date_of_record }
+      let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+                                           benefit_market: benefit_market,
+                                           title: "SHOP Benefits for #{current_effective_date.year}",
+                                           application_period: (effective_period_start_on.beginning_of_year..effective_period_start_on.end_of_year))
+
+      }
+      let(:effective_period_start_on) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
+      let(:effective_period_end_on)   { effective_period_start_on + 1.year - 1.day }
+      let(:effective_period)          { effective_period_start_on..effective_period_end_on }
 
       before :each do
         subject.migrate
@@ -60,14 +70,13 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       end
 
       describe "benefits" do
-        it "should create employers with benefit sponsnorships" do
+        it "should create employers with benefit sponsorships" do
           expect(test_employer.benefit_sponsorships.last.class).to eq(BenefitSponsors::BenefitSponsorships::BenefitSponsorship)
         end
 
-        xit "should create benefit applications for a given employer benefit package" do
-
+        it "should create benefit applications for a given employer benefit package" do
+          expect(test_employer.benefit_sponsorships.last.benefit_applications.count).to eq(1)
         end
-
       end
     end
   end
