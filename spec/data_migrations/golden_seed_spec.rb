@@ -58,7 +58,7 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       end
 
       xit "should create census employees belonging to a specific employer/employee_role" do
-
+        expect(test_employer.employer_profile.census_employees.count).to eq(26)
       end
 
       it "should create families" do

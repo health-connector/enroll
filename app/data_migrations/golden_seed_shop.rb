@@ -217,13 +217,28 @@ class GoldenSeedSHOP < MongoidMigrationTask
     employee_role = person.employee_roles.build
     employee_role.employer_profile_id = employer.employer_profile.id
     employee_role.benefit_sponsors_employer_profile_id = employer.employer_profile.benefit_sponsorships.last.id
-    employee_role.ssn = person.ssn
-    employee_role.gender = person.gender
-    employee_role.dob = person.dob
+    employee_role.person.ssn = person.ssn
+    employee_role.person.gender = person.gender
+    employee_role.person.dob = person.dob
     employee_role.hired_on = Date.today
     employee_role.save!
     employee_role
   end
+  
+  # TODO: Needs benefit packages for
+  #   def active_benefit_group_assignment=(benefit_package_id) (census_employee.rb#601)
+  # def create_and_return_census_employee(employee_role)
+  #  ce = CensusEmployee.new
+  #  ce.first_name = employee_role.person.first_name
+  #  ce.last_name = employee_role.person.last_name
+  #  ce.dob = employee_role.dob
+  #  ce.ssn = employee_role.ssn
+  #  ce.gender = employee_role.person.gender
+  #  ce.hired_on = employee_role.hired_on
+  #  ce.employer_profile_id = employee_role.employer_profile.id
+  #  ce.benefit_sponsors_employer_profile_id = employee_role.employer_profile.id
+  #  ce.save!
+  # end
 
   def generate_and_return_employee(employer)
     genders = ['male', 'female']
@@ -233,7 +248,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
     primary_person = create_and_return_person(first_name, last_name, gender)
     family = create_and_return_family(primary_person)
     create_and_return_user(primary_person)
-    create_and_return_employee_role(employer, primary_person)
+    employee_role = create_and_return_employee_role(employer, primary_person)
+    # create_and_return_census_employee(employee_role)
     # Create employee role - ignore this for now since we don't have employers yet
     # Create census employee (associate with employee role) - maybe ignore this for now since no employee roles
     # return census employee - ignore this for now
