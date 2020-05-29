@@ -98,7 +98,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
             ['employee'],
             ['employee', 'child', 'child', 'child', 'child'],
             ['employee', 'spouse'],
-            ['employee, domestic_partner']
+            ['employee', 'domestic_partner']
           ]
         },
         :'Tufts Health Direct' => {
@@ -143,24 +143,21 @@ class GoldenSeedSHOP < MongoidMigrationTask
       plan_name_counter = 1
       plan_list.each do |plan_name, family_structure_list|
         family_structure_list.each_with_index do |family_structure, counter_number|
-          #puts("family structure is " + family_structure.to_s)
           counter_number = counter_number + 1
           family_structure_counter = 1
           plan_name_counter = plan_name_counter + 1
-          # TODO: Should be creating an employer every family. Is only creating 6.
           employer_profile = initialize_and_return_employer_profile(counter_number + plan_name_counter)
           family_structure_counter = family_structure_counter + plan_name_counter + 1
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
           benefit_sponsorship = create_or_return_benefit_sponsorship(employer)
           benefit_application = create_and_return_benefit_application(benefit_sponsorship)
-          generate_and_return_employee(employer)
-          #person = census_employee.employee_role.person
-          #family = person.primary_family
-          #if family_structure.length > 1
-          #  dependents_list = family_stucture.reject { |family_member| family_member == 'employee' }.each do |personal_relationship_kind|
-          #    generate_and_return_dependents(family, personal_relatonship_kind)   
-          #  end
-          #åend
+          employee_records = generate_and_return_employee_records(employer)
+          family_structure.each do |relationship_kind|
+            unless relationship_kind == "employee"
+              primary_person = employee_records[:primary_person]
+              generate_and_return_dependent_records(primary_person, relationship_kind, carrier_name)
+            end
+          end
         end
       end
     end
@@ -240,29 +237,49 @@ class GoldenSeedSHOP < MongoidMigrationTask
   #  ce.save!
   # end
 
-  def generate_and_return_employee(employer)
+  def generate_and_return_employee_records(employer)
     genders = ['male', 'female']
     gender = genders.sample
     first_name = FFaker::Name.send("first_name_" + gender)
     last_name = FFaker::Name.last_name
     primary_person = create_and_return_person(first_name, last_name, gender)
     family = create_and_return_family(primary_person)
-    create_and_return_user(primary_person)
+    user = create_and_return_user(primary_person)
     employee_role = create_and_return_employee_role(employer, primary_person)
-    # create_and_return_census_employee(employee_role)
-    # Create employee role - ignore this for now since we don't have employers yet
-    # Create census employee (associate with employee role) - maybe ignore this for now since no employee roles
-    # return census employee - ignore this for now
+    # TODO: Census Employee
+    {
+      family: family,
+      primary_person: primary_person,
+      user: user,
+      employee_role: employee_role
+    }
   end
 
-  def generate_and_return_dependent(family, personal_relationship_kind)
-    # maybe make this a case?
-    # case personal_relationship_kind
-    # when 'child'
-    ## Create person
-    ## create family member
-    ## create relationships with person
-    ## return person ?
+  def generate_and_return_dependent_records(primary_person, personal_relationship_kind, carrier_name)
+    genders = ['male', 'female']
+    gender = genders.sample
+    first_name = FFaker::Name.send("first_name_" + gender)
+    last_name = primary_person.last_name
+    family = primary_person.primary_family
+    case personal_relationship_kind
+    when 'child'
+      dependent_person = create_and_return_person(first_name, last_name, gender, 'child')
+    when 'domestic_partner'
+      dependent_person = create_and_return_person(first_name, last_name, gender, 'adult')
+    when 'spouse'
+      dependent_person = create_and_return_person(first_name, last_name, gender, 'adult')
+    end
+    fm = FamilyMember.new(
+      family: family,
+      person_id: dependent_person.id,
+      is_primary_applicant: false
+    )
+    fm.save!
+    primary_person.person_relationships.create!(kind: personal_relationship_kind, relative_id: dependent_person.id)
+    {
+      dependent_person: dependent_person,
+      dependent_family_member: fm
+    }
   end
 
   def generate_address_and_phone(counter_number)

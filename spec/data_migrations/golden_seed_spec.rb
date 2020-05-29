@@ -70,7 +70,7 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       end
 
       it "should create person records with employee roles" do
-        expect(Person.all.count).to eq(26)
+        expect(Person.all.count).to eq(58)
       end
 
       it "should create users" do
@@ -78,7 +78,7 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       end
 
       xit "should create dependents for a family" do
-
+        # TODO: Do this
       end
 
       xit "should not modify existing plans" do
