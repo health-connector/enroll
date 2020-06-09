@@ -90,6 +90,12 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
           expect(test_employer.benefit_sponsorships.last.class).to eq(BenefitSponsors::BenefitSponsorships::BenefitSponsorship)
         end
 
+        describe "requirements" do
+          it "should create benefit packages" do
+            expect(test_employer.benefit_sponsorships.last.benefit_applications.last.benefit_packages.last.class).to eq(BenefitSponsors::BenefitSponsorships::BenefitSponsorship)
+          end
+        end
+
         it "should create benefit applications for a given employer benefit package" do
           expect(test_employer.benefit_sponsorships.last.benefit_applications.count).to eq(1)
         end

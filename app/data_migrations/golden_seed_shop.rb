@@ -137,7 +137,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
   end
 
   def migrate
-    puts('Executing Golden Seed SHOP migration.') unless Rails.env.test?
+    puts('Executing Golden Seed SHOP migration.')
     raise("No site present. Please load a site to the database.") if site.blank?
     carriers_plans_and_employee_dependent_count('health').each do |carrier_name, plan_list|
       plan_name_counter = 1
@@ -151,6 +151,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
           benefit_sponsorship = create_or_return_benefit_sponsorship(employer)
           benefit_application = create_and_return_benefit_application(benefit_sponsorship)
+          #benefit_package_params = create_benefit_package_params(benefit_application)
+          #benefit_package = create_and_return_benefit_package(benefit_package_params)
           employee_records = generate_and_return_employee_records(employer)
           family_structure.each do |relationship_kind|
             unless relationship_kind == "employee"
@@ -161,7 +163,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
         end
       end
     end
-    puts("Golden Seed SHOP migration complete.") unless Rails.env.test?
+    puts("Golden Seed SHOP migration complete.")
   end
 
   def generate_random_birthday(person_type)
@@ -336,11 +338,48 @@ class GoldenSeedSHOP < MongoidMigrationTask
     create_ba_params = create_benefit_application_params(benefit_sponsorship)
     ba_form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
     ba_form.persist
+    benefit_sponsorship.save!
+    benefit_sponsorship.reload
     benefit_sponsorship.benefit_applications.last
   end
 
-  # TODO: Potentially add arguements here to pass the FTE and other info
-  # TODO: Create benefit packages
+
+  def create_and_return_benefit_package(create_benefit_package_params)
+    benefit_package = ::BenefitSponsors::Forms::BenefitPackageForm.for_create(create_benefit_package_params)
+    if benefit_package.persist
+      benefit_package
+    end
+  end
+
+  def create_benefit_package_params(benefit_application)
+    {
+      benefit_application_id: benefit_application.id,
+      title: "Benefit Package for Employer " + benefit_application.benefit_sponsorship.organization.legal_name,
+      probation_period_kind: ::BenefitMarkets::PROBATION_PERIOD_KINDS.sample, # TODO: Need to know realistically what this might look like
+      sponsored_benefits_attributes: [
+        {
+          kind: :health,
+          product_package_kind: :single_product,
+          reference_plan_id: '',
+          sponsor_contribution_attributes: {
+            contribution_levels_attributes: []
+          }
+        }
+      ]
+    }
+  end
+
+  def benefit_package_params
+        params.require(:benefit_package).permit(
+          :title, :description, :probation_period_kind, :benefit_application_id, :id,
+          :sponsored_benefits_attributes => [:id, :kind, :product_option_choice, :product_package_kind, :reference_plan_id,
+            :sponsor_contribution_attributes => [
+              :contribution_levels_attributes => [:id, :is_offered, :display_name, :contribution_factor,:contribution_unit_id]
+            ]
+          ]
+        )
+      end
+
   def create_benefit_application_params(benefit_sponsorship)
     {
       start_on: benefit_application_start_on_end_on_dates[:coverage_start_on], # Required
@@ -350,7 +389,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
       fte_count: 0,
       pte_count: 0,
       msp_count: 0,
-      benefit_packages: nil, #Array[::BenefitSponsors::Forms::BenefitPackageForm],
+      benefit_packages: nil,
       id: "",
       benefit_sponsorship_id: benefit_sponsorship.id,
       start_on_options: {},
