@@ -2,6 +2,7 @@ require"rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_benefit_application_dates")
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
 require File.join(Rails.root, "components", "benefit_sponsors", "spec", "support", "benefit_sponsors_site_spec_helpers")
+require File.join(Rails.root, "app", "data_migrations", "load_issuer_profiles")
 
 describe "Golden Seed Rake Tasks", dbclean: :after_each do
   describe "Generate Employers, Employees, and Dependents for SHOP" do
@@ -18,6 +19,8 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       let(:test_employer) do
         BenefitSponsors::Organizations::Organization.where(legal_name: /Golden Seed/).first
       end
+      let(:load_issuer_profiles_task_name) { "load_issuer_profiles" }
+      let(:load_issuer_profiles_rake) { LoadIssuerProfiles.new(load_issuer_profiles_task_name, double(:current_scope => nil)) }
 
       #let!(:site) { FactoryGirl.create(:benefit_sponsors_site, :as_hbx_profile, :cca) }
       let!(:previous_rating_area) { create_default(:benefit_markets_locations_rating_area, active_year: Date.current.year - 1) }
@@ -38,8 +41,12 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
       let(:effective_period_start_on) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
       let(:effective_period_end_on)   { effective_period_start_on + 1.year - 1.day }
       let(:effective_period)          { effective_period_start_on..effective_period_end_on }
+      let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+
 
       before :each do
+        system("bundle exec rake migrations:load_issuer_profiles")
+        load_issuer_profiles_rake.migrate
         subject.migrate
       end
 

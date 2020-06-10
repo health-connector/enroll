@@ -151,8 +151,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
           benefit_sponsorship = create_or_return_benefit_sponsorship(employer)
           benefit_application = create_and_return_benefit_application(benefit_sponsorship)
-          #benefit_package_params = create_benefit_package_params(benefit_application)
-          #benefit_package = create_and_return_benefit_package(benefit_package_params)
+          benefit_package_params = create_benefit_package_params(benefit_sponsorship, benefit_application)
+          benefit_package = create_and_return_benefit_package(benefit_package_params)
           employee_records = generate_and_return_employee_records(employer)
           family_structure.each do |relationship_kind|
             unless relationship_kind == "employee"
@@ -348,37 +348,37 @@ class GoldenSeedSHOP < MongoidMigrationTask
     benefit_package = ::BenefitSponsors::Forms::BenefitPackageForm.for_create(create_benefit_package_params)
     if benefit_package.persist
       benefit_package
+    else
+      binding.pry
     end
   end
 
-  def create_benefit_package_params(benefit_application)
+  def create_benefit_package_params(benefit_sponsorship, benefit_application)
+    service_areas = benefit_sponsorship.service_areas_on(benefit_application.start_on)
+    benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, benefit_application.effective_period.begin)
+    benefit_application.save!
+    benefit_application.benefit_sponsor_catalog.save!
+    # Need to add packages here?
+    p_package = benefit_application.benefit_sponsor_catalog.product_packages.detect { |p_package| (p_package.package_kind == :single_product) && (p_package.product_kind == :health) }
+    reference_product = p_package.products.first
     {
       benefit_application_id: benefit_application.id,
       title: "Benefit Package for Employer " + benefit_application.benefit_sponsorship.organization.legal_name,
+      description: "Benefit package for the year",
       probation_period_kind: ::BenefitMarkets::PROBATION_PERIOD_KINDS.sample, # TODO: Need to know realistically what this might look like
-      sponsored_benefits_attributes: [
-        {
-          kind: :health,
+      is_new_package: true,
+      sponsored_benefits: [
+        ::BenefitSponsors::Forms::SponsoredBenefitForm.new({
+          id: nil, #Need to figure out what goes here."
           product_package_kind: :single_product,
-          reference_plan_id: '',
-          sponsor_contribution_attributes: {
-            contribution_levels_attributes: []
-          }
-        }
+          benefit_application_id: benefit_application.id,
+          product_option_choice:  Settings.plan_option_descriptions[Settings.plan_option_descriptions.keys.sample], # TODO: Need to know realistically what this might look like
+          reference_plan_id: reference_product.id,
+          sponsor_contribution: ""
+        })
       ]
     }
   end
-
-  def benefit_package_params
-        params.require(:benefit_package).permit(
-          :title, :description, :probation_period_kind, :benefit_application_id, :id,
-          :sponsored_benefits_attributes => [:id, :kind, :product_option_choice, :product_package_kind, :reference_plan_id,
-            :sponsor_contribution_attributes => [
-              :contribution_levels_attributes => [:id, :is_offered, :display_name, :contribution_factor,:contribution_unit_id]
-            ]
-          ]
-        )
-      end
 
   def create_benefit_application_params(benefit_sponsorship)
     {
