@@ -52,7 +52,7 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
 
       it "should create employers and employer profiles" do
         expect(test_employer.persisted?).to eq(true)
-        expect(BenefitSponsors::Organizations::GeneralOrganization.all.count).to eq(26)
+        expect(BenefitSponsors::Organizations::GeneralOrganization.all.count).to eq(27)
       end
 
       it "should create employers with sic code" do
@@ -99,7 +99,9 @@ describe "Golden Seed Rake Tasks", dbclean: :after_each do
 
         describe "requirements" do
           it "should create benefit packages" do
-            expect(test_employer.benefit_sponsorships.last.benefit_applications.last.benefit_packages.last.class).to eq(BenefitSponsors::BenefitSponsorships::BenefitSponsorship)
+            benefit_application = test_employer.benefit_sponsorships.last.benefit_applications.last.reload
+            benefit_package = benefit_application.benefit_packages.last
+            expect(benefit_package.class).to eq(BenefitSponsors::BenefitPackages::BenefitPackage)
           end
         end
 

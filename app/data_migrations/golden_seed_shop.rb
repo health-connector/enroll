@@ -77,19 +77,19 @@ class GoldenSeedSHOP < MongoidMigrationTask
             ['employee', 'domestic_partner', 'child']
           ]
         },
-        :'BMC HEALTH NET PLAN' => {
+        :'BMC HealthNet Plan' => {
           :'NON-STANDARD SILVER: BMC HEALTHNET PLAN SILVER B' => [
             ['employee'],
             ['employee', 'spouse', 'child']
           ]
         },
-        :'Allways Health Partners' => {
+        :'AllWays Health Partners' => {
           :'NON-STANDARD GOLD: COMPLETE HMO 2000 30%' => [
             ['employee', 'child', 'child'],
             ['employee', 'child', 'child', 'child']
           ]
         },
-        :'Blue Cross Blue Shield' => {
+        :'Blue Cross Blue Shield MA' => {
           :'STANDARD HIGH BRONZE: HMO BLUE BASIC DEDUCTIBLE' => [
             ['employee'],
             ['employee', 'domestic_partner', 'child']
@@ -109,10 +109,10 @@ class GoldenSeedSHOP < MongoidMigrationTask
             ['employee', 'domestic_partner']
           ]
         },
-        :'UHC' => {
+        :'UnitedHealthcare' => {
           :'STANDARD LOW GOLD: UHC NAVIGATE GOLD 2000' => [['employee'], ['employee']]
         },
-        :'Harvard Pilgrim' => {
+        :'Harvard Pilgrim Health Care' => {
           :'STANDARD LOW GOLD - FLEX' => [
             ['employee'],
             ['employee', 'spouse', 'child']
@@ -151,8 +151,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
           employer = create_and_return_new_employer(family_structure_counter, employer_profile)
           benefit_sponsorship = create_or_return_benefit_sponsorship(employer)
           benefit_application = create_and_return_benefit_application(benefit_sponsorship)
-          benefit_package_params = create_benefit_package_params(benefit_sponsorship, benefit_application)
-          benefit_package = create_and_return_benefit_package(benefit_package_params)
+          benefit_package_params = create_benefit_package_params(benefit_sponsorship, benefit_application, carrier_name)
+          benefit_package = create_and_return_benefit_package(benefit_package_params, benefit_application)
           employee_records = generate_and_return_employee_records(employer)
           family_structure.each do |relationship_kind|
             unless relationship_kind == "employee"
@@ -344,16 +344,17 @@ class GoldenSeedSHOP < MongoidMigrationTask
   end
 
 
-  def create_and_return_benefit_package(create_benefit_package_params)
+  def create_and_return_benefit_package(create_benefit_package_params, benefit_application)
     benefit_package = ::BenefitSponsors::Forms::BenefitPackageForm.for_create(create_benefit_package_params)
     if benefit_package.persist
-      benefit_package
+      benefit_application.reload
+      benefit_application.benefit_packages.last
     else
-      binding.pry
+      raise("Unable to create benefit package. " + benefit_package.errors.messages.to_s)
     end
   end
 
-  def create_benefit_package_params(benefit_sponsorship, benefit_application)
+  def create_benefit_package_params(benefit_sponsorship, benefit_application, carrier_name)
     service_areas = benefit_sponsorship.service_areas_on(benefit_application.start_on)
     benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, benefit_application.effective_period.begin)
     benefit_application.save!
@@ -361,22 +362,33 @@ class GoldenSeedSHOP < MongoidMigrationTask
     # Need to add packages here?
     p_package = benefit_application.benefit_sponsor_catalog.product_packages.detect { |p_package| (p_package.package_kind == :single_product) && (p_package.product_kind == :health) }
     reference_product = p_package.products.first
+    # Create this here
+    issuer_profile = BenefitSponsors::Organizations::IssuerProfile.find_by_issuer_name(carrier_name.to_s)
+    # TODO: see how this is done in benefit_package_form_spec
+    # Can't seem to figure out the syntax here I'm missing
+    raise("No issuer profile present for #{carrier_name.to_s}. Please load plans with LoadIssuerProfiles rake task") if issuer_profile.blank?
+    puts("Generating benefit package with issuer profile name " + carrier_name.to_s)
     {
-      benefit_application_id: benefit_application.id,
+      benefit_application_id: benefit_application.id.to_s,
       title: "Benefit Package for Employer " + benefit_application.benefit_sponsorship.organization.legal_name,
-      description: "Benefit package for the year",
-      probation_period_kind: ::BenefitMarkets::PROBATION_PERIOD_KINDS.sample, # TODO: Need to know realistically what this might look like
-      is_new_package: true,
-      sponsored_benefits: [
-        ::BenefitSponsors::Forms::SponsoredBenefitForm.new({
-          id: nil, #Need to figure out what goes here."
-          product_package_kind: :single_product,
-          benefit_application_id: benefit_application.id,
-          product_option_choice:  Settings.plan_option_descriptions[Settings.plan_option_descriptions.keys.sample], # TODO: Need to know realistically what this might look like
-          reference_plan_id: reference_product.id,
-          sponsor_contribution: ""
-        })
-      ]
+      description: "New Model Benefit Package",
+      probation_period_kind: ::BenefitMarkets::PROBATION_PERIOD_KINDS.sample,
+      sponsored_benefits_attributes: {
+        "0" => {
+          product_package_kind: :single_issuer,
+          kind: "health",
+          product_option_choice: issuer_profile.legal_name,
+          reference_plan_id: reference_product.id.to_s,
+          sponsor_contribution_attributes: {
+            contribution_levels_attributes: {
+              "0" => {:is_offered => "true", :display_name => "Employee", :contribution_factor => "0.95"},
+              "1" => {:is_offered => "true", :display_name => "Spouse", :contribution_factor => "0.85"},
+              "2" => {:is_offered => "true", :display_name => "Domestic Partner", :contribution_factor => "0.75"},
+              "3" => {:is_offered => "true", :display_name => "Child Under 26", :contribution_factor => "0.75"}
+            }
+          }
+        }
+      }
     }
   end
 
@@ -410,3 +422,4 @@ class GoldenSeedSHOP < MongoidMigrationTask
 
   end
 end
+
