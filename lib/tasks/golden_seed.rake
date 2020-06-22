@@ -1,5 +1,7 @@
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_update_benefit_application_dates")
 require File.join(Rails.root, "app", "data_migrations", "golden_seed_shop")
+
+# components/benefit_markets/app/models/benefit_markets/forms/product_form.rb
 # golden_seed_update_benefit_application_dates
 # This rake task should be used in conjunction with the database seed with employers for testing
 # Rake takes EITHER default employer list from seed (provide no value for target_employer_name_list)

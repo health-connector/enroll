@@ -139,6 +139,7 @@ class GoldenSeedSHOP < MongoidMigrationTask
   def migrate
     puts('Executing Golden Seed SHOP migration.')
     raise("No site present. Please load a site to the database.") if site.blank?
+    raise("No benefit markets present.") if site.benefit_markets.blank?
     carriers_plans_and_employee_dependent_count('health').each do |carrier_name, plan_list|
       plan_name_counter = 1
       plan_list.each do |plan_name, family_structure_list|
@@ -357,15 +358,23 @@ class GoldenSeedSHOP < MongoidMigrationTask
   def create_benefit_package_params(benefit_sponsorship, benefit_application, carrier_name)
     service_areas = benefit_sponsorship.service_areas_on(benefit_application.start_on)
     benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, benefit_application.effective_period.begin)
+    raise("Benefit sponsnor catalog blank") if benefit_application.benefit_sponsor_catalog.blank?
     benefit_application.save!
     benefit_application.benefit_sponsor_catalog.save!
     # Need to add packages here?
     p_package = benefit_application.benefit_sponsor_catalog.product_packages.detect { |p_package| (p_package.package_kind == :single_product) && (p_package.product_kind == :health) }
-    reference_product = p_package.products.first
-    # Create this here
+    # raise("No product packages present.") if benefit_application.benefit_sponsor_catalog.product_packages.blank?
+    if p_package.products.present?
+      reference_product = p_package.products.first
+    else
+      date = TimeKeeper.date_of_record
+      product_form = BenefitMarkets::Forms::ProductForm::for_new(date)
+      # TODO: Figure out how to convert product for minto a product if that is how it works?
+      # Note: This is becuause users running this as a fresh seed locally won't have products
+      binding.pry
+    end
+    #raise("No reference product present.") if reference_product.nil?
     issuer_profile = BenefitSponsors::Organizations::IssuerProfile.find_by_issuer_name(carrier_name.to_s)
-    # TODO: see how this is done in benefit_package_form_spec
-    # Can't seem to figure out the syntax here I'm missing
     raise("No issuer profile present for #{carrier_name.to_s}. Please load plans with LoadIssuerProfiles rake task") if issuer_profile.blank?
     puts("Generating benefit package with issuer profile name " + carrier_name.to_s)
     {
