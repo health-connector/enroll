@@ -371,7 +371,8 @@ class GoldenSeedSHOP < MongoidMigrationTask
       product_form = BenefitMarkets::Forms::ProductForm::for_new(date)
       # TODO: Figure out how to convert product for minto a product if that is how it works?
       # Note: This is becuause users running this as a fresh seed locally won't have products
-      binding.pry
+      # binding.pry
+      raise("No products present for package.")
     end
     #raise("No reference product present.") if reference_product.nil?
     issuer_profile = BenefitSponsors::Organizations::IssuerProfile.find_by_issuer_name(carrier_name.to_s)
