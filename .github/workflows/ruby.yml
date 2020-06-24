@@ -154,10 +154,10 @@ jobs:
               fi
             needs_chromedriver: true
     steps:
-      - name: Set up Ruby 2.2.10
+      - name: Set up Ruby 2.6.5
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.2.10
+          ruby-version: 2.6.5
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v1.1.0
         with:
