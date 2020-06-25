@@ -487,6 +487,17 @@ module BenefitSponsors
       renewal_benefit_application.present? ? renewal_benefit_application.predecessor : most_recent_benefit_application
     end
 
+    def dt_display_benefit_application
+      benefit_applications.where(:aasm_state.ne => :canceled).order_by(:"effective_period.min".desc).first || latest_benefit_application
+    end
+
+    # use this only for EDI
+    def late_renewal_benefit_application
+      benefit_applications.order_by(:created_at.desc).detect do |application|
+        application.predecessor.present? && application.start_on.year == TimeKeeper.date_of_record.year && [:active, :enrollment_eligible].include?(application.aasm_state)
+      end
+    end
+
     def renewal_benefit_application
       benefit_applications.order_by(:"created_at".desc).detect {|application| application.is_renewing? }
     end
