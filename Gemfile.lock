@@ -49,8 +49,8 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/resource_registry.git
-  revision: c5403d42e1a8a6f1ad84818d3e47532334a48f53
-  branch: branch_0.7.0
+  revision: 2f0cb0c88230739c04cce34c5805a2c0750f1379
+  branch: master
   specs:
     resource_registry (0.7.0)
       bootsnap (~> 1.0)
@@ -157,6 +157,14 @@ PATH
     sponsored_benefits (0.0.1)
       aasm (~> 4.8.0)
       config
+      dry-auto_inject (= 0.6.1)
+      dry-container
+      dry-initializer
+      dry-monads
+      dry-schema (~> 1.0)
+      dry-struct
+      dry-types
+      dry-validation (~> 1.0)
       mongoid (~> 5.4.0)
       rails (~> 4.2.11)
       roo (~> 2.1.0)
@@ -535,7 +543,7 @@ GEM
     less-rails-bootstrap (3.3.1.0)
       less-rails (~> 2.6.0)
     libv8 (3.16.14.19)
-    loofah (2.5.0)
+    loofah (2.3.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
