@@ -26,7 +26,7 @@ $(document).on('page:load', pageInit);
 
 function pageInit() {
   var kind = fetchBenefitKind();
-  
+
   if(kind == "dental") {
     var dental_reference_plan_id = $("#dental_reference_plan_id").val();
     if(dental_reference_plan_id != '' && dental_reference_plan_id != undefined) {
@@ -255,7 +255,7 @@ function planSelected() {
 }*/
 function setMyPlans(element) {
   // Need to remove jQuery Selectors
-  
+
   var reference_plan_id = element.dataset.planid.replace(/['"]+/g, '');
   var kind = fetchBenefitKind();
 
@@ -423,11 +423,11 @@ function setRadioBtn(element) {
   dotIcons = document.querySelectorAll('.fa-dot-circle');
   icons = document.querySelectorAll('.fa-circle');
   iconId = element.target.dataset.tempId;
-  
+
   dotIcons.forEach(function(icon) {
     icon.classList.add('fa-circle')
   });
-  
+
   icons.forEach(function(icon) {
     if (icon.dataset.tempId == iconId) {
       icon.classList.add('fa-dot-circle')
@@ -645,28 +645,32 @@ function comparisonPlans() {
 }
 
 function viewComparisons() {
-  var url = $("#plan_comparison_url").val();
-  $('.view-plans-button').hide();
-  $('.loading-plans-button').show();
+  if (selected_rpids.length < 2) {
+    alert('Please select at least two plans to compare')
+  } else {
+    var url = $("#plan_comparison_url").val();
+    $('.view-plans-button').hide();
+    $('.loading-plans-button').show();
+      console.log(selected_rpids);
+      $.ajax({
+        type: "GET",
+        url: url,
+        dataType: 'script',
+        data: { plans: selected_rpids, sort_by: '' },
+      }).done(function() {
+        $('#compare_plans_table').dragtable({dragaccept: '.movable'});
+        $('.view-plans-button').show();
+        $('.loading-plans-button').hide();
+      });
 
-    $.ajax({
-      type: "GET",
-      url: url,
-      dataType: 'script',
-      data: { plans: selected_rpids, sort_by: '' },
-    }).done(function() {
-      $('#compare_plans_table').dragtable({dragaccept: '.movable'});
-      $('.view-plans-button').show();
-      $('.loading-plans-button').hide();
-    });
-
-    $('.plan-comparison-container').show();
+      $('.plan-comparison-container').show();
+  }
 }
 
 function clearComparisons() {
   $('.reference-plan').each(function() {
     var checkboxes = $(this).find('input[type=checkbox]');
-    //checkboxes.attr('checked', false);
+    checkboxes.attr('checked', false);
     removeA($.unique(selected_rpids), checkboxes.val());
     disableCompareButton();
   });
@@ -742,4 +746,3 @@ function sortPlans() {
 function setCarrierRadio(element) {
   element.checked = true;
 }
-
