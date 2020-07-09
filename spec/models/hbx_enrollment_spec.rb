@@ -466,39 +466,6 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         end
       end
     end
-
-    context "#propogate_waiver", dbclean: :after_each do
-      let(:family) {FactoryGirl.create(:family, :with_primary_family_member)}
-      let(:census_employee) {FactoryGirl.create(:census_employee)}
-      let(:benefit_group_assignment) {FactoryGirl.create(:benefit_group_assignment, benefit_group: package, census_employee: census_employee)}
-      let(:application) {double(:start_on => TimeKeeper.date_of_record.beginning_of_month, :end_on => (TimeKeeper.date_of_record.beginning_of_month + 1.year) - 1.day, :aasm_state => :active)}
-      let(:package) {double("BenefitPackage", :is_a? => BenefitSponsors::BenefitPackages::BenefitPackage, :_id => "id", :plan_year => application, :benefit_application => application)}
-      let(:ivl_enrollment) {FactoryGirl.create(:hbx_enrollment, :individual_unassisted, household: family.active_household)}
-      let(:existing_shop_enrollment) {FactoryGirl.create(:hbx_enrollment, :shop, household: family.active_household)}
-      let(:enrollment_for_waiver) {FactoryGirl.create(:hbx_enrollment, household: family.active_household, predecessor_enrollment_id: existing_shop_enrollment.id, benefit_group_assignment_id: benefit_group_assignment.id)}
-      before do
-        allow(census_employee).to receive(:benefit_group_assignments).and_return [benefit_group_assignment]
-      end
-      it "should return false if it is an ivl enrollment" do
-        expect(ivl_enrollment.propogate_waiver).to eq false
-      end
-
-      it "should return true for shop enrollment" do
-        expect(enrollment_for_waiver.propogate_waiver).to eq true
-      end
-
-      it "should waive the benefit group assignment if enrollment belongs to health & shop" do
-        enrollment_for_waiver.propogate_waiver
-        benefit_group_assignment.reload
-        expect(benefit_group_assignment.aasm_state).to eq "coverage_waived"
-      end
-
-      it "should not waive the benefit group assignment if enrollment belongs to dental" do
-        enrollment_for_waiver.update_attribute(:coverage_kind, "dental")
-        enrollment_for_waiver.propogate_waiver
-        expect(benefit_group_assignment.aasm_state).not_to eq "coverage_waived"
-      end
-    end
   end
 
   describe HbxProfile, "class methods", type: :model, dbclean: :after_each do

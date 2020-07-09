@@ -6,6 +6,7 @@ describe DefinePermissions, dbclean: :after_each do
   let(:roles) {%w{hbx_staff hbx_read_only hbx_csr_supervisor hbx_tier3 hbx_csr_tier2 hbx_csr_tier1 developer super_admin} }
   describe 'create permissions' do
     let(:given_task_name) {':initial_hbx'}
+
     before do
       Person.all.delete
       person= FactoryGirl.create(:person)
@@ -31,7 +32,7 @@ describe DefinePermissions, dbclean: :after_each do
       end
 
       it "updates can_complete_resident_application to true" do
-        expect(Person.all.count).to eq(1)
+        expect(Person.all.to_a.count).to eq(1)
         expect(Person.first.hbx_staff_role.permission.can_complete_resident_application).to be true
       end
     end
@@ -60,7 +61,7 @@ describe DefinePermissions, dbclean: :after_each do
       end
 
       it "updates can_view_username_and_email to true" do
-        expect(Person.all.count).to eq(7)
+        expect(Person.all.to_a.count).to eq(7)
         expect(@hbx_staff_person.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@super_admin.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@hbx_tier3.hbx_staff_role.permission.can_view_username_and_email).to be true
@@ -485,7 +486,7 @@ describe DefinePermissions, dbclean: :after_each do
       end
 
       it "updates can_complete_resident_application to true" do
-        expect(Person.all.count).to eq(5)
+        expect(Person.all.to_a.count).to eq(5)
         expect(@hbx_staff_person.hbx_staff_role.permission.can_add_sep).to be true
         expect(@super_admin.hbx_staff_role.permission.can_add_sep).to be true
         expect(@hbx_tier3.hbx_staff_role.permission.can_add_sep).to be true
@@ -1126,8 +1127,8 @@ describe DefinePermissions, dbclean: :after_each do
     end
     it "creates permissions" do
       expect(User.all.count).to eq(8)
-      expect(Person.all.count).to eq(8)
-      expect(Person.all.map{|p|p.hbx_staff_role.subrole}).to match_array roles
+      expect(Person.all.to_a.count).to eq(8)
+      expect(Person.all.to_a.map{|p|p.hbx_staff_role.subrole}).to match_array roles
     end
   end
 end

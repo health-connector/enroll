@@ -411,7 +411,30 @@ module BenefitSponsors
         reference_product = current_benefit_package.sponsored_benefits.first.reference_product
         reference_product.renewal_product = product
         reference_product.save!
-      }
+      end
+
+      let(:active_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee)}
+      let(:renewal_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee)}
+
+      let!(:census_update) do
+        census_employee.benefit_group_assignments = [active_bga, renewal_bga]
+        census_employee.save!
+      end
+
+      let(:hbx_enrollment) do
+        create(
+          :hbx_enrollment,
+          :shop,
+          household: family.active_household,
+          product: cbp.sponsored_benefits.first.reference_product,
+          coverage_kind: :health,
+          effective_on: predecessor_application.start_on,
+          employee_role_id: census_employee.employee_role.id,
+          sponsored_benefit_package_id: cbp.id,
+          benefit_sponsorship: bs,
+          benefit_group_assignment: active_bga
+        )
+      end
 
       before do
         allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)

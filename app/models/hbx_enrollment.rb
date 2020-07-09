@@ -284,7 +284,7 @@ class HbxEnrollment
       enrollment = BenefitSponsors::Factories::EnrollmentRenewalFactory.call(self, new_benefit_package)
       if enrollment.save
         assignment = self.employee_role.census_employee.benefit_group_assignment_by_package(enrollment.sponsored_benefit_package_id)
-        assignment.update_attributes(hbx_enrollment_id: enrollment.id)
+        assignment.update_attributes!(hbx_enrollment_id: enrollment.id)
       end
       enrollment
     rescue Exception => e
@@ -539,11 +539,6 @@ class HbxEnrollment
     true
   end
 
-  def propagate_renewal
-    if is_shop? && coverage_kind == 'health'
-      benefit_group_assignment.renew_coverage! if benefit_group_assignment.may_renew_coverage?
-    end
-  end
 
   def construct_waiver_enrollment(waiver_reason = nil)
     qle = (family.is_under_special_enrollment_period? && family.latest_shop_sep.present?)
@@ -701,9 +696,8 @@ class HbxEnrollment
     end
 
     if benefit_group_assignment
-      benefit_group_assignment.select_coverage if benefit_group_assignment.may_select_coverage?
       benefit_group_assignment.hbx_enrollment = self
-      benefit_group_assignment.save
+      benefit_group_assignment.save!
     end
 
     callback_context = { :hbx_enrollment => self }
@@ -1291,7 +1285,6 @@ class HbxEnrollment
     census_employee = employee_role.census_employee
     benefit_group_assignment = plan_year.is_renewing? ?
         census_employee.renewal_benefit_group_assignment : (plan_year.aasm_state == "expired" && qle) ? census_employee.benefit_group_assignments.order_by(:'created_at'.desc).detect { |bga| bga.plan_year.aasm_state == "expired"} : census_employee.active_benefit_group_assignment
-
     if benefit_group_assignment.blank? || benefit_group_assignment.plan_year != plan_year
       raise "Unable to find an active or renewing benefit group assignment for enrollment year #{effective_date.year}"
     end
@@ -1586,8 +1579,8 @@ class HbxEnrollment
     # after_all_transitions :perform_employer_plan_year_count
 
     event :renew_enrollment, :after => :record_transition do
-      transitions from: :shopping, to: :auto_renewing, after: :propagate_renewal
-      transitions from: :enrolled_contingent, to: :auto_renewing_contingent, after: :propagate_renewal
+      transitions from: :shopping, to: :auto_renewing
+      transitions from: :enrolled_contingent, to: :auto_renewing_contingent
     end
 
     event :renew_waived, :after => :record_transition do
@@ -1618,7 +1611,7 @@ class HbxEnrollment
 
     event :waive_coverage, :after => :record_transition do
       transitions from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected],
-                  to: :inactive, after: :propogate_waiver
+                  to: :inactive
     end
 
     event :begin_coverage, :after => :record_transition do
