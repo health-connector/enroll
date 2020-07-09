@@ -1401,6 +1401,12 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       expect(census_employee.renewal_benefit_group_assignment.benefit_package).to eq benefit_sponsorship.renewal_benefit_application.benefit_packages.first
     end
 
+    it 'should have most recent renewal benefit group assignment' do
+      renewal_application.update_attributes(predecessor_id: benefit_application.id)
+      benefit_sponsorship.benefit_applications << renewal_application
+      benefit_group_assignment1.update_attributes(created_at: census_employee.benefit_group_assignments.last.created_at + 1.day)
+      expect(census_employee.renewal_benefit_group_assignment.created_at).to eq benefit_group_assignment1.created_at
+    end
   end
 
   context '.find_or_create_benefit_group_assignment' do
@@ -1448,7 +1454,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         expect(blue_collar_benefit_group_assignment2.activated_at).to be_nil
         census_employee.find_or_create_benefit_group_assignment([blue_collar_benefit_group])
         expect(census_employee.benefit_group_assignments.size).to eq 4
-        expect(census_employee.active_benefit_group_assignment).to eq blue_collar_benefit_group_assignment2
+        expect(census_employee.active_benefit_group_assignment(blue_collar_benefit_group.start_on)).to eq blue_collar_benefit_group_assignment2
         expect(blue_collar_benefit_group_assignment2.activated_at).not_to be_nil
       end
     end
@@ -2051,11 +2057,9 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     let(:renewal_benefit_group) { renewal_application.benefit_packages.first}
     let(:census_employee) {FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile, benefit_sponsorship: organization.active_benefit_sponsorship)}
-    let(:benefit_group_assignment_two) {FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_benefit_group, census_employee: census_employee)}
-
+    let(:benefit_group_assignment_two) { BenefitGroupAssignment.on_date(census_employee, renewal_effective_date) }
 
     it "should select the latest renewal benefit group assignment" do
-      benefit_group_assignment_two.update_attribute(:updated_at, benefit_group_assignment_two.updated_at + 1.day)
       expect(census_employee.renewal_benefit_group_assignment).to eq benefit_group_assignment_two
     end
   end
@@ -2254,7 +2258,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
       it "should return renewal benefit_package if given effective_on date is in renewal benefit application" do
         census_employee.active_benefit_group_assignment.update_attributes!(is_active: false)
-        census_employee.inactive_benefit_group_assignments.first.benefit_package.update_attributes!(is_active: false)
+        census_employee.benefit_group_assignments.first.benefit_package.update_attributes!(is_active: false)
         benefit_group_assignment_two
         coverage_date = renewal_application.start_on
         expect(census_employee.benefit_package_for_date(coverage_date)).to eq renewal_application.benefit_packages.first
@@ -2400,6 +2404,116 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
       it "should return true" do
         expect(census_employee.is_terminate_possible?).to be_truthy
+      end
+    end
+  end
+
+  describe "#terminate_employee_enrollments" do
+
+    include_context "setup renewal application"
+
+    let(:renewal_effective_date) { TimeKeeper.date_of_record.beginning_of_month - 2.months }
+    let(:predecessor_state) { :expired }
+    let(:renewal_state) { :active }
+    let(:renewal_benefit_group) { renewal_application.benefit_packages.first}
+    let(:census_employee) do
+      ce = FactoryBot.create(
+          :benefit_sponsors_census_employee,
+          employer_profile: employer_profile,
+          benefit_sponsorship: organization.active_benefit_sponsorship
+      )
+      person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+      employee_role = FactoryBot.build(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+      ce.update_attributes({employee_role: employee_role})
+      Family.find_or_build_from_employee_role(employee_role)
+      ce
+    end
+
+    let!(:active_bga) { FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_benefit_group, census_employee: census_employee, is_active: true) }
+    let!(:inactive_bga) { FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: current_benefit_package, census_employee: census_employee, is_active: false) }
+
+    let!(:active_enrollment) do
+      FactoryBot.create(
+          :hbx_enrollment,
+          household: census_employee.employee_role.person.primary_family.active_household,
+          coverage_kind: "health",
+          kind: "employer_sponsored",
+          effective_on: renewal_benefit_group.start_on,
+          family: census_employee.employee_role.person.primary_family,
+          benefit_sponsorship_id: benefit_sponsorship.id,
+          sponsored_benefit_package_id: renewal_benefit_group.id,
+          employee_role_id: census_employee.employee_role.id,
+          benefit_group_assignment_id: active_bga.id,
+          aasm_state: "coverage_selected"
+      )
+    end
+
+    let!(:expired_enrollment) do
+      FactoryBot.create(
+          :hbx_enrollment,
+          household: census_employee.employee_role.person.primary_family.active_household,
+          coverage_kind: "health",
+          kind: "employer_sponsored",
+          effective_on: current_benefit_package.start_on,
+          family: census_employee.employee_role.person.primary_family,
+          benefit_sponsorship_id: benefit_sponsorship.id,
+          sponsored_benefit_package_id: current_benefit_package.id,
+          employee_role_id: census_employee.employee_role.id,
+          benefit_group_assignment_id: inactive_bga.id,
+          aasm_state: "coverage_expired"
+      )
+    end
+
+    context "when EE termination date falls under expired application" do
+      before do
+        employment_terminated_on = TimeKeeper.date_of_record.last_month.end_of_month - 2.months
+        census_employee.employment_terminated_on = employment_terminated_on
+        census_employee.coverage_terminated_on = TimeKeeper.date_of_record.last_month.end_of_month - 2.months
+        census_employee.aasm_state = "employment_terminated"
+        census_employee.save
+        census_employee.terminate_employee_enrollments(employment_terminated_on)
+        expired_enrollment.reload
+        active_enrollment.reload
+      end
+
+      it "should termiante, expired enrollment with terminated date = ee coverage termination date" do
+
+        expect(expired_enrollment.aasm_state).to eq "coverage_terminated"
+        expect(expired_enrollment.terminated_on).to eq TimeKeeper.date_of_record.last_month.end_of_month - 2.months
+      end
+
+      it "should cancel active coverage" do
+        expect(active_enrollment.aasm_state).to eq "coverage_canceled"
+      end
+    end
+
+    context "when EE termination date falls under active application" do
+      let(:employment_terminated_on) { TimeKeeper.date_of_record.end_of_month }
+
+      before do
+        census_employee.employment_terminated_on = employment_terminated_on
+        census_employee.coverage_terminated_on = TimeKeeper.date_of_record.end_of_month
+        census_employee.aasm_state = "employment_terminated"
+        census_employee.save
+        census_employee.terminate_employee_enrollments(employment_terminated_on)
+        expired_enrollment.reload
+        active_enrollment.reload
+      end
+
+      it "shouldn't update expired enrollment" do
+        expect(expired_enrollment.aasm_state).to eq "coverage_expired"
+      end
+
+      it "should termiante active coverage" do
+        expect(active_enrollment.aasm_state).to eq "coverage_termination_pending"
+      end
+
+      it "should cancel future active coverage" do
+        active_enrollment.effective_on = TimeKeeper.date_of_record.next_month
+        active_enrollment.save
+        census_employee.terminate_employee_enrollments
+        active_enrollment.reload
+        expect(active_enrollment.aasm_state).to eq "coverage_canceled"
       end
     end
   end
