@@ -113,6 +113,21 @@ class CensusEmployee < CensusMember
   scope :employee_profiles_terminated,         ->{ where(aasm_state: "employment_terminated")}
   scope :eligible_without_term_pending, ->{ any_in(aasm_state: (ELIGIBLE_STATES - PENDING_STATES)) }
 
+  scope :by_benefit_package_and_assignment_on_or_later, ->(benefit_package, effective_on, is_active) do
+    where(
+      :benefit_group_assignments => {
+        :$elemMatch => {
+          :start_on.gte => effective_on,
+          :benefit_package_id => benefit_package.id,
+          "$or" => [
+            {"end_on" => nil},
+            {"end_on" => {"$lt" => effective_on}}
+          ]
+        }
+      }
+    )
+  end
+
   #TODO - need to add fix for multiple plan years
   # scope :enrolled,    ->{ where("benefit_group_assignments.aasm_state" => ["coverage_selected", "coverage_waived"]) }
   # scope :covered,     ->{ where( "benefit_group_assignments.aasm_state" => "coverage_selected" ) }
