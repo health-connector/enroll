@@ -43,20 +43,25 @@ Feature: Employer can view their employees
     And employer populates the address field
     And employer clicks on update employee
     And employer should see the address on the roster
-    Then employer logs out
+    Then employer clicks logout
 
   Scenario: Employer adds employee with future hire date
     Given employer selects Add New Employee button on employee roster
     Then fill the form with hired date as future date
     Then employer should see the message Your employee was successfully added to your roster on page
-    And employer logs out
+    Then employer clicks logout
 
-  Scenario: Employee with active enrollment for display on roster
-    Given benefit market catalog exists for active initial employer with health benefits
-    And employer ABC Widgets has active benefit application
-    And employees for ABC Widgets have a selected coverage
-    And employee has updated enrollment details
-    When employer clicks an employee from the roster
-    Then employer should see the active enrollment tile
-    And employer logs out
-
+  Scenario: Employer views their employees and this ER has linked EEs
+    Given there is an employer ABC Widgets
+    And ABC Widgets employer has a staff role
+    And renewal employer ABC Widgets has active and renewal enrollment_open benefit applications
+    And this employer renewal application is under open enrollment
+    And there is a census employee record for Patrick Doe for employer ABC Widgets
+    And employee Patrick Doe has current hired on date
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    And Patrick Doe has active coverage and passive renewal
+    When staff role person logged in
+    Then ABC Widgets employer visit the Employee Roster
+    When employer selects Patrick Doe employee on Employee Roster
+    Then employer should see enrollment tile
+    Then employer clicks logout
