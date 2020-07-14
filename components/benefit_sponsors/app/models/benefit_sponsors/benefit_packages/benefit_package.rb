@@ -226,7 +226,7 @@ module BenefitSponsors
         #        will have is_active == false, I think this may always return an empty set.
         #        Because of this, I have removed the 'false' constraint.
 
-        census_employees_assigned_on(effective_period.min, false).each do |member| 
+        census_employees_assigned_on(effective_period.min).each do |member| 
           renew_member_benefit(member)
         end
       end

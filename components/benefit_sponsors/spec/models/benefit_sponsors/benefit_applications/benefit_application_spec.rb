@@ -516,14 +516,11 @@ module BenefitSponsors
         let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
         let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
+        let(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id:nil, benefit_package_id: benefit_package.id)}
+        let!(:census_employee) { create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
 
-        let(:renewal_benefit_sponsor_catalog) { build(:benefit_markets_benefit_sponsor_catalog, effective_date: renewal_effective_date, effective_period: renewal_effective_date..renewal_effective_date.next_year.prev_day, open_enrollment_period: renewal_effective_date.prev_month..(renewal_effective_date - 15.days)) }
-
-        let(:benefit_group_assignment) { FactoryGirl.build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id:nil, benefit_package_id: benefit_package.id, is_active:true)}
-        let!(:census_employee) { FactoryGirl.create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
-
-        let!(:renewal_application) {initial_application.renew}
-        let(:renewal_bga) {FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee, is_active: false)}
+        let(:renewal_application) {initial_application.renew}
+        let(:renewal_bga) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee)}
 
 
         it "should generate renewal application" do
@@ -544,8 +541,8 @@ module BenefitSponsors
           end
 
           it "renewal benefit group assignment is_active set to false" do
-            expect(census_employee.renewal_benefit_group_assignment.is_active).to eq false
-            expect(census_employee.active_benefit_group_assignment.is_active).to eq true
+            expect(census_employee.renewal_benefit_group_assignment.is_active?).to eq false
+            expect(census_employee.active_benefit_group_assignment.is_active?).to eq true
           end
         end
 
