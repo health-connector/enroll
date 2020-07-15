@@ -212,7 +212,7 @@ class BenefitGroupAssignment
 
     if census_employee.cobra_begin_date.present?
       coverage_terminated_on = census_employee.cobra_begin_date.prev_day
-      hbx_enrollments = hbx_enrollments.select do |e| 
+      hbx_enrollments = hbx_enrollments.select do |e|
         e.effective_on < census_employee.cobra_begin_date && (e.terminated_on.blank? || e.terminated_on == coverage_terminated_on)
       end
     end
@@ -270,8 +270,9 @@ class BenefitGroupAssignment
   end
 
   def end_benefit(end_date)
-    return if hbx_enrollment.is_coverage_waived?
-    self.update_attributes!(end_on: end_date)
+    return if coverage_waived?
+    self[:end_on] = end_date
+    terminate_coverage! if may_terminate_coverage?
   end
 
   def end_date=(end_date)
