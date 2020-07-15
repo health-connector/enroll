@@ -598,36 +598,8 @@ module BenefitSponsors
     # BenefitApplication instance's effective_period
     # @return [ BenefitApplication ] The built renewal application instance and submodels
 
-    # TODO: Enable this method for new domain benefit sponsor catalog
-    # def renew(async_workflow_id = nil)
-    #   renewal_effective_date = end_on.next_day
-    #   renewal_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date)
-
-    #   renewal_application = benefit_sponsorship.benefit_applications.new(
-    #     fte_count:                fte_count,
-    #     pte_count:                pte_count,
-    #     msp_count:                msp_count,
-    #     benefit_sponsor_catalog:  renewal_benefit_sponsor_catalog,
-    #     predecessor:              self,
-    #     effective_period:         renewal_benefit_sponsor_catalog.effective_period,
-    #     open_enrollment_period:   renewal_benefit_sponsor_catalog.open_enrollment_period
-    #   )
-
-    #   renewal_application.async_renewal_workflow_id = async_workflow_id if async_workflow_id
-    #   renewal_application.pull_benefit_sponsorship_attributes
-    #   renewal_benefit_sponsor_catalog.benefit_application = renewal_application
-    #   renewal_benefit_sponsor_catalog.save
-
-    #   benefit_packages.each do |benefit_package|
-    #     new_benefit_package = renewal_application.benefit_packages.build
-    #     benefit_package.renew(new_benefit_package)
-    #   end
-
-    #   renewal_application
-    # end
-
     def renew
-      renewal_effective_date = end_on.to_date.next_day
+      renewal_effective_date = end_on.next_day.to_date
 
       renewal_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date)
       renewal_application = benefit_sponsorship.benefit_applications.new(
@@ -970,6 +942,22 @@ module BenefitSponsors
       # if (aasm.to_state == :initial_enrollment_ineligible) && may_deny_enrollment_eligiblity?
       #   deny_enrollment_eligiblity!
       # end
+
+      if ( aasm.current_event == :cancel! )
+        benefit_packages.each do |benefit_package|
+          bga = BenefitGroupAssignment.by_benefit_package(benefit_package.id)
+          bga.end_on = terminated_on
+          bga.save!
+        end
+      end
+
+      if ( aasm.current_event == :terminate_enrollment )
+        benefit_packages.each do |benefit_package|
+          bga = BenefitGroupAssignment.by_benefit_package(benefit_package.id)
+          bga.end_on = terminated_on
+          bga.save!
+        end
+      end
 
       if (aasm.to_state == :applicant && aasm.current_event == :cancel!)
         cancel! if (enrollment_ineligible? || enrollment_closed?) && may_cancel?

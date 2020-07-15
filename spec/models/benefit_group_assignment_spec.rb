@@ -195,6 +195,91 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
             end
           end
         end
+
+        context "and coverage is waived" do
+          before { benefit_group_assignment.waive_coverage }
+
+          it "should transistion to coverage waived state" do
+            expect(benefit_group_assignment.coverage_waived?).to be_truthy
+          end
+
+          context "and waived coverage is terminated" do
+
+            it "should fail transition and remain in coverage waived state" do
+              expect { benefit_group_assignment.terminate_coverage! }.to raise_error AASM::InvalidTransition
+              expect(benefit_group_assignment.coverage_waived?).to be_truthy
+            end
+          end
+
+          context "and the employee reconsiders and selects coverage" do
+            before { benefit_group_assignment.select_coverage }
+
+            it "should transistion back to coverage selcted state" do
+              expect(benefit_group_assignment.coverage_selected?).to be_truthy
+            end
+
+            context "and coverage is terminated" do
+              before { benefit_group_assignment.terminate_coverage }
+
+              it "should transistion to coverage terminated state" do
+                expect(benefit_group_assignment.coverage_terminated?).to be_truthy
+              end
+            end
+          end
+        end
+
+        context "and coverage is terminated" do
+          let(:employee_role)   { FactoryBot.build(:employee_role, employer_profile: employer_profile )}
+          let(:hbx_enrollment)  { HbxEnrollment.new(sponsored_benefit_package: benefit_package, employee_role: census_employee.employee_role, effective_on: TimeKeeper.date_of_record, aasm_state: :coverage_selected ) }
+
+          before {
+            hbx_enrollment.benefit_group_assignment = benefit_group_assignment
+            benefit_group_assignment.hbx_enrollment = hbx_enrollment
+            hbx_enrollment.term_or_cancel_enrollment(hbx_enrollment, TimeKeeper.date_of_record + 2.days)
+          }
+
+          it "should update the end_on date to terminated date" do
+            expect(benefit_group_assignment.end_on).to eq(TimeKeeper.date_of_record + 2.days)
+          end
+
+        end
+
+        context "and coverage is cancelled" do
+          let(:employee_role)   { FactoryBot.build(:employee_role, employer_profile: employer_profile )}
+          let(:hbx_enrollment)  { HbxEnrollment.new(sponsored_benefit_package: benefit_package, employee_role: census_employee.employee_role, effective_on: TimeKeeper.date_of_record + 3.days, aasm_state: :coverage_selected ) }
+
+          before {
+            hbx_enrollment.benefit_group_assignment = benefit_group_assignment
+            benefit_group_assignment.hbx_enrollment = hbx_enrollment
+            hbx_enrollment.term_or_cancel_enrollment(hbx_enrollment, TimeKeeper.date_of_record - 1.day)
+          }
+
+          it "should update the end_on date to cancel date" do
+            expect(benefit_group_assignment.end_on).to eq(TimeKeeper.date_of_record - 1.day)
+          end
+
+        end
+
+        context "and benefit application is terminated" do
+          let(:ba) { benefit_sponsorship.benefit_applications.first }
+
+          before { ba.terminate_enrollment }
+
+          it "should terminate the benefit group assignment" do
+            expect(benefit_group_assignment.end_on).to eq(ba.terminated_on)
+          end
+        end
+
+        context "and benefit application is cancelled" do
+          let(:ba) { benefit_sponsorship.benefit_applications.first }
+
+          before { ba.cancel! }
+
+          it "should cancel the benefit group assignment" do
+            expect(benefit_group_assignment.end_on).to eq(ba.terminated_on)
+          end
+        end
+
       end
     end
   end
