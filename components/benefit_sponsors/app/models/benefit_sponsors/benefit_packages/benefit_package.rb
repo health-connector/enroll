@@ -247,7 +247,7 @@ module BenefitSponsors
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
 
             if hbx_enrollment && is_renewal_benefit_available?(hbx_enrollment)
-              renewed_enrollment = hbx_enrollment.renew_benefit(self)       
+              renewed_enrollment = hbx_enrollment.renew_benefit(self)
             end
 
             trigger_renewal_model_event(sponsored_benefit, census_employee, renewed_enrollment)
@@ -446,9 +446,7 @@ module BenefitSponsors
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
-            # TODO: FIgure out what our new definition of deactivatin gwill be
-            # Maybe remove the dates?
-            # benefit_group_assignment.update(is_active: false) unless is_renewing?
+            benefit_group_assignment.update(end_on: benefit_group_assignment.start_on) unless is_renewing?
           end
         end
       end
