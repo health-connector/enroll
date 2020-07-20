@@ -209,15 +209,13 @@ module BenefitSponsors
     scope :may_transmit_renewal_enrollment?, -> (compare_date = TimeKeeper.date_of_record, transition_at = nil) {
       if transition_at.blank?
         where(:benefit_applications => {
-                  :$elemMatch => {:predecessor_id => { :$exists => true }, :"effective_period.min" => compare_date, :aasm_state => :enrollment_eligible }},
-              :aasm_state => :active
+          :$elemMatch => {:predecessor_id => { :$exists => true }, :"effective_period.min" => compare_date, :aasm_state => :enrollment_eligible }}
         )
       else
         where(:benefit_applications => {
                   :$elemMatch => {:predecessor_id => { :$exists => true }, :"effective_period.min" => compare_date, :aasm_state.in => [:enrollment_eligible, :active],
                                   :workflow_state_transitions => {"$elemMatch" => {"to_state" => :enrollment_eligible, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}}
-                  }},
-              :aasm_state => :active
+                  }}
         )
       end
     }
@@ -237,6 +235,12 @@ module BenefitSponsors
     scope :may_cancel_ineligible_application?, -> (compare_date = TimeKeeper.date_of_record) {
       where(:benefit_applications => {
         :$elemMatch => {:"effective_period.min" => compare_date, :aasm_state => :enrollment_ineligible }}
+      )
+    }
+
+    scope :may_transmit_as_renewal_ineligible?, -> (compare_date = TimeKeeper.date_of_record) {
+      where(:benefit_applications => {
+                :$elemMatch => {:predecessor_id => { :$exists => true }, :"effective_period.min" => compare_date, :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES }}
       )
     }
 
@@ -542,8 +546,6 @@ module BenefitSponsors
     def is_renewal_carrier_drop?
       if is_renewal_transmission_eligible?
         carriers_dropped_for(:health).any? || carriers_dropped_for(:dental).any?
-      else
-        true
       end
     end
 
