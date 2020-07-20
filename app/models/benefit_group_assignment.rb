@@ -269,9 +269,8 @@ class BenefitGroupAssignment
   end
 
   def end_benefit(end_date)
-    return if coverage_waived?
-    self[:end_on] = end_date
-    terminate_coverage! if may_terminate_coverage?
+    # return if hbx_enrollment.is_coverage_waived?
+    self.update_attributes!(end_on: end_date)
   end
 
   def end_date=(end_date)
