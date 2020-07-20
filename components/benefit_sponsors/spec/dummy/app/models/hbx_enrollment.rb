@@ -432,30 +432,81 @@ class HbxEnrollment
     end
   end
 
-  def propogate_waiver
-    return false unless is_shop? # there is no concept of waiver in ivl case
+  def construct_waiver_enrollment(waiver_reason = nil)
+    qle = family.is_under_special_enrollment_period? && (family.earliest_effective_shop_sep.present? || family.earliest_effective_fehb_sep.present?)
+    coverage_hh = employee_role.person.primary_family.active_household.immediate_family_coverage_household
+    waived_enrollment = coverage_hh.household.new_hbx_enrollment_from(employee_role: employee_role, coverage_household: coverage_hh, benefit_package: sponsored_benefit_package, benefit_group_assignment: benefit_group_assignment, qle: qle)
+    waived_enrollment.coverage_kind = coverage_kind
+    waived_enrollment.enrollment_kind = (qle ? 'special_enrollment' : 'open_enrollment')
+    waived_enrollment.kind = 'employer_sponsored_cobra' if employee_role.present? && employee_role.is_cobra_status?
+    waived_enrollment.terminate_reason = terminate_reason if terminate_reason
+    waived_enrollment.waiver_reason = waiver_reason if waiver_reason
+    waived_enrollment.predecessor_enrollment_id = _id
+    waived_enrollment.generate_hbx_signature
+    waived_enrollment.submitted_at = TimeKeeper.datetime_of_record
+    waived_enrollment.household.reload if waived_enrollment.save!
 
-    if parent_enrollment.present?
-      update_existing_shop_coverage
+    waived_enrollment
+  end
+
+  def term_existing_shop_enrollments
+    benefit_application = sponsored_benefit_package.benefit_application
+    terminating_benefit_package_ids = benefit_application.benefit_packages.pluck(:id)
+
+    # cancel or term previous year enrollments if waiver is created under renewal application
+    # cancel or term renewal application enrollments if waiver created under the active application
+    if benefit_application.is_renewing?
+      if (effective_on == sponsored_benefit_package.start_on) && employer_profile
+        predecessor_benefit_application = employer_profile.benefit_applications.published_benefit_applications_by_date(effective_on.prev_day).first
+        terminating_benefit_package_ids += predecessor_benefit_application.benefit_packages.pluck(:id) if predecessor_benefit_application.present?
+      end
+    else
+      future_benefit_application = employer_profile.find_plan_year_by_effective_date(benefit_application.effective_period.max.next_day)
+      terminating_benefit_package_ids += future_benefit_application.benefit_packages.pluck(:id) if future_benefit_application.present?
     end
 
-    if coverage_kind == 'health' && census_employee.benefit_group_assignments.present?
-      census_employee.benefit_group_assignments.each do |benefit_group_assignment|
-        benefit_group_assignment.waive_coverage! if benefit_group_assignment.may_waive_coverage?
+    terminating_enrollments = household.hbx_enrollments.where({:sponsored_benefit_package_id.in => terminating_benefit_package_ids,
+                                                               :coverage_kind => coverage_kind}).enrolled_and_renewing_and_expired
+
+    renewing_enrollments = household.hbx_enrollments.where({:sponsored_benefit_package_id.in => terminating_benefit_package_ids,
+                                                            :coverage_kind => coverage_kind}).renewing
+
+    # waive only renewal enrollments if waives coverage after clicking "make changes" on renewing coverage
+    aasm_state = parent_enrollment.aasm_state if parent_enrollment
+    enrollments = if RENEWAL_STATUSES.include?(aasm_state)
+                    parent_enrollment.to_a
+                  elsif is_open_enrollment? && renewing_enrollments.present?
+                    update(predecessor_enrollment_id: renewing_enrollments.first.id)
+                    renewing_enrollments
+                  else
+                    terminating_enrollments
+                  end
+
+    enrollments.each do |enrollment|
+      coverage_end_date = family.terminate_date_for_shop_by_enrollment(enrollment)
+      term_or_cancel_enrollment(enrollment, coverage_end_date)
+    end
+  end
+
+  def set_predecessor_if_exists
+    predecessor_benefit_packages = [sponsored_benefit_package.id]
+
+    if effective_on == sponsored_benefit_package.start_on && sponsored_benefit_package.benefit_application.is_renewing?
+      if employer_profile
+        predecessor_benefit_application = employer_profile.benefit_applications.published_benefit_applications_by_date(effective_on.prev_day).first
+        predecessor_benefit_packages = predecessor_benefit_application.benefit_packages.pluck(:id) if predecessor_benefit_application
       end
     end
 
-    true
+    predecessor_enrollment = household.hbx_enrollments.where({:sponsored_benefit_package_id.in => predecessor_benefit_packages,
+                                                              :aasm_state.in => ENROLLED_STATUSES,
+                                                              :coverage_kind => coverage_kind}).first
+
+    update(predecessor_enrollment_id: predecessor_enrollment.id) if predecessor_enrollment.present?
   end
 
-  def propagate_renewal
-    if is_shop? && coverage_kind == 'health'
-      benefit_group_assignment.renew_coverage! if benefit_group_assignment.may_renew_coverage?
-    end
-  end
-
-  def waive_coverage_by_benefit_group_assignment(waiver_reason)
-    update_current(waiver_reason: waiver_reason)
+  def waive_enrollment
+    return unless is_shop? && may_waive_coverage?
     waive_coverage!
   end
 
@@ -1121,8 +1172,8 @@ class HbxEnrollment
     # after_all_transitions :perform_employer_plan_year_count
 
     event :renew_enrollment, :after => :record_transition do
-      transitions from: :shopping, to: :auto_renewing, after: :propagate_renewal
-      transitions from: :enrolled_contingent, to: :auto_renewing_contingent, after: :propagate_renewal
+      transitions from: :shopping, to: :auto_renewing
+      transitions from: :enrolled_contingent, to: :auto_renewing_contingent
     end
 
     event :renew_waived, :after => :record_transition do
@@ -1153,7 +1204,7 @@ class HbxEnrollment
 
     event :waive_coverage, :after => :record_transition do
       transitions from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected],
-                  to: :inactive, after: :propogate_waiver
+                  to: :inactive
     end
 
     event :begin_coverage, :after => :record_transition do
