@@ -2650,7 +2650,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           expect(census_employee.benefit_group_assignments.count).to eq 1
           assignment = census_employee.benefit_group_assignments.first
           expect(assignment.start_on).to eq current_benefit_package.start_on
-          expect(assignment.end_on).to be_nil
+          expect(assignment.end_on).to eq current_benefit_package.end_on
         end
       end
 
@@ -2662,7 +2662,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           expect(census_employee.benefit_group_assignments.count).to eq 1
           assignment = census_employee.benefit_group_assignments.first
           expect(assignment.start_on).to eq TimeKeeper.date_of_record
-          expect(assignment.end_on).to be_nil
+          expect(assignment.end_on).to eq current_benefit_package.end_on
         end
       end
     end
@@ -2684,7 +2684,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
           new_assignment = census_employee.benefit_group_assignments.last
           expect(new_assignment.start_on).to eq new_benefit_package.start_on
-          expect(new_assignment.end_on).to be_nil
+          # We are creating BGAs with start date and end date by default
+          expect(new_assignment.end_on).to eq new_benefit_package.end_on
         end
       end
 
@@ -2701,7 +2702,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
           new_assignment = census_employee.benefit_group_assignments.last
           expect(new_assignment.start_on).to eq TimeKeeper.date_of_record
-          expect(new_assignment.end_on).to be_nil
+          # We are creating BGAs with start date and end date by default
+          expect(new_assignment.end_on).to eq new_benefit_package.end_on
         end
       end
     end
