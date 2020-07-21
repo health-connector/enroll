@@ -22,7 +22,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   let!(:update_renewal_app) { renewal_application.update_attributes(aasm_state: :enrollment_eligible) }
   let(:coverage_terminated_on) { TimeKeeper.date_of_record.prev_month.end_of_month }
   let(:employee_role) { create :employee_role, employer_profile: employer_profile }
-  let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_package: sponsored_benefit_package, start_on: sponsored_benefit_package.start_on, end_on: sponsored_benefit_package.end_on)}
+  let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_package: sponsored_benefit_package, start_on: sponsored_benefit_package.start_on, end_on: coverage_terminated_on)}
   let!(:renewal_benefit_group_assignment) { build(:benefit_group_assignment, start_on: renewal_benefit_package.start_on, benefit_package: renewal_benefit_package, end_on: renewal_benefit_package.end_on)}
   let!(:ce) do
     create :census_employee,
