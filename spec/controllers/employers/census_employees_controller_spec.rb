@@ -452,11 +452,19 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           expect(assigns[:cobra_date]).to eq cobra_date
         end
 
+        it "should cobra census employee when in term pending" do
+          census_employee.update_attributes(aasm_state: 'employee_termination_pending', coverage_terminated_on: (hired_on + 2.days))
+          xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
+          expect(response).to have_http_status(:success)
+          expect(assigns[:cobra_date]).to eq cobra_date
+        end
+
         it "should not cobra census_employee" do
+          census_employee.update_attributes(coverage_terminated_on: (cobra_date + 2.days))
           allow(census_employee).to receive(:update_for_cobra).and_return false
           xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
           expect(response).to have_http_status(:success)
-          expect(flash[:error]).to eq "COBRA cannot be initiated for this employee because termination date is over 6 months in the past. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
+          expect(flash[:error]).to eq "COBRA cannot be initiated for this employee because of invalid date. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end
       end
 
