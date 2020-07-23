@@ -949,8 +949,8 @@ class CensusEmployee < CensusMember
     end
 
     event :elect_cobra, :guard => :have_valid_date_for_cobra?, :after => :record_transition do
-      transitions from: :employment_terminated, to: :cobra_linked, :guard => :has_employee_role_linked?, after: :build_hbx_enrollment_for_cobra
-      transitions from: :employment_terminated, to: :cobra_eligible
+      transitions from: [:employment_terminated, :employee_termination_pending], to: :cobra_linked, :guard => :has_employee_role_linked?, after: :build_hbx_enrollment_for_cobra
+      transitions from: [:employment_terminated, :employee_termination_pending], to: :cobra_eligible
     end
 
     event :link_employee_role, :after => :record_transition do
