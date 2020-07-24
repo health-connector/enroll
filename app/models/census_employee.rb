@@ -414,6 +414,8 @@ class CensusEmployee < CensusMember
   def replicate_for_rehire
     return nil unless employment_terminated? || cobra_terminated?
     new_employee = self.dup
+    new_employee.created_at = TimeKeeper.datetime_of_record
+    new_employee.updated_at = TimeKeeper.datetime_of_record
     new_employee.hired_on = nil
     new_employee.employment_terminated_on = nil
     new_employee.employee_role_id = nil
@@ -575,10 +577,10 @@ class CensusEmployee < CensusMember
   end
 
   def is_terminate_possible?
-    return true if employment_terminated? || cobra_terminated?
-    return false if cobra_linked?
+    return false if employment_terminated? || cobra_terminated?
+    return true if cobra_linked?
 
-    !(is_eligible? || is_linked?)
+    is_eligible? || is_linked?
   end
 
   def employee_relationship
