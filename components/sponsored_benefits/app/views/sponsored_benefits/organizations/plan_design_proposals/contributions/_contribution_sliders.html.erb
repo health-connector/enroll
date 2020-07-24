@@ -2,7 +2,7 @@
   <% plan_option_kind = (kind == "dental" ? f.object.dental_plan_option_kind : f.object.plan_option_kind) %>
 
   <div class="col-xs-12 offerings<%= (plan_option_kind != "sole_source") ? " enabled" : " hidden" %>" data-offering-target="<%= f.object.id %>">
-    <div class="row row-form-wrapper no-buffer heading">
+    <div class="row row-form-wrapper no-buffer heading" style="padding-bottom: 15px !important">
       <div class="col-xs-12" id="offering_slider_header">
         <div class="col-xs-6">Offered
           <% if kind != 'dental' %>
