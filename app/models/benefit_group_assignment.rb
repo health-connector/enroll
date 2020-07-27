@@ -105,7 +105,7 @@ class BenefitGroupAssignment
     def filter_assignments_with_no_end_on(assignments, date)
       valid_assignments_with_no_end_on = assignments.select { |assignment| (assignment.start_on..assignment.start_on.next_year.prev_day).cover?(date) }
       if valid_assignments_with_no_end_on.size > 1
-        valid_assignments_with_no_end_on.sort_by { |assignment| (assignment.start_on.to_time - date.to_time).abs }.first
+        valid_assignments_with_no_end_on.detect { |assignment| assignment.is_active? } || valid_assignments_with_no_end_on.sort_by { |assignment| (assignment.start_on.to_time - date.to_time).abs }.first
       else
         valid_assignments_with_no_end_on.first
       end
@@ -273,7 +273,6 @@ class BenefitGroupAssignment
   end
 
   def end_benefit(end_date)
-    # return if hbx_enrollment.is_coverage_waived?
     self.update_attributes!(end_on: end_date)
   end
 
@@ -375,7 +374,7 @@ class BenefitGroupAssignment
 
   def make_active
     census_employee.benefit_group_assignments.each do |benefit_group_assignment|
-      if benefit_group_assignment.id != self.id
+      if benefit_group_assignment.is_active? && benefit_group_assignment.id != self.id
         end_on = benefit_group_assignment.end_on || (start_on - 1.day)
         if is_case_old?
           end_on = benefit_group_assignment.plan_year.end_on unless benefit_group_assignment.plan_year.coverage_period_contains?(end_on)
