@@ -160,7 +160,7 @@ end
 And(/^there is a census employee record and employee role for (.*?) for employer (.*?)$/) do |named_person, legal_name|
   person = people[named_person]
   create_census_employee_from_person(person, legal_name)
-  person_record = Person.where(first_name: person[:first_name], last_name: person[:last_name]).first
+  person_record = Person.where(first_name: person[:first_name], last_name: person[:last_name]).first || FactoryGirl.create(:person, :with_family, ssn: person[:ssn], first_name: person[:first_name], last_name: person[:last_name])
   employer_profile = employer_profile(legal_name)
   employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
   person_record.employee_roles << employer_staff_role
@@ -292,7 +292,8 @@ And(/^Employees for (.*?) have both Benefit Group Assignments Employee role$/) d
   employer_profile = org_by_legal_name(legal_name).employer_profile
 
   @census_employees.each do |employee|
-    person = FactoryGirl.create(:person, :with_family, first_name: employee.first_name, last_name: employee.last_name, dob: employee.dob, ssn: employee.ssn)
+    person = Person.where(first_name: employee.first_name, last_name: employee.last_name).last ||
+      FactoryGirl.create(:person, :with_family, first_name: employee.first_name, last_name: employee.last_name, dob: employee.dob, ssn: employee.ssn)
     employee_role = FactoryGirl.create(:employee_role, person: person, benefit_sponsors_employer_profile_id: employer_profile.id)
     employee.update_attributes(employee_role_id: employee_role.id)
   end
@@ -301,7 +302,7 @@ end
 And(/^Assign benefit group assignments to (.*?) employee$/) do |legal_name|
   # try to fetch it from benefit application world
   benefit_package = fetch_benefit_group(legal_name)
-  @census_employees.each do |employee|
+  census_employees(legal_name).each do |employee|
     employee.add_benefit_group_assignment(benefit_package)
   end
 end
