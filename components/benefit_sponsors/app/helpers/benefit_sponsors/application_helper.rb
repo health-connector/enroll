@@ -113,6 +113,11 @@ module BenefitSponsors
       end
     end
 
+    def add_plan_year_button_business_rule(benefit_applications)
+      canceled_rule_check = benefit_applications.active.present? && benefit_applications.canceled.select{ |ba| ba.start_on > benefit_applications.active.first.end_on }.present?
+      ((benefit_applications.published - benefit_applications.termination_pending).blank? || canceled_rule_check) && benefit_applications.none?(&:is_renewing?)
+    end
+
     def retrieve_inbox(provider, folder: 'inbox')
       broker_agency_mailbox = inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
       return broker_agency_mailbox if provider.try(:broker_role)
