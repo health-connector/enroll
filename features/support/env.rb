@@ -91,11 +91,19 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   client.open_timeout = 120 # instead of the default 60
   client.read_timeout = 120 # instead of the default 60
 
-  Capybara::Selenium::Driver.new(app,
-    browser: :chrome,
-    options: options,
-    http_client: client
-  )
+  if ENV['DB_DATABASE'] == 'enroll_docker_test'
+    Capybara::Selenium::Driver.new(app,
+      browser: :remote,
+      url: "http://browser:4444/wd/hub",
+      desired_capabilities: browser
+    )
+  else
+    Capybara::Selenium::Driver.new(app,
+      browser: :chrome,
+      options: options,
+      http_client: client
+    )
+  end
 end
 
 Capybara.default_driver = :selenium_chrome_custom
