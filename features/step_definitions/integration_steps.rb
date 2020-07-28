@@ -828,7 +828,7 @@ When(/^.+ clicks? health radio on the group selection page$/) do
   find(:xpath, '//label[@for="coverage_kind_dental"]').click
 end
 
-When(/^(?:(?!Employee).)+ clicks? continue on the group selection page$/) do
+When(/^(?:(^Employee).)+ clicks? continue on the group selection page$/) do
   find('#btn-continue').click
 end
 
@@ -978,18 +978,18 @@ When(/^.+ clicks? to add the first employee$/) do
   find('.interaction-click-control-add-new-employee', :wait => 10).click
 end
 
-When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab_name|
+When(/^(?:[^(General)].*)+ clicks? on the ([^(General|Staff)].*) tab$/) do |tab_name|
   find(:xpath, "//li[contains(., '#{tab_name}')]", :wait => 10).click
   wait_for_ajax
 end
 
-When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
+When(/^(?:[^(General)].*)+ clicks? on the ([^(General|Staff)].*) dropdown$/) do |tab_name|
   target_dropdown = page.all('a').detect { |a| a.text == tab_name }
   target_dropdown.click
   wait_for_ajax
 end
 
-When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) option$/) do |tab_name|
+When(/^(?:[^(General)].*)+ clicks? on the ([^(General|Staff)].*) option$/) do |tab_name|
   find(".interaction-click-control-#{tab_name.downcase.gsub(' ','-')}").click
   wait_for_ajax
   find('#myTabContent').click

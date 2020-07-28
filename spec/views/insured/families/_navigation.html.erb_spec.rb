@@ -62,9 +62,9 @@ RSpec.describe "insured/families/_navigation.html.erb" do
       end
 
       it "should display the info under my account in the side bar" do
-        expect(rendered).to have_text('h4', 'My Account')
-        expect(rendered).to have_text('span', "#{person.first_name} #{person.last_name}")
-        expect(rendered).to have_text('span', "Your Household of #{family_members.count}")
+        expect(rendered).to have_text('My Account')
+        expect(rendered).to have_text("#{person.first_name} #{person.last_name}")
+        expect(rendered).to have_text("Your Household of #{family_members.count}")
       end
 
       it "should display the list of active household" do
@@ -96,8 +96,8 @@ RSpec.describe "insured/families/_navigation.html.erb" do
       end
 
       it "should display the info under my account in the side bar" do
-        expect(rendered).to have_text( 'My Account')
-        expect(rendered).to have_text('span', "#{person.first_name} #{person.last_name}")
+        expect(rendered).to have_text('My Account')
+        expect(rendered).to have_text("#{person.first_name} #{person.last_name}")
         expect(rendered).to have_text("Your Household of #{family_members.count}")
       end
 
@@ -132,9 +132,9 @@ RSpec.describe "insured/families/_navigation.html.erb" do
       end
 
       it "should display the info under my account in the side bar" do
-        expect(rendered).to have_text('h4', 'My Account')
-        expect(rendered).to have_text('span', "#{person.first_name} #{person.last_name}")
-        expect(rendered).to have_text('span', "Your Household of #{family_members.count}")
+        expect(rendered).to have_text('My Account')
+        expect(rendered).to have_text("#{person.first_name} #{person.last_name}")
+        expect(rendered).to have_text("Your Household of #{family_members.count}")
       end
 
       it "should display the list of active household" do
@@ -168,9 +168,9 @@ RSpec.describe "insured/families/_navigation.html.erb" do
     end
 
     it "should display the info under my account in the side bar" do
-      expect(rendered).to have_text('h4', 'My Account')
-      expect(rendered).to have_text('span', "#{person.first_name} #{person.last_name}")
-      expect(rendered).to have_text('span', "Your Household of #{family_members.count}")
+      expect(rendered).to have_text('My Account')
+      expect(rendered).to have_text("#{person.first_name} #{person.last_name}")
+      expect(rendered).to have_text("Your Household of #{family_members.count}")
     end
 
     it "should display the list of active household" do

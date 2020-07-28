@@ -43,6 +43,7 @@ ActionController::Base.allow_rescue = false
 # For some databases (like MongoDB and CouchDB) you may need to use :truncation instead.
 begin
   load Rails.root + "db/seedfiles/english_translations_seed.rb"
+  Object.send(:remove_const, :ActiveRecord)
   DatabaseCleaner.strategy = :truncation, {:except => %w[translations]}
 rescue NameError
   raise "You need to add database_cleaner to your Gemfile (in the :test group) if you wish to use it."
@@ -90,11 +91,19 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   client.open_timeout = 120 # instead of the default 60
   client.read_timeout = 120 # instead of the default 60
 
-  Capybara::Selenium::Driver.new(app,
-    browser: :chrome,
-    options: options,
-    http_client: client
-  )
+  if ENV['DB_DATABASE'] == 'enroll_docker_test'
+    Capybara::Selenium::Driver.new(app,
+      browser: :remote,
+      url: "http://browser:4444/wd/hub",
+      desired_capabilities: browser
+    )
+  else
+    Capybara::Selenium::Driver.new(app,
+      browser: :chrome,
+      options: options,
+      http_client: client
+    )
+  end
 end
 
 Capybara.default_driver = :selenium_chrome_custom

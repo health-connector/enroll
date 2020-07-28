@@ -1,0 +1,49 @@
+version: "3.4"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./.docker/development/Dockerfile
+      args:
+        BUNDLER_VERSION: '2.0.1'
+        NODE_MAJOR: '9'
+        NODE_VERSION: '9.11.2'
+    image: enroll_cca:dev-0.1.0
+    links:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/enroll:cached
+      - bundle:/bundle
+      - node_modules:/enroll/node_modules
+    environment:
+      - RAILS_ENV=${RAILS_ENV:-development}
+      - DB_DATABASE=enroll_development
+      - DB_USERNAME=enroll
+      - DB_PASSWORD=enroll_local
+      - DB_HOST=db
+      - DB_PORT=27017
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIA123456789}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-AbcD987654321}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_ROOT_NAMESPACE=${AWS_S3_ROOT_NAMESPACE:-root_bucket}
+      - AWS_BUCKET_ROOT_NAMESPACE=${AWS_BUCKET_ROOT_NAMESPACE:-root_bucket}
+      - ACTION_MAILER_HOST=${ACTION_MAILER_HOST:-localhost}
+      - HBX_ID=${HBX_ID:-dc0}
+      - ENV_NAME=${ENV_NAME:-dev}
+      - ACAPI_BROKER_HOST=${ACAPI_BROKER_HOST:-amqp}
+      - ACAPI_BROKER_PORT=${ACAPI_BROKER_PORT:-5672}
+    command: bash -c "rm -f tmp/pids/server.pid && mkdir -p tmp/pids && . /nvm/nvm.sh && yarn install --check-files && bundle install && bundle exec puma -C config/puma.rb"
+  db:
+    image: mongo:4.2
+    volumes:
+      - mongodb:/data/db
+      - mongodb_config:/data/db_config
+    ports:
+      - 27017:27017
+volumes:
+  mongodb:
+  mongodb_config:
+  bundle:
+  node_modules:
