@@ -135,8 +135,8 @@ group :test do
   gem 'action_mailer_cache_delivery', '~> 0.3.7'
   gem 'capybara'
   gem 'capybara-screenshot'
-  gem 'cucumber', '3.1.2'
-  gem 'cucumber-rails', '1.6.0', :require => false
+  gem 'cucumber', '4.0.0'
+  gem 'cucumber-rails', '2.1.0', :require => false
   gem 'database_cleaner', '1.5.3'
   gem 'fakeredis', :require => 'fakeredis/rspec'
   gem 'mongoid-rspec', '3.0.0'
