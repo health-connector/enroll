@@ -14,6 +14,8 @@ namespace :plan_validation do
     Rake::Task['plan_validation:report2'].invoke(args[:active_date])
     puts "Reports generation started for Report3" unless Rails.env.test?
     Rake::Task['plan_validation:report3'].invoke(args[:active_date])
+    puts "Reports generation started for Report4" unless Rails.env.test?
+    Rake::Task['plan_validation:report4'].invoke(args[:active_date])
   end
 
   #To run first report: RAILS_ENV=production bundle exec rake plan_validation:report1["2020-01-01"]
@@ -21,7 +23,7 @@ namespace :plan_validation do
   task :report1, [:active_date] => :environment do |_task, args|
     active_date = args[:active_date].to_date
     active_year = active_date.year
-    CSV.open("#{Rails.root}/plan_validation_report1_#{args[:active_date]}.csv", "w", force_quotes: true) do |csv|
+    CSV.open("#{Rails.root}/plan_validation_report1_#{active_year}.csv", "w", force_quotes: true) do |csv|
       csv << %w[PlanYearId CarrierId CarrierName PlanTypeCode Tier Count]
       products = ::BenefitMarkets::Products::Product.by_year(args[:active_date])
       products.all.each do |product|
@@ -79,7 +81,7 @@ namespace :plan_validation do
     end
   end
 
-  #To run second report: RAILS_ENV=production bundle exec rake plan_validation:report3["2020-01-01"]
+  #To run third report: RAILS_ENV=production bundle exec rake plan_validation:report3["2020-01-01"]
   desc "Service Area based count of Counties, Zip Codes and Plans"
   task :report3, [:active_date] => :environment do |_task, args|
     active_date = args[:active_date].to_date
@@ -105,6 +107,33 @@ namespace :plan_validation do
         end
       end
       puts "Successfully generated Plan validation Report3"
+    end
+  end
+
+  #To run fourth report: RAILS_ENV=production bundle exec rake plan_validation:report4["2019-01-01"]
+  desc "Service Area based count of Counties, Zip Codes and Plans"
+  task :report4, [:active_date] => :environment do |_task, args|
+    active_date = args[:active_date].to_date
+    active_year = active_date.year
+    CSV.open("#{Rails.root}/plan_validation_report4_#{active_year}.csv", "w", force_quotes: true) do |csv|
+      csv << %w[PlanYearId CarrierId CarrierName GroupSizeSum GroupSizeFactorSum]
+      profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map(&:profiles).flatten
+      profiles.each do |profile|
+        carrier_name = profile.abbrev
+        profile_id = profile.id.to_s
+        profile.issuer_hios_ids.each do |issuer_hios_id|
+          group_sizes = BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor.all.where(active_year: active_year, issuer_profile_id: profile_id)
+          group_sizes.each do |group_size|
+            group_size_sum = group_size.actuarial_factor_entries.map(&:factor_key).flatten.inject(0) do |sum,i|
+              value = i.to_i
+              sum + value
+            end
+            group_size_factor_sum = group_size.actuarial_factor_entries.map(&:factor_value).flatten.inject(0) { |sum,i| sum + i }
+            csv << [active_year, issuer_hios_id, carrier_name, group_size_sum, group_size_factor_sum.round(3)]
+          end
+        end
+      end
+      puts "Successfully generated Plan validation Report4"
     end
   end
 end
