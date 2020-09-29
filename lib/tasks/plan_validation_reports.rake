@@ -16,6 +16,8 @@ namespace :plan_validation do
     Rake::Task['plan_validation:report3'].invoke(args[:active_date])
     puts "Reports generation started for Report4" unless Rails.env.test?
     Rake::Task['plan_validation:report4'].invoke(args[:active_date])
+    puts "Reports generation started for Report5" unless Rails.env.test?
+    Rake::Task['plan_validation:report5'].invoke(args[:active_date])
   end
 
   #To run first report: RAILS_ENV=production bundle exec rake plan_validation:report1["2020-01-01"]
@@ -111,7 +113,7 @@ namespace :plan_validation do
   end
 
   #To run fourth report: RAILS_ENV=production bundle exec rake plan_validation:report4["2019-01-01"]
-  desc "Service Area based count of Counties, Zip Codes and Plans"
+  desc "PlanYearId CarrierId CarrierName GroupSizeSum GroupSizeFactorSum"
   task :report4, [:active_date] => :environment do |_task, args|
     active_date = args[:active_date].to_date
     active_year = active_date.year
@@ -134,6 +136,33 @@ namespace :plan_validation do
         end
       end
       puts "Successfully generated Plan validation Report4"
+    end
+  end
+
+  #To run fifth report: RAILS_ENV=production bundle exec rake plan_validation:report5["2019-01-01"]
+  desc "Planyearid CarrierId CarrierName GroupSizeSum ParticipationRateSum"
+  task :report5, [:active_date] => :environment do |_task, args|
+    active_date = args[:active_date].to_date
+    active_year = active_date.year
+    CSV.open("#{Rails.root}/plan_validation_report5_#{active_year}.csv", "w", force_quotes: true) do |csv|
+      csv << %w[PlanYearId CarrierId CarrierName GroupSizeSum ParticipationRateSum]
+      profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map(&:profiles).flatten
+      profiles.each do |profile|
+        carrier_name = profile.abbrev
+        profile_id = profile.id.to_s
+        profile.issuer_hios_ids.each do |issuer_hios_id|
+          part_rates = ::BenefitMarkets::Products::ActuarialFactors::ParticipationRateActuarialFactor.all.where(active_year: active_year, issuer_profile_id: profile_id)
+          part_rates.each do |part_rate|
+            group_size_sum = part_rate.actuarial_factor_entries.map(&:factor_key).flatten.inject(0) do |sum,i|
+              value = i.to_i
+              sum + value
+            end
+            participation_rate_sum = part_rate.actuarial_factor_entries.map(&:factor_value).flatten.inject(0) { |sum,i| sum + i }
+            csv << [active_year, issuer_hios_id, carrier_name, group_size_sum, participation_rate_sum.round(2)]
+          end
+        end
+      end
+      puts "Successfully generated Plan validation Report5"
     end
   end
 end
