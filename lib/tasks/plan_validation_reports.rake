@@ -24,6 +24,8 @@ namespace :plan_validation do
     Rake::Task['plan_validation:product_model'].invoke(args[:active_date])
     puts "8th Plan validation Report generation started for HIOS IDS" unless Rails.env.test?
     Rake::Task['plan_validation:hios_ids'].invoke(args[:active_date])
+    puts "9th Plan validation Report generation started for SuperGroupIDs" unless Rails.env.test?
+    Rake::Task['plan_validation:super_group_ids'].invoke(args[:active_date])
   end
 
   #To run first report: RAILS_ENV=production bundle exec rake plan_validation:report1["2020-01-01"]
@@ -239,6 +241,26 @@ namespace :plan_validation do
         puts "plan validation issue for Product_id: #{product.id}"
       end
       puts "Successfully generated 8th Plan validation report for HIOS ID's"
+    end
+  end
+
+  #To run ninth report: RAILS_ENV=production bundle exec rake plan_validation:super_group_ids["2021-01-01"]
+  desc "Plans with SuperGroupIDs"
+  task :super_group_ids, [:active_date] => :environment do |_task, args|
+    active_date = args[:active_date].to_date
+    active_year = active_date.year
+    CSV.open("#{Rails.root}/plan_validation_super_group_ids_#{active_year}.csv", "w", force_quotes: true) do |csv|
+      csv << %w[PlanYearId CarrierId CarrierName HIOS_Plan_ID SG_ID]
+      ::BenefitMarkets::Products::Product.by_year(active_year).each do |product|
+        carrier_id = product.hios_id[0..4]
+        carrier_name = product.issuer_profile.legal_name
+        hios_id = product.hios_id
+        issuer_assigned_id = product.try(:issuer_assigned_id)
+        csv << [active_year, carrier_id, carrier_name, hios_id, issuer_assigned_id]
+      rescue StandardError
+        puts "plan validation issue for Product_id: #{product.id}"
+      end
+      puts "Successfully generated 9th Plan validation report for Super Group ID's"
     end
   end
 end
