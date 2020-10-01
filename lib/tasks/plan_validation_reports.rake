@@ -18,6 +18,8 @@ namespace :plan_validation do
     Rake::Task['plan_validation:report4'].invoke(args[:active_date])
     puts "Reports generation started for Report5" unless Rails.env.test?
     Rake::Task['plan_validation:report5'].invoke(args[:active_date])
+    puts "6th Plan validation Report generation started for SIC Codes" unless Rails.env.test?
+    Rake::Task['plan_validation:sic_codes'].invoke(args[:active_date])
   end
 
   #To run first report: RAILS_ENV=production bundle exec rake plan_validation:report1["2020-01-01"]
@@ -163,6 +165,32 @@ namespace :plan_validation do
         end
       end
       puts "Successfully generated Plan validation Report5"
+    end
+  end
+
+  #To generate sixth report: RAILS_ENV=production bundle exec rake plan_validation:sic_codes["2021-01-01"]
+  desc "SIC Codes Count & Rate Factor Sum"
+  task :sic_codes, [:active_date] => :environment do |_task, args|
+    active_date = args[:active_date].to_date
+    active_year = active_date.year
+    CSV.open("#{Rails.root}/plan_validation_sic_codes_#{active_year}.csv", "w", force_quotes: true) do |csv|
+      csv << %w[PlanYearId CarrierId CarrierName SIC_Count SICRateSum]
+      profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map(&:profiles).flatten
+      profiles.each do |profile|
+        carrier_name = profile.abbrev
+        profile_id = profile.id.to_s
+        profile.issuer_hios_ids.each do |issuer_hios_id|
+          sic_codes = ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor.all.where(active_year: active_year, issuer_profile_id: profile_id)
+          sic_codes.each do |sic_code|
+            sic_count = sic_code.actuarial_factor_entries.count
+            sic_rate_sum = sic_code.actuarial_factor_entries.map(&:factor_value).flatten.inject(0) { |sum,i| sum + i }
+            csv << [active_year, issuer_hios_id, carrier_name, sic_count, sic_rate_sum.round(2)]
+          rescue StandardError
+            puts "#{e.message}, plan validation issue with carrier_name: #{carrier_name} and issuer_hios_id: #{issuer_hios_id}"
+          end
+        end
+      end
+      puts "Successfully generated 6th Plan validation report for SIC Codes"
     end
   end
 end
