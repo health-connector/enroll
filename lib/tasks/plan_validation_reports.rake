@@ -22,6 +22,8 @@ namespace :plan_validation do
     Rake::Task['plan_validation:sic_codes'].invoke(args[:active_date])
     puts "7th Plan validation Report generation started for Product Model" unless Rails.env.test?
     Rake::Task['plan_validation:product_model'].invoke(args[:active_date])
+    puts "8th Plan validation Report generation started for HIOS IDS" unless Rails.env.test?
+    Rake::Task['plan_validation:hios_ids'].invoke(args[:active_date])
   end
 
   #To run first report: RAILS_ENV=production bundle exec rake plan_validation:report1["2020-01-01"]
@@ -188,7 +190,7 @@ namespace :plan_validation do
             sic_rate_sum = sic_code.actuarial_factor_entries.map(&:factor_value).flatten.inject(0) { |sum,i| sum + i }
             csv << [active_year, issuer_hios_id, carrier_name, sic_count, sic_rate_sum.round(2)]
           rescue StandardError
-            puts "#{e.message}, plan validation issue with carrier_name: #{carrier_name} and issuer_hios_id: #{issuer_hios_id}"
+            puts "plan validation issue for issuer_hios_id: #{issuer_hios_id}"
           end
         end
       end
@@ -216,6 +218,27 @@ namespace :plan_validation do
         end
       end
       puts "Successfully generated 7th Plan validation report for Product Model"
+    end
+  end
+
+  #To run eigth report: RAILS_ENV=production bundle exec rake plan_validation:hios_ids["2021-01-01"]
+  desc "CarrierId CarrierName HIOS_ID Renewal_HIOS_ID"
+  task :hios_ids, [:active_date] => :environment do |_task, args|
+    active_date = args[:active_date].to_date
+    active_year = active_date.year
+    previous_year = active_year - 1
+    CSV.open("#{Rails.root}/plan_validation_hios_ids_#{previous_year}.csv", "w", force_quotes: true) do |csv|
+      csv << %w[CarrierId CarrierName HIOS_ID Renewal_HIOS_ID]
+      ::BenefitMarkets::Products::Product.by_year(previous_year).each do |product|
+        carrier_id = product.hios_id[0..4]
+        carrier_name = product.issuer_profile.legal_name
+        hios_id = product.hios_id
+        renewal_hios_id = product.try(:renewal_product).try(:hios_id)
+        csv << [carrier_id, carrier_name, hios_id, renewal_hios_id]
+      rescue StandardError
+        puts "plan validation issue for Product_id: #{product.id}"
+      end
+      puts "Successfully generated 8th Plan validation report for HIOS ID's"
     end
   end
 end
