@@ -20,6 +20,8 @@ namespace :plan_validation do
     Rake::Task['plan_validation:report5'].invoke(args[:active_date])
     puts "6th Plan validation Report generation started for SIC Codes" unless Rails.env.test?
     Rake::Task['plan_validation:sic_codes'].invoke(args[:active_date])
+    puts "7th Plan validation Report generation started for Product Model" unless Rails.env.test?
+    Rake::Task['plan_validation:product_model'].invoke(args[:active_date])
   end
 
   #To run first report: RAILS_ENV=production bundle exec rake plan_validation:report1["2020-01-01"]
@@ -181,7 +183,7 @@ namespace :plan_validation do
         profile_id = profile.id.to_s
         profile.issuer_hios_ids.each do |issuer_hios_id|
           sic_codes = ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor.all.where(active_year: active_year, issuer_profile_id: profile_id)
-          sic_codes.each do |sic_code|
+          sic_codes.all.each do |sic_code|
             sic_count = sic_code.actuarial_factor_entries.count
             sic_rate_sum = sic_code.actuarial_factor_entries.map(&:factor_value).flatten.inject(0) { |sum,i| sum + i }
             csv << [active_year, issuer_hios_id, carrier_name, sic_count, sic_rate_sum.round(2)]
@@ -191,6 +193,29 @@ namespace :plan_validation do
         end
       end
       puts "Successfully generated 6th Plan validation report for SIC Codes"
+    end
+  end
+
+  #To run seventh report: RAILS_ENV=production bundle exec rake plan_validation:product_model["2021-01-01"]
+  desc "CarrierId CarrierName ProductModel PlanCount"
+  task :product_model, [:active_date] => :environment do |_task, args|
+    active_date = args[:active_date].to_date
+    active_year = active_date.year
+    CSV.open("#{Rails.root}/plan_validation_product_model_#{active_year}.csv", "w", force_quotes: true) do |csv|
+      csv << %w[CarrierId CarrierName ProductModel PlanCount]
+      issuer_hios_ids = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map(&:profiles).flatten.flat_map(&:issuer_hios_ids).map(&:to_i)
+      issuer_hios_ids.each do |issuer_hios_id|
+        products = ::BenefitMarkets::Products::Product.by_year(active_year).where(hios_id: /#{issuer_hios_id}/)
+        carrier_name = products.first.issuer_profile.abbrev
+        offerings = { metal_level: "Horizontal Offering", single_issuer: "Vertical Offering", single_product: "Sole Source Offering" }
+        offerings.each do |product_package_kind, offering_type|
+          product_count = products.where(:product_package_kinds.in => [product_package_kind]).size
+          csv << [issuer_hios_id, carrier_name, offering_type, product_count]
+        rescue StandardError
+          puts "plan validation issue for issuer_hios_id: #{issuer_hios_id}"
+        end
+      end
+      puts "Successfully generated 7th Plan validation report for Product Model"
     end
   end
 end
