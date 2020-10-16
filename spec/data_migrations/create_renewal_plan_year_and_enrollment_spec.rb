@@ -26,7 +26,7 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
     # let(:market_inception) { TimeKeeper.date_of_record.year }
     # let!(:current_effective_date) { Date.new(TimeKeeper.date_of_record.last_year.year, TimeKeeper.date_of_record.month, 1) }
     let(:aasm_state) { :active }
-    let!(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: current_benefit_package.start_on, benefit_group_id:nil, benefit_package: current_benefit_package)}
+    let!(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: current_benefit_package.start_on, benefit_group_id: nil, benefit_package: current_benefit_package)}
     let(:employee_role) { build(:employee_role, benefit_sponsors_employer_profile_id:abc_profile.id)}
     let(:census_employee) { create(:census_employee, dob: TimeKeeper.date_of_record - 21.year, employer_profile_id: nil, benefit_sponsors_employer_profile_id: abc_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment],employee_role_id:employee_role.id) }
     let(:person) {create(:person,dob: TimeKeeper.date_of_record - 21.year, ssn:census_employee.ssn)}

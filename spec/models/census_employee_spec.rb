@@ -1447,7 +1447,16 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         benefit_sponsorship: benefit_sponsorship
       )
     end
-    let!(:benefit_group_assignment1) {create(:benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee, is_active: false, start_on: renewal_application.benefit_packages.first.start_on, end_on: renewal_application.benefit_packages.first.end_on)}
+
+    let!(:benefit_group_assignment1) do
+      FactoryGirl.create(
+        :benefit_group_assignment,
+        benefit_group: renewal_application.benefit_packages.first,
+        census_employee: census_employee,
+        start_on: renewal_application.benefit_packages.first.start_on,
+        end_on: renewal_application.benefit_packages.first.end_on
+      )
+    end
 
     it 'should have active benefit group assignment' do
       expect(census_employee.active_benefit_group_assignment.present?).to be_truthy
@@ -1483,14 +1492,27 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     context 'when benefit groups are switched' do
-      let!(:white_collar_benefit_group_assignment) {FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: white_collar_benefit_group, census_employee: census_employee, start_on: white_collar_benefit_group.start_on, end_on: white_collar_benefit_group.end_on)}
+      let!(:white_collar_benefit_group_assignment) do
+        FactoryBot.create(
+          :benefit_sponsors_benefit_group_assignment,
+          benefit_group: white_collar_benefit_group,
+          census_employee: census_employee,
+          start_on: white_collar_benefit_group.start_on,
+          end_on: white_collar_benefit_group.end_on
+        )
+      end
 
       before do
         [white_collar_benefit_group_assignment].each do |bga|
           if bga.census_employee.employee_role_id.nil?
             person = FactoryBot.create(:person, :with_family, first_name: bga.census_employee.first_name, last_name: bga.census_employee.last_name, dob: bga.census_employee.dob, ssn: bga.census_employee.ssn)
             family = person.primary_family
-            employee_role = person.employee_roles.build(census_employee_id: bga.census_employee.id, ssn: person.ssn, hired_on: bga.census_employee.hired_on, benefit_sponsors_employer_profile_id: bga.census_employee.benefit_sponsors_employer_profile_id)
+            employee_role = person.employee_roles.build(
+              census_employee_id: bga.census_employee.id,
+              ssn: person.ssn,
+              hired_on: bga.census_employee.hired_on,
+              benefit_sponsors_employer_profile_id: bga.census_employee.benefit_sponsors_employer_profile_id
+            )
             employee_role.save!
             employee_role = person.employee_roles.last
             bga.census_employee.update_attributes!(employee_role_id: employee_role.id)
@@ -1506,7 +1528,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
             kind: "employer_sponsored",
             benefit_sponsorship_id: bga.census_employee.benefit_sponsorship.id,
             employee_role_id: bga.census_employee.employee_role_id,
-            sponsored_benefit_package_id: bga.benefit_package_id,
+            sponsored_benefit_package_id: bga.benefit_package_id
           )
           bga.update_attributes!(hbx_enrollment_id: hbx_enrollment.id)
         end
@@ -1541,7 +1563,12 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           if bga.census_employee.employee_role_id.nil?
             person = FactoryBot.create(:person, :with_family, first_name: bga.census_employee.first_name, last_name: bga.census_employee.last_name, dob: bga.census_employee.dob, ssn: bga.census_employee.ssn)
             family = person.primary_family
-            employee_role = person.employee_roles.build(census_employee_id: bga.census_employee.id, ssn: person.ssn, hired_on: bga.census_employee.hired_on, benefit_sponsors_employer_profile_id: bga.census_employee.benefit_sponsors_employer_profile_id)
+            employee_role = person.employee_roles.build(
+              census_employee_id: bga.census_employee.id,
+              ssn: person.ssn,
+              hired_on: bga.census_employee.hired_on,
+              benefit_sponsors_employer_profile_id: bga.census_employee.benefit_sponsors_employer_profile_id
+            )
             employee_role.save!
             employee_role = person.employee_roles.last
             bga.census_employee.update_attributes!(employee_role_id: employee_role.id)
@@ -1557,7 +1584,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
             kind: "employer_sponsored",
             benefit_sponsorship_id: bga.census_employee.benefit_sponsorship.id,
             employee_role_id: bga.census_employee.employee_role_id,
-            sponsored_benefit_package_id: bga.benefit_package_id,
+            sponsored_benefit_package_id: bga.benefit_package_id
           )
           bga.update_attributes!(hbx_enrollment_id: hbx_enrollment.id)
         end

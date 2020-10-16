@@ -18,7 +18,7 @@ describe ChangeAasmStateDotCensusEmployee, dbclean: :after_each do
     let(:benefit_sponsorship)   { benefit_sponsor.active_benefit_sponsorship }
     let(:employer_profile)      { benefit_sponsorship.profile }
     let!(:benefit_package)      { benefit_sponsorship.benefit_applications.first.benefit_packages.first}
-    let!(:census_employee)      { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, benefit_group: benefit_package ) }
+    let!(:census_employee)      { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, benefit_group: benefit_package) }
 
     before :each do
       allow(ENV).to receive(:[]).with('census_employee_id').and_return census_employee.id
