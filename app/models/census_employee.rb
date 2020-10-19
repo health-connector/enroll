@@ -122,7 +122,7 @@ class CensusEmployee < CensusMember
   scope :employee_profiles_terminated,         ->{ where(aasm_state: "employment_terminated")}
   scope :eligible_without_term_pending, ->{ any_in(aasm_state: (ELIGIBLE_STATES - PENDING_STATES)) }
 
-  scope :by_benefit_package_and_assignment_on_or_later, lambda do |benefit_package, effective_on|
+  scope :by_benefit_package_and_assignment_on_or_later, lambda { |benefit_package, effective_on|
     where(
       :benefit_group_assignments => {
         :$elemMatch => {
@@ -135,7 +135,7 @@ class CensusEmployee < CensusMember
         }
       }
     )
-  end
+  }
 
   #TODO - need to add fix for multiple plan years
   # AASM_STATE deprecated for benefit group assignment
@@ -144,7 +144,7 @@ class CensusEmployee < CensusMember
   # scope :waived,      ->{ where( "benefit_group_assignments.aasm_state" => "coverage_waived" ) }
 
   # TODO: Need to refactor others like this to compensate for no aasm state
-  scope :covered, lambda do
+  scope :covered, lambda {
     ces_with_covered_start_ons_and_enrollments = where(
       :benefit_group_assignments => {
         :$elemMatch => { :hbx_enrollment_id.nin => [nil], :start_on.lte => TimeKeeper.date_of_record }
@@ -158,9 +158,9 @@ class CensusEmployee < CensusMember
       end
     end.map(&:id)
     where(:_id.in => covered_ce_ids)
-  end
+  }
 
-  scope :waived, lambda do
+  scope :waived, lambda {
     ces_with_hbx_enrollments = where(
       :benefit_group_assignments => {
         :$elemMatch => { :hbx_enrollment_id.nin => [nil]}
@@ -174,15 +174,15 @@ class CensusEmployee < CensusMember
       end
     end.map(&:id)
     where(:_id.in => enrolled_ce_ids)
-  end
+  }
 
-  scope :covered_progressbar, lambda do
+  scope :covered_progressbar, lambda {
     where(
       :benefit_group_assignments => {
         :$elemMatch => { :aasm_state.in => ["coverage_selected","coverage_renewing"]  }
       }
     )
-  end
+  }
 
   scope :enrolled, -> { any_of([covered.selector, waived.selector]) }
 
@@ -201,7 +201,7 @@ class CensusEmployee < CensusMember
   scope :by_ssn,                          ->(ssn) { where(encrypted_ssn: CensusMember.encrypt_ssn(ssn)) }
   scope :by_employer_profile_id,          ->(employer_profile_id) { scoped_profile(employer_profile_id) }
 
-  scope :by_benefit_package_and_assignment_on, lambda do |benefit_package, effective_on|
+  scope :by_benefit_package_and_assignment_on, lambda { |benefit_package, effective_on|
     where(
       :benefit_group_assignments => {
         :$elemMatch =>
@@ -211,7 +211,7 @@ class CensusEmployee < CensusMember
         }
       }
     )
-  end
+  }
 
   index(
     {
