@@ -316,14 +316,14 @@ module BenefitSponsors
             if hbx_enrollment
               if (hbx_enrollment.effective_on > benefit_application.end_on)
                 if hbx_enrollment.may_cancel_coverage?
-                  hbx_enrollment.cancel_coverage!
+                  hbx_enrollment.cancel_coverage!(enrollment_term_date)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
               elsif hbx_enrollment.coverage_termination_pending? && hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on < benefit_application.end_on)
                 # do nothing
               elsif hbx_enrollment.may_terminate_coverage?
                 if hbx_enrollment.terminated_on.nil? || (hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on > benefit_application.end_on))
-                  hbx_enrollment.terminate_coverage!
+                  hbx_enrollment.terminate_coverage!(enrollment_term_date)
                   hbx_enrollment.update_attributes!(terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
@@ -344,13 +344,13 @@ module BenefitSponsors
             if hbx_enrollment
               if hbx_enrollment.effective_on > benefit_application.end_on
                 if hbx_enrollment.may_cancel_coverage?
-                  hbx_enrollment.cancel_coverage!
+                  hbx_enrollment.cancel_coverage!(enrollment_term_date)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
               elsif hbx_enrollment.coverage_termination_pending? && hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on < benefit_application.end_on)
                 # do nothing
               elsif hbx_enrollment.may_schedule_coverage_termination?
-                hbx_enrollment.schedule_coverage_termination!
+                hbx_enrollment.schedule_coverage_termination!(enrollment_term_date)
                 hbx_enrollment.update_attributes!(terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
                 hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
               end
@@ -368,12 +368,8 @@ module BenefitSponsors
           sponsored_benefits.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
              if hbx_enrollment && hbx_enrollment.may_cancel_coverage?
-               if hbx_enrollment.inactive?
-                 hbx_enrollment.cancel_coverage!
-               else
-                 hbx_enrollment.cancel_coverage!
-                 hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
-               end
+              hbx_enrollment.cancel_coverage!(enrollment_term_date)
+              hbx_enrollment.notify_enrollment_cancel_or_termination_event(enrollment_notify_flag(enroll_notify)) unless hbx_enrollment.inactive?
              end
           end
         end
@@ -383,6 +379,10 @@ module BenefitSponsors
           assign_other_benefit_package(other_benefit_package) if other_benefit_package.present?
           deactivate
         end
+      end
+
+      def enrollment_term_date
+        benefit_application.end_on
       end
 
       def canceled_as_ineligible?(transition)
