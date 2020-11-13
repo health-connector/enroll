@@ -2543,20 +2543,17 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     context "when ER has imported, mid year conversion and renewal benefit applications" do
 
-      let(:organization) {FactoryGirl.build(:benefit_sponsors_organizations_general_organization,
-                                            :with_aca_shop_cca_employer_profile_imported_and_renewal_application,
-                                            site: site
-      )}
-
-      let(:myc_application) {FactoryGirl.build(:benefit_sponsors_benefit_application,
-                                               :with_benefit_package,
-                                               benefit_sponsorship: benefit_sponsorship,
-                                               aasm_state: :active,
-                                               default_effective_period: ((benefit_application.end_on - 2.months).next_day..benefit_application.end_on),
-                                               default_open_enrollment_period: ((benefit_application.end_on - 1.year).next_day - 1.month..(benefit_application.end_on - 1.year).next_day - 15.days)
-      )}
+      let(:myc_application) do
+        FactoryGirl.build(:benefit_sponsors_benefit_application,
+                         :with_benefit_package,
+                         benefit_sponsorship: benefit_sponsorship,
+                         aasm_state: :active,
+                         default_effective_period: ((benefit_application.end_on - 2.months).next_day..benefit_application.end_on),
+                         default_open_enrollment_period: ((benefit_application.end_on - 1.year).next_day - 1.month..(benefit_application.end_on - 1.year).next_day - 15.days))
+      end
 
       let(:mid_year_benefit_group_assignment) {FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: myc_application.benefit_packages.first, census_employee: census_employee)}
+      let(:termination_date) {myc_application.start_on.prev_day}
 
       before do
         benefit_sponsorship.benefit_applications << myc_application
@@ -2569,6 +2566,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         census_employee.benefit_group_assignments.where(:"benefit_package_id".in => benefit_application.benefit_packages.map(&:id)).each do |bga|
           # when there is both MYC & Imported Plan years, is_active for imported plan year's bga's should be false
           # to allow plan shop through myc plan years
+          bga.update!(end_on: termination_date)
         end
         expect(census_employee.benefit_package_for_date(coverage_date)).to eq myc_application.benefit_packages.first
       end
@@ -2742,7 +2740,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       before do
         employment_terminated_on = (TimeKeeper.date_of_record - 3.months).end_of_month
         census_employee.employment_terminated_on = employment_terminated_on
-        census_employee.coverage_terminated_on = (TimeKeeper.date_of_record - 3.months).end_of_month
+        census_employee.coverage_terminated_on = employment_terminated_on
         census_employee.aasm_state = "employment_terminated"
         census_employee.save
         census_employee.terminate_employee_enrollments(employment_terminated_on)
