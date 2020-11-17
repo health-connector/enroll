@@ -307,7 +307,4 @@ class Employers::CensusEmployeesController < ApplicationController
 
     flash[:error] = "COBRA cannot be initiated for this employee because of invalid date. Please contact #{site_short_name} at #{contact_center_phone_number} for further assistance."
   end
-
-  private
-
 end
