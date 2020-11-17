@@ -2664,9 +2664,9 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     context "when EE termination date falls under expired application" do
       before do
-        employment_terminated_on = TimeKeeper.date_of_record.end_of_month - 3.months
+        employment_terminated_on = (TimeKeeper.date_of_record - 3.months).end_of_month
         census_employee.employment_terminated_on = employment_terminated_on
-        census_employee.coverage_terminated_on = TimeKeeper.date_of_record.end_of_month - 3.months
+        census_employee.coverage_terminated_on = (TimeKeeper.date_of_record - 3.months).end_of_month
         census_employee.aasm_state = "employment_terminated"
         census_employee.save
         census_employee.terminate_employee_enrollments(employment_terminated_on)
