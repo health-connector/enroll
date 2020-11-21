@@ -1126,7 +1126,7 @@ describe DefinePermissions, dbclean: :after_each do
       subject.build_test_roles
     end
     it "creates permissions" do
-      expect(User.all.count).to eq(8)
+      expect(User.all.to_a.count).to eq(8)
       expect(Person.all.to_a.count).to eq(8)
       expect(Person.all.to_a.map{|p| p.hbx_staff_role.subrole}).to match_array roles
     end
