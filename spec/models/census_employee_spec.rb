@@ -994,7 +994,16 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       let(:census_employee_for_scope_testing)   { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
       let(:household) { FactoryGirl.create(:household, family: family)}
       let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-      let!(:benefit_group_assignment) {FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, census_employee: census_employee_for_scope_testing, start_on: benefit_package.start_on, end_on: benefit_package.end_on, hbx_enrollment_id: enrollment.id)}
+      let!(:benefit_group_assignment) do
+        FactoryGirl.create(
+          :benefit_sponsors_benefit_group_assignment,
+          benefit_group: benefit_package,
+          census_employee: census_employee_for_scope_testing,
+          start_on: benefit_package.start_on,
+          end_on: benefit_package.end_on,
+          hbx_enrollment_id: enrollment.id
+        )
+      end
       let!(:enrollment) do
         FactoryGirl.create(:hbx_enrollment, household: household, family: family, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id)
       end
