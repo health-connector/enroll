@@ -570,6 +570,12 @@ class CensusEmployee < CensusMember
     renewal_assignment.benefit_group if renewal_assignment.benefit_group.plan_year.employees_are_matchable?
   end
 
+  def off_cycle_published_benefit_package(coverage_date = nil)
+    return unless (off_cycle_assignment = off_cycle_benefit_group_assignment)
+
+    off_cycle_assignment.benefit_package if off_cycle_assignment.benefit_package.benefit_application.employees_are_matchable?
+  end
+
   alias_method :renewal_published_benefit_group, :renewal_published_benefit_package
 
   # Initialize a new, refreshed instance for rehires via deep copy
@@ -657,10 +663,12 @@ class CensusEmployee < CensusMember
   def terminate_employee_enrollments(employment_terminated_on)
     active_enrollments = active_benefit_group_enrollments(employment_terminated_on)
     renewal_enrollments = renewal_benefit_group_enrollments(employment_terminated_on)
+    off_cycle_enrollments = off_cycle_benefit_group_enrollments(employment_terminated_on)
     term_eligible_active_enrollments = active_enrollments.show_enrollments_sans_canceled.non_terminated if active_enrollments.present?
     term_eligible_renewal_enrollments = renewal_enrollments.show_enrollments_sans_canceled.non_terminated if renewal_enrollments.present?
+    term_eligible_off_cycle_enrollments = off_cycle_enrollments.show_enrollments_sans_canceled.non_terminated if off_cycle_enrollments.present?
 
-    enrollments = (Array.wrap(term_eligible_active_enrollments) + Array.wrap(term_eligible_renewal_enrollments)).compact
+    enrollments = (Array.wrap(term_eligible_active_enrollments) + Array.wrap(term_eligible_off_cycle_enrollments) + Array.wrap(term_eligible_renewal_enrollments)).compact.uniq
 
     enrollments.each do |enrollment|
       if enrollment.effective_on > self.coverage_terminated_on
@@ -1347,6 +1355,7 @@ def self.to_csv
 
     enrollments += coverages_selected.call(active_benefit_group_enrollments)
     enrollments += coverages_selected.call(renewal_benefit_group_enrollments)
+    enrollments += coverages_selected.call(off_cycle_benefit_group_enrollments)
     enrollments.compact.uniq
   end
 
@@ -1416,6 +1425,19 @@ def self.to_csv
     }).first
 
     return [] if family.blank?
+  end
+
+  def off_cycle_benefit_group_enrollments(coverage_date = nil)
+    return nil if employee_role.blank?
+
+    HbxEnrollment.where(
+      {
+        :sponsored_benefit_package_id.in => [off_cycle_published_benefit_package(coverage_date).try(:id)].compact,
+        :employee_role_id => self.employee_role_id,
+        :aasm_state.ne => "shopping"
+      }
+    ) || []
+  end
 
     family.active_household.hbx_enrollments.where(
       :"sponsored_benefit_package_id".in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
@@ -1440,8 +1462,16 @@ def self.to_csv
     [eligible_enrollments.by_health.first, eligible_enrollments.by_dental.first].compact
   end
 
+  # Picking latest health & dental enrollments
+  def off_cycle_benefit_group_cobra_eligible_enrollments
+    return [] if off_cycle_benefit_group_enrollments.blank?
+
+    eligible_enrollments = off_cycle_benefit_group_enrollments.non_cobra.enrollments_for_cobra
+    [eligible_enrollments.by_health.first, eligible_enrollments.by_dental.first].compact
+  end
+
   def cobra_eligible_enrollments
-    (active_benefit_group_cobra_eligible_enrollments + renewal_benefit_group_cobra_eligible_enrollments).flatten
+    (active_benefit_group_cobra_eligible_enrollments + off_cycle_benefit_group_cobra_eligible_enrollments + renewal_benefit_group_cobra_eligible_enrollments).flatten
   end
 
   # Retrieves the last updated benefit_group_assignment with a given +package_id+ & +start_on+
