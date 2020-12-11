@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_benefit_market_catalog, class: 'BenefitMarkets::BenefitMarketCatalog' do
 
     title                     "Benefit Buddy's SHOP Employer Benefit Market"

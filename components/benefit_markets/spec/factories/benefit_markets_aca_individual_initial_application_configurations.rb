@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_aca_individual_initial_application_configuration, class: 'BenefitMarkets::Configurations::AcaIndividualInitialApplicationConfiguration' do
 
     pub_due_dom 5

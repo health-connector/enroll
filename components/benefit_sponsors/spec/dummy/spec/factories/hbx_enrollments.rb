@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :hbx_enrollment do
     kind "employer_sponsored"
     elected_premium_credit 0
@@ -25,7 +25,7 @@ FactoryGirl.define do
     # plan { create(:plan, :with_rating_factors, :with_premium_tables, active_year: active_year) }
 
     trait :with_enrollment_members do
-      hbx_enrollment_members { enrollment_members.map{|member| FactoryGirl.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: self.effective_on, eligibility_date: self.effective_on) }}
+      hbx_enrollment_members { enrollment_members.map{|member| FactoryBot.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: self.effective_on, eligibility_date: self.effective_on) }}
     end
 
     trait :shop do
@@ -43,7 +43,7 @@ FactoryGirl.define do
     end
 
     trait :with_product do
-      product {  FactoryGirl.create(:benefit_markets_products_product) }
+      product {  FactoryBot.create(:benefit_markets_products_product) }
     end
 
     trait :coverage_selected do

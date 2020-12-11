@@ -63,7 +63,7 @@ module BenefitApplicationWorld
 
   def create_application(new_application_status: new_application_status)
     application_dates = application_dates_for(current_effective_date, new_application_status)
-    @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+    @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
                        effective_period: application_dates[:effective_period],
@@ -84,7 +84,7 @@ module BenefitApplicationWorld
     end
 
     application_dates = application_dates_for(renewal_effective_date, renewal_state)
-    @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+    @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package, :with_predecessor_application,
                        predecessor_application_state: aasm_state,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,

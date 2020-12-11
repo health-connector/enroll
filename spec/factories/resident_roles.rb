@@ -1,11 +1,11 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :resident_role do
     association :person
     dob "01/01/1980"
     gender 'male'
     is_state_resident 'yes'
     is_applicant 'yes'
-    paper_applications {[FactoryGirl.build(:paper_application)]}
+    paper_applications {[FactoryBot.build(:paper_application)]}
     bookmark_url nil
   end
 
@@ -19,7 +19,7 @@ FactoryGirl.define do
 
   factory(:resident_role_object, {class: ::ResidentRole}) do
     is_applicant true
-    person { FactoryGirl.create(:resident_role_person) }
+    person { FactoryBot.create(:resident_role_person) }
   end
 
 end

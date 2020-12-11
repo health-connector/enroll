@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_locations_county_zip, class: 'BenefitMarkets::Locations::CountyZip' do
 
     county_name "Hampden"

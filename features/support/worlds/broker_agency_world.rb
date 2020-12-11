@@ -1,6 +1,6 @@
 module BrokerAgencyWorld
   def broker_organization
-    @broker_organization ||= FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site)
+    @broker_organization ||= FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site)
   end
 
   def broker_agency_profile
@@ -8,7 +8,7 @@ module BrokerAgencyWorld
   end
 
   def broker_agency_account
-    @broker_agency_account ||= FactoryGirl.build(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile)
+    @broker_agency_account ||= FactoryBot.build(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile)
   end
 
   def assign_person_to_broker_agency
@@ -17,7 +17,7 @@ module BrokerAgencyWorld
   end
 
   def broker_role
-    @broker_role = FactoryGirl.build(:broker_role)
+    @broker_role = FactoryBot.build(:broker_role)
   end
 
   def assign_broker_agency_account
@@ -27,7 +27,7 @@ module BrokerAgencyWorld
 
   def new_broker(*traits)
     attributes = traits.extract_options!
-    @new_broker ||= FactoryGirl.create(
+    @new_broker ||= FactoryBot.create(
       :benefit_sponsors_organizations_general_organization,
       :with_broker_agency_profile,
       attributes.merge(site: site)

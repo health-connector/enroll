@@ -21,19 +21,19 @@ module BenefitMarketWorld
   end
 
   def rating_area
-    @rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year)
+    @rating_area ||= FactoryBot.create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year)
   end
 
   def renewal_rating_area
-    @renewal_rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: renewal_effective_date.year)
+    @renewal_rating_area ||= FactoryBot.create(:benefit_markets_locations_rating_area, active_year: renewal_effective_date.year)
   end
 
   def service_area
-    @service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip.id], active_year: current_effective_date.year)
+    @service_area ||= FactoryBot.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip.id], active_year: current_effective_date.year)
   end
 
   def renewal_service_area
-    @renewal_service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: renewal_effective_date.year)
+    @renewal_service_area ||= FactoryBot.create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: renewal_effective_date.year)
   end
 
   def product_kinds(product_kinds = nil)
@@ -45,7 +45,7 @@ module BenefitMarketWorld
   end
 
   def county_zip
-    @county_zip ||= FactoryGirl.create(:benefit_markets_locations_county_zip,
+    @county_zip ||= FactoryBot.create(:benefit_markets_locations_county_zip,
       county_name: 'Middlesex',
       zip: '01754',
       state: 'MA'
@@ -53,18 +53,18 @@ module BenefitMarketWorld
   end
 
   def issuer_profile(carrier=:default)
-    @issuer_profile[carrier] ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
+    @issuer_profile[carrier] ||= FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
   def dental_issuer_profile(carrier=:default)
-    @dental_issuer_profile[carrier] ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
+    @dental_issuer_profile[carrier] ||= FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
   def qualifying_life_events
     @qualifying_life_events ||= [
       :effective_on_event_date,
       :effective_on_first_of_month
-    ].map { |event_trait| FactoryGirl.create(:qualifying_life_event_kind, event_trait, market_kind: "shop", post_event_sep_in_days: 90) }
+    ].map { |event_trait| FactoryBot.create(:qualifying_life_event_kind, event_trait, market_kind: "shop", post_event_sep_in_days: 90) }
   end
 
   def set_initial_application_dates(status)
@@ -151,7 +151,7 @@ module BenefitMarketWorld
 
   def create_benefit_market_catalog_for(effective_date)
     benefit_market.benefit_market_catalogs.detect { |catalog| catalog.application_period_cover?(effective_date) } ||
-      FactoryGirl.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+      FactoryBot.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
         benefit_market: benefit_market,
         product_kinds: product_kinds,
         title: "SHOP Benefits for #{effective_date.year}",

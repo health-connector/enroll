@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_benefit_market, class: 'BenefitMarkets::BenefitMarket' do
     site_urn 'acme'
     site  { build(:benefit_sponsors_site) }

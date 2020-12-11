@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_filter :confirm_existing_password, only: [:change_password]
+  before_action :confirm_existing_password, only: [:change_password]
   before_action :set_user, except: [:confirm_lock, :unsupportive_browser]
 
   def confirm_lock

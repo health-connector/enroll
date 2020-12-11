@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_pricing_models_pricing_model, class: 'BenefitMarkets::PricingModels::PricingModel' do
 
     price_calculator_kind "::BenefitSponsors::PricingCalculators::ShopSimpleListBillPricingCalculator"

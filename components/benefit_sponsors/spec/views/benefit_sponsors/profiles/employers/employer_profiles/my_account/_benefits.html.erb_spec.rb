@@ -11,8 +11,8 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/my_a
   let!(:benefit_application) { initial_application }
   let(:benefit_group) { current_benefit_package }
   let(:renewal_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
-  let(:census_employee1) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
-  let(:user) { FactoryGirl.create(:user) }
+  let(:census_employee1) { FactoryBot.create(:census_employee, employer_profile: employer_profile) }
+  let(:user) { FactoryBot.create(:user) }
 
   context "Add Plan year display" do
 

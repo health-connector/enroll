@@ -1,14 +1,14 @@
 RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbclean: :after_each do
-  let!(:rating_area) { FactoryGirl.create(:rating_area, zip_code: ofice_location.address.zip, county_name: ofice_location.address.county)}
+  let!(:rating_area) { FactoryBot.create(:rating_area, zip_code: ofice_location.address.zip, county_name: ofice_location.address.county)}
 
   let(:plan_design_organization) do
-    FactoryGirl.create :sponsored_benefits_plan_design_organization,
+    FactoryBot.create :sponsored_benefits_plan_design_organization,
       owner_profile_id: owner_profile.id,
       sponsor_profile_id: sponsor_profile.id
   end
 
   let(:plan_design_proposal) do
-    FactoryGirl.create(:plan_design_proposal,
+    FactoryBot.create(:plan_design_proposal,
       :with_profile,
       plan_design_organization: plan_design_organization
     ).tap do |proposal|
@@ -31,14 +31,14 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
   let(:benefit_sponsorship) { proposal_profile.benefit_sponsorships.first }
 
   let(:benefit_application) do
-    FactoryGirl.create :plan_design_benefit_application,
+    FactoryBot.create :plan_design_benefit_application,
       :with_benefit_group,
       benefit_sponsorship: benefit_sponsorship
   end
 
   let(:benefit_group) do
     benefit_application.benefit_groups.first.tap do |benefit_group|
-      reference_plan_id = FactoryGirl.create(:plan, :with_complex_premium_tables, :with_rating_factors).id
+      reference_plan_id = FactoryBot.create(:plan, :with_complex_premium_tables, :with_rating_factors).id
       benefit_group.update_attributes(reference_plan_id: reference_plan_id, plan_option_kind: 'single_carrier')
     end
   end
@@ -51,7 +51,7 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
   let(:benefit_sponsor) { sponsor_profile.organization }
 
   let!(:plan_design_census_employee) do
-    FactoryGirl.create_list :plan_design_census_employee, 2,
+    FactoryBot.create_list :plan_design_census_employee, 2,
       :with_random_age,
       benefit_sponsorship_id: benefit_sponsorship.id
   end
@@ -64,9 +64,9 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
 
   let!(:broker_agency_profile) do
     if Settings.aca.state_abbreviation == "DC" # toDo
-      FactoryGirl.create(:broker_agency_profile)
+      FactoryBot.create(:broker_agency_profile)
     else
-      FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
+      FactoryBot.create(:benefit_sponsors_organizations_general_organization,
         :with_site,
         :with_broker_agency_profile
       ).profiles.first
@@ -75,9 +75,9 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
 
   let!(:sponsor_profile) do
     if Settings.aca.state_abbreviation == "DC" # toDo
-      FactoryGirl.create(:employer_profile)
+      FactoryBot.create(:employer_profile)
     else
-      FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
+      FactoryBot.create(:benefit_sponsors_organizations_general_organization,
         :with_site,
         :with_aca_shop_cca_employer_profile
       ).profiles.first
@@ -117,7 +117,7 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
 
     let(:benefit_group) do
       benefit_application.benefit_groups.first.tap do |benefit_group|
-        reference_plan_id = FactoryGirl.create(:plan, :with_dental_coverage, :with_complex_premium_tables, :with_rating_factors).id
+        reference_plan_id = FactoryBot.create(:plan, :with_dental_coverage, :with_complex_premium_tables, :with_rating_factors).id
         benefit_group.update_attributes(dental_reference_plan_id: reference_plan_id)
       end
     end

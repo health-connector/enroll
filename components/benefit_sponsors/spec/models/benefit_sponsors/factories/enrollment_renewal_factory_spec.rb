@@ -55,15 +55,15 @@ module BenefitSponsors
       let(:hired_on) { TimeKeeper.date_of_record - 3.months }
       let(:employee_created_at) { hired_on }
       let(:employee_updated_at) { employee_created_at }
-      let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
-      let(:shop_family) {FactoryGirl.create(:family, :with_primary_family_member)}
+      let(:person) {FactoryBot.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
+      let(:shop_family) {FactoryBot.create(:family, :with_primary_family_member)}
       let(:aasm_state) { 'inactive' }
       let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
-      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id, hired_on: census_employee.hired_on) }
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id, hired_on: census_employee.hired_on) }
       let(:enrollment_kind) { 'open_enrollment' }
       let(:special_enrollment_period_id) { nil }
       let(:waived_enrollment) do
-        FactoryGirl.create(:hbx_enrollment,
+        FactoryBot.create(:hbx_enrollment,
                            household: shop_family.latest_household,
                            coverage_kind: "health",
                            effective_on: effective_on,

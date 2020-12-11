@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :consumer_role do
     association :person
     sequence(:ssn) { |n| "7"+SecureRandom.random_number.to_s[2..8][0..-((Math.log(n+1,10))+1)]+"#{n+1}"}
@@ -8,7 +8,7 @@ FactoryGirl.define do
     citizen_status 'us_citizen'
     is_incarcerated 'yes'
     is_applicant 'yes'
-    vlp_documents {[FactoryGirl.build(:vlp_document)]}
+    vlp_documents {[FactoryBot.build(:vlp_document)]}
     bookmark_url nil
     is_applying_coverage true
   end
@@ -24,6 +24,6 @@ FactoryGirl.define do
 
   factory(:consumer_role_object, {class: ::ConsumerRole}) do
     is_applicant true
-    person { FactoryGirl.create(:consumer_role_person) }
+    person { FactoryBot.create(:consumer_role_person) }
   end
 end
