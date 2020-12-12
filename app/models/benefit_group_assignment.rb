@@ -19,7 +19,7 @@ class BenefitGroupAssignment
 
   field :coverage_end_on, type: Date # Deprecate
   field :aasm_state, type: String, default: "initialized"
-  field :is_active, type: Boolean#, default: true
+  field :is_active, type: Boolean #, default: true
 
   field :activated_at, type: DateTime
 
