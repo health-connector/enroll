@@ -8,7 +8,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   include_context "setup initial benefit application"
 
   let(:employer_profile) { benefit_sponsorship.profile }
-  let(:person1) { FactoryGirl.create(:person) }
+  let(:person1) { FactoryBot.create(:person) }
 
   describe ".index" do
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
@@ -35,7 +35,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
   describe "PUT terminate" do
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     context "when user has permissions" do
       before :each do
@@ -81,7 +81,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
   describe "PUT cancel" do
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     context "when user has permissions" do
       before :each do
@@ -113,7 +113,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
   describe "get term reasons" do
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     before :each do
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))

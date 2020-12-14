@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_benefit_sponsorships_current_statement_activity, class: 'BenefitSponsors::BenefitSponsorships::CurrentStatementActivity' do
     description           { 'Payments' }
     name                  { 'Some Name' }

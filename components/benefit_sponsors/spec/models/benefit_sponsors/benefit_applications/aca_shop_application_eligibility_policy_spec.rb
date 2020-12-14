@@ -21,9 +21,9 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
   context "Validates passes_open_enrollment_period_policy business policy" do
 
-    let!(:benefit_sponsorship) {FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
+    let!(:benefit_sponsorship) {FactoryBot.build(:benefit_sponsors_benefit_sponsorship)}
     let!(:benefit_application) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :benefit_sponsors_benefit_application,
         :with_benefit_package,
         :fte_count => 1,
@@ -45,9 +45,9 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
 
   context "Fails passes_open_enrollment_period_policy business policy" do
-    let!(:benefit_sponsorship) {FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
+    let!(:benefit_sponsorship) {FactoryBot.build(:benefit_sponsors_benefit_sponsorship)}
     let(:benefit_application) do
-      FactoryGirl.build(
+      FactoryBot.build(
         :benefit_sponsors_benefit_application,
         :with_benefit_package,
         :fte_count => 3,

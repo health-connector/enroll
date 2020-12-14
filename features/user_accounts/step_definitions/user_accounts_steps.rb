@@ -49,14 +49,14 @@ end
 
 When(/^the HBX admin updates the username with a username already in use$/) do
   @user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first
-  FactoryGirl.create(:person, user: @user)
+  FactoryBot.create(:person, user: @user)
   find('#inputNewUsername').set(@user.oim_id)
   find("input[type='submit']").click
 end
 
 When(/^the HBX admin updates the email with a email already in use$/) do
   @user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first
-  FactoryGirl.create(:person, user: @user)
+  FactoryBot.create(:person, user: @user)
   find('#inputNewEmail').set(@user.email)
   find("input[type='submit']").click
 end
@@ -74,7 +74,7 @@ end
 
 When(/^the HBX admin updates the email and username with a email and username already in use$/) do
   @user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first
-  FactoryGirl.create(:person, user: @user)
+  FactoryBot.create(:person, user: @user)
   find('#inputNewEmail').set(@user.email)
   find('#inputNewUsername').set(@user.oim_id)
   find("input[type='submit']").click
@@ -97,25 +97,25 @@ end
 
 When(/^the HBX admin searches for the given user by first name$/) do
   user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set(person.first_name)
 end
 
 When(/^the HBX admin searches for the given user by last name$/) do
   user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set(person.last_name)
 end
 
 When(/^the HBX admin searches for the given user by full name$/) do
   user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set("#{person.first_name} #{person.last_name}")
 end
 
 When(/^the HBX admin searches for the given user by hbx id$/) do
   user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set("#{person.hbx_id}")
 end
 

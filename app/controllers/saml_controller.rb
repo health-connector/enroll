@@ -1,5 +1,5 @@
 class SamlController < ApplicationController
-  skip_before_action :verify_authenticity_token
+  skip_before_action :verify_authenticity_token, raise: false
   include Acapi::Notifiers
   # def init
   #   request = OneLogin::RubySaml::Authrequest.new

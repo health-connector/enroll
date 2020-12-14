@@ -71,7 +71,7 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
   role = "Primary Broker"
   location = 'default_office_location'
   location = eval(location) if location.class == String
-  RatingArea.where(zip_code: "01001").first || FactoryGirl.create(:rating_area, zip_code: "01001", county_name: "Hampden", rating_area: Settings.aca.rating_areas.first)
+  RatingArea.where(zip_code: "01001").first || FactoryBot.create(:rating_area, zip_code: "01001", county_name: "Hampden", rating_area: Settings.aca.rating_areas.first)
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][city]', :with => location[:city]
@@ -345,12 +345,12 @@ Then(/^.+ continues to the consumer home page$/) do
 end
 
 Given(/^zip code for county exists as rate reference$/) do
-  FactoryGirl.create(:rating_area, zip_code: '01010', county_name: 'Worcester', rating_area: Settings.aca.rating_areas.first,
+  FactoryBot.create(:rating_area, zip_code: '01010', county_name: 'Worcester', rating_area: Settings.aca.rating_areas.first,
     zip_code_in_multiple_counties: true)
 end
 
 Given(/^a valid ach record exists$/) do
-  FactoryGirl.create(:ach_record, routing_number: '123456789', bank_name: 'Big Bank')
+  FactoryBot.create(:ach_record, routing_number: '123456789', bank_name: 'Big Bank')
 end
 
 #

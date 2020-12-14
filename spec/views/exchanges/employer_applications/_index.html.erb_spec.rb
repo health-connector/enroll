@@ -6,9 +6,9 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
 
   include_context "setup benefit market with market catalogs and product packages"
 
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member,person: person) }
-  let(:user) { FactoryGirl.create(:user, person: person, roles: ["hbx_staff"]) }
-  let(:person) { FactoryGirl.create(:person) }
+  let(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
+  let(:user) { FactoryBot.create(:user, person: person, roles: ["hbx_staff"]) }
+  let(:person) { FactoryBot.create(:person) }
 
   context 'When employer has valid plan years' do
 
@@ -62,9 +62,9 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
 
   context 'When employer doesnt have valid plan years' do
 
-    let!(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let!(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:benefit_sponsorship) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :benefit_sponsors_benefit_sponsorship,
         :with_rating_area,
         :with_service_areas,

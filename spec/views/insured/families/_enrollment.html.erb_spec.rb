@@ -262,9 +262,9 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
   if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   context "with consumer_role", dbclean: :before_each do
-    let(:plan) {FactoryGirl.build(:benefit_markets_products_health_products_health_product, :created_at =>  TimeKeeper.date_of_record)}
-    let(:employee_role) { FactoryGirl.create(:employee_role) }
-    let(:census_employee) { FactoryGirl.create(:census_employee, employee_role_id: employee_role.id)}
+    let(:plan) {FactoryBot.build(:benefit_markets_products_health_products_health_product, :created_at =>  TimeKeeper.date_of_record)}
+    let(:employee_role) { FactoryBot.create(:employee_role) }
+    let(:census_employee) { FactoryBot.create(:census_employee, employee_role_id: employee_role.id)}
 
     let(:hbx_enrollment) do
       instance_double(
@@ -290,7 +290,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       )
     end
 
-   let(:benefit_group) { FactoryGirl.create(:benefit_group) }
+   let(:benefit_group) { FactoryBot.create(:benefit_group) }
 
     before :each do
       allow(hbx_enrollment).to receive(:coverage_canceled?).and_return(false)

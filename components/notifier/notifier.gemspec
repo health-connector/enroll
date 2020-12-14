@@ -17,13 +17,13 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 4.2.11"
+  s.add_dependency "rails", "~> 5.2.3"
   s.add_dependency "slim", "3.0.9"
-  s.add_dependency "mongoid", "~> 5.4.0"
+  s.add_dependency "mongoid", "~> 7.0.2"
   s.add_dependency "virtus", "~> 1.0.5"
   s.add_dependency "redcarpet", "~> 3.4.0"
   s.add_dependency "wkhtmltopdf-binary-edge", "~> 0.12.3.0"
-  s.add_dependency "wicked_pdf", "1.0.6"
+  s.add_dependency "wicked_pdf", "1.1.0"
   s.add_dependency "combine_pdf"
   s.add_dependency "curl"
   s.add_dependency "ckeditor", '4.2.4'
@@ -32,13 +32,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'aasm', '~> 4.8.0'
   s.add_dependency 'acapi'
   s.add_dependency 'config'
-  s.add_dependency 'money-rails', '~> 1.10.0'
+  s.add_dependency 'money-rails', '~> 1.13.0'
 
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'database_cleaner'
   s.add_development_dependency 'capybara'
-  s.add_development_dependency 'factory_girl_rails'
+  s.add_development_dependency 'factory_bot_rails'
 
 end

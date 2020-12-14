@@ -12,7 +12,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   before_action :check_access_to_organization, only: [:edit]
   before_action :check_and_download_invoice, only: [:download_invoice]
   around_action :wrap_in_benefit_group_cache, only: [:show]
-  skip_before_action :verify_authenticity_token, only: [:show], if: :check_origin?
+  skip_before_action :verify_authenticity_token, only: [:show], if: :check_origin?, raise: false
   before_action :updateable?, only: [:create, :update]
   layout "two_column", except: [:new]
 

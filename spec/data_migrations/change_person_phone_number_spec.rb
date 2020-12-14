@@ -12,8 +12,8 @@ describe ChangePersonPhoneNumber do
     end
   end
   describe "changing the phone number of a given person with country code ", dbclean: :after_each do
-    let(:person) { FactoryGirl.create(:person) }
-    let(:phone) {FactoryGril.create(:phone,:for_testing, person:person)}
+    let(:person) { FactoryBot.create(:person) }
+    let(:phone) {FactoryBot.create(:phone,:for_testing, person:person)}
     before(:each) do
       allow(ENV).to receive(:[]).with("hbx_id").and_return(person.hbx_id)
       allow(ENV).to receive(:[]).with("phone_kind").and_return("home")
@@ -52,8 +52,8 @@ describe ChangePersonPhoneNumber do
     end
   end
   describe "changing the phone number of a given person with no country code ", dbclean: :after_each do
-    let(:person) { FactoryGirl.create(:person) }
-    let(:phone) {FactoryGril.create(:phone,:for_testing, person:person)}
+    let(:person) { FactoryBot.create(:person) }
+    let(:phone) {FactoryBot.create(:phone,:for_testing, person:person)}
     before(:each) do
       allow(ENV).to receive(:[]).with("hbx_id").and_return(person.hbx_id)
       allow(ENV).to receive(:[]).with("phone_kind").and_return("home")
