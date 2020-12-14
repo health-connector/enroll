@@ -3,8 +3,8 @@ FactoryBot.define do
 
 
     transient do
-      office_locations_count 1
-      assigned_site nil
+      office_locations_count { 1 }
+      assigned_site { nil }
     end
 
     after(:build) do |profile, evaluator|

@@ -1,12 +1,12 @@
 FactoryBot.define do
   factory :carrier_profile do
     organization  { FactoryBot.create(:organization, legal_name: "BMC HealthNet Plan", dba: "BMC HealthNet Plan") }
-    abbrev        "UHIC"
-    offers_sole_source false
+    abbrev        { "UHIC" }
+    offers_sole_source { false }
     sequence(:issuer_hios_ids, 11111) { |n| [n.to_s] }
 
     transient do
-      with_service_areas 1
+      with_service_areas { 1 }
     end
 
     after(:create) do |carrier_profile, evaluator|

@@ -4,21 +4,21 @@ FactoryBot.define do
     sequence(:name)      { |n| "BlueChoice Silver#{n} 2,000" }
     sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }
     active_year         { TimeKeeper.date_of_record.year }
-    coverage_kind       "health"
-    metal_level         "silver"
-    plan_type           "pos"
-    market              "shop"
-    ehb                 0.9943
+    coverage_kind       { "health" }
+    metal_level         { "silver" }
+    plan_type           { "pos" }
+    market              { "shop" }
+    ehb                 { 0.9943 }
     carrier_profile     { FactoryBot.create(:carrier_profile)  } #{ BSON::ObjectId.from_time(DateTime.now) }
 
-    minimum_age         19
-    maximum_age         66
-    deductible          "$500"
-    family_deductible   "$500 per person | $1000 per group"
+    minimum_age         { 19 }
+    maximum_age         { 66 }
+    deductible          { "$500" }
+    family_deductible   { "$500 per person | $1000 per group" }
 
     trait :with_premium_tables do
       transient do
-        premium_tables_count 6
+        premium_tables_count { 6 }
       end
 
       after(:create) do |plan, evaluator|
@@ -42,16 +42,16 @@ FactoryBot.define do
     end
 
     trait :with_dental_coverage do
-      coverage_kind "dental"
-      metal_level "dental"
-      dental_level "high"
+      coverage_kind { "dental" }
+      metal_level { "dental" }
+      dental_level { "high" }
     end
   end
 
   factory :premium_table do
     sequence(:age, (19..66).cycle)
-    start_on  TimeKeeper.date_of_record.beginning_of_year
-    end_on  TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day
+    start_on  { TimeKeeper.date_of_record.beginning_of_year }
+    end_on  { TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day }
     cost {(age * 1001.00) / 100.00}
 
     after :create do |pt|

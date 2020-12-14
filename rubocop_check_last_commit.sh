@@ -1,2 +1,2 @@
 #!/bin/sh
-bundle exec rubocop-git HEAD^
+#bundle exec rubocop-git HEAD^

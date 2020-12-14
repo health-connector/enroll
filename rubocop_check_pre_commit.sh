@@ -1,2 +1,2 @@
 #!/bin/sh
-bundle exec rubocop-git --cached
+#bundle exec rubocop-git --cached

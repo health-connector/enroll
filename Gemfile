@@ -120,6 +120,7 @@ group :development, :test do
   gem 'puma', '~> 3.12.4'
   gem 'railroady', '~> 1.5.3'
   gem 'rspec-rails'
+  gem 'rubocop-rspec'
   gem 'rspec_junit_formatter', '0.2.3'
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false

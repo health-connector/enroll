@@ -7,9 +7,9 @@ FactoryBot.define do
 
   factory :benefit_sponsors_benefit_application, class: 'BenefitSponsors::BenefitApplications::BenefitApplication' do
 
-    fte_count   FactoryBot.generate(:random_count)
-    pte_count   FactoryBot.generate(:random_count)
-    msp_count   FactoryBot.generate(:random_count)
+    fte_count   { FactoryBot.generate(:random_count) }
+    pte_count   { FactoryBot.generate(:random_count) }
+    msp_count   { FactoryBot.generate(:random_count) }
 
     # design using defining module spec helpers
     effective_period do
@@ -34,17 +34,17 @@ FactoryBot.define do
 
     recorded_service_areas   { [create(:benefit_markets_locations_service_area)] }
     recorded_rating_area     { create(:benefit_markets_locations_rating_area) }
-    recorded_sic_code         "011"
+    recorded_sic_code         { "011" }
 
     transient do
-      predecessor_application_state :active
-      imported_application_state :imported
-      default_effective_period nil
-      default_open_enrollment_period nil
-      package_kind :single_issuer
-      dental_package_kind :single_product
-      dental_sponsored_benefit false
-      predecessor_application_catalog false
+      predecessor_application_state { :active }
+      imported_application_state { :imported }
+      default_effective_period { nil }
+      default_open_enrollment_period { nil }
+      package_kind { :single_issuer }
+      dental_package_kind { :single_product }
+      dental_sponsored_benefit { false }
+      predecessor_application_catalog { false }
     end
 
     trait :without_benefit_sponsor_catalog

@@ -35,6 +35,7 @@ class Person
                         :is_active,
                         :no_ssn],
                 :modifier_field => :modifier,
+                :modifier_field_optional => true,
                 :version_field => :tracking_version,
                 :track_create  => true,    # track document creation, default is false
                 :track_update  => true,    # track document updates, default is true
@@ -92,22 +93,25 @@ class Person
   delegate :is_applying_coverage, to: :consumer_role, allow_nil: true
 
   # Login account
-  belongs_to :user
+  belongs_to :user, inverse_of: :person, optional: true
 
   belongs_to :employer_contact,
                 class_name: "EmployerProfile",
                 inverse_of: :employer_contacts,
-                index: true
+                index: true,
+                optional: true
 
   belongs_to :broker_agency_contact,
                 class_name: "BrokerAgencyProfile",
                 inverse_of: :broker_agency_contacts,
-                index: true
+                index: true,
+                optional: true
 
   belongs_to :general_agency_contact,
                 class_name: "GeneralAgencyProfile",
                 inverse_of: :general_agency_contacts,
-                index: true
+                index: true,
+                optional: true
 
   embeds_one :consumer_role, cascade_callbacks: true, validate: true
   embeds_one :resident_role, cascade_callbacks: true, validate: true
@@ -814,6 +818,15 @@ class Person
   def agent?
     agent = self.csr_role || self.assister_role || self.broker_role || self.hbx_staff_role || self.general_agency_staff_roles.present?
     !!agent
+  end
+
+  def age_on(date)
+    age = date.year - dob.year
+    if date.month < dob.month || (date.month == dob.month && date.day < dob.day)
+      age - 1
+    else
+      age
+    end
   end
 
   def contact_info(email_address, area_code, number, extension)
