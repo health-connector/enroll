@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@rails/webpacker": "3.4",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "npm": "^6.0.0",
     "stimulus": "^1.0.1"
   },
