@@ -936,6 +936,21 @@ When(/^Employer publishes a plan year$/) do
 
   find('.interaction-click-control-publish-plan-year').click
 end
+And(/^.+ click the Shop for new plan button$/) do
+  click_button 'Shop for new plan'
+end
+
+And(/^.+ abandon shopping and clicks My Insured Portal to return to families home page/) do
+  click_link 'My Insured Portal'
+end
+
+And(/^.+ click the Back to My Account button$/) do
+  click_link 'Back To My Account'
+end
+
+Then(/^.+ should not see the Make Changes button on their current enrollment tile$/) do
+  expect(page).to_not have_content('Make Changes')
+end
 
 When(/^.+ should see a published success message$/) do
   expect(find('.alert')).to have_content('Plan Year successfully published')
@@ -1035,6 +1050,17 @@ Then(/^I should see not qualify message$/) do
   screenshot("not_qualify")
 end
 
+When(/^I select current date as qle date$/) do
+  expect(page).to have_content "Married"
+  screenshot("past_qle_date")
+  fill_in "qle_date", :with => TimeKeeper.date_of_record.strftime("%m/%d/%Y")
+  click_link(TimeKeeper.date_of_record.day)
+  within '#qle-date-chose' do
+    click_link "CONTINUE"
+  end
+end
+
+
 When(/^I select a past qle date$/) do
   expect(page).to have_content "Married"
   screenshot("past_qle_date")
@@ -1115,7 +1141,8 @@ Then(/Employee should see the correct employee contribution on plan tile/) do
 end
 
 Then(/Employee should see their current plan/) do
-  expect(page).to have_content "YOUR CURRENT #{TimeKeeper.date_of_record.year} PLAN"
+  enrollment = Person.all.first.primary_family.active_household.hbx_enrollments.where(:aasm_state.ne => "shopping").first
+  expect(page).to have_content "YOUR CURRENT #{enrollment.effective_on.year} PLAN"
 end
 
 Then("user will click on New Employee Paper Application link") do
