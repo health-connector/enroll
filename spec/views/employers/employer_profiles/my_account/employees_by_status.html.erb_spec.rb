@@ -23,19 +23,22 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
   let!(:enrollment_with_coverage_selected)   { create( :hbx_enrollment,
     household: primary_family.latest_household,
     employee_role_id: employee_role.id,
-    benefit_group_assignment: benefit_group_assignment1
+    benefit_group_assignment: benefit_group_assignment1,
+    sponsored_benefit_package_id: BSON::ObjectId.new
     )}
   let!(:enrollment_with_coverage_terminated)   { FactoryGirl.create( :hbx_enrollment,
     household: primary_family.latest_household,
     employee_role_id: employee_role.id,
     benefit_group_assignment: benefit_group_assignment2,
-    aasm_state: "coverage_terminated"
+    aasm_state: "coverage_terminated",
+    sponsored_benefit_package_id: BSON::ObjectId.new
     )}
 
   let!(:enrollment_with_coverage_waived)   { FactoryGirl.create( :hbx_enrollment,
     household: primary_family.latest_household,
     employee_role_id: employee_role.id,
     benefit_group_assignment: benefit_group_assignment3,
+    sponsored_benefit_package_id: BSON::ObjectId.new,
     aasm_state: "inactive"
     )}
 
