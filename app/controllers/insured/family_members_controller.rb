@@ -65,7 +65,7 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def create
-    @dependent = Forms::FamilyMember.new(params.require(:dependent).permit!)
+    @dependent = ::Forms::FamilyMember.new(params[:dependent])
 
     if ((Family.find(@dependent.family_id)).primary_applicant.person.resident_role?)
       if @dependent.save
