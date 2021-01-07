@@ -833,7 +833,7 @@ When(/^(?:(?!Employee).)+ clicks? continue on the group selection page$/) do
 end
 
 Then(/^.+ should see the plan shopping welcome page$/) do
-  expect(page).to have_content('Choose Plan')
+  expect(page).to have_content('Enroll in a plan')
   screenshot("plan_shopping_welcome")
 end
 
@@ -872,12 +872,7 @@ end
 
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
   benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
-  # cannot select a SEP date from expired plan year on 31st.
-  if TimeKeeper.date_of_record.day != 31 || plan_year_state != "expired"
-    expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
-  else
-    expect(page).to have_content benefit_sponsorship.benefit_applications.where(:aasm_state.ne => plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
-  end
+  expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
 end
 
 When(/^.+ selects? a plan on the plan shopping page$/) do
@@ -1120,7 +1115,8 @@ Then(/Employee should see the correct employee contribution on plan tile/) do
 end
 
 Then(/Employee should see their current plan/) do
-  expect(page).to have_content "YOUR CURRENT #{TimeKeeper.date_of_record.year} PLAN"
+  enrollment = Person.all.first.primary_family.active_household.hbx_enrollments.where(:aasm_state.ne => "shopping").first
+  expect(page).to have_content "YOUR CURRENT #{enrollment.effective_on.year} PLAN"
 end
 
 Then("user will click on New Employee Paper Application link") do

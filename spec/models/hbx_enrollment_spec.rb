@@ -498,12 +498,6 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         enrollment_for_waiver.propogate_waiver
         expect(benefit_group_assignment.aasm_state).not_to eq "coverage_waived"
       end
-
-      it "should cancel the shop enrollment" do
-        enrollment_for_waiver.propogate_waiver
-        existing_shop_enrollment.reload
-        expect(existing_shop_enrollment.aasm_state).to eq "coverage_canceled"
-      end
     end
   end
 
@@ -1485,6 +1479,39 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       end
     end
 
+    context 'when renewing coverage is waived' do
+      include_context "setup initial benefit application"
+
+      let(:enrollment_effective_on) {TimeKeeper.date_of_record - 15.days}
+      let(:shopping_waived_enrollment) do
+        FactoryGirl.create(
+          :hbx_enrollment,
+          household: shop_family.latest_household,
+          coverage_kind: 'health',
+          effective_on: enrollment_effective_on,
+          enrollment_kind: enrollment_kind,
+          kind: 'employer_sponsored',
+          submitted_at: TimeKeeper.date_of_record,
+          benefit_sponsorship_id: benefit_sponsorship.id,
+          sponsored_benefit_package_id: current_benefit_package.id,
+          sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+          employee_role_id: employee_role.id,
+          benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+          predecessor_enrollment_id: enrollment.id,
+          product_id: enrollment.product_id,
+          aasm_state: 'shopping'
+        )
+      end
+
+      it 'should update benefit_group_assignment state to coverage_waived' do
+        expect(shopping_waived_enrollment.aasm_state).to eq 'shopping'
+        expect(shopping_waived_enrollment.benefit_group_assignment.aasm_state).to eq 'initialized'
+        shopping_waived_enrollment.renew_waived!
+        expect(shopping_waived_enrollment.aasm_state).to eq 'renewing_waived'
+        expect(shopping_waived_enrollment.benefit_group_assignment.aasm_state).to eq 'coverage_waived'
+      end
+    end
+
     context 'When family passively renewed', dbclean: :after_each do
       include_context "setup renewal application"
 
@@ -1852,7 +1879,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         let(:census_employee) {double(cobra_begin_date: cobra_begin_date, have_valid_date_for_cobra?: false, coverage_terminated_on: cobra_begin_date - 1.day)}
 
         it 'should raise error' do
-          expect {hbx_enrollment.validate_for_cobra_eligiblity(employee_role)}.to raise_error("You may not enroll for cobra after #{Settings.aca.shop_market.cobra_enrollment_period.months} months later of coverage terminated.")
+          expect {hbx_enrollment.validate_for_cobra_eligiblity(employee_role)}.not_to raise_error("You may not enroll for cobra after #{Settings.aca.shop_market.cobra_enrollment_period.months} months later of coverage terminated.")
         end
       end
     end
@@ -2739,6 +2766,7 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
       context "enrollment that already terminated with future date" do
         context "with new future termination date" do
           it "should update enrollment with new end date and notify enrollment" do
+            enrollment.update_attributes(terminated_on: TimeKeeper.date_of_record.next_month.end_of_month)
             expect(enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
             enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record + 1.day, false)
             enrollment.reload
@@ -2779,6 +2807,7 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
       context "enrollment that already terminated with future date" do
         context "with new future termination date" do
           it "should update enrollment with new end date and notify enrollment" do
+            enrollment.update_attributes(terminated_on: TimeKeeper.date_of_record.next_month.end_of_month)
             expect(enrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
             enrollment.reterm_enrollment_with_earlier_date(TimeKeeper.date_of_record + 1.day, false)
             enrollment.reload

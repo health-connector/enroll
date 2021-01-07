@@ -129,6 +129,11 @@ module BenefitMarkets
         ])
     }
 
+    scope :by_year, lambda {|year|
+      where('$and' => [{'application_period.min' => {'$lte' => Date.new(year.to_i)}},
+                       {'application_period.max' => {'$gte' => Date.new(year.to_i).end_of_year}}])
+    }
+
     #Products retrieval by type
     scope :health_products,            ->{ where(:"_type" => /.*HealthProduct$/) }
     scope :dental_products,            ->{ where(:"_type" => /.*DentalProduct$/)}
@@ -183,20 +188,36 @@ module BenefitMarkets
     end
 
     def min_cost_for_application_period(effective_date)
-      p_tables = premium_tables.effective_period_cover(effective_date)
-      if premium_tables.any?
-        p_tables.flat_map(&:premium_tuples).select do |pt|
-          pt.age == premium_ages.min
-        end.min_by { |pt| pt.cost }.cost
+      Rails.cache.fetch("min-cost-#{id}-#{effective_date}", expires_in: 12.hour) do
+        BenefitMarkets::Products::Product.collection.aggregate(
+          [
+            {'$match' => {'_id' => id}},
+            {'$unwind' => '$premium_tables'},
+            {'$match' => {'premium_tables.effective_period.min' => {'$lte' => effective_date}}},
+            {'$match' => {'premium_tables.effective_period.max' => {'$gte' => effective_date}}},
+            {'$unwind' => '$premium_tables.premium_tuples'},
+            {'$match' => {'premium_tables.premium_tuples.age' => {'$eq' => premium_ages.min}}},
+            {'$group' => {'_id' => 0, 'cost' => {'$min' => '$premium_tables.premium_tuples.cost'}}},
+            {'$project' => {'_id' => 0}}
+          ]
+        ).to_a.first['cost']
       end
     end
 
     def max_cost_for_application_period(effective_date)
-      p_tables = premium_tables.effective_period_cover(effective_date)
-      if premium_tables.any?
-        p_tables.flat_map(&:premium_tuples).select do |pt|
-          pt.age == premium_ages.min
-        end.max_by { |pt| pt.cost }.cost
+      Rails.cache.fetch("max-cost-#{id}-#{effective_date}", expires_in: 12.hour) do
+        BenefitMarkets::Products::Product.collection.aggregate(
+          [
+            {'$match' => {'_id' => id}},
+            {'$unwind' => '$premium_tables'},
+            {'$match' => {'premium_tables.effective_period.min' => {'$lte' => effective_date}}},
+            {'$match' => {'premium_tables.effective_period.max' => {'$gte' => effective_date}}},
+            {'$unwind' => '$premium_tables.premium_tuples'},
+            {'$match' => {'premium_tables.premium_tuples.age' => {'$eq' => premium_ages.min}}},
+            {'$group' => {'_id' => 0, 'cost' => {'$max' => '$premium_tables.premium_tuples.cost'}}},
+            {'$project' => {'_id' => 0}}
+          ]
+        ).to_a.first['cost']
       end
     end
 
@@ -322,7 +343,8 @@ module BenefitMarkets
       kind == :dental
     end
 
-    # private
+    private
+
     # self.class.new(attrs_without_tuples)
     # def attrs_without_tuples
     #   attributes.inject({}) do |attrs, (key, val)|
@@ -338,5 +360,9 @@ module BenefitMarkets
     #     attrs
     #   end
     # end
+
+    def carrier_profile_hios_ids
+      issuer_profile&.issuer_hios_ids
+    end
   end
 end

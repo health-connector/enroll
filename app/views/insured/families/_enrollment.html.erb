@@ -30,7 +30,7 @@
             <%= number_to_currency(current_premium(hbx_enrollment), precision: 2) %>/month
           </p>
         </div>
-        <% if hbx_enrollment.coverage_terminated? || hbx_enrollment.coverage_expired? %>
+        <% if hbx_enrollment.coverage_terminated? || hbx_enrollment.coverage_expired? || hbx_enrollment.coverage_termination_pending? %>
         <div class="enrollment-effective info vertical-align-top">
           <strong><%= l10n("effective_date") %>:
           </strong>
@@ -181,7 +181,7 @@
         <i class="fa fa-phone fa-2x pull-right"></i>
         <span><%= l10n(".plan_contact_info") %></span>
       </a>
-        <%= render partial: "shared/carrier_contact_information", locals: { plan: product } unless product.issuer_profile.blank? %>
+        <%= render partial: "shared/#{Settings.aca.state_abbreviation.downcase}_carrier_contact_information", locals: { plan: product } unless product.issuer_profile.blank? %>
     </div>
     <% if !read_only == true %>
       <div class="col-lg-3">
