@@ -4,7 +4,7 @@ class Exchanges::BrokerApplicantsController < ApplicationController
   before_action :check_hbx_staff_role
   before_action :find_broker_applicant, only: [:edit, :update]
 
-  VALIDS_STATUS_WHITELIST = ["applicant", "certified", "deceritifed", "denied"]
+  VALIDS_STATUS_WHITELIST = ["applicant", "certified", "deceritifed", "denied"].freeze
 
   def index
     @people = Person.exists(broker_role: true).broker_role_having_agency

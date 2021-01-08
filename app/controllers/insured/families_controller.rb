@@ -11,7 +11,7 @@ class Insured::FamiliesController < FamiliesController
   before_action :calculate_dates, only: [:check_move_reason, :check_marriage_reason, :check_insurance_reason]
   before_action :transition_family_members_update_params, only: %i[transition_family_members_update]
 
-  VALIDS_EVENTS_WHITELIST = ["individual_market_events", "shop_market_events"]
+  VALIDS_EVENTS_WHITELIST = ["individual_market_events", "shop_market_events"].freeze
 
   def home
     authorize @family, :show?
