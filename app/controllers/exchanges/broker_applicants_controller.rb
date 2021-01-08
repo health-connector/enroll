@@ -5,10 +5,11 @@ class Exchanges::BrokerApplicantsController < ApplicationController
   before_action :find_broker_applicant, only: [:edit, :update]
 
   def index
+    VALIDS_STATUS_WHITELIST = ["applicant", "certified", "deceritifed", "denied"]
     @people = Person.exists(broker_role: true).broker_role_having_agency
 
     status_params = params.permit(:status)
-    @status = status_params[:status] || 'applicant'
+    @status = VALIDS_STATUS_WHITELIST.include?(status_params[:status]) ? status_params[:status] || 'applicant'
 
     # Status Filter can be applicant | certified | deceritifed | denied | all
     @people = @people.send("broker_role_#{@status}") if @people.respond_to?("broker_role_#{@status}")
