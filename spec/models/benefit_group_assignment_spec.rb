@@ -284,9 +284,12 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
   describe '#hbx_enrollments', dbclean: :after_each do
 
-    let(:household) { FactoryGirl.create(:household, family: family)}
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let!(:benefit_group_assignment) { FactoryGirl.create(:benefit_group_assignment, end_on: benefit_package.end_on, benefit_package: benefit_package, census_employee: census_employee) }
+    let!(:census_employee) { create :census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id }
+    let!(:employee_role) { create(:employee_role, person: person, employer_profile: employer_profile)}
+    let(:person) { family.primary_person }
+    let!(:household) { create(:household, family: family)}
+    let(:family) { create(:family, :with_primary_family_member)}
+    let!(:benefit_group_assignment) { create(:benefit_group_assignment, end_on: benefit_package.end_on, benefit_package: benefit_package, census_employee: census_employee) }
 
     shared_examples_for "active, waived and terminated enrollments" do |state, status, result, match_with_package_id, match_with_assignment_id|
 
