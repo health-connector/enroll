@@ -48,7 +48,7 @@ module BenefitSponsors
       # Added this method as a temporary fix for EMPLOYER FLEXIBILITY PROJECT
       def contribution_model
         if benefit_package.benefit_application.is_renewing?
-          BenefitMarkets::ContributionModels::ContributionModel.by_title("DC Shop Simple List Bill Contribution Model")
+          BenefitMarkets::ContributionModels::ContributionModel.by_title("#{Settings.site.key.upcase} Shop Simple List Bill Contribution Model")
         else
           product_package.contribution_model
         end
