@@ -73,6 +73,10 @@ And(/^staff role person logged in$/) do
   login_as @staff_role, scope: :user
 end
 
+And /^staff role person clicked on (.*?) tab$/ do |key|
+  find(".interaction-click-control-#{key}").click
+end
+
 And(/^(.*?) is logged in and on the home page$/) do |legal_name|
   organization = @organization[legal_name]
   employer_profile = organization.employer_profile

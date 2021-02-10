@@ -213,3 +213,7 @@ And(/(.*) is updated on benefit market catalog/) do |min_contribution_factor|
   end
   @benefit_market_catalog.save
 end
+
+And(/^update rating area$/) do
+  benefit_sponsorship.update_attributes!(rating_area_id: rating_area.id)
+end

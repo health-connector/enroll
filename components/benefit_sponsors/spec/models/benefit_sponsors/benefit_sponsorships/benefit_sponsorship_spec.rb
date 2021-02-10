@@ -640,7 +640,7 @@ module BenefitSponsors
         it "should fetch only valid initial applications" do 
           applications = subject.may_transmit_initial_enrollment?(april_effective_date)
 
-          expect(applications & april_sponsors).to eq april_sponsors
+          expect((applications & april_sponsors).sort).to eq april_sponsors.sort
           expect(applications & april_ineligible_initial_sponsors).to be_empty
           expect(applications & april_wrong_sponsorship_initial_sponsors).to be_empty
         end
@@ -665,7 +665,7 @@ module BenefitSponsors
           it "should fetch only valid initial applications" do
             applications = subject.may_transmit_initial_enrollment?(april_effective_date)
 
-            expect(applications & april_sponsors).to eq april_sponsors
+            expect((applications & april_sponsors).sort).to eq april_sponsors.sort
             expect(applications & april_ineligible_initial_sponsors).to be_empty
             expect(applications & april_wrong_sponsorship_initial_sponsors).to be_empty
           end
