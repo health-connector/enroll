@@ -42,7 +42,7 @@ module BenefitSponsors
 
     def self.build_standard_sponsor_contribution
       contribution_model_builder = ::BenefitMarkets::ContributionModels::ContributionModelBuilder.new      
-      contribution_model = BenefitMarkets::ContributionModels::ContributionModel.by_title("DC Shop Simple List Bill Contribution Model")
+      contribution_model = BenefitMarkets::ContributionModels::ContributionModel.by_title("#{Settings.site.key.upcase} Shop Simple List Bill Contribution Model")
       sponsor_contribution = contribution_model_builder.build_sponsor_contribution(contribution_model)
       contribution_model_builder.build_contribution_levels(contribution_model, sponsor_contribution)
       sponsor_contribution

@@ -13,7 +13,7 @@ module BenefitMarkets
     module ContributionModuleAssociation
       def contribution_model
         if packagable.is_a?(BenefitMarkets::BenefitSponsorCatalog) && packagable.benefit_application&.is_renewing?
-          BenefitMarkets::ContributionModels::ContributionModel.by_title("DC Shop Simple List Bill Contribution Model")
+          BenefitMarkets::ContributionModels::ContributionModel.by_title("#{Settings.site.key.upcase} Shop Simple List Bill Contribution Model")
         else
           super
         end
