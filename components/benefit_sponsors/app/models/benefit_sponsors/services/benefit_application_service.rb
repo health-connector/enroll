@@ -43,15 +43,7 @@ module BenefitSponsors
 
       def can_create_draft_ba?(form)
         bas = benefit_sponsorship.benefit_applications
-        term_pending_bas = bas.any_in(aasm_state: :termination_pending)
-        
-        if bas.blank?
-          true
-        elsif term_pending_bas.present?
-          can_create_draft_for_tp?(term_pending_bas, form) ? false : true
-        else
-          bas.active_states_per_dt_action.present? || bas.draft.present?
-        end
+        !bas.active_states_per_dt_action.present?
       end
 
       def can_create_draft_for_tp?(bas, form)
@@ -60,7 +52,7 @@ module BenefitSponsors
       end
 
       def create_or_cancel_draft_ba(form, model_attributes)
-        if form.admin_datatable_action && !can_create_draft_ba?
+        if form.admin_datatable_action && !can_create_draft_ba?(form)
           form.errors.add(:base, 'Existing plan year with overlapping coverage exists')
           [false, nil]
         else

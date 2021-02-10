@@ -661,7 +661,11 @@ And /^employer filled all the fields on benefit package form$/ do
 end
 
 And /^employer selected by metal level plan offerings$/ do
-  find(".interaction-click-control-by-metal-level").click
+  if Settings.site.key == :dc
+    find(".interaction-click-control-by-metal-level").click
+  else
+    find(".interaction-click-control-one-level").click
+  end
 end
 
 Then /^employer should see gold metal level type$/ do
