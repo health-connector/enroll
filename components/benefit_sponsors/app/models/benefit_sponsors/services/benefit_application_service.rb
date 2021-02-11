@@ -41,7 +41,7 @@ module BenefitSponsors
         bas.active_states_per_dt_action.present? ? true : false
       end
 
-      def can_create_draft_ba?(form)
+      def can_create_draft_ba?
         bas = benefit_sponsorship.benefit_applications
         !bas.active_states_per_dt_action.present?
       end
@@ -52,7 +52,7 @@ module BenefitSponsors
       end
 
       def create_or_cancel_draft_ba(form, model_attributes)
-        if form.admin_datatable_action && !can_create_draft_ba?(form)
+        if form.admin_datatable_action && !can_create_draft_ba?
           form.errors.add(:base, 'Existing plan year with overlapping coverage exists')
           [false, nil]
         else

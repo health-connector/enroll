@@ -6,6 +6,7 @@ class UpdateMinimumContributionFactorOnContributionUnit < MongoidMigrationTask
   def migrate
     raise 'Please provide benefit market catalog application date' if ENV['benefit_market_catalog_application_date'].blank?
     raise 'Please provide minimum contribution factor' if ENV['min_contribution_factor'].blank?
+
     date = Date.strptime(ENV['benefit_market_catalog_application_date'], "%m/%d/%Y")
     min_contribution_factor = ENV['min_contribution_factor'].to_i
     sites = BenefitSponsors::Site.by_site_key(Settings.site.key)
@@ -22,7 +23,10 @@ class UpdateMinimumContributionFactorOnContributionUnit < MongoidMigrationTask
       contribution_model.contribution_units.each do |contribution_unit|
         prev_factor = contribution_unit.minimum_contribution_factor
         contribution_unit.minimum_contribution_factor = min_contribution_factor
-        puts "Updated #{product_package.product_kind} - #{product_package.package_kind} product package's minimum contribution factor for #{contribution_unit.display_name} from #{prev_factor} to #{contribution_unit.minimum_contribution_factor}." unless Rails.env.test?
+        unless Rails.env.test?
+          puts "Updated #{product_package.product_kind} - #{product_package.package_kind} product package's minimum contribution factor for
+            #{contribution_unit.display_name} from #{prev_factor} to #{contribution_unit.minimum_contribution_factor}."
+        end
       end
     end
     benefit_market_catalog.save

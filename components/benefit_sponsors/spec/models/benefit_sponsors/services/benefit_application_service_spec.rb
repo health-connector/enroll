@@ -176,7 +176,7 @@ module BenefitSponsors
           context 'without dt active state' do
             it 'should return true as no bas has dt active state' do
               set_bs_for_service(@form)
-              expect(subject.can_create_draft_ba?(@form)).to be_truthy
+              expect(subject.can_create_draft_ba?.to be_truthy
             end
           end
 
@@ -185,7 +185,7 @@ module BenefitSponsors
 
             it 'should return false as dt active state exists for one of the bas' do
               set_bs_for_service(@form)
-              expect(subject.can_create_draft_ba?(@form)).to be_falsey
+              expect(subject.can_create_draft_ba?.to be_falsey
             end
           end
         end
@@ -198,7 +198,7 @@ module BenefitSponsors
         context 'with dt active state' do
           it 'should return false as dt active state exists for one of the bas' do
             set_bs_for_service(@form)
-            expect(subject.can_create_draft_ba?(@form)).to be_falsey
+            expect(subject.can_create_draft_ba?.to be_falsey
           end
         end
       end
