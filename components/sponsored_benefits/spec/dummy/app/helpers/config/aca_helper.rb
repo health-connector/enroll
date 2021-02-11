@@ -23,7 +23,7 @@ module Config::AcaHelper
   end
 
   def retrive_date(val)
-    (val.split('-').first.size == 4) ? Date.strptime(val,"%Y-%m-%d") : Date.strptime(val,"%m/%d/%Y")
+    val.split('-').first.size == 4 ? Date.strptime(val,"%Y-%m-%d") : Date.strptime(val,"%m/%d/%Y")
   end
 
   def flexible_family_contribution_percent_minimum_for_bqt
@@ -55,7 +55,7 @@ module Config::AcaHelper
   end
 
   def aca_shop_market_new_employee_paper_application_is_enabled?
-    @aca_shop_market_new_employee_paper_application ||= Settings.aca.shop_market.new_employee_paper_application
+    @aca_shop_market_new_employee_paper_application_is_enabled ||= Settings.aca.shop_market.new_employee_paper_application
   end
 
   def aca_shop_market_census_employees_template_file
@@ -95,9 +95,8 @@ module Config::AcaHelper
   end
 
   def offers_metal_level?
-    @offer_metal_level ||= Settings.aca.plan_options_available.include?("metal_level")
+    @offers_metal_level ||= Settings.aca.plan_options_available.include?("metal_level")
   end
-
 
   def metal_levels_explained
     response = ""
@@ -108,15 +107,11 @@ module Config::AcaHelper
       'platinum': '90%'
     }.with_indifferent_access
     enabled_metal_levels_for_single_carrier.each_with_index do |level, index|
-      if metal_level_contributions[level]
-        if index == 0
-          response << "#{level.capitalize} means the plan is expected to pay #{metal_level_contributions[level]} of expenses for an average population of consumers"
-        elsif (index == enabled_metal_levels_for_single_carrier.length - 2) # subtracting 2 because of dental
-          response << ", and #{level.capitalize} #{metal_level_contributions[level]}."
-        else
-          response << ", #{level.capitalize} #{metal_level_contributions[level]}"
-        end
-      end
+      next unless metal_level_contributions[level]
+      return "#{level.capitalize} means the plan is expected to pay #{metal_level_contributions[level]} of expenses for an average population of consumers" if index == 0
+      return ", and #{level.capitalize} #{metal_level_contributions[level]}." if index == enabled_metal_levels_for_single_carrier.length - 2 # subtracting 2 because of dental
+
+      response << ", #{level.capitalize} #{metal_level_contributions[level]}"
     end
     response
   end
@@ -129,14 +124,14 @@ module Config::AcaHelper
   #     task_name_MA "EMPLOYERSLIST"
   #
   # @return [String] absolute path location to writing a CSV
-  def fetch_file_format(task_name_DC, task_name_MA)
+  def fetch_file_format(task_name_dc, task_name_ma)
     if individual_market_is_enabled?
       time_stamp = Time.now.utc.strftime("%Y%m%d_%H%M%S")
-      File.expand_path("#{Rails.root}/public/#{task_name_DC}_#{time_stamp}.csv")
+      File.expand_path("#{Rails.root}/public/#{task_name_dc}_#{time_stamp}.csv")
     else
       # For MA stakeholders requested a specific file format
       time_extract = TimeKeeper.datetime_of_record.try(:strftime, '%Y_%m_%d_%H_%M_%S')
-      File.expand_path("#{Rails.root}/public/CCA_#{ENV["RAILS_ENV"]}_#{task_name_MA}_#{time_extract}.csv")
+      File.expand_path("#{Rails.root}/public/CCA_#{ENV['RAILS_ENV']}_#{task_name_ma}_#{time_extract}.csv")
     end
   end
 
@@ -145,7 +140,7 @@ module Config::AcaHelper
   end
 
   def offers_single_carrier?
-    @offer_single_carrier ||= Settings.aca.plan_options_available.include?("single_carrier")
+    @offers_single_carrier ||= Settings.aca.plan_options_available.include?("single_carrier")
   end
 
   def enabled_single_carrier_years
@@ -153,7 +148,7 @@ module Config::AcaHelper
   end
 
   def offers_single_plan?
-    @offer_single_plan ||= Settings.aca.plan_options_available.include?("single_plan")
+    @offers_single_plan ||= Settings.aca.plan_options_available.include?("single_plan")
   end
 
   def offers_nationwide_plans?
