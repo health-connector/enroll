@@ -66,7 +66,7 @@ module BenefitMarkets
       end
 
       def self.by_title(title)
-        self.where(title: title).first
+        where(title: title).first
       end
     end
   end
