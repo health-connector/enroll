@@ -7,6 +7,7 @@ Feature: User Account page
     And a user exists with employee role
     And a user exists with broker role
     When Hbx AdminEnrollments logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     And Hbx Admin click on User Accounts
     Then Hbx Admin should see text Account Updates
     Then Hbx Admin should see columns related to user account
@@ -35,6 +36,7 @@ Feature: User Account page
     And a user exists with employee role
     And a user exists with broker role
     When Hbx AdminEnrollments logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     And Hbx Admin click on User Accounts
     Then Hbx Admin should see search box
     When a user enters an user name search box
