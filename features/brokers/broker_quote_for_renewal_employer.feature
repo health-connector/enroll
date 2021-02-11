@@ -17,7 +17,7 @@ Feature: Broker creates a quote for a prospect employer
 
   Scenario Outline: Broker should be not able to create a quote with flexible rules for a renewing employer
     Given Max Planck logs on to the Broker Agency Portal
-    When the broker clicks on the Employers tab
+    When the broker clicks on Employers tab
     When the broker clicks Actions for that Employer
     Then the broker sees Create Quote button
     Then the broker clicks on Create Quote button

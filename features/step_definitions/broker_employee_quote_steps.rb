@@ -44,7 +44,7 @@ end
 And(/^Primary Broker creates new Prospect Employer with default_office_location$/) do
   find('#organization_legal_name').click
   fill_in 'organization[legal_name]', :with => "emp1"
-  fill_in 'organization[dba]', :with => 101010
+  fill_in 'organization[dba]', :with => 'DBA 101'
 
   find('.interaction-choice-control-organization-entity-kind').click
   find(".interaction-choice-control-organization-entity-kind-2").click
@@ -93,7 +93,7 @@ And(/^Primary Broker enters quote name$/) do
 
   find(:xpath, "//*[@id='new_forms_plan_design_proposal']/div[1]/div/div[1]/div[2]/div/div[2]/div").click
   expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
-  find('li', :text => "#{(TimeKeeper.date_of_record + 2.months).strftime('%B %Y')}").click
+  find('li', :text => (TimeKeeper.date_of_record + 2.months).strftime('%B %Y').to_s).click
   wait_for_ajax(3, 2)
 end
 
@@ -128,8 +128,6 @@ Then(/^.+ clicks on Create Quote button$/) do
   find('.btn.btn-xs', text: 'Create Quote').click
 end
 
-
-
 Then(/^broker publishes the quote$/) do
   wait_for_ajax(3, 2)
   find(:xpath, "//*[@id='new_forms_plan_design_proposal']/div[9]", :visible => false).click
@@ -138,11 +136,16 @@ Then(/^broker publishes the quote$/) do
   find('.interaction-click-control-publish-quote').click
 end
 
+Given(/^.+ clicks on Employers tab$/) do
+  find('.interaction-click-control-employers', wait: 10).click
+end
+
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
   wait_for_ajax(3, 2)
-  find(:xpath, "//*[@id='pdp-bms']/div/ul/li[2]/label/div").click
+  find(:xpath, "//*[@id='pdp-bms']/div/ul/li[3]/label/div").click
   expect(page).to have_content("Gold")
-  find(:xpath, "//*[@id='metalLevelCarrierList']/div[3]/div[2]/label/h3").click
+  find('#metal_level_for_elected_plan_gold').click
+  # find(:xpath, "//*[@id='metalLevelCarrierList']/div[3]/div[2]/label/h3").click
   wait_for_ajax(3, 2)
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][0][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][1][premium_pct]", with: int.to_i

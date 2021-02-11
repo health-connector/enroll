@@ -47,14 +47,6 @@ Given(/^at least one attestation document status is (.*?)$/) do |status|
   @employer_attestation_status = status
 end
 
-Given(/^employer (.*?) has hired this broker$/) do |legal_name|
-  assign_broker_agency_account
-  assign_person_to_broker_agency
-  employer_profile(legal_name).hire_broker_agency(broker_agency_profile)
-  # Need to fix below later
-  employer_profile(legal_name).benefit_sponsorships.first.active_broker_agency_account.update(writing_agent_id: broker.person.broker_role.id)
-end
-
 And(/^(.*?) employer has a staff role$/) do |legal_name|
   employer_profile = employer_profile(legal_name)
   employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
@@ -73,7 +65,7 @@ And(/^staff role person logged in$/) do
   login_as @staff_role, scope: :user
 end
 
-And /^staff role person clicked on (.*?) tab$/ do |key|
+And(/^staff role person clicked on (.*?) tab$/) do |key|
   find(".interaction-click-control-#{key}").click
 end
 

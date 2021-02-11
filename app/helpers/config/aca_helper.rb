@@ -46,7 +46,7 @@ module Config::AcaHelper
   end
 
   def hbx_shop_market_employer_family_contribution_percent_minimum
-    @hbx_shop_market_employer_contribution_percent_minimum ||= Settings.aca.shop_market.amnesty.employer_family_contribution_percent_minimum
+    @hbx_shop_market_employer_family_contribution_percent_minimum ||= Settings.aca.shop_market.amnesty.employer_family_contribution_percent_minimum
   end
 
   def flexible_family_contribution_percent_minimum_for_bqt
