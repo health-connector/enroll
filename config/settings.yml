@@ -230,7 +230,7 @@ aca:
         mday: 8
 
       flexible_contribution_model:
-        application_period: <%= Date.new(2020,03,01)..Date.new(2020,12,31) %>
+        application_period: <%= Date.new(2021,03,01)..Date.new(2021,12,31) %>
         employee_participation_ratio_minimum: 0
 
     renewal_application:
@@ -283,7 +283,7 @@ aca:
 
     broker_quoting_tool:
       flexible_contribution_model:
-        initial_application_period: <%= Date.new(2020,03,01)..Date.new(2020,12,31) %>
+        initial_application_period: <%= Date.new(2021,03,01)..Date.new(2021,12,31) %>
         enabled_for_renewal_applications: false
         employer_contribution_percent_minimum: 0
         employer_family_contribution_percent_minimum: 0
