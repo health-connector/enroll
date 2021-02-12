@@ -3,7 +3,7 @@
 RSpec.shared_context "set up broker agency profile for BQT, by using configuration settings", :shared_context => :metadata do
 
   let(:plan_design_organization) do
-    FactoryBot.create(
+    FactoryGirl.create(
       :sponsored_benefits_plan_design_organization,
       owner_profile_id: owner_profile.id,
       sponsor_profile_id: sponsor_profile.id
@@ -11,7 +11,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   let(:prospect_plan_design_organization) do
-    FactoryBot.create(
+    FactoryGirl.create(
       :sponsored_benefits_plan_design_organization,
       owner_profile_id: owner_profile.id,
       sponsor_profile_id: nil
@@ -28,7 +28,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   let(:plan_design_proposal) do
-    FactoryBot.create(:plan_design_proposal, :with_profile, plan_design_organization: plan_design_organization).tap do |proposal|
+    FactoryGirl.create(:plan_design_proposal, :with_profile, plan_design_organization: plan_design_organization).tap do |proposal|
       sponsorship = proposal.profile.benefit_sponsorships.first
       sponsorship.initial_enrollment_period = benefit_sponsorship_enrollment_period
       sponsorship.save
@@ -36,7 +36,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   let(:prospect_plan_design_proposal) do
-    FactoryBot.create(:plan_design_proposal, :with_profile, plan_design_organization: prospect_plan_design_organization).tap do |proposal|
+    FactoryGirl.create(:plan_design_proposal, :with_profile, plan_design_organization: prospect_plan_design_organization).tap do |proposal|
       sponsorship = proposal.profile.benefit_sponsorships.first
       sponsorship.initial_enrollment_period = benefit_sponsorship_enrollment_period
       sponsorship.save
@@ -53,7 +53,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   let(:prospect_benefit_sponsorship) { prospect_proposal_profile.benefit_sponsorships.first}
 
   let(:benefit_application) do
-    FactoryBot.create(
+    FactoryGirl.create(
       :plan_design_benefit_application,
       :with_benefit_group,
       effective_period: current_effective_date..current_effective_date.next_year.prev_day,
@@ -62,7 +62,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   let(:prospect_benefit_application) do
-    FactoryBot.create(
+    FactoryGirl.create(
       :plan_design_benefit_application,
       :with_benefit_group,
       benefit_sponsorship: benefit_sponsorship
@@ -80,9 +80,9 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   let(:employer_profile) { sponsor_profile }
   let(:benefit_sponsor) { sponsor_profile.organization }
 
-  let(:plan_design_census_employee) { FactoryBot.create(:plan_design_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
+  let(:plan_design_census_employee) { FactoryGirl.create(:plan_design_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
 
-  let(:prospect_plan_design_census_employee) { FactoryBot.create(:plan_design_census_employee, benefit_sponsorship_id: prospect_benefit_sponsorship.id) }
+  let(:prospect_plan_design_census_employee) { FactoryGirl.create(:plan_design_census_employee, benefit_sponsorship_id: prospect_benefit_sponsorship.id) }
 
   let(:organization) { plan_design_organization.sponsor_profile.organization }
 
@@ -94,14 +94,14 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
 
   def health_plan
     if Settings.aca.state_abbreviation == "DC"
-      FactoryBot.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: current_effective_date.year)
+      FactoryGirl.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: current_effective_date.year)
     else
-      FactoryBot.create(:plan, :with_premium_tables, :with_rating_factors, coverage_kind: "health", active_year: current_effective_date.year)
+      FactoryGirl.create(:plan, :with_premium_tables, :with_rating_factors, coverage_kind: "health", active_year: current_effective_date.year)
     end
   end
 
   def health_product
-    FactoryBot.create(
+    FactoryGirl.create(
       :benefit_markets_products_health_products_health_product,
       :with_renewal_product,
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
@@ -114,14 +114,14 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
 
   def dental_plan
     if Settings.aca.state_abbreviation == "DC"
-      FactoryBot.create(:plan, :with_premium_tables, coverage_kind: "dental", active_year: current_effective_date.year)
+      FactoryGirl.create(:plan, :with_premium_tables, coverage_kind: "dental", active_year: current_effective_date.year)
     else
-      FactoryBot.create(:plan, :with_premium_tables, :with_rating_factors, coverage_kind: "dental", active_year: current_effective_date.year)
+      FactoryGirl.create(:plan, :with_premium_tables, :with_rating_factors, coverage_kind: "dental", active_year: current_effective_date.year)
     end
   end
 
   def dental_product
-    FactoryBot.create(
+    FactoryGirl.create(
       :benefit_markets_products_dental_products_dental_product,
       :with_renewal_product,
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
@@ -135,9 +135,9 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   def service_area
     return @service_area if defined? @service_area
 
-    @service_area = FactoryBot.create(
+    @service_area = FactoryGirl.create(
       :benefit_markets_locations_service_area,
-      county_zip_ids: [FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id],
+      county_zip_ids: [FactoryGirl.create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id],
       active_year: current_effective_date.year
     )
   end
@@ -145,7 +145,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   def renewal_service_area
     return @renewal_service_area if defined? @renewal_service_area
 
-    @renewal_service_area = FactoryBot.create(
+    @renewal_service_area = FactoryGirl.create(
       :benefit_markets_locations_service_area,
       county_zip_ids: service_area.county_zip_ids,
       active_year: service_area.active_year + 1
@@ -157,7 +157,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   def broker_agency_profile
-    FactoryBot.create(
+    FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization,
       :with_site,
       :with_broker_agency_profile
@@ -165,7 +165,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   def sponsor_profile
-    FactoryBot.create(
+    FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization,
       :with_site,
       "with_aca_shop_#{site_key}_employer_profile".to_sym
@@ -173,7 +173,7 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
   end
 
   def ga_profile
-    FactoryBot.create(
+    FactoryGirl.create(
       :benefit_sponsors_organizations_general_organization,
       :with_site,
       :with_general_agency_profile
