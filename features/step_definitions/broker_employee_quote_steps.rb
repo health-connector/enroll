@@ -76,7 +76,6 @@ Then(/^Primary Broker should be on the Roster page of a View quote$/) do
 end
 
 And(/^the broker clicks Actions dropdown and clicks Create Quote from dropdown menu$/) do
-  #plan = FactoryBot.create(:plan, :with_premium_tables, active_year: TimeKeeper.date_of_record.year)
   path = SponsoredBenefits::Organizations::PlanDesignOrganization.all.first.id.to_s
   find("#dropdown_for_plan_design_" + path, :text => "Actions").click
   find("#plan_design_#{path}> ul > li:nth-child(2) > a", :text => "Create Quote").click
