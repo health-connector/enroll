@@ -17,7 +17,7 @@ describe UpdateListBillContributionUnits, dbclean: :after_each do
   describe 'migrate' do
 
     let(:title) { "#{Settings.site.key.to_s.upcase} Shop Simple List Bill Contribution Model" }
-    let!(:contribution_model) { FactoryBot.create(:benefit_markets_contribution_models_contribution_model, title: title) }
+    let!(:contribution_model) { FactoryGirl.create(:benefit_markets_contribution_models_contribution_model, title: title) }
     let(:ee_contribution_unit) { contribution_model.contribution_units.where(name: 'employee').first }
     let(:spouse_contribution_unit) { contribution_model.contribution_units.where(name: 'spouse').first }
     let(:domestic_partner_contribution_unit) { contribution_model.contribution_units.where(name: 'domestic_partner').first }

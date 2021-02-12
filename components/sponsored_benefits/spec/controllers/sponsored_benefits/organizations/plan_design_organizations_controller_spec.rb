@@ -76,7 +76,7 @@ module SponsoredBenefits
       allow(subject).to receive(:active_user).and_return(active_user)
       allow(active_user).to receive(:has_hbx_staff_role?).and_return(false)
       allow(broker_role).to receive(:benefit_sponsors_broker_agency_profile_id).and_return(broker_agency_profile.id)
-      allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(broker_agency_profile.id).and_return(broker_agency_profile)
+      allow(prospect_plan_design_organization).to receive(:is_renewing_employer?).and_return(false)
     end
 
     describe "GET #new" do

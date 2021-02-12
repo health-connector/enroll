@@ -286,7 +286,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
 
       context "should calculate eligible_to_enroll_count when not zero" do
-        let(:flex_plan_year) { double("PlanYear", start_on: Date.new(2020, 3, 1), eligible_to_enroll_count: 5, is_renewing?: false) }
+        let(:flex_plan_year) { double("PlanYear", start_on: Date.new(2021, 3, 1), eligible_to_enroll_count: 5, is_renewing?: false) }
         let(:standard_plan_year) { double("PlanYear", start_on: Date.new(2029, 3, 1), eligible_to_enroll_count: 5, is_renewing?: false) }
 
         let(:min_participation_count_for_flex) do
