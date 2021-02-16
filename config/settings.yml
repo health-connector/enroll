@@ -229,6 +229,10 @@ aca:
         month_offset: 0
         mday: 8
 
+      flexible_contribution_model:
+        application_period: <%= Date.new(2021,03,01)..Date.new(2021,12,31) %>
+        employee_participation_ratio_minimum: 0
+
     renewal_application:
       earliest_start_prior_to_effective_on:
         months: -2
@@ -276,6 +280,13 @@ aca:
     mid_month_benefit_application_terminations:
       voluntary: false
       non_payment: false
+
+    broker_quoting_tool:
+      flexible_contribution_model:
+        initial_application_period: <%= Date.new(2021,03,01)..Date.new(2021,12,31) %>
+        enabled_for_renewal_applications: false
+        employer_contribution_percent_minimum: 0
+        employer_family_contribution_percent_minimum: 0
 
   transmit_employers_immediately: false
   employer_has_sic_field: true

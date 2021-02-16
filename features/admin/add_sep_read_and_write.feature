@@ -6,6 +6,7 @@ Feature: Add Sep with read and write permissions
   Background:
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     And Hbx Admin clicks on Families
     When Hbx Admin click Action button
 
