@@ -68,7 +68,7 @@ module BenefitMarketWorld
   end
 
   def set_initial_application_dates(status)
-    case status 
+    case status
     when :draft, :enrollment_open
       current_effective_date (TimeKeeper.date_of_record + 2.months).beginning_of_month
     when :enrollment_closed, :enrollment_eligible, :enrollment_extended
@@ -79,7 +79,7 @@ module BenefitMarketWorld
   end
 
   def set_renewal_application_dates(status)
-    case status 
+    case status
     when :draft, :enrollment_open
       current_effective_date (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year
     when :enrollment_closed, :enrollment_eligible, :enrollment_extended
@@ -113,6 +113,20 @@ module BenefitMarketWorld
     product_kinds(coverage_kinds)
     health_products
     dental_products if coverage_kinds.include?(:dental)
+    BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
+      qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id)
+      csr = FactoryGirl.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
+      qhp.qhp_cost_share_variances << csr
+      qhp_d = FactoryGirl.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
+      csr.qhp_deductibles << qhp_d
+      qhp.save!
+      csr.save!
+      qhp_d.save!
+      doc = FactoryGirl.build(:document, identifier: '1:1#1')
+      hp.sbc_document = doc
+      hp.save!
+      doc.save!
+    end
     reset_product_cache
   end
 
@@ -136,7 +150,7 @@ module BenefitMarketWorld
         application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
         product_package_kinds: [:single_product],
         service_area: service_area,
-        renewal_service_area: renewal_service_area, 
+        renewal_service_area: renewal_service_area,
         issuer_profile_id: dental_issuer_profile.id,
         #renewal_issuer_profile_id: dental_issuer_profile.id,
         metal_level_kind: :dental)
@@ -190,3 +204,9 @@ Given(/^benefit market catalog exists for (.*) renewal employer with (.*) benefi
   create_benefit_market_catalog_for(renewal_effective_date)
 end
 
+Given(/^benefit market catalog exists for (.*) initial employer that has both health and dental benefits$/) do |status|
+  coverage_kinds = [:health, :dental]
+  set_initial_application_dates(status.to_sym)
+  generate_initial_catalog_products_for(coverage_kinds)
+  create_benefit_market_catalog_for(current_effective_date)
+end

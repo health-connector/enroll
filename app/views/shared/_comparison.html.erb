@@ -71,6 +71,9 @@
         </tr>
         <%= render partial: "shared/plan_shoppings/plan_visit_types" %>
       <% end %>
+      <% if add_deductible_display_enabled? %>
+        <%= render partial: "shared/plan_shoppings/annual_deductibles", locals: { qhps: qhps } %>
+      <% end %>
       <tr>
         <th></th>
         <% qhps.each do |qhp|%>
@@ -101,4 +104,3 @@
   <% end %>
   <button type="button" class="btn  btn-default btn-default" data-dismiss="modal">Close</button>
 </div>
-

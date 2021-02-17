@@ -36,7 +36,11 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         id: "Productid",
         hios_id: "producthiosid",
         health_plan_kind: :hmo,
-        sbc_document: sbc_document
+        sbc_document: sbc_document,
+        medical_individual_deductible: '$200.00',
+        medical_family_deductible: '$200.00',
+        rx_individual_deductible: '$200.00',
+        rx_family_deductible: '$200.00'
     )
   end
 
@@ -174,6 +178,10 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         id: "productid",
         hios_id: "producthiosid",
         health_plan_kind: :hmo,
+        medical_individual_deductible: '$200.00',
+        medical_family_deductible: '$200.00',
+        rx_individual_deductible: '$200.00',
+        rx_family_deductible: '$200.00',
         sbc_document: sbc_document
       )
     end
@@ -217,7 +225,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
     end
 
     it "should display the plan start" do
-      expect(rendered).to have_selector('strong', text: 'Plan Start:')
+      expect(rendered).to have_selector('strong', text: 'Plan Start')
       expect(rendered).to match /#{Date.new(2015,8,10)}/
     end
 
@@ -226,7 +234,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
     end
 
     it "should display the Plan Start" do
-      expect(rendered).to have_selector('strong', text: 'Plan Start:')
+      expect(rendered).to have_selector('strong', text: 'Plan Start')
       expect(rendered).to match /#{Date.new(2015,8,10)}/
     end
 
@@ -262,7 +270,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       end
 
       it 'displays future_enrollment_termination_date when enrollment is in coverage_termination_pending state' do
-        expect(rendered).to match /Future enrollment termination date:/
+        expect(rendered).to match(/Future enrollment termination date/)
       end
 
       it 'displays terminated_on when coverage_termination_pending and not future_enrollment_termination_date' do

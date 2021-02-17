@@ -35,6 +35,9 @@ class Products::QhpCostShareVariance
   field :having_diabetes_co_insurance, type: String
   field :having_diabetes_limit, type: String
 
+  embeds_many :qhp_deductibles, class_name: "Products::QhpDeductible", cascade_callbacks: true, validate: true
+
+# Phasing this out. We will use qhp_deductibles going forward
   embeds_one :qhp_deductable,
     class_name: "Products::QhpDeductable",
     cascade_callbacks: true,
@@ -50,8 +53,7 @@ class Products::QhpCostShareVariance
     cascade_callbacks: true,
     validate: true
 
-  accepts_nested_attributes_for :qhp_maximum_out_of_pockets, :qhp_service_visits
-
+  accepts_nested_attributes_for :qhp_maximum_out_of_pockets, :qhp_service_visits, :qhp_deductibles
 
   def self.find_qhp(ids, year)
     Products::Qhp.by_hios_ids_and_active_year(ids.map { |str| str[0..13] }, year)
@@ -61,6 +63,10 @@ class Products::QhpCostShareVariance
     csvs = find_qhp(ids, year).map(&:qhp_cost_share_variances).flatten
     ids = ids.map{|a| a+"-01"} if coverage_kind == "dental"
     csvs.select{ |a| ids.include?(a.hios_plan_and_variant_id) }
+  end
+
+  def self.find_qhp_cost_share_variance(id, year, coverage_kind)
+    find_qhp_cost_share_variances([id], year, coverage_kind)
   end
 
   def plan

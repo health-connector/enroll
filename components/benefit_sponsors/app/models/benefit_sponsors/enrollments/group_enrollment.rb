@@ -6,7 +6,11 @@ module BenefitSponsors
                   :product_cost_total, :benefit_sponsor,
                   :sponsor_contribution_total, :member_enrollments, :group_id,
                   :rating_area,
-                  :rate_schedule_date, :sponsor_contribution_prohibited
+                  :rate_schedule_date, :sponsor_contribution_prohibited,
+                  :medical_individual_deductible,
+                  :medical_family_deductible,
+                  :rx_individual_deductible,
+                  :rx_family_deductible
 
     def initialize(opts = {})
       @group_id                   = nil
@@ -19,6 +23,10 @@ module BenefitSponsors
       @benefit_sponsor            = nil
       @sponsor_contribution_total = 0.00
 
+      @medical_individual_deductible = 0
+      @medical_family_deductible     = 0
+      @rx_individual_deductible      = 0
+      @rx_family_deductible          = 0
       @member_enrollments         = []
       @rate_schedule_date = nil
       @rating_area = nil
@@ -40,6 +48,10 @@ module BenefitSponsors
         previous_product: @previous_product,
         product: new_product,
         rate_schedule_date: @rate_schedule_date,
+        medical_individual_deductible: new_product&.medical_individual_deductible,
+        medical_family_deductible: new_product&.medical_family_deductible,
+        rx_individual_deductible: new_product&.rx_individual_deductible,
+        rx_family_deductible: new_product&.rx_family_deductible,
         rating_area: @rating_area,
         member_enrollments: member_enrollments.map(&:clone_for_coverage),
         sponsor_contribution_prohibited: @sponsor_contribution_prohibited
