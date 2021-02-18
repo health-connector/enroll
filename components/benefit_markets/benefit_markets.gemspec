@@ -30,10 +30,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'i18n', '0.7.0'
   s.add_dependency 'nokogiri'
   s.add_dependency 'mini_portile2', '2.4.0'
-  s.add_dependency 'dry-monads',                '~> 1.2'
-  s.add_dependency 'dry-validation',            '~> 1.2'
-  s.add_dependency 'dry-struct',                '~> 1.0'
-  s.add_dependency 'dry-types',                 '~> 1.2'
 
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'shoulda-matchers'
@@ -43,3 +39,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'forgery'
   s.add_development_dependency 'mongoid_rails_migrations'
 end
+
