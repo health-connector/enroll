@@ -8,7 +8,7 @@ class Exchanges::BrokerApplicantsController < ApplicationController
     @people = Person.exists(broker_role: true).broker_role_having_agency
 
     status_params = params.permit(:status)
-    @status = status_params[:status] || 'applicant'
+    @status = BrokerRole::BROKER_ROLE_STATUS_TYPES.include?(status_params[:status]) ? status_params[:status] : 'applicant'
 
     # Status Filter can be applicant | certified | deceritifed | denied | all
     @people = @people.send("broker_role_#{@status}") if @people.respond_to?("broker_role_#{@status}")
@@ -16,7 +16,7 @@ class Exchanges::BrokerApplicantsController < ApplicationController
 
     if params[:page].present?
       page_no = cur_page_no(@page_alphabets.first)
-      @broker_applicants = @people.where("last_name" => /^#{page_no}/i)
+      @broker_applicants = @people.where("last_name" => /^#{Regexp.escape(page_no)}/i)
     else
       @broker_applicants = sort_by_latest_transition_time(@people).limit(20).entries
     end

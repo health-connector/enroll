@@ -1,0 +1,81 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 7,
+      "fingerprint": "139910646b941f75b027684066c30d03680efb23c1a83aca17d18b2f00ffa6e6",
+      "check_name": "ForgerySetting",
+      "message": "`protect_from_forgery` should be called in `Notifier::ApplicationController`",
+      "file": "app/controllers/notifier/application_controller.rb",
+      "line": 2,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "controller",
+        "controller": "Notifier::ApplicationController"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "2c2058304aefd0e5d6ae644be9637b2d566958433438fbc870c0ea2db713bbb2",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/notifier/notice_kinds_controller.rb",
+      "line": 60,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(\"#{Rails.root}/tmp/#{Notifier::NoticeKind.find(params[:id]).title.titleize.gsub(/\\s+/, \"_\")}.pdf\", :type => \"application/pdf\", :disposition => \"inline\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Notifier::NoticeKindsController",
+        "method": "preview"
+      },
+      "user_input": "Notifier::NoticeKind.find(params[:id]).title.titleize.gsub(/\\s+/, \"_\")",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "c848b1049bcb9788f6639e8fdcf090be00707ed3b667e5adca569650bda2937f",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called with parameter value",
+      "file": "app/controllers/notifier/notice_kinds_controller.rb",
+      "line": 113,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "(params[\"builder\"] or \"Notifier::MergeDataModels::EmployerProfile\").constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Notifier::NoticeKindsController",
+        "method": "get_tokens"
+      },
+      "user_input": "params[\"builder\"]",
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 116,
+      "fingerprint": "c8697fda60549ca065789e2ea74c94effecef88b2b5483bae17ddd62ece47194",
+      "check_name": "CSRFTokenForgeryCVE",
+      "message": "Rails 4.2.11.1 has a vulnerability that may allow CSRF token forgery. Upgrade to Rails 5.2.4.3 or patch",
+      "file": "Gemfile.lock",
+      "line": 194,
+      "link": "https://groups.google.com/g/rubyonrails-security/c/NOjKiGeXUgw",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    }
+  ],
+  "updated": "2021-01-21 15:37:40 -0500",
+  "brakeman_version": "4.10.1"
+}

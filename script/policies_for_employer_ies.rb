@@ -14,7 +14,8 @@ end
 
 start_on_date = window.end.next_month.beginning_of_month.to_time.utc.beginning_of_day
 
-feins = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {"$elemMatch" => {"effective_period.min" => start_on_date, :aasm_state => {"$in" => ["enrollment_eligible", "approved", "enrollment_eligible", "active"],"enrollment_open"}}}).map(&:organization).map(&:fein)
+required_aasm_states = ["enrollment_eligible", "approved", "enrollment_eligible", "active","enrollment_open"]
+feins = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {"$elemMatch" => {"effective_period.min" => start_on_date, :aasm_state => {"$in" => required_aasm_states}}}).map(&:organization).map(&:fein)
 
 clean_feins = feins.map do |f|
   f.gsub(/\D/,"")

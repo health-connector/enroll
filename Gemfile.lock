@@ -261,6 +261,7 @@ GEM
       rails (>= 4.0.0)
     bootstrap-slider-rails (6.0.17)
       railties (>= 3.2, < 5.0)
+    brakeman (5.0.0)
     browser (2.7.0)
     bson (4.3.0)
     builder (3.2.4)
@@ -890,6 +891,7 @@ DEPENDENCIES
   benefit_sponsors!
   bootstrap-multiselect-rails (~> 0.9.9)
   bootstrap-slider-rails (= 6.0.17)
+  brakeman
   browser (= 2.7.0)
   bson (~> 4.3.0)
   capistrano (= 3.3.5)

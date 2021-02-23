@@ -116,6 +116,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'brakeman'
   gem 'capistrano', '3.3.5'
   gem 'capistrano-rails', '1.1.6'
   gem 'climate_control', '0.2.0'

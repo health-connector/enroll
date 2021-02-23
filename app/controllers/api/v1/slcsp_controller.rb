@@ -1,6 +1,7 @@
 module Api
   module V1
     class SlcspController < ActionController::Base
+
       def plan
         begin
           request_xml = request.body.read
