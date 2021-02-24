@@ -1,6 +1,47 @@
 {
   "ignored_warnings": [
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "088566b895fef0855e7c446a17c5f13dca0a3088568ab7edcd76cd529278c45c",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/layouts/_flash.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "ScheduledEvent.new(scheduled_event_params).errors.values.flatten.to_sentence",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Exchanges::ScheduledEventsController",
+          "method": "create",
+          "line": 24,
+          "file": "app/controllers/exchanges/scheduled_events_controller.rb",
+          "rendered": {
+            "name": "exchanges/scheduled_events/new",
+            "file": "app/views/exchanges/scheduled_events/new.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "exchanges/scheduled_events/new",
+          "line": 4,
+          "file": "app/views/exchanges/scheduled_events/new.js.erb",
+          "rendered": {
+            "name": "layouts/_flash",
+            "file": "app/views/layouts/_flash.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "layouts/_flash"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
       "warning_type": "Command Injection",
       "warning_code": 14,
       "fingerprint": "132c37aeaaedb5c65a6e90b1ab75386acec6e2264bbcb81a0c5f780acd2e232f",
@@ -180,6 +221,47 @@
       "note": ""
     },
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "4e89187f690ca3faaa37b5db914a7eb944919ff6b233b009346baa212bf31658",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/employers/premium_statements/_show.html.erb",
+      "line": 12,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::PremiumBillingReportDataTable.new(:id => params.require(:id), :billing_date => (@billing_date)), :sDom => \"<'row'<'col-sm-5'> <'col-sm-5'f> >\", :autowidth => true, :buttons => ([\"csv\", \"excel\"]), :lengthMenu => ([[10, 25, 50, -1], [10, 25, 50, \"All\"]]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Employers::PremiumStatementsController",
+          "method": "show",
+          "line": 17,
+          "file": "app/controllers/employers/premium_statements_controller.rb",
+          "rendered": {
+            "name": "employers/premium_statements/show",
+            "file": "app/views/employers/premium_statements/show.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "employers/premium_statements/show",
+          "line": 2,
+          "file": "app/views/employers/premium_statements/show.js.erb",
+          "rendered": {
+            "name": "employers/premium_statements/_show",
+            "file": "app/views/employers/premium_statements/_show.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "employers/premium_statements/_show"
+      },
+      "user_input": "params.require(:id)",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
       "warning_type": "Mass Assignment",
       "warning_code": 70,
       "fingerprint": "66641281ab94a441074632175a6432d3e03269b9a693bd7588e0d3f11738abb0",
@@ -197,6 +279,47 @@
       },
       "user_input": null,
       "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "6da7d9920ebb17cac7e152a36ad8020219121041f815c56eefc1867fb48a4379",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/general_agencies/profiles/_employers.html.erb",
+      "line": 5,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::GeneralAgencyDataTable.new(:id => params[:id]), :lengthMenu => ([[10, 25, 50, -1], [10, 25, 50, \"All\"]]), :buttons => ([\"copy\", \"csv\", \"excel\", \"print\"]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "GeneralAgencies::ProfilesController",
+          "method": "employers",
+          "line": 94,
+          "file": "app/controllers/general_agencies/profiles_controller.rb",
+          "rendered": {
+            "name": "general_agencies/profiles/employers",
+            "file": "app/views/general_agencies/profiles/employers.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "general_agencies/profiles/employers",
+          "line": 1,
+          "file": "app/views/general_agencies/profiles/employers.js.erb",
+          "rendered": {
+            "name": "general_agencies/profiles/_employers",
+            "file": "app/views/general_agencies/profiles/_employers.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "general_agencies/profiles/_employers"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
       "note": ""
     },
     {
@@ -276,6 +399,47 @@
       },
       "user_input": null,
       "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "8ae9d4dec7eeba3275a712dc24ff7b6dfad2655ac7c9b8c72643d4568dfc22e5",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/general_agencies/profiles/_families.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::GeneralAgencyFamilyDataTable.new(:id => params[:id]), :lengthMenu => ([[10, 25, 50], [10, 25, 50]]), :buttons => ([\"copy\", \"csv\", \"excel\", \"print\"]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "GeneralAgencies::ProfilesController",
+          "method": "families",
+          "line": 98,
+          "file": "app/controllers/general_agencies/profiles_controller.rb",
+          "rendered": {
+            "name": "general_agencies/profiles/families",
+            "file": "app/views/general_agencies/profiles/families.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "general_agencies/profiles/families",
+          "line": 1,
+          "file": "app/views/general_agencies/profiles/families.js.erb",
+          "rendered": {
+            "name": "general_agencies/profiles/_families",
+            "file": "app/views/general_agencies/profiles/_families.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "general_agencies/profiles/_families"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
       "note": ""
     },
     {
@@ -584,6 +748,6 @@
       "note": ""
     }
   ],
-  "updated": "2021-01-28 12:21:48 -0500",
+  "updated": "2021-02-23 13:18:32 -0500",
   "brakeman_version": "5.0.0"
 }
