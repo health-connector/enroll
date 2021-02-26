@@ -8,7 +8,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GenerateInitialEmployerInvoice', d
   let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:model_instance)    { organization.employer_profile }
-  let!(:benefit_sponsorship)    { model_instance.add_benefit_sponsorship }
+  let!(:benefit_sponsorship) do
+    sponsorship = model_instance.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
   let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application,
     :with_benefit_package,
     :benefit_sponsorship => benefit_sponsorship,

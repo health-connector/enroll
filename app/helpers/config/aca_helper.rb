@@ -24,7 +24,10 @@ module Config::AcaHelper
   end
 
   def flexible_contribution_model_enabled_for_bqt_for_period
-    ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:initial_application_period).item
+    application_period = ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:initial_application_period).item.split('..')
+    min = Date.strptime(application_period[0], '%m/%d/%Y')
+    max = Date.strptime(application_period[1], '%m/%d/%Y')
+    min..max
   end
 
   def retrive_date(val)

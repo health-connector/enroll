@@ -815,7 +815,7 @@ module BenefitSponsors
       renewal_benefit_market_catalog_props = {
         "_id": renewal_benefit_market_catalog_id,
         application_interval_kind: :monthly,
-        probation_period_kinds: [ 
+        probation_period_kinds: [
           :first_of_month_before_15th,
           :date_of_hire,
           :first_of_month,
@@ -866,7 +866,7 @@ module BenefitSponsors
       benefit_market_catalog_props = {
         "_id": benefit_market_catalog_id,
         application_interval_kind: :monthly,
-        probation_period_kinds: [ 
+        probation_period_kinds: [
           :first_of_month_before_15th,
           :date_of_hire,
           :first_of_month,
@@ -923,7 +923,7 @@ module BenefitSponsors
       previous_benefit_market_catalog_props = {
         "_id": previous_benefit_market_catalog_id,
         application_interval_kind: :monthly,
-        probation_period_kinds: [ 
+        probation_period_kinds: [
           :first_of_month_before_15th,
           :date_of_hire,
           :first_of_month,

@@ -15,9 +15,9 @@ module BenefitSponsors
       attribute :predecessor_id,          Types::Bson.optional
       attribute :source_kind,             Types::Strict::Symbol
       attribute :registered_on,           Types::Strict::Date
-      attribute :is_no_ssn_enabled,       Types::Bool.optional
-      attribute :ssn_enabled_on,          Types::Date.optional
-      attribute :ssn_disabled_on,         Types::Date.optional
+      # attribute :is_no_ssn_enabled,       Types::Bool.optional
+      # attribute :ssn_enabled_on,          Types::Date.optional
+      # attribute :ssn_disabled_on,         Types::Date.optional
       attribute :aasm_state,              Types::Strict::Symbol
       attribute :organization_id,         Types::Bson
       attribute :market_kind,             Types::Strict::Symbol

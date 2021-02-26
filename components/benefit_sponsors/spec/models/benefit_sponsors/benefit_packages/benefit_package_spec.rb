@@ -78,8 +78,8 @@ module BenefitSponsors
     describe ".renew" do
       context "when passed renewal benefit package to current benefit package for renewal" do
 
-        let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
-        let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+        let(:renewal_application)             { initial_application.renew }
+        let(:renewal_benefit_sponsor_catalog) { renewal_application.benefit_sponsor_catalog }
         let!(:renewal_benefit_package)        { renewal_application.benefit_packages.build }
 
         before do
@@ -137,11 +137,17 @@ module BenefitSponsors
       end
 
       context "when employer offering both health and dental coverages" do
+        before :each do
+          BenefitMarkets::Products::Product.each do |product|
+            product.update_attributes!(issuer_profile_id: issuer_profile.id) unless product.issuer_profile_id
+          end
+        end
+
         let(:product_kinds)  { [:health, :dental] }
         let(:dental_sponsored_benefit) { true }
 
-        let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
-        let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+        let(:renewal_application)             { initial_application.renew }
+        let(:renewal_benefit_sponsor_catalog) { renewal_application.benefit_sponsor_catalog }
         let(:renewal_bp)        { renewal_application.benefit_packages.build }
 
         let(:current_app) { benefit_sponsorship.benefit_applications[0] }
@@ -190,12 +196,17 @@ module BenefitSponsors
         end
 
         context "when renewal product available for health only" do
-          let!(:dental_products) { create_list(:benefit_markets_products_dental_products_dental_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_product],
-            service_area: service_area,
-            metal_level_kind: :dental)
-          }
+          let!(:dental_products) do
+            create_list(
+              :benefit_markets_products_dental_products_dental_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_product],
+              service_area: service_area,
+              metal_level_kind: :dental
+            )
+          end
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
@@ -224,12 +235,17 @@ module BenefitSponsors
         end
 
         context "when renewal product available for dental only" do
-          let!(:health_products) { create_list(:benefit_markets_products_health_products_health_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_issuer, :metal_level, :single_product],
-            service_area: service_area,
-            metal_level_kind: :gold)
-          }
+          let!(:health_products) do
+            create_list(
+              :benefit_markets_products_health_products_health_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_issuer, :metal_level, :single_product],
+              service_area: service_area,
+              metal_level_kind: :gold
+            )
+          end
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
@@ -258,19 +274,29 @@ module BenefitSponsors
         end
 
         context "when renewal product not available for both health and dental" do 
-          let!(:health_products) { create_list(:benefit_markets_products_health_products_health_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_issuer, :metal_level, :single_product],
-            service_area: service_area,
-            metal_level_kind: :gold)
-          }
+          let!(:health_products) do
+            create_list(
+              :benefit_markets_products_health_products_health_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_issuer, :metal_level, :single_product],
+              service_area: service_area,
+              metal_level_kind: :gold
+            )
+          end
 
-          let!(:dental_products) { create_list(:benefit_markets_products_dental_products_dental_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_product],
-            service_area: service_area,
-            metal_level_kind: :dental)
-          }
+          let!(:dental_products) do
+            create_list(
+              :benefit_markets_products_dental_products_dental_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_product],
+              service_area: service_area,
+              metal_level_kind: :dental
+            )
+          end
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
@@ -438,8 +464,8 @@ module BenefitSponsors
         reference_product.save!
       }
       
-      let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
-      let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+      let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date) }
+      let!(:renewal_application)             { initial_application.renew }
       let(:renewal_benefit_package)         { renewal_application.benefit_packages.build }
 
       context "when renewal product missing" do
@@ -479,7 +505,7 @@ module BenefitSponsors
       end
 
       context "when renewal product not offered by employer" do
-        let(:product) {FactoryGirl.create(:benefit_markets_products_health_products_health_product)}
+        let(:product) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile)}
         let(:hbx_enrollment) { double(product: current_benefit_package.sponsored_benefits.first.reference_product, coverage_kind: :health, is_coverage_waived?: false, coverage_termination_pending?: false) }
         let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(             
             product_package_kind: :single_issuer

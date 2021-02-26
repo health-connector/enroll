@@ -65,6 +65,26 @@ module BenefitMarkets
         contribution_units.find(contribution_unit_id)
       end
 
+      def contribution_units=(params)
+        params.each do |param|
+          new_obj = param.is_a?(BenefitMarkets::ContributionModels::ContributionUnit) ? param : contribution_unit_class.new(param)
+          contribution_units << new_obj
+        end
+      end
+
+      def contribution_unit_class
+        contribution_unit_type =
+          case sponsor_contribution_kind.demodulize
+          when 'FixedPercentSponsorContribution'
+            'FixedPercentContributionUnit'
+          when 'FixedPercentWithCapSponsorContribution'
+            'PercentWithCapContributionUnit'
+          else
+            'ContributionUnit'
+          end
+        "::BenefitMarkets::ContributionModels::#{contribution_unit_type}".constantize
+      end
+
       def self.by_title(title)
         where(title: title).first
       end

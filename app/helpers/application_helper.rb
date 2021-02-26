@@ -502,7 +502,7 @@ module ApplicationHelper
     covered = plan_year.progressbar_covered_count
     waived = plan_year.waived_count
     p_min = 0 if p_min.nil?
-    
+
     unless eligible.zero?
       condition = enrolled >= p_min && non_owner > 0
       condition = false if covered == 0 && waived > 0
@@ -521,8 +521,8 @@ module ApplicationHelper
         end
 
         if eligible >= 2 && plan_year.employee_participation_ratio_minimum != 0
-          eligible_text = (options[:minimum] == false) ? "#{p_min}<br>(Minimum)" : "<i class='fa fa-circle manual' data-toggle='tooltip' title='Minimum Requirement' aria-hidden='true'></i>".html_safe
-          concat content_tag(:p, eligible_text.html_safe, class: 'divider-progress', data: {value: "#{p_min}"}) 
+          eligible_text = options[:minimum] == false ? "#{p_min}<br>(Minimum)" : "<i class='fa fa-circle manual' data-toggle='tooltip' title='Minimum Requirement' aria-hidden='true'></i>".html_safe
+          concat content_tag(:p, eligible_text.html_safe, class: 'divider-progress', data: {value: p_min.to_s})
         end
 
         concat(content_tag(:div, class: 'progress-val') do

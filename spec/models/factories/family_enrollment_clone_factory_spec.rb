@@ -12,7 +12,10 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   let(:effective_period) { initial_app_start_date..initial_app_start_date.next_year.prev_day }
   let!(:renewal_application) { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application).renew_application[1] }
   let(:renewal_benefit_package) { renewal_application.benefit_packages[0] }
-  let!(:sponsored_benefit_package) { initial_application.benefit_packages[0] }
+  let!(:sponsored_benefit_package) do
+    initial_application.benefit_sponsor_catalog.save
+    initial_application.benefit_packages[0]
+  end
   let!(:sponsored_benefit) { sponsored_benefit_package.health_sponsored_benefit }
   let!(:product) { sponsored_benefit.reference_product }
   let!(:employer_profile) {benefit_sponsorship.profile}

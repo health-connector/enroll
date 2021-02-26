@@ -14,19 +14,19 @@ module BenefitSponsors
         def call(params:)
           values   = yield validate(params)
           product  = yield create(values)
-          
+
           Success(product)
         end
 
         private
-  
+
         def validate(params)
           result = BenefitSponsors::Validators::BenefitSponsorships::BenefitSponsorshipContract.new.call(params)
 
           if result.success?
             Success(result.to_h)
           else
-            Failure("Unable to validate product with hios_id #{params[:hios_id]}")
+            Failure("Unable to validate benefit sponsorship #{params[:_id]}")
           end
         end
 

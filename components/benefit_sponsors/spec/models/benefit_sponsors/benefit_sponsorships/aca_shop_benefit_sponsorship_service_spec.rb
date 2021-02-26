@@ -172,24 +172,28 @@ module BenefitSponsors
       end
     end
 
-   describe ".update_fein" do
-    let(:benefit_sponsorship) { employer_organization.employer_profile.add_benefit_sponsorship }
-    let(:exisitng_org) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
-    let(:service_instance) { BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: benefit_sponsorship)}
-    let(:legal_name) { exisitng_org.legal_name }
+    describe ".update_fein" do
+      let(:benefit_sponsorship) do
+        sponsorship = employer_organization.employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
+      let(:exisitng_org) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
+      let(:service_instance) { BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: benefit_sponsorship)}
+      let(:legal_name) { exisitng_org.legal_name }
 
-    it "should update fein" do
-      service_instance.update_fein("048459845")
-      expect(benefit_sponsorship.organization.fein).to eq "048459845"
+      it "should update fein" do
+        service_instance.update_fein("048459845")
+        expect(benefit_sponsorship.organization.fein).to eq "048459845"
+      end
+
+      it "should not update fein" do
+        exisitng_org.update_attributes(fein: "098735672")
+        error_messages = service_instance.update_fein("098735672")
+        expect(error_messages[0]).to eq false
+        expect(error_messages[1].first).to eq("FEIN matches HBX ID #{exisitng_org.hbx_id}, #{exisitng_org.legal_name}")
+      end
     end
-
-     it "should not update fein" do
-      exisitng_org.update_attributes(fein: "098735672")
-      error_messages = service_instance.update_fein("098735672")
-      expect(error_messages[0]).to eq false
-      expect(error_messages[1].first).to eq ("FEIN matches HBX ID #{exisitng_org.hbx_id}, #{exisitng_org.legal_name}")
-     end
-   end
 
     describe ".transmit_renewal_carrier_drop_event" do
       let!(:benefit_market) { site.benefit_markets.first }

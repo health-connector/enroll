@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe BenefitMarkets::Validators::BenefitSponsorCatalogContract do
+RSpec.describe BenefitMarkets::Validators::BenefitSponsorCatalogs::BenefitSponsorCatalogContract do
 
   let(:effective_date)          { TimeKeeper.date_of_record.next_month.beginning_of_month }
   let(:effective_period)        { effective_date..(effective_date + 1.year).prev_day }
@@ -34,7 +34,7 @@ RSpec.describe BenefitMarkets::Validators::BenefitSponsorCatalogContract do
 
     let(:required_params)     { missing_params.merge({probation_period_kinds: probation_period_kinds, product_packages: product_packages, service_area_ids: service_area_ids }) }
 
-    before do 
+    before do
       allow(product_package).to receive(:is_a?).with(BenefitMarkets::Entities::ProductPackage) { true }
     end
 

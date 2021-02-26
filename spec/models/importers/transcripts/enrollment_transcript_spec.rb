@@ -14,18 +14,24 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
   let(:effective_period_end_on) { effective_period_start_on + 1.year - 1.day }
   let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
   let!(:current_benefit_market_catalog) do
-    BenefitSponsors::ProductSpecHelpers.construct_cca_simple_benefit_market_catalog(site, benefit_market, effective_period)
-    benefit_market.benefit_market_catalogs.where(
-        "application_period.min" => effective_period_start_on
-    ).first
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      title: "SHOP Benefits for #{current_effective_date.year - 1.year}",
+      issuer_profile: issuer_profile,
+      application_period: (effective_period_start_on.beginning_of_year..effective_period_start_on.end_of_year)
+    )
   end
+
   include_context "setup initial benefit application"
 
   context '.process' do
     let(:source_effective_on) { Date.new(TimeKeeper.date_of_record.year, 1, 1) }
     let(:other_effective_on) { Date.new(TimeKeeper.date_of_record.year, 3, 1) }
-    let(:other_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop) }
-    let(:source_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop) }
+    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:other_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
+    let(:source_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
     let!(:spouse) { FactoryGirl.create(:person) }
     let!(:child1) { FactoryGirl.create(:person) }
     let!(:child2) { FactoryGirl.create(:person) }

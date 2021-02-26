@@ -14,7 +14,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
   let!(:employer_profile) {benefit_sponsorship.profile}
   let!(:organization) {employer_profile.organization}
-  let!(:benefit_sponsor_catalog) {FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [renewal_service_area])}
+  # let!(:benefit_sponsor_catalog) {FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [renewal_service_area])}
 
   let!(:benefit_application) {initial_application}
   let!(:benefit_package) {benefit_application.benefit_packages.first}
@@ -527,7 +527,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
       let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
-      let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(service_areas2, effective_period.min)}
+      let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min)}
       let!(:initial_application2) do
         BenefitSponsors::BenefitApplications::BenefitApplication.new(
           benefit_sponsor_catalog: benefit_sponsor_catalog2,
@@ -611,9 +611,13 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
     let!(:employer_profile_2) {FactoryGirl.build(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site, site: organization.site)}
     let(:organization2) {employer_profile_2.organization}
-    let!(:benefit_sponsorship2) {employer_profile_2.add_benefit_sponsorship}
+    let!(:benefit_sponsorship2) do
+      sponsorship = employer_profile_2.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
     let!(:service_areas2) {benefit_sponsorship2.service_areas_on(effective_period.min)}
-    let(:benefit_sponsor_catalog2) {benefit_sponsorship2.benefit_sponsor_catalog_for(service_areas2, effective_period.min)}
+    let(:benefit_sponsor_catalog2) {benefit_sponsorship2.benefit_sponsor_catalog_for(effective_period.min)}
     let(:initial_application2) {BenefitSponsors::BenefitApplications::BenefitApplication.new(
         benefit_sponsor_catalog: benefit_sponsor_catalog2,
         effective_period: effective_period,
@@ -1724,6 +1728,10 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   context '.enrollments_for_display' do
     include_context "setup renewal application"
 
+    before :each do
+      initial_application.destroy
+    end
+
     let(:census_employee) {
       ce = FactoryGirl.create(:benefit_sponsors_census_employee,
                               employer_profile: employer_profile,
@@ -1734,6 +1742,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
       employee_role = FactoryGirl.build(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
       renewal_benefit_group_assignment = FactoryGirl.create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: ce, is_active: false)
+      ce.active_benefit_group_assignment.update_attributes!(benefit_package_id: initial_application.benefit_packages.first.id)
       ce.update_attributes({employee_role: employee_role})
       family = Family.find_or_build_from_employee_role(employee_role)
       ce
@@ -1768,7 +1777,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
                                          coverage_kind: "health",
                                          kind: "employer_sponsored",
                                          benefit_sponsorship_id: benefit_sponsorship.id,
-                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         sponsored_benefit_package_id: census_employee.active_benefit_group.id,
                                          employee_role_id: census_employee.employee_role.id,
                                          benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
                                          aasm_state: "coverage_selected"
@@ -1783,7 +1792,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
                                                    coverage_kind: "health",
                                                    kind: "employer_sponsored",
                                                    benefit_sponsorship_id: benefit_sponsorship.id,
-                                                   sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                                   sponsored_benefit_package_id: census_employee.active_benefit_group.id,
                                                    employee_role_id: census_employee.employee_role.id,
                                                    benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
                                                    aasm_state: state
@@ -1795,7 +1804,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
                                                    coverage_kind: "dental",
                                                    kind: "employer_sponsored",
                                                    benefit_sponsorship_id: benefit_sponsorship.id,
-                                                   sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                                   sponsored_benefit_package_id: census_employee.active_benefit_group.id,
                                                    employee_role_id: census_employee.employee_role.id,
                                                    benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
                                                    aasm_state: state
@@ -2238,7 +2247,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
       it "should return active benefit_package if given effective_on date is in active benefit application" do
         coverage_date = initial_application.end_on - 1.month
-        expect(census_employee.benefit_package_for_date(coverage_date)).to eq initial_application.benefit_packages.first
+        expect(census_employee.benefit_package_for_date(coverage_date)).to eq renewal_application.benefit_packages.first
       end
 
       it "should return renewal benefit_package if given effective_on date is in renewal benefit application" do
