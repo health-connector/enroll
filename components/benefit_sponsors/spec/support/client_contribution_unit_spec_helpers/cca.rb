@@ -13,15 +13,7 @@ module BenefitSponsors
             "display_name" => "Employee",
             "order" => 0,
             "default_contribution_factor" => 0.0,
-            "member_relationship_maps" =>
-            [
-              {
-                "_id" => BSON::ObjectId.new,
-                "operator" => :==,
-                "relationship_name" => :employee,
-                "count" => 1
-              }
-            ]
+            "member_relationship_maps" => [{"_id" => BSON::ObjectId.new, "operator" => :==, "relationship_name" => :employee, "count" => 1}]
           },
           {
             "_id" => BSON::ObjectId.new,
