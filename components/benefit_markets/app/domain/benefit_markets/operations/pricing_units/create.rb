@@ -6,7 +6,6 @@ require 'dry/monads/do'
 module BenefitMarkets
   module Operations
     module PricingUnits
-
       class Create
         # include Dry::Monads::Do.for(:call)
         include Dry::Monads[:result, :do]
@@ -14,8 +13,8 @@ module BenefitMarkets
         # @param [ pricing_unit_params ] params Contribution Unit attributes
         # @param [ sponsor_contribution_kind ] Type of sponsor contribution - fixed percent, fixed dollar, percent with cap
         # @return [ BenefitMarkets::Entities::PricingUnit ] pricing_unit entity
-        def call(pricing_unit_params:, package_kind:)
-          pricing_unit_type             = yield fetch_pricing_unit_kind(package_kind)
+        def call(pricing_unit_params:, package_kind:, product_kind:)
+          pricing_unit_type             = yield fetch_pricing_unit_kind(package_kind, product_kind)
           validated_params              = yield validate(pricing_unit_params, pricing_unit_type)
           pricing_unit                  = yield create(validated_params, pricing_unit_type)
 
@@ -35,9 +34,9 @@ module BenefitMarkets
           end
         end
 
-        def fetch_pricing_unit_kind(kind)
+        def fetch_pricing_unit_kind(package_kind, product_kind)
           pricing_unit_type =
-            if kind == :single_product && Settings.site.key == :cca
+            if package_kind == :single_product && Settings.site.key == :cca && product_kind == :health
               'TieredPricingUnit'
             else
               'RelationshipPricingUnit'

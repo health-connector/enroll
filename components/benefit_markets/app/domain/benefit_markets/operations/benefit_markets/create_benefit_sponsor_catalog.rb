@@ -34,7 +34,7 @@ module BenefitMarkets
             effective_period: benefit_market_catalog.effective_period_on(effective_date),
             open_enrollment_period: benefit_market_catalog.open_enrollment_period_on(effective_date),
             probation_period_kinds: benefit_market_catalog.probation_period_kinds,
-            service_area_ids: enrollment_eligibility.service_areas.pluck(:_id)
+            service_area_ids: enrollment_eligibility.service_areas.map(&:_id)
           }
 
           Success(policies)
@@ -65,7 +65,7 @@ module BenefitMarkets
           # Skipping because we are not creating contribution models for dental as they don't have relaxed rules.
           product_package_params[:contribution_models]           = contribution_models_for(contribution_models_params) if product_package[:product_kind] == :health
           product_package_params[:contribution_model]            = build_contribution_model_entity(contribution_model_params)
-          product_package_params[:pricing_model][:pricing_units] = build_pricing_units_entities(pricing_units_params, package_kind)
+          product_package_params[:pricing_model][:pricing_units] = build_pricing_units_entities(pricing_units_params, package_kind, product_package[:product_kind])
 
           ::BenefitMarkets::Operations::ProductPackages::Create.new.call(product_package_params: product_package_params, enrollment_eligibility: enrollment_eligibility)
         end
@@ -102,17 +102,16 @@ module BenefitMarkets
           end
         end
 
-        def build_pricing_units_entities(pricing_units_params, package_kind)
+        def build_pricing_units_entities(pricing_units_params, package_kind, product_kind)
           pricing_units_params.collect do |pricing_unit_params|
-            ::BenefitMarkets::Operations::PricingUnits::Create.new.call(pricing_unit_params: pricing_unit_params, package_kind: package_kind).value!
+            ::BenefitMarkets::Operations::PricingUnits::Create.new.call(pricing_unit_params: pricing_unit_params, package_kind: package_kind, product_kind: product_kind).value!
           end
         end
 
         def build_contribution_model_entity(params)
           params[:contribution_units] = contribution_unit_models_for(params)
-          contribution_model_entity = ::BenefitMarkets::Operations::ContributionModels::Create.new.call(contribution_params: params).value!
+          ::BenefitMarkets::Operations::ContributionModels::Create.new.call(contribution_params: params).value!
         end
-
 
         def contribution_models_for(contribution_models_params)
           contribution_models_params.collect do |contribution_model_params|

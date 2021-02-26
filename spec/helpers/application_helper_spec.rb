@@ -549,10 +549,14 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
 
     context 'for non 1/1 plan year' do
-      let!(:initial_application_update) {initial_application.update_attributes(effective_period: date_range.min + 1.month..date_range.max + 1.month)}
+      let(:start_on) { date_range.min + 1.month }
+      let(:end_on)  { date_range.max + 1.month }
+      let!(:initial_application_update) {initial_application.update_attributes(effective_period: start_on..end_on)}
 
       it 'should return no' do
-        expect(helper.participation_rule(employer)).to eq '1. 2/3 Rule Met? : No (4 more required)'
+        display_text =
+          EnrollRegistry.feature_enabled?("aca_shop_fetch_enrollment_minimum_participation_#{start_on.year}".to_sym) ? "1. 2/3 Rule Met? : Yes" : '1. 2/3 Rule Met? : No (4 more required)'
+        expect(helper.participation_rule(employer)).to eq display_text
       end
     end
   end

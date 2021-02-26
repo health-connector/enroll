@@ -12,7 +12,7 @@ RSpec.describe BenefitSponsors::Entities::EnrollmentEligibility do
     let(:market_kind)               { :aca_shop }
     let(:benefit_sponsorship_id)    { BSON::ObjectId.new }
     let(:benefit_application_kind)  { :initial }
-    let(:service_area)              { FactoryBot.create(:benefit_markets_locations_service_area) }
+    let(:service_area)              { create(:benefit_markets_locations_service_area) }
 
     let(:required_params) do
       {

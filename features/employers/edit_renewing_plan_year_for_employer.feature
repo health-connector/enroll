@@ -23,4 +23,4 @@ Feature: As a renewing employer I should not be able to set contribution percent
       | contribution_percent | plan_year_btn_enabled |
       | 100                  | true                  |
       | 60                   | true                  |
-      | 20                   | false                 |
+      | 20                   | true                  |

@@ -6,7 +6,6 @@ require 'dry/monads/do'
 module BenefitMarkets
   module Operations
     module ContributionModels
-
       class Assign
         # include Dry::Monads::Do.for(:call)
         include Dry::Monads[:result, :do]
@@ -43,8 +42,8 @@ module BenefitMarkets
         def match_criterion(criteria, enrollment_eligibility)
           if criteria.size > 1
             sorted_criteria = criteria.sort_by{|ele| ele.setting(:order).item}
-            criterion       = sorted_criteria.detect {|criterion| criterion_matches?(criterion, enrollment_eligibility) }
-            criterion       = criteria.detect {|criterion| criterion.setting(:default).item } if criterion.blank?
+            criterion       = sorted_criteria.detect {|c| criterion_matches?(c, enrollment_eligibility) }
+            criterion       = criteria.detect {|c| c.setting(:default).item } if criterion.blank?
           else
             criterion = criteria.first
           end
@@ -68,8 +67,10 @@ module BenefitMarkets
 
         def criterion_matches?(criterion, enrollment_eligibility)
           criterion_application_kind = criterion.setting(:benefit_application_kind).item
-
-          (criterion_application_kind == enrollment_eligibility.benefit_application_kind) && criterion.setting(:effective_period).item.cover?(enrollment_eligibility.effective_date)
+          min = Date.strptime(criterion.setting(:effective_period).item.split('..')[0], '%m/%d/%Y')
+          max = Date.strptime(criterion.setting(:effective_period).item.split('..')[1], '%m/%d/%Y')
+          date = min..max
+          (criterion_application_kind == enrollment_eligibility.benefit_application_kind) && date.cover?(enrollment_eligibility.effective_date)
         end
       end
     end

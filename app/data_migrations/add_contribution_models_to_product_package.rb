@@ -5,7 +5,7 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 class AddContributionModelsToProductPackage < MongoidMigrationTask
 
   def migrate
-    date = Date.new(2020,1,1)
+    date = Date.new(2021,1,1)
     site = BenefitSponsors::Site.by_site_key(Settings.site.key).first
 
     title_percentage_pair = {
@@ -19,13 +19,13 @@ class AddContributionModelsToProductPackage < MongoidMigrationTask
     raise "Unable to find benefit market catalog for the #{date.to_date}" unless benefit_market_catalog
 
     benefit_market_catalog.product_packages.each do |product_package|
-      if product_package.product_kind == :health
-        product_package.contribution_models = title_percentage_pair.collect do |title, pct|
-          contribution_model = create_contribution_model(product_package.contribution_model)
-          update_title_and_contribution_percentages(contribution_model, title, pct)
-        end
-        product_package.save
+      next unless product_package.product_kind == :health
+
+      product_package.contribution_models = title_percentage_pair.collect do |title, pct|
+        contribution_model = create_contribution_model(product_package.contribution_model)
+        update_title_and_contribution_percentages(contribution_model, title, pct)
       end
+      product_package.save
     end
 
     benefit_market_catalog.save!
@@ -40,7 +40,7 @@ class AddContributionModelsToProductPackage < MongoidMigrationTask
 
   def update_title_and_contribution_percentages(contribution_model, title, pct)
     contribution_model.title = title.to_s.humanize.titleize
-    contribution_model.key = title.to_s.parameterize(separator: '_').to_sym
+    contribution_model.key = title
 
     contribution_model.contribution_units.each do |contribution_unit|
       if contribution_unit.name == 'employee'

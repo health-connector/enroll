@@ -6,7 +6,7 @@ RSpec.describe BenefitMarkets::Entities::BenefitSponsorCatalog do
 
   context "Given valid required parameters" do
 
-    let(:contract)                { BenefitMarkets::Validators::BenefitSponsorCatalogContract.new }
+    let(:contract)                { BenefitMarkets::Validators::BenefitSponsorCatalogs::BenefitSponsorCatalogContract.new }
 
     let(:effective_date)          { TimeKeeper.date_of_record.next_month.beginning_of_month }
     let(:effective_period)        { effective_date..((effective_date + 1.year).prev_day) }
@@ -21,12 +21,12 @@ RSpec.describe BenefitMarkets::Entities::BenefitSponsorCatalog do
 
     let(:premium_ages)            { 16..40 }
 
-    let(:pricing_units)           { [{_id: BSON::ObjectId('5b044e499f880b5d6f36c791'), name: 'name', display_name: 'Employee Only', order: 1}] }
-    let(:member_relationships)          { [{relationship_name: :employee, relationship_kinds: ['self'], age_threshold: 18, age_comparison: :==, disability_qualifier: true}] }
+    let(:pricing_units)           { [{_id: BSON::ObjectId.new, name: 'name', display_name: 'Employee Only', order: 1}] }
+    let(:member_relationships)          { [{_id: BSON::ObjectId.new, relationship_name: :employee, relationship_kinds: ['self'], age_threshold: 18, age_comparison: :==, disability_qualifier: true}] }
 
     let(:pricing_model) do
       {
-        _id: BSON::ObjectId('5b044e499f880b5d6f36c791'),
+        _id: BSON::ObjectId.new,
         name: 'name', price_calculator_kind: 'price_calculator_kind', pricing_units: pricing_units,
         product_multiplicities: [:product_multiplicities], member_relationships: member_relationships
       }
@@ -35,24 +35,31 @@ RSpec.describe BenefitMarkets::Entities::BenefitSponsorCatalog do
     let(:contribution_unit) do
       {
         name: "Employee",
-         _id: BSON::ObjectId('5b044e499f880b5d6f36c791'),
+        _id: BSON::ObjectId.new,
         display_name: "Employee Only",
         order: 1,
-        member_relationship_maps: [relationship_name: :employee, operator: :==, count: 1]
+        member_relationship_maps: [_id: BSON::ObjectId.new, relationship_name: :employee, operator: :==, count: 1]
       }
     end
 
     let(:contribution_model) do
       {
-        _id: BSON::ObjectId('5b044e499f880b5d6f36c791'),
+        _id: BSON::ObjectId.new,
         title: 'title', key: :key, sponsor_contribution_kind: 'sponsor_contribution_kind', contribution_calculator_kind: 'contribution_calculator_kind',
         many_simultaneous_contribution_units: true, product_multiplicities: [:product_multiplicities1, :product_multiplicities2],
         member_relationships: member_relationships, contribution_units: [contribution_unit]
       }
     end
 
-    let(:premium_tuples)   { {age: 12, cost: 227.07} }
-    let(:premium_tables)   { [{effective_period: effective_period, rating_area_id: BSON::ObjectId.new, premium_tuples: [premium_tuples]}] }
+    let(:sbc_document) do
+      {
+        title: 'title', creator: 'creator', publisher: 'publisher', format: 'file_format',
+        language: 'language', type: 'type', source: 'source'
+      }
+    end
+
+    let(:premium_tuples)   { {_id: BSON::ObjectId.new, age: 12, cost: 227.07} }
+    let(:premium_tables)   { [{_id: BSON::ObjectId.new, effective_period: effective_period, rating_area_id: BSON::ObjectId.new, premium_tuples: [premium_tuples]}] }
 
     let(:product) do
       {
@@ -63,7 +70,7 @@ RSpec.describe BenefitMarkets::Entities::BenefitSponsorCatalog do
         issuer_profile_id: BSON::ObjectId.new, premium_ages: 19..60, provider_directory_url: 'provider_directory_url',
         is_reference_plan_eligible: true, deductible: '123', family_deductible: '345', rx_formulary_url: 'rx_formulary_url',
         issuer_assigned_id: 'issuer_assigned_id', service_area_id: BSON::ObjectId.new, network_information: 'network_information',
-        nationwide: true, dc_in_network: false, sbc_document: nil, premium_tables: premium_tables, renewal_product_id: nil
+        sbc_document: nil, premium_tables: premium_tables, renewal_product_id: nil
       }
     end
 

@@ -7,10 +7,10 @@ RSpec.describe BenefitMarkets::Operations::ProductPackages::Create, dbclean: :af
   let(:effective_date)          { TimeKeeper.date_of_record.next_month.beginning_of_month }
   let(:application_period)      { effective_date..(effective_date + 1.year).prev_day }
   let(:pricing_units)           { [{_id: BSON::ObjectId('5b044e499f880b5d6f36c78d'), name: 'name', display_name: 'Employee Only', order: 1}] }
-  let(:premium_tuples)          { {age: 12, cost: 227.07} }
+  let(:premium_tuples)          { {_id: BSON::ObjectId.new, age: 12, cost: 227.07} }
   let(:effective_period)        { effective_date.beginning_of_year..effective_date.end_of_year }
-  let(:premium_tables)          { [{effective_period: effective_period, rating_area_id: BSON::ObjectId.new, premium_tuples: [premium_tuples]}] }
-  let(:member_relationships)    { [{relationship_name: :employee, relationship_kinds: ['self'], age_threshold: 18, age_comparison: :==, disability_qualifier: true}] }
+  let(:premium_tables)          { [{_id: BSON::ObjectId.new, effective_period: effective_period, rating_area_id: BSON::ObjectId.new, premium_tuples: [premium_tuples]}] }
+  let(:member_relationships)    { [{_id: BSON::ObjectId.new, relationship_name: :employee, relationship_kinds: ['self'], age_threshold: 18, age_comparison: :==, disability_qualifier: true}] }
   let(:oe_start_on)             { TimeKeeper.date_of_record.beginning_of_month}
   let(:open_enrollment_period)  { oe_start_on..(oe_start_on + 10.days) }
 
@@ -28,17 +28,24 @@ RSpec.describe BenefitMarkets::Operations::ProductPackages::Create, dbclean: :af
       name: "Employee",
       display_name: "Employee Only",
       order: 1,
-      member_relationship_maps: [relationship_name: :employee, operator: :==, count: 1]
+      member_relationship_maps: [_id: BSON::ObjectId.new, relationship_name: :employee, operator: :==, count: 1]
     }
   end
 
   let(:contribution_model) do
-    ::BenefitMarkets::Entities::ContributionModel.new({
-      _id: BSON::ObjectId('5b044e499f880b5d6f36c78d'),
-      title: 'title', key: :zero_percent_sponsor_fixed_percent_contribution_model, sponsor_contribution_kind: 'sponsor_contribution_kind', contribution_calculator_kind: 'contribution_calculator_kind',
-      many_simultaneous_contribution_units: true, product_multiplicities: [:product_multiplicities1, :product_multiplicities2],
-      member_relationships: member_relationships, contribution_units: [contribution_unit]
-    })
+    ::BenefitMarkets::Entities::ContributionModel.new(
+      {
+        _id: BSON::ObjectId('5b044e499f880b5d6f36c78d'),
+        title: 'title',
+        key: :zero_percent_sponsor_fixed_percent_contribution_model,
+        sponsor_contribution_kind: 'sponsor_contribution_kind',
+        contribution_calculator_kind: 'contribution_calculator_kind',
+        many_simultaneous_contribution_units: true,
+        product_multiplicities: [:product_multiplicities1, :product_multiplicities2],
+        member_relationships: member_relationships,
+        contribution_units: [contribution_unit]
+      }
+    )
   end
 
   let(:product_params) do
@@ -50,7 +57,7 @@ RSpec.describe BenefitMarkets::Operations::ProductPackages::Create, dbclean: :af
       issuer_profile_id: BSON::ObjectId.new, premium_ages: 19..60, provider_directory_url: 'provider_directory_url',
       is_reference_plan_eligible: true, deductible: '123', family_deductible: '345', rx_formulary_url: 'rx_formulary_url',
       issuer_assigned_id: 'issuer_assigned_id', service_area_id: BSON::ObjectId.new, network_information: 'network_information',
-      nationwide: true, dc_in_network: false, sbc_document: nil, premium_tables: premium_tables, renewal_product_id: nil,
+      sbc_document: nil, premium_tables: premium_tables, renewal_product_id: nil
     }
   end
 
@@ -62,7 +69,7 @@ RSpec.describe BenefitMarkets::Operations::ProductPackages::Create, dbclean: :af
       pricing_model: pricing_model, description: 'description', assigned_contribution_model: contribution_model.to_h
     }
   end
-  let(:service_areas)          { FactoryBot.create(:benefit_markets_locations_service_area).to_a }
+  let(:service_areas)          { create(:benefit_markets_locations_service_area).to_a }
   let(:params)                 { {product_package_params: product_package_params, enrollment_eligibility: double(effective_date: effective_date, market_kind: :aca_shop, benefit_application_kind: :initial, service_areas: service_areas)} }
 
   context 'sending required parameters' do

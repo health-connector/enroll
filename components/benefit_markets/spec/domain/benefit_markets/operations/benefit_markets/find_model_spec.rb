@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe BenefitMarkets::Operations::BenefitMarkets::FindModel, dbclean: :after_each do
 
-  let(:site)            { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :with_benefit_market_catalog_and_product_packages, Settings.site.key) }
+  let(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :with_benefit_market_catalog_and_product_packages, Settings.site.key) }
   let!(:benefit_market) { site.benefit_markets.first }
   let(:market_kind)     { :aca_shop }
   let(:params)          { {market_kind: market_kind} }
