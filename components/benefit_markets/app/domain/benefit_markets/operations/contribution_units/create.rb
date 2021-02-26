@@ -6,7 +6,6 @@ require 'dry/monads/do'
 module BenefitMarkets
   module Operations
     module ContributionUnits
-
       class Create
         # include Dry::Monads::Do.for(:call)
         include Dry::Monads[:result, :do]
@@ -36,7 +35,7 @@ module BenefitMarkets
         end
 
         def fetch_contribution_unit_kind(kind)
-          sponsor_contribution_kind = kind.split('::').last
+          sponsor_contribution_kind = kind.demodulize
           contribution_unit_type =
             case sponsor_contribution_kind
             when 'FixedPercentSponsorContribution'

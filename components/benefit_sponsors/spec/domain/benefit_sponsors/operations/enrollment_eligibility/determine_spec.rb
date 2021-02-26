@@ -12,14 +12,11 @@ RSpec.describe BenefitSponsors::Operations::EnrollmentEligibility::Determine, db
 
   describe 'for organization with no applications' do
 
-    let!(:abc_organization) do
-      org_id = BenefitSponsors::OrganizationSpecHelpers.with_aca_shop_employer_profile(site)
-      BenefitSponsors::Organizations::GeneralOrganization.find(org_id)
-    end
+    let!(:abc_organization)         { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
 
     let!(:benefit_market_catalog)   { current_benefit_market_catalog }
 
-    let!(:service_area)             { FactoryBot.create_default :benefit_markets_locations_service_area, active_year: TimeKeeper.date_of_record.year }
+    let!(:service_area)             { create_default :benefit_markets_locations_service_area, active_year: TimeKeeper.date_of_record.year }
 
     let(:abc_profile)               { abc_organization.employer_profile }
     let!(:benefit_sponsorship) do

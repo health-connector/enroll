@@ -22,7 +22,11 @@ module BenefitSponsors
       it { is_expected.to belong_to(:organization).as_inverse_of(:benefit_sponsorships)}
 
       context "built from a Profile" do
-        subject { employer_profile.add_benefit_sponsorship }
+        let(:subject) do
+          sponsorship = employer_profile.add_benefit_sponsorship
+          sponsorship.save
+          sponsorship
+        end
 
         context "with all required arguments" do
 
@@ -174,7 +178,11 @@ module BenefitSponsors
       context "when benefit sponsorship is CCA SHOP employer" do
         let(:cca_employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
         let(:cca_profile)                 { cca_employer_organization.employer_profile  }
-        let(:benefit_sponsorship)         { cca_profile.add_benefit_sponsorship }
+        let(:benefit_sponsorship) do
+          sponsorship = cca_profile.add_benefit_sponsorship
+          sponsorship.save
+          sponsorship
+        end
 
         it "should be valid" do
           expect(benefit_sponsorship.valid?).to be true
@@ -183,10 +191,15 @@ module BenefitSponsors
     end
 
     describe "Finding a BenefitSponsorCatalog" do
-      let(:benefit_sponsorship)                 { employer_profile.add_benefit_sponsorship }
+      let(:benefit_sponsorship) do
+        sponsorship = employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
       let(:next_year)                           { Date.today.year + 1 }
       let(:application_period_next_year)        { (Date.new(next_year,1,1))..(Date.new(next_year,12,31)) }
-      let!(:benefit_market_catalog_next_year)   { FactoryGirl.build(:benefit_markets_benefit_market_catalog, benefit_market: nil, application_period: application_period_next_year) }
+      let!(:issuer_profile)  { create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+      let!(:benefit_market_catalog_next_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_next_year) }
 
       before { benefit_market.add_benefit_market_catalog(benefit_market_catalog_next_year) }
 
@@ -202,7 +215,7 @@ module BenefitSponsors
 
         # before { benefit_market.benefit_market_catalogs = benefit_market_catalogs }
         it "should find a benefit_market_catalog" do
-          expect(benefit_sponsorship.benefit_sponsor_catalog_for([], effective_date)).to be_an_instance_of(BenefitMarkets::BenefitSponsorCatalog)
+          expect(benefit_sponsorship.benefit_sponsor_catalog_for(effective_date)).to be_an_instance_of(BenefitMarkets::BenefitSponsorCatalog)
         end
       end
 
@@ -210,7 +223,7 @@ module BenefitSponsors
         let(:future_effective_date)  { Date.new((next_year + 2),1,1) }
 
         it "should not find a benefit_market_catalog" do
-          expect{benefit_sponsorship.benefit_sponsor_catalog_for([], future_effective_date)}.to raise_error(/benefit_market_catalog not found for effective date: #{future_effective_date}/)
+          expect{benefit_sponsorship.benefit_sponsor_catalog_for(future_effective_date)}.to raise_error(/benefit_market_catalog not found for effective date: #{future_effective_date}/)
         end
       end
     end
@@ -281,7 +294,12 @@ module BenefitSponsors
     end
 
     describe "Transitioning a BenefitSponsorship through Initial Application Workflow States" do
-      let(:benefit_sponsorship)                 { employer_profile.add_benefit_sponsorship }
+      let(:benefit_sponsorship) do
+        sponsorship = employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
+
       let(:this_year)                           { Date.today.year }
       let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
       let(:service_area) { create_default(:benefit_markets_locations_service_area) }
@@ -491,7 +509,11 @@ module BenefitSponsors
     end
 
     describe "submitted_benefit_application", :dbclean => :after_each do
-      let(:benefit_sponsorship)             { employer_profile.add_benefit_sponsorship }
+      let(:benefit_sponsorship) do
+        sponsorship = employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
       let!(:imported_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
                                                         benefit_sponsorship: benefit_sponsorship,
                                                         recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :imported) }
@@ -1069,26 +1091,34 @@ module BenefitSponsors
       let(:effective_date)            { TimeKeeper.date_of_record.next_month.beginning_of_month  }
       let!(:benefit_sponsorship) do
         create(
-            :benefit_sponsors_benefit_sponsorship,
-            :with_organization_cca_profile,
-            :with_renewal_benefit_application,
-            initial_application_state: :active,
-            renewal_application_state: :enrollment_ineligible,
-            default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
-            site: site,
-            aasm_state: :active
+          :benefit_sponsors_benefit_sponsorship,
+          :with_organization_cca_profile,
+          :with_renewal_benefit_application,
+          initial_application_state: :active,
+          renewal_application_state: :enrollment_ineligible,
+          default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
+          site: site,
+          aasm_state: :active
         )
       end
       let!(:expired_benefit_application) do
-        expired_application = FactoryBot.create(:benefit_sponsors_benefit_application,
-                          benefit_sponsorship: benefit_sponsorship,
-                          recorded_service_areas: benefit_sponsorship.primary_office_service_areas,
-                          aasm_state: :expired,
-                          effective_period: (benefit_sponsorship.active_benefit_application.start_on - 1.year..benefit_sponsorship.active_benefit_application.start_on - 1.day))
+        expired_application = FactoryGirl.create(
+          :benefit_sponsors_benefit_application,
+          benefit_sponsorship: benefit_sponsorship,
+          recorded_service_areas: benefit_sponsorship.primary_office_service_areas,
+          aasm_state: :expired,
+          effective_period: (benefit_sponsorship.active_benefit_application.start_on - 1.year..benefit_sponsorship.active_benefit_application.start_on - 1.day)
+        )
         active_application = benefit_sponsorship.active_benefit_application
         active_application.predecessor = expired_application
         active_application.save
         expired_application
+      end
+
+      before do
+        benefit_sponsorship.benefit_applications.each do |ba|
+          ba.update_attributes(updated_at: ba.start_on)
+        end
       end
 
       context "when renewal application is ineligible" do
@@ -1099,7 +1129,7 @@ module BenefitSponsors
 
       context "when renewal application is eligible" do
         before do
-          benefit_sponsorship.renewal_benefit_application.update_attributes(aasm_state:'enrollment_eligible')
+          benefit_sponsorship.renewal_benefit_application.update_attributes(aasm_state: 'enrollment_eligible')
         end
         it 'should return renewal application' do
           expect(benefit_sponsorship.late_renewal_benefit_application).to eq benefit_sponsorship.renewal_benefit_application

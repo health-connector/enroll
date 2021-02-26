@@ -17,12 +17,12 @@
 module BenefitSponsors
   class BenefitApplications::AcaShopEnrollmentEligibilityPolicy
     include BenefitMarkets::BusinessRulesEngine
-
+    # rubocop:disable Layout/AlignParameters - Tried several approaches.
     rule  :minimum_participation_rule,
             validate: ->(benefit_application){benefit_application.enrollment_ratio >= benefit_application.employee_participation_ratio_minimum},
             success:  ->(benefit_application){"validated successfully"},
             fail:     ->(benefit_application){"Number of eligible members enrolling: (#{benefit_application.total_enrolled_count}) is less than minimum required: #{benefit_application.eligible_to_enroll_count * benefit_application.employee_participation_ratio_minimum}" }
-
+    # rubocop:enable Layout/AlignParameters
     rule  :non_business_owner_enrollment_count,
             validate: ->(benefit_application){
                             benefit_application.non_business_owner_enrolled.count <= benefit_application.eligible_to_enroll_count &&
@@ -39,16 +39,31 @@ module BenefitSponsors
     business_policy :enrollment_elgibility_policy,
                     rules: [:minimum_participation_rule, :non_business_owner_enrollment_count, :minimum_eligible_member_count]
 
+    # For 1/1 effective date minimum participation rule does not apply
+    # 1+ non-owner rule does apply
+    business_policy :non_minimum_participation_enrollment_eligiblity_policy,
+                    rules: [:non_business_owner_enrollment_count, :minimum_eligible_member_count]
+
+
     def business_policies_for(model_instance, event_name)
       if model_instance.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
-        enrollment_eligiblity_policy_for(model_instance)
+        case event_name
+          when :end_open_enrollment
+            enrollment_eligiblity_policy_for(model_instance)
+          else
+            enrollment_eligiblity_policy_for(model_instance)
+        end
       end
     end
 
     private
 
     def enrollment_eligiblity_policy_for(model_instance)
-      business_policies[:enrollment_elgibility_policy]
+      if model_instance.start_on.yday == 1
+        business_policies[:non_minimum_participation_enrollment_eligiblity_policy]
+      else
+        business_policies[:enrollment_elgibility_policy]
+      end
     end
   end
 end

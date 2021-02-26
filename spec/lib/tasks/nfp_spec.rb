@@ -13,11 +13,17 @@ RSpec.describe 'upload the invoice to s3', :type => :task, dbclean: :after_each 
   let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
 
   let(:benefit_market)      { site.benefit_markets.first }
-  let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                          benefit_market: benefit_market,
-                                          title: "SHOP Benefits for #{current_effective_date.year}",
-                                          application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
-                                        }
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:benefit_market_catalog) do
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      issuer_profile: issuer_profile,
+      title: "SHOP Benefits for #{current_effective_date.year}",
+      application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
+    )
+  end
   let!(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site, hbx_id: "211045") }
   let!(:file_path) { "spec/test_data/invoices/211045_12062017_INVOICE_R.pdf" }
   let(:employer_profile)    { organization.employer_profile }

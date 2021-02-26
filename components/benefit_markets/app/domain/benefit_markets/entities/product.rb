@@ -22,8 +22,8 @@ module BenefitMarkets
       attribute :issuer_assigned_id,          Types::String.optional
       attribute :service_area_id,             Types::Bson
       attribute :network_information,         Types::String.optional
-      attribute :nationwide,                  Types::Bool.optional
-      attribute :dc_in_network,               Types::Bool.optional
+      # attribute :nationwide,                  Types::Bool.optional
+      # attribute :dc_in_network,               Types::Bool.optional
       attribute :renewal_product_id,          Types::Bson.optional
 
       attribute :sbc_document,                BenefitMarkets::Entities::Document.optional.meta(omittable: true)

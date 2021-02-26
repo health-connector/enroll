@@ -56,7 +56,8 @@ module BenefitSponsors
         }
 
         it "should falsify when rules not satified" do
-          expect(policy.is_satisfied?(benefit_application)).to eq false
+          expectation = ::EnrollRegistry.feature_enabled?("aca_shop_fetch_enrollment_minimum_participation_#{benefit_application.start_on.year}")
+          expect(policy.is_satisfied?(benefit_application)).to eq expectation
         end
       end
     end
@@ -181,10 +182,11 @@ module BenefitSponsors
         it "should fail the policy" do
           policy = subject.business_policies_for(benefit_application, :end_open_enrollment)
           # Making the system to default to amnesty rules for release 1.
+          expectation = ::EnrollRegistry.feature_enabled?("aca_shop_fetch_enrollment_minimum_participation_#{benefit_application.start_on.year}")
           if benefit_application.start_on.yday == 1
             expect(policy.is_satisfied?(benefit_application)).to eq true
           else
-            expect(policy.is_satisfied?(benefit_application)).to eq false
+            expect(policy.is_satisfied?(benefit_application)).to eq expectation
           end
         end
       end

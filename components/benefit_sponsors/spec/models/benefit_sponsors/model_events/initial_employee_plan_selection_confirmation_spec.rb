@@ -24,7 +24,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   let!(:organization_with_hbx_profile)  { site.owner_organization }
   let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
-  let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+  let!(:benefit_sponsorship) do
+    sponsorship = employer_profile.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
   let(:effective_period) { start_on..(start_on + 1.year) - 1.day }
   let!(:service_areas) { benefit_sponsorship.service_areas_on(effective_period.min) }
   let!(:benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min) }

@@ -2114,9 +2114,7 @@ describe HbxEnrollment, type: :model, :dbclean => :after_each do
 
         let(:renewal_application) do
           renewal_effective_date = current_effective_date.next_year
-          service_areas = initial_application.benefit_sponsorship.service_areas_on(renewal_effective_date)
-          benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, renewal_effective_date)
-          r_application = initial_application.renew(benefit_sponsor_catalog)
+          r_application = initial_application.renew
           r_application.save
           r_application
         end

@@ -46,8 +46,8 @@ module BenefitSponsors
 
       context "when employer has renewing application" do
 
-        let!(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(current_effective_date.next_year), current_effective_date.next_year) }
-        let!(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+        let!(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(current_effective_date.next_year) }
+        let!(:renewal_application)             { initial_application.renew }
 
         before do
           subject.new(initial_application, {end_on: past_end_on, termination_kind: termination_kind, termination_reason: termination_reason, transmit_to_carrier: false}).terminate_application
