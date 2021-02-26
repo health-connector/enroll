@@ -205,24 +205,31 @@ module BenefitSponsors
     end
 
     describe '.create_or_cancel_draft_ba' do
-      let!(:rating_area)                  { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-      let!(:service_area)                 { FactoryGirl.create_default :benefit_markets_locations_service_area }
+      let!(:rating_area)                  { FactoryGirl.create_default :benefit_markets_locations_rating_area, active_year: effective_period.min.year }
+      let!(:service_area)                 { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: effective_period.min.year }
       let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:benefit_market)                { site.benefit_markets.first }
       let(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
-      let(:benefit_sponsorship)           { bs = employer_profile.add_benefit_sponsorship
-                                            bs.save!
-                                            bs }
+      let!(:benefit_sponsorship) do
+        bs = employer_profile.add_benefit_sponsorship
+        bs.save!
+        bs
+      end
       let(:effective_period)              { Date.new(2019, 02, 01)..Date.new(2020,01,31) }
       let(:create_ba_params)              { { "start_on"=>effective_period.min.to_s, "end_on"=>effective_period.max.to_s, "fte_count"=>"11",
                                               "open_enrollment_start_on"=>"01/15/2019", "open_enrollment_end_on"=>"01/20/2019",
                                               "benefit_sponsorship_id"=> benefit_sponsorship.id.to_s} }
-      let!(:current_benefit_market_catalog) do
-        BenefitSponsors::ProductSpecHelpers.construct_cca_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
-        benefit_market.benefit_market_catalogs.where(
-          "application_period.min" => effective_period.min.to_s
-        ).first
+      let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+      let!(:benefit_market_catalog) do
+        create(
+          :benefit_markets_benefit_market_catalog,
+          :with_product_packages,
+          benefit_market: benefit_market,
+          issuer_profile: issuer_profile,
+          title: "SHOP Benefits for #{effective_period.min.year}",
+          application_period: (effective_period.min.beginning_of_year..effective_period.min.end_of_year)
+        )
       end
 
       context 'for admin_datatable_action' do

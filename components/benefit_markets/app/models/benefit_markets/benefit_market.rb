@@ -31,6 +31,8 @@ module BenefitMarkets
 
     index({ kind:  1 })
 
+    scope :by_market_kind,         ->(market_kind){ where(:kind => market_kind) }
+
     delegate :enforce_employer_attestation, to: :configuration, allow_nil: true
 
     # BenefitMarketCatalogs may not overlap application_periods
@@ -65,7 +67,7 @@ module BenefitMarkets
       # BenfitMarkets::Operations::BenefitMarketCatalog::Find.new.call(effective_date, market_kind)
       # BenefitSponsorCatalogFactory.call(effective_date, benefit_catalog, service_areas)
 
-      service_area_entities = service_areas.inject([]) do |entities, service_area| 
+      service_area_entities = service_areas.inject([]) do |entities, service_area|
         result = BenefitMarkets::Operations::ServiceAreas::Create.new.call(service_area.as_json.deep_symbolize_keys)
 
         if result.success?

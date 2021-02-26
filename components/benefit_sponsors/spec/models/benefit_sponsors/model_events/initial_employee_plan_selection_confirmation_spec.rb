@@ -9,7 +9,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   let!(:organization_with_hbx_profile)  { site.owner_organization }
   let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
-  let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+  let!(:benefit_sponsorship) do
+    sponsorship = employer_profile.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
   let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application,
                               :with_benefit_package,
                               :benefit_sponsorship => benefit_sponsorship,

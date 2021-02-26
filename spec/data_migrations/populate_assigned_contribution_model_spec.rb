@@ -22,9 +22,13 @@ describe PopulateAssignedContributionModel, dbclean: :after_each do
     include_context 'setup initial benefit application'
 
     let(:current_effective_date) { TimeKeeper.date_of_record }
-    let!(:product_packages) do
+
+    before :each do
       benefit_sponsor_catalog.product_packages.by_product_kind(:health).each do |product_package|
-        product_package.assigned_contribution_model = nil
+        product_package.unset(:assigned_contribution_model)
+        contribution_unit = product_package.contribution_model.contribution_units.where(name: :employee).first
+        contribution_unit.update_attributes!(minimum_contribution_factor: 0.0)
+        contribution_unit.save
         product_package.save
       end
       benefit_sponsor_catalog.save!
@@ -33,17 +37,12 @@ describe PopulateAssignedContributionModel, dbclean: :after_each do
     let(:health_sponsor_contribution) { initial_application.benefit_packages.first.health_sponsored_benefit.sponsor_contribution }
 
     it 'should update assigned_contribution_model on health product_packages' do
-      expect(benefit_sponsor_catalog.product_packages.by_product_kind(:health).first.assigned_contribution_model.present?).to be_falsey
+      expect(benefit_sponsor_catalog.reload.product_packages.by_product_kind(:health).first.assigned_contribution_model.present?).to be_falsey
       subject.migrate
-      benefit_sponsor_catalog.reload
-      benefit_sponsor_catalog.product_packages.by_product_kind(:health).each do |product_package|
-        product_package.reload
-        expect(product_package.assigned_contribution_model.present?).to be_truthy
-      end
+      expect(benefit_sponsor_catalog.reload.product_packages.any? { |pp| pp.assigned_contribution_model.present? }).to be_truthy
     end
 
     it 'should have correct contribution unit ids on contribution levels' do
-      
       subject.migrate
       health_sponsor_contribution.contribution_levels.each do |contribution_level|
         health_sponsor_contribution.contribution_model.contribution_units.pluck(:_id).include?(contribution_level.contribution_unit_id)

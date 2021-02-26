@@ -5,7 +5,6 @@ FactoryGirl.define do
     application_period   Date.new(Date.today.year, 1, 1)..Date.new(Date.today.year, 12, 31)
     sequence(:hbx_id)    { |n| n + 12345 }
 
-<<<<<<< HEAD
     sequence(:title)     { |n| "BlueChoice Silver#{n} 2,000" }
     description          { "Highest rated and highest value" }
     health_plan_kind     { :pos }
@@ -13,13 +12,6 @@ FactoryGirl.define do
     metal_level_kind     { BenefitMarkets::Products::HealthProducts::HealthProduct::METAL_LEVEL_KINDS.sample }
     deductible           { "$500 per person" }
     family_deductible    { "$500 per person | $1000 per group" }
-=======
-    sequence(:title)     { |n| "#{issuer_name} #{metal_level_kind}#{n} 2,000" }
-    
-    dc_in_network        { true }
-    nationwide           { true }
-    
->>>>>>> 401fc1d808... operation specs
 
     product_package_kinds { [:single_product, :single_issuer, :metal_level] }
     sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }

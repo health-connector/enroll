@@ -8,7 +8,7 @@ RSpec.describe BenefitMarkets::Entities::PricingModel do
 
     let(:contract)           { BenefitMarkets::Validators::PricingModels::PricingModelContract.new }
     let(:pricing_units)            { [{_id: BSON::ObjectId('5b044e499f880b5d6f36c78d'), name: 'name', display_name: 'Employee Only', order: 1}] }
-    let(:member_relationships)     { [{relationship_name: :employee, relationship_kinds: [{}], age_threshold: 18, age_comparison: :==, disability_qualifier: true  }] }
+    let(:member_relationships)     { [{_id: BSON::ObjectId.new, relationship_name: :employee, relationship_kinds: [{}], age_threshold: 18, age_comparison: :==, disability_qualifier: true  }] }
 
     let(:required_params)  do
       {

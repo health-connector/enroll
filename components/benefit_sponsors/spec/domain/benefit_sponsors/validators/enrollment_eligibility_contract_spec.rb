@@ -8,7 +8,7 @@ RSpec.describe BenefitSponsors::Validators::EnrollmentEligibilityContract do
   let(:benefit_sponsorship_id)     { BSON::ObjectId.new }
   let(:effective_date)             { TimeKeeper.date_of_record.next_month.beginning_of_month }
   let(:benefit_application_kind)   { :initial }
-  let(:service_area)               { FactoryBot.create(:benefit_markets_locations_service_area) }
+  let(:service_area)               { create(:benefit_markets_locations_service_area) }
 
   let(:missing_params)             { {market_kind: market_kind, effective_date: effective_date, benefit_sponsorship_id: benefit_sponsorship_id  } }
   let(:invalid_params)             { missing_params.merge({service_areas: service_area.as_json, benefit_application_kind: 'initial' })}

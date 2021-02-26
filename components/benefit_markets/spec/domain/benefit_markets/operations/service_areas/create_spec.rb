@@ -16,7 +16,7 @@ RSpec.describe BenefitMarkets::Operations::ServiceAreas::Create, dbclean: :after
 
     it 'should create ServiceArea' do
       expect(subject.call(service_area_params: required_params).success?).to be_truthy
-      expect(subject.call(service_area_params: required_params).success.class.to_s).to match /BenefitMarkets::Entities::ServiceArea/
+      expect(subject.call(service_area_params: required_params).success.class.to_s).to match(/BenefitMarkets::Entities::ServiceArea/)
     end
   end
 end

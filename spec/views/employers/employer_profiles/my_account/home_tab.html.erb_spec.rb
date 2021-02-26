@@ -267,7 +267,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
       allow(cost_estimator).to receive(:calculate_estimates_for_home_display).and_return(estimator)
       allow(view).to receive(:pundit_class).and_return(double("EmployerProfilePolicy", updateable?: true))
       allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true))
-      
+
       assign :employer_profile, employer_profile
       assign :hbx_enrollments, [hbx_enrollment]
       assign :current_plan_year, employer_profile.published_plan_year

@@ -7,10 +7,10 @@ RSpec.describe BenefitMarkets::Operations::Products::Create, dbclean: :after_eac
   let(:effective_date)          { TimeKeeper.date_of_record.next_month.beginning_of_month }
   let(:application_period)      { effective_date..(effective_date + 1.year).prev_day }
   let(:pricing_units)           { [{name: 'name', display_name: 'Employee Only', order: 1}] }
-  let(:premium_tuples)          { {age: 12, cost: 227.07} }
+  let(:premium_tuples)          { {_id: BSON::ObjectId.new, age: 12, cost: 227.07} }
   let(:effective_period)        { effective_date.beginning_of_year..effective_date.end_of_year }
-  let(:premium_tables)          { [{effective_period: effective_period, premium_tuples: [premium_tuples], rating_area_id: BSON::ObjectId.new}] }
-  let(:member_relationships)    { [{relationship_name: :employee, relationship_kinds: ['self'], age_threshold: 18, age_comparison: :==, disability_qualifier: true}] }
+  let(:premium_tables)          { [{_id: BSON::ObjectId.new, effective_period: effective_period, premium_tuples: [premium_tuples], rating_area_id: BSON::ObjectId.new}] }
+  let(:member_relationships)    { [{_id: BSON::ObjectId.new, relationship_name: :employee, relationship_kinds: ['self'], age_threshold: 18, age_comparison: :==, disability_qualifier: true}] }
 
   let(:pricing_model) do
     {
@@ -24,7 +24,7 @@ RSpec.describe BenefitMarkets::Operations::Products::Create, dbclean: :after_eac
       name: "Employee",
       display_name: "Employee Only",
       order: 1,
-      member_relationship_maps: [relationship_name: :employee, operator: :==, count: 1]
+      member_relationship_maps: [_id: BSON::ObjectId.new, relationship_name: :employee, operator: :==, count: 1]
     }
   end
 
@@ -45,7 +45,7 @@ RSpec.describe BenefitMarkets::Operations::Products::Create, dbclean: :after_eac
       issuer_profile_id: BSON::ObjectId.new, premium_ages: 19..60, provider_directory_url: 'provider_directory_url',
       is_reference_plan_eligible: true, deductible: '123', family_deductible: '345', rx_formulary_url: 'rx_formulary_url',
       issuer_assigned_id: 'issuer_assigned_id', service_area_id: BSON::ObjectId.new, network_information: 'network_information',
-      nationwide: true, dc_in_network: false, sbc_document: nil, premium_tables: premium_tables, renewal_product_id: nil,
+      sbc_document: nil, premium_tables: premium_tables, renewal_product_id: nil
     }
   end
 

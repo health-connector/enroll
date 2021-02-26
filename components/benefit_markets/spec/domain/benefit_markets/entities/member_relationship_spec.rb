@@ -7,7 +7,7 @@ RSpec.describe BenefitMarkets::Entities::MemberRelationship do
   context "Given valid required parameters" do
 
     let(:contract)           { BenefitMarkets::Validators::ContributionModels::MemberRelationshipContract.new }
-    let(:required_params)    { {relationship_name: :employee, relationship_kinds: [{}], age_threshold: nil, age_comparison: nil, disability_qualifier: nil} }
+    let(:required_params)    { {_id: BSON::ObjectId.new, relationship_name: :employee, relationship_kinds: [{}], age_threshold: nil, age_comparison: nil, disability_qualifier: nil} }
 
     context "with required only" do
 

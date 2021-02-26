@@ -15,6 +15,7 @@ AllCops:
     - './components/benefit_sponsors/db/seedfiles/**/*'
     - './components/old_sponsored_benefits/**/*'
     - './eyes/enroll.eye.rb'
+    - './components/benefit_sponsors/spec/support/client_product_spec_helpers/*'
 
 Rails:
   Enabled: true
