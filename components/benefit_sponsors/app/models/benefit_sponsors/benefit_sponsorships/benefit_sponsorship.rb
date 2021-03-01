@@ -408,9 +408,10 @@ module BenefitSponsors
       benefit_market.benefit_market_catalog_effective_on(effective_date)
     end
 
-    def benefit_sponsor_catalog_for(recorded_service_areas, effective_date)
-      benefit_market_catalog = benefit_market_catalog_for(effective_date)
-      benefit_market_catalog.benefit_sponsor_catalog_for(service_areas: recorded_service_areas, effective_date: effective_date)
+    # TODO: Enable it for new domain benefit sponsor catalog
+    def benefit_sponsor_catalog_for(effective_date)
+      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: _id).value!
+      BenefitMarkets::BenefitSponsorCatalog.new(benefit_sponsor_catalog_entity.to_h)
     end
 
     def open_enrollment_period_for(effective_date)
@@ -478,13 +479,20 @@ module BenefitSponsors
       renewal_benefit_application.present? ? renewal_benefit_application.predecessor : most_recent_benefit_application
     end
 
-    def renewal_benefit_application
-      benefit_applications.order_by(:"created_at".desc).detect {|application| application.is_renewing? }
+    def dt_display_benefit_application
+      benefit_applications.where(:aasm_state.ne => :canceled).order_by(:"effective_period.min".desc).first || latest_benefit_application
     end
 
-    def late_renewal_benefit_application  # use this only for EDI
-      benefit_applications.order_by(:"created_at".desc).detect {|application|
-        application.predecessor.present? && [:active, :enrollment_eligible].include?(application.aasm_state) }
+    # use this only for EDI
+    def late_renewal_benefit_application
+      benefit_applications.order(updated_at: :desc).detect do |application|
+        application.predecessor.present? && application.start_on == application.predecessor.end_on + 1.day &&
+          [:active, :enrollment_eligible].include?(application.aasm_state) && application.start_on >= TimeKeeper.date_of_record - 1.month # grace period of one month for late renewal
+      end
+    end
+
+    def renewal_benefit_application
+      benefit_applications.order_by(:created_at.desc).detect(&:is_renewing?)
     end
 
     def active_benefit_application
@@ -729,6 +737,12 @@ module BenefitSponsors
     def self.find_by_feins(feins)
       organizations = BenefitSponsors::Organizations::Organization.where(fein: {:$in => feins})
       where(:organization_id => {:$in => organizations.pluck(:_id)})
+    end
+
+    def market_kind
+      return nil if benefit_market_id.blank?
+
+      @market_kind ||= benefit_market.kind
     end
 
     private

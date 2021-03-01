@@ -187,8 +187,9 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         aasm_state: 'draft',
         predecessor_id: nil,
         is_renewing?: false,
-        employer_profile: double(census_employees: double(active: active_employees))
-        )
+        employer_profile: double(census_employees: double(active: active_employees)),
+        employee_participation_ratio_minimum: Settings.aca.shop_market.employee_participation_ratio_minimum
+      )
     end
 
     def broker_role
