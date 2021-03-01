@@ -12,7 +12,6 @@ class AddContributionModelsToProductPackage < MongoidMigrationTask
       zero_percent_sponsor_fixed_percent_contribution_model: 0.0,
       fifty_percent_sponsor_fixed_percent_contribution_model: 0.5
     }
-    standard_pct_for_family = 0.33
 
     benefit_market = site.benefit_markets.where(kind: :aca_shop).first
     benefit_market_catalog = benefit_market.benefit_market_catalogs.by_application_date(date).first
