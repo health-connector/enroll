@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04]
-        node: [9.x]
+        node: [12.x]
         mongodb-version: ["3.6"]
         command_configs:
           - name: rspec 1/4
@@ -154,9 +154,9 @@ jobs:
               fi
             needs_chromedriver: true
     steps:
+      - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
-      - name: Setup Node.js for use with actions
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v2
         if: matrix.command_configs.skip_js != 'true'
         with:
           # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0, lts
@@ -166,12 +166,11 @@ jobs:
         if: matrix.command_configs.skip_js != 'true'
         with:
           mongoDBVersion: ${{ matrix.mongodb-version }}
-      - uses: actions/checkout@v2
       - name: Set up Chromedriver
         if: matrix.command_configs.needs_chromedriver
         uses: nanasess/setup-chromedriver@master
       - name: Cache Gems
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -180,7 +179,7 @@ jobs:
       - name: Cache Node Modules
         id: npm-cache
         if: matrix.command_configs.skip_js != 'true'
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: node_modules
           key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
