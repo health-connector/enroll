@@ -29,37 +29,37 @@
           .col-xs-7
             table style=("width: 100%; table-layout:fixed;")
               tr
-                td
+                td.row1
                   span.ttu.lg.twelve
                     | Type
                   br/
                   span.ttu.dg.fourteen
                     = @plan.product_type ? @plan.product_type.upcase : ""
-                td
-                  span.ttu.lg.twelve style=("margin-left: -10px")
+                td.row1
+                  span.ttu.lg.twelve
                     | Metal Level
                   br/
-                  span.ttu.dg.fourteen style=("margin-left: -10px")
+                  span.ttu.dg.fourteen
                     = display_dental_metal_level @plan
-                td
-                  span.ttu.lg.twelve style=("margin-left: -10px")
+                td.row1
+                  span.ttu.lg.twelve
                     | Network
                   br/
-                  span.ttu.dg.fourteen style=("margin-left: -10px")
+                  span.ttu.dg.fourteen
                     - if offers_nationwide_plans?
                       = @plan.nationwide ? "Nationwide" : "DC-Metro"
                     - else
                       - if @plan.network_information.present?
                         | Network Notes
                         i.fa.fa-question-circle data-toggle="tooltip" title="#{@plan.network_information}"
-                td
-                  span.ttu.lg.twelve style=("margin-left: -10px")
+                td.row1
+                  span.ttu.lg.twelve
                     - if @hbx_enrollment.hbx_enrollment_members.count > 1
                       | Family Deductible
                     - else
                       | Deductible
                   br/
-                  span.ttu.dg.fourteen style=("margin-left: -10px")
+                  span.ttu.dg.fourteen
                     = deductible_display(@hbx_enrollment, @plan)
           .col-xs-5
             .pull-right

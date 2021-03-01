@@ -5962,9 +5962,22 @@ button.close {
   height: 50px;
   overflow: scroll;
 }
+@media all and (max-width: 760px) and (min-width: 100px) {
+  .modal-dialog {
+    width: 650px;
+    margin: 30px auto;
+  }
+  .modal-content {
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+  }
+  .modal-sm {
+    width: 300px;
+  }
+}
 @media (min-width: 768px) {
   .modal-dialog {
-    width: 600px;
+    width: 650px;
     margin: 30px auto;
   }
   .modal-content {
@@ -5978,6 +5991,22 @@ button.close {
 @media (min-width: 992px) {
   .modal-lg {
     width: 900px;
+  }
+}
+@media all and (max-width: 1960px) and (min-width: 100px) {
+  .reference-plan-title {
+    height: 4em;
+  }
+}
+@media all and (max-width: 1300px) and (min-width: 1000px) {
+  .manage_family {
+    font-size: 0.8em;
+    padding: 6px 7px;
+  }
+}
+@media all and (max-width: 1600px) and (min-width: 1000px) {
+  .row1 {
+    width: 10em;
   }
 }
 .tooltip {

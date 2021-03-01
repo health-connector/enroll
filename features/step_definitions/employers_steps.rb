@@ -740,8 +740,16 @@ And(/^employer clicks on linked employee with address$/) do
   click_link @census_employees.first.full_name
 end
 
-Then(/^ER should land on (.*) EE tab$/) do |val|
-  expect(page.html).to match(/"#{val}"/)
+When(/^employer clicks an employee from the roster$/) do
+  click_link @census_employees.first.full_name
+end
+
+Then(/^employer should see the active enrollment tile$/) do
+  expect(page).to have_content(/HEALTH COVERAGE ABC WIDGETS/)
+end
+
+Then /^ER should land on (.*) EE tab$/ do |val|
+  expect(page.html).to match /val/
 end
 
 And(/^ER enters (.*) EE name on search bar$/) do |val|
