@@ -12,6 +12,7 @@ class AddContributionModelsToProductPackage < MongoidMigrationTask
       zero_percent_sponsor_fixed_percent_contribution_model: 0.0,
       fifty_percent_sponsor_fixed_percent_contribution_model: 0.5
     }
+    standard_pct_for_family = 0.33
 
     benefit_market = site.benefit_markets.where(kind: :aca_shop).first
     benefit_market_catalog = benefit_market.benefit_market_catalogs.by_application_date(date).first
@@ -43,12 +44,13 @@ class AddContributionModelsToProductPackage < MongoidMigrationTask
     contribution_model.key = title
 
     contribution_model.contribution_units.each do |contribution_unit|
-      if contribution_unit.name == 'employee'
+      pct_for_family = title.match?(/zero/) ? 0.0 : 0.33
+      if ['employee', 'employee_only'].include?(contribution_unit.name)
         contribution_unit.default_contribution_factor = pct
         contribution_unit.minimum_contribution_factor = pct
       else
-        contribution_unit.default_contribution_factor = 0.0
-        contribution_unit.minimum_contribution_factor = 0.0
+        contribution_unit.default_contribution_factor = pct_for_family
+        contribution_unit.minimum_contribution_factor = pct_for_family
       end
     end
     contribution_model
