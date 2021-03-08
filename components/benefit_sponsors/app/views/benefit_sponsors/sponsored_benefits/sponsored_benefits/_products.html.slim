@@ -38,8 +38,8 @@
 										                    .rp-plan-info Individual:
 										                    .rp-plan-info Family:
 										                  .pull-right
-										                    .rp-plan-info#ded-ind-value = product.deductible_value
-										                    .rp-plan-info#ded-fam-value = product.family_deductible_value
+															.rp-plan-info#ded-ind-value = "$#{product.deductible_value}"
+															.rp-plan-info#ded-fam-value = "$#{product.family_deductible_value}"
 		                                    span.plan-label Network:
 		                                    span.rp-plan-info
 		                                      - if product.network_information.present?
@@ -137,8 +137,8 @@ javascript:
 	    document.getElementById('plan-level-detail').innerHTML = element.dataset.planLevel.toUpperCase();
 	    // Network info to be updated
 	    if ( #{EnrollRegistry[:add_deductible_display].feature.is_enabled} ) {
-	      document.getElementById('ded-ind-detail').innerHTML = element.dataset.planDedInd;
-	      document.getElementById('ded-fam-detail').innerHTML = element.dataset.planDedFam;
+	      document.getElementById('ded-ind-detail').innerHTML = '$' + element.dataset.planDedInd;
+	      document.getElementById('ded-fam-detail').innerHTML = '$' + element.dataset.planDedFam;
 	    }
 
       fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID)

@@ -1,6 +1,14 @@
 class UsersController < ApplicationController
   before_filter :confirm_existing_password, only: [:change_password]
-  before_action :set_user, except: [:confirm_lock, :unsupportive_browser]
+  before_action :set_user, except: [:confirm_lock, :unsupportive_browser, :index, :show]
+
+  def index
+    redirect_to root_path
+  end
+
+  def show
+    redirect_to root_path
+  end
 
   def confirm_lock
     params.permit!

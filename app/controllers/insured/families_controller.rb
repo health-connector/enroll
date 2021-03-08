@@ -9,6 +9,7 @@ class Insured::FamiliesController < FamiliesController
   before_action :check_employee_role, :except => [:home]
   before_action :find_or_build_consumer_role, only: [:home]
   before_action :calculate_dates, only: [:check_move_reason, :check_marriage_reason, :check_insurance_reason]
+  before_action :transition_family_members_update_params, only: %i[transition_family_members_update]
 
   def home
     authorize @family, :show?
@@ -198,7 +199,7 @@ class Insured::FamiliesController < FamiliesController
   # admin manually uploads a notice for person
   def upload_notice
 
-    if (!params.permit![:file]) || (!params.permit![:subject])
+    if !params[:file] || !params[:subject]
       flash[:error] = "File or Subject not provided"
       redirect_to(:back)
       return
@@ -216,7 +217,7 @@ class Insured::FamiliesController < FamiliesController
       begin
         @person.documents << notice_document
         @person.save!
-        send_notice_upload_notifications(notice_document, params.permit![:subject])
+        send_notice_upload_notifications(notice_document, params[:subject])
         flash[:notice] = "File Saved"
       rescue => e
         flash[:error] = "Could not save file."
@@ -282,11 +283,11 @@ class Insured::FamiliesController < FamiliesController
     if @person.has_multiple_roles?
       if current_user.has_hbx_staff_role?
         @multiroles = @person.has_multiple_roles?
-        @manually_picked_role = params[:market] ? params[:market] : "shop_market_events"
+        @manually_picked_role = ["individual_market_events", "fehb_market_events", "shop_market_events"].include?(params[:market]) ? params[:market] : "shop_market_events"
         @qualifying_life_events += QualifyingLifeEventKind.send @manually_picked_role + '_admin' if @manually_picked_role
       else
         @multiroles = @person.has_multiple_roles?
-        @manually_picked_role = params[:market] ? params[:market] : "shop_market_events"
+        @manually_picked_role = ["individual_market_events", "fehb_market_events", "shop_market_events"].include?(params[:market]) ? params[:market] : "shop_market_events"
         if @manually_picked_role == "individual_market_events"
           @qualifying_life_events += QualifyingLifeEventKind.individual_market_events_admin
         else
@@ -336,11 +337,11 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def file_name
-    params.permit![:file].original_filename
+    params[:file]&.original_filename
   end
 
   def file_content_type
-    params.permit![:file].content_type
+    params[:file]&.content_type
   end
 
   def send_notice_upload_notifications(notice, subject)
