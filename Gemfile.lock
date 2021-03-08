@@ -544,7 +544,7 @@ GEM
     less-rails-bootstrap (3.3.1.0)
       less-rails (~> 2.6.0)
     libv8 (3.16.14.19)
-    loofah (2.3.1)
+    loofah (2.5.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
