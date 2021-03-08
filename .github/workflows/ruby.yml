@@ -150,8 +150,12 @@ jobs:
               fi
             needs_chromedriver: true
     steps:
-      - uses: ruby/setup-ruby@v1
-      - uses: actions/setup-node@v2
+      - name: Set up Ruby 2.6.5
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.5
+      - name: Setup Node.js for use with actions
+        uses: actions/setup-node@v1
         if: matrix.command_configs.skip_js != 'true'
         with:
           # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0, lts
