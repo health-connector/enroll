@@ -43,13 +43,9 @@ class Employers::CensusEmployeesController < ApplicationController
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
     @census_employee.attributes = census_employee_params.merge!({
       active_benefit_group_assignment: benefit_group_id,
-<<<<<<< HEAD
-      renewal_benefit_group_assignment: renewal_benefit_group_id
-=======
       renewal_benefit_group_assignment: renewal_benefit_group_id,
       off_cycle_benefit_group_assignment: off_cycle_benefit_group_id,
       no_ssn_allowed: @census_employee.no_ssn_allowed || @benefit_sponsorship.is_no_ssn_enabled
->>>>>>> b50f057988... refs #R4 Add off-cycle coverage status on the roster
     })
 
     destroyed_dependent_ids = census_employee_params[:census_dependents_attributes].delete_if{|k,v| v.has_key?("_destroy") }.values.map{|x| x[:id]} if census_employee_params[:census_dependents_attributes]

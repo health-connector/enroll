@@ -25,12 +25,14 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_package: sponsored_benefit_package, start_on: sponsored_benefit_package.start_on, end_on: coverage_terminated_on)}
   let!(:renewal_benefit_group_assignment) { build(:benefit_group_assignment, start_on: renewal_benefit_package.start_on, benefit_package: renewal_benefit_package, end_on: renewal_benefit_package.end_on)}
   let!(:ce) do
-    create :census_employee,
-                      :owner,
-                      employer_profile: employer_profile,
-                      dob: Date.new((coverage_terminated_on.year - 30), 9,8),
-                      employee_role_id: employee_role.id,
-                      benefit_group_assignments: [active_benefit_group_assignment, renewal_benefit_group_assignment]
+    FactoryGirl.create(
+      :census_employee,
+      :owner,
+      employer_profile: employer_profile,
+      dob: Date.new((coverage_terminated_on.year - 30), 9,8),
+      employee_role_id: employee_role.id,
+      benefit_group_assignments: [active_benefit_group_assignment, renewal_benefit_group_assignment]
+    )
   end
   let!(:ce_update){ce.update_attributes(aasm_state: 'cobra_linked', cobra_begin_date: coverage_terminated_on.next_day, coverage_terminated_on: coverage_terminated_on)}
 

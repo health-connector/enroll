@@ -77,7 +77,7 @@ describe ResolveCensusEmployeeValidationFailures do
 
         context 'when census employee missing benefit group assignment' do
 
-          # it 'should assign default benefit group assignment' do 
+          # it 'should assign default benefit group assignment' do
           #   ce.active_benefit_group_assignment.delete
           #   subject.migrate
           #   ce.reload

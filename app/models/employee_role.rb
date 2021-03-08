@@ -193,6 +193,7 @@ class EmployeeRole
 
   def benefit_begin_date
     return employer_profile.show_plan_year.start_on if is_case_old?
+
     employer_profile.published_benefit_application.start_on
   end
 

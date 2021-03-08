@@ -22,7 +22,7 @@ describe ChangeAasmStateDotCensusEmployee, dbclean: :after_each do
 
     before :each do
       allow(ENV).to receive(:[]).with('census_employee_id').and_return census_employee.id
-      census_employee.update_attributes!(aasm_state:'employment_terminated',employment_terminated_on:TimeKeeper.date_of_record,coverage_terminated_on:TimeKeeper.date_of_record)
+      census_employee.update_attributes!(aasm_state: 'employment_terminated', employment_terminated_on: TimeKeeper.date_of_record, coverage_terminated_on: TimeKeeper.date_of_record)
     end
     it "should change dot of ce not in employment termination state" do
       subject.migrate

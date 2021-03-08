@@ -113,6 +113,7 @@ module Notifier
       bgas << census_employee_record.renewal_benefit_group_assignment
       waiver_enr = bgas.compact.flat_map(&:hbx_enrollments).select {|en| HbxEnrollment::WAIVED_STATUSES.include?(en.aasm_state)}.first
       return false if waiver_enr.blank?
+
       waiver_enr.parent_enrollment.present?
     end
 

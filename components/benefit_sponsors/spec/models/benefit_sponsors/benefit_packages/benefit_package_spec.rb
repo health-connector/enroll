@@ -477,7 +477,7 @@ module BenefitSponsors
       let(:renewal_product_package)    { renewal_benefit_market_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
       let(:product) { renewal_product_package.products[0] }
 
-      let!(:update_product){
+      let!(:update_product) do
         reference_product = current_benefit_package.sponsored_benefits.first.reference_product
         reference_product.renewal_product = product
         reference_product.save!

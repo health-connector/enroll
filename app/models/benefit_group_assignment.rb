@@ -190,20 +190,21 @@ class BenefitGroupAssignment
   end
 
   def covered_families
-    Family.where(:"_id".in => HbxEnrollment.where(
-      :"$or" => [
-        {:benefit_group_assignment_id => BSON::ObjectId.from_string(self.id)},
-        {:family_id => census_employee&.family&.id}
-      ]
-    ).pluck(:family_id)
-  )
+    Family.where(
+      :_id.in => HbxEnrollment.where(
+        :"$or" => [
+          {:benefit_group_assignment_id => BSON::ObjectId.from_string(id)},
+          {:family_id => census_employee&.family&.id}
+        ]
+      ).pluck(:family_id)
+    )
   end
 
   def hbx_enrollments
     covered_families.inject([]) do |enrollments, family|
       family.households.each do |household|
         enrollments += household.hbx_enrollments.show_enrollments_sans_canceled.select do |enrollment|
-          enrollment.benefit_group_assignment_id == self.id || enrollment.sponsored_benefit_package_id == self.benefit_package_id
+          enrollment.benefit_group_assignment_id == id || enrollment.sponsored_benefit_package_id == benefit_package_id
         end.to_a
       end
       enrollments
@@ -285,11 +286,11 @@ class BenefitGroupAssignment
   end
 
   def end_benefit(end_date)
-    self.update_attributes!(end_on: end_date)
+    update_attributes!(end_on: end_date)
   end
 
   def end_date=(end_date)
-    end_date = [self.start_on, end_date].max
+    end_date = [start_on, end_date].max
     self[:end_on] = benefit_package.cover?(end_date) ? end_date : benefit_end_date
   end
 
@@ -349,7 +350,7 @@ class BenefitGroupAssignment
     end
 
     event :renew_coverage, :after => :record_transition do
-      transitions from: :initialized , to: :coverage_renewing
+      transitions from: :initialized, to: :coverage_renewing
     end
 
     event :terminate_coverage, :after => :record_transition do
@@ -388,16 +389,16 @@ class BenefitGroupAssignment
   end
 
   def make_active
-    census_employee.benefit_group_assignments.where(:id.ne => self.id).inject([]) do |_dummy, benefit_group_assignment|
+    census_employee.benefit_group_assignments.where(:id.ne => id).inject([]) do |_dummy, benefit_group_assignment|
       end_on = benefit_group_assignment.end_on || (start_on - 1.day)
       if is_case_old?
-        end_on = benefit_group_assignment.plan_year.end_on unless benefit_group_assignment.plan_year.coverage_period_contains?(end_on)
+        benefit_group_assignment.plan_year.end_on unless benefit_group_assignment.plan_year.coverage_period_contains?(end_on)
       else
-        end_on = benefit_group_assignment.benefit_application.end_on unless benefit_group_assignment.benefit_application.effective_period.cover?(end_on)
+        benefit_group_assignment.benefit_application.end_on unless benefit_group_assignment.benefit_application.effective_period.cover?(end_on)
       end
     end
     # TODO: Hack to get census employee spec to pass
-    #bga_to_activate = census_employee.benefit_group_assignments.select { |bga| HbxEnrollment::ENROLLED_STATUSES.include?(bga.hbx_enrollment&.aasm_state) }.last 
+    #bga_to_activate = census_employee.benefit_group_assignments.select { |bga| HbxEnrollment::ENROLLED_STATUSES.include?(bga.hbx_enrollment&.aasm_state) }.last
     #if bga_to_activate.present?
     # bga_to_activate.update_attributes!(activated_at: TimeKeeper.datetime_of_record)
     #else
@@ -433,7 +434,7 @@ class BenefitGroupAssignment
 
   def model_integrity
     self.errors.add(:benefit_group, "benefit_group required") unless benefit_group.present?
-    
+
     # TODO: Not sure if this can really exist if we depracate aasm_state from here. Previously the hbx_enrollment was checked if coverage_selected?
     # which references the aasm_state, but if thats depracated, not sure hbx_enrollment can be checked any longer. CensusEmployee model has an instance method
     # called create_benefit_package_assignment(new_benefit_package, start_on) which creates a BGA without hbx enrollment.

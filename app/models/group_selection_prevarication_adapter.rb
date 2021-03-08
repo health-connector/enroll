@@ -207,15 +207,13 @@ class GroupSelectionPrevaricationAdapter
   def select_benefit_group(params)
     return unless select_market(params) == 'shop' || select_market(params) == 'fehb'
 
-    if possible_employee_role.present?
-      assigned_benefit_package = possible_employee_role.benefit_package(qle: is_qle?, shop_under_current: shop_under_current, shop_under_future: shop_under_future)
-    end
+    assigned_benefit_package = possible_employee_role.benefit_package(qle: is_qle?, shop_under_current: shop_under_current, shop_under_future: shop_under_future) if possible_employee_role.present?
 
     if @change_plan.present? && @previous_hbx_enrollment.present?
       possible_benefit_package = @previous_hbx_enrollment.sponsored_benefit_package
       return possible_benefit_package if assigned_benefit_package && assigned_benefit_package.start_on != possible_benefit_package.start_on
     end
-    
+
     assigned_benefit_package
   end
 

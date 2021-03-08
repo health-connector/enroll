@@ -186,26 +186,12 @@ module BenefitSponsors
           }) if @employer_profile.renewal_benefit_application.present?
 
           if @employer_profile.off_cycle_benefit_application.present?
-            data_table_params.merge!(
-              {
-                off_cycle: true
-              }
-            )
-            data_table_params.merge!({current_py_terminated: true}) if @employer_profile.current_benefit_application&.terminated?
+            data_table_params[:off_cycle] = true
+            data_table_params[:current_py_terminated] = true if @employer_profile.current_benefit_application&.terminated?
           end
 
-          data_table_params.merge!({
-            is_submitted: true
-          }) if @employer_profile&.renewal_benefit_application&.is_submitted?
-
-          if @employer_profile&.off_cycle_benefit_application&.is_submitted?
-            data_table_params.merge!(
-              {
-                is_off_cycle_submitted: true
-              }
-            )
-          end
-
+          data_table_params[:is_submitted] = true if @employer_profile&.renewal_benefit_application&.is_submitted?
+          data_table_params[:is_off_cycle_submitted] = true if @employer_profile&.off_cycle_benefit_application&.is_submitted?
           data_table_params
         end
 

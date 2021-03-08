@@ -1678,7 +1678,8 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       context '.renewal_enrollments', dbclean: :around_each do
         let(:new_enrollment_product_id) { passive_renewal.product_id }
         let(:new_enrollment) do
-          create(:hbx_enrollment,
+          create(
+            :hbx_enrollment,
             household: shop_family.latest_household,
             coverage_kind: "health",
             effective_on: enrollment_effective_on,

@@ -14,7 +14,7 @@ describe DefinePermissions, dbclean: :after_each do
       subject.initial_hbx
     end
     it "creates permissions" do
-      expect(Permission.all.to_a.count).to eq(8)
+      expect(Permission.all.to_a.size).to eq(8)
       #expect(Person.first.hbx_staff_role.subrole).to eq 'hbx_staff'
       expect(Permission.all.map(&:name)).to match_array roles
     end
@@ -32,7 +32,7 @@ describe DefinePermissions, dbclean: :after_each do
       end
 
       it "updates can_complete_resident_application to true" do
-        expect(Person.all.to_a.count).to eq(1)
+        expect(Person.all.to_a.size).to eq(1)
         expect(Person.first.hbx_staff_role.permission.can_complete_resident_application).to be true
       end
     end
@@ -61,7 +61,7 @@ describe DefinePermissions, dbclean: :after_each do
       end
 
       it "updates can_view_username_and_email to true" do
-        expect(Person.all.to_a.count).to eq(7)
+        expect(Person.all.to_a.size).to eq(7)
         expect(@hbx_staff_person.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@super_admin.hbx_staff_role.permission.can_view_username_and_email).to be true
         expect(@hbx_tier3.hbx_staff_role.permission.can_view_username_and_email).to be true
@@ -486,7 +486,7 @@ describe DefinePermissions, dbclean: :after_each do
       end
 
       it "updates can_complete_resident_application to true" do
-        expect(Person.all.to_a.count).to eq(5)
+        expect(Person.all.to_a.size).to eq(5)
         expect(@hbx_staff_person.hbx_staff_role.permission.can_add_sep).to be true
         expect(@super_admin.hbx_staff_role.permission.can_add_sep).to be true
         expect(@hbx_tier3.hbx_staff_role.permission.can_add_sep).to be true
@@ -1126,8 +1126,8 @@ describe DefinePermissions, dbclean: :after_each do
       subject.build_test_roles
     end
     it "creates permissions" do
-      expect(User.all.to_a.count).to eq(8)
-      expect(Person.all.to_a.count).to eq(8)
+      expect(User.all.to_a.size).to eq(8)
+      expect(Person.all.to_a.size).to eq(8)
       expect(Person.all.to_a.map{|p| p.hbx_staff_role.subrole}).to match_array roles
     end
   end

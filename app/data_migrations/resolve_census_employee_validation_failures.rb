@@ -24,6 +24,7 @@ class ResolveCensusEmployeeValidationFailures < MongoidMigrationTask
             assignment.reload
           end
           next if assignment.valid? && enrollment_with_id_exists.present?
+
           puts assignment.errors.messages.to_s +  " -- #{census_employee.full_name}" unless Rails.env.test?
 
           if assignment.errors.messages[:hbx_enrollment].present?

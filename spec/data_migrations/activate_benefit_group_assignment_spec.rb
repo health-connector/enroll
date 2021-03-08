@@ -13,7 +13,7 @@ describe ActivateBenefitGroupAssignment do
   end
 
   describe 'activate benefit group assignment' do
-    let!(:census_employee) { create(:census_employee,ssn:'123456789')}
+    let!(:census_employee) { create(:census_employee, ssn: '123456789')}
     let!(:benefit_group_assignment1)  { create(:benefit_group_assignment, census_employee: census_employee)}
     let!(:benefit_group_assignment2)  { create(:benefit_group_assignment, census_employee: census_employee)}
     let!(:bga_params) {{ce_ssn: census_employee.ssn, bga_id: benefit_group_assignment1.id}}

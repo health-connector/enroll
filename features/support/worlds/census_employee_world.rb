@@ -176,7 +176,7 @@ end
 
 And(/^there is a census employee record and employee role for (.*?) for employer (.*?)$/) do |named_person, legal_name|
   person = people[named_person]
-  organization = employer(legal_name)
+  _organization = employer(legal_name)
   person_record = Person.where(first_name: person[:first_name], last_name: person[:last_name]).first ||
                   FactoryGirl.create(:person, :with_family, ssn: person[:ssn], first_name: person[:first_name], last_name: person[:last_name])
   employer_profile = employer_profile(legal_name)

@@ -14,13 +14,6 @@ describe TerminateACensusEmployee, dbclean: :after_each do
     let!(:benefit_package)      { benefit_sponsorship.benefit_applications.first.benefit_packages.first}
     let!(:census_employee)      { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, benefit_group: benefit_package) }
 
-    around do |example|
-     ClimateControl.modify id: census_employee.id,
-                           termination_date: (TimeKeeper.date_of_record - 30.days).to_s do
-       example.run
-     end
-    end
-
     before(:each) do
       allow(ENV).to receive(:[]).with("id").and_return(census_employee.id)
       allow(ENV).to receive(:[]).with("termination_date").and_return (TimeKeeper.date_of_record - 30.days)

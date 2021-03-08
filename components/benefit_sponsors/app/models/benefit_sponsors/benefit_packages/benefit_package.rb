@@ -226,7 +226,7 @@ module BenefitSponsors
         #        will have is_active == false, I think this may always return an empty set.
         #        Because of this, I have removed the 'false' constraint.
 
-        census_employees_assigned_on(effective_period.min).each do |member| 
+        census_employees_assigned_on(effective_period.min).each do |member|
           renew_member_benefit(member)
         end
       end
@@ -367,10 +367,10 @@ module BenefitSponsors
 
           sponsored_benefits.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-             if hbx_enrollment && hbx_enrollment.may_cancel_coverage?
+            if hbx_enrollment&.may_cancel_coverage?
               hbx_enrollment.cancel_coverage!
               hbx_enrollment.notify_enrollment_cancel_or_termination_event(enrollment_notify_flag(enroll_notify)) unless hbx_enrollment.inactive?
-             end
+            end
           end
         end
 
@@ -433,7 +433,7 @@ module BenefitSponsors
 
       def activate_benefit_group_assignments
         CensusEmployee.by_benefit_package_and_assignment_on(self, start_on).non_terminated.no_timeout.inject([]) do |_dummy, ce|
-          ce.benefit_group_assignments.where(benefit_package_id: self.id).last&.make_active
+          ce.benefit_group_assignments.where(benefit_package_id: id).last&.make_active
         end
       end
 

@@ -178,9 +178,11 @@ module Employers::EmployerHelper
   def current_option_for_off_cycle_benefit_package
     bga = @census_employee.off_cycle_benefit_group_assignment
     return bga.benefit_package_id if bga&.benefit_package_id
+
     application = @employer_profile.off_cycle_benefit_application
     return nil if application.blank?
     return nil if application.benefit_packages.empty?
+
     application.benefit_packages[0].id
   end
 

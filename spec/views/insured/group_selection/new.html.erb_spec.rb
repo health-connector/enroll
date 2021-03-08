@@ -391,13 +391,8 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:coverage_household) { double("coverage household", coverage_household_members: []) }
     let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: (TimeKeeper.date_of_record.end_of_month + 1.day), employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
     let(:employer_profile) { benefit_sponsorship.profile }
-<<<<<<< HEAD
-    let(:current_user) { FactoryGirl.create(:user) }
-
-=======
     let(:current_user) { FactoryBot.create(:user) }
     let(:effective_on_date) { TimeKeeper.date_of_record.beginning_of_month }
->>>>>>> 3a39275c62... refs #92243 Fixes issue with dental shopping
 
     before :each do
       allow(employee_role).to receive(:census_employee).and_return(census_employee)
@@ -420,14 +415,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).with(person).and_return(false)
-<<<<<<< HEAD
-      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment).and_return(true)
-=======
       allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
       allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
       allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment, effective_on_date).and_return(true)
       allow(coverage_household).to receive(:valid_coverage_household_members).and_return([])
->>>>>>> 3a39275c62... refs #92243 Fixes issue with dental shopping
       sign_in current_user
     end
 
@@ -558,14 +549,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:can_employee_shop?).and_return(false)
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).and_return(false)
-<<<<<<< HEAD
-      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment).and_return(true)
-=======
       allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
       allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
       allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment, effective_on).and_return(true)
       allow(coverage_household).to receive(:valid_coverage_household_members).and_return([])
->>>>>>> 3a39275c62... refs #92243 Fixes issue with dental shopping
 
     end
 
@@ -659,15 +646,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).and_return(false)
-<<<<<<< HEAD
-      allow(adapter).to receive(:can_shop_resident?).with(person).and_return(true)
-      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment).and_return(true)
-=======
       allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
       allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
       allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment, effective_on).and_return(true)
       allow(coverage_household).to receive(:valid_coverage_household_members).and_return([])
->>>>>>> 3a39275c62... refs #92243 Fixes issue with dental shopping
     end
 
     it "shouldn't see waiver button" do

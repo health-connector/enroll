@@ -435,7 +435,7 @@ module BenefitSponsors
     end
 
     def active_imported_benefit_application
-      benefit_applications.where(:"effective_period.max".gte => TimeKeeper.date_of_record).order_by(:"updated_at".desc).imported.first  if is_conversion?
+      benefit_applications.where(:"effective_period.max".gte => TimeKeeper.date_of_record).order_by(:updated_at.desc).imported.first  if is_conversion?
     end
 
     def imported_benefit_application

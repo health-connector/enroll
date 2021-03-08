@@ -31,11 +31,13 @@ module BenefitSponsors
     let(:employee_role)   { create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: hired_on, person: person, census_employee: census_employee) }
     let(:enrollment_kind) { "open_enrollment" }
     let(:census_employee) do
-      census_employee = create(:census_employee,
-             benefit_sponsorship: benefit_sponsorship,
-             employer_profile: benefit_sponsorship.profile,
-             benefit_group: current_benefit_package,
-             hired_on: hired_on)
+      census_employee = create(
+        :census_employee,
+        benefit_sponsorship: benefit_sponsorship,
+        employer_profile: benefit_sponsorship.profile,
+        benefit_group: current_benefit_package,
+        hired_on: hired_on
+      )
       census_employee.benefit_group_assignments << build(:benefit_group_assignment, benefit_group: current_benefit_package, census_employee: census_employee, start_on: current_benefit_package.start_on, end_on: current_benefit_package.end_on)
       census_employee.benefit_group_assignments << build(:benefit_group_assignment, benefit_group: benefit_package, census_employee: census_employee, start_on: benefit_package.start_on, end_on: benefit_package.end_on)
       census_employee.save
@@ -44,20 +46,22 @@ module BenefitSponsors
     let(:sponsored_benefit) { current_benefit_package.sponsored_benefit_for(coverage_kind) }
 
     let!(:enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                        household: shop_family.latest_household,
-                        coverage_kind: coverage_kind,
-                        effective_on: current_effective_date,
-                        enrollment_kind: 'open_enrollment',
-                        kind: "employer_sponsored",
-                        submitted_at: current_effective_date - 20.days,
-                        benefit_sponsorship_id: benefit_sponsorship.id,
-                        sponsored_benefit_package_id: current_benefit_package.id,
-                        sponsored_benefit_id: sponsored_benefit.id,
-                        employee_role_id: employee_role.id,
-                        benefit_group_assignment: census_employee.active_benefit_group_assignment,
-                        product_id: sponsored_benefit.reference_product.id,
-                        aasm_state: enrollment_status)
+      FactoryGirl.create(
+        :hbx_enrollment,
+        household: shop_family.latest_household,
+        coverage_kind: coverage_kind,
+        effective_on: current_effective_date,
+        enrollment_kind: 'open_enrollment',
+        kind: "employer_sponsored",
+        submitted_at: current_effective_date - 20.days,
+        benefit_sponsorship_id: benefit_sponsorship.id,
+        sponsored_benefit_package_id: current_benefit_package.id,
+        sponsored_benefit_id: sponsored_benefit.id,
+        employee_role_id: employee_role.id,
+        benefit_group_assignment: census_employee.active_benefit_group_assignment,
+        product_id: sponsored_benefit.reference_product.id,
+        aasm_state: enrollment_status
+      )
     end
 
     let(:benefit_group_assignment) do
