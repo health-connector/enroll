@@ -19,6 +19,10 @@ module Config::AcaHelper
     Settings.aca.shop_market.mid_month_benefit_application_terminations.non_payment
   end
 
+  def add_deductible_display_enabled?
+    EnrollRegistry[:add_deductible_display].feature.is_enabled
+  end
+
   def aca_shop_market_employer_family_contribution_percent_minimum
     @aca_shop_market_employer_family_contribution_percent_minimum ||= Settings.aca.shop_market.employer_family_contribution_percent_minimum
   end

@@ -1,0 +1,21 @@
+<tr>
+  <th>DEDUCTIBLES</th>
+  <% qhps.each do |qhp|%>
+    <th>INDIVIDUAL</th>
+    <th>FAMILY</th>
+  <% end %>
+</tr>
+<tr>
+  <td>Medical</td>
+  <% qhps.each do |qhp|%>
+    <td><%= number_to_currency(qhp.product.medical_individual_deductible, precision: 2) %></td>
+    <td><%= number_to_currency(qhp.product.medical_family_deductible, precision: 2) %></td>
+  <% end %>
+</tr>
+<tr>
+  <td>Rx</td>
+  <% qhps.each do |qhp|%>
+    <td><%= qhp.product.rx_individual_deductible.is_a?(Integer) ? number_to_currency(qhp.product.rx_individual_deductible, precision: 2) : qhp.product.rx_individual_deductible%></td>
+    <td><%= qhp.product.rx_family_deductible.is_a?(Integer) ? number_to_currency(qhp.product.rx_family_deductible, precision: 2) : qhp.product.rx_family_deductible%></td>
+  <% end %>
+</tr>

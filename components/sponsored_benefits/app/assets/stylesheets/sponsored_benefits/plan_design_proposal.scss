@@ -269,7 +269,7 @@ $brand-primary: $mhc-dark-blue;
       margin-top:-12px;
     }
     .reference-plan, .dental-reference-plan {
-      height: 193px;
+      height: 235px;
       padding: 0;
       cursor: pointer;
       padding-top: 20px;
@@ -313,7 +313,9 @@ $brand-primary: $mhc-dark-blue;
           .plan-label {
             color: #b7b7b7;
             font-size: 10px;
-
+            span.glossary {
+              font-size: 10px;
+            }
           }
           a.view-summary {
             display: none;

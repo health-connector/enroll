@@ -65,7 +65,9 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
 
   context "GET summary" do
 
-    let(:qhp_cost_share_variance){ double("QhpCostShareVariance", product: double("Product"), :hios_plan_and_variant_id => "id") }
+    let(:qhp_cost_share_variance) do
+      double("QhpCostShareVariance", product: double("Product", medical_individual_deductible: 200, medical_family_deductible: 400, rx_individual_deductible: 100, rx_family_deductible: 300), :hios_plan_and_variant_id => "id")
+    end
     let(:qhp_cost_share_variances) { [qhp_cost_share_variance] }
 
     before do

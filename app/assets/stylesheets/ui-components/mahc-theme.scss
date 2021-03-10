@@ -438,6 +438,117 @@ thead {
   font-weight: normal;
 }
 
+.deductible-compare-header {
+  font-weight: normal;
+}
+
+.dental-deductible-info {
+  display: inline-flex;
+  width:65%;
+}
+
+.rp-deductible-info {
+  display: inline-flex;
+  width:70%;
+}
+
+.rp-bqt-deductible-info {
+  display: inline-flex;
+  width:62%;
+}
+
+.rp-deductible-label {
+  display:inline-table;
+}
+
+.rp-deductible-types {
+  width: 100%;
+}
+
+.deductible-divider {
+  border-left: 1px solid #ddd;
+}
+
+.run-glossary .popover,
+.plan-type-filters .popover,
+#referencePlans .popover,
+.reference-plans .popover,
+.enrollment-tile .popover {
+  background-color: #003260;
+  color: white;
+  max-width: 350px;
+  .arrow { display: none; }
+  .popover-title {
+    background-color: #003260;
+    border-bottom: none;
+    color: white !important;
+    font-weight: bold;
+    padding-bottom: 0;
+    button.close {
+      background-repeat: no-repeat;
+      background-size: 16px;
+      height: 16px;
+      width: 16px;
+      margin-top: 3px;
+      opacity: 1;
+      &:hover {
+        opacity: .5;
+      }
+    }
+  }
+  .popover-content {
+    padding: 8px 14px 15px 14px;
+    text-align: left;
+  }
+
+  a {
+    color: white;
+    text-decoration: underline;
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+span.glossary {
+  border-bottom: 1px dashed #007bc4;
+  color: #007bc4 !important;
+}
+span.glossary:hover {
+  cursor: pointer;
+  color: #007bc4;
+}
+
+.plan-details-footer {
+  .btn {
+    margin-top: 15px;
+  }
+  .btn + .btn {
+    margin-left: 5px;
+  }
+}
+
+#plan-totals-table {
+  font-size: 11px;
+
+  .deductible-top {
+    padding-bottom: 0;
+  }
+
+  .deductible-child {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  tr td {
+    border-top: none;
+  }
+}
+
+#sbcLink {
+  font-size: 12px;
+}
+
 #uic-wrapper {
   width:97%;
   margin-left:20px;

@@ -1,11 +1,30 @@
 require Rails.root.join('lib', 'tasks', 'hbx_import', 'qhp', 'parsers', 'plan_benefit_template_parser')
 require Rails.root.join('lib', 'object_builders', 'qhp_builder.rb')
+require Rails.root.join('lib', 'object_builders', 'deductible_builder.rb')
 require Rails.root.join('lib', 'object_builders', 'product_builder.rb')
 require Rails.root.join('lib', 'tasks', 'hbx_import', 'qhp', 'parsers', 'plan_rate_group_parser')
 require Rails.root.join('lib', 'tasks', 'hbx_import', 'qhp', 'parsers', 'plan_rate_group_list_parser')
 require Rails.root.join('lib', 'object_builders', 'qhp_rate_builder.rb')
 
 namespace :xml do
+
+  # This is probably a one time run to fix multiple deductibles
+  desc "Import qhp deductibles only from xml files"
+  task :qhp_deductible, [:file] => :environment do |task, args|
+    files = Dir.glob(File.join(Rails.root, "db/seedfiles/plan_xmls", Settings.aca.state_abbreviation.downcase, "plans", "**", "*.xml"))
+    qhp_hash = files.inject(DeductibleBuilder.new({})) do |qhp_product_hash, file|
+      puts file
+      xml = Nokogiri::XML(File.open(file))
+      product = Parser::PlanBenefitTemplateParser.parse(xml.root.canonicalize, :single => true)
+      qhp_product_hash.add(product.to_hash)
+      qhp_product_hash
+    end
+
+    qhp_hash.run
+
+  end
+
+
   desc "Import qhp plans from xml files"
   task :plans, [:file] => :environment do |task, args|
     files = Dir.glob(File.join(Rails.root, "db/seedfiles/plan_xmls", Settings.aca.state_abbreviation.downcase, "plans", "**", "*.xml"))
