@@ -249,24 +249,24 @@ module BenefitSponsors
         ben_app.save
       end
 
+      it "should render js template" do
+        [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
+          sign_in_and_do_update login_user
+          expect(response.content_type).to eq Mime::JS
+        end
+      end
+
       it "should be a success" do
         [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
-          sign_in_and_do_update(login_user)
-          # expect(response).to have_http_status(:success)
+          sign_in_and_do_update login_user
+          expect(response).to have_http_status(:success)
         end
       end
 
       it "should initialize form" do
         [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
-          sign_in_and_do_update(login_user)
+          sign_in_and_do_update user
           expect(assigns(:benefit_application_form).class).to eq form_class
-        end
-      end
-
-      it "should redirect to benefit packages index" do
-        [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
-          sign_in_and_do_update(login_user)
-          expect(response.location.include?("benefit_packages")).to be_truthy
         end
       end
 
@@ -278,17 +278,10 @@ module BenefitSponsors
           })
         end
 
-        it "should redirect to edit" do
-          [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
-            sign_in_and_do_update(login_user)
-            expect(response).to render_template("edit")
-          end
-        end
-
         it "should return error messages" do
           [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
-            sign_in_and_do_update(login_user)
-            expect(flash[:error]).to match(/Open enrollment end on can't be blank/)
+            sign_in_and_do_update login_user
+            expect(assigns(:notice)).to match(/Open enrollment end on can't be blank/)
           end
         end
       end
