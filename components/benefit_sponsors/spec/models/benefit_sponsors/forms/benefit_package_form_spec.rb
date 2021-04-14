@@ -1,4 +1,7 @@
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_site_spec_helpers.rb"
+require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_spec_helpers.rb"
+
 
 module BenefitSponsors
   RSpec.describe Forms::BenefitPackageForm, type: :model, dbclean: :after_each do
@@ -6,14 +9,20 @@ module BenefitSponsors
     let(:form_class)              { BenefitSponsors::Forms::BenefitPackageForm }
     let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :with_benefit_market_catalog_and_product_packages, :as_hbx_profile, :cca) }
     let(:benefit_market)          { site.benefit_markets.first }
+    let(:current_effective_date)  { (TimeKeeper.date_of_record.beginning_of_month + 2.months) }
+    let(:default_effective_period){ current_effective_date..current_effective_date.next_year.prev_day }
     let(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
 
     let(:organization)          { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)      { organization.employer_profile }
     let(:employer_attestation)  { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
-    let(:benefit_sponsorship)   { employer_profile.add_benefit_sponsorship }
+    let(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
     let(:benefit_application)   {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship)
+      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: default_effective_period)
       application.benefit_sponsor_catalog.save!
       application
     }
@@ -197,8 +206,8 @@ module BenefitSponsors
       include_context 'valid params'
 
       let(:contribution_levels)    { benefit_package.sponsored_benefits[0].sponsor_contribution.contribution_levels }
-      let!(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
-      let!(:product_package) { benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
+      let(:benefit_sponsor_catalog) { benefit_application.benefit_sponsor_catalog }
+      let!(:product_package) { benefit_sponsor_catalog.product_packages.where(package_kind: product_package_kind).first }
       let!(:benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
 
       subject { BenefitSponsors::Forms::BenefitPackageForm.for_update benefit_package_params.merge({:id => benefit_package.id.to_s}) }
@@ -216,7 +225,6 @@ module BenefitSponsors
         subject.update
         benefit_application.reload
       end
-
 
       it "updates the benefit package model's title" do
         expect(benefit_application.benefit_packages[0].title).to eql(benefit_package_params[:title])

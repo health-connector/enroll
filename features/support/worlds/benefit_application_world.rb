@@ -72,6 +72,9 @@ module BenefitApplicationWorld
                        recorded_rating_area: rating_area,
                        recorded_service_areas: [service_area],
                        package_kind: package_kind)
+    @new_application.benefit_sponsor_catalog.benefit_application = @new_application
+    @new_application.benefit_sponsor_catalog.save!
+    @new_application
   end
 
   def create_applications(predecessor_status: , new_application_status: )
@@ -146,6 +149,22 @@ And(/this employer (.*) has (.*) rule/) do |legal_name, rule|
   end
 end
 
+# Following step will create renewal benefit application and predecessor application with given states
+# ex: renewal employer Acme Inc. has imported and renewal enrollment_open benefit applications
+#     renewal employer Acme Inc. has expired  and renewal draft benefit applications
+#     renewal employer Acme Inc. has expired  and renewal enrollment_eligible benefit applications
+#     renewal employer Acme Inc. has expired  and renewal active benefit applications
+And(/^renewal employer (.*) has (.*) and renewal (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
+  @employer_profile = employer_profile(legal_name)
+  earlier_application = create_application(new_application_status: earlier_application_status.to_sym)
+  @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
+  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)
+
+  # Following code will create renewal application but its assigning the wrong contribution to the product_packages and hence cukes will fail
+  # For now, creating the renewal application using the service so that it assigns the correct contribution model.
+  # create_applications(predecessor_status: earlier_application_status.to_sym, new_application_status: new_application_status.to_sym)
+end
+
 # Following step will create initial benefit application with given state
 # ex: initial employer Acme Inc. has enrollment_open benefit application
 #     initial employer Acme Inc. has active benefit application
@@ -184,4 +203,17 @@ end
 And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
   create_application(new_application_status: new_application_status.to_sym)
+end
+
+And(/(.*) is updated on benefit market catalog/) do |min_contribution_factor|
+  @benefit_market_catalog.product_packages.each do |product_package|
+    product_package.contribution_model.contribution_units.each do |contribution_unit|
+      contribution_unit.minimum_contribution_factor = min_contribution_factor
+    end
+  end
+  @benefit_market_catalog.save
+end
+
+And(/^update rating area$/) do
+  benefit_sponsorship.update_attributes!(rating_area_id: rating_area.id)
 end

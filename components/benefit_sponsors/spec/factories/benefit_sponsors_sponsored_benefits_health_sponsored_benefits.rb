@@ -12,7 +12,7 @@ FactoryGirl.define do
         sponsored_benefit.product_package_kind = evaluator.product_package.package_kind
         sponsored_benefit.reference_product_id = evaluator.product_package.products[0].id
         sponsored_benefit.product_option_choice = evaluator.product_package.products[0].issuer_profile_id if evaluator.product_package.package_kind == :single_issuer
-        build(:benefit_sponsors_sponsored_benefits_sponsor_contribution, sponsored_benefit: sponsored_benefit, product_package: evaluator.product_package)
+        sponsored_benefit.sponsor_contribution  = build(:benefit_sponsors_sponsored_benefits_sponsor_contribution, sponsored_benefit: sponsored_benefit, product_package: evaluator.product_package)
       end
     end
   end

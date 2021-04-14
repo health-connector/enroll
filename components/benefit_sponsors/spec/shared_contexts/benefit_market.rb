@@ -24,38 +24,57 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
   let(:renewal_service_area) {
     create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year + 1)
   }
-     
-  let!(:health_products) { create_list(:benefit_markets_products_health_products_health_product,
-          5,
-          :with_renewal_product,
-          application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-          product_package_kinds: [:single_issuer, :metal_level, :single_product],
-          service_area: service_area,
-          renewal_service_area: renewal_service_area,
-          metal_level_kind: :gold) }
 
-  let!(:dental_products) { create_list(:benefit_markets_products_dental_products_dental_product,
-          5,
-          :with_renewal_product,
-          application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-          product_package_kinds: [:single_product],
-          service_area: service_area,
-          renewal_service_area: renewal_service_area, 
-          metal_level_kind: :dental) }
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:health_products) do
+    create_list(
+      :benefit_markets_products_health_products_health_product,
+      5,
+      :with_renewal_product,
+      issuer_profile: issuer_profile,
+      application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+      product_package_kinds: [:single_issuer, :metal_level, :single_product],
+      service_area: service_area,
+      renewal_service_area: renewal_service_area,
+      metal_level_kind: :gold
+    )
+  end
 
-  let!(:current_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-    benefit_market: benefit_market,
-    product_kinds: product_kinds,
-    title: "SHOP Benefits for #{current_effective_date.year}",
-    application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
-  }
+  let!(:dental_products) do
+    create_list(
+      :benefit_markets_products_dental_products_dental_product,
+      5,
+      :with_renewal_product,
+      issuer_profile: issuer_profile,
+      application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+      product_package_kinds: [:single_product],
+      service_area: service_area,
+      renewal_service_area: renewal_service_area,
+      metal_level_kind: :dental
+    )
+  end
 
-  let!(:renewal_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-    benefit_market: benefit_market,
-    product_kinds: product_kinds,
-    title: "SHOP Benefits for #{renewal_effective_date.year}",
-    application_period: (renewal_effective_date.beginning_of_year..renewal_effective_date.end_of_year))
-  }
+  let!(:current_benefit_market_catalog) do
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      product_kinds: product_kinds,
+      title: "SHOP Benefits for #{current_effective_date.year}",
+      application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
+    )
+  end
+
+  let!(:renewal_benefit_market_catalog) do
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      product_kinds: product_kinds,
+      title: "SHOP Benefits for #{renewal_effective_date.year}",
+      application_period: (renewal_effective_date.beginning_of_year..renewal_effective_date.end_of_year)
+    )
+  end
 
   before do
     map_products

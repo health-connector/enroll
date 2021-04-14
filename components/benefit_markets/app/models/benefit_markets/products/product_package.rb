@@ -9,6 +9,15 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
+    # Added this module as a temporary fix for EMPLOYER FLEXIBILITY PROJECT
+    module ContributionModuleAssociation
+      def contribution_model
+        assigned_contribution_model || super
+      end
+    end
+
+    prepend ContributionModuleAssociation
+
     embedded_in :packagable, polymorphic: true
 
     field :application_period,      type: Range
@@ -22,6 +31,12 @@ module BenefitMarkets
                 class_name: "BenefitMarkets::Products::Product"
 
     embeds_one  :contribution_model,
+                class_name: "BenefitMarkets::ContributionModels::ContributionModel"
+
+    embeds_one  :assigned_contribution_model,
+                class_name: "BenefitMarkets::ContributionModels::ContributionModel"
+
+    embeds_many :contribution_models,
                 class_name: "BenefitMarkets::ContributionModels::ContributionModel"
 
     embeds_one  :pricing_model,
@@ -44,6 +59,20 @@ module BenefitMarkets
         :application_period, :product_kind, :package_kind, :title, :description, :product_multiplicity,
         :contribution_model, :pricing_model
         ]
+    end
+
+    def products=(attributes)
+      attributes.each do |attribute|
+        product =
+          if attribute.is_a?(Hash)
+            kind = attribute[:kind].to_s.titleize
+            product_class = "BenefitMarkets::Products::#{kind}Products::#{kind}Product".constantize
+            product_class.new(attribute)
+          else
+            attribute
+          end
+        products.push(product)
+      end
     end
 
     def lowest_cost_product(effective_date, issuer_hios_ids = nil)

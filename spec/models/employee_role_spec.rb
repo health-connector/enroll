@@ -94,7 +94,11 @@ describe EmployeeRole, dbclean: :after_each do
   let(:hired_on) {10.days.ago.to_date}
   let!(:rating_area) {FactoryGirl.create_default :benefit_markets_locations_rating_area}
   let!(:service_area) {FactoryGirl.create_default :benefit_markets_locations_service_area}
-  let(:benefit_sponsorship) {employer_profile.add_benefit_sponsorship}
+  let(:benefit_sponsorship) do
+    sponsorship = employer_profile.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
 
   describe "built" do
     let(:address) {FactoryGirl.build(:address)}
@@ -455,10 +459,18 @@ describe EmployeeRole, dbclean: :after_each do
     let(:site) {FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :dc, :as_hbx_profile)}
     let!(:organization1) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_cca_employer_profile)}
     let(:match_employer_profile) {organization1.employer_profile}
-    let(:match_benefit_sponsorship) {match_employer_profile.add_benefit_sponsorship}
+    let(:match_benefit_sponsorship) do
+      sponsorship = match_employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
     let!(:organization2) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_cca_employer_profile)}
     let(:non_match_employer_profile) {organization2.employer_profile}
-    let(:non_match_benefit_sponsorship) {non_match_employer_profile.add_benefit_sponsorship}
+    let!(:non_match_benefit_sponsorship) do
+      sponsorship = non_match_employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
     let!(:match_employee_roles) {FactoryGirl.create_list(:employee_role, 5, employer_profile: match_employer_profile)}
     let!(:non_match_employee_roles) {FactoryGirl.create_list(:employee_role, 3, employer_profile: non_match_employer_profile)}
     let(:first_match_employee_role) {match_employee_roles.first}
@@ -511,7 +523,11 @@ describe EmployeeRole, dbclean: :after_each do
 
   let!(:rating_area) {FactoryGirl.create_default :benefit_markets_locations_rating_area}
   let!(:service_area) {FactoryGirl.create_default :benefit_markets_locations_service_area}
-  let!(:benefit_sponsorship) {employer_profile.add_benefit_sponsorship}
+  let!(:benefit_sponsorship) do
+    sponsorship = employer_profile.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
 
   let(:benefit_group_assignment) {
     BenefitGroupAssignment.create({

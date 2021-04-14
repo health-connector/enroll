@@ -9,14 +9,24 @@ module BenefitSponsors
     let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
 
     let(:benefit_market)      { site.benefit_markets.first }
-    let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                            benefit_market: benefit_market,
-                                            title: "SHOP Benefits for #{current_effective_date.year}",
-                                            application_period: (start_on.beginning_of_year..start_on.end_of_year))
-                                          }
+    let!(:benefit_market_catalog) do
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{current_effective_date.year}",
+        application_period: (start_on.beginning_of_year..start_on.end_of_year)
+      )
+    end
     let(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)    { organization.employer_profile }
-    let(:benefit_sponsorship) { employer_profile.add_benefit_sponsorship }
+    let!(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
+    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let!(:model_instance) {
       application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: start_on..start_on.next_year.prev_day, open_enrollment_period: open_enrollment_start_on..open_enrollment_start_on+20.days)
       application.benefit_sponsor_catalog.save!

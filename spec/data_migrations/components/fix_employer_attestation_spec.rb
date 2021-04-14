@@ -17,7 +17,11 @@ describe FixEmployerAttestation, dbclean: :after_each do
     let(:employer_profile)        { employer_organization.employer_profile }
     let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let!(:employer_attestation)   { FactoryGirl.build(:employer_attestation, aasm_state:'unsubmitted') }
-    let!(:benefit_sponsorship)   { employer_profile.add_benefit_sponsorship }
+    let!(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
 
 
     before(:each) do

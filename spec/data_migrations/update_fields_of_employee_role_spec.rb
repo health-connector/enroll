@@ -75,7 +75,11 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     let(:organization)                   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)               { organization.employer_profile }
     let(:census_employee)                 { FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship, employee_role_id: employee_role.id) }
-    let(:benefit_sponsorship)             { employer_profile.add_benefit_sponsorship }
+    let(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
     let(:benefit_market)                  { site.benefit_markets.first }
 
     let(:benefit_sponsorship) do

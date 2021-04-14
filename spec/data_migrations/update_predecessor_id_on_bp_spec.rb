@@ -14,15 +14,17 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
     let!(:old_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
                                             benefit_market: benefit_market,
                                             title: "SHOP Benefits for #{current_effective_date.year - 1.year}",
+                                            issuer_profile: issuer_profile,
                                             application_period: (current_effective_date.next_month.beginning_of_month - 1.year ..current_effective_date.end_of_month))
                                           }
 
     let!(:renewing_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
                                             benefit_market: benefit_market,
                                             title: "SHOP Benefits for #{current_effective_date.year}",
+                                            issuer_profile: issuer_profile,
                                             application_period: (current_effective_date.next_month.beginning_of_month..current_effective_date.end_of_month + 1.year ))
                                           }
-
+    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:benefit_market)      { site.benefit_markets.first }
     let!(:product_package_1) { old_benefit_market_catalog.product_packages.first }
     let!(:product_package_2) { renewing_benefit_market_catalog.product_packages.first }

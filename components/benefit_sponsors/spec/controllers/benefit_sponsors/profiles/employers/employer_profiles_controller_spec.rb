@@ -14,7 +14,11 @@ module BenefitSponsors
     let(:employer_profile)      { benefit_sponsor.employer_profile }
     let!(:rating_area)           { FactoryGirl.create_default :benefit_markets_locations_rating_area }
     let!(:service_area)          { FactoryGirl.create_default :benefit_markets_locations_service_area }
-    let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+    let(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
 
     before do
       controller.prepend_view_path("../../app/views")

@@ -79,7 +79,11 @@ module BenefitSponsors
       let!(:site)                         { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let!(:organization)                 { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let!(:employer_profile)             { organization.employer_profile }
-      let!(:benefit_sponsorship)          { employer_profile.add_benefit_sponsorship }
+      let!(:benefit_sponsorship) do
+        sponsorship = employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
       let!(:ce1)                          { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
       let!(:ce2)                          { FactoryGirl.create(:census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
 

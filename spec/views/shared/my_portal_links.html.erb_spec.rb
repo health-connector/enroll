@@ -22,7 +22,11 @@ describe "shared/_my_portal_links.html.haml", dbclean: :after_each do
   context "with employer role & employee role" do
     let(:general_organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_cca_employer_profile) }
     let(:employer_profile)    { general_organization.employer_profile }
-    let(:benefit_sponsorship) { employer_profile.add_benefit_sponsorship }
+    let(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
     let(:active_employer_staff_role) {FactoryGirl.create(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
     let(:user) { FactoryGirl.create(:user, person: person, roles: ["employee", "employer_staff"]) }
     let(:person) { FactoryGirl.create(:person, :with_employee_role, :with_employer_staff_role)}

@@ -16,11 +16,28 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
     let(:current_effective_date)  { TimeKeeper.date_of_record.beginning_of_month }
     let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-    let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                           benefit_market: benefit_market,
-                                           title: "SHOP Benefits for #{current_effective_date.year}",
-                                           application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
-    }
+    let!(:benefit_market_catalog) do
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{current_effective_date.year}",
+        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
+      )
+    end
+
+    let!(:prev_benefit_market_catalog) do
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{current_effective_date.prev_year.year}",
+        application_period: (current_effective_date.beginning_of_year.prev_year..current_effective_date.end_of_year.prev_year)
+      )
+    end
+    let(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:benefit_market)      { site.benefit_markets.first }
     let!(:product_package) { benefit_market_catalog.product_packages.first }
 
@@ -45,13 +62,13 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
     let(:start_on)  { current_effective_date }
     let(:effective_period)  { start_on..start_on.next_year.prev_day }
-    let!(:benefit_application) {
+    let(:benefit_application) do
       application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
       application.benefit_sponsor_catalog.save!
       application
-    }
+    end
 
-    let!(:benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package, is_active: true) }
+    let(:benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package, is_active: true) }
     let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
 
     let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
@@ -134,6 +151,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         end
 
         it "should not update the benefit application" do
+          benefit_package
           expect { subject.migrate }.to raise_error(RuntimeError)
           expect { subject.migrate }.to raise_error("FAILED: Unable to find application or application is in invalid state")
         end
@@ -163,6 +181,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     end
 
     context "terminate benefit application" do
+      let!(:bp) { benefit_package }
       let!(:termination_date) { start_on.next_month.next_day }
       let!(:end_on)           { start_on.next_month.end_of_month }
 
@@ -231,19 +250,19 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     end
 
     context "cancel benefit application", dbclean: :after_each do
-      let(:past_start_on) { Date.new(current_effective_date.year, 10, 1) }
+      let(:current_effective_date)   { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
+      let(:past_start_on) { current_effective_date + 2.months }
       let(:start_on)  { past_start_on }
 
       let!(:past_effective_period) {past_start_on..past_start_on.next_year.prev_day }
-      let!(:mid_plan_year_effective_date) { Date.new(current_effective_date.year, 9, 1) }
+      let!(:mid_plan_year_effective_date) { current_effective_date.next_month }
       let!(:range_effective_period) { mid_plan_year_effective_date..mid_plan_year_effective_date.next_year.prev_day }
-      let(:draft_benefit_application) {
+      let!(:draft_benefit_application) do
         application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, effective_period: past_effective_period)
         application.benefit_sponsor_catalog.save!
         application.save
         application
-
-      }
+      end
 
       let!(:import_draft_benefit_application) {
         application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, effective_period: range_effective_period)
@@ -272,16 +291,18 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     end
 
     context "Should update effective period and approve initial benefit application", dbclean: :after_each do
-      let(:effective_date)   { Date.new(current_effective_date.year, 10, 1) }
+      let!(:ben_app) { benefit_package }
+      let(:current_effective_date)   { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+      let(:effective_date) { current_effective_date.prev_year }
       let(:new_start_date)   { effective_date.next_month }
       let(:new_end_date)     { new_start_date + 1.year }
       let(:effective_period) { effective_date..effective_date.next_year.prev_day }
 
-      let(:benefit_application) {
-        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
-        application.benefit_sponsor_catalog.save!
-        application
-      }
+      # let(:benefit_application) {
+      #   application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
+      #   application.benefit_sponsor_catalog.save!
+      #   application
+      # }
 
       around do |example|
         ClimateControl.modify(
@@ -314,6 +335,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
     context "Should force publish the benefit application", dbclean: :after_each do
       let(:effective_date) { start_on }
+      let!(:ben_package) { benefit_package }
 
       around do |example|
         ClimateControl.modify effective_date: effective_date.strftime("%m/%d/%Y"), action: 'force_submit_application' do
@@ -346,14 +368,9 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       let(:new_end_date) { new_start_date + 1.year }
       let(:current_effective_date)  { TimeKeeper.date_of_record }
       let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let!(:renewing_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                            benefit_market: benefit_market,
-                                            title: "SHOP Benefits for #{current_effective_date.year}",
-                                            application_period: ((current_effective_date.beginning_of_year)-1.year..(current_effective_date.end_of_year)-1.year))
-                                          }
       let(:benefit_market)      { site.benefit_markets.first }
       let!(:product_package_1) { benefit_market_catalog.product_packages.first }
-      let!(:product_package_2) { renewing_benefit_market_catalog.product_packages.first }
+      let!(:product_package_2) { prev_benefit_market_catalog.product_packages.first }
 
       let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
       let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
@@ -383,13 +400,6 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
       let!(:renewing_benefit_application) {
-        unless benefit_market.benefit_market_catalogs.map(&:product_active_year).include?(new_start_date.year)
-          create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                 benefit_market: benefit_market,
-                 title: "SHOP Benefits for #{effective_date.year}",
-                 application_period: (new_start_date.beginning_of_year..new_start_date.end_of_year))
-
-        end
         application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: renewing_effective_period, aasm_state: :renewing_enrolling, predecessor_id: old_benefit_application.id)
         application.benefit_sponsor_catalog.save!
         application

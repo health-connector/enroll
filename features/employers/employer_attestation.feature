@@ -32,6 +32,7 @@ Feature: Employer Profile
 
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     When Admin click all employers link
     When Admin clicks employer attestation filter
     Then Admin should see Employer with Submitted status
@@ -59,6 +60,7 @@ Feature: Employer Profile
 
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     When Admin click all employers link
     When Admin clicks employer attestation filter
     And Admin clicks submitted filter in employer attestation
@@ -91,6 +93,7 @@ Feature: Employer Profile
     Then I click on log out link
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     When Admin click all employers link
     When Admin clicks employer attestation filter
     And Admin clicks submitted filter in employer attestation
@@ -123,6 +126,7 @@ Feature: Employer Profile
     Then I click on log out link
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     When Admin click all employers link
     When Admin clicks employer attestation filter
     And Admin clicks submitted filter in employer attestation
@@ -159,6 +163,7 @@ Feature: Employer Profile
     Then I click on log out link
     Given a Hbx admin with read and write permissions exists
     When Hbx Admin logs on to the Hbx Portal
+    And Hbx Admin clicks I'm Admin
     When Admin click all employers link
     When Admin clicks employer attestation filter
     And Admin clicks submitted filter in employer attestation

@@ -6,6 +6,7 @@ Feature: Hbx staff create announcements for consumer role & employee
     When Hbx Admin logs on to the Hbx Portal
     When user fills out the security questions modal
     When I have submitted the security questions
+    And Hbx Admin clicks I'm Admin
     And Hbx Admin clicks on Admin
     And Hbx admin should see the link of announcements and click
     Then Hbx admin should see the page of announcements

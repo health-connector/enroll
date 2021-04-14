@@ -7,33 +7,28 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_s
 RSpec.describe "insured/group_selection/new.html.erb" do
   let(:adapter) { instance_double(GroupSelectionPrevaricationAdapter) }
   context "coverage selection", dbclean: :after_each do
-  
-  include_context "setup initial benefit application"
 
   let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
   let(:benefit_market) { site.benefit_markets.first }
   let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
   let!(:current_benefit_market_catalog) do
-    BenefitSponsors::ProductSpecHelpers.construct_cca_simple_benefit_market_catalog(site, benefit_market, effective_period)
-    benefit_market.benefit_market_catalogs.where(
-      "application_period.min" => effective_period_start_on
-    ).first
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      issuer_profile: issuer_profile,
+      title: "SHOP Benefits for #{effective_period_start_on.year}",
+      application_period: effective_period
+    )
   end
+  include_context "setup initial benefit application"
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
 
   let(:effective_period_start_on) { current_effective_date }
   let(:effective_period_end_on) { effective_period_start_on + 1.year - 1.day }
 
-  let(:service_areas) do
-    ::BenefitMarkets::Locations::ServiceArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).all.to_a
-  end
-
-  let(:rating_area) do
-    ::BenefitMarkets::Locations::RatingArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).first
-  end
+  let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
+  let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
   let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
 
     let(:person) { FactoryGirl.create(:person, is_incarcerated: false, us_citizen: true) }

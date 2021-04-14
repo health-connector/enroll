@@ -6,31 +6,25 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_s
 
 RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean: :after_each do
     #include_context "setup benefit market with market catalogs and product packages"
-  include_context "setup initial benefit application"
 
   let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
   let(:benefit_market) { site.benefit_markets.first }
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:current_benefit_market_catalog) do
-    BenefitSponsors::ProductSpecHelpers.construct_cca_simple_benefit_market_catalog(site, benefit_market, effective_period)
-    benefit_market.benefit_market_catalogs.where(
-      "application_period.min" => effective_period.min
-    ).first
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      issuer_profile: issuer_profile,
+      title: "SHOP Benefits for #{current_effective_date.year}",
+      application_period: current_effective_date.beginning_of_year..current_effective_date.end_of_year
+    )
   end
-
   let(:current_effective_date) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
+  include_context "setup initial benefit application"
 
-  let(:service_areas) do
-    ::BenefitMarkets::Locations::ServiceArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).all.to_a
-  end
-
-  let(:rating_area) do
-    ::BenefitMarkets::Locations::RatingArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).first
-  end
-
+  let(:rating_area)         { FactoryGirl.create_default :benefit_markets_locations_rating_area, active_year: current_effective_date.year }
+  let(:service_area)        { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: current_effective_date.year }
     let!(:person) {FactoryGirl.create(:person, :with_consumer_role)}
     let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, :person => person)}
     let(:qle_kind) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date) }

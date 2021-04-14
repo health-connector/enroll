@@ -13,18 +13,9 @@ module BenefitSponsors
 
     def renew_application
       if business_policy_satisfied_for?(:renew_benefit_application)
-        renewal_effective_date = benefit_application.effective_period.end.to_date.next_day
-        service_areas = benefit_application.benefit_sponsorship.service_areas_on(renewal_effective_date)
-        benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, renewal_effective_date)
-
-        if benefit_sponsor_catalog
-          new_benefit_application = benefit_application.renew(benefit_sponsor_catalog)
-          if new_benefit_application.save
-            benefit_sponsor_catalog.save
-          end
-        end
-
-        [true, new_benefit_application, business_policy.success_results]
+        renewal_application = benefit_application.renew
+        renewal_application.save
+        [true, renewal_application, business_policy.success_results]
       else
         [false, benefit_application, business_policy.fail_results]
       end
@@ -33,6 +24,7 @@ module BenefitSponsors
     def revert_application
       if benefit_application.may_revert_application?
         benefit_application.revert_application!
+
         [true, benefit_application, {}]
       else
         [false, benefit_application]

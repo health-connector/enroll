@@ -1678,18 +1678,14 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           }
 
           it 'should cancel passive renewal and generate a waiver' do
-            pending("verify if update_renewal_coverage needs to be executed when EE current active coverage is terminated.")
-
             expect(passive_renewal).not_to be_nil
-            new_enrollment.waive_coverage!
+            enrollment.terminate_enrollment(TimeKeeper.date_of_record.last_month.end_of_month, 'Because')
             passive_renewal.reload
             enrollment.reload
-            new_enrollment.reload
             expect(enrollment.coverage_terminated?).to be_truthy
-            expect(new_enrollment.inactive?).to be_truthy
             expect(passive_renewal.coverage_canceled?).to be_truthy
-            passive_waiver = shop_family.reload.enrollments.where(:aasm_state => 'renewing_waived').first
-            expect(passive_waiver.present?).to be_truthy
+            waiver = shop_family.reload.enrollments.where(:aasm_state => 'inactive').first
+            expect(waiver.present?).to be_truthy
           end
 
           it 'should cancel passive renewal and should not generate a duplicate waiver' do
@@ -2118,9 +2114,7 @@ describe HbxEnrollment, type: :model, :dbclean => :after_each do
 
         let(:renewal_application) do
           renewal_effective_date = current_effective_date.next_year
-          service_areas = initial_application.benefit_sponsorship.service_areas_on(renewal_effective_date)
-          benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, renewal_effective_date)
-          r_application = initial_application.renew(benefit_sponsor_catalog)
+          r_application = initial_application.renew
           r_application.save
           r_application
         end

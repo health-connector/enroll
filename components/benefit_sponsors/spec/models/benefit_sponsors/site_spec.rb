@@ -196,7 +196,11 @@ module BenefitSponsors
 
       context "and benefit_market associations must be valid" do
         let(:profile)             { loony_organization.employer_profile }
-        let(:benefit_sponsorship) { profile.add_benefit_sponsorship }
+        let(:benefit_sponsorship) do
+          sponsorship = profile.add_benefit_sponsorship
+          sponsorship.save
+          sponsorship
+        end
 
         it "assigned benefit market should be associated with site" do
           expect(benefit_sponsorship.benefit_market).to eq site.benefit_markets.first
