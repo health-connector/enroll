@@ -56,5 +56,51 @@ module SponsoredBenefits
       end
     end
 
+    describe ".index" do
+      routes { SponsoredBenefits::Engine.routes }
+      let!(:user) { FactoryGirl.create(:user) }
+      let!(:person) { FactoryGirl.create(:person, :with_broker_role, user: user) }
+      let(:broker_role) { person.broker_role }
+      let!(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile) }
+      let(:plan_design_organization) { FactoryGirl.create(:sponsored_benefits_plan_design_organization) }
+      let(:carrier_profile) { FactoryGirl.create(:carrier_profile) }
+      let(:plan_1) { FactoryGirl.create(:plan, premium_tables: [premium_table_1], carrier_profile_id: carrier_profile.id) }
+      let!(:product_1) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, hios_id: plan_1.hios_id, application_period: ('2021-01-01'.to_date..'2021-12-31'.to_date)) }
+      let(:premium_table_1) { PremiumTable.new(age: 12, cost: 12, start_on: '2021-07-01'.to_date, end_on: '2021-09-30'.to_date) }
+
+      let(:plan_2) { FactoryGirl.create(:plan, premium_tables: [premium_table_2], carrier_profile_id: carrier_profile.id) }
+      let!(:product_2) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, hios_id: plan_2.hios_id, application_period: ('2021-01-01'.to_date..'2021-12-31'.to_date)) }
+      let(:premium_table_2) { PremiumTable.new(age: 12, cost: 12, start_on: '2021-01-01'.to_date, end_on: '2021-03-31'.to_date) }
+
+      let(:valid_params) do
+        {
+          plan_design_organization_id: plan_design_organization.id,
+          selected_carrier_level: 'single_carrier',
+          carrier_id: carrier_profile.id,
+          active_year: 2021,
+          quote_effective_date: '2021-07-01'.to_date
+        }
+      end
+
+      context "when future a plan is not offering rates" do
+        before do
+          allow(controller).to receive(:current_user).and_return(user)
+          allow(controller).to receive(:current_person).and_return(person)
+          allow(broker_role).to receive(:benefit_sponsors_broker_agency_profile_id).and_return(broker_agency_profile.id)
+          allow_any_instance_of(::Queries::EmployerPlanOfferings).to receive(:single_carrier_offered_health_plans).and_return([plan_1, plan_2])
+          [plan_1, plan_2].each do |plan|
+            hios_base_id, _csr_variant_id = plan.hios_id.split("-")
+            qhp = FactoryGirl.build(:products_qhp, active_year: plan.active_year, standard_component_id: hios_base_id)
+            csv = qhp.qhp_cost_share_variances.build(hios_plan_and_variant_id: plan.hios_id)
+            csv.qhp_deductibles.build(in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200", deductible_type: "Medical EHB Deductible")
+            qhp.save!
+          end
+        end
+        it "should not appear in the list of plans during that effective on" do
+          xhr :get, :index, valid_params
+          expect(assigns[:plans].count).to eq 1
+        end
+      end
+    end
   end
 end
