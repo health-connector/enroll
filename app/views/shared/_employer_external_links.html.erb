@@ -1,0 +1,20 @@
+<div class="qles-panel panel panel-default">
+  <div class="panel-heading">
+    <div class="row" id='qle-header'>
+      <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 info-wrapper p0">
+        <%= image_tag ('connect_well.png'), alt: l10n('.connect_well'), style: 'width: 100%;margin-left:40px;' %>
+      </div>
+    </div>
+    <hr>
+  </div>
+  <div class="panel-body">
+    <div id="qle-menu">
+      <div class="row col-lg-12 col-md-8 col-sm-12 col-xs-12 ">
+        <% if employer_external_link_enabled? %>
+          <%= EnrollRegistry[:add_external_links].setting(:employer_advertisement_text).item %>
+          <%= link_to "Learn More", EnrollRegistry[:add_external_links].setting(:employer_advertisement_url).item, target: "_blank" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

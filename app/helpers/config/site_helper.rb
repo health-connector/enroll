@@ -117,11 +117,11 @@ module Config::SiteHelper
   end
 
   def health_care_website
-      Settings.site.health_care_website
+    Settings.site.health_care_website
   end
 
   def health_care_website_url
-      Settings.site.health_care_website_url
+    Settings.site.health_care_website_url
   end
 
   def ivl_login_url
@@ -201,7 +201,7 @@ module Config::SiteHelper
   end
 
   def site_tufts_url
-     Settings.site.tufts_premier_url
+    Settings.site.tufts_premier_url
   end
 
   def site_tufts_premier_link

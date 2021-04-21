@@ -1,0 +1,20 @@
+<% if employee_external_link_enabled? && @person.has_active_shopping_role? %>
+  <div class="qles-panel panel panel-default">
+    <div class="panel-heading">
+      <div class="row" id='qle-header'>
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 info-wrapper p0">
+          <%= image_tag ('connect_well.png'), alt: l10n('.connect_well'), style: 'width: 100%;margin-left:40px;' %>
+        </div>
+      </div>
+      <hr>
+    </div>
+    <div class="panel-body">
+      <div id="qle-menu">
+        <div class="row col-lg-12 col-md-8 col-sm-12 col-xs-12 ">
+            <%= EnrollRegistry[:add_external_links].setting(:employee_advertisement_text).item %>
+            <%= link_to "Learn More", EnrollRegistry[:add_external_links].setting(:employee_advertisement_url).item, target: "_blank" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
