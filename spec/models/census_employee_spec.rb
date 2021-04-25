@@ -1005,7 +1005,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         )
       end
       let!(:enrollment) do
-        FactoryGirl.create(:hbx_enrollment, household: household, family: family, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id)
+        FactoryGirl.create(:hbx_enrollment, household: household, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id)
       end
 
       it "should return covered employees" do
@@ -1527,7 +1527,6 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           hbx_enrollment = create(
             :hbx_enrollment,
             household: family.households.last,
-            family: family,
             coverage_kind: "health",
             kind: "employer_sponsored",
             benefit_sponsorship_id: bga.census_employee.benefit_sponsorship.id,
@@ -1583,7 +1582,6 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           hbx_enrollment = create(
             :hbx_enrollment,
             household: family.households.last,
-            family: family,
             coverage_kind: "health",
             kind: "employer_sponsored",
             benefit_sponsorship_id: bga.census_employee.benefit_sponsorship.id,
@@ -2350,54 +2348,6 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
-  context ".is_waived_under?" do
-    let(:census_employee) {CensusEmployee.new(**valid_params)}
-    let!(:benefit_group_assignment) { create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
-
-    before do
-      family = create(:family, :with_primary_family_member)
-      allow(census_employee).to receive(:family).and_return(family)
-      enrollment =
-        create(
-          :hbx_enrollment,
-          household: family.active_household,
-          benefit_group_assignment: census_employee.benefit_group_assignments.first,
-          sponsored_benefit_package_id: census_employee.benefit_group_assignments.first.benefit_package.id
-        )
-      allow(benefit_group_assignment).to receive(:hbx_enrollment).and_return(enrollment)
-    end
-
-    context "for initial application" do
-
-      it "should return true when employees waive the coverage" do
-        benefit_group_assignment.hbx_enrollment.aasm_state = "inactive"
-        benefit_group_assignment.hbx_enrollment.save
-        expect(census_employee.is_waived_under?(benefit_group_assignment.benefit_application)).to be_truthy
-      end
-
-      it "should return false for employees who are enrolling" do
-        expect(census_employee.is_waived_under?(benefit_group_assignment.benefit_application)).to be_falsey
-      end
-    end
-
-    context "when active employeees has renewal benifit group" do
-
-      before do
-        benefit_group_assignment.benefit_application.update_attribute(:aasm_state, "renewing_enrolled")
-      end
-
-      it "should return false when employees who are enrolling" do
-        expect(census_employee.is_waived_under?(benefit_group_assignment.benefit_application)).to be_falsey
-      end
-
-      it "should return true for employees waive the coverage" do
-        benefit_group_assignment.hbx_enrollment.aasm_state = "renewing_waived"
-        benefit_group_assignment.hbx_enrollment.save
-        expect(census_employee.is_waived_under?(benefit_group_assignment.benefit_application)).to be_truthy
-      end
-    end
-  end
-
   context "and congressional newly designated employees are added" do
     let(:employer_profile_congressional) {employer_profile}
     let(:plan_year) {benefit_application}
@@ -2567,17 +2517,23 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
       it "should return nil if given effective_on date is in imported benefit application" do
         initial_application.update_attributes(aasm_state: :imported)
+        allow(bga1).to receive(:is_active?).and_return(false)
+        allow(bga2).to receive(:is_active?).and_return(false)
         coverage_date = initial_application.end_on - 1.month
         expect(census_employee.reload.benefit_package_for_date(coverage_date)).to eq nil
       end
 
       it "should return nil if given coverage_date is not between the bga start_on and end_on dates" do
+        allow(bga1).to receive(:is_active?).and_return(false)
+        allow(bga2).to receive(:is_active?).and_return(false)
         initial_application.update_attributes(aasm_state: :imported)
         coverage_date = census_employee.benefit_group_assignments.first.start_on - 1.month
         expect(census_employee.benefit_group_assignment_for_date(coverage_date)).to eq nil
       end
 
       it "should return latest bga when multiple present" do
+        allow(bga1).to receive(:is_active?).and_return(false)
+        allow(bga2).to receive(:is_active?).and_return(true)
         allow(census_employee).to receive(:benefit_group_assignments).and_return [bga1, bga2]
         expect(census_employee.benefit_group_assignment_for_date(TimeKeeper.date_of_record)).to eq bga2
       end
@@ -2775,7 +2731,6 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         coverage_kind: "health",
         kind: "employer_sponsored",
         effective_on: renewal_benefit_group.start_on,
-        family: census_employee.employee_role.person.primary_family,
         benefit_sponsorship_id: benefit_sponsorship.id,
         sponsored_benefit_package_id: renewal_benefit_group.id,
         employee_role_id: census_employee.employee_role.id,
@@ -2791,7 +2746,6 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         coverage_kind: "health",
         kind: "employer_sponsored",
         effective_on: current_benefit_package.start_on,
-        family: census_employee.employee_role.person.primary_family,
         benefit_sponsorship_id: benefit_sponsorship.id,
         sponsored_benefit_package_id: current_benefit_package.id,
         employee_role_id: census_employee.employee_role.id,

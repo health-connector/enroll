@@ -315,7 +315,7 @@ class GroupSelectionPrevaricationAdapter
     elsif hbx_enrollment.sponsored_benefit_package.benefit_application.termination_pending?
       "Your employer is no longer offering health insurance through #{Settings.site.short_name}. Please contact your employer or call our Customer Care Center at #{Settings.contact_center.phone_number}."
     else
-      "Unable to find employer-sponsored benefits for enrollment year #{hbx_enrollment.effective_on.year}"
+      "Open enrollment for your employer-sponsored benefits not yet started. Please return on #{hbx_enrollment.sponsored_benefit_package.open_enrollment_start_on.strftime('%m/%d/%Y')} to enroll for coverage."
     end
   end
 

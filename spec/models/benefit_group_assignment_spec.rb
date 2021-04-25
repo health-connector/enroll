@@ -8,7 +8,13 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
   let(:benefit_sponsorship)    { benefit_sponsor.active_benefit_sponsorship }
   let(:employer_profile)      {  benefit_sponsorship.profile }
   let!(:benefit_package) { benefit_sponsorship.benefit_applications.first.benefit_packages.first}
-  let(:census_employee)   { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+  let(:employee_role_100) { FactoryGirl.create(:employee_role, employer_profile: employer_profile) }
+  let(:census_employee) do
+    ce = FactoryGirl.create(:census_employee, employer_profile: employer_profile)
+    employee_role_100.update_attributes(census_employee_id: ce.id)
+    ce.update_attributes(employee_role_id: employee_role_100.id)
+    ce
+  end
   let(:start_on)          { benefit_package.start_on }
   let(:hbx_enrollment)  { HbxEnrollment.new(sponsored_benefit_package: benefit_package, employee_role: census_employee.employee_role) }
 
@@ -18,6 +24,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
         census_employee: census_employee,
         benefit_package: benefit_package,
         start_on: start_on,
+        end_on: benefit_package.end_on,
         hbx_enrollment: hbx_enrollment
       }
     end
@@ -227,42 +234,37 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
         end
 
         context "and coverage is terminated" do
-          let(:employee_role)   { FactoryGirl.build(:employee_role, employer_profile: employer_profile)}
-          let(:hbx_enrollment)  { HbxEnrollment.new(sponsored_benefit_package: benefit_package, employee_role: census_employee.employee_role, effective_on: TimeKeeper.date_of_record, aasm_state: :coverage_selected) }
+          let(:household) { create(:household, family: family)}
+          let(:family) { create(:family, :with_primary_family_member)}
+          # let(:employee_role)   { FactoryGirl.build(:employee_role, employer_profile: employer_profile, census_employee_id: census_employee.id)}
+          let(:hbx_enrollment1) do
+            FactoryGirl.create(
+              :hbx_enrollment,
+              employee_role: census_employee.employee_role,
+              household: household,
+              aasm_state: 'coverage_selected',
+              benefit_group_assignment_id: benefit_group_assignment.id,
+              sponsored_benefit_package_id: benefit_package.id,
+              effective_on: TimeKeeper.date_of_record.prev_month
+            )
+          end
 
           it "should update the end_on date to terminated date only if CE is termed/pending" do
-            census_employee.update_attributes!(aasm_state: 'employee_termination_pending', coverage_terminated_on: TimeKeeper.date_of_record + 2.days)
-            hbx_enrollment.benefit_group_assignment = benefit_group_assignment
-            benefit_group_assignment.hbx_enrollment = hbx_enrollment
-            hbx_enrollment.term_or_cancel_enrollment(hbx_enrollment, TimeKeeper.date_of_record + 2.days)
-            expect(benefit_group_assignment.end_on).to eq(TimeKeeper.date_of_record + 2.days)
+            census_employee.update_attributes!(aasm_state: 'employee_termination_pending', coverage_terminated_on: TimeKeeper.date_of_record - 2.days)
+            hbx_enrollment1.benefit_group_assignment = benefit_group_assignment
+            benefit_group_assignment.hbx_enrollment = hbx_enrollment1
+            benefit_group_assignment.save
+            hbx_enrollment1.save
+            hbx_enrollment1.term_or_cancel_enrollment(hbx_enrollment1, TimeKeeper.date_of_record - 2.days)
+            expect(benefit_group_assignment.end_on).to eq(TimeKeeper.date_of_record - 2.days)
           end
 
           it "should NOT update the end_on date to terminated date when CE is active" do
-            hbx_enrollment.benefit_group_assignment = benefit_group_assignment
-            benefit_group_assignment.hbx_enrollment = hbx_enrollment
-            hbx_enrollment.term_or_cancel_enrollment(hbx_enrollment, TimeKeeper.date_of_record + 2.days)
+            hbx_enrollment1.benefit_group_assignment = benefit_group_assignment
+            benefit_group_assignment.hbx_enrollment = hbx_enrollment1
+            benefit_group_assignment.save
+            hbx_enrollment1.term_or_cancel_enrollment(hbx_enrollment1, TimeKeeper.date_of_record + 2.days)
             expect(benefit_group_assignment.end_on).not_to eq(TimeKeeper.date_of_record + 2.days)
-          end
-        end
-
-        context "and benefit application is terminated" do
-          let(:ba) { benefit_sponsorship.benefit_applications.first }
-
-          before { ba.terminate_enrollment }
-
-          it "should terminate the benefit group assignment" do
-            expect(benefit_group_assignment.end_on).to eq(ba.terminated_on)
-          end
-        end
-
-        context "and benefit application is cancelled" do
-          let(:ba) { benefit_sponsorship.benefit_applications.first }
-
-          before { ba.cancel! }
-
-          it "should cancel the benefit group assignment" do
-            expect(benefit_group_assignment.end_on).to eq(ba.terminated_on)
           end
         end
 
@@ -284,7 +286,11 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
   describe '#hbx_enrollments', dbclean: :after_each do
 
-    let!(:census_employee) { create :census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id }
+    let!(:census_employee) do
+      ce = create :census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id
+      employee_role.update_attributes(census_employee_id: ce.id)
+      ce
+    end
     let!(:employee_role) { create(:employee_role, person: person, employer_profile: employer_profile)}
     let(:person) { family.primary_person }
     let!(:household) { create(:household, family: family)}
@@ -298,6 +304,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
           :hbx_enrollment, household: household,
                            :benefit_group_assignment_id => match_with_assignment_id ? census_employee.active_benefit_group_assignment.id : nil,
                            :sponsored_benefit_package_id => match_with_package_id ? census_employee.active_benefit_group_assignment.benefit_package_id : nil,
+                           :employee_role_id => employee_role.id,
                            :aasm_state => state
         )
       end
@@ -351,7 +358,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
     let(:household) { FactoryGirl.create(:household, family: family)}
     let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: household, family: family, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id) }
+    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: household, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id) }
     let!(:benefit_group_assignment) { FactoryGirl.create(:benefit_group_assignment, benefit_package: benefit_package, census_employee: census_employee, hbx_enrollment: hbx_enrollment)}
     let!(:employee_role) do
       ee = FactoryGirl.create(:employee_role, person: family.primary_person, employer_profile: employer_profile, census_employee: census_employee)
@@ -360,6 +367,11 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
     end
 
     let(:census_employee2)   { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+    let!(:employee_role2) do
+      ee = FactoryGirl.create(:employee_role, person: family2.primary_person, employer_profile: employer_profile, census_employee: census_employee2)
+      census_employee2.update_attributes!(employee_role_id: ee.id)
+      ee
+    end
     let(:household2) { FactoryGirl.create(:household, family: family2)}
     let(:family2) { FactoryGirl.create(:family, :with_primary_family_member)}
     let!(:benefit_group_assignment2) { FactoryGirl.create(:benefit_group_assignment, benefit_package: benefit_package, census_employee: census_employee2, end_on: benefit_package.end_on)}
@@ -367,9 +379,9 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
       FactoryGirl.create(
         :hbx_enrollment,
         household: household2,
-        family: family2,
         benefit_group_assignment_id: census_employee2.active_benefit_group_assignment.id,
         sponsored_benefit_package_id: census_employee2.active_benefit_group_assignment.benefit_package_id,
+        employee_role_id: employee_role2.id,
         aasm_state: 'coverage_selected'
       )
     end
@@ -379,6 +391,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
         FactoryGirl.create(
           :hbx_enrollment,
           household: household,
+          employee_role_id: employee_role.id,
           benefit_group_assignment_id: match_with_assignment_id ? census_employee.active_benefit_group_assignment.id : nil,
           sponsored_benefit_package_id: match_with_package_id ? census_employee.active_benefit_group_assignment.benefit_package_id : nil,
           aasm_state: state
@@ -404,11 +417,12 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
   describe '.make_active' do
     let!(:census_employee) do
-      FactoryGirl.create(
+      ce = FactoryGirl.create(
         :census_employee,
         :with_active_assignment,
         benefit_sponsorship: benefit_sponsorship,
         employer_profile: employer_profile,
+        employee_role_id: employee_role_100.id,
         benefit_group: benefit_package
       )
     end

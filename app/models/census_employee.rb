@@ -527,7 +527,7 @@ class CensusEmployee < CensusMember
     active_assignment = coverage_date ? active_benefit_group_assignment(coverage_date) : active_benefit_group_assignment
     return unless active_assignment&.benefit_package.present?
 
-    renewal_begin_date = active_assignment.benefit_package.end_on.next_day
+    renewal_begin_date = active_assignment.benefit_package.end_on.to_date.next_day
     renewal_assignment = benefit_package_assignment_on(renewal_begin_date)
     return nil if renewal_assignment&.benefit_package&.benefit_application == benefit_sponsorship&.off_cycle_benefit_application
 
@@ -1425,22 +1425,28 @@ def self.to_csv
     }).first
 
     return [] if family.blank?
+
+    family.active_household.hbx_enrollments.where(
+      :"sponsored_benefit_package_id".in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
+      :"employee_role_id" => self.employee_role_id,
+      :"aasm_state".ne => "shopping"
+    )
   end
 
   def off_cycle_benefit_group_enrollments
     return nil if employee_role.blank?
 
-    HbxEnrollment.where(
-      {
-        :sponsored_benefit_package_id.in => [off_cycle_published_benefit_package.try(:id)].compact,
-        :employee_role_id => self.employee_role_id,
-        :aasm_state.ne => "shopping"
+    family = Family.where({
+      "households.hbx_enrollments" => {:"$elemMatch" => {
+        :"sponsored_benefit_package_id".in => [off_cycle_published_benefit_package.try(:id)].compact,
+        :"employee_role_id" => self.employee_role_id }
       }
-    ) || []
-  end
+    }).first
+
+    return [] if family.blank?
 
     family.active_household.hbx_enrollments.where(
-      :"sponsored_benefit_package_id".in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
+      :"sponsored_benefit_package_id".in => [off_cycle_published_benefit_package.try(:id)].compact,
       :"employee_role_id" => self.employee_role_id,
       :"aasm_state".ne => "shopping"
     )

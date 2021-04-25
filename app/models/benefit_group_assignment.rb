@@ -191,13 +191,22 @@ class BenefitGroupAssignment
 
   def covered_families
     Family.where(
-      :_id.in => HbxEnrollment.where(
-        :"$or" => [
-          {:benefit_group_assignment_id => BSON::ObjectId.from_string(id)},
-          {:family_id => census_employee&.family&.id}
-        ]
-      ).pluck(:family_id)
+      {
+        "households.hbx_enrollments" => {
+          :"$elemMatch" => {
+            :"$or" => [
+              { :"employee_role_id" => employee_role_id },
+              { :"benefit_group_assignment_id" => BSON::ObjectId.from_string(self.id) }
+            ]
+          }
+        }
+      }
     )
+  end
+
+  def employee_role_id
+    id = census_employee&.employee_role_id
+    BSON::ObjectId.from_string(id) if id
   end
 
   def hbx_enrollments
