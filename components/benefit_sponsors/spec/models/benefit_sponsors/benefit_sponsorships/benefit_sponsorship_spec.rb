@@ -1135,21 +1135,21 @@ module BenefitSponsors
 
     describe '.is_potential_off_cycle_employer', dbclean: :after_each do
 
-      let!(:rating_area)                   { FactoryBot.create :benefit_markets_locations_rating_area }
-      let!(:service_area)                  { FactoryBot.create :benefit_markets_locations_service_area }
-      let!(:site)                          { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let!(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let!(:rating_area)                   { create :benefit_markets_locations_rating_area }
+      let!(:service_area)                  { create :benefit_markets_locations_service_area }
+      let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+      let!(:organization)                  { create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let!(:employer_profile)              { organization.employer_profile }
       let!(:active_benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
       let!(:effective_period)              { (TimeKeeper.date_of_record.beginning_of_month)..(TimeKeeper.date_of_record.beginning_of_month.next_year.prev_day) }
       let!(:renewal_effective_period)      { (TimeKeeper.date_of_record.beginning_of_month.next_year)..(TimeKeeper.date_of_record.beginning_of_month.prev_day + 2.years) }
 
       shared_examples_for "for an employer on the exchange" do |aasm_state_initial, aasm_state_renewal, expectation|
-        let!(:current_application)           { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:current_application)           { create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
         let!(:renewal_application) do
           return unless aasm_state_renewal.present?
 
-          FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship)
+          create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship)
         end
         it "when #{aasm_state_initial} #{aasm_state_renewal} application(s) are present" do
           expect(active_benefit_sponsorship.is_potential_off_cycle_employer?).to eq expectation
@@ -1188,12 +1188,12 @@ module BenefitSponsors
         let(:termination_date)            { TimeKeeper.date_of_record.next_month.end_of_month }
         let!(:renewal_effective_period)   { termination_date.next_day..termination_date.next_day.next_year.prev_day }
         let!(:effective_period)           { start_on..termination_date }
-        let!(:term_application)           { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app1)              { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app2)              { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app3)              { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app4)              { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:draft_app)                  { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:term_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app1)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app2)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app3)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app4)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:draft_app)                  { create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
 
 
         it { expect(active_benefit_sponsorship.is_potential_off_cycle_employer?).to eq true }
@@ -1201,10 +1201,10 @@ module BenefitSponsors
     end
 
     describe '.off_cycle_benefit_application' do
-      let!(:rating_area)                   { FactoryBot.create :benefit_markets_locations_rating_area }
-      let!(:service_area)                  { FactoryBot.create :benefit_markets_locations_service_area }
-      let!(:site)                          { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let!(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let!(:rating_area)                   { create :benefit_markets_locations_rating_area }
+      let!(:service_area)                  { create :benefit_markets_locations_service_area }
+      let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+      let!(:organization)                  { create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let!(:employer_profile)              { organization.employer_profile }
       let!(:active_benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
       let(:current_date1)                  { TimeKeeper.date_of_record.beginning_of_month.prev_month }
@@ -1220,20 +1220,20 @@ module BenefitSponsors
         end
 
         let!(:initial_application) do
-          application = FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship)
+          application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship)
           terminated_period = aasm_state_renewal.nil? && ['terminated', 'termination_pending'].include?(aasm_state_initial) ? effective_period.min..termination_date : effective_period
           application.update_attributes!(effective_period: terminated_period)
         end
         let!(:offcycle_application) do
           return unless aasm_state_off_cycle.present?
 
-          FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_off_cycle, effective_period: offcycle_effective_period, benefit_sponsorship: active_benefit_sponsorship)
+          create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_off_cycle, effective_period: offcycle_effective_period, benefit_sponsorship: active_benefit_sponsorship)
         end
         let!(:renewal_application) do
           return unless aasm_state_renewal.present?
 
           terminated_period = ['terminated', 'termination_pending'].include?(aasm_state_renewal) ? renewal_effective_period.min..termination_date : renewal_effective_period
-          application = FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, effective_period: terminated_period, benefit_sponsorship: active_benefit_sponsorship)
+          application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, effective_period: terminated_period, benefit_sponsorship: active_benefit_sponsorship)
           application.update_attributes!(effective_period: terminated_period)
         end
         it "when #{aasm_state_initial} #{aasm_state_renewal} application(s) are present" do

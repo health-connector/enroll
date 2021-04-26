@@ -450,13 +450,13 @@ module BenefitSponsors
         date..date.next_year.prev_day
       end
       let!(:initial_application) do
-        application = FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: benefit_sponsorship)
+        application = create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: benefit_sponsorship)
         terminated_period = effective_period.min..termination_date
         application.update_attributes!(effective_period: terminated_period)
         application
       end
       let!(:offcycle_application) do
-        FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: offcycle_effective_period, benefit_sponsorship: benefit_sponsorship)
+        create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: offcycle_effective_period, benefit_sponsorship: benefit_sponsorship)
       end
 
       it { expect(initial_application.is_off_cycle?).to be_falsey }

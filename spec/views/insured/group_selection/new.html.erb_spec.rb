@@ -84,14 +84,14 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
         allow(adapter).to receive(:can_shop_both_markets?).with(person).and_return(false)
         allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment, effective_on).and_return(false)
-        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member1, employee_role, effective_on, nil).and_return([true, true])
-        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member2, employee_role, effective_on, nil).and_return([false, true])
-        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member3, employee_role, effective_on, nil).and_return([true, true])
-        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member4, employee_role, effective_on, nil).and_return([false, true])
-        allow(adapter).to receive(:class_for_ineligible_row).with(family_member1, nil, effective_on, nil).and_return("ineligible_dental_row_#{employee_role.id} is_primary")
-        allow(adapter).to receive(:class_for_ineligible_row).with(family_member2, nil, effective_on, nil).and_return("ineligible_health_row_#{employee_role.id} ineligible_dental_row_#{employee_role.id}")
-        allow(adapter).to receive(:class_for_ineligible_row).with(family_member3, nil, effective_on, nil).and_return("ineligible_dental_row_#{employee_role.id}")
-        allow(adapter).to receive(:class_for_ineligible_row).with(family_member4, nil, effective_on, nil).and_return("ineligible_health_row_#{employee_role.id} ineligible_dental_row_#{employee_role.id}")
+        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member1, employee_role, effective_on).and_return([true, true])
+        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member2, employee_role, effective_on).and_return([false, true])
+        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member3, employee_role, effective_on).and_return([true, true])
+        allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member4, employee_role, effective_on).and_return([false, true])
+        allow(adapter).to receive(:class_for_ineligible_row).with(family_member1, nil, effective_on).and_return("ineligible_dental_row_#{employee_role.id} is_primary")
+        allow(adapter).to receive(:class_for_ineligible_row).with(family_member2, nil, effective_on).and_return("ineligible_health_row_#{employee_role.id} ineligible_dental_row_#{employee_role.id}")
+        allow(adapter).to receive(:class_for_ineligible_row).with(family_member3, nil, effective_on).and_return("ineligible_dental_row_#{employee_role.id}")
+        allow(adapter).to receive(:class_for_ineligible_row).with(family_member4, nil, effective_on).and_return("ineligible_health_row_#{employee_role.id} ineligible_dental_row_#{employee_role.id}")
         allow(coverage_household).to receive(:valid_coverage_household_members).and_return(coverage_household_members)
         render :template => "insured/group_selection/new.html.erb"
       end
@@ -365,7 +365,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).and_return(false)
-      allow(adapter).to receive(:shop_health_and_dental_attributes).and_return([true, false, false, false])
+      allow(adapter).to receive(:shop_health_and_dental_attributes).and_return([true, false, false])
       allow(adapter).to receive(:can_shop_individual?).and_return(false)
       allow(adapter).to receive(:can_shop_resident?).and_return(false)
       allow(adapter).to receive(:class_for_ineligible_row).and_return("ineligible_dental_row_#{employee_role.id} is_primary")
@@ -391,7 +391,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:coverage_household) { double("coverage household", coverage_household_members: []) }
     let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: (TimeKeeper.date_of_record.end_of_month + 1.day), employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
     let(:employer_profile) { benefit_sponsorship.profile }
-    let(:current_user) { FactoryBot.create(:user) }
+    let(:current_user) { create(:user) }
     let(:effective_on_date) { TimeKeeper.date_of_record.beginning_of_month }
 
     before :each do

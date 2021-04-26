@@ -220,10 +220,12 @@ class CensusEmployee < CensusMember
       "benefit_group_assignments.end_on" => 1,
       "employment_terminated_on" => 1
     },
-   {name: "benefit_group_assignments_predecessor_renewal_index"})
+    { name: "benefit_group_assignments_predecessor_renewal_index" }
+  )
 
-  scope :eligible_for_renewal_under_package, ->(benefit_package, package_start, package_end, new_effective_date) {
-    where(:"benefit_group_assignments" => {
+  scope :eligible_for_renewal_under_package, lambda { |benefit_package, package_start, package_end, new_effective_date|
+    where(
+      :benefit_group_assignments => {
         :$elemMatch => {
           :benefit_package_id => benefit_package.id,
           :start_on => { "$gte" => package_start },
@@ -232,13 +234,14 @@ class CensusEmployee < CensusMember
             {"end_on" => {"$exists" => false}},
             {"end_on" => package_end}
           ]
-        },
+        }
       },
-      "$or" => [
-        {"employment_terminated_on" => nil},
-        {"employment_terminated_on" => {"$exists" => false}},
-        {"employment_terminated_on" => {"$gte" => new_effective_date}}
-      ]
+      "$or" =>
+        [
+          { "employment_terminated_on" => nil },
+          { "employment_terminated_on" => {"$exists" => false} },
+          { "employment_terminated_on" => {"$gte" => new_effective_date} }
+        ]
     )
   }
 
@@ -300,7 +303,7 @@ class CensusEmployee < CensusMember
     if new_assignment.save
       new_assignment
     else
-      Rails.logger.error { "Failed to create new_assignment for census employee (#{self.id}) with benefit package (#{new_benefit_package.id}) with start_on: #{start_on} due to #{assignment.errors.inspect}" }
+      Rails.logger.error { "Failed to create new_assignment for census employee (#{id}) with benefit package (#{new_benefit_package.id}) with start_on: #{start_on} due to #{new_assignment.errors.inspect}" }
     end
   end
 
@@ -322,7 +325,7 @@ class CensusEmployee < CensusMember
     if assignment.save
       create_benefit_package_assignment(new_benefit_package, start_on)
     else
-      Rails.logger.error { "Failed to save package assignment (#{assignment.id}) for census employee (#{self.id}) due to #{assignment.errors.inspect}" }
+      Rails.logger.error { "Failed to save package assignment (#{assignment.id}) for census employee (#{id}) due to #{assignment.errors.inspect}" }
     end
   end
 
@@ -330,7 +333,7 @@ class CensusEmployee < CensusMember
     package_assignments = benefit_group_assignments.by_benefit_package(benefit_package).by_date(terminated_on).reject(&:canceled?)
     package_assignments.each do |assignment|
       assignment.end_on = terminated_on
-      Rails.logger.error { "Failed to terminate package assignment (#{assignment.id}) with termination date #{terminated_on} for census employee (#{self.id}) due to #{assignment.errors.inspect}" } unless assignment.save
+      Rails.logger.error { "Failed to terminate package assignment (#{assignment.id}) with termination date #{terminated_on} for census employee (#{id}) due to #{assignment.errors.inspect}" } unless assignment.save
     end
   end
 
@@ -338,7 +341,7 @@ class CensusEmployee < CensusMember
     package_assignments = benefit_group_assignments.by_benefit_package(benefit_package).reject(&:canceled?)
     package_assignments.each do |assignment|
       assignment.end_on = assignment.start_on
-      Rails.logger.error { "Failed to cancel package assignment (#{assignment.id}) for census employee (#{self.id}) due to #{assignment.errors.inspect}" } unless assignment.save
+      Rails.logger.error { "Failed to cancel package assignment (#{assignment.id}) for census employee (#{id}) due to #{assignment.errors.inspect}" } unless assignment.save
     end
   end
 
@@ -661,7 +664,7 @@ class CensusEmployee < CensusMember
     term_eligible_active_enrollments = active_benefit_group_enrollments(employment_terminated_on).show_enrollments_sans_canceled.non_terminated if active_benefit_group_enrollments(employment_terminated_on).present?
     term_eligible_renewal_enrollments = renewal_benefit_group_enrollments(employment_terminated_on).show_enrollments_sans_canceled.non_terminated if renewal_benefit_group_enrollments(employment_terminated_on).present?
     term_eligible_off_cycle_enrollments = off_cycle_benefit_group_enrollments.show_enrollments_sans_canceled.non_terminated if off_cycle_benefit_group_enrollments.present?
-    expired_benefit_group_assignment = benefit_group_assignments.sort_by(&:created_at).select{ |bga| (bga.benefit_group.start_on..bga.benefit_group.end_on).include?(coverage_terminated_on) && bga.plan_year.aasm_state == :expired}.last
+    expired_benefit_group_assignment = benefit_group_assignments.sort_by(&:created_at).select{ |bga| (bga.benefit_group.start_on..bga.benefit_group.end_on).cover?(coverage_terminated_on) && bga.plan_year.aasm_state == :expired}.last
     term_eligible_expired_enrollments = expired_benefit_group_enrollments(expired_benefit_group_assignment.benefit_group).show_enrollments_sans_canceled.non_terminated if expired_benefit_group_assignment.present?
     (Array.wrap(term_eligible_active_enrollments) + Array.wrap(term_eligible_off_cycle_enrollments) + Array.wrap(term_eligible_renewal_enrollments) + Array.wrap(term_eligible_expired_enrollments)).compact.uniq
   end
@@ -1396,12 +1399,20 @@ def self.to_csv
     end
   end
 
+  def is_employee_in_term_pending?
+    return false if employment_terminated_on.blank?
+    return false if active_benefit_group_assignment.blank?
+
+    effective_period = active_benefit_group_assignment.benefit_package.effective_period
+    employment_terminated_on <= effective_period.max
+  end
+
   # Enrollments with current active and renewal benefit applications
   def active_benefit_group_enrollments(coverage_date = TimeKeeper.date_of_record)
     return nil if employee_role.blank?
     family = Family.where({
       "households.hbx_enrollments" => {:"$elemMatch" => {
-        :"sponsored_benefit_package_id".in => [active_benefit_group(coverage_date).try(:id)].compact,
+        :sponsored_benefit_package_id.in => [active_benefit_group(coverage_date).try(:id)].compact,
         :"employee_role_id" => self.employee_role_id}
       }
     }).first
@@ -1409,36 +1420,64 @@ def self.to_csv
     return [] if family.blank?
 
     family.active_household.hbx_enrollments.where(
-      :"sponsored_benefit_package_id".in => [active_benefit_group(coverage_date).try(:id)].compact,
-      :"employee_role_id" => self.employee_role_id,
-      :"aasm_state".ne => "shopping"
+      :sponsored_benefit_package_id.in => [active_benefit_group(coverage_date).try(:id)].compact,
+      :employee_role_id => employee_role_id,
+      :aasm_state.ne => "shopping"
     )
   end
 
   def renewal_benefit_group_enrollments(coverage_date = nil)
     return nil if employee_role.blank?
-    family = Family.where({
-      "households.hbx_enrollments" => {:"$elemMatch" => {
-        :"sponsored_benefit_package_id".in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
-        :"employee_role_id" => self.employee_role_id }
+
+    family = Family.where(
+      {
+        "households.hbx_enrollments" => {
+          :"$elemMatch" => {
+            :sponsored_benefit_package_id.in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
+            :employee_role_id => employee_role_id
+          }
+        }
       }
-    }).first
+    ).first
 
     return [] if family.blank?
 
     family.active_household.hbx_enrollments.where(
-      :"sponsored_benefit_package_id".in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
-      :"employee_role_id" => self.employee_role_id,
-      :"aasm_state".ne => "shopping"
+      :sponsored_benefit_package_id.in => [renewal_published_benefit_group(coverage_date).try(:id)].compact,
+      :employee_role_id => employee_role_id,
+      :aasm_state.ne => "shopping"
     )
   end
 
   def off_cycle_benefit_group_enrollments
     return nil if employee_role.blank?
 
+    family = Family.where(
+      {
+        "households.hbx_enrollments" => {
+          :"$elemMatch" => {
+            :sponsored_benefit_package_id.in => [off_cycle_published_benefit_package.try(:id)].compact,
+            :employee_role_id => employee_role_id
+          }
+        }
+      }
+    ).first
+
+    return [] if family.blank?
+
+    family.active_household.hbx_enrollments.where(
+      :sponsored_benefit_package_id.in => [off_cycle_published_benefit_package.try(:id)].compact,
+      :"employee_role_id" => self.employee_role_id,
+      :"aasm_state".ne => "shopping"
+    )
+  end
+
+  def expired_benefit_group_enrollments(expired_benefit_group)
+    return nil if employee_role.blank?
+
     family = Family.where({
       "households.hbx_enrollments" => {:"$elemMatch" => {
-        :"sponsored_benefit_package_id".in => [off_cycle_published_benefit_package.try(:id)].compact,
+        :sponsored_benefit_package_id.in => [expired_benefit_group.try(:id)].compact,
         :"employee_role_id" => self.employee_role_id }
       }
     }).first
@@ -1446,11 +1485,12 @@ def self.to_csv
     return [] if family.blank?
 
     family.active_household.hbx_enrollments.where(
-      :"sponsored_benefit_package_id".in => [off_cycle_published_benefit_package.try(:id)].compact,
+      :sponsored_benefit_package_id.in => [expired_benefit_group.try(:id)].compact,
       :"employee_role_id" => self.employee_role_id,
       :"aasm_state".ne => "shopping"
     )
   end
+
 
   # Enrollments eligible for Cobra
 

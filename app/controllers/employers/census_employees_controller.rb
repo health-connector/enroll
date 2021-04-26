@@ -14,7 +14,7 @@ class Employers::CensusEmployeesController < ApplicationController
       active_benefit_group_assignment: benefit_group_id,
       off_cycle_benefit_group_assignment: off_cycle_benefit_group_id,
       renewal_benefit_group_assignment: renewal_benefit_group_id,
-      no_ssn_allowed: @benefit_sponsorship.is_no_ssn_enabled
+      # no_ssn_allowed: @benefit_sponsorship.is_no_ssn_enabled
     }))
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
 
@@ -45,7 +45,7 @@ class Employers::CensusEmployeesController < ApplicationController
       active_benefit_group_assignment: benefit_group_id,
       renewal_benefit_group_assignment: renewal_benefit_group_id,
       off_cycle_benefit_group_assignment: off_cycle_benefit_group_id,
-      no_ssn_allowed: @census_employee.no_ssn_allowed || @benefit_sponsorship.is_no_ssn_enabled
+      # no_ssn_allowed: @census_employee.no_ssn_allowed || @benefit_sponsorship.is_no_ssn_enabled
     })
 
     destroyed_dependent_ids = census_employee_params[:census_dependents_attributes].delete_if{|k,v| v.has_key?("_destroy") }.values.map{|x| x[:id]} if census_employee_params[:census_dependents_attributes]

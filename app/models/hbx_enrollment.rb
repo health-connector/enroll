@@ -697,6 +697,8 @@ class HbxEnrollment
   end
 
   def propagate_selection
+    return unless [:coverage_selected, :renewing_coverage_selected].include?(aasm.to_state)
+
     if is_shop?
       update_existing_shop_coverage
     else

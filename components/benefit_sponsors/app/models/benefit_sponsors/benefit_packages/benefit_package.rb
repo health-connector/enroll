@@ -369,7 +369,7 @@ module BenefitSponsors
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
             if hbx_enrollment&.may_cancel_coverage?
               hbx_enrollment.cancel_coverage!
-              hbx_enrollment.notify_enrollment_cancel_or_termination_event(enrollment_notify_flag(enroll_notify)) unless hbx_enrollment.inactive?
+              hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?) unless hbx_enrollment.inactive?
             end
           end
         end

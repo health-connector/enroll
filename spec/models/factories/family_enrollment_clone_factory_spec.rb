@@ -8,9 +8,13 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let(:initial_app_start_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
-  let(:effective_period) { initial_app_start_date..initial_app_start_date.next_year.prev_day }
-  let!(:renewal_application) { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application).renew_application[1] }
+  let(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
+  let(:effective_period) { current_effective_date..current_effective_date.next_year.prev_day }
+  let!(:renewal_application) do
+    renewal = initial_application.renew
+    renewal.save
+    renewal
+  end
   let(:renewal_benefit_package) { renewal_application.benefit_packages[0] }
   let!(:sponsored_benefit_package) do
     initial_application.benefit_sponsor_catalog.save
@@ -22,13 +26,13 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   let!(:update_renewal_app) { renewal_application.update_attributes(aasm_state: :enrollment_eligible) }
   let(:coverage_terminated_on) { TimeKeeper.date_of_record.prev_month.end_of_month }
   let(:employee_role) { create :employee_role, employer_profile: employer_profile }
-  let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_package: sponsored_benefit_package, start_on: sponsored_benefit_package.start_on, end_on: coverage_terminated_on)}
-  let!(:renewal_benefit_group_assignment) { build(:benefit_group_assignment, start_on: renewal_benefit_package.start_on, benefit_package: renewal_benefit_package, end_on: renewal_benefit_package.end_on)}
+  let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_group_id: nil, benefit_package_id: sponsored_benefit_package.id, start_on: sponsored_benefit_package.start_on, end_on: coverage_terminated_on)}
+  let!(:renewal_benefit_group_assignment) { build(:benefit_group_assignment, benefit_group_id: nil, start_on: renewal_benefit_package.start_on, benefit_package_id: renewal_benefit_package.id, end_on: renewal_benefit_package.end_on)}
   let!(:ce) do
     FactoryGirl.create(
       :census_employee,
       :owner,
-      employer_profile: employer_profile,
+      benefit_sponsorship: benefit_sponsorship,
       dob: Date.new((coverage_terminated_on.year - 30), 9,8),
       employee_role_id: employee_role.id,
       benefit_group_assignments: [active_benefit_group_assignment, renewal_benefit_group_assignment]
@@ -42,12 +46,17 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
     person = employee_role.person
     ce.update_attributes({employee_role: employee_role})
     family_rec = Family.find_or_build_from_employee_role(employee_role)
-    hbx_enrollment_mem=FactoryGirl.build(:hbx_enrollment_member, eligibility_date:Time.now,applicant_id:person.primary_family.family_members.first.id,coverage_start_on:ce.active_benefit_group_assignment.benefit_package.start_on)
+    hbx_enrollment_mem = FactoryGirl.build(
+      :hbx_enrollment_member,
+      eligibility_date: Time.now,
+      applicant_id: person.primary_family.family_members.first.id,
+      coverage_start_on: sponsored_benefit_package.start_on
+    )
 
      FactoryGirl.create(:hbx_enrollment,
       household: person.primary_family.active_household,
       coverage_kind: "health",
-      effective_on: ce.active_benefit_group_assignment.benefit_package.start_on,
+      effective_on: sponsored_benefit_package.start_on,
       enrollment_kind: "open_enrollment",
       kind: "employer_sponsored",
       submitted_at: sponsored_benefit_package.start_on - 20.days,
@@ -56,7 +65,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
       rating_area: rating_area,
       product: product,
       employee_role_id: person.active_employee_roles.first.id,
-      benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+      benefit_group_assignment_id: active_benefit_group_assignment.id,
       aasm_state: 'coverage_terminated',
       external_enrollment: external_enrollment,
       hbx_enrollment_members:[hbx_enrollment_mem]

@@ -185,16 +185,6 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       end
     end
 
-    context 'employer can remove census employee ssn when census employee is added at the time of ssn/tin disabled' do
-      it "should able to update census employee without ssn" do
-        expect(census_employee.ssn.present?).to eq true
-        census_employee.update_attributes!(:no_ssn_allowed => 'true')
-        post :update, id: census_employee.id, employer_profile_id: employer_profile_id, census_employee: census_employee_delete_ssn
-        census_employee.reload
-        expect(census_employee.ssn.present?).to eq false
-      end
-    end
-
     context "get flash notice", dbclean: :around_each do
       context "second benefit package ID is passed" do
         let(:package_kind) { :single_issuer }
@@ -202,7 +192,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         let(:package) { catalog.product_packages.detect { |package| package.package_kind == package_kind } }
 
         let!(:second_benefit_package) do
-          FactoryBot.create(
+          create(
             :benefit_sponsors_benefit_packages_benefit_package,
             title: "Second Benefit Package",
             benefit_application: initial_application,

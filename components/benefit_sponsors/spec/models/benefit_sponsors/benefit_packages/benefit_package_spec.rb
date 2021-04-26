@@ -92,16 +92,15 @@ module BenefitSponsors
       let(:roster_size) { 5 }
       let(:enrollment_kinds) { ['health'] }
       let!(:census_employees) { create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: bs, employer_profile: bs.profile, benefit_group: cbp) }
-      let!(:person) { FactoryBot.create(:person) }
-      let!(:family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
-      let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person)}
+      let!(:person) { create(:person) }
+      let!(:family) {create(:family, :with_primary_family_member, person: person)}
+      let!(:employee_role) { create(:benefit_sponsors_employee_role, person: person)}
       let!(:census_employee) { census_employees.first }
       let(:hbx_enrollment) do
-        FactoryBot.build(
+        build(
           :hbx_enrollment,
           :shop,
           household: family.active_household,
-          family: family,
           product: cbp.sponsored_benefits.first.reference_product,
           coverage_kind: :health,
           employee_role_id: census_employee.employee_role.id,
@@ -119,8 +118,8 @@ module BenefitSponsors
         reference_product.save!
       end
 
-      let(:active_bga) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee)}
-      let(:renewal_bga) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee)}
+      let(:active_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee)}
+      let(:renewal_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee)}
 
       let(:renewal_benefit_package) { ra.benefit_packages.last }
 

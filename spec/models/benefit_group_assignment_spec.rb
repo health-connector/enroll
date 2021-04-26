@@ -417,7 +417,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
   describe '.make_active' do
     let!(:census_employee) do
-      ce = FactoryGirl.create(
+      FactoryGirl.create(
         :census_employee,
         :with_active_assignment,
         benefit_sponsorship: benefit_sponsorship,

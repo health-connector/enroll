@@ -118,11 +118,12 @@ module BenefitSponsors
     end
 
     describe ".filter_start_on_options" do
+
       let(:start_on_options) do
         date = TimeKeeper.date_of_record.beginning_of_month.next_month
         day_of_month = TimeKeeper.date_of_record.day
         if day_of_month > Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.day_of_month
-          day_of_month > 5 ? [date.next_month, date + 2.months] : [date, date.next_month, date + 2.months]
+          day_of_month > 5 ? [date.next_month] : [date, date.next_month]
         else
           day_of_month >= Settings.aca.shop_market.open_enrollment.monthly_end_on ? [date.next_month] : [date, date.next_month]
         end
@@ -130,16 +131,20 @@ module BenefitSponsors
 
       [:termination_pending, :terminated].each do |aasm_state|
         context "when overlapping #{aasm_state} benefit application is present" do
+          include_context "setup benefit market with market catalogs and product packages"
+
           let(:effective_period_start_on) { TimeKeeper.date_of_record.beginning_of_month - 3.months }
           let(:current_effective_date) { effective_period_start_on }
-          let(:site) { BenefitSponsors::SiteSpecHelpers.create_site_with_hbx_profile_and_empty_benefit_market }
           let(:benefit_market) { site.benefit_markets.first }
           let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
-          let!(:current_benefit_market_catalog) do
-            BenefitSponsors::ProductSpecHelpers.construct_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
-            benefit_market.benefit_market_catalogs.where(
-              "application_period.min" => effective_period_start_on
-            ).first
+          let(:current_benefit_market_catalog) do
+            create(
+              :benefit_markets_benefit_market_catalog,
+              :with_product_packages,
+              benefit_market: benefit_market,
+              title: "SHOP Benefits for #{current_effective_date.year}",
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
+            )
           end
 
           let(:service_areas) do
@@ -174,16 +179,21 @@ module BenefitSponsors
 
       [:draft, :enrollment_ineligible].each do |aasm_state|
         context "when overlapping #{aasm_state} benefit application is present" do
+          include_context "setup benefit market with market catalogs and product packages"
+
           let(:effective_period_start_on) { TimeKeeper.date_of_record.beginning_of_month + 2.months }
           let(:current_effective_date) { effective_period_start_on }
-          let(:site) { BenefitSponsors::SiteSpecHelpers.create_site_with_hbx_profile_and_empty_benefit_market }
           let(:benefit_market) { site.benefit_markets.first }
           let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
-          let!(:current_benefit_market_catalog) do
-            BenefitSponsors::ProductSpecHelpers.construct_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
-            benefit_market.benefit_market_catalogs.where(
-              "application_period.min" => effective_period_start_on
-            ).first
+
+          let(:current_benefit_market_catalog) do
+            create(
+              :benefit_markets_benefit_market_catalog,
+              :with_product_packages,
+              benefit_market: benefit_market,
+              title: "SHOP Benefits for #{current_effective_date.year}",
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
+            )
           end
 
           let(:service_areas) do
@@ -363,17 +373,11 @@ module BenefitSponsors
 
       [:termination_pending, :terminated].each do |aasm_state|
         context "has overlapping #{aasm_state} application" do
+
           let(:effective_period_start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month }
           let(:current_effective_date) { effective_period_start_on }
-          let(:site) { BenefitSponsors::SiteSpecHelpers.create_site_with_hbx_profile_and_empty_benefit_market }
           let(:benefit_market) { site.benefit_markets.first }
           let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
-          let!(:current_benefit_market_catalog) do
-            BenefitSponsors::ProductSpecHelpers.construct_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
-            benefit_market.benefit_market_catalogs.where(
-              "application_period.min" => effective_period_start_on
-            ).first
-          end
 
           let(:service_areas) do
             ::BenefitMarkets::Locations::ServiceArea.where(

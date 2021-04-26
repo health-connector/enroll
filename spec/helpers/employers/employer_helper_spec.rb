@@ -13,7 +13,6 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
     let(:health_plan) {FactoryGirl.create(:plan, coverage_kind: "health")}
     let(:dental_plan) {FactoryGirl.create(:plan, coverage_kind: "dental", dental_level: "high")}
     let(:health_enrollment) {FactoryGirl.create(:hbx_enrollment,
-                                                family: primary_family,
                                                 household: primary_family.latest_household,
                                                 employee_role_id: employee_role.id,
                                                 coverage_kind: "health",

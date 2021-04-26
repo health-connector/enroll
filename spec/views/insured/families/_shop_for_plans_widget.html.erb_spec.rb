@@ -81,6 +81,7 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
       allow(person).to receive(:active_employee_roles).and_return([employee_role])
       allow(employee_role).to receive(:is_eligible_to_enroll_without_qle?).and_return(true)
       allow(employee_role).to receive(:census_employee).and_return(census_employee)
+      allow(employee_role).to receive(:is_under_open_enrollment?).and_return(true)
       allow(view).to receive(:is_under_open_enrollment?).and_return(true)
       sign_in(current_user)
     end

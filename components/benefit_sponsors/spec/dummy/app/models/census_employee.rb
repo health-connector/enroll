@@ -48,7 +48,7 @@ class CensusEmployee < CensusMember
 
   accepts_nested_attributes_for :census_dependents, :benefit_group_assignments
 
-  scope :by_benefit_package_and_assignment_on,->(benefit_package, effective_on) {
+  scope :by_benefit_package_and_assignment_on, lambda { |benefit_package, effective_on|
     where(:"benefit_group_assignments" => { :$elemMatch => {
       :start_on => effective_on,
       :benefit_package_id => benefit_package.id
@@ -71,18 +71,19 @@ class CensusEmployee < CensusMember
   scope :active_alone,      ->{ any_in(aasm_state: EMPLOYMENT_ACTIVE_ONLY) }
   scope :by_ssn,            ->(ssn) { where(encrypted_ssn: CensusMember.encrypt_ssn(ssn)).and(:encrypted_ssn.nin => ["", nil]) }
 
-  scope :by_benefit_package_and_assignment_on_or_later, lambda { |benefit_package, effective_on| }
+  scope :by_benefit_package_and_assignment_on, lambda { |benefit_package, effective_on|
     where(
       :benefit_group_assignments => {
-        :$elemMatch => {
-          :start_on.gte => effective_on,
-          :benefit_package_id => benefit_package.id
+        :$elemMatch =>
+        {
+          :benefit_package_id => benefit_package.id,
+          :start_on => effective_on
         }
       }
     )
-  end
+  }
 
-  scope :census_employees_active_on, lambda { |date| }
+  scope :census_employees_active_on, lambda { |date|
     where(
       "$or" => [
         {"employment_terminated_on" => nil},
@@ -91,9 +92,9 @@ class CensusEmployee < CensusMember
     )
   }
 
-  scope :eligible_for_renewal_under_package, ->(benefit_package, package_start, package_end, new_effective_date) {
+  scope :eligible_for_renewal_under_package, lambda { |benefit_package, package_start, package_end, new_effective_date|
     where(
-      :"benefit_group_assignments" => {
+      :benefit_group_assignments => {
         :$elemMatch => {
           :benefit_package_id => benefit_package.id,
           :start_on => { "$gte" => package_start },
@@ -102,17 +103,18 @@ class CensusEmployee < CensusMember
             {"end_on" => {"$exists" => false}},
             {"end_on" => package_end}
           ]
-        },
+        }
       },
-      "$or" => [
-        {"employment_terminated_on" => nil},
-        {"employment_terminated_on" => {"$exists" => false}},
-        {"employment_terminated_on" => {"$gte" => new_effective_date}}
-      ]
+      "$or" =>
+        [
+          { "employment_terminated_on" => nil },
+          { "employment_terminated_on" => {"$exists" => false} },
+          { "employment_terminated_on" => {"$gte" => new_effective_date} }
+        ]
     )
   }
 
-  scope :employees_for_benefit_application_sponsorship, -> (benefit_application) {
+  scope :employees_for_benefit_application_sponsorship, lambda { |benefit_application|
     new_effective_date = benefit_application.start_on
     benefit_sponsorship_id = benefit_application.benefit_sponsorship.id
     where(
@@ -367,7 +369,7 @@ class CensusEmployee < CensusMember
     return unless package.present?
 
     if newly_designated_eligible? || newly_designated_linked?
-      [effective_on_date, newly_eligible_earlist_eligible_date].max 
+      [effective_on_date, newly_eligible_earlist_eligible_date].max
     else
       package.effective_on_for(hired_on)
     end
@@ -527,17 +529,15 @@ class CensusEmployee < CensusMember
   end
 
   def active_benefit_group_assignment=(benefit_package_id)
-    benefit_application = BenefitSponsors::BenefitApplications::BenefitApplication.where(
-      :"benefit_packages._id" => benefit_package_id
-    ).first || employer_profile.active_benefit_sponsorship.current_benefit_application
+    benefit_application = benefit_sponsorship&.benefit_package_by(benefit_package_id)&.benefit_application || benefit_sponsorship&.current_benefit_application
 
-    if benefit_application.present?
+    if benefit_application.present? && !benefit_application.terminated?
       benefit_packages = benefit_package_id.present? ? [benefit_application.benefit_packages.find(benefit_package_id)] : benefit_application.benefit_packages
     end
 
-    if benefit_packages.present? && (active_benefit_group_assignment.blank? || !benefit_packages.map(&:id).include?(active_benefit_group_assignment.benefit_package.id))
-      create_benefit_group_assignment(benefit_packages)
-    end
+    return unless benefit_packages.present? && (active_benefit_group_assignment.blank? || !benefit_packages.map(&:id).include?(active_benefit_group_assignment.benefit_package.id))
+
+    create_benefit_group_assignment(benefit_packages)
   end
 
   def active_benefit_group_assignment(coverage_date = TimeKeeper.date_of_record)

@@ -33,17 +33,17 @@ RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :afte
   end
 
   describe "add_plan_year_button_business_rule", dbclean: :after_each do
-    let!(:rating_area)                   { FactoryBot.create :benefit_markets_locations_rating_area }
-    let!(:service_area)                  { FactoryBot.create :benefit_markets_locations_service_area }
-    let!(:site)                          { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-    let!(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let!(:rating_area)                   { create :benefit_markets_locations_rating_area }
+    let!(:service_area)                  { create :benefit_markets_locations_service_area }
+    let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let!(:organization)                  { create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let!(:employer_profile)              { organization.employer_profile }
     let!(:active_benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
 
     let!(:effective_period)              { (TimeKeeper.date_of_record.beginning_of_month)..(TimeKeeper.date_of_record.beginning_of_month.next_year.prev_day) }
     let!(:new_effective_period)          { (TimeKeeper.date_of_record.beginning_of_month.next_year)..(TimeKeeper.date_of_record.beginning_of_month.prev_day + 2.years) }
-    let!(:predecessor_application)       { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :active, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-    let!(:renewal_application)           { FactoryBot.create(:benefit_sponsors_benefit_application, aasm_state: :active, effective_period: new_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+    let!(:predecessor_application)       { create(:benefit_sponsors_benefit_application, aasm_state: :active, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+    let!(:renewal_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :active, effective_period: new_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
 
     context 'should return false when an active PY no canceled PY' do
       it{ expect(add_plan_year_button_business_rule(active_benefit_sponsorship, employer_profile.benefit_applications)).to eq false }

@@ -3,7 +3,7 @@
 # Solved the canonical query issue. Credit to https://github.com/plataformatec/devise/issues/2949#issuecomment-44520300
 module BSON
   class ObjectId
-    def as_json(_args)
+    def as_json(*)
       to_s
     end
   end

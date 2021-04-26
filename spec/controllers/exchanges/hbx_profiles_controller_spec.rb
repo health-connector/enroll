@@ -1166,7 +1166,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context '.new_benefit_application' do
       before :each do
-        xhr :get, :new_benefit_application
+        xhr :get, :new_benefit_application, benefit_sponsorship_id: benefit_sponsorship.id.to_s
       end
 
       it 'should respond with success status' do

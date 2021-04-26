@@ -4,6 +4,7 @@ module BenefitSponsors
       include ::Acapi::Notifiers
 
       attr_accessor :notifier
+      # rubocop:disable Metrics/BlockNesting
 
       def notifications_send(model_instance, new_model_event)
         if new_model_event.present? &&  new_model_event.is_a?(BenefitSponsors::ModelEvents::ModelEvent)
@@ -40,6 +41,7 @@ module BenefitSponsors
           end
         end
       end
+      # rubocop:enable Metrics/BlockNesting
 
       private
 

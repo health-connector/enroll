@@ -1503,7 +1503,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         let(:new_enrollment_product_id) { passive_renewal.product_id }
 
         let(:new_enrollment) do
-          FactoryBot.create(
+          create(
             :hbx_enrollment,
             household: shop_family.latest_household,
             coverage_kind: "health",
@@ -1753,8 +1753,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           sponsored_benefit_package_id: renewal_benefit_package.id,
           sponsored_benefit_id: renewal_benefit_package.sponsored_benefits[0].id,
           employee_role_id: employee_role.id,
-          benefit_group_assignment_id: census_employee.renewal_benefit_group_assignment.id,
-          family: shop_family
+          benefit_group_assignment_id: census_employee.renewal_benefit_group_assignment.id
         )
       end
 
@@ -1771,8 +1770,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           sponsored_benefit_id: renewal_benefit_package.sponsored_benefits[0].id,
           effective_on: renewal_benefit_package.start_on,
           employee_role_id: employee_role.id,
-          benefit_group_assignment_id: census_employee.renewal_benefit_group_assignment.id,
-          family: shop_family
+          benefit_group_assignment_id: census_employee.renewal_benefit_group_assignment.id
         )
       end
 

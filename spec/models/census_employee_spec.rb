@@ -7,6 +7,10 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_s
 
 RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
+  before :each do
+    DatabaseCleaner.clean
+  end
+
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
@@ -1894,7 +1898,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
-  context '.enrollments_for_display' do
+  context '.enrollments_for_display', dbclean: :before_each do
+
     include_context "setup renewal application"
 
     before :each do
@@ -1997,54 +2002,6 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     it_behaves_like "enrollments for display", "coverage_expired", "not ", false
     it_behaves_like "enrollments for display", "shopping", "not ", false
 
-    context 'when employer has off-cycle benefit application' do
-      let(:terminated_on) { TimeKeeper.date_of_record.end_of_month }
-      let(:current_effective_date) { terminated_on.next_day }
-
-      include_context 'setup initial benefit application'
-
-      let(:off_cycle_application) do
-        initial_application.update_attributes!(aasm_state: :enrollment_open)
-        initial_application
-      end
-      let(:off_cycle_benefit_package) { off_cycle_application.benefit_packages[0] }
-      let(:off_cycle_benefit_group_assignment) do
-        FactoryGirl.create(
-          :benefit_sponsors_benefit_group_assignment,
-          benefit_group: off_cycle_benefit_package,
-          census_employee: census_employee,
-          start_on: off_cycle_benefit_package.start_on,
-          end_on: off_cycle_benefit_package.end_on
-        )
-      end
-
-      let!(:off_cycle_health_enrollment) do
-        FactoryGirl.create(
-          :hbx_enrollment,
-          household: census_employee.employee_role.person.primary_family.active_household,
-          coverage_kind: "health",
-          kind: "employer_sponsored",
-          family: census_employee.employee_role.person.primary_family,
-          benefit_sponsorship_id: benefit_sponsorship.id,
-          sponsored_benefit_package_id: off_cycle_benefit_package.id,
-          employee_role_id: census_employee.employee_role.id,
-          benefit_group_assignment_id: off_cycle_benefit_group_assignment.id,
-          aasm_state: 'coverage_selected'
-        )
-      end
-
-      before do
-        updated_dates = predecessor_application.effective_period.min.to_date..terminated_on
-        predecessor_application.update_attributes!(:effective_period => updated_dates, :terminated_on => TimeKeeper.date_of_record, termination_kind: 'voluntary', termination_reason: 'voluntary')
-        predecessor_application.terminate_enrollment!
-        renewal_application.cancel!
-      end
-
-      it 'should return off cycle enrollment' do
-        expect(census_employee.enrollments_for_display[0]).to eq off_cycle_health_enrollment
-      end
-    end
-
     it 'should return auto renewing health enrollment' do
       renewal_application.approve_application! if renewal_application.may_approve_application?
       benefit_sponsorship.benefit_applications << renewal_application
@@ -2065,6 +2022,103 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       benefit_sponsorship.save
       enrollment
       expect(census_employee.enrollments_for_display).to eq [enrollment, auto_renewing_health_enrollment, auto_renewing_dental_enrollment]
+    end
+  end
+
+  context 'enrollments_for_display - when employer has off-cycle benefit application', dbclean: :before_each do
+
+    before do
+      allow(::BenefitMarkets::Products::ProductRateCache).to receive(:age_bounding).and_return(20)
+      allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(15)
+    end
+
+    let(:date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+    let(:current_effective_date)  { date.prev_year }
+
+    include_context 'setup initial benefit application'
+
+    let(:renewal_application) do
+      renewal = initial_application.renew
+      renewal.save
+      renewal
+    end
+
+    let(:census_employee) do
+      ce =
+        FactoryGirl.create(
+          :benefit_sponsors_census_employee,
+          employer_profile: employer_profile,
+          benefit_sponsorship: benefit_sponsorship,
+          dob: TimeKeeper.date_of_record - 30.years
+        )
+      person = create(:person, last_name: ce.last_name, first_name: ce.first_name)
+      employee_role = build(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+      create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: ce)
+      ce.active_benefit_group_assignment.update_attributes!(benefit_package_id: initial_application.benefit_packages.first.id)
+      ce.update_attributes({employee_role: employee_role})
+      Family.find_or_build_from_employee_role(employee_role)
+      ce
+    end
+
+    let(:terminated_on) { TimeKeeper.date_of_record.end_of_month }
+    let!(:off_cycle_effective_date) { terminated_on.next_day }
+
+
+    let(:off_cycle_benefit_sponsor_catalog) do
+      benefit_sponsorship.benefit_sponsor_catalog_for(off_cycle_effective_date)
+    end
+
+    let!(:off_cycle_application) do
+      create(
+        :benefit_sponsors_benefit_application,
+        :with_benefit_sponsor_catalog,
+        :with_benefit_package,
+        passed_benefit_sponsor_catalog: off_cycle_benefit_sponsor_catalog,
+        benefit_sponsorship: benefit_sponsorship,
+        effective_period: effective_period,
+        aasm_state: :enrollment_open,
+        recorded_rating_area: rating_area,
+        recorded_service_areas: service_areas,
+        fte_count: 5,
+        pte_count: 0,
+        msp_count: 0
+      )
+    end
+
+    let(:off_cycle_benefit_package) { off_cycle_application.benefit_packages[0] }
+    let(:off_cycle_benefit_group_assignment) do
+      FactoryGirl.create(
+        :benefit_sponsors_benefit_group_assignment,
+        benefit_group: off_cycle_benefit_package,
+        census_employee: census_employee,
+        start_on: off_cycle_benefit_package.start_on,
+        end_on: off_cycle_benefit_package.end_on
+      )
+    end
+
+    let!(:off_cycle_health_enrollment) do
+      FactoryGirl.create(
+        :hbx_enrollment,
+        household: census_employee.employee_role.person.primary_family.active_household,
+        coverage_kind: "health",
+        kind: "employer_sponsored",
+        benefit_sponsorship_id: benefit_sponsorship.id,
+        sponsored_benefit_package_id: off_cycle_benefit_package.id,
+        employee_role_id: census_employee.employee_role.id,
+        benefit_group_assignment_id: off_cycle_benefit_group_assignment.id,
+        aasm_state: 'coverage_selected'
+      )
+    end
+
+    before do
+      updated_dates = initial_application.effective_period.min.to_date..terminated_on
+      initial_application.update_attributes!(:effective_period => updated_dates, :terminated_on => TimeKeeper.date_of_record, termination_kind: 'voluntary', termination_reason: 'voluntary')
+      initial_application.terminate_enrollment!
+      renewal_application.cancel!
+    end
+
+    it 'should return off cycle enrollment' do
+      expect(census_employee.enrollments_for_display[0]).to eq off_cycle_health_enrollment
     end
   end
 
@@ -2469,10 +2523,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   end
 
   describe "#has_no_hbx_enrollments?" do
-    let(:census_employee) {FactoryGirl.create :census_employee_with_active_assignment,
-                                              employer_profile: employer_profile,
-                                              benefit_sponsorship: organization.active_benefit_sponsorship
-    }
+    let(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: employer_profile, benefit_sponsorship: organization.active_benefit_sponsorship) }
 
     it "should return true if no employee role linked" do
       expect(census_employee.send(:has_no_hbx_enrollments?)).to eq true

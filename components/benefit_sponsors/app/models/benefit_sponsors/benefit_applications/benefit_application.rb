@@ -614,7 +614,7 @@ module BenefitSponsors
     # @return [ BenefitApplication ] The built renewal application instance and submodels
 
     def renew
-      renewal_effective_date = end_on.next_day.to_date
+      renewal_effective_date = end_on.to_date.next_day
 
       renewal_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date)
       renewal_application = benefit_sponsorship.benefit_applications.new(

@@ -20,7 +20,7 @@ module BenefitSponsors
 
       def filter_start_on_options(form)
         schedular = BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new
-        schedular.start_on_options_with_schedule(form.is_renewing?, form.admin_datatable_action)
+        schedular.start_on_options_with_schedule(form.admin_datatable_action)
       end
 
       def load_form_params_from_resource(form)
