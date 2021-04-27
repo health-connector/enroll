@@ -495,6 +495,10 @@ module BenefitSponsors
       published_benefit_application || benefit_applications.order(updated_at: :desc).non_terminated_non_imported.first || benefit_applications.order_by(:"updated_at".desc).non_imported.first
     end
 
+    def dt_display_benefit_application
+      benefit_applications.where(:aasm_state.nin => [:canceled, :retroactive_canceled]).order_by(:"effective_period.min".desc).first || latest_benefit_application
+    end
+
     def latest_application
       renewal_benefit_application || most_recent_benefit_application
     end

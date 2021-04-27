@@ -22,7 +22,7 @@ module SponsoredBenefits
 
       def set_broker_agency_profile_from_user
         current_uri = request.env['PATH_INFO']
-        if current_person.broker_role.present?
+        if current_person.present? && current_person.broker_role.present?
           @broker_agency_profile = BenefitSponsors::Organizations::Profile.find(current_person.broker_role.benefit_sponsors_broker_agency_profile_id)
           @broker_agency_profile ||= ::BrokerAgencyProfile.find(current_person.broker_role.broker_agency_profile_id) # Deprecate this
         elsif active_user.has_hbx_staff_role? && params[:plan_design_organization_id].present?
@@ -46,6 +46,8 @@ module SponsoredBenefits
       end
 
       def current_person
+        return unless current_user.present?
+
         current_user.person
       end
 
