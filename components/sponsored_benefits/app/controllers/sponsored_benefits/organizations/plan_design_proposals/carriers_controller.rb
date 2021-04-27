@@ -7,7 +7,8 @@ module SponsoredBenefits
                             primary_office_location: plan_design_organization.primary_office_location,
                             selected_carrier_level: selected_carrier_level,
                             active_year: active_year,
-                            kind: kind
+                            kind: kind,
+                            quote_effective_date: quote_effective_date
                             )
       end
 
