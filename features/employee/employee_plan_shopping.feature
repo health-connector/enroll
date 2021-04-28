@@ -63,7 +63,7 @@ Feature: Employees can purchase coverage from both active and renewing plan year
   Scenario: Employee should see the correct EE contribution on their current plan when doing plan shop
 
     Given there exists Patrick Doe employee for employer ABC Widgets
-    And employer ABC Widgets has expired and renewing active benefit applications
+    And initial employer ABC Widgets has active benefit application
     And employee Patrick Doe has past hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
     And Patrick Doe should have a ER sponsored enrollment
