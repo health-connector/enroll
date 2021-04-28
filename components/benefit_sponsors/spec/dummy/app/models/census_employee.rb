@@ -83,6 +83,21 @@ class CensusEmployee < CensusMember
     )
   }
 
+  scope :by_benefit_package_and_assignment_on_or_later, lambda { |benefit_package, effective_on|
+    where(
+      :benefit_group_assignments => {
+        :$elemMatch => {
+          :start_on.gte => effective_on,
+          :benefit_package_id => benefit_package.id,
+          "$or" => [
+            {"end_on" => nil},
+            {"end_on" => {"$gt" => effective_on}}
+          ]
+        }
+      }
+    )
+  }
+
   scope :census_employees_active_on, lambda { |date|
     where(
       "$or" => [

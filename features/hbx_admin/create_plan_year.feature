@@ -2,7 +2,7 @@ Feature: Create Benefit Application by admin UI
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for draft initial employer with health benefits
+    Given benefit market catalog exists for enrollment_open renewal employer with health benefits
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
 
@@ -59,7 +59,7 @@ Feature: Create Benefit Application by admin UI
     When the user clicks Actions for current benefit application
     When the user clicks Actions for that benefit application
     Then the user will see Terminate button
-    When the user enters last_day and other details for voluntary termination
+    When the user enters any_day and other details for voluntary termination
     When user clicks submit button
     Then user should see termination successful message
     And user logs out

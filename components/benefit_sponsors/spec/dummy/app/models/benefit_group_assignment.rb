@@ -363,13 +363,15 @@
       #       Right now this is causing issues when linking census employee under Enrollment Factory.
       # self.errors.add(:hbx_enrollment, "employee_role missmatch") if hbx_enrollment.employee_role_id != census_employee.employee_role_id and census_employee.employee_role_linked?
     end
+  end
 
   def date_guards
-    return if benefit_package.blank? || start_on.blank?
+    return if benefit_group.blank? || start_on.blank?
+    effective_period = benefit_group.plan_year.start_on..benefit_group.plan_year.end_on
 
-    errors.add(:start_on, "can't occur outside plan year dates") unless benefit_package.effective_period.cover?(start_on)
+    errors.add(:start_on, "can't occur outside plan year dates") unless effective_period.cover?(start_on)
     if end_on.present?
-      errors.add(:end_on, "can't occur outside plan year dates") unless benefit_package.effective_period.cover?(end_on)
+      errors.add(:end_on, "can't occur outside plan year dates") unless effective_period.cover?(end_on)
       errors.add(:end_on, "can't occur before start date") if end_on < start_on
     end
   end

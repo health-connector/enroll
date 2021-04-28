@@ -70,8 +70,8 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
     context 'fail' do
       let!(:last_day_to_publish) {Time.now - 1.day}
-      before do
-        TimeKeeper.any_instance.stub(:date_of_record).and_return(Time.now)
+      before :each do
+        allow_any_instance_of(TimeKeeper).to receive(:date_of_record).and_return(Time.now)
       end
 
       it "should fail rule validation" do
@@ -81,8 +81,8 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
     context 'success' do
       let!(:last_day_to_publish) {Time.now + 1.day}
-      before do
-        TimeKeeper.any_instance.stub(:date_of_record).and_return(Time.now)
+      before :each do
+        allow_any_instance_of(TimeKeeper).to receive(:date_of_record).and_return(Time.now)
       end
 
       it "should validate successfully" do

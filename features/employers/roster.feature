@@ -2,6 +2,7 @@ Feature: Employer can view their employees
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
+    Given benefit market catalog exists for enrollment_open renewal employer with health benefits
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
     And there are 2 employees for ABC Widgets

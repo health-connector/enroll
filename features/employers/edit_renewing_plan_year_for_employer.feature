@@ -2,9 +2,9 @@ Feature: As a renewing employer I should not be able to set contribution percent
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for draft renewal employer with health benefits
+    Given benefit market catalog exists for open_enrollment renewal employer with health benefits
     And there is an employer ABC Widgets
-    And renewal employer ABC Widgets has draft and renewal active benefit applications
+    And employer ABC Widgets has draft and renewing active benefit applications
     And ABC Widgets employer has a staff role
     And staff role person logged in
     And update rating area

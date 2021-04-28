@@ -158,7 +158,7 @@ module BenefitSponsors
     scope :termed_or_ineligible,            -> { any_in(aasm_state: [:termination_pending, :terminated] + ENROLLMENT_INELIGIBLE_STATES) }
 
     # Used for specific DataTable Action only
-    scope :active_states_per_dt_action,     ->{ any_in(aasm_state: [:active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :termination_pending]) }
+    scope :active_states_per_dt_action,     ->{ any_in(aasm_state: [:active, :pending, :binder_paid, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :termination_pending]) }
 
     # scope :is_renewing,                     ->{ where(:predecessor => {:$exists => true},
     #                                                   :aasm_state.in => APPLICATION_DRAFT_STATES + ENROLLING_STATES).order_by(:'created_at'.desc)
@@ -1122,6 +1122,10 @@ module BenefitSponsors
       refresh_recorded_rating_area   unless recorded_rating_area.present?
       refresh_recorded_service_areas unless recorded_service_areas.size > 0
       refresh_recorded_sic_code      unless recorded_sic_code.present?
+    end
+
+    def has_unassigned_census_employees?
+      CensusEmployee.employees_for_benefit_application_sponsorship(self).count > CensusEmployee.benefit_application_assigned(self).count
     end
 
     private

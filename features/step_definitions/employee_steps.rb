@@ -170,6 +170,7 @@ end
 And(/staff role person clicks on employee (.*?)$/) do |named_person|
   sleep(5)
   click_link named_person
+  sleep(5)
   expect(page.current_path).to include("census_employee")
 end
 

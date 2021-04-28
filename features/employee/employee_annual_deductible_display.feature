@@ -18,7 +18,7 @@ Feature: Annual Deductible Display
   Scenario: Annual Deductible display on enrollment tile and plan comparison while shopping for plan
     Given Add Deductible Display is Enabled
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given benefit market catalog exists for enrollment_open initial employer with health benefits
     Given Qualifying life events are present
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role

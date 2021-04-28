@@ -52,7 +52,7 @@ module BenefitApplicationWorld
     oe_period = if effective_date >= TimeKeeper.date_of_record
       TimeKeeper.date_of_record.beginning_of_month..(effective_date.prev_month + 20.days)
     else
-      effective_date.prev_month..(effective_date.prev_month + 20.days)
+      effective_date.prev_month..(effective_date.prev_month + Settings.aca.shop_market.open_enrollment.monthly_end_on - 1.day)
     end
 
     {
@@ -61,8 +61,20 @@ module BenefitApplicationWorld
     }
   end
 
+  def application_effective_on(status)
+    case status
+    when :draft, :enrollment_open
+      current_effective_date((TimeKeeper.date_of_record + 2.months).beginning_of_month)
+    when :enrollment_closed, :enrollment_eligible, :enrollment_extended
+      current_effective_date((TimeKeeper.date_of_record + 1.months).beginning_of_month)
+    when :active, :terminated, :termination_pending, :expired
+      current_effective_date((TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year)
+    end
+  end
+
   def create_application(new_application_status: new_application_status)
-    application_dates = application_dates_for(current_effective_date, new_application_status)
+    application_start_date = application_effective_on(new_application_status) || current_effective_date
+    application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
@@ -205,6 +217,28 @@ And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, n
   create_application(new_application_status: new_application_status.to_sym)
 end
 
+And(/^employer (.*) has draft benefit application for force publishing$/) do |legal_name|
+  @employer_profile = @organization[legal_name].employer_profile
+  application_start_date = current_effective_date((TimeKeeper.date_of_record + 1.months).beginning_of_month)
+  application_dates = application_dates_for(application_start_date, :draft)
+  @new_application =
+    FactoryGirl.create(
+      :benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+      :with_benefit_package,
+      benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
+      effective_period: application_dates[:effective_period],
+      aasm_state: :draft,
+      open_enrollment_period: application_dates[:open_enrollment_period],
+      recorded_rating_area: rating_area,
+      recorded_service_areas: [service_area],
+      package_kind: package_kind
+    )
+  @new_application.benefit_sponsor_catalog.benefit_application = @new_application
+  @new_application.benefit_sponsor_catalog.save!
+  @new_application
+end
+
+
 And(/(.*) is updated on benefit market catalog/) do |min_contribution_factor|
   @benefit_market_catalog.product_packages.each do |product_package|
     product_package.contribution_model.contribution_units.each do |contribution_unit|
@@ -212,8 +246,4 @@ And(/(.*) is updated on benefit market catalog/) do |min_contribution_factor|
     end
   end
   @benefit_market_catalog.save
-end
-
-And(/^update rating area$/) do
-  benefit_sponsorship.update_attributes!(rating_area_id: rating_area.id)
 end

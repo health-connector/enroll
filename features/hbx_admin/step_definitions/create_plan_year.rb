@@ -39,7 +39,7 @@ Given('the user has a valid input for all required fields') do
 end
 
 When(/the admin clicks (.*)$/) do |btn|
-  find('.btn', :text => btn).click
+  find('.btn', :text => /#{btn}/i).click
 end
 
 Then(/the user will see a (.*) message/) do |message|
