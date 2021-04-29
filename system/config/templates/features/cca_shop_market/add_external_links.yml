@@ -1,0 +1,25 @@
+---
+registry:
+  - namespace:
+    - :enroll_app
+    - :aca_shop_market
+    features:
+      - key: :add_external_links
+        is_enabled: true
+        settings:
+          - key: :employee_display
+            item: true
+          - key: :employer_display
+            item: true
+          - key: :plan_shopping_display
+            item: true
+          - key: :benefit_application_display
+            item: true
+          - key: :employer_advertisement_url
+            item: https://www.mahealthconnector.org/business/employers/connectwell-for-employers
+          - key: :employer_advertisement_text
+            item: Save 15% on the cost of your health insurance contributions with our ConnectWell rebate program.
+          - key: :employee_advertisement_url
+            item: https://www.mahealthconnector.org/business/employees/connectwell-for-employees
+          - key: :employee_advertisement_text
+            item: Earn a $100 Reward when you complete a qualifying ConnectWell activity.

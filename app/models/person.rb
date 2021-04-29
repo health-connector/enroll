@@ -485,6 +485,12 @@ class Person
     active_employee_roles.any?
   end
 
+  def has_active_shopping_role?
+    has_active_employee_role? ||
+      has_active_resident_role? ||
+      has_active_consumer_role?
+  end
+
   def has_employer_benefits?
     active_employee_roles.present? #&& active_employee_roles.any?{|r| r.benefit_group.present?}
   end
