@@ -7,10 +7,10 @@ registry:
     features:
       - key: :contribution_model_aca_shop
         item: BenefitMarkets::Operations::ContributionModels::Create.new
-        is_enabled: true
+        is_enabled: false
       - key: :assign_contribution_model_aca_shop
         item: BenefitMarkets::Operations::ContributionModels::Assign.new
-        is_enabled: true
+        is_enabled: false
 
   - namespace:
     - :enroll_app
@@ -19,7 +19,7 @@ registry:
     features:
       - key: :contribution_model_fehb
         item: BenefitMarkets::Operations::ContributionModels::Create.new
-        is_enabled: true
+        is_enabled: false
       - key: :assign_contribution_model_fehb
         item: BenefitMarkets::Operations::ContributionModels::Assign.new
         is_enabled: false
