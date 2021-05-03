@@ -186,6 +186,14 @@ module BenefitSponsors
         probation_period_display_texts[probation_period_kind]
       end
 
+      def renewal_date
+        end_on + 1.day
+      end
+
+      def can_renew?
+        sponsored_benefits.unscoped.map{ |sb| sb.can_renew?(renewal_date) }.include?(false) ? false : true
+      end
+
       def renew(new_benefit_package)
         new_benefit_package.assign_attributes({
           title: title + "(#{start_on.year + 1})",
