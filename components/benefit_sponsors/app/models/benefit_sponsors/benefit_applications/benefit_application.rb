@@ -617,8 +617,10 @@ module BenefitSponsors
       new_benefit_sponsor_catalog.save
 
       benefit_packages.each do |benefit_package|
-        new_benefit_package = renewal_application.benefit_packages.build
-        benefit_package.renew(new_benefit_package)
+        if benefit_package.can_renew?
+          new_benefit_package = renewal_application.benefit_packages.build
+          benefit_package.renew(new_benefit_package)
+        end
       end
 
       renewal_application

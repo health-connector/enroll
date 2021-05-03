@@ -475,6 +475,9 @@ module BenefitSponsors
     # end
 
     describe ".renew" do
+      before do
+        allow_any_instance_of(BenefitSponsors::BenefitPackages::BenefitPackage).to receive(:can_renew?).and_return(true)
+      end
 
       context "when renewal benefit sponsor catalog available" do
 
