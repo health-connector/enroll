@@ -94,16 +94,28 @@ module BenefitSponsors
         pricing_determinations.sort_by(&:created_at).last
       end
 
+      def renewal_product
+        reference_product.renewal_product
+      end
+
+      def can_renew?(renewal_effective_date)
+        return false if renewal_product.nil?
+
+        renewal_product.premium_tables
+                       .effective_period_cover(renewal_effective_date)
+                       .present?
+      end
+
       def renew(new_benefit_package)
         new_benefit_sponsor_catalog = new_benefit_package.benefit_sponsor_catalog
         new_product_package = new_benefit_sponsor_catalog.product_package_for(self)
 
         if new_product_package.present? && reference_product.present?
-          if reference_product.renewal_product.present? && new_product_package.active_products.include?(reference_product.renewal_product)
+          if renewal_product.present? && new_product_package.active_products.include?(renewal_product)
             new_sponsored_benefit = self.class.new(
               product_package_kind: product_package_kind,
               product_option_choice: product_option_choice,
-              reference_product: reference_product.renewal_product,
+              reference_product: renewal_product,
               sponsor_contribution: sponsor_contribution.renew(new_product_package),
               benefit_package: new_benefit_package
               # pricing_determinations: renew_pricing_determinations(new_product_package)
