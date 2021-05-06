@@ -1254,6 +1254,8 @@ module BenefitSponsors
       it_behaves_like "for off-cycle employer", "terminated", nil, "draft", true
       it_behaves_like "for off-cycle employer", "terminated", nil, "enrollment_open", true
       it_behaves_like "for off-cycle employer", "terminated", nil, "active", true
+      it_behaves_like "for off-cycle employer", "terminated", "termination_pending", nil, false
+      it_behaves_like "for off-cycle employer", "terminated", "termination_pending", "draft", true
       it_behaves_like "for off-cycle employer", "termination_pending", nil, "draft", true
       it_behaves_like "for off-cycle employer", "termination_pending", nil, "enrollment_open", true
       it_behaves_like "for off-cycle employer", "termination_pending", nil, "active", true
