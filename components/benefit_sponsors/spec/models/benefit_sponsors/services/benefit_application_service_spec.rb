@@ -121,9 +121,10 @@ module BenefitSponsors
 
       let(:start_on_options) do
         date = TimeKeeper.date_of_record.beginning_of_month.next_month
+        publish_due_date_of_month = Settings.aca.shop_market.initial_application.publish_due_day_of_month
         day_of_month = TimeKeeper.date_of_record.day
         if day_of_month > Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.day_of_month
-          day_of_month > 5 ? [date.next_month] : [date, date.next_month]
+          day_of_month > publish_due_date_of_month ? [date.next_month] : [date, date.next_month]
         else
           day_of_month >= Settings.aca.shop_market.open_enrollment.monthly_end_on ? [date.next_month] : [date, date.next_month]
         end
