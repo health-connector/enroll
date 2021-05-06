@@ -1,7 +1,14 @@
 require 'rails_helper'
+require File.join(Rails.root, "components/benefit_sponsors/spec/support/benefit_sponsors_site_spec_helpers")
 require File.join(Rails.root, "components/benefit_sponsors/spec/support/benefit_sponsors_product_spec_helpers")
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+
+require 'rspec-benchmark'
+
+RSpec.configure do |config|
+  config.include RSpec::Benchmark::Matchers
+end
 
 RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
@@ -134,23 +141,57 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   end
 
   describe "Action # employer_datatable" do
-    let(:user) { double(:user, has_hbx_staff_role?: true, last_portal_visited: "www.google.com")}
+    let(:user)                            { double(:user, has_hbx_staff_role?: true, last_portal_visited: "www.google.com")}
+    let(:valid_session)                   { {} }
+    let(:site)                            { ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market }
+    let!(:previous_rating_area)           { create_default(:benefit_markets_locations_rating_area, active_year: Date.current.year - 1) }
+    let!(:previous_service_area)          { create_default(:benefit_markets_locations_service_area, active_year: Date.current.year - 1) }
+    let!(:rating_area)                    { create_default(:benefit_markets_locations_rating_area) }
+    let!(:service_area)                   { create_default(:benefit_markets_locations_service_area) }
+    let!(:rating_area)                    { FactoryGirl.create(:benefit_markets_locations_rating_area) }
+    let!(:service_area)                   { FactoryGirl.create(:benefit_markets_locations_service_area) }
+    let(:this_year)                       { TimeKeeper.date_of_record.year }
 
-      before :each do
-       sign_in(user)
-      end
+    let(:april_effective_date)            { Date.new(this_year,4,1) }
+    let(:april_open_enrollment_begin_on)  { april_effective_date - 1.month }
+    let(:april_open_enrollment_end_on)    { april_open_enrollment_begin_on + 9.days }
 
-      it "renders employer_datatable as JS" do
-        get :employer_datatable, format: :js
-        expect(response).not_to redirect_to("www.google.com")
-        expect(response).to render_template("exchanges/hbx_profiles/employer_datatable")
-      end
+    let!(:april_sponsors) do
+      create_list(:benefit_sponsors_benefit_sponsorship, 200, :with_organization_cca_profile,
+                  :with_initial_benefit_application, initial_application_state: :active,
+                  default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)),
+                  site: site, aasm_state: :active)
+    end
 
-      it "renders employer_datatable as HTML" do
-        # Open the link in new tab/ new browser "employers" link
-         get :employer_datatable, format: :html
-         expect(response).to redirect_to("www.google.com")
-      end
+    let!(:april_renewal_sponsors) do
+      create_list(:benefit_sponsors_benefit_sponsorship, 200, :with_organization_cca_profile,
+                  :with_renewal_benefit_application, initial_application_state: :active,
+                  renewal_application_state: :enrollment_open,
+                  default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)), site: site,
+                  aasm_state: :active)
+    end
+
+    before :each do
+     sign_in(user)
+    end
+
+    it "renders employer_datatable as JS" do
+      get :employer_datatable, format: :js
+      expect(response).not_to redirect_to("www.google.com")
+      expect(response).to render_template("exchanges/hbx_profiles/employer_datatable")
+    end
+
+    it "renders employer_datatable as HTML" do
+      # Open the link in new tab/ new browser "employers" link
+       get :employer_datatable, format: :html
+       expect(response).to redirect_to("www.google.com")
+    end
+
+    it "renders in less than 10 seconds" do
+      expect do
+        get :employer_datatable, { format: :js }, valid_session
+      end.to perform_under(10).sec
+    end
   end
 =begin
   describe "#create" do

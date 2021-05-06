@@ -152,9 +152,9 @@ module Effective
 
 
           if attributes[:upcoming_dates].present?
-              if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
-                benefit_sponsorships = benefit_sponsorships.effective_date_begin_on(date)
-              end
+            if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
+              benefit_sponsorships = benefit_sponsorships.effective_date_begin_on(date)
+            end
           end
 
           if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
@@ -162,7 +162,7 @@ module Effective
           end
         end
 
-          @employer_collection = benefit_sponsorships
+        @employer_collection = benefit_sponsorships
       end
 
       def global_search?
