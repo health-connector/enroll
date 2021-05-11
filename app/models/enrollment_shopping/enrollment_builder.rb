@@ -94,7 +94,7 @@ module EnrollmentShopping
       sponsored_benefit = benefit_package.sponsored_benefit_for(@coverage_kind)
       set_benefit_information(enrollment, sponsored_benefit, benefit_package)
 
-      check_for_affected_enrollment(enrollment, sponsored_benefit)
+      check_for_affected_enrollment(enrollment)
 
       enrollment
     end
@@ -136,7 +136,7 @@ module EnrollmentShopping
       sponsored_benefit = benefit_package.sponsored_benefit_for(@coverage_kind)
       set_benefit_information(enrollment, sponsored_benefit, benefit_package)
 
-      check_for_affected_enrollment(enrollment, sponsored_benefit)
+      check_for_affected_enrollment(enrollment)
 
       enrollment
     end
@@ -203,9 +203,9 @@ module EnrollmentShopping
       end
     end
 
-    def check_for_affected_enrollment(enrollment, sponsored_benefit)
+    def check_for_affected_enrollment(enrollment)
       aef = AffectedEnrollmentFinder.new
-      affected_enrollments = aef.for_sponsored_benefit_and_date(enrollment, sponsored_benefit, enrollment.effective_on)
+      affected_enrollments = aef.for_enrollment(enrollment)
       if affected_enrollments.any?
         affected_enrollment = affected_enrollments.first
         enrollment.predecessor_enrollment_id = affected_enrollment.id
