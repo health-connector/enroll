@@ -1115,7 +1115,7 @@ class HbxEnrollment
   #### HBX Enrollment is under annual open enrollment OR under new hire open enrollment
   def display_make_changes_for_shop?
     return false unless is_shop? || family.is_eligible_to_enroll?
-    return false if coverage_terminated? || coverage_canceled?
+    return false if coverage_terminated? || coverage_canceled? || coverage_expired?
 
     # See scenario features/employee/employee_passive_renewal_update.feature
     # enrollment_is_active_with_upcoming_auto_renewing
