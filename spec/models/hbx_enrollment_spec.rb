@@ -2921,9 +2921,6 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
       end
 
       context 'make changes and view detail buttons on enrollment tile' do
-        before do
-        end
-
         it 'should not be visible when aasm_state is coverage_canceled' do
           allow(enrollment).to receive(:aasm_state).and_return('coverage_canceled')
           expect(enrollment.display_make_changes_for_shop?).to be_falsey
