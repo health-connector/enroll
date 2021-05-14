@@ -394,7 +394,7 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
         enrollment_kind: "open_enrollment",
         kind: "employer_sponsored",
         employee_role_id: person.active_employee_roles.first.id,
-        benefit_group_assignment_id: previous_benefit_group_assignment,
+        benefit_group_assignment_id: previous_benefit_group_assignment.id,
         benefit_sponsorship: benefit_sponsorship,
         sponsored_benefit_package: current_benefit_package,
         sponsored_benefit: current_benefit_package.sponsored_benefit_for(coverage_kind),
