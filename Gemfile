@@ -110,7 +110,7 @@ end
 group :development do
   gem "certified"
   gem 'overcommit'
-  gem 'rubocop', "0.61.1", require: false
+  gem 'rubocop', require: false
   gem 'rubocop-git'
   gem 'web-console', '2.3.0'
 end
