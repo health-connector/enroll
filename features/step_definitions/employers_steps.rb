@@ -629,8 +629,12 @@ Then(/^employer should see continue button disabled$/) do
 end
 
 And(/^employer filled all the fields on benefit application form$/) do
-  find(:xpath, "/html/body/div[3]/div/div/div[2]/form/div/div/div/div/div[3]/div/div/div[1]/div/div[2]").click
-  find('li[data-index="1"]').click
+  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
+  if TimeKeeper.date_of_record > 5
+    find('.interaction-choice-control-bastartdate-2', wait: 3).click
+  else
+    find('.interaction-choice-control-bastartdate-1', wait: 3).click
+  end
   fill_in 'benefit_application[fte_count]', with: 5
   fill_in 'benefit_application[pte_count]', with: 5
 end
