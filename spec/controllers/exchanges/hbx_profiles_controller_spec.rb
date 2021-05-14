@@ -1178,9 +1178,23 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
     end
 
-    context '.create_benefit_application' do
+    context '.create_benefit_application when existing draft application' do
       before :each do
-        xhr :post, :create_benefit_application, valid_params
+        xhr :post, :create_benefit_application, valid_params, has_active_ba: false
+      end
+
+      it 'should respond with success status' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'should render new_benefit_application' do
+        expect(response).to render_template("exchanges/hbx_profiles/create_benefit_application")
+      end
+    end
+
+    context '.create_benefit_application when existing application is in active states' do
+      before :each do
+        xhr :post, :create_benefit_application, valid_params, has_active_ba: true
       end
 
       it 'should respond with success status' do

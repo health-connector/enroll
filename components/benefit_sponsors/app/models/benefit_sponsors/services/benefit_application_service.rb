@@ -43,12 +43,17 @@ module BenefitSponsors
 
       def has_an_active_ba?
         bas = benefit_sponsorship.benefit_applications
-        bas.active_states_per_dt_action.present? ? true : false
+        bas.active_states_per_dt_action.present?
       end
 
-      def can_create_draft_ba?
+      def can_create_draft_ba?(form)
         bas = benefit_sponsorship.benefit_applications
-        !bas.active_states_per_dt_action.present?
+        term_pending_bas = bas.termination_pending
+        if term_pending_bas.present?
+          !can_create_draft_for_tp?(term_pending_bas, form)
+        else
+          bas.active_states_per_dt_action.present? || bas.draft.present?
+        end
       end
 
       def can_create_draft_for_tp?(bas, form)
@@ -62,29 +67,44 @@ module BenefitSponsors
       end
 
       def create_or_cancel_draft_ba(form, model_attributes)
-        if form.admin_datatable_action && !can_create_draft_ba? || has_overlap_application?(model_attributes)
+        if form.admin_datatable_action && !can_create_draft_ba?(form) || has_overlap_application?(model_attributes)
           form.errors.add(:base, 'Existing plan year with overlapping coverage exists')
           [false, nil]
         else
-          #build cca/dc application
-          applications = applications_for_cancel
           benefit_application = benefit_application_factory.call(benefit_sponsorship, model_attributes)
           save_result, persisted_object = store(form, benefit_application)
           if save_result
-            cancel_draft_and_ineligible_applications(applications)
-            benefit_sponsorship.revert_to_applicant! if benefit_sponsorship.may_revert_to_applicant? && !benefit_sponsorship.applicant?
+            if form.admin_datatable_action
+              terminate_active_applications(persisted_object)
+            elsif benefit_sponsorship.may_revert_to_applicant? && !benefit_sponsorship.applicant?
+              benefit_sponsorship.revert_to_applicant!
+            end
+            cancel_unwanted_applications(persisted_object, form.admin_datatable_action)
           end
           [save_result, persisted_object]
         end
       end
 
-      def applications_for_cancel
-        benefit_sponsorship.benefit_applications.draft_and_exception + benefit_sponsorship.benefit_applications.enrollment_ineligible.reject(&:is_renewing?)
+      def applications_for_cancel(benefit_application, admin_datatable_action)
+        applications = benefit_sponsorship.benefit_applications.draft_and_exception.reject { |existing_application| existing_application == benefit_application }
+                        # + benefit_sponsorship.benefit_applications.enrollment_ineligible.reject(&:is_renewing?)
+        applications += benefit_sponsorship.benefit_applications.enrolling.to_a + benefit_sponsorship.benefit_applications.enrollment_eligible.to_a if admin_datatable_action
+        applications
       end
 
-      def cancel_draft_and_ineligible_applications(applications)
-        applications.each do |application|
+      def cancel_unwanted_applications(benefit_application, admin_datatable_action = false)
+        applications_for_cancel(benefit_application, admin_datatable_action).each do |application|
           application.cancel! if application.may_cancel?
+        end
+      end
+
+      def terminate_active_applications(new_ba)
+        termination_date = new_ba.start_on.prev_day
+        applications_for_termination = benefit_sponsorship.benefit_applications.where(aasm_state: :active)
+
+        applications_for_termination.each do |application|
+          enrollment_service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(application)
+          enrollment_service.schedule_termination(termination_date, TimeKeeper.date_of_record, "voluntary", "Other", false)
         end
       end
 
