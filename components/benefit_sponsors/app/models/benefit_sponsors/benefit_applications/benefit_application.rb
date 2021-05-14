@@ -141,6 +141,7 @@ module BenefitSponsors
     scope :enrolling,           ->{ any_in(aasm_state: ENROLLING_STATES) }
     scope :enrolling_state,     ->{ any_in(aasm_state: [:enrollment_open, :enrollment_extended]) }
 
+    scope :enrollment_closed_and_ineligible,->{ any_in(aasm_state: ENROLLMENT_INELIGIBLE_STATES + [:enrollment_closed]) }
     scope :enrollment_eligible,             ->{ any_in(aasm_state: ENROLLMENT_ELIGIBLE_STATES) }
     scope :enrollment_ineligible,           ->{ any_in(aasm_state: ENROLLMENT_INELIGIBLE_STATES) }
     scope :coverage_effective,              ->{ any_in(aasm_state: COVERAGE_EFFECTIVE_STATES) }

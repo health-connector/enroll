@@ -69,14 +69,14 @@ module BenefitSponsors
     #   end
     # end
 
-    describe '.auto_cancel_enrollment_closed' do
-      let(:sponsorship_state)               { :applicant }
-      let(:initial_application_state)       { :enrollment_closed }
-      let(:renewal_application_state)       { :enrollment_closed }
+    describe '#auto_cancel_ineligible' do
 
       context  'when initial employer missed binder payment' do 
+        let(:sponsorship_state)               { :applicant }
+        let(:initial_application_state)       { :enrollment_closed }
+        let(:renewal_application_state)       { :enrollment_closed }
 
-        it "should move applications into ineligible state" do
+        it "should move applications into canceled state" do
           (april_sponsors + april_renewal_sponsors).each do |sponsor|
             benefit_application = sponsor.benefit_applications.detect{|application| application.is_renewing?}
             benefit_application = sponsor.benefit_applications.first if benefit_application.blank?
@@ -91,6 +91,28 @@ module BenefitSponsors
 
             expect(sponsor.applicant?).to be_truthy
             expect(benefit_application.canceled?).to be_truthy
+          end
+        end
+      end
+
+      context 'when employer has draft applications' do
+
+        let(:sponsorship_state)               { :applicant }
+        let(:initial_application_state)       { :draft }
+        let(:renewal_application_state)       { :draft }
+
+        it "should not move applications into canceled state" do
+          (april_sponsors + april_renewal_sponsors).each do |sponsor|
+            benefit_application = sponsor.benefit_applications.detect(&:is_renewing?)
+            benefit_application = sponsor.benefit_applications.first if benefit_application.blank?
+
+            sponsorship_service = subject.new(benefit_sponsorship: sponsor)
+            sponsorship_service.auto_cancel_ineligible
+
+            sponsor.reload
+            benefit_application.reload
+
+            expect(benefit_application.canceled?).to be_falsey
           end
         end
       end

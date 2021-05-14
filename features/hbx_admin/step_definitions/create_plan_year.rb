@@ -42,6 +42,10 @@ When(/the admin clicks (.*)$/) do |btn|
   find('.btn', :text => /#{btn}/i).click
 end
 
+When("the user clicks on Confirm button") do
+  find('.btn', :text => 'Confirm').click
+end
+
 Then(/the user will see a (.*) message/) do |message|
   expect(page).to have_content(message)
 end
