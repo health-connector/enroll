@@ -303,7 +303,7 @@ registry:
     features:
       - key: :flexible_contribution_model_for_bqt
         item: :contribution_model
-        is_enabled: true
+        is_enabled: false
         settings:
         - key: :initial_application_period
           item: <%= Date.new(2021,03,01)..Date.new(2021,12,31) %>
