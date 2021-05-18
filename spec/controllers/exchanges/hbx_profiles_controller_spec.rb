@@ -12,6 +12,7 @@ RSpec.configure do |config|
   config.include RSpec::Benchmark::Matchers
 end
 
+# rubocop:disable all
 RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
   describe "various index" do
@@ -1310,3 +1311,5 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 end
+# rubocop:enable all
+
