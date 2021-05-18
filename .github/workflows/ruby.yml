@@ -19,7 +19,7 @@ jobs:
             skip_js: 'true'
             test_command: |
               git fetch --no-tags origin
-              bundle exec rubocop-git origin/master
+              bundle exec rubocop-git origin/trunk
           - name: Brakeman In Main app
             skip_js: 'true'
             test_command: |
