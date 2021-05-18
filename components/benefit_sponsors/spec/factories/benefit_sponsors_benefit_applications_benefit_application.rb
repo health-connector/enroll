@@ -45,16 +45,16 @@ FactoryGirl.define do
       dental_package_kind :single_product
       dental_sponsored_benefit false
       predecessor_application_catalog false
+      passed_benefit_sponsor_catalog { nil }
     end
 
     trait :without_benefit_sponsor_catalog
 
     trait :with_benefit_sponsor_catalog do
       after(:build) do |benefit_application, evaluator|
-        if benefit_sponsorship = benefit_application.benefit_sponsorship
-          benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.resolve_service_areas, benefit_application.effective_period.min)
-          benefit_sponsor_catalog.save
-        end
+        benefit_sponsorship ||= benefit_application.benefit_sponsorship
+        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.min)
+        benefit_sponsor_catalog.save
         benefit_application.benefit_sponsor_catalog = (benefit_sponsor_catalog || ::BenefitMarkets::BenefitSponsorCatalog.new)
         benefit_application.benefit_sponsor_catalog.service_areas = benefit_application.recorded_service_areas
       end

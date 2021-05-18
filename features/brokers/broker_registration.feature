@@ -28,9 +28,6 @@ Feature: Broker Agency Registration
     And there is a census employee record and employee role for Ricky Martin for employer Acme Inc.
     And census employee Ricky Martin is a newly_designated_eligible employee
     And this employer Acme Inc. has first_of_month rule
-
     And employee Ricky Martin already matched with employer Acme Inc. and logged into employee portal
-    Then Employee should click on Manage Family button
-    Then Employee should click on the Personal Tab link
     Then Employee should not see phone main field in the personal information fields
     And Employee Ricky Martin should only have phone with work kind

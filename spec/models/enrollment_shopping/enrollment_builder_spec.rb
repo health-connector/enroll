@@ -366,4 +366,52 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
 
   it_behaves_like "build_change_enrollment of state", "enrolled"
   it_behaves_like "build_change_enrollment of state", "waived"
+
+  describe '#check_for_affected_enrollment' do
+
+    let(:second_product_package) { benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == 'health' && package != product_package } }
+
+    let!(:second_benefit_package) do
+      FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: second_product_package)
+    end
+
+    let!(:second_benefit_group_assignment) do
+      previous_benefit_group_assignment.update_attributes(end_on: previous_benefit_group_assignment.start_on)
+      FactoryGirl.create(:benefit_group_assignment, benefit_package: second_benefit_package, census_employee: ce, end_on: second_benefit_package.end_on)
+    end
+
+    let(:previous_benefit_group_assignment) { ce.benefit_group_assignments.where(benefit_package_id: current_benefit_package).first }
+
+    let(:enrollment_effective_on) { TimeKeeper.date_of_record.beginning_of_month.next_month }
+    let(:coverage_kind) { 'health' }
+
+    let!(:existing_enrollment) do
+      FactoryGirl.create(
+        :hbx_enrollment,
+        household: family.active_household,
+        coverage_kind: coverage_kind,
+        effective_on: enrollment_effective_on,
+        enrollment_kind: "open_enrollment",
+        kind: "employer_sponsored",
+        employee_role_id: person.active_employee_roles.first.id,
+        benefit_group_assignment_id: previous_benefit_group_assignment,
+        benefit_sponsorship: benefit_sponsorship,
+        sponsored_benefit_package: current_benefit_package,
+        sponsored_benefit: current_benefit_package.sponsored_benefit_for(coverage_kind),
+        product: product_package.products[0]
+      )
+    end
+
+    let(:enrolled_subject) { enrollment_builder.build_new_enrollment(family_member_ids: family_member_ids, is_qle: is_qle?, optional_effective_on: effective_on) }
+
+    context "when employee's benefit package is switched" do
+      it 'should set predecessor id on the new enrollment' do
+        expect(enrolled_subject).to have_attributes(predecessor_enrollment_id: existing_enrollment.id)
+      end
+
+      it 'should create enrollment under new benefit package' do
+        expect(enrolled_subject.sponsored_benefit_package_id).to eq second_benefit_package.id
+      end
+    end
+  end
 end

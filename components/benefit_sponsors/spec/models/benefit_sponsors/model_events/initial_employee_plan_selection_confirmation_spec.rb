@@ -11,12 +11,13 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
     create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
   end
   let(:benefit_market) { site.benefit_markets.first }
-
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:current_benefit_market_catalog) do
     create(
-      :benefit_markets_benefit_market_catalog, :with_product_packages,
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
       benefit_market: benefit_market,
-      product_kinds: [:health],
+      issuer_profile: issuer_profile,
       title: "SHOP Benefits for #{current_effective_date.year}",
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
     )
@@ -24,31 +25,29 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   let!(:organization_with_hbx_profile)  { site.owner_organization }
   let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
-  let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+  let!(:benefit_sponsorship) do
+    sponsorship = employer_profile.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
   let(:effective_period) { start_on..(start_on + 1.year) - 1.day }
-  let!(:service_areas) { benefit_sponsorship.service_areas_on(effective_period.min) }
-  let!(:benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, effective_period.min) }
   let!(:benefit_application) do
     application = FactoryGirl.create(
       :benefit_sponsors_benefit_application,
-      :benefit_sponsor_catalog => benefit_sponsor_catalog,
+      :with_benefit_sponsor_catalog,
+      :with_benefit_package,
       :benefit_sponsorship => benefit_sponsorship,
       :aasm_state => :enrollment_closed,
       :effective_period => effective_period
     )
-    benefit_sponsor_catalog.save
+    application.benefit_sponsor_catalog.save!
     application
   end
-  let(:package_kind)              { :single_product }
-  let(:product_package) do
-    benefit_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind }
-  end
+
   let!(:benefit_package) do
-    package = create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: benefit_application)
-    package.health_sponsored_benefit.product_option_choice = :metal_level
-    package.health_sponsored_benefit.save
-    package
+    benefit_application.benefit_packages[0]
   end
+
   let(:person)       { FactoryGirl.create(:person, :with_family) }
   let(:family)       { person.primary_family }
   let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, active_benefit_group_assignment: benefit_package.id ) }
@@ -65,7 +64,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
       rating_area_id: benefit_application.recorded_rating_area_id,
       sponsored_benefit_id: benefit_application.benefit_packages.first.health_sponsored_benefit.id,
       sponsored_benefit_package_id: benefit_application.benefit_packages.first.id,
-      product_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.id,
+      product_id: benefit_package.health_sponsored_benefit.reference_product.id,
       benefit_sponsorship_id: benefit_application.benefit_sponsorship.id,
       employee_role_id: employee_role.id
     )

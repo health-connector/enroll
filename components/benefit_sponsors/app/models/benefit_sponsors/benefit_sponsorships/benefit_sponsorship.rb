@@ -408,9 +408,10 @@ module BenefitSponsors
       benefit_market.benefit_market_catalog_effective_on(effective_date)
     end
 
-    def benefit_sponsor_catalog_for(recorded_service_areas, effective_date)
-      benefit_market_catalog = benefit_market_catalog_for(effective_date)
-      benefit_market_catalog.benefit_sponsor_catalog_for(service_areas: recorded_service_areas, effective_date: effective_date)
+    # TODO: Enable it for new domain benefit sponsor catalog
+    def benefit_sponsor_catalog_for(effective_date)
+      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: _id).value!
+      BenefitMarkets::BenefitSponsorCatalog.new(benefit_sponsor_catalog_entity.to_h)
     end
 
     def open_enrollment_period_for(effective_date)
@@ -418,13 +419,23 @@ module BenefitSponsors
       benefit_market_catalog.open_enrollment_period_on(effective_date)
     end
 
-    def published_benefit_application
-      benefit_applications.submitted.last
+    def published_benefit_application(include_term_pending: true)
+      submitted_applications = include_term_pending ? benefit_applications.submitted + benefit_applications.terminated_or_termination_pending : benefit_applications.submitted
+      submitted_applications.sort_by(&:created_at).reverse.detect { |submitted_application| submitted_application != off_cycle_benefit_application } || published_off_cycle_application
     end
 
-    def submitted_benefit_application
+    def published_off_cycle_application
+      approved_states = BenefitSponsors::BenefitApplications::BenefitApplication::APPROVED_STATES
+      off_cycle_benefit_application if approved_states.include?(off_cycle_benefit_application&.aasm_state)
+    end
+
+    def submitted_benefit_application(include_term_pending: true)
       # renewing_published_plan_year || active_plan_year ||
-      published_benefit_application || imported_benefit_application
+      published_benefit_application(include_term_pending: include_term_pending) || active_imported_benefit_application
+    end
+
+    def active_imported_benefit_application
+      benefit_applications.where(:"effective_period.max".gte => TimeKeeper.date_of_record).order_by(:updated_at.desc).imported.first  if is_conversion?
     end
 
     def imported_benefit_application
@@ -460,6 +471,8 @@ module BenefitSponsors
     end
 
     def benefit_package_by(id)
+      return unless id.present?
+
       benefit_application = benefit_applications.where(:"benefit_packages._id" => BSON::ObjectId.from_string(id)).first
       if benefit_application
         benefit_application.benefit_packages.unscoped.find(id)
@@ -475,24 +488,58 @@ module BenefitSponsors
     # Renewal_benefit_application's predecessor is always current benefit application
     # most_recent_benefit_application will always be their current benefit_application if no renewal
     def current_benefit_application
-      renewal_benefit_application.present? ? renewal_benefit_application.predecessor : most_recent_benefit_application
+      current_benefit_application_by_date || renewal_benefit_application&.predecessor || most_recent_benefit_application
+    end
+
+    def current_benefit_application_by_date(date = TimeKeeper.date_of_record)
+      applications = Array.new([renewal_benefit_application&.predecessor, most_recent_benefit_application, off_cycle_benefit_application])
+      applications.compact.detect { |application| application.effective_period.cover?(date) }
+    end
+
+    def dt_display_benefit_application
+      benefit_applications.where(:aasm_state.ne => :canceled).order_by(:"effective_period.min".desc).first || latest_benefit_application
+    end
+
+    def off_cycle_benefit_application
+      recent_bas = benefit_applications.where(:aasm_state.ne => :canceled).order_by(:created_at.asc).to_a.last(3)
+      termed_or_ineligible_app = recent_bas.select(&:is_termed_or_ineligible?).max_by(&:start_on)
+      return nil unless termed_or_ineligible_app
+
+      compare_date = termed_or_ineligible_app.enrollment_ineligible? ? termed_or_ineligible_app.start_on : termed_or_ineligible_app.end_on
+      recent_bas.select { |recent_ba| recent_ba.start_on > compare_date }.first
+    end
+
+    # use this only for EDI
+    def late_renewal_benefit_application
+      benefit_applications.order(updated_at: :desc).detect do |application|
+        application.predecessor.present? && application.start_on == application.predecessor.end_on + 1.day &&
+          [:active, :enrollment_eligible].include?(application.aasm_state) && application.start_on >= TimeKeeper.date_of_record - 1.month # grace period of one month for late renewal
+      end
     end
 
     def renewal_benefit_application
-      benefit_applications.order_by(:"created_at".desc).detect {|application| application.is_renewing? }
-    end
-
-    def late_renewal_benefit_application  # use this only for EDI
-      benefit_applications.order_by(:"created_at".desc).detect {|application|
-        application.predecessor.present? && [:active, :enrollment_eligible].include?(application.aasm_state) }
+      benefit_applications.order_by(:created_at.desc).detect(&:is_renewing?)
     end
 
     def active_benefit_application
       benefit_applications.order_by(:"created_at".desc).detect {|application| application.active?}
     end
 
+    def is_off_cycle?
+      return false unless off_cycle_benefit_application
+
+      off_cycle_benefit_application.present?
+    end
+
+    def is_potential_off_cycle_employer?
+      latest_application = benefit_applications.order_by(:created_at.asc).to_a.last
+      benefit_applications.where(:aasm_state.ne => :canceled).order_by(:created_at.asc).to_a.last(2).any?(&:is_termed_or_ineligible?) && (latest_application.canceled? || latest_application.is_termed_or_ineligible? || latest_application.draft?)
+    end
+
     def most_recent_benefit_application
-      published_benefit_application || benefit_applications.order(updated_at: :desc).non_terminated_non_imported.first || benefit_applications.order_by(:"updated_at".desc).non_imported.first
+      published_benefit_application ||
+        benefit_applications.order(updated_at: :desc).non_terminated_non_imported.where(:id.ne => off_cycle_benefit_application&.id).first ||
+        benefit_applications.order_by(:updated_at.desc).non_imported.where(:id.ne => off_cycle_benefit_application&.id).first
     end
 
     def latest_application
@@ -729,6 +776,12 @@ module BenefitSponsors
     def self.find_by_feins(feins)
       organizations = BenefitSponsors::Organizations::Organization.where(fein: {:$in => feins})
       where(:organization_id => {:$in => organizations.pluck(:_id)})
+    end
+
+    def market_kind
+      return nil if benefit_market_id.blank?
+
+      @market_kind ||= benefit_market.kind
     end
 
     private

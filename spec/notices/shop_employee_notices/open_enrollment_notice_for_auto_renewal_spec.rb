@@ -9,8 +9,11 @@ RSpec.describe ShopEmployeeNotices::OpenEnrollmentNoticeForAutoRenewal, :dbclean
   let(:person) {FactoryGirl.create(:person)}
   let(:family){ FactoryGirl.create(:family, :with_primary_family_member, person: person) }
   let(:household){ family.active_household }
-  let!(:census_employee) { FactoryGirl.create(:census_employee_with_active_and_renewal_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package ) }
-  let!(:employee_role) { FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile) }
+  let(:benefit_sponsor)       { create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_initial_application, site: site) }
+  let(:benefit_sponsorship) { benefit_sponsor.active_benefit_sponsorship }
+  let!(:benefit_package)      { benefit_sponsorship.benefit_applications.first.benefit_packages.first}
+  let!(:census_employee) { create(:census_employee_with_active_and_renewal_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package) }
+  let!(:employee_role) { create(:employee_role, person: person, employer_profile: abc_profile) }
   let(:benefit_group_assignment) { census_employee.renewal_benefit_group_assignment }
   let(:hbx_enrollment_member) { FactoryGirl.build(:hbx_enrollment_member, is_subscriber:true,  applicant_id: family.family_members.first.id, coverage_start_on: (TimeKeeper.date_of_record).beginning_of_month, eligibility_date: (TimeKeeper.date_of_record).beginning_of_month) }
   let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,

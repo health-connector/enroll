@@ -164,6 +164,7 @@ module BenefitMarkets
           product = BenefitMarkets::Products::Product.all.where(id: p.id).first
           product.premium_tables.each do |pt|
             pt.premium_tuples.delete_all
+            pt.premium_tuples.create(age: 0, cost: cost_counter - 10)
             pt.premium_tuples.create(age: 20, cost: cost_counter)
             pt.premium_tuples.create(age: 21, cost: cost_counter + 10)
             pt.premium_tuples.create(age: 22, cost: cost_counter + 20)

@@ -53,13 +53,6 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
         employer_enroll_factory.begin
 
         expect(employer_profile.plan_years.first.aasm_state).to eq 'active'
-        employer_profile.census_employees.each do |ce|
-          if ce.is_business_owner?
-            expect(ce.active_benefit_group_assignment.aasm_state).to eq 'initialized'
-          else
-            expect(ce.active_benefit_group_assignment.aasm_state).to eq 'coverage_selected'
-          end
-        end
         expect(employer_profile.aasm_state).to eq 'enrolled'
       end
     end
@@ -78,9 +71,6 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
         employer_enroll_factory.begin
 
         expect(employer_profile.plan_years.first.aasm_state).to eq 'draft'
-        employer_profile.census_employees.each do |ce|
-          expect(ce.active_benefit_group_assignment.aasm_state).to eq 'initialized'
-        end
         expect(employer_profile.aasm_state).to eq 'applicant'
       end
     end
@@ -158,7 +148,6 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
 
         employer_profile.census_employees.each do |ce|
           expect(ce.active_benefit_group_assignment.benefit_group).to eq renewing_plan_year.benefit_groups.first
-          expect(ce.active_benefit_group_assignment.aasm_state).to eq 'auto_renewing'
         end
         expect(employer_profile.aasm_state).to eq 'enrolled'
       end
@@ -189,7 +178,6 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
 
         employer_profile.census_employees.each do |ce|
           expect(ce.active_benefit_group_assignment.benefit_group).not_to eq renewing_plan_year.benefit_groups.first
-          expect(ce.active_benefit_group_assignment.aasm_state).to eq 'coverage_selected'
         end
         expect(employer_profile.aasm_state).to eq 'applicant'
       end
@@ -227,7 +215,7 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
             benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
             aasm_state: 'coverage_selected'
             )
-          ce.active_benefit_group_assignment.update_attributes(aasm_state: 'coverage_selected', hbx_enrollment_id: enrollment.id)
+          ce.active_benefit_group_assignment.update_attributes(hbx_enrollment_id: enrollment.id)
 
           create(:hbx_enrollment, 
             household: family.active_household,
@@ -266,7 +254,6 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
         employer_profile.census_employees.each do |ce|
           expect(ce.active_benefit_group_assignment).to be_nil
           expired_assignment = ce.benefit_group_assignments.detect{|bg_assignment| bg_assignment.benefit_group == active_plan_year.benefit_groups.first }
-          expect(expired_assignment.aasm_state).to eq 'coverage_expired'
         end
 
         expect(expiring_enrollments.size).to eq 3

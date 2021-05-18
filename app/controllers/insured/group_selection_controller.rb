@@ -34,6 +34,8 @@ class Insured::GroupSelectionController < ApplicationController
     set_change_plan
     # Benefit group is what we will need to change
     @benefit_group = @adapter.select_benefit_group(params)
+    @shop_under_current = @adapter.shop_under_current
+    @shop_under_future = @adapter.shop_under_future
     @new_effective_on = @adapter.calculate_new_effective_on(params)
 
     @adapter.if_should_generate_coverage_family_members_for_cobra(params) do |cobra_members|
@@ -72,7 +74,7 @@ class Insured::GroupSelectionController < ApplicationController
     hbx_enrollment = build_hbx_enrollment(family_member_ids)
 
     if @market_kind == 'shop'
-      raise "Open enrollment for your employer-sponsored benefits not yet started. Please return on #{hbx_enrollment.sponsored_benefit_package.open_enrollment_start_on.strftime('%m/%d/%Y')} to enroll for coverage." unless hbx_enrollment.sponsored_benefit_package.shoppable?
+      raise @adapter.no_employer_benefits_error_message(hbx_enrollment) unless hbx_enrollment.sponsored_benefit_package.shoppable?
     end
 
     if @adapter.is_waiving?(params)
