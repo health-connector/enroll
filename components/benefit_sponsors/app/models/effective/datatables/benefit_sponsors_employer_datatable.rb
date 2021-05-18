@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable all
 module Effective
   module Datatables
     class BenefitSponsorsEmployerDatatable < Effective::MongoidDatatable
@@ -170,7 +171,8 @@ module Effective
           table_query.merge!(employer_attestations_query) if attributes[:employer_attestations].present?
 
           if attributes[:upcoming_dates].present?
-            if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
+            if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y").present?
+              date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
               upcoming_dates_query = {
                 "$match" => {:"benefit_applications.effective_period.min" => date}
               }
@@ -288,3 +290,5 @@ module Effective
     end
   end
 end
+# rubocop:enable all
+
