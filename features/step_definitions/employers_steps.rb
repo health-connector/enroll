@@ -630,7 +630,7 @@ end
 
 And(/^employer filled all the fields on benefit application form$/) do
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
-  if TimeKeeper.date_of_record > 5
+  if TimeKeeper.date_of_record.day > 5 && TimeKeeper.date_of_record.day < 16
     find('.interaction-choice-control-bastartdate-2', wait: 3).click
   else
     find('.interaction-choice-control-bastartdate-1', wait: 3).click
