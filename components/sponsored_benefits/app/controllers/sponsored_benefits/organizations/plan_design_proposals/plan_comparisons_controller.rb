@@ -56,7 +56,8 @@ module SponsoredBenefits
         end
 
         def requested_plans
-          @plans ||= ::Plan.where(:_id => { '$in': params[:plans] } ).map(&:hios_id)
+          @requested_plans ||= ::Plan.where(:_id => { '$in': params[:plans].to_a }).map(&:hios_id)
+          @plans = @requested_plans
         end
 
         def qhps
