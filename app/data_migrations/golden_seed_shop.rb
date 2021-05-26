@@ -1,8 +1,9 @@
 require File.join(Rails.root, 'lib/mongoid_migration_task')
+require File.join(Rails.root, "components", "benefit_sponsors", "spec", "support", "benefit_sponsors_site_spec_helpers")
 
 class GoldenSeedSHOP < MongoidMigrationTask
   def site
-    @site = BenefitSponsors::Site.all.first
+    @site = BenefitSponsors::Site.where(site_key: Settings.site.key).last
   end
 
   def ssns
@@ -136,10 +137,44 @@ class GoldenSeedSHOP < MongoidMigrationTask
     end
   end
 
+  def create_and_return_benefit_market_catalog_for_site
+    benefit_market = site.benefit_markets.last
+    return benefit_market.benefit_market_catalogs.last if benefit_market.benefit_market_catalogs.present? 
+    catalog = benefit_market.benefit_market_catalogs.build(
+      title: "#{Settings.site.key} Golden Seed SHOP Employer Benefit Market",
+      description: "Benefit Market for Golden seed",
+      application_interval_kind: :monthly,
+      application_period: Date.new(Date.today.year, 1, 1)..Date.new(Date.today.year, 12, 31),
+      probation_period_kinds: [:first_of_month, :first_of_month_after_30_days, :first_of_month_after_60_days]
+
+    ).save!
+    product_package = BenefitMarkets::Products::ProductPackage.new(
+      title: market_product_package.title,
+      description: catalog.description,
+      product_kind: catalog.product_kind,
+      benefit_kind: catalog.benefit_kind, 
+      package_kind: catalog.package_kind
+    )
+
+    product_package.application_period = catalog.effective_period
+    product_package.contribution_model = catalog.contribution_model.create_copy_for_embedding
+    product_package.pricing_model = catalog.pricing_model.create_copy_for_embedding
+    product_package.products = catalog.load_embedded_products(benefit_sponsor_catalog.service_areas, @effective_date)
+    product_package.save!
+    catalog
+  end
+
   def migrate
     puts('Executing Golden Seed SHOP migration.')
-    raise("No site present. Please load a site to the database.") if site.blank?
+    puts("Site present, using existing site.") if site.present? && !Rails.env.test?
+    # TODO: This has been refactored for trunk DC, do the old cca site for now
+    ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market if site.blank?
+    # load_cca_benefit_markets_seed
     raise("No benefit markets present.") if site.benefit_markets.blank?
+    puts("No benefit market catalog present for markets. creating one now.") if site.benefit_markets.flat_map(&:benefit_market_catalogs).blank?
+    create_and_return_benefit_market_catalog_for_site if site.benefit_markets.flat_map(&:benefit_market_catalogs).blank?
+    create_and_return_service_areas
+    create_and_return_recorded_rating_areas
     carriers_plans_and_employee_dependent_count('health').each do |carrier_name, plan_list|
       plan_name_counter = 1
       plan_list.each do |plan_name, family_structure_list|
@@ -165,6 +200,19 @@ class GoldenSeedSHOP < MongoidMigrationTask
       end
     end
     puts("Golden Seed SHOP migration complete.")
+  end
+
+  def load_cca_benefit_markets_seed
+    glob_pattern = File.join(File.dirname(__FILE__), "fixtures", "benefit_markets", "*.yaml")
+
+    Dir.glob(glob_pattern).each do |f_name|
+      force_loaded_config = ::BenefitMarkets::Configurations::AcaShopConfiguration
+      loaded_class = ::BenefitMarkets::BenefitMarket
+      yaml_str = File.read(f_name)
+      data = YAML.load(yaml_str)
+      data.new_record = true
+      data.save!(validate: false)
+    end
   end
 
   def generate_random_birthday(person_type)
@@ -338,12 +386,13 @@ class GoldenSeedSHOP < MongoidMigrationTask
   def create_and_return_benefit_application(benefit_sponsorship)
     create_ba_params = create_benefit_application_params(benefit_sponsorship)
     ba_form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
+    # Create benefit market catalog if doesn't exist
     ba_form.persist
     benefit_sponsorship.save!
     benefit_sponsorship.reload
+    puts("Creating benefit application complete.") if benefit_sponsorship.benefit_applications.present?
     benefit_sponsorship.benefit_applications.last
   end
-
 
   def create_and_return_benefit_package(create_benefit_package_params, benefit_application)
     benefit_package = ::BenefitSponsors::Forms::BenefitPackageForm.for_create(create_benefit_package_params)
@@ -355,11 +404,42 @@ class GoldenSeedSHOP < MongoidMigrationTask
     end
   end
 
+  def create_and_return_service_areas
+    ::BenefitMarkets::Locations::ServiceArea.find_or_create_by!(
+      covered_states:[Settings.aca.state_abbreviation],
+      active_year: TimeKeeper.date_of_record.year,
+      issuer_provided_code: "#{Settings.contact_center.state}S001",
+      issuer_provided_title: 'Issuer Title',
+      issuer_profile_id: BenefitSponsors::Organizations::IssuerProfile.new.id
+    )
+  end
+
+  def create_and_return_county_zip
+    BenefitMarkets::Locations::CountyZip.find_or_create_by!(
+      county_name: Settings.contact_center.county
+    ).tap do |county_zip|
+      county_zip.update_attributes!(
+        zip: Settings.contact_center.zip_code,
+        state: Settings.aca.state_abbreviation
+      )
+    end
+  end
+
+  def create_and_return_recorded_rating_areas
+    ::BenefitMarkets::Locations::RatingArea.find_or_create_by!(
+      covered_states: [Settings.aca.state_abbreviation],
+      county_zip_ids: [create_and_return_county_zip.id],
+      active_year: TimeKeeper.date_of_record.year,
+      exchange_provided_code: Settings.aca.state_abbreviation
+    )
+  end
+
   def create_benefit_package_params(benefit_sponsorship, benefit_application, carrier_name)
     service_areas = benefit_sponsorship.service_areas_on(benefit_application.start_on)
     benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, benefit_application.effective_period.begin)
-    raise("Benefit sponsnor catalog blank") if benefit_application.benefit_sponsor_catalog.blank?
+    raise("Benefit sponsor catalog blank") if benefit_application.benefit_sponsor_catalog.blank?
     benefit_application.save!
+    binding.irb
     benefit_application.benefit_sponsor_catalog.save!
     # Need to add packages here?
     p_package = benefit_application.benefit_sponsor_catalog.product_packages.detect { |p_package| (p_package.package_kind == :single_product) && (p_package.product_kind == :health) }
