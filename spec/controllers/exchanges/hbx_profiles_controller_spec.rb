@@ -190,10 +190,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       expect(response).to redirect_to("www.google.com")
     end
 
-    it "renders in less than 10 seconds" do
+    it "renders in less than 1 seconds" do
       expect do
         get :employer_datatable, { format: :js }, valid_session
-      end.to perform_under(10).sec
+      end.to perform_under(1).sec
     end
   end
 =begin

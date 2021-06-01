@@ -129,7 +129,7 @@ module Effective
       end
 
       def collection
-        return @employer_collection if defined? @employer_collection
+        return @employer_collection if @employer_collection.present?
 
         table_query = {"$group" => {"_id" => "$_id"}}
         # States
@@ -168,7 +168,7 @@ module Effective
           end
 
           table_query.merge!(enrolled_query) if attributes[:enrolled].present?
-          table_query.merge!(employer_attestations_query) if attributes[:employer_attestations].present?
+          table_query.merge!(employer_attestations_query) if attributes[:employers] == 'employer_attestations'
 
           if attributes[:upcoming_dates].present?
             if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y").present?
@@ -180,17 +180,17 @@ module Effective
             end
           end
 
-          if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
-            attestations_by_kinds_orgs = BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles.employer_attestation.aasm_state" => attestation_kind)
+          if attributes[:employers] == 'employer_attestations'
+            attestations_by_kinds_orgs = BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles.employer_attestation.aasm_state".in => employer_attestation_kinds)
             # self.where(:"organization".in => orgs.collect{|org| org.id})}
             employer_attestation_by_kind_query = {
-              "$match" => {:organization.in => attestations_by_kinds_orgs.collect{|org| org.id.to_s}}
+              "$match" => {:"organization".in => attestations_by_kinds_orgs.map{|org| org.id.to_s}}
             }
             table_query.merge!(employer_attestation_by_kind_query)
           end
         end
         benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.collection.aggregate([table_query])
-        sponsorship_ids = benefit_sponsorships.map { |id| id["_id"] }
+        sponsorship_ids = benefit_sponsorships.map { |id| id["_id"].to_s }
         @employer_collection = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => sponsorship_ids)
       end
 
