@@ -131,6 +131,8 @@ module Effective
       def collection
         return @employer_collection if @employer_collection.present?
 
+        benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
+
         table_query = {"$group" => {"_id" => "$_id"}}
         # States
         enrolling_states = [:draft, :enrollment_open, :enrollment_extended, :enrollment_closed, :enrollment_eligible, :binder_paid]
