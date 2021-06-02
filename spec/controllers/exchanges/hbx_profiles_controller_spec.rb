@@ -178,6 +178,27 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
     end
 
+    context "scopes" do
+      # TODO: We'll have to figure out what the attributes are
+      context "employer_attestations" do
+        it "should render employers with aasm_state in employer attestation aasm_states" do
+          BenefitSponsors::Organizations::Organization.employer_profiles.flat_map(
+            &:profiles
+          ).map(&:employer_attestation).each { |attestation| attestation.update(aasm_state: "submitted") }
+          employer_attestation_attributes = {
+            "custom_attributes" => nil,
+            "employers"=>"employer_attestations"
+          }.with_indifferent_access
+          allow_any_instance_of(
+            Effective::Datatables::BenefitSponsorsEmployerDatatable
+          ).to receive(:attributes).and_return(employer_attestation_attributes)
+          get :employer_datatable, format: :js
+          # TODO: Figure thi sout
+          # expect(assigns(:datatable)).to eq(nil)
+        end
+      end
+    end
+
     it "renders employer_datatable as JS" do
       get :employer_datatable, format: :js
       expect(response).not_to redirect_to("www.google.com")
@@ -193,7 +214,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     it "renders in less than 1 seconds" do
       expect do
         get :employer_datatable, { format: :js }, valid_session
-      end.to perform_under(1).sec
+      end.to perform_under(0).sec
     end
   end
 =begin
