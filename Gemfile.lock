@@ -459,6 +459,7 @@ GEM
       railties (>= 3.0.0)
     fakeredis (0.8.0)
       redis (~> 4.1)
+    ffaker (2.18.0)
     ffi (1.12.2)
     forgery (0.7.0)
     gherkin (5.1.0)
@@ -918,6 +919,7 @@ DEPENDENCIES
   eye (= 0.8.0)
   factory_girl_rails (= 4.6.0)
   fakeredis
+  ffaker
   forgery
   haml
   httparty
