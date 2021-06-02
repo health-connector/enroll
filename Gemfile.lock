@@ -30,8 +30,8 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/acapi.git
-  revision: e10f9ab0a454f861916a986986daa9e055798fde
-  branch: trunk
+  revision: edc16675be611c10c3ec1fa162803388f3d18336
+  branch: nil_fix
   specs:
     acapi (1.3.2)
       activesupport (> 4.2.0)

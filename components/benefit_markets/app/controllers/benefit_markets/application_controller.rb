@@ -11,6 +11,7 @@ module BenefitMarkets
       respond_to do |format|
         format.html { redirect_to main_app.root_path}
         format.js   { render text: "window.location.assign('#{main_app.root_path}');"}
+        format.json { render json: { :token_expired => root_url }, status: :unauthorized }
       end
     end
   end
