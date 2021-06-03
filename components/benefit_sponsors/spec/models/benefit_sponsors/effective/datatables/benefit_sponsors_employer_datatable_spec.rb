@@ -55,10 +55,12 @@ module Effective
           end
           context "enrolled" do
             before do
-              # enrolled_attributess = {"employers" => "benefit_application_enrolled"}.with_indifferent_access
+              @datatable = ::Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+              enrolled_attributes = {"employers" => "benefit_application_enrolled"}.with_indifferent_access
+              @datatable.attributes = enrolled_attributes
             end
 
-            xit "should return a valid datatable only including enrolled benefit applications" do
+            it "should return a valid datatable only including enrolled benefit applications" do
 
             end
           end

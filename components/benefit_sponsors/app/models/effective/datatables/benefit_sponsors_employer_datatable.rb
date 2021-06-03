@@ -169,7 +169,7 @@ module Effective
             end
           end
 
-          table_query.merge!(enrolled_query) if attributes[:enrolled].present?
+          table_query.merge!(enrolled_query) if attributes[:employers] == 'benefit_application_enrolled'
           table_query.merge!(employer_attestations_query) if attributes[:employers] == 'employer_attestations'
 
           if attributes[:upcoming_dates].present?
