@@ -214,7 +214,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     it "renders in less than 1 seconds" do
       expect do
         get :employer_datatable, { format: :js }, valid_session
-      end.to perform_under(0).sec
+      end.to perform_under(1).sec
     end
   end
 =begin
