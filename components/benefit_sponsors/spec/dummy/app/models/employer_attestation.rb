@@ -4,6 +4,8 @@ class EmployerAttestation
   include Mongoid::Timestamps
   include AASM
 
+  ATTESTATION_KINDS = ['submitted', 'pending', 'approved', 'denied'].freeze
+
   field :aasm_state, type: String, default: "unsubmitted"
 
   embedded_in :employer_profile
@@ -19,8 +21,8 @@ class EmployerAttestation
     state :approved
     state :denied
 
-    event :submit, :after => :record_transition do 
-      transitions from: :unsubmitted, to: :submitted
+    event :submit, :after => :record_transition do
+      transitions from: [:submitted, :pending, :unsubmitted], to: :submitted
     end
 
     event :set_pending, :after => :record_transition do
@@ -32,11 +34,15 @@ class EmployerAttestation
     end
 
     event :deny, :after => :record_transition do
-      transitions from: [:submitted, :pending], to: :denied, :after => :terminate_employer
+      transitions from: [:submitted, :pending], to: :denied #, :after => :ban_profile
     end
 
     event :revert, :after => :record_transition do
       transitions from: [:submitted,:denied,:pending], to: :unsubmitted
+    end
+
+    event :resubmit, :after => :record_transition do
+      transitions from: :denied, to: :submitted
     end
   end
 
@@ -45,25 +51,25 @@ class EmployerAttestation
   end
 
   def is_eligible?
-   under_review? || approved?
+    under_review? || approved?
   end
 
   def has_documents?
-    self.employer_attestation_documents
+    employer_attestation_documents
   end
 
-  def terminate_employer
-    employer_profile.terminate(TimeKeeper.date_of_record.end_of_month)
+  def ban_profile
+    profile.ban_benefit_sponsorship
   end
 
   def editable?
-    unsubmitted? || submitted? || pending?
+    unsubmitted? || submitted? || pending? || denied?
   end
 
   private
 
   def record_transition
-    self.workflow_state_transitions << WorkflowStateTransition.new(
+    workflow_state_transitions << WorkflowStateTransition.new(
       from_state: aasm.from_state,
       to_state: aasm.to_state
     )

@@ -130,39 +130,12 @@ module Effective
       end
 
       def collection
-        return @employer_collection if defined? @employer_collection
+        return @collection if defined? @collection
+        @benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
+        return BenefitSponsors::BenefitSponsorsEmployerDatatableAdapter.new([]) if @benefit_sponsorships.blank?
 
-        benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
-
-        if attributes[:employers].present? && !['all'].include?(attributes[:employers])
-          benefit_sponsorships = benefit_sponsorships.send(attributes[:employers]) if employer_kinds.include?(attributes[:employers])
-
-          if attributes[:enrolling].present?
-            if attributes[:enrolling_initial].present? || attributes[:enrolling_renewing].present?
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling_initial]) if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling_renewing]) if attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling]) if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] == 'all' || attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] == 'all'
-            else
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling])
-            end
-          end
-
-          benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolled]) if attributes[:enrolled].present?
-          benefit_sponsorships = benefit_sponsorships.send(attributes[:employer_attestations]) if attributes[:employer_attestations].present?
-
-
-          if attributes[:upcoming_dates].present?
-              if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
-                benefit_sponsorships = benefit_sponsorships.effective_date_begin_on(date)
-              end
-          end
-
-          if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
-            benefit_sponsorships = benefit_sponsorships.attestations_by_kind(attributes[:attestations])
-          end
-        end
-
-          @employer_collection = benefit_sponsorships
+        query = BenefitSponsors::Queries::BenefitSponsorsEmployerDatatableQuery.new(@benefit_sponsorships, attributes)
+        @collection = query.execute
       end
 
       def global_search?

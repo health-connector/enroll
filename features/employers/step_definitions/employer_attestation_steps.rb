@@ -57,7 +57,8 @@ end
 
 Then (/^Admin should see Employer with (.*) status$/) do |state|
   wait_for_ajax
-  expect(find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[10]')).to have_content state
+  # expect(find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[10]')).to have_content state
+  expect(page).to have_content(state)
 end
 
 When (/^Admin clicks attestation action$/) do
