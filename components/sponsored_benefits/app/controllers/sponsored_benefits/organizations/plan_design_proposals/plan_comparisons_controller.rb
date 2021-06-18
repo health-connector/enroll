@@ -28,9 +28,9 @@ module SponsoredBenefits
 
         def csv
           benefit_group = plan_design_proposal.active_benefit_group
-          @service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: benefit_group})
           @qhps = qhps.each do |qhp|
             if benefit_group
+              @service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: benefit_group})
               qhp[:total_employee_cost] = @service.monthly_employer_contribution_amount(qhp.plan)
             else
               qhp[:total_employee_cost] = 0.00

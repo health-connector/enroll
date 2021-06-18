@@ -389,7 +389,7 @@ module Importers::Transcripts
       hbx_enrollment.benefit_group_assignment_id = benefit_group_assignment.id
       hbx_enrollment.benefit_sponsorship = employer_profile.active_benefit_sponsorship
       hbx_enrollment.sponsored_benefit_package_id = benefit_group.id
-      hbx_enrollment.sponsored_benefit_id = hbx_enrollment.coverage_kind == "health" ? benefit_group.health_sponsored_benefit.id : benefit_group.dental_sposnored_benefit.id
+      hbx_enrollment.sponsored_benefit_id = hbx_enrollment.coverage_kind == "health" ? benefit_group.health_sponsored_benefit.id : benefit_group.dental_sponsored_benefit.id
       hbx_enrollment.rating_area_id = benefit_group.benefit_application.recorded_rating_area_id
       hbx_enrollment.employee_role_id = employee_role.id
       ea_plan = BenefitMarkets::Products::Product.where(hios_id: product.hios_id, :benefit_market_kind => :aca_shop).select{|p| p.active_year == product.active_year}.first

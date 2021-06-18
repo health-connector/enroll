@@ -8,16 +8,13 @@ module SponsoredBenefits
     before_action :find_broker_agency_profile, only: [:employers]
 
     def employers
-      @broker_role = current_user.person.broker_role || nil
-      @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true)
+      @broker_role = current_user.person.broker_role if current_user&.person
       if general_agency_is_enabled?
+        @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true) if @broker_role.present?
         @datatable = ::Effective::Datatables::BrokerAgencyEmployerDatatable.new(profile_id: @broker_agency_profile._id, general_agency_is_enabled: "true")
       else
         @datatable = ::Effective::Datatables::BrokerAgencyEmployerDatatable.new(profile_id: @broker_agency_profile._id)
       end
-      @broker_role = current_user.person.broker_role || nil
-      puts "@broker_role #{@broker_role.inspect}"
-      @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true) if general_agency_is_enabled? and @broker_role
     end
 
   private
