@@ -221,7 +221,7 @@ class Insured::FamilyMembersController < ApplicationController
 
 private
   def set_family
-    @family = @person.try(:primary_family)
+    @family = @person.try(:primary_family) || current_user&.person&.primary_family
   end
 
   def init_address_for_dependent
