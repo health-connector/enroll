@@ -21,6 +21,7 @@ class Insured::FamilyMembersController < ApplicationController
       @employee_role = @person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id.to_s }
     elsif @type == "consumer"
       @consumer_role = @person.consumer_role
+      @family = @consumer_role&.person&.family if @family.blank?
       @family.hire_broker_agency(current_user.person.broker_role.try(:id))
     end
     @change_plan = params[:change_plan].present? ? 'change_by_qle' : ''
