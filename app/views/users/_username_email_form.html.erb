@@ -16,7 +16,7 @@
 <%= form_tag(confirm_change_username_and_email_user_path, method: :put, id: "changeUsernameEmailForm", class:"form-horizontal", remote: true) do %>
   <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
   <% if @user.oim_id.present? %>
-    <%= hidden_field_tag :current_oim_id, @user.oim_id %>
+    <%= hidden_field_tag :current_oim_id, @user.reload.oim_id %>
   <% end %>
   <% if @user.email.present? %>
     <%= hidden_field_tag :current_email, @user.email %>
@@ -57,4 +57,3 @@
         });
     });
 </script>
-
