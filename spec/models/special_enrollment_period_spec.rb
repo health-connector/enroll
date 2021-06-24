@@ -185,6 +185,29 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
     end
   end
 
+  context ".optional_effective_on_dates_within_range" do
+    let(:param_with_invalid_optional_effective_on) do
+      {
+        family: family,
+        qualifying_life_event_kind: shop_qle,
+        effective_on_kind: "first_of_next_month",
+        qle_on: qle_on,
+        optional_effective_on: ["07/03/#{TimeKeeper.date_of_record.year}", "09/07/#{TimeKeeper.date_of_record.year}"]
+      }
+    end
+    it "should throw error with SHOP SEP and next_poss_effective_date nil" do
+      # since module method invokes in class
+      allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(family, "min", "shop").and_return(nil)
+      allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(family, "max", "shop").and_return(nil)
+      expect(
+        SpecialEnrollmentPeriod.create(**param_with_invalid_optional_effective_on).errors[:optional_effective_on]
+      ).to eq [
+        "both min and max sep optional dates are not present for 07/03/#{TimeKeeper.date_of_record.year}. Please specify.",
+        "both min and max sep optional dates are not present for 09/07/#{TimeKeeper.date_of_record.year}. Please specify."
+      ]
+    end
+  end
+
   context ".next_poss_effective_date_within_range" do
     let(:shop_qle_sep) { FactoryGirl.create(:special_enrollment_period, family: family) }
     let(:past_date) { TimeKeeper.date_of_record - 3.months }

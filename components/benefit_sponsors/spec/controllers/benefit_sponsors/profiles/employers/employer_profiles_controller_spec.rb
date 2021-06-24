@@ -21,6 +21,17 @@ module BenefitSponsors
       person.employer_staff_roles.create! benefit_sponsor_employer_profile_id: employer_profile.id
     end
 
+    describe "POST employee_bulk_upload" do
+      before do
+        sign_in user
+        post :bulk_employee_upload, employer_profile_id: benefit_sponsor.profiles.first.id
+      end
+
+      it "displays an error for a missing file" do
+        expect(assigns(:roster_upload_form).errors[:base].first).to eq "File is missing"
+      end
+    end
+
     describe "GET show_pending" do
       before do
         sign_in user

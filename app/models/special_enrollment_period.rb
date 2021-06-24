@@ -164,7 +164,16 @@ private
       date_option = Date.strptime(date_option, "%m/%d/%Y")
       min_date = sep_optional_date family, 'min', qualifying_life_event_kind.market_kind
       max_date = sep_optional_date family, 'max', qualifying_life_event_kind.market_kind
-      errors.add(:optional_effective_on, "Date #{index+1} option out of range.") if not date_option.between?(min_date, max_date)
+      error_message = if min_date.blank? && max_date.blank?
+                        "both min and max sep optional dates are not present for #{date_option}. Please specify."
+                      elsif min_date.blank?
+                        "min sep optional date is not present for #{date_option}. Please specify."
+                      elsif max_date.blank?
+                        "max sep optional date is not present for #{date_option}. Please specify."
+                      elsif !date_option.between?(min_date, max_date)
+                        "Date #{index + 1} option out of range."
+                      end
+      errors.add(:optional_effective_on, error_message) if error_message.present?
     end
   end
 
