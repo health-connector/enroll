@@ -50,6 +50,15 @@ module BenefitSponsors
         authorize @agency
       end
 
+      def index
+        redirect_to main_app.root_path
+      end
+
+      def show
+        # this should not invoke in UI
+        redirect_to main_app.root_path
+      end
+
       def update
         @agency = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_update(registration_params)
         authorize @agency
@@ -93,10 +102,7 @@ module BenefitSponsors
 
       def registration_params
         current_user_id = current_user.present? ? current_user.id : nil
-        params[:agency].merge!({
-          :profile_id => params["id"],
-          :current_user_id => current_user_id
-        })
+        params[:agency].merge!({:profile_id => params["id"],:current_user_id => current_user_id})
         params[:agency].permit!
       end
 
