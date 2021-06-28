@@ -2,7 +2,7 @@ Feature: COBRA basic
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for active initial employer with health benefits
+    Given benefit market catalog exists for active renewal employer with health benefits
     And there is an employer EnterPrise Limited
     And EnterPrise Limited employer has a staff role
     And there are 2 employees for EnterPrise Limited

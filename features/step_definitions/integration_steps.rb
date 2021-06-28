@@ -67,6 +67,10 @@ def people
       email: 'ricky.martin@example.com',
       password: 'aA1!aA1!aA1!'
     },
+    "Max Planck" => {
+      email: 'max.plank@example.com',
+      password: 'aA1!aA1!aA1!'
+    },
     "CareFirst Broker" => {
       first_name: 'Broker',
       last_name: 'martin',
@@ -499,8 +503,8 @@ When(/^(.*) logs on to the (.*)?/) do |named_person, portal|
   person = people[named_person]
 
   visit "/"
-  portal_class = "interaction-click-control-#{portal.downcase.gsub(/ /, '-')}"
-  portal_uri = find("a.#{portal_class}")["href"]
+  # portal_class = "interaction-click-control-#{portal.downcase.gsub(/ /, '-')}"
+  # portal_uri = find("a.#{portal_class}")["href"]
 
   visit "/users/sign_in"
   fill_in "user[login]", :with => person[:email]
@@ -509,7 +513,7 @@ When(/^(.*) logs on to the (.*)?/) do |named_person, portal|
   #TODO this fixes the random login fails b/c of empty params on email
   fill_in "user[login]", :with => person[:email] unless find(:xpath, '//*[@id="user_login"]').value == person[:email]
   find('.interaction-click-control-sign-in').click
-  visit portal_uri
+  # visit portal_uri
 end
 
 Then(/^.+ creates (.+) as a roster employee$/) do |named_person|

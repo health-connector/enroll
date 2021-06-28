@@ -61,7 +61,7 @@ Given (/^.*a CCA sole source employer health benefit package, in open enrollment
     pte_count: 0,
     msp_count: 0
   )
-  benefit_application.benefit_sponsor_catalog = @benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, benefit_application.effective_period.begin)
+  benefit_application.benefit_sponsor_catalog = @benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin)
   benefit_application.save!
   benefit_application.benefit_sponsor_catalog.save!
   @benefit_application = benefit_application

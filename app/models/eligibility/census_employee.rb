@@ -1,8 +1,8 @@
 module Eligibility
   module CensusEmployee
 
-    def coverage_effective_on(package = nil)
-      package = possible_benefit_package if (package.blank? || package.is_conversion?) # cautious
+    def coverage_effective_on(package = nil, shop_under_current: false, shop_under_future: false)
+      package = possible_benefit_package(shop_under_current: shop_under_current, shop_under_future: shop_under_future) if package.blank? || package.is_conversion? # cautious
       if package.present?
         
         effective_on_date = package.effective_on_for(hired_on)
@@ -22,28 +22,23 @@ module Eligibility
 
     # TODO: eligibility rule different for active and renewal plan years
     def earliest_eligible_date
-      benefit_group_assignment = renewal_benefit_group_assignment || active_benefit_group_assignment
-      
-      if benefit_group_assignment
-        benefit_group_assignment.benefit_group.eligible_on(hired_on)
-      end
+      possible_benefit_group_assignment&.benefit_package&.eligible_on(hired_on)
     end
 
     def newly_eligible_earlist_eligible_date
-      benefit_group_assignment = renewal_benefit_group_assignment || active_benefit_group_assignment
-      benefit_group_assignment.benefit_group.start_on
+      possible_benefit_group_assignment&.benefit_package&.start_on
     end
 
     def earliest_effective_date
-      benefit_group_assignment = renewal_benefit_group_assignment || active_benefit_group_assignment
-      
-      if benefit_group_assignment
-        benefit_group_assignment.benefit_group.effective_on_for(hired_on)
-      end
+      possible_benefit_group_assignment&.benefit_package&.effective_on_for(hired_on)
     end
 
     def under_new_hire_enrollment_period?
       new_hire_enrollment_period.cover?(TimeKeeper.date_of_record)
+    end
+
+    def possible_benefit_group_assignment
+      renewal_benefit_group_assignment || off_cycle_benefit_group_assignment || active_benefit_group_assignment
     end
   end
 end

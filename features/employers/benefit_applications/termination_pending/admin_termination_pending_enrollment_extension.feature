@@ -3,7 +3,7 @@ Feature: As an admin user I should not have the ability to extend the OE
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for termination_pending initial employer with health benefits
+    Given benefit market catalog exists for termination_pending renewal employer with health benefits
     And there is an employer ABC Widgets
     And employer ABC Widgets has termination_pending benefit application
 

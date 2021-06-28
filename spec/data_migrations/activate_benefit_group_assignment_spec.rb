@@ -12,7 +12,11 @@ describe ActivateBenefitGroupAssignment do
     end
   end
 
-  describe "activate benefit group assignment" do
+  describe 'activate benefit group assignment' do
+    let!(:census_employee) { create(:census_employee, ssn: '123456789')}
+    let!(:benefit_group_assignment1)  { create(:benefit_group_assignment, census_employee: census_employee)}
+    let!(:benefit_group_assignment2)  { create(:benefit_group_assignment, census_employee: census_employee)}
+    let!(:bga_params) {{ce_ssn: census_employee.ssn, bga_id: benefit_group_assignment1.id}}
 
     # let!(:benefit_group1)     { FactoryGirl.create(:benefit_group, plan_year: plan_year)}
     # let!(:benefit_group2)     { FactoryGirl.create(:benefit_group, plan_year: plan_year)}
@@ -27,18 +31,18 @@ describe ActivateBenefitGroupAssignment do
       allow(ENV).to receive(:[]).with("bga_id").and_return(benefit_group_assignment1.id)
     end
 
-    context "activate_benefit_group_assignment", dbclean: :after_each do
-      it "should activate_related_benefit_group_assignment" do
-        expect(benefit_group_assignment1.is_active).to eq false
+    context 'activate_benefit_group_assignment', dbclean: :after_each do
+      it 'should activate_related_benefit_group_assignment' do
+        expect(benefit_group_assignment1.activated_at).to be_falsey
         subject.migrate
         census_employee.reload
-        expect(census_employee.benefit_group_assignments.where(id:benefit_group_assignment1.id).first.is_active).to eq true
+        expect(census_employee.benefit_group_assignments.where(id: benefit_group_assignment1.id).first.activated_at.class).to eq DateTime
       end
-      it "should_not activate_unrelated_benefit_group_assignment" do
-        expect(benefit_group_assignment2.is_active).to eq false
+      it 'should_not activate_unrelated_benefit_group_assignment' do
+        expect(benefit_group_assignment2.activated_at).to be_falsey
         subject.migrate
         census_employee.reload
-        expect(census_employee.benefit_group_assignments.where(id:benefit_group_assignment2.id).first.is_active).to eq false
+        expect(census_employee.benefit_group_assignments.where(id: benefit_group_assignment2.id).first.activated_at.class).to eq NilClass
       end
     end
   end
