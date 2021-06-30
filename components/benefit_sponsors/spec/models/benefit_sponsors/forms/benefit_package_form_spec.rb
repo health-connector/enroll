@@ -227,6 +227,12 @@ module BenefitSponsors
       end
     end
 
+    describe "#for_calculating_employee_cost_details" do
+      include_context 'valid params'
+      it "should throw an error if benefit_application_id is blank" do
+        binding.irb
+        employee_cost_details_form = BenefitSponsors::Forms::BenefitPackageForm.for_calculating_employee_cost_details(benefit_package_params)
+      end
+    end
   end
-
 end

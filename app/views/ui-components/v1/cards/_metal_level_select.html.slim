@@ -575,7 +575,7 @@ javascript:
   }
   var selectedReferencePlanId;
 	var selectedBenefitSponsorsID = "#{params[:benefit_sponsorship_id]}";
-	var selectedBenefitApplicationID = "#{params[:benefit_application_id]}";
+	var selectedBenefitApplicationID = "#{params[:benefit_application_id] || @benefit_package_form.service&.benefit_application&.id.to_s}";
 	var selectedSummaryTitle;
 	var refreshPage = false;
 	var showLess = false;

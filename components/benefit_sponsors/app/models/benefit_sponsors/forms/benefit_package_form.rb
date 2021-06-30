@@ -22,7 +22,7 @@ module BenefitSponsors
       # attr_accessor :benefit_application, :product_packages
       # validates :title, presence: true
 
-      validates_presence_of :title, :probation_period_kind
+      validates_presence_of :title, :probation_period_kind, :benefit_application_id
       validate :benefit_package_info
 
       attr_reader :service, :show_page_model
