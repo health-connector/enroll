@@ -98,16 +98,6 @@ module BenefitSponsors
       issuer_profile.organization.update_attributes!(site_id: site.id)
     end
 
-    describe "GET calculate_employee_cost_details" do
-      before do
-        sign_in(user)
-      end
-      it "should not initialize the form if benefit application is blank" do
-        get :calculate_employee_cost_details, benefit_sponsorship_id: benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params
-        expect(response).to be_redirect
-      end
-    end
-
     describe "GET new" do
       it "should initialize the form" do
         sign_in_and_do_new
