@@ -204,10 +204,43 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     }
     let(:employment_relationship_properties) { { :skllkjasdfjksd => "a3r123rvf" } }
     let(:user) { double(:idp_verified? => true, person: person) }
+    let(:bad_employment_relationship_prop) { { :employer_name => "��" } }
 
     context "can construct_employee_role" do
       before :each do
         allow(Forms::EmploymentRelationship).to receive(:new).with(employment_relationship_properties).and_return(employment_relationship)
+        allow(Factories::EnrollmentFactory).to receive(:construct_employee_role).with(user, census_employee, employment_relationship).and_return([employee_role, family])
+        allow(benefit_group).to receive(:effective_on_for).with(hired_on).and_return(effective_date)
+        allow(census_employee).to receive(:is_linked?).and_return(true)
+        allow(employee_role).to receive(:census_employee).and_return(census_employee)
+        sign_in(user)
+        allow(user).to receive(:switch_to_idp!)
+        allow(user).to receive(:has_hbx_staff_role?).and_return(false)
+        allow(employment_relationship).to receive_message_chain(:census_employee,:employer_profile,:parent,:legal_name).and_return("legal_name")
+        post :create, :employment_relationship => employment_relationship_properties
+      end
+
+      it "should render the edit template" do
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(edit_insured_employee_path(:id => "212342345"))
+      end
+
+      it "should assign the employee_role" do
+        expect(assigns(:employee_role)).to eq employee_role
+      end
+
+      it "should assign the person" do
+        expect(assigns(:person)).to eq person
+      end
+
+      it "should assign the family" do
+        expect(assigns(:family)).to eq family
+      end
+    end
+
+    context "can construct_employee_role with bad character input" do
+      before :each do
+        allow(Forms::EmploymentRelationship).to receive(:new).with(bad_employment_relationship_prop).and_return(employment_relationship)
         allow(Factories::EnrollmentFactory).to receive(:construct_employee_role).with(user, census_employee, employment_relationship).and_return([employee_role, family])
         allow(benefit_group).to receive(:effective_on_for).with(hired_on).and_return(effective_date)
         allow(census_employee).to receive(:is_linked?).and_return(true)
