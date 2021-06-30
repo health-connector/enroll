@@ -237,7 +237,7 @@ module BenefitSponsors
           benefit_package_params
         )
         expect(form.valid?).to eq(false)
-        expect(form.errors.messages).to eq({:benefit_application_id=>["can't be blank"]})
+        expect(form.errors.messages).to eq({:benefit_application_id => ["can't be blank"]})
       end
     end
   end
