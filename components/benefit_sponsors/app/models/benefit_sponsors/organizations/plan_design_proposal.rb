@@ -57,8 +57,8 @@ module BenefitSponsors
         # find plan_design_proposal object by id
         def find(id)
           organization = BenefitSponsors::Organizations::PlanDesignOrganization.where("plan_design_proposals._id" => BSON::ObjectId.from_string(id)).first
-          return nil if organization.blank?
-          return nil if organization.plan_design_proposals.blank?
+          return nil if organization.blank? || organization&.plan_design_proposals.blank?
+
           organization.plan_design_proposals.detect{|proposal| proposal.id == BSON::ObjectId.from_string(id)}
         end
 
