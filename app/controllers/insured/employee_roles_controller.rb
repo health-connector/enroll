@@ -51,6 +51,7 @@ class Insured::EmployeeRolesController < ApplicationController
 
   def create
     @employment_relationship = Forms::EmploymentRelationship.new(params.require(:employment_relationship))
+    @employment_relationship.employer_name.force_encoding('utf-8').encode('utf-8') unless @employment_relationship.employer_name.nil?
     @employee_role, @family = Factories::EnrollmentFactory.construct_employee_role(actual_user, @employment_relationship.census_employee, @employment_relationship)
 
     census_employees = if actual_user && actual_user.person.present?
@@ -75,7 +76,7 @@ class Insured::EmployeeRolesController < ApplicationController
       end
     else
       respond_to do |format|
-        log("Refs #19220 We have an SSN collision for the employee belonging to employer #{@employment_relationship.census_employee.employer_profile.parent.legal_name}", :severity=>'error')
+        log("Refs #19220 We have an SSN collision for the employee belonging to employer #{@employment_relationship.census_employee.employer_profile.parent.legal_name&.force_encoding('utf-8').encode('utf-8')}", :severity=>'error')
         format.html { redirect_to :back, alert: "You can not enroll as another employee. Please reach out to customer service for assistance"}
       end
     end
