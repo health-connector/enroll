@@ -75,6 +75,8 @@ module BenefitSponsors
 
       def self.for_calculating_employee_cost_details(params)
         form = self.new(params)
+        form.validate_form(form)
+        return form unless form.valid?
         form.service.load_form_metadata(form)
         form.service.calculate_employee_cost_details(form)
       end
