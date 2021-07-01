@@ -135,7 +135,9 @@ module BenefitSponsors
 
         it "should return errors " do
           form.valid?
-          expect(form.errors.full_messages.flatten.sort).to eq ["Contribution factor can't be blank", "Title can't be blank"]
+          expect(form.errors.full_messages.flatten.sort).to eq(
+            ["Benefit application can't be blank", "Contribution factor can't be blank", "Title can't be blank"]
+          )
         end
       end
     end
@@ -235,6 +237,16 @@ module BenefitSponsors
       end
     end
 
+    describe "#for_calculating_employee_cost_details" do
+      include_context 'valid params'
+      it "should throw an error if benefit_application_id is blank" do
+        benefit_package_params[:benefit_application_id] = nil
+        form = BenefitSponsors::Forms::BenefitPackageForm.for_calculating_employee_cost_details(
+          benefit_package_params
+        )
+        expect(form.valid?).to eq(false)
+        expect(form.errors.messages).to eq({:benefit_application_id => ["can't be blank"]})
+      end
+    end
   end
-
 end

@@ -22,7 +22,7 @@ module BenefitSponsors
       # attr_accessor :benefit_application, :product_packages
       # validates :title, presence: true
 
-      validates_presence_of :title, :probation_period_kind
+      validates_presence_of :title, :probation_period_kind, :benefit_application_id
       validate :benefit_package_info
 
       attr_reader :service, :show_page_model
@@ -75,6 +75,12 @@ module BenefitSponsors
 
       def self.for_calculating_employee_cost_details(params)
         form = self.new(params)
+        form.validate_form(form)
+        # TODO: On add_plan_year_for_employer.feature, this faiils if we do this beacusee
+        # there is no probatiion kind. Maybe just check benefit_applicatioin_id for now?
+        # return form unless form.valid?
+        return form if form.errors.include?(:benefit_application_id)
+
         form.service.load_form_metadata(form)
         form.service.calculate_employee_cost_details(form)
       end

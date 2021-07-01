@@ -116,6 +116,7 @@ module BenefitSponsors
       protected
 
       def calculate_employee_estimates_for_package_action(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
+        # TODO: Sometimes benefit_application/benefit_sponsorship are nil, gotta figure out if its from the form
         cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
         sponsor_contribution, total, employer_costs = cost_estimator.calculate(
           sponsored_benefit,
