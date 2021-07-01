@@ -12,7 +12,9 @@ class Employers::CensusEmployeesController < ApplicationController
       benefit_sponsorship_id: @benefit_sponsorship.id,
       benefit_sponsors_employer_profile_id: @employer_profile.id,
       active_benefit_group_assignment: benefit_group_id,
+      off_cycle_benefit_group_assignment: off_cycle_benefit_group_id,
       renewal_benefit_group_assignment: renewal_benefit_group_id
+      # no_ssn_allowed: @benefit_sponsorship.is_no_ssn_enabled
     }))
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
 
@@ -41,7 +43,9 @@ class Employers::CensusEmployeesController < ApplicationController
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
     @census_employee.attributes = census_employee_params.merge!({
       active_benefit_group_assignment: benefit_group_id,
-      renewal_benefit_group_assignment: renewal_benefit_group_id
+      renewal_benefit_group_assignment: renewal_benefit_group_id,
+      off_cycle_benefit_group_assignment: off_cycle_benefit_group_id
+      # no_ssn_allowed: @census_employee.no_ssn_allowed || @benefit_sponsorship.is_no_ssn_enabled
     })
 
     destroyed_dependent_ids = census_employee_params[:census_dependents_attributes].delete_if{|k,v| v.has_key?("_destroy") }.values.map{|x| x[:id]} if census_employee_params[:census_dependents_attributes]
@@ -244,6 +248,10 @@ class Employers::CensusEmployeesController < ApplicationController
 
   def renewal_benefit_group_id
     params[:census_employee][:renewal_benefit_group_assignments][:benefit_group_id] rescue nil
+  end
+
+  def off_cycle_benefit_group_id
+    params[:census_employee][:off_cycle_benefit_group_assignments][:benefit_group_id] if params[:census_employee] && params[:census_employee][:off_cycle_benefit_group_assignments].present?
   end
 
   def census_employee_params

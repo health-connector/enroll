@@ -188,6 +188,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
         benefit_groups: benefit_groups,
         aasm_state: 'draft',
         predecessor_id: nil,
+        employee_participation_ratio_minimum: 0.75,
         employer_profile: double(census_employees: double(active: active_employees))
       )
     end

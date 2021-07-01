@@ -6,6 +6,10 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 
 RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy, type: :model, :dbclean => :after_each do
   let!(:subject) {BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy.new}
+  let(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key) }
+  let(:organization)     { create(:benefit_sponsors_organizations_general_organization, "with_aca_shop_#{Settings.site.key}_employer_profile".to_sym, site: site) }
+  let(:employer_profile)    { organization.employer_profile }
+  let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
 
   context "A new model instance" do
     it "should have businese_policy" do
@@ -20,8 +24,6 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
   end
 
   context "Validates passes_open_enrollment_period_policy business policy" do
-
-    let!(:benefit_sponsorship) {FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
     let!(:benefit_application) do
       FactoryGirl.create(
         :benefit_sponsors_benefit_application,
@@ -45,7 +47,6 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
 
   context "Fails passes_open_enrollment_period_policy business policy" do
-    let!(:benefit_sponsorship) {FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
     let(:benefit_application) do
       FactoryGirl.build(
         :benefit_sponsors_benefit_application,
@@ -70,8 +71,8 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
     context 'fail' do
       let!(:last_day_to_publish) {Time.now - 1.day}
-      before do
-        TimeKeeper.any_instance.stub(:date_of_record).and_return(Time.now)
+      before :each do
+        allow_any_instance_of(TimeKeeper).to receive(:date_of_record).and_return(Time.now)
       end
 
       it "should fail rule validation" do
@@ -81,8 +82,8 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
 
     context 'success' do
       let!(:last_day_to_publish) {Time.now + 1.day}
-      before do
-        TimeKeeper.any_instance.stub(:date_of_record).and_return(Time.now)
+      before :each do
+        allow_any_instance_of(TimeKeeper).to receive(:date_of_record).and_return(Time.now)
       end
 
       it "should validate successfully" do

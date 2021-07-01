@@ -509,7 +509,8 @@ class BrokerAgencies::ProfilesController < ApplicationController
 
   def check_admin_staff_role
     if current_user.has_hbx_staff_role? || current_user.has_csr_role?
-    elsif current_user.has_broker_agency_staff_role?
+      # TODO: Why is this blank? Lolz
+    elsif current_user.has_broker_agency_staff_role? && current_user.person.broker_agency_staff_roles&.first&.broker_agency_profile_id
       redirect_to broker_agencies_profile_path(:id => current_user.person.broker_agency_staff_roles.first.broker_agency_profile_id)
     else
       redirect_to new_broker_agencies_profile_path

@@ -70,7 +70,7 @@ namespace :load do
         end
 
         if product_package.present?
-          product_package.products = []
+          product_package.products.delete_all
         else
           product_package = benefit_market_catalog.product_packages.new({
             title: title,

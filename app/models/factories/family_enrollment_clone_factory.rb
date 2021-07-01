@@ -47,7 +47,8 @@ module Factories
       clone_enrollment.sponsored_benefit_id = sponsored_benefit_package.sponsored_benefits.detect { |sb| sb.product_kind.to_s == enrollment.coverage_kind }.id
       clone_enrollment.rating_area_id = enrollment.rating_area_id
       clone_enrollment.issuer_profile_id = enrollment.issuer_profile_id
-      assignment = census_employee.benefit_group_assignment_by_package(sponsored_benefit_package.id)
+      # assignment = census_employee.benefit_group_assignment_by_package(enrollment.sponsored_benefit_package_id, effective_on)
+      assignment = census_employee.create_benefit_package_assignment(sponsored_benefit_package, effective_on)
       clone_enrollment.benefit_group_assignment_id = assignment.id
 
       if sponsored_benefit_package.benefit_application.is_renewing?
@@ -82,7 +83,7 @@ module Factories
     end
 
     def assign_enrollment_to_benefit_package_assignment(enrollment)
-      assignment = census_employee.benefit_group_assignment_by_package(sponsored_benefit_package.id)
+      assignment = census_employee.benefit_group_assignment_by_package(enrollment.sponsored_benefit_package_id, enrollment.effective_on)
       assignment.update_attributes(hbx_enrollment_id: enrollment.id)
       enrollment.update_attributes(benefit_group_assignment_id: assignment.id)
     end

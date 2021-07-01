@@ -277,6 +277,8 @@ aca:
       voluntary: false
       non_payment: false
 
+    auto_cancel_ineligible: false
+
   transmit_employers_immediately: false
   employer_has_sic_field: true
   validate_county: true

@@ -115,6 +115,29 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :after_each do
     end
   end
 
+  describe "GET index - no broker agency profile present" do
+    let(:user) { double("user", :has_hbx_staff_role? => true, :has_broker_agency_staff_role? => false)}
+    # Blank broker agency staff role simulates a blank broker_agency_profile_id
+    let(:person) { double("person", broker_agency_staff_roles: [])}
+    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:hbx_profile) { double("hbx_profile")}
+
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(false)
+      allow(user).to receive(:has_csr_role?).and_return(false)
+      allow(user).to receive(:has_broker_role?).and_return(true)
+      allow(user).to receive(:person).and_return(person)
+      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
+      allow(user).to receive(:has_broker_agency_staff_role?).and_return(true)
+      sign_in(user)
+      get :index
+    end
+    it "should redirect to new path" do
+      expect(response).to redirect_to(new_broker_agencies_profile_path)
+    end
+  end
+
   describe "GET index",dbclean: :after_each do
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_broker_agency_staff_role? => false)}
     let(:person) { double("person")}

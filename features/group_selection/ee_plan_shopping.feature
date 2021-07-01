@@ -9,7 +9,7 @@ Feature: EE plan purchase
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
     When staff role person logged in
-    And employer Acme Inc. has enrollment_open benefit application
+    And employer Acme Inc. has active benefit application
     And Acme Inc. employer visit the Employee Roster
     And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
@@ -38,7 +38,7 @@ Feature: EE plan purchase
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
     When staff role person logged in
-    And employer Acme Inc. has enrollment_open benefit application
+    And employer Acme Inc. has active benefit application
     And Acme Inc. employer visit the Employee Roster
     And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
@@ -72,7 +72,7 @@ Feature: EE plan purchase
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
     When staff role person logged in
-    And employer Acme Inc. has enrollment_open benefit application
+    And employer Acme Inc. has active benefit application
     And Acme Inc. employer visit the Employee Roster
     And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out
@@ -109,7 +109,7 @@ Feature: EE plan purchase
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
     When staff role person logged in
-    And employer Acme Inc. has enrollment_open benefit application
+    And employer Acme Inc. has active benefit application
     And Acme Inc. employer visit the Employee Roster
     And there is a census employee record for Patrick Doe for employer Acme Inc.
     Then Employer logs out

@@ -52,7 +52,7 @@ module EnrollmentShopping
       enrollment
     end
 
-    def build_new_waiver_enrollment(is_qle: false, optional_effective_on: nil, waiver_reason: nil)
+    def build_new_waiver_enrollment(is_qle: false, shop_under_current: false, shop_under_future: false, optional_effective_on: nil, waiver_reason: nil)
       enrollment = build_common_enrollment_information("employer_sponsored")
       enrollment.waiver_reason = waiver_reason
       benefit_package = nil
@@ -70,7 +70,7 @@ module EnrollmentShopping
           else
             # They are in a sep, but there is NO benefit package available then
             # Maybe they weren't hired yet
-            effective_date = earliest_eligible_date_for_shop(@employee_role)
+            effective_date = earliest_eligible_date_for_shop(@employee_role, shop_under_current: shop_under_current, shop_under_future: shop_under_future)
             enrollment.effective_on = effective_date
             benefit_package = benefit_package_for_date(@employee_role, effective_date)
           end
@@ -79,7 +79,7 @@ module EnrollmentShopping
         enrollment.special_enrollment_period_id = enrollment.family.current_sep.id
         # TODO: Assign sep
       else
-        effective_date = earliest_eligible_date_for_shop(@employee_role)
+        effective_date = earliest_eligible_date_for_shop(@employee_role, shop_under_current: shop_under_current, shop_under_future: shop_under_future)
         enrollment.effective_on = effective_date
         enrollment.enrollment_kind = "open_enrollment"
         benefit_package = benefit_package_for_date(@employee_role, effective_date)
@@ -94,12 +94,12 @@ module EnrollmentShopping
       sponsored_benefit = benefit_package.sponsored_benefit_for(@coverage_kind)
       set_benefit_information(enrollment, sponsored_benefit, benefit_package)
 
-      check_for_affected_enrollment(enrollment, sponsored_benefit)
+      check_for_affected_enrollment(enrollment)
 
       enrollment
     end
 
-    def build_new_enrollment(family_member_ids: [], is_qle: false, optional_effective_on: nil)
+    def build_new_enrollment(family_member_ids: [], is_qle: false, shop_under_current: false, shop_under_future: false, optional_effective_on: nil)
       enrollment = build_common_enrollment_information("employer_sponsored")
       benefit_package = nil
 
@@ -116,7 +116,7 @@ module EnrollmentShopping
           else
             # They are in a sep, but there is NO benefit package available then
             # Maybe they weren't hired yet
-            effective_date = earliest_eligible_date_for_shop(@employee_role)
+            effective_date = earliest_eligible_date_for_shop(@employee_role, shop_under_current: shop_under_current, shop_under_future: shop_under_future)
             enrollment.effective_on = effective_date
             benefit_package = benefit_package_for_date(@employee_role, effective_date)
           end
@@ -125,7 +125,7 @@ module EnrollmentShopping
         enrollment.special_enrollment_period_id = enrollment.family.current_sep.id
         # TODO: Assign sep
       else
-        effective_date = earliest_eligible_date_for_shop(@employee_role)
+        effective_date = earliest_eligible_date_for_shop(@employee_role, shop_under_current: shop_under_current, shop_under_future: shop_under_future)
         enrollment.effective_on = effective_date
         enrollment.enrollment_kind = "open_enrollment"
         benefit_package = benefit_package_for_date(@employee_role, effective_date)
@@ -136,7 +136,7 @@ module EnrollmentShopping
       sponsored_benefit = benefit_package.sponsored_benefit_for(@coverage_kind)
       set_benefit_information(enrollment, sponsored_benefit, benefit_package)
 
-      check_for_affected_enrollment(enrollment, sponsored_benefit)
+      check_for_affected_enrollment(enrollment)
 
       enrollment
     end
@@ -203,9 +203,9 @@ module EnrollmentShopping
       end
     end
 
-    def check_for_affected_enrollment(enrollment, sponsored_benefit)
+    def check_for_affected_enrollment(enrollment)
       aef = AffectedEnrollmentFinder.new
-      affected_enrollments = aef.for_sponsored_benefit_and_date(enrollment, sponsored_benefit, enrollment.effective_on)
+      affected_enrollments = aef.for_enrollment(enrollment)
       if affected_enrollments.any?
         affected_enrollment = affected_enrollments.first
         enrollment.predecessor_enrollment_id = affected_enrollment.id
@@ -227,8 +227,8 @@ module EnrollmentShopping
       employee_role.benefit_package_for_date(start_date)
     end
 
-    def earliest_eligible_date_for_shop(employee_role)
-      employee_role.census_employee.coverage_effective_on
+    def earliest_eligible_date_for_shop(employee_role, shop_under_current: false, shop_under_future: false)
+      employee_role.census_employee.coverage_effective_on(shop_under_current: shop_under_current, shop_under_future: shop_under_future)
     end
   end
 end

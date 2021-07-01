@@ -2,7 +2,7 @@ Feature: As an admin user I should have the ability to terminate a given Employe
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for active initial employer with health benefits
+    Given benefit market catalog exists for active renewal employer with health benefits
     And there is an employer ABC Widgets
     And initial employer ABC Widgets has active benefit application
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in

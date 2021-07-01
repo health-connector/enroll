@@ -269,6 +269,22 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context "for both ivl and shop", dbclean: :after_each do
       include_context "setup benefit market with market catalogs and product packages"
+      let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+      let!(:benefit_market_catalog) do
+        create(
+          :benefit_markets_benefit_market_catalog,
+          :with_product_packages,
+          benefit_market: benefit_market,
+          issuer_profile: issuer_profile,
+          title: "SHOP Benefits for #{current_effective_date.year}",
+          application_period: (current_effective_date.prev_year.beginning_of_year..current_effective_date.prev_year.end_of_year)
+        )
+      end
+      let!(:delete_dup) do
+        BenefitMarkets::BenefitMarket.all.each do |benefit_market|
+          benefit_market.destroy unless benefit_market.benefit_market_catalogs.present?
+        end
+      end
       include_context "setup initial benefit application"
 
       let!(:enrollments) {double}

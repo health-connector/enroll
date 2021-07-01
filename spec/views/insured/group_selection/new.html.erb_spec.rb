@@ -7,33 +7,28 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_s
 RSpec.describe "insured/group_selection/new.html.erb" do
   let(:adapter) { instance_double(GroupSelectionPrevaricationAdapter) }
   context "coverage selection", dbclean: :after_each do
-  
-  include_context "setup initial benefit application"
 
   let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
   let(:benefit_market) { site.benefit_markets.first }
   let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
   let!(:current_benefit_market_catalog) do
-    BenefitSponsors::ProductSpecHelpers.construct_cca_simple_benefit_market_catalog(site, benefit_market, effective_period)
-    benefit_market.benefit_market_catalogs.where(
-      "application_period.min" => effective_period_start_on
-    ).first
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      issuer_profile: issuer_profile,
+      title: "SHOP Benefits for #{effective_period_start_on.year}",
+      application_period: effective_period
+    )
   end
+  include_context "setup initial benefit application"
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
 
   let(:effective_period_start_on) { current_effective_date }
   let(:effective_period_end_on) { effective_period_start_on + 1.year - 1.day }
 
-  let(:service_areas) do
-    ::BenefitMarkets::Locations::ServiceArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).all.to_a
-  end
-
-  let(:rating_area) do
-    ::BenefitMarkets::Locations::RatingArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).first
-  end
+  let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area }
+  let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area }
   let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
 
     let(:person) { FactoryGirl.create(:person, is_incarcerated: false, us_citizen: true) }
@@ -88,7 +83,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
         allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
         allow(adapter).to receive(:can_shop_both_markets?).with(person).and_return(false)
-        allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment).and_return(false)
+        allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment, effective_on).and_return(false)
         allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member1, employee_role, effective_on).and_return([true, true])
         allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member2, employee_role, effective_on).and_return([false, true])
         allow(adapter).to receive(:shop_health_and_dental_attributes).with(family_member3, employee_role, effective_on).and_return([true, true])
@@ -97,6 +92,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         allow(adapter).to receive(:class_for_ineligible_row).with(family_member2, nil, effective_on).and_return("ineligible_health_row_#{employee_role.id} ineligible_dental_row_#{employee_role.id}")
         allow(adapter).to receive(:class_for_ineligible_row).with(family_member3, nil, effective_on).and_return("ineligible_dental_row_#{employee_role.id}")
         allow(adapter).to receive(:class_for_ineligible_row).with(family_member4, nil, effective_on).and_return("ineligible_health_row_#{employee_role.id} ineligible_dental_row_#{employee_role.id}")
+        allow(coverage_household).to receive(:valid_coverage_household_members).and_return(coverage_household_members)
         render :template => "insured/group_selection/new.html.erb"
       end
 
@@ -369,7 +365,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).and_return(false)
-      allow(adapter).to receive(:shop_health_and_dental_attributes).and_return([true, false, false, false])
+      allow(adapter).to receive(:shop_health_and_dental_attributes).and_return([true, false, false])
       allow(adapter).to receive(:can_shop_individual?).and_return(false)
       allow(adapter).to receive(:can_shop_resident?).and_return(false)
       allow(adapter).to receive(:class_for_ineligible_row).and_return("ineligible_dental_row_#{employee_role.id} is_primary")
@@ -395,8 +391,8 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:coverage_household) { double("coverage household", coverage_household_members: []) }
     let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: (TimeKeeper.date_of_record.end_of_month + 1.day), employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
     let(:employer_profile) { benefit_sponsorship.profile }
-    let(:current_user) { FactoryGirl.create(:user) }
-
+    let(:current_user) { create(:user) }
+    let(:effective_on_date) { TimeKeeper.date_of_record.beginning_of_month }
 
     before :each do
       allow(employee_role).to receive(:census_employee).and_return(census_employee)
@@ -406,7 +402,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       assign :market_kind, 'individual'
       assign :change_plan, true
       assign :hbx_enrollment, hbx_enrollment
-      assign :effective_on_date, TimeKeeper.date_of_record.beginning_of_month
+      assign :effective_on_date, effective_on_date
       assign(:adapter, adapter)
       allow(person).to receive(:has_active_employee_role?).and_return(true)
       allow(hbx_enrollment).to receive(:effective_on).and_return(TimeKeeper.date_of_record.beginning_of_month)
@@ -419,7 +415,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).with(person).and_return(false)
-      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment).and_return(true)
+      allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
+      allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
+      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment, effective_on_date).and_return(true)
+      allow(coverage_household).to receive(:valid_coverage_household_members).and_return([])
       sign_in current_user
     end
 
@@ -530,7 +529,8 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:employee_role) { FactoryGirl.create(:employee_role) }
     let(:benefit_group) { FactoryGirl.create(:benefit_group) }
     let(:coverage_household) { double("coverage household", coverage_household_members: []) }
-    let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: (TimeKeeper.date_of_record.end_of_month + 1.day), employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
+    let(:effective_on) { TimeKeeper.date_of_record.end_of_month.next_day }
+    let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: effective_on, employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
 
     before :each do
       allow(employee_role).to receive(:benefit_group).and_return(benefit_group)
@@ -541,14 +541,18 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       assign :hbx_enrollment, hbx_enrollment
       assign :adapter, adapter
       assign :change_plan, true
-      allow(hbx_enrollment).to receive(:effective_on).and_return(TimeKeeper.date_of_record.end_of_month + 1.day)
+      assign :new_effective_on, effective_on
+      allow(hbx_enrollment).to receive(:effective_on).and_return(effective_on)
       allow(hbx_enrollment).to receive(:coverage_selected?).and_return(true)
       allow(hbx_enrollment).to receive(:may_terminate_coverage?).and_return(true)
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(view).to receive(:can_employee_shop?).and_return(false)
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).and_return(false)
-      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment).and_return(true)
+      allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
+      allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
+      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, true, hbx_enrollment, effective_on).and_return(true)
+      allow(coverage_household).to receive(:valid_coverage_household_members).and_return([])
 
     end
 
@@ -622,7 +626,8 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:employee_role) { FactoryGirl.create(:employee_role) }
     let(:benefit_group) { FactoryGirl.create(:benefit_group) }
     let(:coverage_household) { double("coverage household", coverage_household_members: []) }
-    let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: (TimeKeeper.date_of_record.end_of_month + 1.day), employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
+    let(:effective_on) { TimeKeeper.date_of_record.end_of_month + 1.day }
+    let(:hbx_enrollment) {double("hbx enrollment", coverage_selected?: true, id: "hbx_id", effective_on: effective_on, employee_role: employee_role, benefit_group: benefit_group, is_shop?: false)}
 
     before :each do
       allow(employee_role).to receive(:benefit_group).and_return(benefit_group)
@@ -632,6 +637,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       assign :market_kind, 'shop'
       assign :change_plan, nil
       assign :hbx_enrollment, hbx_enrollment
+      assign :new_effective_on, effective_on
       assign(:adapter, adapter)
       allow(hbx_enrollment).to receive(:effective_on).and_return(TimeKeeper.date_of_record.beginning_of_month)
       allow(hbx_enrollment).to receive(:coverage_selected?).and_return(true)
@@ -640,8 +646,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
       allow(adapter).to receive(:can_shop_shop?).with(person).and_return(true)
       allow(adapter).to receive(:can_shop_both_markets?).and_return(false)
-      allow(adapter).to receive(:can_shop_resident?).with(person).and_return(true)
-      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment).and_return(true)
+      allow(adapter).to receive(:can_shop_resident?).with(person).and_return(false)
+      allow(adapter).to receive(:can_shop_individual?).with(person).and_return(false)
+      allow(adapter).to receive(:is_eligible_for_dental?).with(employee_role, nil, hbx_enrollment, effective_on).and_return(true)
+      allow(coverage_household).to receive(:valid_coverage_household_members).and_return([])
     end
 
     it "shouldn't see waiver button" do
@@ -679,7 +687,6 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     # Loading coverage household member records only once & displaying errors based on selection
 
     it "should render coverage_household partial to display chm's" do
-      # allow(view).to receive(:is_eligible_for_dental?).with(employee_role, nil, enrollment).and_return false
       render file: "insured/group_selection/new.html.erb"
       expect(response).to render_template(:partial => 'coverage_household', :locals => {:coverage_household => nil})
     end
