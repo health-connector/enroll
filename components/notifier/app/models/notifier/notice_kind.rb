@@ -92,11 +92,13 @@ module Notifier
       recipient.to_s.split('::').last.underscore.to_sym
     end
 
-    def self.to_csv
+    def self.to_csv (notice_ids)
+      csv_headers = %w(Notice\ Number Title Description Recipient Event\ Name Notice\ Template )
       CSV.generate(headers: true) do |csv|
-        csv << ['Notice Number', 'Title', 'Description', 'Recipient', 'Event Name', 'Notice Template']
+        csv << csv_headers
 
-        all.each do |notice|
+        notice_ids.each do |notice_id|
+          notice =  self.find(notice_id)
           csv << [notice.notice_number, notice.title, notice.description, notice.recipient, notice.event_name, notice.template.try(:raw_body)]
         end
       end

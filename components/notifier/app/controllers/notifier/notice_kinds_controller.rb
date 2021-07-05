@@ -72,9 +72,7 @@ module Notifier
     end
 
     def download_notices
-      # notices = Notifier::NoticeKind.where(:id.in => params['ids'])
-
-      send_data Notifier::NoticeKind.to_csv, 
+      send_data Notifier::NoticeKind.to_csv(params['ids']),
         :filename => "notices_#{TimeKeeper.date_of_record.strftime('%m_%d_%Y')}.csv",
         :disposition => 'attachment',
         :type => 'text/csv'
