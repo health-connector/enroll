@@ -51,7 +51,6 @@ class Insured::EmployeeRolesController < ApplicationController
 
   def create
     @employment_relationship = Forms::EmploymentRelationship.new(params.require(:employment_relationship))
-    @employment_relationship.employer_name.force_encoding('utf-8').encode('utf-8') unless @employment_relationship.employer_name.nil?
     @employee_role, @family = Factories::EnrollmentFactory.construct_employee_role(actual_user, @employment_relationship.census_employee, @employment_relationship)
 
     census_employees = if actual_user && actual_user.person.present?
