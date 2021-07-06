@@ -14,7 +14,11 @@ module SponsoredBenefits
           when "sole_source"
             offering_query.sole_source_offered_health_plans(params[:carrier_id], params[:active_year])
           end
-        @plans = @plans.select{|a| a.premium_tables.by_date(params[:quote_effective_date].to_date).present? }
+        begin
+          @plans = @plans.select{|a| a.premium_tables.by_date(params[:quote_effective_date].to_date).present? }
+        rescue Mongo::Error::OperationFailure => e
+          rails.logger.error e.to_s
+        end
         @search_options = ::Plan.search_options(@plans)
         @search_option_titles = {
                 'plan_type': 'HMO / PPO',
