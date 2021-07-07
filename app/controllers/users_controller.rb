@@ -121,9 +121,8 @@ class UsersController < ApplicationController
   end
 
   def set_user
-    begin
-      @user = User.find(params[:id])
-    rescue Exception => e
+    @user = User.find(params[:id])
+    rescue StandardError => e
       rails.logger.error{"Unable to find user, error recieved: #{e}"}
     end
   end
