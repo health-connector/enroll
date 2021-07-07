@@ -53,28 +53,36 @@ module BenefitSponsors
       end
 
       def calculate_price_for(pricing_model, benefit_roster_entry, _sponsor_contribution = nil)
-        pricing_unit_map = pricing_unit_map_for(pricing_model)
-        roster_entry = benefit_roster_entry
-        roster_coverage = benefit_roster_entry.group_enrollment
-        age_calculator = ::BenefitSponsors::CoverageAgeCalculator.new
-        product = roster_coverage.product
-        coverage_eligibility_dates = {}
-        roster_coverage.member_enrollments.each do |m_en|
-          coverage_eligibility_dates[m_en.member_id] = m_en.coverage_eligibility_on
+        begin
+          pricing_unit_map = pricing_unit_map_for(pricing_model)
+          roster_entry = benefit_roster_entry
+          roster_coverage = benefit_roster_entry.group_enrollment
+          age_calculator = ::BenefitSponsors::CoverageAgeCalculator.new
+          product = roster_coverage.product
+          coverage_eligibility_dates = {}
+          roster_coverage.member_enrollments.each do |m_en|
+            coverage_eligibility_dates[m_en.member_id] = m_en.coverage_eligibility_on
+          end
+          sorted_members = roster_entry.members.sort_by do |rm|
+            coverage_age = age_calculator.calc_coverage_age_for(rm, roster_coverage.product, roster_coverage.coverage_start_on, coverage_eligibility_dates, roster_coverage.previous_product)
+            [pricing_model.map_relationship_for(rm.relationship, coverage_age, rm.is_disabled?), rm.dob]
+          end
+          calc_state = CalculatorState.new(age_calculator, roster_coverage.product, pricing_model, pricing_unit_map, roster_coverage, coverage_eligibility_dates)
+          calc_results = sorted_members.inject(calc_state) do |calc, mem|
+            calc.add(mem)
+          end
+          benefit_roster_entry.group_enrollment.member_enrollments.each do |m_en|
+            m_en.product_price = calc_results.member_totals[m_en.member_id]
+          end
+          benefit_roster_entry.group_enrollment.product_cost_total = calc_results.total
+          benefit_roster_entry
+        rescue Exception => e
+          exception_message = "Unable to calculatee price for #{pricing_model}" \
+          " for benefit roster entry #{benefit_roster_entry}"
+          Rails.logger.error(exception_message)
+          puts(exception_message)
+          nil
         end
-        sorted_members = roster_entry.members.sort_by do |rm|
-          coverage_age = age_calculator.calc_coverage_age_for(rm, roster_coverage.product, roster_coverage.coverage_start_on, coverage_eligibility_dates, roster_coverage.previous_product)
-          [pricing_model.map_relationship_for(rm.relationship, coverage_age, rm.is_disabled?), rm.dob]
-        end
-        calc_state = CalculatorState.new(age_calculator, roster_coverage.product, pricing_model, pricing_unit_map, roster_coverage, coverage_eligibility_dates)
-        calc_results = sorted_members.inject(calc_state) do |calc, mem|
-          calc.add(mem)
-        end
-        benefit_roster_entry.group_enrollment.member_enrollments.each do |m_en|
-          m_en.product_price = calc_results.member_totals[m_en.member_id]
-        end
-        benefit_roster_entry.group_enrollment.product_cost_total = calc_results.total
-        benefit_roster_entry
       end
 
       def pricing_unit_map_for(pricing_model)
