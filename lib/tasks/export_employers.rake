@@ -1,3 +1,5 @@
+#RAILS_ENV=production bundle exec rake employers:export
+
 require 'csv'
 
 namespace :employers do
@@ -20,26 +22,29 @@ namespace :employers do
       application.workflow_state_transitions.where(:"event".in => ["approve_application", "approve_application!", "publish", "force_publish", "publish!", "force_publish!"]).first.try(:transition_at)
     end
 
-    def import_to_csv(csv, profile, package=nil, application=nil)
+    def import_to_csv(csv, profile, package=nil, sponsored_benefit=nil)
+
       primary_ol = profile.primary_office_location
       primary_address = primary_ol.address if primary_ol
 
       mailing_address = profile.office_locations.where(:"address.kind" => "mailing").first.try(:address)
 
-      if package.present? && package.health_sponsored_benefit.present?
-        sb = package.health_sponsored_benefit # Only Health in CCA
-        health_contribution_levels = sb.sponsor_contribution.contribution_levels
-        reference_product = sb.reference_product
+      if package.present? && sponsored_benefit.present?
+        contribution_levels = sponsored_benefit.sponsor_contribution.contribution_levels
+        reference_product = sponsored_benefit.reference_product
+        application = package.benefit_application
 
-        if health_contribution_levels.size > 2
-          employee_cl = health_contribution_levels.where(display_name: /Employee/i).first
-          spouse_cl = health_contribution_levels.where(display_name: /Spouse/i).first
-          domestic_partner_cl = health_contribution_levels.where(display_name: /Domestic Partner/i).first
-          child_under_26_cl = health_contribution_levels.where(display_name: /Child Under 26/i).first
+        if contribution_levels.size > 2
+          employee_cl = contribution_levels.where(display_name: /Employee/i).first
+          spouse_cl = contribution_levels.where(display_name: /Spouse/i).first
+          domestic_partner_cl = contribution_levels.where(display_name: /Domestic Partner/i).first
+          child_under_26_cl = contribution_levels.where(display_name: /Child Under 26/i).first
         else
-          employee_cl = health_contribution_levels.where(display_name: /Employee Only/i).first
-          spouse_cl = domestic_partner_cl = child_under_26_cl = health_contribution_levels.where(display_name: /Family/i).first
+          employee_cl = contribution_levels.where(display_name: /Employee Only/i).first
+          spouse_cl = domestic_partner_cl = child_under_26_cl = contribution_levels.where(display_name: /Family/i).first
         end
+
+        benefit_sponsorship = application.benefit_sponsorship
       end
 
       benefit_sponsorship ||= profile.active_benefit_sponsorship
@@ -100,10 +105,10 @@ namespace :employers do
         reference_product.try(:title),
         package.try(:effective_on_kind),
         package.try(:effective_on_offset),
-        application.try(:start_on),
-        application.try(:end_on),
-        application.try(:open_enrollment_start_on),
-        application.try(:open_enrollment_end_on),
+        package.try(:start_on),
+        package.try(:end_on),
+        package.try(:open_enrollment_start_on),
+        package.try(:open_enrollment_end_on),
         application.try(:fte_count),
         application.try(:pte_count),
         application.try(:msp_count),
@@ -138,17 +143,13 @@ namespace :employers do
       organizations.no_timeout.each do |organization|
         begin
           profile = organization.employer_profile
-          applications = profile.benefit_applications
 
-          if applications.present?
-            applications.each do |application|
-              packages = application.benefit_packages
-              if packages.present?
-                packages.each do |package|
-                  import_to_csv(csv, profile, package, application)
-                end
-              else
-                import_to_csv(csv, profile, nil, application)
+          packages = profile.benefit_applications.map(&:benefit_packages).flatten
+
+          if packages.present?
+            packages.each do |package|
+              package.sponsored_benefits.each do |sponsored_benefit|
+                import_to_csv(csv, profile, package, sponsored_benefit)
               end
             end
           else
@@ -158,8 +159,10 @@ namespace :employers do
           puts "ERROR: #{organization.legal_name} " + e.message
         end
       end
+
     end
-    if Rails.env.production?
+
+    if Rails.env.production? && Settings.site.key == :cca
       pubber = Publishers::Legacy::EmployerExportPublisher.new
       pubber.publish URI.join("file://", file_name)
     end
