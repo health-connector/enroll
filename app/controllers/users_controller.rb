@@ -121,7 +121,11 @@ class UsersController < ApplicationController
   end
 
   def set_user
-    @user = User.find(params[:id])
+    begin
+      @user = User.find(params[:id])
+    rescue Exception => e
+      rails.logger.error{"Unable to find user, error recieved: #{e}"}
+    end
   end
 
   def confirm_existing_password
