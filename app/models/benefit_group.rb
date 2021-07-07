@@ -205,6 +205,7 @@ class BenefitGroup
       end
     end
 
+    plans = plans.select{ |a| a.premium_tables.by_date(start_on).present? } if start_on.present?
     set_lowest_and_highest(plans)
   end
 
