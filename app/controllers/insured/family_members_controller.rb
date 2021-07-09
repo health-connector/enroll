@@ -21,7 +21,6 @@ class Insured::FamilyMembersController < ApplicationController
       @employee_role = @person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id.to_s }
     elsif @type == "consumer"
       @consumer_role = @person.consumer_role
-      @family = @consumer_role&.person&.family if @family.blank?
       @family.hire_broker_agency(current_user.person.broker_role.try(:id))
     end
     @change_plan = params[:change_plan].present? ? 'change_by_qle' : ''
@@ -55,6 +54,12 @@ class Insured::FamilyMembersController < ApplicationController
       @prev_url_include_consumer_role_id = false
     end
 
+  rescue StandardError => e
+    exception_message = "Error: #{e}"
+    exception_message += "Unable to find family for person #{@person&.hbx_id}." if @family.blank?
+    Rails.logger.error(exception_message) unless Rails.env.test?
+    puts(exception_message) unless Rails.env.test?
+    redirect_to root_path
   end
 
   def new
@@ -222,7 +227,7 @@ class Insured::FamilyMembersController < ApplicationController
 
 private
   def set_family
-    @family = @person.try(:primary_family) || current_user&.person&.primary_family
+    @family = @person.try(:primary_family)
   end
 
   def init_address_for_dependent
