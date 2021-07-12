@@ -249,7 +249,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.3.8)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
     amq-protocol (1.9.2)
     animate-rails (1.0.10)
@@ -630,6 +631,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
+    public_suffix (4.0.6)
     puma (4.3.3)
       nio4r (~> 2.0)
     pundit (1.0.1)
@@ -902,7 +904,7 @@ DEPENDENCIES
   aasm (~> 4.8.0)
   acapi!
   action_mailer_cache_delivery (~> 0.3.7)
-  addressable (= 2.3.8)
+  addressable (= 2.8.0)
   animate-rails (~> 1.0.7)
   aws-sdk (= 2.2.4)
   bcrypt (~> 3.1)
