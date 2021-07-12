@@ -60,7 +60,11 @@ module SponsoredBenefits
           return unless plan_design_organization.present?
           plan_design_organization.has_active_broker_relationship = false
           plan_design_organization.sic_code ||= employer.sic_code
-          plan_design_organization.save!
+          begin
+            plan_design_organization.save!
+          rescue StandardError => e
+            rails.logger.error("Could not unassugn broker, plan design organization could not save. Error invlolved: #{e}")
+          end
           plan_design_organization.expire_proposals
         end
       end
