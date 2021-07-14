@@ -23,7 +23,9 @@ module SponsoredBenefits
       "employers-tab"
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def set_broker_agency_profile_from_user
+      redirect_to main_app.root_path, :flash => { :error => "You are not authorized to view this page." } unless current_person.present? && (current_person.broker_role.present? || active_user.has_hbx_staff_role?)
       if current_person.present? && current_person.broker_role.present?
         @broker_agency_profile = BenefitSponsors::Organizations::Profile.find(current_person.broker_role.benefit_sponsors_broker_agency_profile_id)
         @broker_agency_profile ||= ::BrokerAgencyProfile.find(current_person.broker_role.broker_agency_profile_id) # Deprecate this
@@ -38,6 +40,7 @@ module SponsoredBenefits
         @broker_agency_profile ||= ::BrokerAgencyProfile.find(org.owner_profile_id) # Deprecate this
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def fetch_plan_design_organization(params)
       if params[:plan_design_proposal_id].present?
