@@ -54,6 +54,12 @@ class Insured::FamilyMembersController < ApplicationController
       @prev_url_include_consumer_role_id = false
     end
 
+  rescue StandardError => e
+    exception_message = "Error: #{e}"
+    exception_message += "Unable to find family for person #{@person&.hbx_id}." if @family.blank?
+    Rails.logger.error(exception_message) unless Rails.env.test?
+    puts(exception_message) unless Rails.env.test?
+    redirect_to root_path
   end
 
   def new
