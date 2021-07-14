@@ -16,16 +16,16 @@ module BenefitSponsors
     let(:benefit_sponsor_user) { user }
     let(:broker_agency_user) { nil }
 
-    let(:phone_attributes) {
+    let(:phone_attributes) do
       {
         :kind => "work",
         :number => "8768776",
         :area_code => "876",
         :extension => "extension"
       }
-    }
+    end
 
-    let(:address_attributes) {
+    let(:address_attributes) do
       {
         :kind => "primary",
         :address_1 => "address 1",
@@ -33,11 +33,11 @@ module BenefitSponsors
         :city => "city",
         :state => "MA",
         :zip => "01026",
-        :county =>'Berkshire'
+        :county => 'Berkshire'
       }
-    }
+    end
 
-    let(:office_locations_attributes) {
+    let(:office_locations_attributes) do
       {
         0 => {
           :is_primary => true,
@@ -45,46 +45,45 @@ module BenefitSponsors
           :phone_attributes => phone_attributes
         }
       }
-    }
+    end
 
-    let(:employer_profile_attributes) {
+    let(:employer_profile_attributes) do
       {
         :office_locations_attributes => office_locations_attributes,
         :contact_method => :paper_and_electronic
       }
-    }
+    end
 
-    let(:broker_profile_attributes) {
+    let(:broker_profile_attributes) do
       { :ach_account_number => "1234567890",
         :ach_routing_number => "011000015",
         :ach_routing_number_confirmation => "011000015",
         :market_kind => :shop,
         :office_locations_attributes => office_locations_attributes,
-        :contact_method => :paper_and_electronic
-      }
-    }
+        :contact_method => :paper_and_electronic}
+    end
 
-    let(:benefit_sponsor_organization) {
+    let(:benefit_sponsor_organization) do
       {
         :entity_kind => :tax_exempt_organization,
         :legal_name => "uweyrtuo",
-        :dba=> "uweyruoy",
+        :dba => "uweyruoy",
         :fein => "237864678",
         :profile_attributes => employer_profile_attributes
       }
-    }
+    end
 
-    let(:broker_organization) {
+    let(:broker_organization) do
       {
         :entity_kind => :s_corporation,
         :legal_name => "uweyrtuo",
-        :dba=> "uweyruoy",
+        :dba => "uweyruoy",
         :fein => "237864678",
         :profile_attributes => broker_profile_attributes
       }
-    }
+    end
 
-    let(:staff_roles_attributes) {
+    let(:staff_roles_attributes) do
       { 0 =>
         {
           :first_name => "weuryit",
@@ -95,9 +94,8 @@ module BenefitSponsors
           :number => "8768766",
           :extension => "",
           :npn => "234234123"
-        }
-      }
-    }
+        }}
+    end
 
     before :each do
       allow(Settings.site).to receive(:key).and_return(:dc)
@@ -106,16 +104,14 @@ module BenefitSponsors
 
     shared_examples_for "initialize registration form" do |action, params, profile_type|
       before do
-        user = self.send("#{profile_type}_user")
+        user = send("#{profile_type}_user")
         sign_in user if user
         if params[:id].present?
           sign_in edit_user
-          params[:id] = self.send(profile_type).profiles.first.id.to_s
+          params[:id] = send(profile_type).profiles.first.id.to_s
         end
 
-        if params.empty?
-          params[:agency] = self.send("#{profile_type}_params")
-        end
+        params[:agency] = send("#{profile_type}_params") if params.empty?
         get action, params
       end
       it "should initialize agency" do
@@ -123,7 +119,7 @@ module BenefitSponsors
       end
 
       it "should have #{profile_type} as profile type on form" do
-        expect(assigns(:agency).profile_type).to eq (params[:profile_type] || profile_type)
+        expect(assigns(:agency).profile_type).to eq(params[:profile_type] || profile_type)
       end
     end
 
@@ -132,18 +128,22 @@ module BenefitSponsors
       shared_examples_for "initialize profile for new" do |profile_type|
 
         before do
-          user = self.send("#{profile_type}_user")
+          user = send("#{profile_type}_user")
           sign_in user if user
           get :new, profile_type: profile_type
         end
 
-        it "should render new template" do
-          expect(response).to render_template("new")
+        context 'valid request' do
+          it "should render new template" do
+            expect(response).to render_template("new")
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
         end
 
-        it "should return http success" do
-          expect(response).to have_http_status(:success)
-        end
+
       end
 
       it_behaves_like "initialize profile for new", "benefit_sponsor"
@@ -203,29 +203,29 @@ module BenefitSponsors
 
       context "creating profile" do
 
-        let(:benefit_sponsor_params) {
+        let(:benefit_sponsor_params) do
           {
             :profile_type => "benefit_sponsor",
             :staff_roles_attributes => staff_roles_attributes,
             :organization => benefit_sponsor_organization
           }
-        }
+        end
 
-        let(:broker_agency_params) {
+        let(:broker_agency_params) do
           {
             :profile_type => "broker_agency",
             :staff_roles_attributes => staff_roles_attributes,
             :organization => broker_organization
           }
-        }
+        end
 
         shared_examples_for "store profile for create" do |profile_type|
 
           before :each do
             site.benefit_markets.first.save!
-            user = self.send("#{profile_type}_user")
+            user = send("#{profile_type}_user")
             sign_in user if user
-            post :create, :agency => self.send("#{profile_type}_params")
+            post :create, :agency => send("#{profile_type}_params")
           end
 
           it "should redirect" do
@@ -260,9 +260,9 @@ module BenefitSponsors
           before do
             sign_in user
             address_attributes.merge!({
-              kind: nil
-            })
-            post :create, :agency => self.send("#{profile_type}_params")
+                                        kind: nil
+                                      })
+            post :create, :agency => send("#{profile_type}_params")
           end
 
           it "should success" do
@@ -291,20 +291,21 @@ module BenefitSponsors
 
     describe "GET edit", dbclean: :after_each do
       let!(:benefit_sponsor) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
-      let!(:benefit_sponsorship) {
+      let!(:benefit_sponsorship) do
         benefit_sponsorship = benefit_sponsor.profiles.first.add_benefit_sponsorship
-        benefit_sponsorship.save }
+        benefit_sponsorship.save
+      end
       let(:broker_agency)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
-      let!(:staff_role) {FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: benefit_sponsor.profiles.first.id)}
+      let!(:staff_role) {FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: benefit_sponsor.profiles.first.id)}
       let!(:employer_staff_roles) { person.employer_staff_roles << staff_role }
-      let!(:broker_role) {FactoryGirl.build(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency.profiles.first.id,person:person)}
+      let!(:broker_role) {FactoryGirl.build(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency.profiles.first.id,person: person)}
       let!(:update_profile) { broker_agency.profiles.first.update_attributes(primary_broker_role_id: broker_role.id)}
 
       shared_examples_for "initialize profile for edit" do |profile_type|
 
         before do
           sign_in edit_user
-          @id = self.send(profile_type).profiles.first.id.to_s
+          @id = send(profile_type).profiles.first.id.to_s
           get :edit, id: @id
         end
 
@@ -324,7 +325,7 @@ module BenefitSponsors
           expect(assigns(:agency).profile_type).to eq profile_type
         end
 
-        it "should have #{nil} as profile id on form" do
+        it "should have nil as profile id on form" do
           expect(assigns(:agency).profile_id).to eq @id
         end
       end
@@ -353,34 +354,34 @@ module BenefitSponsors
         let(:benefit_sponsor) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
         let(:broker_agency)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
-        let(:benefit_sponsor_params) {
+        let(:benefit_sponsor_params) do
           {
             :id => benefit_sponsor.profiles.first.id,
             :staff_roles_attributes => staff_roles_attributes,
             :organization => benefit_sponsor_organization
           }
-        }
+        end
 
-        let(:broker_agency_params) {
+        let(:broker_agency_params) do
           {
             :id => broker_agency.profiles.first.id,
             :staff_roles_attributes => staff_roles_attributes,
             :organization => broker_organization
           }
-        }
+        end
 
         def sanitize_attributes(profile_type)
           employer_profile_attributes.merge!({
-            id: self.send(profile_type).profiles.first.id.to_s
-          })
+                                               id: send(profile_type).profiles.first.id.to_s
+                                             })
 
           broker_profile_attributes.merge!({
-            id: self.send(profile_type).profiles.first.id.to_s
-          })
+                                             id: send(profile_type).profiles.first.id.to_s
+                                           })
 
           staff_roles_attributes[0].merge!({
-            person_id: person.id
-          })
+                                             person_id: person.id
+                                           })
         end
 
         shared_examples_for "store profile for update" do |profile_type|
@@ -388,7 +389,7 @@ module BenefitSponsors
           before :each do
             sanitize_attributes(profile_type)
             sign_in update_user
-            put :update, :agency => self.send("#{profile_type}_params"), :id => self.send("#{profile_type}_params")[:id]
+            put :update, :agency => send("#{profile_type}_params"), :id => send("#{profile_type}_params")[:id]
           end
 
           it "should initialize agency" do
@@ -421,9 +422,9 @@ module BenefitSponsors
             sign_in update_user
             sanitize_attributes(profile_type)
             address_attributes.merge!({
-              kind: nil
-            })
-            put :update, :agency => self.send("#{profile_type}_params"), :id => self.send("#{profile_type}_params")[:id]
+                                        kind: nil
+                                      })
+            put :update, :agency => send("#{profile_type}_params"), :id => send("#{profile_type}_params")[:id]
           end
 
           it "should redirect" do
