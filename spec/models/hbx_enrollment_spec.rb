@@ -2908,6 +2908,23 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
           expect(enrollment.display_make_changes_for_shop?).to be_falsey
         end
       end
+
+      context 'make changes and view detail buttons on enrollment tile' do
+        it 'should not be visible when aasm_state is coverage_canceled' do
+          allow(enrollment).to receive(:aasm_state).and_return('coverage_canceled')
+          expect(enrollment.display_make_changes_for_shop?).to be_falsey
+        end
+
+        it 'should not be visible when aasm_state is coverage_expired' do
+          allow(enrollment).to receive(:aasm_state).and_return('coverage_expired')
+          expect(enrollment.display_make_changes_for_shop?).to be_falsey
+        end
+
+        it 'should not be visible when aasm_state is coverage_terminated' do
+          allow(enrollment).to receive(:aasm_state).and_return('coverage_terminated')
+          expect(enrollment.display_make_changes_for_shop?).to be_falsey
+        end
+      end
     end
   end
 
