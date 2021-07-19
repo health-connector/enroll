@@ -22,6 +22,7 @@ Feature: Broker creates a quote for a prospect employer
     Then the broker sees Create Quote button
     Then the broker clicks on Create Quote button
     And the broker sees quote for ABC Widgets employer
+    And Primary Broker enters quote name
     And the broker clicks on Select Health Benefits button
     Then the broker selects plan offerings by metal level and enters <contribution_pct> for employee and deps
     Then broker sees that publish button is <publish_button>
