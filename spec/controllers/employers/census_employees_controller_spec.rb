@@ -6,7 +6,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
   before(:all) do
     @user = FactoryGirl.create(:user)
-    p=FactoryGirl.create(:person, user: @user)
+    p = FactoryGirl.create(:person, user: @user)
     @hbx_staff_role = FactoryGirl.create(:hbx_staff_role, person: p)
   end
 
@@ -21,21 +21,23 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   let(:employer_profile) { organization.employer_profile }
   let(:employer_profile_id) { employer_profile.id }
 
-  let(:census_employee) { FactoryGirl.create(:benefit_sponsors_census_employee,
-    employer_profile: employer_profile,
-    benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-    employment_terminated_on: TimeKeeper::date_of_record - 45.days,
-    hired_on: "2014-11-11"
-  )}
+  let(:census_employee) do
+    FactoryGirl.create(:benefit_sponsors_census_employee,
+                       employer_profile: employer_profile,
+                       benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                       employment_terminated_on: TimeKeeper.date_of_record - 45.days,
+                       hired_on: "2014-11-11")
+  end
 
-  let(:census_employee_params) {
+  let(:census_employee_params) do
     {"first_name" => "aqzz",
      "middle_name" => "",
      "last_name" => "White",
      "gender" => "male",
      "is_business_owner" => true,
      "hired_on" => "05/02/2015",
-     "employer_profile" => employer_profile} }
+     "employer_profile" => employer_profile}
+  end
 
   let(:person) { FactoryGirl.create(:person, first_name: "aqzz", last_name: "White", dob: "11/11/1992", ssn: "123123123", gender: "male", employer_profile_id: employer_profile.id, hired_on: "2014-11-11")}
   describe "GET new" do
@@ -134,7 +136,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     # let(:benefit_group) { plan_year.benefit_groups[0] }
 
     let(:user) { FactoryGirl.create(:user, :employer_staff) }
-    let(:census_employee_delete_params) {
+    let(:census_employee_delete_params) do
       {
         "first_name" => "aqzz",
         "middle_name" => "",
@@ -156,7 +158,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           }
         ]
       }
-    }
+    end
 
     let!(:user) { create(:user, person: person)}
     let(:child1) { build(:census_dependent, employee_relationship: "child_under_26", ssn: 123_123_714) }
@@ -247,13 +249,71 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       expect(census_employee.aasm_state).to eq "eligible"
       allow(controller).to receive(:census_employee_params).and_return(census_employee_params.merge(dob: person.dob, census_dependents_attributes: {}))
       post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {}
-      # TODO after setting Benefit Package Factories
+      # TODO: after setting Benefit Package Factories
       # expect(census_employee.reload.aasm_state).to eq "employee_role_linked"
+    end
+
+    #Scenario: Someone signs up as an employer - a form that does not require gender or SSN.
+    context "Linking Employer owner person/user with census employee" do
+      let(:user) {FactoryGirl.create(:user, person: person)}
+      # Make a user here
+      let(:person) { FactoryGirl.create(:person, gender: nil, ssn: nil)}
+      let(:organization)  {abc_organization}
+      let(:employer_profile) { organization.employer_profile }
+      let(:employer_profile_id) { employer_profile.id }
+      # This census employee will have that person name and dob
+      let(:census_employee) do
+        FactoryGirl.create(:benefit_sponsors_census_employee,
+                           employer_profile: employer_profile,
+                           benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                           employment_terminated_on: TimeKeeper.date_of_record - 45.days,
+                           first_name: person.first_name,
+                           last_name: person.last_name,
+                           dob: person.dob)
+      end
+      let(:census_employee_params) do
+        {"first_name" => census_employee.first_name,
+         "middle_name" => census_employee.middle_name,
+         "last_name" => census_employee.last_name,
+         "gender" => census_employee.gender,
+         "is_business_owner" => "true",
+         "hired_on" => census_employee.hired_on.to_s,
+         "employer_profile" => employer_profile}
+      end
+      let(:employer_staff_role) do
+        EmployerStaffRole.new(person: user.person, is_owner: true,
+                              employer_profile_id: employer_profile.id,
+                              benefit_sponsor_employer_profile_id: employer_profile_id)
+      end
+      # Make a person- but make sure the person has no gender/ssn, as in our use case
+      # Make a census employee with the same DOB and name, it'll have the gender/ssn too
+
+      # to simulate the match.
+      before do
+        # Make sure the employer user can access the action
+        # Make the user be the employer user
+        user.person.employer_staff_roles << employer_staff_role
+        user.person.save!
+        expect(user.person.employer_staff_roles.present?).to eq(true)
+        expect(user.person.ssn.blank?).to eq(true)
+        expect(user.person.gender.blank?).to eq(true)
+        sign_in user
+        allow(controller).to receive(:authorize).and_return(true)
+        allow(controller).to receive(:census_employee_params).and_return(census_employee_params)
+        post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params
+      end
+
+      it "should redirect when valid for the Employer's census employee record and infer and set their ssn/gender attributes from the census employee record." do
+        expect(response).to be_redirect
+        user.person.reload
+        expect(user.person.ssn).to eq(census_employee.ssn)
+        expect(user.person.gender).to eq(census_employee.gender)
+      end
     end
   end
 
   describe "GET show" do
-    # TODO - Benefit Applications
+    # TODO: - Benefit Applications
     let(:benefit_group_assignment) { double(hbx_enrollment: hbx_enrollment, active_hbx_enrollments: [hbx_enrollment]) }
     let(:benefit_group) { double }
     let(:hbx_enrollment) { double }
@@ -273,40 +333,35 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
                          household: family.active_household,
                          kind: "employer_sponsored",
                          employee_role_id: employee_role1.id,
-                         benefit_group_assignment_id:benefit_group_assignment1.id,
-                         aasm_state: 'coverage_terminated'
-      )
+                         benefit_group_assignment_id: benefit_group_assignment1.id,
+                         aasm_state: 'coverage_terminated')
     end
     let(:current_employer_active_enrollment) do
       FactoryGirl.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "employer_sponsored",
                          employee_role_id: employee_role1.id,
-                         benefit_group_assignment_id:benefit_group_assignment1.id,
-                         aasm_state: 'coverage_selected'
-      )
+                         benefit_group_assignment_id: benefit_group_assignment1.id,
+                         aasm_state: 'coverage_selected')
     end
     let(:individual_term_enrollment) do
       FactoryGirl.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "individual",
-                         aasm_state: 'coverage_terminated'
-      )
+                         aasm_state: 'coverage_terminated')
     end
     let(:old_employer_term_enrollment) do
       FactoryGirl.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "employer_sponsored",
-                         benefit_group_assignment_id:benefit_group_assignment2.id,
-                         aasm_state: 'coverage_terminated'
-      )
+                         benefit_group_assignment_id: benefit_group_assignment2.id,
+                         aasm_state: 'coverage_terminated')
     end
     let(:expired_enrollment) do
       FactoryGirl.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "individual",
-                         aasm_state: 'coverage_expired'
-      )
+                         aasm_state: 'coverage_expired')
     end
     it "should be render show template" do
       # allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return(hbx_enrollments)
@@ -548,7 +603,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         sign_in @user
         allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
         allow(CensusEmployee).to receive(:find).and_return(census_employee)
-        xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper::date_of_record + 30.days).to_s, :format => :js
+        xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
         expect(response).to have_http_status(:success)
         expect(flash[:error]).to eq "Census Employee is already active."
       end
@@ -574,7 +629,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper::date_of_record + 30.days).to_s, :format => :js
+          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to eq "Successfully rehired Census Employee."
         end
@@ -585,7 +640,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper::date_of_record + 30.days).to_s, :format => :js
+          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to eq "Successfully rehired Census Employee."
           expect(assigns(:census_employee)).to eq new_census_employee
@@ -593,7 +648,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
         it "when new_census_employee invalid" do
           allow(new_census_employee).to receive(:valid?).and_return(false)
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper::date_of_record + 30.days).to_s, :format => :js
+          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "Error during rehire."
         end
@@ -624,7 +679,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     end
 
     it "should allow emails to be updated to nil" do
-      census_employee.email.update(address:'', kind:'')
+      census_employee.email.update(address: '', kind: '')
       expect(census_employee.email.kind).to eq ''
       expect(census_employee.email.address).to eq ''
     end
