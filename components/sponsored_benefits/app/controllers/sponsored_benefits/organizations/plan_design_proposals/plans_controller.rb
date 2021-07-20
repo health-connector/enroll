@@ -17,7 +17,8 @@ module SponsoredBenefits
         begin
           @plans = @plans.select{|a| a.premium_tables.by_date(params[:quote_effective_date].to_date).present? }
         rescue Mongo::Error::OperationFailure => e
-          rails.logger.error e.to_s
+          rails.logger.error(e.to_s)
+          flash[:error] = "Unable to find valid plans for your effective date. Please contact customer service at #{Settings.contact_center.phone_number}."
         end
         @search_options = ::Plan.search_options(@plans)
         @search_option_titles = {
