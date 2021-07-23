@@ -249,7 +249,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.3.8)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
     amq-protocol (1.9.2)
     animate-rails (1.0.10)
@@ -463,11 +464,11 @@ GEM
     equalizer (0.0.11)
     erubis (2.7.0)
     execjs (2.7.0)
-    eye (0.8)
-      celluloid (~> 0.17.2)
+    eye (0.10.0)
+      celluloid (~> 0.17.3)
       celluloid-io (~> 0.17.0)
-      sigar (~> 0.7.3)
-      state_machine
+      kostya-sigar (~> 2.0.0)
+      state_machines
       thor
     factory_girl (4.5.0)
       activesupport (>= 3.0.0)
@@ -532,6 +533,7 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     kgio (2.11.3)
+    kostya-sigar (2.0.9)
     language_list (1.1.0)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -606,7 +608,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
     newrelic_rpm (6.10.0.364)
-    nio4r (2.5.2)
+    nio4r (2.5.7)
     nokogiri (1.9.1)
       mini_portile2 (~> 2.4.0)
     nokogiri-happymapper (0.8.1)
@@ -630,7 +632,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    puma (4.3.3)
+    puma (4.3.6)
       nio4r (~> 2.0)
     pundit (1.0.1)
       activesupport (>= 3.0.0)
@@ -790,7 +792,6 @@ GEM
     sexp_processor (4.14.1)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
-    sigar (0.7.3)
     sigdump (0.2.4)
     simple_form (4.0.0)
       actionpack (> 4)
@@ -829,7 +830,7 @@ GEM
     sshkit (1.18.2)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
-    state_machine (1.2.0)
+    state_machines (0.5.0)
     symmetric-encryption (3.6.0)
       coercible (>= 1.0.0)
     temple (0.8.2)
@@ -843,7 +844,7 @@ GEM
     thread (0.1.7)
     thread_safe (0.3.6)
     tilt (1.4.1)
-    timers (4.3.0)
+    timers (4.3.3)
     ttfunk (1.0.3)
     turbolinks (2.5.3)
       coffee-rails
@@ -902,7 +903,7 @@ DEPENDENCIES
   aasm (~> 4.8.0)
   acapi!
   action_mailer_cache_delivery (~> 0.3.7)
-  addressable (= 2.3.8)
+  addressable (= 2.8.0)
   animate-rails (~> 1.0.7)
   aws-sdk (= 2.2.4)
   bcrypt (~> 3.1)
@@ -932,7 +933,7 @@ DEPENDENCIES
   devise (~> 4.5)
   effective_datatables!
   email_spec (= 2.0.0)
-  eye (= 0.8.0)
+  eye (= 0.10.0)
   factory_girl_rails (= 4.6.0)
   fakeredis
   forgery
@@ -971,7 +972,7 @@ DEPENDENCIES
   overcommit
   parallel_tests (= 2.26.2)
   prawn!
-  puma
+  puma (= 4.3.6)
   pundit (~> 1.0.1)
   railroady (~> 1.5.2)
   rails (= 4.2.11)
