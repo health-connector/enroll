@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #RAILS_ENV=production bundle exec rake employers:export
 
 require 'csv'
@@ -14,16 +16,17 @@ namespace :employers do
 
     def single_product?(package)
       return nil if package.blank?
+
       package.plan_option_kind == "single_product"
     end
 
     def published_on(application)
       return nil if application.blank? || application.workflow_state_transitions.blank?
-      application.workflow_state_transitions.where(:"event".in => ["approve_application", "approve_application!", "publish", "force_publish", "publish!", "force_publish!"]).first.try(:transition_at)
+
+      application.workflow_state_transitions.where(:event.in => ["approve_application", "approve_application!", "publish", "force_publish", "publish!", "force_publish!"]).first.try(:transition_at)
     end
 
-    def import_to_csv(csv, profile, package=nil, sponsored_benefit=nil)
-
+    def import_to_csv(csv, profile, package = nil, sponsored_benefit = nil, application = nil)
       primary_ol = profile.primary_office_location
       primary_address = primary_ol.address if primary_ol
 
@@ -105,10 +108,10 @@ namespace :employers do
         reference_product.try(:title),
         package.try(:effective_on_kind),
         package.try(:effective_on_offset),
-        package.try(:start_on),
-        package.try(:end_on),
-        package.try(:open_enrollment_start_on),
-        package.try(:open_enrollment_end_on),
+        application.try(:start_on),
+        application.try(:end_on),
+        application.try(:open_enrollment_start_on),
+        application.try(:open_enrollment_end_on),
         application.try(:fte_count),
         application.try(:pte_count),
         application.try(:msp_count),
@@ -125,39 +128,45 @@ namespace :employers do
 
     CSV.open(file_name, "w") do |csv|
 
-      headers = %w(employer.legal_name employer.dba employer.fein employer.hbx_id employer.entity_kind employer.sic_code employer_profile.profile_source employer.referred_by employer.referred_reason employer.status ga_fein ga_agency_name ga_start_on
-                                office_location.is_primary office_location.address.address_1 office_location.address.address_2
-                                office_location.address.city office_location.address.state office_location.address.zip mailing_location.address_1 mailing_location.address_2 mailing_location.city mailing_location.state mailing_location.zip
-                                office_location.phone.full_phone_number staff.name staff.phone staff.email
-                                employee offered spouce offered domestic_partner offered child_under_26 offered child_26_and_over
-                                offered benefit_group.title benefit_group.plan_option_kind
-                                benefit_group.carrier_for_elected_plan benefit_group.metal_level_for_elected_plan benefit_group.single_plan_type?
-                                benefit_group.reference_plan.name benefit_group.effective_on_kind benefit_group.effective_on_offset
-                                plan_year.start_on plan_year.end_on plan_year.open_enrollment_start_on plan_year.open_enrollment_end_on
-                                plan_year.fte_count plan_year.pte_count plan_year.msp_count plan_year.status plan_year.publish_date broker_agency_account.corporate_npn broker_agency_account.legal_name
-                                broker.name broker.npn broker.assigned_on flexible_contributions_enabled)
+      headers = %w[employer.legal_name employer.dba employer.fein employer.hbx_id employer.entity_kind employer.sic_code employer_profile.profile_source employer.referred_by employer.referred_reason employer.status ga_fein ga_agency_name ga_start_on
+                   office_location.is_primary office_location.address.address_1 office_location.address.address_2
+                   office_location.address.city office_location.address.state office_location.address.zip mailing_location.address_1 mailing_location.address_2 mailing_location.city mailing_location.state mailing_location.zip
+                   office_location.phone.full_phone_number staff.name staff.phone staff.email
+                   employee offered spouce offered domestic_partner offered child_under_26 offered child_26_and_over
+                   offered benefit_group.title benefit_group.plan_option_kind
+                   benefit_group.carrier_for_elected_plan benefit_group.metal_level_for_elected_plan benefit_group.single_plan_type?
+                   benefit_group.reference_plan.name benefit_group.effective_on_kind benefit_group.effective_on_offset
+                   plan_year.start_on plan_year.end_on plan_year.open_enrollment_start_on plan_year.open_enrollment_end_on
+                   plan_year.fte_count plan_year.pte_count plan_year.msp_count plan_year.status plan_year.publish_date broker_agency_account.corporate_npn broker_agency_account.legal_name
+                   broker.name broker.npn broker.assigned_on flexible_contributions_enabled]
       csv << headers
 
       puts "No general agency profile for CCA Employers" unless general_agency_enabled?
 
       organizations.no_timeout.each do |organization|
-        begin
-          profile = organization.employer_profile
 
-          packages = profile.benefit_applications.map(&:benefit_packages).flatten
+        profile = organization.employer_profile
 
-          if packages.present?
-            packages.each do |package|
-              package.sponsored_benefits.each do |sponsored_benefit|
-                import_to_csv(csv, profile, package, sponsored_benefit)
+        applications = profile.benefit_applications
+        if applications.present?
+          applications.each do |application|
+            packages = application.benefit_packages
+            if packages.present?
+              packages.each do |package|
+                package.sponsored_benefits.each do |sponsored_benefit|
+                  import_to_csv(csv, profile, package, sponsored_benefit, benefit_application)
+                end
               end
+            else
+              import_to_csv(csv, profile, nil, nil, application)
             end
-          else
-            import_to_csv(csv, profile)
           end
-        rescue Exception => e
-          puts "ERROR: #{organization.legal_name} " + e.message
+        else
+          import_to_csv(csv, profile)
         end
+      rescue Exception => e
+        puts "ERROR: #{organization.legal_name} " + e.message
+
       end
 
     end
