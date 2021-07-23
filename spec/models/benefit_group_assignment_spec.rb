@@ -595,6 +595,18 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
         expect(BenefitGroupAssignment.on_date(census_employee, Date.new(2018, 5, 20))).to  eq assignment_one
         expect(BenefitGroupAssignment.on_date(census_employee, Date.new(2018, 10, 10))).to eq assignment_two
       end
+
+      context 'when start_on is nil' do
+        let!(:assignment_four) do
+          bga = census_employee.benefit_group_assignments.build(start_on: nil, end_on: nil, benefit_package_id: benefit_package.id)
+          bga.save(validate: false)
+          bga
+        end
+
+        it 'should not raise error and return bga' do
+          expect(BenefitGroupAssignment.on_date(census_employee, Date.new(2019, 10, 30))).to eq assignment_three
+        end
+      end
     end
   end
 end

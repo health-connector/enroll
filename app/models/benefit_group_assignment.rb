@@ -82,7 +82,7 @@ class BenefitGroupAssignment
     end
 
     def on_date(census_employee, date)
-      assignments = census_employee.benefit_group_assignments.select{ |bga| bga.created_at.present? && !bga.canceled? }
+      assignments = census_employee.benefit_group_assignments.select{ |bga| bga.created_at.present? && bga.start_on.present? && !bga.canceled? }
       assignments_with_no_end_on, assignments_with_end_on = assignments.partition { |bga| bga.end_on.nil? }
 
       if assignments_with_end_on.present?
@@ -93,30 +93,37 @@ class BenefitGroupAssignment
     end
 
     def filter_assignments_with_end_on(assignments_with_end_on, assignments_with_no_end_on, date)
-      perspective_assignments_with_end_on = assignments_with_end_on.select { |assignment| assignment.start_on > date }
-      valid_assignments_with_end_on = assignments_with_end_on.select { |assignment| (assignment.start_on..assignment.end_on).cover?(date) }
+      perspective_assignments_with_end_on = assignments_with_end_on.select { |assignment| assignment.start_on && assignment.start_on > date }
+      valid_assignments_with_end_on = assignments_with_end_on.select { |assignment| assignment.start_on && (assignment.start_on..assignment.end_on).cover?(date) }
       if valid_assignments_with_end_on.present?
         valid_assignments_with_end_on.select { |assignment| assignment.end_on.to_date > date.to_date  }.max_by(&:created_at) ||
           valid_assignments_with_end_on.last
       elsif assignments_with_no_end_on.present?
         filter_assignments_with_no_end_on(assignments_with_no_end_on, date)
       else
-        perspective_assignments_with_end_on.last
+        bg_assignment = perspective_assignments_with_end_on.detect{ |assignment| assignment.start_on && (assignment.start_on..assignment.end_on).cover?(date) }
+        bg_assignment || perspective_assignments_with_end_on.last
       end
     end
 
     def filter_assignments_with_no_end_on(assignments, date)
-      valid_assignments_with_no_end_on = assignments.select { |assignment| (assignment.start_on..assignment.start_on.next_year.prev_day).cover?(date) }
-      perspective_assignments = assignments.select { |assignment| assignment.start_on > date }
+      valid_assignments_with_no_end_on = no_end_on(assignments, date)
+      perspective_assignments = assignments.select do |assignment|
+        next if assignment.blank? || date.blank?
+
+        assignment.start_on && assignment.start_on > date
+      end || []
       assignment =
         if valid_assignments_with_no_end_on.size > 1
           valid_assignments_with_no_end_on.detect(&:is_active?) || valid_assignments_with_no_end_on.min_by { |valid_assignment| (valid_assignment.start_on.to_time - date.to_time).abs }
         else
           valid_assignments_with_no_end_on.first
         end
-      return assignment if assignment.present?
+      assignment.present? ? assignment : perspective_assignments&.max_by(&:created_at)
+    end
 
-      perspective_assignments.max_by(&:created_at)
+    def no_end_on(assignments, date)
+      assignments.select { |assignment| (assignment.start_on..(assignment.benefit_package&.end_on || assignment.start_on.next_year.prev_day)).cover?(date) }
     end
 
     def by_benefit_group_id(bg_id)
