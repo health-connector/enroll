@@ -49,7 +49,7 @@
                   </span>
                   <br/>
                   <span class="ttu dg fourteen">
-                    <%= @hbx_enrollment.plan.plan_type ? @hbx_enrollment.plan.plan_type.upcase : "" %>
+                    <%= @hbx_enrollment.plan&.plan_type ? @hbx_enrollment.plan.plan_type.upcase : "" %>
                   </span>
                 </td>
                 <td>
