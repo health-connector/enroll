@@ -51,7 +51,7 @@ class CarrierServiceArea
         service_area_id: { "$in" => plans.map(&:service_area_id).uniq },
         "$or" => [
           {:serves_entire_state => true},
-          {:service_area_zipcode => address.zip, county_name: ::Regexp.compile(::Regexp.escape(address.county).downcase, true)}
+          {:service_area_zipcode => address.zip, county_name: ::Regexp.compile(::Regexp.escape(address.county || '').downcase, true)}
         ]
       })
     end
