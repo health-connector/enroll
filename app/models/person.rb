@@ -365,6 +365,13 @@ class Person
     is_active
   end
 
+  def update_ssn_and_gender_for_employer_role(census_employee)
+    return if census_employee.blank?
+
+    update_attributes(ssn: census_employee.ssn) if ssn.blank?
+    update_attributes(gender: census_employee.gender) if gender.blank?
+  end
+
   # collect all verification types user can have based on information he provided
   def verification_types
     verification_types = []

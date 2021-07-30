@@ -879,6 +879,7 @@ class CensusEmployee < CensusMember
                                                           ssn: ssn,
                                                           dob: dob.strftime("%Y-%m-%d")})
     person = employee_relationship.match_person if employee_relationship.present?
+    person.update_ssn_and_gender_for_employer_role(self) if person.present? && person.employer_staff_roles.present?
 
     return false if person.blank? || (person.present? &&
                                       person.has_active_employee_role_for_census_employee?(self))

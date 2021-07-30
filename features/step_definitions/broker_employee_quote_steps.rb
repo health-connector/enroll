@@ -89,16 +89,12 @@ end
 And(/^Primary Broker enters quote name$/) do
   find('#forms_plan_design_proposal_title').click
   fill_in 'forms_plan_design_proposal[title]', :with => "Test Quote"
-
-  find(:xpath, "//*[@id='new_forms_plan_design_proposal']/div[1]/div/div[1]/div[2]/div/div[2]/div").click
   expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
-  find('li', :text => (TimeKeeper.date_of_record + 2.months).strftime('%B %Y').to_s).click
   wait_for_ajax(3, 2)
 end
 
 Then(/^.+ sees that publish button is (.*)$/) do |publish_btn|
   wait_for_ajax(3, 2)
-  find(:xpath, "//*[@id='new_forms_plan_design_proposal']/div[9]", :visible => false).click
   wait_for_ajax(3, 2)
   if publish_btn == 'disabled'
     expect(page).to have_selector(:button, "Save Quote", disabled: true)

@@ -258,6 +258,22 @@ module BenefitSponsors
       end
     end
 
+    describe "for terminate with invalid plan design organization" do
+      before :each do
+        allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_employer: true))
+        employer_profile.hire_broker_agency(broker_agency_profile1)
+        sign_in(user_with_hbx_staff_role)
+        params = {employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: '', termination_date: ""}
+        allow_any_instance_of(BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm).to receive(:terminate).and_raise(StandardError)
+        get :terminate, params
+      end
+
+      it "should rescue the error and throw redirect" do
+        expect(flash[:error]).to eq("Unable to terminate broker. Please contact customer service at #{Settings.contact_center.phone_number}.")
+        expect(response).to be_redirect
+      end
+    end
+
     describe 'for terminate' do
       before :each do
         allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_employer: true))

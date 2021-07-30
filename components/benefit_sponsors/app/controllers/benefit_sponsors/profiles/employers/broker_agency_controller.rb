@@ -61,6 +61,10 @@ module BenefitSponsors
           else
             redirect_to profiles_employers_employer_profile_path(@employer_profile)
           end
+        rescue StandardError => e
+          Rails.logger.warn("Unable to terminate broker. Error: #{e}")
+          flash[:error] = "Unable to terminate broker. Please contact customer service at #{Settings.contact_center.phone_number}."
+          redirect_to profiles_employers_employer_profile_path(@employer_profile, tab: 'brokers')
         end
 
         private
