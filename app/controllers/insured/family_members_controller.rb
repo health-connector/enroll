@@ -12,7 +12,14 @@ class Insured::FamilyMembersController < ApplicationController
     if (params[:resident_role_id].present? && params[:resident_role_id])
       @type = "resident"
       @resident_role = ResidentRole.find(params[:resident_role_id])
-      @family.hire_broker_agency(current_user.person.broker_role.try(:id))
+      begin
+        @family.hire_broker_agency(current_user.person.broker_role.try(:id))
+      rescue StandardError => e
+        exception_message = "Error: #{e}"
+        exception_message += "Unable to find family for person #{@person&.hbx_id}." if @family.blank?
+        Rails.logger.error(exception_message) unless Rails.env.test?
+        redirect_to root_path and return
+      end
       redirect_to resident_index_insured_family_members_path(:resident_role_id => @person.resident_role.id, :change_plan => params[:change_plan], :qle_date => params[:qle_date], :qle_id => params[:qle_id], :effective_on_kind => params[:effective_on_kind], :qle_reason_choice => params[:qle_reason_choice], :commit => params[:commit])
     end
 
@@ -54,6 +61,11 @@ class Insured::FamilyMembersController < ApplicationController
       @prev_url_include_consumer_role_id = false
     end
 
+  rescue StandardError => e
+    exception_message = "Error: #{e}"
+    exception_message += "Unable to find family for person #{@person&.hbx_id}." if @family.blank?
+    Rails.logger.error(exception_message) unless Rails.env.test?
+    redirect_to root_path
   end
 
   def new

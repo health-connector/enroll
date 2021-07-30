@@ -543,7 +543,11 @@ module BenefitSponsors
         let(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id: nil, benefit_package_id: benefit_package.id)}
         let!(:census_employee) { create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
 
-        let(:renewal_application) {initial_application.renew}
+        let(:renewal_application) do
+          application = initial_application.renew
+          application.save
+          application
+        end
         let(:renewal_bga) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee)}
 
 
