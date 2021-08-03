@@ -146,7 +146,7 @@ module BenefitSponsors
         start_on = start_on.to_date.beginning_of_day
         if active_broker_agency_account.present?
           terminate_on = (start_on - 1.day).end_of_day
-          fire_broker_agency(terminate_on)
+          fire_broker_agency(terminate_on) unless broker_agency_profile == new_broker_agency
           # fire_general_agency!(terminate_on)
         end
 
