@@ -134,7 +134,7 @@ module Employers::EmployerHelper
     return text if text.present?
 
     plans = if coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_plan"
-              benefit_group.elected_dental_plan_ids
+              Plan.where("_id".in => benefit_group.elected_dental_plan_ids.map(&:to_s))
             elsif coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_carrier"
               text += "All #{reference_plan.carrier_profile.legal_name}"
               Plan.shop_dental_by_active_year(reference_plan.active_year).by_carrier_profile(reference_plan.carrier_profile)
@@ -145,8 +145,7 @@ module Employers::EmployerHelper
               text += reference_plan.metal_level.titleize.to_s
               Plan.for_service_areas_and_carriers(profile_and_service_area_pairs, start_on.year).shop_market.check_plan_offerings_for_metal_level.health_coverage.by_metal_level(reference_plan.metal_level).and(hios_id: /-01/)
             end
-    plans = [] if plans.nil?
-    plans = plans.select{ |a| a.premium_tables.by_date(start_on).present? } if start_on.present? && plans.all? { |plan| plan&.premium_tables&.present? }
+    plans = plans.select{ |a| a.premium_tables.by_date(start_on).present? } if start_on.present?
     text + " Plans (#{plans.count})"
   end
 
