@@ -132,6 +132,7 @@ module Employers::EmployerHelper
     text += "1 Plan Only" if benefit_group.single_plan_type?
     text += "Sole Source Plan" if benefit_group.plan_option_kind == 'sole_source'
     return text if text.present?
+
     plans = if coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_plan"
               benefit_group.elected_dental_plan_ids
             elsif coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_carrier"
