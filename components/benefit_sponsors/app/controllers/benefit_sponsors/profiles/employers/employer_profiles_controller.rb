@@ -105,7 +105,7 @@ module BenefitSponsors
         def bulk_employee_upload
           authorize @employer_profile, :show?
           begin
-            file = params.permit(:file)
+            file = params.require(:file)
             @roster_upload_form = BenefitSponsors::Forms::RosterUploadForm.call(file, @employer_profile)
             if @roster_upload_form.save
               redirect_to URI.parse(@roster_upload_form.redirection_url).to_s
@@ -253,7 +253,7 @@ module BenefitSponsors
                 sponsored_benefit = primary.sponsored_benefit
                 product = @product_info[element.group_enrollment.product[:id]]
                 next if census_employee.blank?
-                csv << [  
+                csv << [
                           census_employee.full_name,
                           census_employee.ssn,
                           census_employee.dob,
