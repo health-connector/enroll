@@ -52,6 +52,7 @@
                     <% if @hbx_enrollment.plan.present? %>
                       <%= @hbx_enrollment.plan.plan_type ? @hbx_enrollment.plan.plan_type.upcase : "" %>
                     <% else %>
+                      <%= "" %>
                       <% rails.logger.error(@person.id) %>
                     <% end %>
                   </span>
