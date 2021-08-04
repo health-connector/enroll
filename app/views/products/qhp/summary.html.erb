@@ -49,7 +49,11 @@
                   </span>
                   <br/>
                   <span class="ttu dg fourteen">
-                    <%= @hbx_enrollment.plan&.plan_type ? @hbx_enrollment.plan.plan_type.upcase : "" %>
+                    <% if @hbx_enrollment.plan.present? %>
+                      <%= @hbx_enrollment.plan.plan_type ? @hbx_enrollment.plan.plan_type.upcase : "" %>
+                    <% else %>
+                      <% rails.logger.error(@person.id) %>
+                    <% end %>
                   </span>
                 </td>
                 <td>
