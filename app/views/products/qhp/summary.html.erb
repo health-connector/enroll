@@ -1,5 +1,5 @@
 <% if @hbx_enrollment.plans.blank? %>
-  <%= render partial: 'incomplete_summary' %>
+  <%= render: 'incomplete_summary' %>
 <% end %>
 <% if !@hbx_enrollment.shopping? %>
   <%= link_to '<i class="fa fa-chevron-left"></i> Back to My Account'.html_safe, family_account_path, class: 'btn btn-default all-@hbx_enrollment.plans' %>
