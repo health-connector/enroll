@@ -1,2 +1,6 @@
 setTabContent("<%= escape_javascript render 'index' %>");
 set_active_ontab("#employers-tab");
+<% if flash[:notice].present? %>
+	$(".flash_message").html("<div class='alert alert-success'><a class='close' data-dismiss='alert'>x</a>
+    <%= flash[:notice] = ""Unable to find valid plans for your effective date. Please contact customer service at #{Settings.contact_center.phone_number}."" %></div>");
+<% end %>
