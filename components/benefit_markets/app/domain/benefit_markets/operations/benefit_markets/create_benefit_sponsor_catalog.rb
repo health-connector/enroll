@@ -64,7 +64,6 @@ module BenefitMarkets
           product_package_params[:application_period]            = application_period
           product_package_params[:products]                      = filter_products_by_service_areas(product_package, enrollment_eligibility).value!
           # Skipping because we are not creating contribution models for dental as they don't have relaxed rules.
-          rails.logger.warn("warning, nil params passed to contribution_models_for. params: #{contribution_models_params}") unless contribution_models_params.present?
           product_package_params[:contribution_models]           = contribution_models_for(contribution_models_params) if product_package[:product_kind] == :health
           product_package_params[:contribution_model]            = build_contribution_model_entity(contribution_model_params)
           product_package_params[:pricing_model][:pricing_units] = build_pricing_units_entities(pricing_units_params, package_kind, product_package[:product_kind])
