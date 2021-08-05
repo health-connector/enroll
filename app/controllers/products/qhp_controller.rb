@@ -55,9 +55,13 @@ class Products::QhpController < ApplicationController
     sponsored_cost_calculator = HbxEnrollmentSponsoredCostCalculator.new(@hbx_enrollment)
     @member_group = sponsored_cost_calculator.groups_for_products([@qhp.product]).first
 
-    respond_to do |format|
-      format.html
-      format.js
+    if @hbx_enrollment.plans.present?
+      respond_to do |format|
+        format.html
+        format.js
+      end
+    else
+      render 'incomplete_summary'
     end
   end
 
