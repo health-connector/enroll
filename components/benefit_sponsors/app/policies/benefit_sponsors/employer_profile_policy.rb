@@ -27,12 +27,12 @@ module BenefitSponsors
     end
 
     def is_staff_role_for_employer?
-      active_staff_roles = user.person.employer_staff_roles.active
+      active_staff_roles = user&.person&.employer_staff_roles&.active
       active_staff_roles.any? {|role| role.benefit_sponsor_employer_profile_id == record.id }
     end
 
     def is_broker_for_employer?(profile)
-      broker_role = user.person.broker_role
+      broker_role = user&.person&.broker_role
       return false unless broker_role
       profile.broker_agency_accounts.any? {|acc| acc.writing_agent_id == broker_role.id}
     end

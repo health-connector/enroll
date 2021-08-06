@@ -42,6 +42,16 @@ describe EmployerProfilePolicy, dbclean: :after_each do
       expect(policy.updateable?).to be false
       expect(policy.revert_application?).to be false
     end
+  end
 
+  context "no person attached to user" do
+    before do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(false)
+      allow(user).to receive(:person).and_return(nil)
+    end
+
+    it 'should not allow user to view actions' do
+      expect(policy.show?).to be_falsey
+    end
   end
 end
