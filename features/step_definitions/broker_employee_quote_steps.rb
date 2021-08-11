@@ -91,6 +91,7 @@ And(/^Primary Broker enters quote name$/) do
   fill_in 'forms_plan_design_proposal[title]', :with => "Test Quote"
   expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
   wait_for_ajax(3, 2)
+  sleep(2)
 end
 
 Then(/^.+ sees that publish button is (.*)$/) do |publish_btn|
@@ -109,6 +110,7 @@ end
 
 And(/^the broker clicks on Select Health Benefits button$/) do
   find('.interaction-click-control-select-health-benefits').click
+  find('.interaction-click-control-select-health-benefits').click
 end
 
 When(/^.+ clicks Actions for that Employer$/) do
@@ -124,7 +126,7 @@ Then(/^.+ clicks on Create Quote button$/) do
 end
 
 Then(/^broker publishes the quote$/) do
-  wait_for_ajax(3, 2)
+  sleep(10)
   find(:xpath, "//*[@id='new_forms_plan_design_proposal']/div[9]", :visible => false).click
   find(:xpath,"//*[@id='new_forms_plan_design_proposal']/div[3]/div/div/div[2]/div[1]/div/div[1]/label/div/div[2]/div/div[1]/h3").click
   wait_for_ajax(3, 2)
@@ -136,7 +138,7 @@ Given(/^.+ clicks on Employers tab$/) do
 end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
-  wait_for_ajax(3, 2)
+  sleep(10)
   find(:xpath, "//*[@id='pdp-bms']/div/ul/li[3]/label/div").click
   expect(page).to have_content("Gold")
   find('#metal_level_for_elected_plan_gold').click

@@ -20,10 +20,6 @@ module SponsoredBenefits
         ensure_sic_zip_county
       end
 
-      def persisted?
-        @proposal&.persisted?
-      end
-
       def for_new
         service.ensure_benefits
       end
