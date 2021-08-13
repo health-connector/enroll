@@ -69,6 +69,8 @@ module BenefitMarkets
           product_package_params[:pricing_model][:pricing_units] = build_pricing_units_entities(pricing_units_params, package_kind, product_package[:product_kind])
 
           ::BenefitMarkets::Operations::ProductPackages::Create.new.call(product_package_params: product_package_params, enrollment_eligibility: enrollment_eligibility)
+        rescue => e
+          ::BenefitMarkets::Operations::ProductPackages::Create.new.fail(exception: e)
         end
 
         def create(sponsor_catalog_params, product_packages)
