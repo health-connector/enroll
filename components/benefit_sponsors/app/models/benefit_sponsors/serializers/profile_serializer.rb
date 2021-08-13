@@ -26,7 +26,7 @@ module BenefitSponsors
       has_one :inbox, serializer: ::BenefitSponsors::Serializers::InboxSerializer
 
       def is_persisted?
-        object&.persisted?
+        object.present? ? object.persisted? : false
       end
 
       def is_cca_employer_profile?
