@@ -42,8 +42,6 @@ module BenefitMarkets
 
         def build_product_packages(benefit_market_catalog, application_period, enrollment_eligibility)
           benefit_market_catalog = benefit_market_catalog.value!
-          Rails.logger.warn("benefit market catalog product package is nil. Benefit_Market_Catalog: #{benefit_market_catalog}") unless benefit_market_catalog.present?
-
           product_packages = benefit_market_catalog.product_packages&.collect do |product_package|
             product_package_entity_for(product_package, application_period, enrollment_eligibility)
           end
