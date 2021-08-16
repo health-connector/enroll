@@ -8,6 +8,11 @@ class WelcomeController < ApplicationController
   end
 
   def index
+    respond_to do |format|
+      format.html
+      format.js
+      format.any { head :ok }
+    end
   end
 
   def form_template
