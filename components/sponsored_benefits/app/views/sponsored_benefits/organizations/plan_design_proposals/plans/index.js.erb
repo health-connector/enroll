@@ -3,3 +3,6 @@ $('.plan-type-filters').html("<%= escape_javascript(render(partial: 'plan_search
 $('.reference-plans').show();
 hideDetailComparisons();
 clearComparisons();
+<% if flash[:notice].present? %>
+	$(".flash_message").html("<div class='alert alert-success'><a class='close' data-dismiss='alert'>x</a> <%=flash[:notice]%></div>");
+<% end %>
