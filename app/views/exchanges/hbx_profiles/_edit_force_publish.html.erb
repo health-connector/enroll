@@ -21,7 +21,7 @@
         </thead>
         <tbody>
           <tr>
-            <td><%= @benefit_application&.predecessor.present? ? "Renewal" : "Initial" %></td>
+            <td><%= @benefit_application&.predecessor&.present? ? "Renewal" : "Initial" %></td>
             <td><%= @benefit_application.effective_period.min.strftime('%m/%d/%Y') %></td>
             <td><%= @benefit_application.open_enrollment_period.max.strftime('%m/%d/%Y') %></td>
             <td><%= benefit_application_summarized_state(@benefit_application) %></td>
