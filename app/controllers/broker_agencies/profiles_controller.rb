@@ -519,7 +519,11 @@ class BrokerAgencies::ProfilesController < ApplicationController
 
   def check_broker_agency_staff_role
     if current_user.has_broker_agency_staff_role?
-      redirect_to broker_agencies_profile_path(:id => current_user.person.broker_agency_staff_roles.first.broker_agency_profile_id)
+      if current_user.person.broker_agency_staff_roles.first.broker_agency_profile_id.present?
+        redirect_to broker_agencies_profile_path(:id => current_user.person.broker_agency_staff_roles.first.broker_agency_profile_id)
+      else
+        flash[:notice] = "No Broker Agency Profile ID found. Please try signing in again. Please contact #{site_short_name} at #{contact_center_phone_number} for further assistance."
+      end
     elsif current_user.has_broker_role?
       redirect_to broker_agencies_profile_path(id: current_user.person.broker_role.broker_agency_profile_id.to_s)
     else
