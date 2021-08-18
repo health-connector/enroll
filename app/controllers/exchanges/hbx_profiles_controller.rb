@@ -147,9 +147,15 @@ class Exchanges::HbxProfilesController < ApplicationController
     @element_to_replace_id = params[:employer_actions_id]
     @benefit_application = @benefit_sponsorship.benefit_applications.draft_state.last
 
+    unless @benefit_application.present?
+      flash[notice] = "Please create a benefit application"
+      # render new_benefit_application_exchanges_hbx_profiles_path(benefit_sponsorship_id: @benefit_sponsorship.id, employer_actions_id: "employer_actions_#{@benefit_sponsorship.organization.employer_profile.id}")
+      render 'exchanges/hbx_profiles/new_benefit_application' && return
+    end
+
     respond_to do |format|
      format.js
-   end
+    end 
   end
 
   def force_publish
@@ -160,6 +166,8 @@ class Exchanges::HbxProfilesController < ApplicationController
       if @service.may_force_submit_application? || params[:publish_with_warnings] == 'true'
         @service.force_submit_application
       end
+
+      
     end
 
     respond_to do |format|
