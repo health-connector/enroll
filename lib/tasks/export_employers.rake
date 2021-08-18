@@ -154,7 +154,7 @@ namespace :employers do
             if packages.present?
               packages.each do |package|
                 package.sponsored_benefits.each do |sponsored_benefit|
-                  import_to_csv(csv, profile, package, sponsored_benefit, benefit_application)
+                  import_to_csv(csv, profile, package, sponsored_benefit, application)
                 end
               end
             else
