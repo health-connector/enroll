@@ -216,6 +216,14 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
     let(:min_date) { TimeKeeper.date_of_record - 1.month}
     let(:max_date) { TimeKeeper.date_of_record + 1.month}
 
+    it "should throw erroor when min or maximumd ates are out of range" do
+      allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(ivl_qle_sep.family, "min", "shop").and_return(nil)
+      allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(ivl_qle_sep.family, "max", "shop").and_return(nil)
+      shop_qle_sep.update_attributes(next_poss_effective_date: TimeKeeper.date_of_record)
+      shop_qle_sep.send(:next_poss_effective_date_within_range)
+      expect(shop_qle_sep.errors.present?).to eq(true)
+    end
+
     it "should receive nil when next_poss_effective_date is blank" do
       expect(shop_qle_sep.send(:next_poss_effective_date_within_range)).to eq nil
     end
