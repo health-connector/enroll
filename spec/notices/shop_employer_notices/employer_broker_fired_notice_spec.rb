@@ -4,7 +4,7 @@ RSpec.describe ShopEmployerNotices::EmployerBrokerFiredNotice, dbclean: :after_e
   before(:all) do
 
     @site =  FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
-    @organization = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: @site) 
+    @organization = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: @site)
     @employer_profile = @organization.employer_profile
     @benefit_sponsorship = @employer_profile.add_benefit_sponsorship
     @broker_agency_organization = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: @site)
