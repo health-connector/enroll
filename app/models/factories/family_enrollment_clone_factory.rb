@@ -66,7 +66,13 @@ module Factories
     end
 
     def sponsored_benefit_package
-      census_employee.benefit_package_for_date(effective_on_for_cobra(enrollment))
+      effective_on = effective_on_for_cobra(enrollment)
+      benefit_application = enrollment.sponsored_benefit_package.benefit_application
+      if benefit_application.effective_period.cover?(effective_on)
+        enrollment.sponsored_benefit_package
+      else
+        census_employee.benefit_package_for_date(effective_on)
+      end
     end
 
     def clone_enrollment_members
