@@ -607,6 +607,20 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
           expect(BenefitGroupAssignment.on_date(census_employee, Date.new(2019, 10, 30))).to eq assignment_three
         end
       end
+
+      context 'when two bgas with end_on nil' do
+
+        before do
+          assignment_one.start_on = TimeKeeper.date_of_record.beginning_of_month
+          assignment_one.save(validate: false)
+          assignment_two.start_on = TimeKeeper.date_of_record.beginning_of_month.prev_month
+          assignment_two.save(validate: false)
+        end
+
+        it 'should return bga with max start_on' do
+          expect(BenefitGroupAssignment.on_date(census_employee, TimeKeeper.date_of_record)).to eq assignment_one
+        end
+      end
     end
   end
 end

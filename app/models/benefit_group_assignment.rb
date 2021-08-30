@@ -115,7 +115,7 @@ class BenefitGroupAssignment
       end || []
       assignment =
         if valid_assignments_with_no_end_on.size > 1
-          valid_assignments_with_no_end_on.detect(&:is_active?) || valid_assignments_with_no_end_on.min_by { |valid_assignment| (valid_assignment.start_on.to_time - date.to_time).abs }
+          valid_assignments_with_no_end_on.select(&:is_active?).max_by(&:start_on) || valid_assignments_with_no_end_on.min_by { |valid_assignment| (valid_assignment.start_on.to_time - date.to_time).abs }
         else
           valid_assignments_with_no_end_on.first
         end
