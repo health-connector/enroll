@@ -70,6 +70,7 @@ contact_center:
   email_address: "smallbusiness@mahealthconnector.org"
   po_box: "PO Box 960189"
   city: "Boston"
+  county: "Suffolk"
   state: "MA"
   zip_code: "02196"
   small_business_email: "smallbusiness@MAhealthconnector.org"
