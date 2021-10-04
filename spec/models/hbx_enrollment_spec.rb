@@ -2908,6 +2908,18 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
           expect(enrollment.display_make_changes_for_shop?).to be_falsey
         end
       end
+
+      context "can_enroll_as_new_hire?" do
+        before do
+          allow(enrollment.family).to receive(:earliest_effective_shop_sep).and_return(sep)
+          allow(sponsored_benefit).to receive(:effective_period).and_return(sep.effective_on..sep.effective_on + 1.month)
+        end
+
+        it 'should return true if enr is active and is not in open enrollment period and family has active shop sep which falls under benefit package effective period' do
+          expect(enrollment.display_make_changes_for_shop?).to eq(true)
+        end
+      end
+
     end
   end
 
