@@ -131,7 +131,7 @@ module Employers::EmployerHelper
     text = ""
 
     plans = if coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_plan"
-              benefit_group.elected_dental_plan_ids
+              Plan.find(benefit_group.elected_dental_plan_ids)
             elsif coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_carrier"
               text = "All #{reference_plan.carrier_profile.legal_name}"
               Plan.shop_dental_by_active_year(reference_plan.active_year).by_carrier_profile(reference_plan.carrier_profile)
