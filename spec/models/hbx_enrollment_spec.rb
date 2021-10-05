@@ -2909,7 +2909,7 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
         end
       end
 
-      context "can_enroll_as_new_hire?" do
+      context "can enroll with active shop sep??" do
         before do
           allow(enrollment.family).to receive(:earliest_effective_shop_sep).and_return(sep)
           allow(sponsored_benefit).to receive(:effective_period).and_return(sep.effective_on..sep.effective_on + 1.month)
