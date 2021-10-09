@@ -2820,7 +2820,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       it "should terminate, expired enrollment with terminated date = ee coverage termination date" do
 
         expect(expired_enrollment.aasm_state).to eq "coverage_terminated"
-        expect(expired_enrollment.terminated_on).to eq TimeKeeper.date_of_record.last_month.end_of_month - 2.months
+        expect(expired_enrollment.terminated_on).to eq (TimeKeeper.date_of_record.last_month.end_of_month - 2.months).end_of_month
       end
 
       it "should cancel active coverage" do
