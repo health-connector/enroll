@@ -2873,24 +2873,6 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
         allow(enrollment).to receive(:employee_role).and_return(employee_role_double)
       end
 
-      context "is_not_most_recent_sep_enrollment?" do
-        before do
-          # False for "or" statements
-          allow(enrollment.employee_role).to receive(:can_enroll_as_new_hire?).and_return(false)
-          allow(sponsored_benefit).to receive(:open_enrollment_contains?).with(TimeKeeper.date_of_record).and_return(false)
-        end
-
-        it 'should display make changes if true' do
-          allow(enrollment.family).to receive(:enrollment_is_not_most_recent_sep_enrollment?).with(enrollment).and_return(true)
-          expect(enrollment.display_make_changes_for_shop?).to eq(true)
-        end
-
-        it "should not display make changes if false" do
-          allow(enrollment.family).to receive(:enrollment_is_not_most_recent_sep_enrollment?).with(enrollment).and_return(false)
-          expect(enrollment.display_make_changes_for_shop?).to be_falsey
-        end
-      end
-
       context "can_enroll_as_new_hire?" do
         before do
           # False for "or" statements
