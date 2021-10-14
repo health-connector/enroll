@@ -124,7 +124,7 @@ group :development, :test do
   gem 'factory_girl_rails', '4.6.0'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
-  gem 'puma', '4.3.6'
+  gem 'puma', '4.3.9'
   gem 'railroady', '~> 1.5.2'
   gem 'rspec-rails', '~> 3.4.2'
   gem 'rspec_junit_formatter', '0.2.3'
