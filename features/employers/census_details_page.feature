@@ -15,7 +15,7 @@ Feature: Employee termination and Re-hire functionality
     When employer clicks on Actions drop down for one of active employee
     Then employer should see the terminate button
     When employer clicks on terminate button
-    Then employer should see Enter termination date to remove text
+    Then employer should see Enter last day of employment text
     And employer clicks on Terminate Employee button with date as pastdate
     Then employer should see the terminated success flash notice
     When employer clicks on button terminated for datatable
@@ -30,6 +30,6 @@ Feature: Employee termination and Re-hire functionality
     And employer clicks on Actions drop down for one of active employee
     And employer should see the terminate button
     When employer clicks on terminate button
-    Then employer should see Enter termination date to remove text
+    Then employer should see Enter last day of employment text
     And employer clicks on Terminate Employee button with date as past greater than 60 days
     Then employer should see the error flash notice

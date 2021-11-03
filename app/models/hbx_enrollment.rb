@@ -1594,6 +1594,7 @@ class HbxEnrollment
     state :renewing_contingent_enrolled
 
     # after_all_transitions :perform_employer_plan_year_count
+    after_all_transitions :update_employee_roster
 
     event :renew_enrollment, :after => :record_transition do
       transitions from: :shopping, to: :auto_renewing
@@ -1729,6 +1730,18 @@ class HbxEnrollment
     event :reinstate_coverage, :after => :record_transition do
       transitions from: :shopping, to: :coverage_reinstated
     end
+  end
+
+  def update_employee_roster
+    return unless EnrollRegistry.feature_enabled?(:employee_roster_updates) && employer_profile&.enable_roster_updates
+
+    valid_states_for_roster_updates = [:coverage_selected, :coverage_enrolled, :coverage_reinstated, :renewing_coverage_selected, :renewing_coverage_enrolled]
+    # Blocks creation of duplicate census records
+    # Had to use DateTime as timestamp uses current date instead of system date
+    reinstated_event = workflow_state_transitions.where(event: "reinstate_coverage!", :created_at.gte => (DateTime.now.utc - 1.minute)).first
+    return unless valid_states_for_roster_updates.include?(aasm.to_state) && reinstated_event.nil?
+
+    Operations::CensusMembers::Update.new.call(hbx_enrollment: self, action: 'update_census_family')
   end
 
   def termination_attributes_cleared?

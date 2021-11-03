@@ -412,7 +412,9 @@ class Person
       rel.relative_id.to_s == person.id.to_s
     end
     if existing_relationship
-      existing_relationship.update_attributes(:kind => relationship)
+      existing_relationship.assign_attributes(:kind => relationship)
+      update_census_dependent_relationship(existing_relationship)
+      existing_relationship.save!
     else
       self.person_relationships << PersonRelationship.new({
         :kind => relationship,
@@ -448,6 +450,10 @@ class Person
 
   def work_email
     emails.detect { |adr| adr.kind == "work" }
+  end
+
+  def work_or_home_email
+    work_email || home_email
   end
 
   def work_email_or_best
@@ -863,6 +869,12 @@ class Person
   end
 
   private
+
+  def update_census_dependent_relationship(existing_relationship)
+    return unless existing_relationship.valid?
+
+    Operations::CensusMembers::Update.new.call(relationship: existing_relationship, action: 'update_relationship')
+  end
 
   def create_inbox
     welcome_subject = "Welcome to #{site_short_name}"

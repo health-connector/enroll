@@ -84,6 +84,10 @@ module BenefitSponsors
             expect(subject.fein).to eq fein
           end
 
+          it "should have default value for enable_roster_updates" do
+            expect(subject.enable_roster_updates).to eq true
+          end
+
           it "should save and be findable" do
             subject.save!
             expect(described_class.find(subject.id)).to eq subject

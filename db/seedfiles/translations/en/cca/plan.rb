@@ -26,20 +26,20 @@ PLAN_TRANSLATIONS = {
   'en.plans.hne_href_toll' => 'tel:+18003102835',
   'en.plans.hne_tty' => '800-439-2370',
   'en.plans.hne_href_tty' => 'tel:+18004392370',
-  'en.plans.hne_email' => 'memberservices@hne.com',
+  'en.plans.hne_email' => 'Please log into the  my.healthnewengland.org, our secure member portal , to send an email to our Members Services team. We’ll respond back to you within one business day and during normal business hours.',
   'en.plans.hne_hours' => 'Monday through Friday, 8:00 a.m. to 6:00 p.m.',
 
   'en.plans.bcbs_ivl' => 'For Individual/Non-Group:',
   'en.plans.bcbs_small' => 'For Small Group/FOM:',
-  'en.plans.bcbs_ivl_phone' => '1-800-822-2700',
-  'en.plans.bcbs_href_ivl_phone' => 'tel:+18008222700',
+  'en.plans.bcbs_ivl_phone' => '1-800-262-2583',
+  'en.plans.bcbs_href_ivl_phone' => 'tel:+18002622583',
   'en.plans.bcbs_small_phone' => '1-800-782-3675',
   'en.plans.bcbs_small_href_phone' => 'tel:+18007823675',
   'en.plans.bcbs_email' => 'send secure email after login to member account',
-  'en.plans.bcbs_hours' => 'Monday through Friday, 8:00 a.m. to 6:00 p.m. Eastern Time',
+  'en.plans.bcbs_hours' => 'Monday - Friday, 8:00 a.m. to 6:00 p.m.',
 
-  'en.plans.hphc_phone' => '1-877-907-4742',
-  'en.plans.hphc_href_phone' => 'tel:+18779074742',
+  'en.plans.hphc_phone' => '1-888-333-4742',
+  'en.plans.hphc_href_phone' => 'tel:+18883334742',
   'en.plans.hphc_email' => 'send secure email after login to member account',
   'en.plans.hphc_hours' => 'Monday, Tuesday, & Thursday from 8:00 a.m. to 6:00 p.m.; Wednesday from 10:00 a.m. to 6:00 p.m.; and Friday from 8:00 a.m. to 5:30 p.m',
 
@@ -50,8 +50,9 @@ PLAN_TRANSLATIONS = {
   'en.plans.ahp_hours' => 'Monday, Tuesday, Wednesday, Friday from 8:00 a.m. to 6:00 p.m.; Thursday from 8:00 a.m. to 8:00 p.m.',
 
 
-  'en.plans.uh_phone' => '1-888-842-4571',
-  'en.plans.uh_hours' => '7 AM to 6 PM CST',
+  'en.plans.uh_phone' => '1-877-856-2429',
+  'en.plans.uh_href_phone' => 'tel:+18778562429',
+  'en.plans.uh_hours' => '8 AM to 5 PM',
 
   'en.plans.thd_phone' => '888-257-1985',
   'en.plans.thd_href_phone' => 'tel:+18882571985',
@@ -60,8 +61,8 @@ PLAN_TRANSLATIONS = {
 
 
   'en.plans.thpp_ph' => 'Phone:',
-  'en.plans.thpp_phone' => '888-257-1985',
-  'en.plans.thpp_href_phone' => 'tel:+18882571985',
+  'en.plans.thpp_phone' => '800-462-0224',
+  'en.plans.thpp_href_phone' => 'tel:+18004620224',
   'en.plans.thpp_email' => 'https://tuftshealthplan.com/contact-us/members-public-plans-form',
   'en.plans.thpp_hours' => 'Monday through Friday, from 8 a.m. to 5 p.m., excluding holidays',
 
@@ -85,16 +86,16 @@ PLAN_TRANSLATIONS = {
 
   'en.plans.ad_tty' => 'Not at this time',
   'en.plans.ad_email' => 'customerservice@altusdental.com',
-  'en.plans.ad_hours' => 'Monday - Thursday, 8 am to 7 pm and Friday 8 am to 5 pm, ET.',
+  'en.plans.ad_hours' => 'Monday - Thursday, 8 am to 7 pm and Friday 8 am to 5 pm.',
   'en.plans.infoline' => 'INFOLINE:',
   'en.plans.ad_phone' => '1.877.223.0588',
   'en.plans.ad_href_phone' => 'tel:+18772230588',
-  'en.plans.ad_infoline' => 'Infoline,  our automated telephone system, is available 24 hours a day/7 days a week',
+  'en.plans.ad_infoline' => 'Infoline, our automated telephone system, is available 24 hours a day/7 days a week',
 
   'en.plans.dd_phone' => '800.872.0500',
   'en.plans.dd_href_phone' => 'tel:+18008720500',
   'en.plans.dd_email' => 'customer.care@deltadentalma.com',
-  'en.plans.dd_hours' => 'Monday - Thursday, 8:30 a.m. to 8:00 p.m. EST; Friday, 8:30 a.m. to 4:30 p.m. EST',
+  'en.plans.dd_hours' => 'Monday - Thursday, 8:30 a.m. to 8:00 p.m.; Friday, 8:30 a.m. to 4:30 p.m.',
   'en.plans.dd_number1' => '1-800-471-0236',
   'en.plans.dd_href_number1' => 'tel:+18004710236',
   'en.plans.dd_number2' => '1-800-471-0275',

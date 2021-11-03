@@ -1903,7 +1903,8 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
 
   describe HbxEnrollment, 'state machine', dbclean: :after_each do
     let(:family) {FactoryGirl.build(:individual_market_family)}
-    subject {FactoryGirl.build(:hbx_enrollment, :individual_unassisted, household: family.active_household)}
+    let(:aasm_state) { 'coverage_selected' }
+    subject {FactoryGirl.build(:hbx_enrollment, :individual_unassisted, household: family.active_household, aasm_state: aasm_state)}
 
     events = [:move_to_enrolled, :move_to_contingent, :move_to_pending]
 
@@ -1932,6 +1933,95 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       it_behaves_like "state machine transitions", :enrolled_contingent, :unverified, :move_to_pending!
       it_behaves_like "state machine transitions", :coverage_enrolled, :unverified, :move_to_pending!
       it_behaves_like "state machine transitions", :auto_renewing, :unverified, :move_to_pending!
+    end
+
+    context 'update_employee_roster' do
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup renewal application"
+
+      let(:family_0) { create(:family, :with_primary_family_member_and_dependent) }
+      let(:person_0) { family_0.primary_person }
+      let(:dependents_0) { family_0.family_members.where(is_primary_applicant: false) }
+      let(:dependent_person) { dependents_0.first.person }
+      let!(:census_dependent_0){ build(:census_dependent, first_name: dependent_person.first_name, last_name: dependent_person.last_name, dob: dependent_person.dob)}
+      let!(:census_employee_0) do
+        create(
+          :benefit_sponsors_census_employee,
+          :benefit_sponsorship => benefit_sponsorship,
+          :employer_profile => abc_profile,
+          :census_dependents => [census_dependent_0]
+        )
+      end
+      let(:aasm_state) { 'coverage_enrolled' }
+      let(:hbx_enrollment_0) do
+        create(
+          :hbx_enrollment,
+          :with_enrollment_members,
+          :with_product,
+          household: family_0.active_household,
+          aasm_state: aasm_state,
+          effective_on: predecessor_application.start_on,
+          rating_area_id: predecessor_application.recorded_rating_area_id,
+          sponsored_benefit_id: predecessor_application.benefit_packages.first.health_sponsored_benefit.id,
+          sponsored_benefit_package_id: predecessor_application.benefit_packages.first.id,
+          benefit_sponsorship_id: predecessor_application.benefit_sponsorship.id,
+          employee_role_id: employee_role_0.id
+        )
+      end
+      let(:employee_role_0) { create(:benefit_sponsors_employee_role, person: person_0, census_employee_id: census_employee_0.id, benefit_sponsors_employer_profile_id: abc_profile.id)}
+
+      context 'event transitions to coverage_selected' do
+        let(:aasm_state) { 'shopping' }
+
+        context 'and employee roster updates are turned on' do
+          before { EnrollRegistry[:employee_roster_updates].feature.stub(:is_enabled).and_return(true) }
+
+          it 'should call operation' do
+            expect(Operations::CensusMembers::Update).to receive_message_chain('new.call').with(hbx_enrollment: hbx_enrollment_0, action: 'update_census_family')
+            hbx_enrollment_0.select_coverage!
+          end
+
+          context 'and employer turned on roster updates' do
+            before { abc_profile.update_attributes(enable_roster_updates: true) }
+
+            it 'should call operation' do
+              expect(Operations::CensusMembers::Update).to receive_message_chain('new.call').with(hbx_enrollment: hbx_enrollment_0, action: 'update_census_family')
+              hbx_enrollment_0.select_coverage!
+            end
+          end
+
+          context 'and employer turned off roster updates' do
+            before { abc_profile.update_attributes(enable_roster_updates: false) }
+
+            it 'should not call operation' do
+              expect(Operations::CensusMembers::Update).not_to receive(:new)
+              hbx_enrollment_0.select_coverage!
+            end
+          end
+        end
+
+        context 'and employee roster updates are turned off' do
+          before { EnrollRegistry[:employee_roster_updates].feature.stub(:is_enabled).and_return(false) }
+
+          it 'should not call operation' do
+            expect(Operations::CensusMembers::Update).not_to receive(:new)
+            hbx_enrollment_0.select_coverage!
+          end
+        end
+      end
+
+      context 'event transitions to coverage_terminated' do
+        let(:aasm_state) { 'coverage_selected' }
+
+        context 'and employee roster updates are turned on' do
+          before { EnrollRegistry[:employee_roster_updates].feature.stub(:is_enabled).and_return(true) }
+
+          it 'should not call operation' do
+            expect(Operations::CensusMembers::Update).not_to receive(:new)
+            hbx_enrollment_0.terminate_coverage!
+          end
+        end
+      end
     end
   end
 
@@ -2415,12 +2505,25 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
       let(:employee_updated_at) { employee_created_at }
 
       let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
-      let(:shop_family) {FactoryGirl.create(:family, :with_primary_family_member)}
+      let(:shop_family) {FactoryGirl.create(:family, :with_primary_family_member_and_dependent)}
       let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.first.benefit_packages.first.health_sponsored_benefit}
       let!(:update_sponsored_benefit) {sponsored_benefit.update_attributes(product_package_kind: :single_product)}
 
       let(:aasm_state) { :active }
-      let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
+      let(:census_dependents) { nil }
+      let(:census_employee) do
+        create(
+          :census_employee,
+          :with_active_assignment,
+          benefit_sponsorship: benefit_sponsorship,
+          employer_profile: benefit_sponsorship.profile,
+          benefit_group: current_benefit_package,
+          hired_on: hired_on,
+          created_at: employee_created_at,
+          updated_at: employee_updated_at,
+          census_dependents: census_dependents
+        )
+      end
       let(:employee_role) { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: census_employee.hired_on, census_employee_id: census_employee.id) }
       let(:enrollment_kind) { "open_enrollment" }
       let(:special_enrollment_period_id) { nil }
@@ -2467,6 +2570,67 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
         it 'should re-instate census employee' do
           census_employee.reload
           expect(census_employee.employee_role_linked?).to be_truthy
+        end
+      end
+
+      context 'when dependent record is updated' do
+        let(:dependent) { shop_family.family_members.where(is_primary_applicant: false)[0] }
+        let(:dependent_person) { dependent.person }
+        let!(:census_dependent){ build(:census_dependent, first_name: dependent_person.first_name, last_name: dependent_person.last_name, dob: dependent_person.dob, ssn: dependent_person.ssn)}
+        let(:census_dependents) { [census_dependent] }
+        let!(:shop_enrollment) do
+          create(
+            :hbx_enrollment,
+            :with_enrollment_members,
+            coverage_kind: "health",
+            product: sponsored_benefit.reference_product,
+            kind: "employer_sponsored",
+            enrollment_kind: enrollment_kind,
+            household: shop_family.active_household,
+            aasm_state: 'coverage_selected',
+            effective_on: effective_on,
+            rating_area_id: current_benefit_package.benefit_application.recorded_rating_area_id,
+            sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+            sponsored_benefit_package_id: current_benefit_package.id,
+            benefit_sponsorship_id: benefit_sponsorship.id,
+            benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+            hbx_enrollment_members: [hbx_enrollment_member1, hbx_enrollment_member2],
+            employee_role_id: employee_role.id
+          )
+        end
+
+        let(:hbx_enrollment_member1) do
+          build(
+            :hbx_enrollment_member,
+            applicant_id: shop_family.primary_applicant.id,
+            is_subscriber: true,
+            eligibility_date: Date.today
+          )
+        end
+
+        let(:hbx_enrollment_member2) do
+          build(
+            :hbx_enrollment_member,
+            applicant_id: dependent.id,
+            is_subscriber: false,
+            eligibility_date: Date.today
+          )
+        end
+
+        before do
+          census_employee.terminate_employee_role!
+          dependent = census_employee.reload.census_dependents[0]
+          dependent.update_attributes(first_name: "Snow11", last_name: 'John11')
+          shop_enrollment.reinstate
+        end
+
+        it 'should update dependent record' do
+          expect(census_employee.reload.census_dependents[0].first_name).not_to eq 'Snow11'
+          expect(census_employee.reload.census_dependents[0].last_name).not_to eq 'John11'
+        end
+
+        it 'should not create duplicate dependent records' do
+          expect(census_employee.reload.census_dependents.size).to eq 1
         end
       end
     end

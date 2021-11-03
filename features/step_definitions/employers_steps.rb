@@ -996,7 +996,7 @@ Then(/^the employer should see Download,Print Option/) do
   expect(page).to have_content('Print')
 end
 
-And(/^employer should see (.*?) to remove text$/) do |text|
+And(/^employer should see (.*?) text$/) do |text|
   expect(page).to have_content(text)
 end
 

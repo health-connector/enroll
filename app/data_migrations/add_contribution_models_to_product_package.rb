@@ -5,7 +5,8 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 class AddContributionModelsToProductPackage < MongoidMigrationTask
 
   def migrate
-    date = Date.new(2021,1,1)
+    year = ENV['year']&.to_i || 2021
+    date = Date.new(year,1,1)
     site = BenefitSponsors::Site.by_site_key(Settings.site.key).first
 
     title_percentage_pair = {

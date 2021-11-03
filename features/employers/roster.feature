@@ -17,7 +17,7 @@ Feature: Employer can view their employees
     When employer clicks on Actions drop down for one of active employee
     And employer should see the terminate button
     And employer clicks on terminate button
-    Then employer should see Enter termination date to remove text
+    Then employer should see Enter last day of employment text
     When employer clicks on Terminate Employee button with date as pastdate
     Then employer should see the terminated success flash notice
     When employer clicks on button terminated for datatable

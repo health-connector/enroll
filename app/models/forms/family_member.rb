@@ -126,6 +126,7 @@ module Forms
         if address.present?
           person.home_address.try(:destroy)
           person.addresses << address
+          update_census_dependent(person)
           person.save
         end
       else
@@ -146,7 +147,9 @@ module Forms
             next
           end
           if current_address.present?
-            current_address.update(address.permit!)
+            current_address.assign_attributes(address.permit!)
+            update_census_dependent(person)
+            current_address.save
           else
             person.addresses.create(address.permit!)
           end
@@ -268,9 +271,19 @@ module Forms
       end
     end
 
+    def update_census_dependent(person)
+      return unless person.valid?
+
+      Operations::CensusMembers::Update.new.call(person: person, family_member: family_member, action: 'update_census_dependent')
+    rescue StandardError => e
+      Rails.logger.error { "Failed to update census dependent record for #{person.full_name}(#{person.hbx_id}) due to #{e.inspect}" }
+    end
+
     def try_update_person(person)
       person.consumer_role.update_attributes(:is_applying_coverage => is_applying_coverage) if person.consumer_role
-      person.update_attributes(extract_person_params).tap do
+      person.assign_attributes(extract_person_params)
+      update_census_dependent(person)
+      person.save.tap do
         bubble_person_errors(person)
       end
     end

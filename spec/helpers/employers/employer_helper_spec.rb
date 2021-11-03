@@ -118,6 +118,7 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
           before do
             allow_any_instance_of(BenefitSponsors::ModelEvents::HbxEnrollment).to receive(:notify_on_save).and_return(nil)
             employee_role.update_attributes!(census_employee_id: census_employee.id)
+            allow(health_enrollment).to receive(:update_employee_roster)
             health_enrollment.terminate_coverage!
             allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([health_enrollment])
           end
@@ -131,6 +132,7 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
           before do
             allow_any_instance_of(BenefitSponsors::ModelEvents::HbxEnrollment).to receive(:notify_on_save).and_return(nil)
             employee_role.update_attributes!(census_employee_id: census_employee.id)
+            allow(health_enrollment).to receive(:update_employee_roster)
             health_enrollment.schedule_coverage_termination!
             allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([health_enrollment])
           end
