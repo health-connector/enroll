@@ -469,7 +469,7 @@ class BenefitGroupAssignment
     effective_period = benefit_group.plan_year.start_on..benefit_group.plan_year.end_on
     errors.add(:start_on, "can't occur outside plan year dates") unless effective_period.cover?(start_on)
     if end_on.present?
-      errors.add(:end_on, "can't occur outside plan year dates") unless effective_period.cover?(end_on)
+      errors.add(:end_on, "(#{end_on}) can't occur outside plan year dates of #{effective_period}") unless effective_period.cover?(end_on)
       errors.add(:end_on, "can't occur before start date") if end_on < start_on
     end
   end
