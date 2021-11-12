@@ -985,6 +985,7 @@ class CensusEmployee < CensusMember
           csv << insert_census_data(rec, is_active)
 
           next unless rec["census_dependents"].present?
+
           rec["census_dependents"].each do |dependent|
             csv << insert_census_data(dependent, is_active)
           end
@@ -1055,11 +1056,11 @@ class CensusEmployee < CensusMember
           }},
           {"$sort" => {"last_name" => 1, "first_name" => 1}},
           { "$project" => { "first_name" => 1, "last_name" => 1, "middle_name" => 1, "name_sfx" => 1,
-                            "dob" => 1, "gender" => 1, "hired_on" => 1, "aasm_state" => 1, "encrypted_ssn" =>1,
+                            "dob" => 1, "gender" => 1, "hired_on" => 1, "aasm_state" => 1, "encrypted_ssn" => 1,
                             "employment_terminated_on" => 1,
                             "email.address" => 1, "address" => 1, "employee_relationship" => 1,"is_business_owner" => 1,
                             "employer_assigned_family_id" => 1,
-                            "census_dependents" => { "$concatArrays" => ["$census_dependents", "$census_dependents.email", "$census_dependents.address"] } } },
+                            "census_dependents" => { "$concatArrays" => ["$census_dependents", "$census_dependents.email", "$census_dependents.address"] } } }
         ],
         :allow_disk_use => true
       )
