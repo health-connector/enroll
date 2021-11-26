@@ -169,8 +169,9 @@ end
 And(/^renewal employer (.*) has (.*) and renewal (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
   @employer_profile = employer_profile(legal_name)
   earlier_application = create_application(new_application_status: earlier_application_status.to_sym)
+  new_renewal_rating_area = renewal_rating_area
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
-  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym, recorded_rating_area: renewal_rating_area)
+  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym, recorded_rating_area: new_renewal_rating_area)
 
   # Following code will create renewal application but its assigning the wrong contribution to the product_packages and hence cukes will fail
   # For now, creating the renewal application using the service so that it assigns the correct contribution model.
