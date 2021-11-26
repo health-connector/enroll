@@ -214,7 +214,10 @@ end
 #     employer Acme Inc. has draft benefit application
 And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
-  create_application(new_application_status: new_application_status.to_sym)
+  app = create_application(new_application_status: new_application_status.to_sym)
+  app.recorded_service_area_ids = [BenefitMarkets::Locations::ServiceArea.where(active_year: app.effective_period.min.year).first.id]
+  app.save
+  app
 end
 
 And(/^employer (.*) has draft benefit application for force publishing$/) do |legal_name|
