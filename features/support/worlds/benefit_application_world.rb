@@ -170,7 +170,7 @@ And(/^renewal employer (.*) has (.*) and renewal (.*) benefit applications$/) do
   @employer_profile = employer_profile(legal_name)
   earlier_application = create_application(new_application_status: earlier_application_status.to_sym)
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
-  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)
+  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym, recorded_rating_area: renewal_rating_area)
 
   # Following code will create renewal application but its assigning the wrong contribution to the product_packages and hence cukes will fail
   # For now, creating the renewal application using the service so that it assigns the correct contribution model.
@@ -208,9 +208,9 @@ end
 
 
 # Following step will create initial benefit application with given state
-# ex: employer Acme Inc. has enrollment_open benefit application 
-#     employer Acme Inc. has active benefit application 
-#     employer Acme Inc. has expired benefit application 
+# ex: employer Acme Inc. has enrollment_open benefit application
+#     employer Acme Inc. has active benefit application
+#     employer Acme Inc. has expired benefit application
 #     employer Acme Inc. has draft benefit application
 And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
@@ -219,7 +219,7 @@ end
 
 And(/^employer (.*) has draft benefit application for force publishing$/) do |legal_name|
   @employer_profile = @organization[legal_name].employer_profile
-  application_start_date = current_effective_date((TimeKeeper.date_of_record + 1.months).beginning_of_month)
+  application_start_date = current_effective_date((TimeKeeper.date_of_record + 2.months).beginning_of_month)
   application_dates = application_dates_for(application_start_date, :draft)
   @new_application =
     FactoryGirl.create(
