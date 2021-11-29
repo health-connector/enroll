@@ -412,7 +412,13 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let!(:old_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: old_benefit_application, product_package: product_package_1) }
       let!(:renewing_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_2) }
-      let!(:benefit_market_catalog_renewing)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: new_start_date..new_start_date.prev_day + 1.year) }
+      let!(:benefit_market_catalog_renewing)   do
+        create(:benefit_markets_benefit_market_catalog,
+               :with_product_packages, issuer_profile: issuer_profile,
+                                       benefit_market: benefit_market,
+                                       application_period: new_start_date..new_start_date.prev_day + 1.year)
+      end
+
       around do |example|
         ClimateControl.modify(
             action: 'update_effective_period_and_approve',
