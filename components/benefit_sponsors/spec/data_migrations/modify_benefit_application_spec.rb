@@ -250,17 +250,17 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     end
 
     context "cancel benefit application", dbclean: :after_each do
-      let(:current_effective_date)   { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
-      let(:past_start_on) { current_effective_date + 2.months }
+      let(:current_effective_date)   { (TimeKeeper.date_of_record + 1.month).beginning_of_month.prev_year }
+      let(:past_start_on) { current_effective_date + 1.month }
       let(:start_on)  { past_start_on }
       let!(:past_effective_period) {past_start_on..past_start_on.next_year.prev_day }
-      let!(:mid_plan_year_effective_date) { current_effective_date.next_month }
+      let!(:mid_plan_year_effective_date) { current_effective_date.next_month + 1.month }
       let!(:range_effective_period) { mid_plan_year_effective_date..mid_plan_year_effective_date.next_year.prev_day }
 
       let(:application_period)        { (TimeKeeper.date_of_record.beginning_of_year..TimeKeeper.date_of_record.end_of_year) }
       let(:application_period_prev)        { (TimeKeeper.date_of_record.beginning_of_year.prev_year..TimeKeeper.date_of_record.end_of_year.prev_year) }
       let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
-      let!(:benefit_market_catalog_prev)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_prev) }
+      # let!(:benefit_market_catalog_prev)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_prev) }
 
       let!(:draft_benefit_application) do
         application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, effective_period: past_effective_period)
@@ -412,7 +412,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let!(:old_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: old_benefit_application, product_package: product_package_1) }
       let!(:renewing_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_2) }
-
+      let!(:benefit_market_catalog_renewing)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: new_start_date..new_start_date.prev_day + 1.year) }
       around do |example|
         ClimateControl.modify(
             action: 'update_effective_period_and_approve',
