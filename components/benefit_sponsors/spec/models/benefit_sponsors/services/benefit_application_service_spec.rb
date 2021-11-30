@@ -289,9 +289,10 @@ module BenefitSponsors
           benefit_market: site.benefit_markets.first,
           issuer_profile: issuer_profile,
           title: "SHOP Benefits for #{start_on.year}",
-          application_period: (start_on.beginning_of_year..start_on.end_of_year)
+          application_period: (TimeKeeper.date_of_record.beginning_of_year..TimeKeeper.date_of_record.end_of_year)
         )
       end
+
       let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
 
       let(:create_ba_params) do
@@ -417,7 +418,7 @@ module BenefitSponsors
       let(:start_on)                      { TimeKeeper.date_of_record.beginning_of_month }
       let(:effective_period)              { start_on..start_on.next_year.prev_day }
 
-      let(:new_ba_start_on)                      { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+      let(:new_ba_start_on)               { TimeKeeper.date_of_record.beginning_of_month }
       let(:create_ba_params) do
         {
           "start_on" => new_ba_start_on.to_s,
@@ -503,7 +504,7 @@ module BenefitSponsors
           context 'when active application does not over lap' do
 
             before do
-              start_on = TimeKeeper.date_of_record.next_month.beginning_of_month.prev_year
+              start_on = TimeKeeper.date_of_record.beginning_of_month.prev_year
               ba2.update_attributes(effective_period: start_on..start_on.next_year.prev_day)
             end
 
