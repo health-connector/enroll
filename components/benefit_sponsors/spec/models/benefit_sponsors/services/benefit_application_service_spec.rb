@@ -536,7 +536,7 @@ module BenefitSponsors
       [:termination_pending, :terminated, :enrollment_eligible, :enrollment_closed].each do |aasm_state|
         context "has overlapping #{aasm_state} application" do
 
-          let(:effective_period_start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month }
+          let(:effective_period_start_on) { TimeKeeper.date_of_record.beginning_of_month }
           let(:current_effective_date) { effective_period_start_on }
           let(:benefit_market) { site.benefit_markets.first }
           let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
