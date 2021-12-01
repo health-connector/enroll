@@ -5,7 +5,6 @@ Given(/^initial employer (.*) has (.*) benefit application with terminated on (.
 
   unless expected_start_event == 'draft_py_effective_on'
     profile = @organization[name].employer_profile
-
     # Considering the below dates based on draft PY creation date, which is 3rd option from the dropdown of create PY UI
     two_month_advanced_date = TimeKeeper.date_of_record + 2.months
     end_of_the_month = TimeKeeper.date_of_record.end_of_month - 1.day

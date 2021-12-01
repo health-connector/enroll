@@ -185,7 +185,9 @@ end
 #     initial employer Acme Inc. has draft benefit application
 And(/^initial employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = employer_profile(legal_name)
-  create_application(new_application_status: new_application_status.to_sym)
+  app = create_application(new_application_status: new_application_status.to_sym)
+  app.update_attributes!(recorded_rating_area: renewal_rating_area) if current_effective_date.month == 2
+  app
 end
 
 And(/^initial employer (.*) has (.*) benefit application with (.*) plan options$/) do |legal_name, new_application_status, plan_option|
