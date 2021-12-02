@@ -13,6 +13,14 @@ RSpec.describe BenefitMarkets::Operations::Products::Find, dbclean: :after_each 
 
   context 'sending required parameters' do
 
+    before do
+      allow(TimeKeeper).to receive(:date_of_record).and_return(Date.new(TimeKeeper.date_of_record.year, 10,1))
+    end
+
+    after do
+      allow(TimeKeeper).to receive(:date_of_record).and_call_original
+    end
+
     it 'should find Product' do
       expect(subject.call(params).success?).to be_truthy
       expect(subject.call(params).success.first.class.to_s).to match(/BenefitMarkets::Entities::HealthProduct/)

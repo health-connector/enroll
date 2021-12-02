@@ -14,6 +14,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
   let(:active_user) { double(:has_hbx_staff_role? => false) }
 
   before do
+    allow(TimeKeeper).to receive(:date_of_record).and_return(Date.new(TimeKeeper.date_of_record.year, 10,1))
     benefit_application
     allow(subject).to receive(:current_person).and_return(current_person)
     allow(subject).to receive(:active_user).and_return(active_user)
@@ -23,6 +24,10 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     allow(subject).to receive(:employee_datatable).and_return(datatable)
     allow(broker_role).to receive(:benefit_sponsors_broker_agency_profile_id).and_return(plan_design_organization.owner_profile_id)
     allow(controller).to receive(:set_broker_agency_profile_from_user).and_return(plan_design_organization.broker_agency_profile)
+  end
+
+  after do
+    allow(TimeKeeper).to receive(:date_of_record).and_call_original
   end
 
   describe '#claim', dbclean: :after_each do
