@@ -66,7 +66,7 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
     end
 
     context "cancelling enrollment before close of quiet period" do
-      let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
 
       let(:cancel_arguments) do
         [
@@ -153,7 +153,7 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
     end
 
     context "terminating enrollment before close of quiet period" do
-      let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
       let(:term_arguments) do
         [
           {"termination_date_#{hbx_enrollment.id}" => current_effective_date.end_of_month.to_s,

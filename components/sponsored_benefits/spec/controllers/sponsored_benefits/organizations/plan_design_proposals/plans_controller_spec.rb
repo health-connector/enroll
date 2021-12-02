@@ -41,7 +41,7 @@ module SponsoredBenefits
           doc = FactoryGirl.build(:document, identifier: '1:1#1')
           hp.sbc_document = doc
           hp.save!
-          FactoryGirl.create(:plan, hios_id: hp.hios_id)
+          FactoryGirl.create(:plan, hios_id: hp.hios_id, active_year: current_effective_date.year)
         end
       end
 
@@ -58,27 +58,28 @@ module SponsoredBenefits
 
     describe ".index" do
       routes { SponsoredBenefits::Engine.routes }
+      let!(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
       let!(:user) { FactoryGirl.create(:user) }
       let!(:person) { FactoryGirl.create(:person, :with_broker_role, user: user) }
       let(:broker_role) { person.broker_role }
       let!(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile) }
       let(:plan_design_organization) { FactoryGirl.create(:sponsored_benefits_plan_design_organization) }
       let(:carrier_profile) { FactoryGirl.create(:carrier_profile) }
-      let(:plan_1) { FactoryGirl.create(:plan, premium_tables: [premium_table_1], carrier_profile_id: carrier_profile.id) }
-      let!(:product_1) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, hios_id: plan_1.hios_id, application_period: ('2021-01-01'.to_date..'2021-12-31'.to_date)) }
-      let(:premium_table_1) { PremiumTable.new(age: 12, cost: 12, start_on: '2021-07-01'.to_date, end_on: '2021-09-30'.to_date) }
+      let(:plan_1) { FactoryGirl.create(:plan, premium_tables: [premium_table_1], carrier_profile_id: carrier_profile.id, active_year: current_effective_date.year) }
+      let!(:product_1) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, hios_id: plan_1.hios_id, application_period: ('2022-01-01'.to_date..'2022-12-31'.to_date)) }
+      let(:premium_table_1) { PremiumTable.new(age: 12, cost: 12, start_on: '2022-07-01'.to_date, end_on: '2022-09-30'.to_date) }
 
-      let(:plan_2) { FactoryGirl.create(:plan, premium_tables: [premium_table_2], carrier_profile_id: carrier_profile.id) }
-      let!(:product_2) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, hios_id: plan_2.hios_id, application_period: ('2021-01-01'.to_date..'2021-12-31'.to_date)) }
-      let(:premium_table_2) { PremiumTable.new(age: 12, cost: 12, start_on: '2021-01-01'.to_date, end_on: '2021-03-31'.to_date) }
+      let(:plan_2) { FactoryGirl.create(:plan, premium_tables: [premium_table_2], carrier_profile_id: carrier_profile.id, active_year: current_effective_date.year) }
+      let!(:product_2) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, hios_id: plan_2.hios_id, application_period: ('2022-01-01'.to_date..'2022-12-31'.to_date)) }
+      let(:premium_table_2) { PremiumTable.new(age: 12, cost: 12, start_on: '2022-01-01'.to_date, end_on: '2022-03-31'.to_date) }
 
       let(:valid_params) do
         {
           plan_design_organization_id: plan_design_organization.id,
           selected_carrier_level: 'single_carrier',
           carrier_id: carrier_profile.id,
-          active_year: 2021,
-          quote_effective_date: '2021-07-01'.to_date
+          active_year: 2022,
+          quote_effective_date: '2022-07-01'.to_date
         }
       end
 
