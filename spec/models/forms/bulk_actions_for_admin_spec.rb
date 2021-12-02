@@ -163,9 +163,9 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
            "family_id" => family.id}
         ]
       end
-      let(:update_initial_appliation) {initial_application.update_attributes(open_enrollment_period: (initial_application.open_enrollment_period.min..TimeKeeper.date_of_record.next_day)) }
+      let!(:update_initial_appliation) {initial_application.update_attributes(open_enrollment_period: (initial_application.open_enrollment_period.min..TimeKeeper.date_of_record.next_day)) }
       let(:subject) { Forms::BulkActionsForAdmin.new(*term_arguments)}
-      let(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
+      let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
 
       it "should terminate enrollment and not trigger terminate event" do
         expect(subject).not_to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => hbx_enrollment.hbx_id,
