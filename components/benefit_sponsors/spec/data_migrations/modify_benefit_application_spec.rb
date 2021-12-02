@@ -37,6 +37,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         application_period: (current_effective_date.beginning_of_year.prev_year..current_effective_date.end_of_year.prev_year)
       )
     end
+
     let(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:benefit_market)      { site.benefit_markets.first }
     let!(:product_package) { benefit_market_catalog.product_packages.first }
@@ -368,6 +369,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
 
     context "Should update effective period and approve renewing benefit application", dbclean: :after_each do
+      let(:start_on)  { TimeKeeper.date_of_record}
       let(:effective_date) {start_on.next_month.beginning_of_month}
       let(:new_start_date) { (start_on + 2.months).beginning_of_month}
       let(:new_end_date) { new_start_date + 1.year }
@@ -403,6 +405,14 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         application
       }
 
+      let!(:renewing_benefit_market_catalog) do
+        create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+               benefit_market: benefit_market,
+               title: "SHOP Benefits for #{current_effective_date.year}",
+               issuer_profile: issuer_profile,
+               application_period: (current_effective_date.next_month.beginning_of_month..current_effective_date.end_of_month + 1.year))
+      end
+
       let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
       let!(:renewing_benefit_application) {
         application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: renewing_effective_period, aasm_state: :renewing_enrolling, predecessor_id: old_benefit_application.id)
@@ -411,13 +421,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       }
 
       let!(:old_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: old_benefit_application, product_package: product_package_1) }
-      let!(:renewing_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_2) }
-      let!(:benefit_market_catalog_renewing)   do
-        create(:benefit_markets_benefit_market_catalog,
-               :with_product_packages, issuer_profile: issuer_profile,
-                                       benefit_market: benefit_market,
-                                       application_period: new_start_date..new_start_date.prev_day + 1.year)
-      end
+      let!(:renewing_benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_1) }
 
       around do |example|
         ClimateControl.modify(
@@ -441,6 +445,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         expect(renewing_benefit_application.aasm_state).to eq :approved
         expect(renewing_benefit_application.benefit_sponsorship.aasm_state).to eq :active
       end
+
       it "should not update the renewing benefit application" do
         expect { subject.migrate }.to raise_error(RuntimeError)
         expect { subject.migrate }.to raise_error("No benefit application found.")
