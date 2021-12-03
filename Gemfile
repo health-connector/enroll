@@ -135,8 +135,8 @@ end
 
 group :test do
   gem 'action_mailer_cache_delivery', '~> 0.3.7'
-  gem 'capybara'
-  gem 'capybara-screenshot'
+  gem 'capybara', '>= 3.32.1'
+  gem 'capybara-screenshot', '>= 1.0.24'
   gem 'cucumber', '3.1.2'
   gem 'cucumber-rails', '1.6.0', :require => false
   gem 'database_cleaner', '1.5.3'
@@ -153,7 +153,7 @@ group :test do
   gem 'warden'
   gem 'watir'
   gem 'webdrivers', '~> 3.0'
-  gem 'webmock'
+  gem 'webmock', '>= 3.8.3'
 end
 
 group :production do
