@@ -29,6 +29,13 @@ module BenefitSponsors
     let!(:benefit_market_catalog_next_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_next_year) }
     let!(:benefit_market_catalog_prev_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_prev_year) }
 
+    let(:benefit_sponsor_catalog_2) do
+      FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog,
+                         service_areas: [service_area],
+                         effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
+                         open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
+    end
+
     let(:params) do
       {
         effective_period:         effective_period,
@@ -601,7 +608,7 @@ module BenefitSponsors
             renewal_application.recorded_rating_area=  rating_area
             renewal_application.recorded_service_areas = [service_area]
             renewal_application.recorded_sic_code = sic_code
-            initial_application.update_attributes(predecessor_id: renewal_application.id)
+            renewal_application.update_attributes(predecessor_id: initial_application.id)
             renewal_application.renew_benefit_package_assignments
             renewal_application.save!
             renewal_application.activate_enrollment!
@@ -931,7 +938,7 @@ module BenefitSponsors
       let(:application_period) { current_effective_date.beginning_of_year..current_effective_date.end_of_year }
       let(:application_period_next_year) { current_effective_date.next_year.beginning_of_year..current_effective_date.next_year.end_of_year }
       let!(:benefit_market_catalog_next_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_next_year) }
-      let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
+      # let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
       include_context 'setup initial benefit application'
 
       let(:current_effective_date) {TimeKeeper.date_of_record.beginning_of_month}

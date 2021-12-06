@@ -35,6 +35,7 @@ module BenefitSponsors
       ).first
     end
 
+    let!(:rating_area_next) { FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: current_benefit_market_catalog.application_period.min.year) }
     let(:current_effective_date)  { effective_period_start_on }
     let(:product_package) { current_benefit_market_catalog.product_packages.first }
     let!(:security_question)  { FactoryGirl.create_default :security_question }
