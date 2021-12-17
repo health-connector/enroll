@@ -1131,9 +1131,16 @@ class HbxEnrollment
   end
 
   def latest_sep_or_new_hire_or_oe_contains?
-    family.enrollment_is_not_most_recent_sep_enrollment?(self) ||
+    special_enrollment_period_available? ||
       employee_role&.can_enroll_as_new_hire? ||
       sponsored_benefit_package&.open_enrollment_contains?(TimeKeeper.date_of_record)
+  end
+
+  def special_enrollment_period_available?
+    shop_sep = family.earliest_effective_shop_sep
+    return false unless shop_sep
+
+    sponsored_benefit_package.effective_period.cover?(shop_sep.effective_on)
   end
 
   def make_changes?
