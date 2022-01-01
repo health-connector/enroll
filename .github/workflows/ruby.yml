@@ -1,8 +1,8 @@
 name: Full suite check
-on: 
-  push:
+on:
+  # push:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
 
 env: # https://stackoverflow.com/questions/59867124/how-can-i-access-github-action-environment-variables-within-a-bash-script-run-by
   TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: "{spec,components/benefit_markets/spec,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb"
@@ -24,11 +24,11 @@ jobs:
               git fetch --no-tags origin
               bundle exec rubocop-git origin/master | grep "no offenses detected"
           - name: Brakeman In Main app
-            skip_js: 'true'
+            skip_js: "true"
             test_command: |
               brakeman -i config/brakeman.ignore
           - name: Brakeman In Components
-            skip_js: 'true'
+            skip_js: "true"
             test_command: |
               for test_dir in `ls -1 components`; do
                 cd components/$test_dir

@@ -1,0 +1,86 @@
+name: cucumber report
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: cucumber-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cucumber-report:
+    strategy:
+      matrix:
+        feature:
+          [
+            "admin",
+            "brokers",
+            "cover_all",
+            "employee",
+            "employers",
+            "general_agencies",
+            "group_selection",
+            "hbx",
+            "hbx_admin",
+            "insured",
+            "integration",
+            "permissions",
+            "plan_shopping",
+            "user_accounts",
+          ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "12"
+      - uses: wbari/start-mongoDB@v0.2
+        with:
+          mongoDBVersion: "4.2"
+      - name: Restore project gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: v3-${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('**/Gemfile' ) }}
+          restore-keys: |
+            v3-${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('**/Gemfile' ) }}
+      - name: Install project gems
+        run: |
+          gem update --system
+          bundle config path vendor/bundle
+          bundle install
+      - name: Restore Node Modules
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+      - name: Install node dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: yarn install
+      - name: Run tests
+        run: bundle exec cucumber -P features/${{ matrix.feature }} --format json --out ci/cucumber/${{ matrix.feature }}-cucumber-report.json -r features --strict --tags 'not @wip and not @broken and not @flaky and not @ma_only'
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.feature }}
+          path: ci/cucumber/${{ matrix.feature }}-cucumber-report.json
+  concat-reports:
+    needs: [cucumber-report]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: ci/cucumber/compressed-reports
+      - uses: markgoho/analyze-cucumber-report@trunk
+        with:
+          individual-reports-folder: "ci/cucumber/compressed-reports"
+          output-report: "cucumber-split-config.json"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cucumber-split-config
+          path: cucumber-split-config.json
