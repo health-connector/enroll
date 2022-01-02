@@ -7,7 +7,7 @@
       "check_name": "ForgerySetting",
       "message": "`protect_from_forgery` should be called in `SponsoredBenefits::ApplicationController`",
       "file": "app/controllers/sponsored_benefits/application_controller.rb",
-      "line": 2,
+      "line": 4,
       "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
       "code": null,
       "render_path": null,
@@ -26,7 +26,7 @@
       "check_name": "CSRFTokenForgeryCVE",
       "message": "Rails 4.2.11.1 has a vulnerability that may allow CSRF token forgery. Upgrade to Rails 5.2.4.3 or patch",
       "file": "Gemfile.lock",
-      "line": 149,
+      "line": 195,
       "link": "https://groups.google.com/g/rubyonrails-security/c/NOjKiGeXUgw",
       "code": null,
       "render_path": null,
@@ -34,8 +34,24 @@
       "user_input": null,
       "confidence": "Medium",
       "note": ""
+    },
+    {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 120,
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 4.2.11.1 ended on 2017-04-27",
+      "file": "Gemfile.lock",
+      "line": 195,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
     }
   ],
-  "updated": "2021-01-21 15:38:54 -0500",
-  "brakeman_version": "4.10.1"
+  "updated": "2022-01-01 20:17:57 -0500",
+  "brakeman_version": "5.2.0"
 }

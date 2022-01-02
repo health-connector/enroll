@@ -17,6 +17,22 @@
       "note": ""
     },
     {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 120,
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 4.2.11.1 ended on 2017-04-27",
+      "file": "Gemfile.lock",
+      "line": 124,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
       "warning_type": "Cross-Site Request Forgery",
       "warning_code": 7,
       "fingerprint": "f6faa1608ccf6f788a4d2a857df7210c9a6d9a8638ccfe170a6ccd1e69fa0225",
@@ -36,6 +52,6 @@
       "note": ""
     }
   ],
-  "updated": "2021-01-21 15:39:51 -0500",
-  "brakeman_version": "4.10.1"
+  "updated": "2022-01-01 20:18:28 -0500",
+  "brakeman_version": "5.2.0"
 }
