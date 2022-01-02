@@ -7,7 +7,7 @@
       "check_name": "MassAssignment",
       "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
       "file": "app/controllers/benefit_sponsors/profiles/registrations_controller.rb",
-      "line": 104,
+      "line": 109,
       "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
       "code": "params[:agency][:organization].permit!",
       "render_path": null,
@@ -27,7 +27,7 @@
       "check_name": "MassAssignment",
       "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
       "file": "app/controllers/benefit_sponsors/profiles/registrations_controller.rb",
-      "line": 100,
+      "line": 105,
       "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
       "code": "params[:agency].permit!",
       "render_path": null,
@@ -47,7 +47,7 @@
       "check_name": "CSRFTokenForgeryCVE",
       "message": "Rails 4.2.11.1 has a vulnerability that may allow CSRF token forgery. Upgrade to Rails 5.2.4.3 or patch",
       "file": "Gemfile.lock",
-      "line": 365,
+      "line": 388,
       "link": "https://groups.google.com/g/rubyonrails-security/c/NOjKiGeXUgw",
       "code": null,
       "render_path": null,
@@ -75,8 +75,24 @@
       "user_input": null,
       "confidence": "Medium",
       "note": ""
+    },
+    {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 120,
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 4.2.11.1 ended on 2017-04-27",
+      "file": "Gemfile.lock",
+      "line": 388,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
     }
   ],
-  "updated": "2021-01-21 15:36:40 -0500",
-  "brakeman_version": "4.10.1"
+  "updated": "2022-01-01 20:12:20 -0500",
+  "brakeman_version": "5.2.0"
 }
