@@ -933,15 +933,12 @@ module BenefitSponsors
     end
 
     describe '.enrollment_quiet_period', dbclean: :after_each do
-      # let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
-      # include_context 'setup benefit market with market catalogs and product packages'
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
       let(:application_period) { current_effective_date.beginning_of_year..current_effective_date.end_of_year }
       let(:application_period_next_year) { current_effective_date.next_year.beginning_of_year..current_effective_date.next_year.end_of_year }
       let!(:benefit_market_catalog_next_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_next_year) }
-      # let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
+      let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
       include_context 'setup initial benefit application'
-
-      let(:current_effective_date) {TimeKeeper.date_of_record.beginning_of_month}
 
       context 'when intital application open enrollment end date inside plan year start date', dbclean: :after_each do
 

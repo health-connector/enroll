@@ -19,6 +19,17 @@ describe AddContributionModelsToProductPackage do
 
     include_context 'setup benefit market with market catalogs and product packages'
 
+    let!(:prev_benefit_market_catalog) do
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{current_effective_date.prev_year.year}",
+        application_period: (current_effective_date.beginning_of_year.prev_year..current_effective_date.end_of_year.prev_year)
+      )
+    end
+
     let(:current_effective_date) { TimeKeeper.date_of_record }
     let!(:product_packages) { current_benefit_market_catalog.product_packages }
 

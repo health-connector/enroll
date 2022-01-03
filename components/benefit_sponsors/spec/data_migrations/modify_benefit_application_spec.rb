@@ -261,7 +261,10 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       let(:application_period)        { (TimeKeeper.date_of_record.beginning_of_year..TimeKeeper.date_of_record.end_of_year) }
       let(:application_period_prev)        { (TimeKeeper.date_of_record.beginning_of_year.prev_year..TimeKeeper.date_of_record.end_of_year.prev_year) }
       let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
-      # let!(:benefit_market_catalog_prev)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_prev) }
+      let!(:benefit_market_catalog_prev) do
+        BenefitMarkets::BenefitMarketCatalog.where("application_period.min" => application_period_prev.min).first ||
+          create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_prev)
+      end
 
       let!(:draft_benefit_application) do
         application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, effective_period: past_effective_period)
@@ -367,7 +370,6 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       end
     end
 
-
     context "Should update effective period and approve renewing benefit application", dbclean: :after_each do
       let(:start_on)  { TimeKeeper.date_of_record}
       let(:effective_date) {start_on.next_month.beginning_of_month}
@@ -406,11 +408,13 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       }
 
       let!(:renewing_benefit_market_catalog) do
-        create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-               benefit_market: benefit_market,
-               title: "SHOP Benefits for #{current_effective_date.year}",
-               issuer_profile: issuer_profile,
-               application_period: (current_effective_date.next_month.beginning_of_month..current_effective_date.end_of_month + 1.year))
+        create(
+          :benefit_markets_benefit_market_catalog, :with_product_packages,
+          benefit_market: benefit_market,
+          title: "SHOP Benefits for #{current_effective_date.year}",
+          issuer_profile: issuer_profile,
+          application_period: current_effective_date.next_year.beginning_of_year..current_effective_date.next_year.end_of_year
+        )
       end
 
       let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
