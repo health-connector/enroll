@@ -4,8 +4,8 @@ module Effective
       datatable do
 
         bulk_actions_column do
-          bulk_action 'Delete', notifier.delete_notices_notice_kinds_path, data: { confirm: "This will remove selected notices. Are you sure?", no_turbolink: true }
-          # bulk_action 'Download', notifier.download_notices_notice_kinds_path, target: '_blank'
+          bulk_action 'Delete', notifier.delete_notices_notice_kinds_path, data: { confirm: "Are you sure you want to delete selected notice(s) events?", no_turbolink: true }
+          bulk_action 'Download', notifier.download_notices_notice_kinds_path, data: { confirm: "Are you sure you want to download slected notice(s)?", no_turbolink: true }
         end
 
         table_column :mpi_indicator, :proc => Proc.new { |row|
