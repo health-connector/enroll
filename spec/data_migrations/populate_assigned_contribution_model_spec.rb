@@ -21,8 +21,6 @@ describe PopulateAssignedContributionModel, dbclean: :after_each do
     include_context 'setup benefit market with market catalogs and product packages'
     include_context 'setup initial benefit application'
 
-    let(:current_effective_date) { TimeKeeper.date_of_record }
-
     before :each do
       benefit_sponsor_catalog.product_packages.by_product_kind(:health).each do |product_package|
         product_package.unset(:assigned_contribution_model)

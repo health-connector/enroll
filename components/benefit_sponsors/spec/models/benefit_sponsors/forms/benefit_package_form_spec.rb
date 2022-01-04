@@ -30,11 +30,15 @@ module BenefitSponsors
     let!(:product_package)          { benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
     let!(:product)                  { product_package.products.first }
     let!(:issuer_profile)           { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site }
-    let!(:benefit_market_catalog_current)   do
-      create(:benefit_markets_benefit_market_catalog,
-             :with_product_packages, issuer_profile: issuer_profile,
-                                     benefit_market: benefit_market,
-                                     application_period: default_effective_period)
+    let!(:benefit_market_catalog_current) do
+      BenefitMarkets::BenefitMarketCatalog.where("application_period.min" => current_effective_date.beginning_of_year).first ||
+        create(
+          :benefit_markets_benefit_market_catalog,
+          :with_product_packages,
+          issuer_profile: issuer_profile,
+          benefit_market: benefit_market,
+          application_period: current_effective_date.beginning_of_year..current_effective_date.end_of_year
+        )
     end
 
     shared_context "valid params", :shared_context => :metadata do
