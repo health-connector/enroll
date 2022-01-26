@@ -173,9 +173,9 @@ module Notifier
     end
 
     def dependent_termination_date
-      merge_model.dependent_termination_date = format_date(TimeKeeper.date_of_record.end_of_month)
+      term_date = payload["notice_params"]["dependent_termination_date"].present? ? Date.strptime(payload["notice_params"]["dependent_termination_date"].to_s, "%m/%d/%Y") : TimeKeeper.date_of_record.end_of_month
+      merge_model.dependent_termination_date = format_date(term_date)
     end
-    
     # Using same merge model for special enrollment period and qualifying life event kind.
     def special_enrollment_period
       return @special_enrollment_period if defined? @special_enrollment_period
