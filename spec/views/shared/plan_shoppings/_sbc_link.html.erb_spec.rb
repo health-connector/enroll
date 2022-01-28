@@ -38,7 +38,7 @@ RSpec.describe "shared/plan_shoppings/_sbc_link.html.erb" do
     end
 
     it "should have the sbc link with dental text" do
-      expect(rendered).to have_selector('a', text:'Plan Summary')
+      expect(rendered).to have_selector('a', text: 'Summary of Benefits and Coverage')
     end
 
   end
