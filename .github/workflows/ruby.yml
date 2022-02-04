@@ -26,7 +26,7 @@ jobs:
           - name: Brakeman In Main app
             skip_js: 'true'
             test_command: |
-              brakeman -i config/brakeman.ignore
+              brakeman -I config/brakeman.ignore
           - name: Brakeman In Components
             skip_js: 'true'
             test_command: |
