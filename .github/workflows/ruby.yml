@@ -23,18 +23,6 @@ jobs:
             test_command: |
               git fetch --no-tags origin
               bundle exec rubocop-git origin/master | grep "no offenses detected"
-          - name: Brakeman In Main app
-            skip_js: 'true'
-            test_command: |
-              brakeman -i config/brakeman.ignore
-          - name: Brakeman In Components
-            skip_js: 'true'
-            test_command: |
-              for test_dir in `ls -1 components`; do
-                cd components/$test_dir
-                brakeman -i config/brakeman.ignore
-                cd ../..
-              done
           - name: rspec 1/4s
             test_command: rspec_booster --job 1/4
           - name: rspec 2/4
