@@ -32,7 +32,7 @@ jobs:
             test_command: |
               for test_dir in `ls -1 components`; do
                 cd components/$test_dir
-                brakeman -i config/brakeman.ignore
+                #brakeman -i config/brakeman.ignore
                 cd ../..
               done
           - name: rspec 1/4s
