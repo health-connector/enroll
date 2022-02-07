@@ -14,6 +14,7 @@ env:
 jobs:
   cucumber-report:
     strategy:
+      fail-fast: false
       matrix:
         feature:
           [
@@ -60,7 +61,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
       - uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: "12"
       - name: Restore project gems
         uses: actions/cache@v2
         with:
