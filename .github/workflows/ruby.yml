@@ -1,6 +1,6 @@
 name: Full suite check
 on:
-  push:
+  # push:
   schedule:
     - cron: "0 6 * * *"
 
