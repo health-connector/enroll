@@ -168,8 +168,6 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
-      - name: run webpack
-        run: NODE_ENV=test RAILS_ENV=test ./bin/webpack
       - name: Run tests
         run: bundle exec rspec components/${{ matrix.folder }} --format json --out ci/rspec/components-${{matrix.folder}}-rspec-report.json
       - name: Upload build artifact
