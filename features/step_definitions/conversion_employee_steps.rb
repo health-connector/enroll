@@ -286,7 +286,7 @@ end
 
 When(/Employee select a qle date based on expired plan year/) do
   screenshot("past_qle_date")
-  fill_in "qle_date", :with => (renewal_effective_date - 1.year - 20.days).strftime("%m/%d/%Y")
+  fill_in "qle_date", :with => (renewal_effective_date - 20.days).strftime("%m/%d/%Y")
   within '#qle-date-chose' do
     find('.interaction-click-control-continue').click
   end
