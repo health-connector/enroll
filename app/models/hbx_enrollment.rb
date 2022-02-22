@@ -1115,7 +1115,7 @@ class HbxEnrollment
   #### HBX Enrollment is under annual open enrollment OR under new hire open enrollment
   def display_make_changes_for_shop?
     return false unless is_shop? || family.is_eligible_to_enroll?
-    return false if coverage_terminated? || coverage_canceled?
+    return false if coverage_terminated? || coverage_canceled? || coverage_expired?
 
     # See scenario features/employee/employee_passive_renewal_update.feature
     # enrollment_is_active_with_upcoming_auto_renewing
@@ -1131,9 +1131,16 @@ class HbxEnrollment
   end
 
   def latest_sep_or_new_hire_or_oe_contains?
-    family.enrollment_is_not_most_recent_sep_enrollment?(self) ||
+    special_enrollment_period_available? ||
       employee_role&.can_enroll_as_new_hire? ||
       sponsored_benefit_package&.open_enrollment_contains?(TimeKeeper.date_of_record)
+  end
+
+  def special_enrollment_period_available?
+    shop_sep = family.earliest_effective_shop_sep
+    return false unless shop_sep
+
+    sponsored_benefit_package.effective_period.cover?(shop_sep.effective_on)
   end
 
   def make_changes?
