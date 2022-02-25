@@ -3037,24 +3037,6 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
         allow(enrollment).to receive(:employee_role).and_return(employee_role_double)
       end
 
-      context "is_not_most_recent_sep_enrollment?" do
-        before do
-          # False for "or" statements
-          allow(enrollment.employee_role).to receive(:can_enroll_as_new_hire?).and_return(false)
-          allow(sponsored_benefit).to receive(:open_enrollment_contains?).with(TimeKeeper.date_of_record).and_return(false)
-        end
-
-        it 'should display make changes if true' do
-          allow(enrollment.family).to receive(:enrollment_is_not_most_recent_sep_enrollment?).with(enrollment).and_return(true)
-          expect(enrollment.display_make_changes_for_shop?).to eq(true)
-        end
-
-        it "should not display make changes if false" do
-          allow(enrollment.family).to receive(:enrollment_is_not_most_recent_sep_enrollment?).with(enrollment).and_return(false)
-          expect(enrollment.display_make_changes_for_shop?).to be_falsey
-        end
-      end
-
       context "can_enroll_as_new_hire?" do
         before do
           # False for "or" statements
@@ -3069,6 +3051,34 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
 
         it "should not display make changes if false" do
           allow(enrollment.employee_role).to receive(:can_enroll_as_new_hire?).and_return(false)
+          expect(enrollment.display_make_changes_for_shop?).to be_falsey
+        end
+      end
+
+      context "can enroll with active shop sep??" do
+        before do
+          allow(enrollment.family).to receive(:earliest_effective_shop_sep).and_return(sep)
+          allow(sponsored_benefit).to receive(:effective_period).and_return(sep.effective_on..sep.effective_on + 1.month)
+        end
+
+        it 'should return true if enr is active and is not in open enrollment period and family has active shop sep which falls under benefit package effective period' do
+          expect(enrollment.display_make_changes_for_shop?).to eq(true)
+        end
+      end
+
+      context 'make changes and view detail buttons on enrollment tile' do
+        it 'should not be visible when aasm_state is coverage_canceled' do
+          allow(enrollment).to receive(:aasm_state).and_return('coverage_canceled')
+          expect(enrollment.display_make_changes_for_shop?).to be_falsey
+        end
+
+        it 'should not be visible when aasm_state is coverage_expired' do
+          allow(enrollment).to receive(:aasm_state).and_return('coverage_expired')
+          expect(enrollment.display_make_changes_for_shop?).to be_falsey
+        end
+
+        it 'should not be visible when aasm_state is coverage_terminated' do
+          allow(enrollment).to receive(:aasm_state).and_return('coverage_terminated')
           expect(enrollment.display_make_changes_for_shop?).to be_falsey
         end
       end
