@@ -722,7 +722,9 @@ class HbxEnrollment
   end
 
   def update_expected_selection
-    return unless is_shop? && census_employee.present? && !CensusEmployee::COBRA_STATES.include?(census_employee.aasm_state)
+    return unless is_shop?
+    return unless census_employee.present? && census_employee.valid?
+    return if CensusEmployee::COBRA_STATES.include?(census_employee.aasm_state)
 
     census_employee.update_attributes!(expected_selection: "waive")
   end
