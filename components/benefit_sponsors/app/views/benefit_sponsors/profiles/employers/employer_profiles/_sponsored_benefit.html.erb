@@ -137,7 +137,7 @@
                 <% estimator = ::BenefitSponsors::Services::SponsoredBenefitCostEstimationService.new %>
                 <% estimate = estimator.calculate_estimates_for_benefit_display(sponsored_benefit) %>
               <% end %>
-              <h2><%= number_to_currency(estimate[:estimated_sponsor_exposure]) unless estimate.blank? %></h2>
+              <h2 class="er-max-cost-<%= sponsored_benefit.product_kind %>"></h2>
             </div>
           </div>
           <div class="col-xs-8">
@@ -150,8 +150,8 @@
                 </tr>
                 <tr>
                   <td colspan="2">Total Estimated Monthly Cost for Plan Participants</td>
-                    <td><%= number_to_currency(estimate[:estimated_enrollee_minimum]) unless estimate.blank? %></td>
-                    <td><%= number_to_currency(estimate[:estimated_enrollee_maximum]) unless estimate.blank? %></td>
+                    <td class="min-estimate-<%= sponsored_benefit.product_kind %>"></td>
+                    <td class="max-estimate-<%= sponsored_benefit.product_kind %>"></td>
                 </tr>
               </table>
             </div>
@@ -169,3 +169,7 @@
     color:#69A30D;
   }
 </style>
+
+<script>
+  var estimate_cost_url = "<%= profiles_employers_employer_profile_estimate_cost_path(@employer_profile.id) %>";
+</script>
