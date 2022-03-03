@@ -1,9 +1,9 @@
 class Organizers::MembersSelectionPrevaricationAdapter
-    include Interactor::Organizer
+  include Interactor::Organizer
 
-    organize [
-        FindPerson
-        FindPrimaryFamily
-    ]
-
+  organize [FindPerson,
+            FindPrimaryFamily,
+            FindImmediateFamilyCoverageHousehold,
+            AssignParamsToContext,
+            AssignPreviousHbxEnrollment]
 end

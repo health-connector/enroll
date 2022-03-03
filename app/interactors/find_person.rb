@@ -1,24 +1,24 @@
+# frozen_string_literal: true
+
 class FindPerson
-    include Interactor
+  include Interactor
 
-    before do
-        unless context.params[:person_id].present?
-            context.fail!(message: "missing person id in params")
-        end
-    end
+  before do
+    context.fail!(message: "missing person id in params") unless context.params[:person_id].present?
+  end
 
-    def call
-       person =  Person.find(person_id)
-       if person
-        context.person = context.person
-       else
-        context.fail!(message: "no person found for given id")
-       end
-    rescue StandardError => e
-       context.fail!(message: "invalid ID")
+  def call
+    person = Person.find(person_id)
+    if person
+      context.person = person
+    else
+      context.fail!(message: "no person found for given id")
     end
+  rescue StandardError => _e
+    context.fail!(message: "invalid ID")
+  end
 
-    def person_id
-        context.params[:person_id]
-    end
+  def person_id
+    context.params[:person_id]
+  end
 end
