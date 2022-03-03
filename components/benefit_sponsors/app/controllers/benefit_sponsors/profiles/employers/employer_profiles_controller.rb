@@ -221,9 +221,9 @@ module BenefitSponsors
           @benefit_package = benefit_application.benefit_packages.where(:id => benefit_package_id).first
         end
 
-        def map_sponsored_benefit_estimate_cost(sb)
+        def map_sponsored_benefit_estimate_cost(sponsored_benefit)
           estimator = ::BenefitSponsors::Services::SponsoredBenefitCostEstimationService.new
-          estimate = estimator.calculate_estimates_for_benefit_display(sb)
+          estimate = estimator.calculate_estimates_for_benefit_display(sponsored_benefit)
           estimate.each {|k,v| estimate[k] = ActiveSupport::NumberHelper.number_to_currency(v)}
         end
 

@@ -132,9 +132,7 @@ module BenefitSponsors
     end
 
     describe "POST estimate_cost" do
-      let!(:employees) {
-        FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
-      }
+      let!(:employees) { FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)}
 
       before do
         sign_in user
