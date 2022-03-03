@@ -288,6 +288,9 @@ Rails.application.routes.draw do
       end
     end
 
+    #insured/members_selection
+    resources :members_selection, only: [:new, :create]
+
   end
 
   namespace :employers do
