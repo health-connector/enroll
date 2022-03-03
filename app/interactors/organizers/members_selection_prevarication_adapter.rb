@@ -1,9 +1,16 @@
-class Organizers::MembersSelectionPrevaricationAdapter
-  include Interactor::Organizer
+# frozen_string_literal: true
 
-  organize [FindPerson,
-            FindPrimaryFamily,
-            FindImmediateFamilyCoverageHousehold,
-            AssignParamsToContext,
-            AssignPreviousHbxEnrollment]
+module Organizers
+  class MembersSelectionPrevaricationAdapter
+    include Interactor::Organizer
+
+    organize [FindPerson,
+              FindPrimaryFamily,
+              FindImmediateFamilyCoverageHousehold,
+              AssignParamsToContext,
+              AssignPreviousHbxEnrollment,
+              FetchShoppingRole,
+              DisableMarketKinds,
+              FetchMarketAndCoverageKindFromEnrollment]
+  end
 end
