@@ -1,13 +1,13 @@
+# frozen_string_literal: true
+
 class FindPrimaryFamily
-    include Interactor
+  include Interactor
 
-    before do
-        unless context.person.present?
-            context.fail!(message: "missing person")
-        end
-    end
+  before do
+    context.fail!(message: "missing person") unless context.person.present?
+  end
 
-    def call
-       context.primary_family =  context.person.primary_family
-    end
+  def call
+    context.primary_family = context.person.primary_family
+  end
 end
