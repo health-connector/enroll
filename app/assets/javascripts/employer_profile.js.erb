@@ -42,12 +42,38 @@ var EmployerProfile = ( function( window, undefined ) {
       $thisObj.closest('.benefit-package').find('.health-offering, .dental-offering').slideDown();
       $thisObj.html('Hide Details<i class="fa fa-chevron-up fa-lg"></i>');
       $thisObj.removeClass('view');
+      estimateCost($thisObj);
     } else {
       $thisObj.closest('.benefit-package').find('.health-offering, .dental-offering').slideUp();
       $thisObj.html('View Details<i class="fa fa-chevron-down fa-lg"></i>');
       $thisObj.addClass('view');
     }
   }
+
+  function estimateCost (target) {
+    $targetPackage = target.closest('.benefit-package');
+    var bp_id = target.closest("div").data("id");
+    $.ajax({
+      url: estimate_cost_url,
+      type: "GET",
+      data:{
+        benefit_package_id: bp_id
+      },
+      success: function(data) {
+          if(data['health']) {
+            $targetPackage.find('.er-max-cost-health').text(data['health']['estimated_sponsor_exposure']);
+            $targetPackage.find('.max-estimate-health').text(data['health']['estimated_enrollee_maximum']);
+            $targetPackage.find('.min-estimate-health').text(data['health']['estimated_enrollee_minimum']);
+          }
+          if(data['dental']) {
+            $targetPackage.find('.er-max-cost-dental').text(data['dental']['estimated_sponsor_exposure']);
+            $targetPackage.find('.max-estimate-dental').text(data['dental']['estimated_enrollee_maximum']);
+            $targetPackage.find('.min-estimate-dental').text(data['dental']['estimated_enrollee_minimum']);
+          }
+      },
+    });
+  }
+
 
   function showActionNeeded(){
     $('.interaction-click-control-documents').html('Documents <span class="label label-danger">Action Needed</span>')
