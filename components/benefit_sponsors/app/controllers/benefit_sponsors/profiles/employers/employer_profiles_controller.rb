@@ -3,7 +3,7 @@ module BenefitSponsors
     module Employers
       class EmployerProfilesController < ::BenefitSponsors::ApplicationController
 
-        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice]
+        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost]
         before_action :load_group_enrollments, only: [:coverage_reports], if: :is_format_csv?
         before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
         before_action :wells_fargo_sso, only: [:show]
@@ -141,6 +141,17 @@ module BenefitSponsors
           render :json => sic_tree
         end
 
+        def estimate_cost
+          find_benefit_package
+          estimate_hash = {}
+          if @benefit_package.present?
+            @benefit_package.sponsored_benefits.each do |sb|
+              estimate_hash[sb.product_kind] = map_sponsored_benefit_estimate_cost(sb)
+            end
+          end
+          render :json => estimate_hash
+        end
+
         private
 
         def wells_fargo_sso
@@ -198,6 +209,22 @@ module BenefitSponsors
           data_table_params[:is_submitted] = true if @employer_profile&.renewal_benefit_application&.is_submitted?
           data_table_params[:is_off_cycle_submitted] = true if @employer_profile&.off_cycle_benefit_application&.is_submitted?
           data_table_params
+        end
+
+        def find_benefit_package
+          benefit_package_id = params[:benefit_package_id]
+          return unless benefit_package_id
+
+          benefit_application = @employer_profile.organization.active_benefit_sponsorship.benefit_applications.where(:"benefit_packages._id" => BSON::ObjectId.from_string(benefit_package_id)).first
+          return unless benefit_application
+
+          @benefit_package = benefit_application.benefit_packages.where(:id => benefit_package_id).first
+        end
+
+        def map_sponsored_benefit_estimate_cost(sb)
+          estimator = ::BenefitSponsors::Services::SponsoredBenefitCostEstimationService.new
+          estimate = estimator.calculate_estimates_for_benefit_display(sb)
+          estimate.each {|k,v| estimate[k] = ActiveSupport::NumberHelper.number_to_currency(v)}
         end
 
         def load_documents
