@@ -96,7 +96,7 @@ class Insured::FamiliesController < FamiliesController
       action_params.merge!({change_plan: "change_plan"})
     end
 
-    redirect_to new_insured_group_selection_path(action_params)
+    redirect_to new_insured_members_selection(action_params)
   end
 
   def personal
