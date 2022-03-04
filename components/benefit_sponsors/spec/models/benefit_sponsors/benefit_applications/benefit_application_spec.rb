@@ -968,7 +968,7 @@ module BenefitSponsors
 
         it 'should return next day of quiet_period start date as quiet_period end date' do
           quiet_period = initial_application.enrollment_quiet_period
-          expect(quiet_period.max).to eq quiet_period.min + 1.day
+          expect(quiet_period.max.to_date).to eq quiet_period.min.to_date + 1.day
         end
       end
     end
