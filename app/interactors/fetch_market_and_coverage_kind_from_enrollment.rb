@@ -4,7 +4,7 @@ class FetchMarketAndCoverageKindFromEnrollment
   include Interactor
 
   before do
-    context.fail!(message: "missing previous_hbx_enrollment") unless context.previous_hbx_enrollment.present?
+    return unless context.previous_hbx_enrollment.present? #should not return failure so that it does not block the organizer.
   end
 
   def call

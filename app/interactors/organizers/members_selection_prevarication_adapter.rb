@@ -11,6 +11,10 @@ module Organizers
               AssignPreviousHbxEnrollment,
               FetchShoppingRole,
               DisableMarketKinds,
-              FetchMarketAndCoverageKindFromEnrollment]
+              FetchMarketAndCoverageKindFromEnrollment,
+              SelectMarketKind,
+              SetIvlBenefit,
+              AssignChangePlanForShop,
+              FetchShopBenefit]
   end
 end
