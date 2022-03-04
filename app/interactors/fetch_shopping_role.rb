@@ -4,6 +4,7 @@ class FetchShoppingRole
   include Interactor
 
   before do
+    binding.pry
     context.fail!(message: "missing person") unless context.person.present?
   end
 
@@ -12,6 +13,7 @@ class FetchShoppingRole
   end
 
   def possible_role
+    binding.pry
     case _dummy
     when context.employee_role.present?
       context.employee_role
