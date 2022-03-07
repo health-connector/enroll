@@ -130,5 +130,19 @@ module BenefitSponsors
         expect(response).to have_http_status(:success)
       end
     end
+
+    describe "POST estimate_cost" do
+      let!(:employees) { FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)}
+
+      before do
+        sign_in user
+        post :estimate_cost, employer_profile_id: benefit_sponsor.profiles.first.id, benefit_package_id: BSON::ObjectId.new
+        allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+      end
+
+      it "should return http success" do
+        expect(response).to have_http_status(:success)
+      end
+    end
   end
 end
