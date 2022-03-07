@@ -15,7 +15,5 @@ class FetchImmediateFamilyCoverageHousehold
     else
       context.fail!(message: "no immediate_family_coverage_household for this family")
     end
-  rescue StandardError => e
-    context.fail!(message: "invalid ID")
   end
 end

@@ -4,8 +4,10 @@ class DisableMarketKinds
   include Interactor
 
   def call
-    conetxt.disable_market_kind = disable_market_kind(context.params)
+    context.disable_market_kind = disable_market_kind(context.params)
   end
+
+  private
 
   def disable_market_kind(params)
     if context.change_plan == 'change_by_qle' || context.enrollment_kind == 'sep'
@@ -28,5 +30,9 @@ class DisableMarketKinds
     elsif person.has_active_resident_role?
       'coverall'
     end
+  end
+
+  def person
+    context.person
   end
 end

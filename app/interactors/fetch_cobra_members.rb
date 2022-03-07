@@ -3,13 +3,11 @@
 class FetchCobraMembers
   include Interactor
 
-  before do
+  def call
     return unless context.market_kind == 'shop'
     return nil if context.change_plan == 'change_by_qle' || context.enrollment_kind == 'sep'
     return unless employee_role.present? && employee_role.is_cobra_status?
-  end
 
-  def call
     context.coverage_family_members_for_cobra = shop_market_enrollment.hbx_enrollment_members.map(&:family_member) if shop_market_enrollment.present?
   end
 
