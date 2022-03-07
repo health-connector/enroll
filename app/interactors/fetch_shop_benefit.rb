@@ -12,6 +12,6 @@ class FetchShopBenefit
 
     possible_benefit_package = context.previous_hbx_enrollment.sponsored_benefit_package if context.change_plan.present? && context.previous_hbx_enrollment.present?
 
-    context.benefit_group = assigned_benefit_package&.start_on != possible_benefit_package.start_on ? possible_benefit_package : assigned_benefit_package
+    context.benefit_group = possible_benefit_package.present? && assigned_benefit_package&.start_on != possible_benefit_package.start_on ? possible_benefit_package : assigned_benefit_package
   end
 end

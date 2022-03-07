@@ -8,6 +8,12 @@ class FindPrimaryFamily
   end
 
   def call
-    context.primary_family = context.person.primary_family
+    primary_family = context.person.primary_family
+
+    if primary_family
+      context.primary_family = primary_family
+    else
+      context.fail!(message: "no primary family found")
+    end
   end
 end

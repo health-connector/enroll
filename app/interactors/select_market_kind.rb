@@ -4,7 +4,7 @@ class SelectMarketKind
   include Interactor
 
   def call
-    conetxt.market_kind = select_market(context.params)
+    context.market_kind = select_market(context.params)
   end
 
   private
@@ -24,5 +24,9 @@ class SelectMarketKind
     elsif person.has_active_resident_role?
       'coverall'
     end
+  end
+
+  def person
+    context.person
   end
 end
