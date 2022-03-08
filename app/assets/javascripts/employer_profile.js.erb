@@ -54,6 +54,7 @@ var EmployerProfile = ( function( window, undefined ) {
     $targetPackage = target.closest('.benefit-package');
     var bp_id = target.closest("div").data("id");
     $.ajax({
+      async: true,
       url: estimate_cost_url,
       type: "GET",
       data:{
