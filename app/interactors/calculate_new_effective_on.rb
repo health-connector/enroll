@@ -14,9 +14,9 @@ class CalculateNewEffectiveOn
                                  calculate_effective_on(context.employee_role, context.benefit_group)
 
                                  # Set new_effective_on to the date choice selected by user if this is a QLE with date options available.
-                                 Date.strptime(context.params[:effective_on_option_selected], '%m/%d/%Y') if context.params[:effective_on_option_selected].present?
-
-                                 context.previous_hbx_enrollment.effective_on if context.change_plan == 'change_plan' && context.previous_hbx_enrollment.present?
+                                 # Date.strptime(context.params[:effective_on_option_selected], '%m/%d/%Y') if context.params[:effective_on_option_selected].present?
+                                 #
+                                 # context.previous_hbx_enrollment.effective_on if context.change_plan == 'change_plan' && context.previous_hbx_enrollment.present?
                                end
   end
 

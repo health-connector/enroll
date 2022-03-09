@@ -133,15 +133,18 @@ module Insured
     end
 
     def is_employer_disabled?(employee_role)
-      if @mc_market_kind.present?
-        @mc_market_kind == "individual" || @hbx_enrollment.employee_role.id != employee_role.id
+      market_kind = @mc_market_kind || @organizer.market_kind
+      hbx_enrollment = @hbx_enrollment || @organizer.previous_hbx_enrollment
+      if market_kind.present? && hbx_enrollment.present?
+        market_kind == "individual" || hbx_enrollment&.employee_role&.id != employee_role.id
       else
         false
       end
     end
 
     def is_employer_checked?(employee_role)
-      if @mc_market_kind.present?
+      market_kind = @mc_market_kind || @organizer.market_kind
+      if market_kind.present?
         !(is_employer_disabled?(employee_role))
       else
         employee_role.id == @employee_role.id
