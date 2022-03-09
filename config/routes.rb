@@ -289,7 +289,7 @@ Rails.application.routes.draw do
     end
 
     #insured/members_selection
-    resources :members_selection, only: [:new, :create]
+    resources :members_selections, controller: "members_selection", only: [:new, :create]
 
   end
 
