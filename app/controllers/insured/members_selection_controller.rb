@@ -23,7 +23,8 @@ module Insured
       if organizer.success?
         @person = organizer.person
         @family = organizer.primary_family
-        @coverage_household = organizer.coverage_household
+        # @coverage_household = organizer.coverage_household
+        @family_members = organizer.family_members
         @hbx_enrollment = organizer.previous_hbx_enrollment
         @change_plan = organizer.change_plan
         @coverage_kind = organizer.coverage_kind
@@ -46,8 +47,6 @@ module Insured
         @benefit_group = organizer.benefit_group
         @shop_under_current = organizer.shop_under_current
         @shop_under_future = organizer.shop_under_future
-
-
 
         @new_effective_on = organizer.new_effective_on
         @coverage_family_members_for_cobra = organizer.coverage_family_members_for_cobra

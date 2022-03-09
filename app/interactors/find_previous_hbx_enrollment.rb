@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AssignPreviousHbxEnrollment
+class FindPreviousHbxEnrollment
   include Interactor
 
   def call

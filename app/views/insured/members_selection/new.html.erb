@@ -13,6 +13,10 @@
           <%= l10n("insured.group_selection.new.effective_date") %>: <span style="color: red;"><%= format_date(effective_date_for_display) %></span>
         <%end%>
         </div>
+       <% if @can_shop_shop %>
+          <%= render partial: 'select_employer', locals: {effective_date: effective_date_for_display} %>
+        <% end %>
+
         <h3><%= l10n("insured.group_selection.new.who_needs_coverage") %></h3>
         <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
         <%= hidden_field_tag(:is_waiving, nil, id: "is_waiving_hidden_value_field") %>
@@ -23,7 +27,7 @@
         <%= hidden_field_tag(:shop_under_current, @shop_under_current) if @shop_under_current %>
         <%= hidden_field_tag(:shop_under_future, @shop_under_future) if @shop_under_future %>
 
-          <% if @adapter.can_shop_shop?(@person) || @adapter.can_shop_individual?(@person) || @adapter.can_shop_resident?(@person) %>
+          <% if @can_shop_shop || @can_shop_individual || @can_shop_resident %>
             <div id="coverage-household" class='row no-buffer'>
               <div class="module group-selection-table">
                 <div class="table-responsive table-border" style="background-color: #fff">
@@ -34,7 +38,7 @@
             </div>
           <% end %>
 
-          <% if @adapter.can_shop_both_markets?(@person) %>
+          <% if @can_shop_both_markets %>
             <div id="market_kinds" class='row no-buffer'>
                 <h3><%= l10n("insured.group_selection.new.marketplace") %></h3>
               <span class="clear" style="display: il"></span>
@@ -56,63 +60,15 @@
                 <% end %>
               </div>
             </div>
-          <% elsif @adapter.can_shop_shop?(@person) %>
+          <% elsif @can_shop_shop %>
              <%= hidden_field_tag 'market_kind', 'shop' %>
-          <% elsif @adapter.can_shop_individual?(@person) && !@adapter.can_shop_resident?(@person) %>
-             <%= hidden_field_tag 'market_kind', 'individual' %>
-          <% elsif @adapter.can_shop_resident?(@person) %>
-             <%= hidden_field_tag 'market_kind', 'coverall' %>
           <% else %>
             <% if @market_kind.present? %>
               <%= hidden_field_tag 'market_kind', @market_kind %>
             <% end %>
           <% end %>
 
-        <% if @adapter.can_shop_shop?(@person) %>
-          <%= render partial: 'select_employer', locals: {effective_date: effective_date_for_display} %>
-        <% end %>
 
-          <div id="coverage_kinds" class='row no-buffer'>
-              <h3><%= l10n("benefit_type") %></h3>
-
-              <div class="n-radio-group">
-                <div class="n-radio-row">
-                  <label class="n-radio" for="coverage_kind_health">
-                    <%= radio_button_tag 'coverage_kind', 'health', is_coverage_kind_checked?("health"), disabled: is_coverage_kind_disabled?("health"),id: 'coverage_kind_health', class: 'n-radio' %>
-                    <span class="n-radio">
-                    </span>
-                    <%= l10n(".health") %>
-                  </label>
-                </div>
-
-                <% if dental_market_enabled? %>
-                  <div id="dental-radio-button" class="n-radio-row <%= 'dn' if @adapter.can_shop_shop?(@person) && !@adapter.is_eligible_for_dental?(@employee_role, @change_plan, @hbx_enrollment, effective_date_for_display) %>">
-                    <label class="n-radio" for="coverage_kind_dental">
-                      <%= radio_button_tag 'coverage_kind', 'dental', is_coverage_kind_checked?("dental"), disabled: is_coverage_kind_disabled?("dental"), id: 'coverage_kind_dental', class: 'n-radio' %>
-                      <span class="n-radio">
-                      </span>
-                      <%= l10n("dental") %>
-                    </label>
-                  </div>
-                <% end %>
-              </div>
-          </div>
-
-          <% if @market_kind == 'individual' && is_under_open_enrollment? %>
-            <div class='row top-pd'>
-              <div class="col-sm-12">
-                <h4><%= l10n("insured.do_you_need_coverage_earlier_msg", link: link_to('Special Enrollment Period', find_sep_insured_families_path, id: "find_sep_link" ))%></h4>
-              </div>
-            </div>
-
-            <% if @show_residency_alert && !CuramUser.name_in_curam_list(@person.first_name, @person.last_name) %>
-              <div class='row top-pd'>
-                <div class="col-sm-12">
-                  <p><%= l10n(".show_residency_alert_msg", full_name: @person.full_name, aca_state_name: aca_state_name, site_short_name: site_short_name, contact_center_phone_number: contact_center_phone_number) %></p>
-                </div>
-              </div>
-            <% end %>
-          <% end %>
 
           <% if @change_plan.present? %>
             <%= hidden_field_tag 'change_plan', @change_plan %>
@@ -125,33 +81,18 @@
 	      <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
 
             <% end %>
-          <% else %>
-            <!--<h3>Select a plan</h3>-->
-            <!--<p class="text-justify"><%#= t('welcome.employee.select_plan') %></p>-->
           <% end %>
           <br/>
         <br/>
           <%= link_to l10n("back_to_my_account"), family_account_path, class: 'btn btn-default btn btn-lg' %>
         </div>
       <div class="col-xs-3 right-section pull-right">
-          <% if @change_plan.blank?  && @market_kind == "individual" %>
-            <% if @enrollment_kind.blank? && is_under_open_enrollment? %>
-              <%= render  partial: 'shared/individual_progress', locals: {step: '3'} %>
-            <% else %>
-              <%= render  partial: 'shared/sep_progress', locals: {step: '4', continue_disabled: false, button_continue: true } %>
-            <% end %>
-          <% elsif @change_plan.blank? && @adapter.can_shop_resident?(@person) %>
-            <%= render partial: 'shared/coverall_progress', locals: {step: '4'} %>
-          <% elsif @change_plan.blank? %>
+          <% if @change_plan.blank? %>
             <%= render  partial: 'shared/signup_progress', locals: {step: '4'} %>
           <% elsif @change_plan == "change_by_qle" %>
             <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
           <% elsif @change_plan == "change_plan" %>
-            <% if (@market_kind == "individual" && !is_under_open_enrollment?) || @enrollment_kind == 'sep' %>
-              <%= render  partial: 'shared/sep_shop_for_plans_progress', locals: {step: '2'} %>
-            <% else %>
               <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '1', show_waive: true} %>
-            <% end %>
           <% end %>
         </div>
       </div>
