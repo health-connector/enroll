@@ -6,9 +6,9 @@ module Organizers
 
     organize [FindPerson,
               FindPrimaryFamily,
-              FetchImmediateFamilyCoverageHousehold,
+              FetchCoverageHouseholdAndFamilyMembers,
               AssignParamsToContext,
-              AssignPreviousHbxEnrollment,
+              FindPreviousHbxEnrollment,
               FetchShoppingRole,
               DisableMarketKinds,
               FetchMarketAndCoverageKindFromEnrollment,
@@ -18,6 +18,7 @@ module Organizers
               FetchShopBenefit,
               CalculateNewEffectiveOn,
               FetchCobraMembers,
-              CanWaive]
+              CanWaive,
+              FetchShopMembersCoverageEligibility]
   end
 end
