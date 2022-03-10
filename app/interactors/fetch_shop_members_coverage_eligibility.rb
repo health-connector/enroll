@@ -8,21 +8,14 @@ class FetchShopMembersCoverageEligibility
   end
 
   def call
-    all_eligibility_hash = {}
-    benefit_groups.each do |benefit_group|
-      all_eligibility_hash[benefit_group.id.to_s] = member_coverage_eligibilities(benefit_group)
-    end
-
-    context.coverage_eligibility = all_eligibility_hash
+    context.coverage_eligibility = {benefit_group.id.to_s => member_coverage_eligibilities(benefit_group)}
   end
 
   def member_coverage_eligibilities(benefit_group)
-    member_eligibility_hash = {}
-    context.family_members.each do |family_member|
+    context.family_members.each_with_object({}) do |family_member, output|
       member_eligibilities = shop_health_and_dental_attributes(family_member, benefit_group)
-      member_eligibility_hash[family_member.id.to_s] = member_eligibilities
+      output[family_member.id.to_s] = member_eligibilities
     end
-    member_eligibility_hash
   end
 
   def shop_health_and_dental_attributes(family_member, benefit_group)
@@ -32,8 +25,8 @@ class FetchShopMembersCoverageEligibility
     [is_health_coverage, is_dental_coverage]
   end
 
-  def benefit_groups
-    [context.benefit_group]
+  def benefit_group
+    context.benefit_group
   end
 
   def employee_role

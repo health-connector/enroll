@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/AbcSize
 class AssignParamsToContext
   include Interactor
 
@@ -10,6 +11,7 @@ class AssignParamsToContext
     context.coverage_kind = context.params[:coverage_kind].present? ? context.params[:coverage_kind] : 'health'
     context.enrollment_kind = context.params[:enrollment_kind].present? ? context.params[:enrollment_kind] : ''
     context.shop_for_plans = context.params[:shop_for_plans].present? ? context.params[:shop_for_plans] : ''
+    context.can_shop_shop = context.person.present? && context.person.has_employer_benefits?
     context.optional_effective_on = context.params[:effective_on_option_selected].present? ? Date.strptime(context.params[:effective_on_option_selected], '%m/%d/%Y') : nil
     fetch_shopping_role(context.params)
     context.qle = (context.change_plan == 'change_by_qle' || context.enrollment_kind == 'sep')
@@ -24,3 +26,4 @@ class AssignParamsToContext
     end
   end
 end
+# rubocop:enable Metrics/AbcSize
