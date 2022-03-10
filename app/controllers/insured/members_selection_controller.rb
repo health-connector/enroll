@@ -7,19 +7,39 @@ module Insured
 
     def new
       @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys)
-      @can_shop_shop = @organizer.person.present? && @organizer.person.has_employer_benefits?
-      @can_shop_individual = false
-      @can_shop_resident = false
-      @can_shop_both_markets = false
 
-      set_bookmark_url
+      if @organizer.success?
+        @can_shop_both_markets = false
+        set_bookmark_url
+      else
+        redirect_to new_insured_members_selections_path
+      end
+    end
+
+    def fetch
+      @organizer = Organizers::CoverageEligibilityForGivenEmployeeRole.call(params: params.symbolize_keys, market_kind: params["market_kind"])
+
+      if @organizer.success?
+        respond_to do |format|
+          format.js
+        end
+      else
+        redirect_to new_insured_members_selections_path
+      end
     end
 
     def create
-    #wip
+      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys, market_kind: params["market_kind"])
+
+      if @organizer.success?
+        respond_to do |format|
+          format.js
+        end
+      else
+        redirect_to new_insured_members_selections_path
+      end
     end
 
-    private
 
     # def initialize_variables_for_new
     #   organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys)

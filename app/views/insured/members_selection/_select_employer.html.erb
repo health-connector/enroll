@@ -5,9 +5,7 @@
       <div class="n-radio-row">
         <label class="n-radio">
           <% dental_benefits = false #TODO: @adapter.is_eligible_for_dental?(employee_role, @organizer.change_plan, @organizer.hbx_enrollment, effective_date) %>
-          <%= radio_button_tag 'employee_role_id', employee_role.id, is_employer_checked?(employee_role), id: "census_employee_#{employee_role.census_employee.id}", disabled: is_employer_disabled?(employee_role),required: true, dental_benefits: dental_benefits,class: "n-radio"%>
-          <span class="n-radio">
-            </span>
+          <%= radio_button_tag 'employee_role_id', employee_role.id,is_employer_checked?(employee_role),  id: "employer_profile_legal_name" %>
           <%= employee_role.census_employee.employer_profile.legal_name.capitalize %>
         </label>
       </div>
