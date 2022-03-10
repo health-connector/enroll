@@ -14,8 +14,5 @@ class CheckEligibilityForNewEnrollment
     return unless context.params[:is_waiving].blank?
 
     context.fail!(message: "You must select at least one Eligible applicant to enroll in the healthcare plan") if context.params[:family_member_ids].blank?
-    context.params.require(:family_member_ids).collect do |_index, family_member_id|
-      BSON::ObjectId.from_string(family_member_id)
-    end
   end
 end
