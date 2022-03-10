@@ -19,14 +19,13 @@
       </tr>
       <tr style="padding: 2px;">
         <td style="padding: 2px;">
-        health_enroll_family_id = family_id
-          <%= radio_button_tag("health[enroll][#{family_member.id}]", "enroll") %>
+          <%= radio_button_tag("health[enroll][#{family_member.id}]", family_member.id) %>
           <%= label_tag("health[enroll][#{index}]", "Enroll") %>
         </td>
       </tr>
       <tr>
         <td style="padding: 2px;">
-          <%= radio_button_tag("health[waive][#{family_member.id}]", "waive") %>
+          <%= radio_button_tag("health[waive][#{family_member.id}]", family_member.id) %>
           <%= label_tag("health[waive][#{index}]", "Waive") %>
         </td>
       </tr>
@@ -35,13 +34,13 @@
       </tr> 
       <tr>
         <td style="padding: 2px;">
-          <%= radio_button_tag("dental[enroll][#{family_member.id}]", "enroll") %>
+          <%= radio_button_tag("dental[enroll][#{family_member.id}]", family_member.id) %>
           <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
         </td>
       </tr>
       <tr>
         <td style="padding: 2px;">
-          <%= radio_button_tag("dental[waive][#{family_member.id}]", "waive") %>
+          <%= radio_button_tag("dental[waive][#{family_member.id}]", family_member.id) %>
           <%= label_tag("dental[waive][#{index}]", "Waive") %>
         </td>
       </tr>
