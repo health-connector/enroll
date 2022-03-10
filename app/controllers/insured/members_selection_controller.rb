@@ -3,8 +3,6 @@
 module Insured
   class MembersSelectionController < ApplicationController
 
-  # {"change_plan"=>"change_by_qle", "change_plan_date"=>"03/01/2022", "person_id"=>"60abddc907f0114a15b15227", "qle_id"=>"5b758a3307f0114bc18ecb1d", "sep_id"=>"6220f850d44d053fe620fbc3", "controller"=>"insured/members_selection", "action"=>"new"}
-
     def new
       @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys)
 
@@ -29,57 +27,18 @@ module Insured
     end
 
     def create
-      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys, market_kind: params["market_kind"])
+      @organizer = Organizers::CreateShoppingEnrollments.call(params: params.symbolize_keys, market_kind: params["market_kind"])
 
-      if @organizer.success?
-        respond_to do |format|
-          format.js
-        end
-      else
-        redirect_to new_insured_members_selections_path
+      if @organizer.failure?
+        flash[:error] = error.message
+        logger.error "#{error.message}\n#{error.backtrace.join("\n")}"
+        employee_role_id = @organizer.employee_role.id if @organizer.employee_role
+        consumer_role_id = @organizer.consumer_role.id if @organizer.consumer_role
+        return redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, consumer_role_id: consumer_role_id, enrollment_kind: @enrollment_kind)
       end
+
+      enrollments_presistence = @organizer.shopping_enrollments.map(&:save)
+      raise "You must select the primary applicant to enroll in the healthcare plan" unless enrollments_presistence.all?(true)
     end
-
-
-    # def initialize_variables_for_new
-    #   organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys)
-    #
-    #   # TODO: research for better approach
-    #   if organizer.success?
-    #     @person = organizer.person
-    #     @family = organizer.primary_family
-    #     # @coverage_household = organizer.coverage_household
-    #     @family_members = organizer.family_members
-    #     @hbx_enrollment = organizer.previous_hbx_enrollment
-    #     @change_plan = organizer.change_plan
-    #     @coverage_kind = organizer.coverage_kind
-    #     @enrollment_kind = organizer.enrollment_kind
-    #     @shop_for_plans = organizer.shop_for_plans
-    #     @optional_effective_on = organizer.optional_effective_on
-    #     @employee_role = organizer.employee_role
-    #     @resident_role = organizer.resident_role
-    #     @consumer_role = organizer.consumer_role
-    #     @role = organizer.role
-    #
-    #
-    #     @disable_market_kind = organizer.disabled_market_kind
-    #     @mc_market_kind = organizer.mc_market_kind
-    #     @mc_coverage_kind = organizer.mc_coverage_kind
-    #
-    #     @market_kind = organizer.market_kind
-    #     @benefit = organizer.benefit
-    #     @qle = organizer.qle
-    #     @benefit_group = organizer.benefit_group
-    #     @shop_under_current = organizer.shop_under_current
-    #     @shop_under_future = organizer.shop_under_future
-    #
-    #     @new_effective_on = organizer.new_effective_on
-    #     @coverage_family_members_for_cobra = organizer.coverage_family_members_for_cobra
-    #
-    #     @waivable = organizer.waivable
-    #     @can_shop_shop = @person.present? && @person.has_employer_benefits?
-    #
-    #   end
-    # end
   end
 end
