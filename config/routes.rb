@@ -295,6 +295,16 @@ Rails.application.routes.draw do
       end
     end
 
+      resources :product_shoppings, controller: "product_shoppings", only: [] do
+        collection do
+          get 'continuous_show'
+          get 'thankyou'
+          get 'router'
+          post 'select'
+          get 'health'
+          get 'dental'
+        end
+      end
   end
 
   namespace :employers do

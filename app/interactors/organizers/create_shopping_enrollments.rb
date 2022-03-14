@@ -11,13 +11,11 @@ module Organizers
               FindPreviousHbxEnrollment,
               FetchEmployeeRole,
               CheckEligibilityForNewEnrollment,
-              BuildShopHbxEnrollment,
+              BuildEnrollmentForShop,
               CheckEmployerBenefitsForEmployee,
               HireAndAssignCurrentUserBrokerAgency,
-              PersistHbxEnrollment,
               AssignShopAttributesToEnrollments,
-              FetchShopBenefit,
-              CalculateNewEffectiveOn,
-              FetchShopMembersCoverageEligibility]
+              PersistEnrollmentAndAssignToAssignments,
+              BuildJsonPayloadForShopping]
   end
 end

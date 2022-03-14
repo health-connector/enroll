@@ -12,5 +12,6 @@ class AssignCommonParamsForMemberSelection
     context.shop_for_plans = context.params[:shop_for_plans].present? ? context.params[:shop_for_plans] : ''
     context.optional_effective_on = context.params[:effective_on_option_selected].present? ? Date.strptime(context.params[:effective_on_option_selected], '%m/%d/%Y') : nil
     context.qle = (context.change_plan == 'change_by_qle' || context.enrollment_kind == 'sep')
+    context.commit = context.params[:commit]
   end
 end

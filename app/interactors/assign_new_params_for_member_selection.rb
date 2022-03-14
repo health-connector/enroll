@@ -10,7 +10,7 @@ class AssignNewParamsForMemberSelection
 
   def fetch_shopping_role(params)
     if params[:employee_role_id].present?
-      emp_role_id = params.require(:employee_role_id)
+      emp_role_id = params[:employee_role_id]
       context.employee_role = context.person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id.to_s }
     elsif params[:resident_role_id].present?
       context.resident_role = context.person.resident_role

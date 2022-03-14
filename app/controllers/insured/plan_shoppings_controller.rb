@@ -43,6 +43,7 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def receipt
+    binding.pry
     @enrollment = HbxEnrollment.find(params.require(:id))
     @plan = @enrollment.product
 
@@ -75,6 +76,7 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def thankyou
+    binding.pry
     set_elected_aptc_by_params(params[:elected_aptc]) if params[:elected_aptc].present?
     set_consumer_bookmark_url(family_account_path)
     @plan = BenefitMarkets::Products::Product.find(params[:plan_id])
