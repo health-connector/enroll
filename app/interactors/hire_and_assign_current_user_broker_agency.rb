@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CheckEmployerBenefitsForEmployee
+class HireAndAssignCurrentUserBrokerAgency
   include Interactor
 
   def call
@@ -14,6 +14,6 @@ class CheckEmployerBenefitsForEmployee
   end
 
   def broker_role
-    current_user&.person&.broker_role
+    context.current_user&.person&.broker_role
   end
 end

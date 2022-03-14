@@ -6,7 +6,7 @@ class FindPreviousHbxEnrollment
   def call
     return unless context.params.keys.include?(:hbx_enrollment_id)
 
-    context.fail!(message: "missing person id in params") unless context.params[:hbx_enrollment_id].present?
+    context.fail!(message: "missing hbx_enrollment_id in params") unless context.params[:hbx_enrollment_id].present?
 
     hbx_enrollment = HbxEnrollment.find(hbx_enrollment_id)
     if hbx_enrollment

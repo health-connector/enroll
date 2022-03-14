@@ -27,18 +27,22 @@ module Insured
     end
 
     def create
-      @organizer = Organizers::CreateShoppingEnrollments.call(params: params.symbolize_keys, market_kind: params["market_kind"])
+      @organizer = Organizers::CreateShoppingEnrollments.call(params: params.symbolize_keys, market_kind: params["market_kind"], session_original_application_type: session[:original_application_type], current_user: current_user)
 
       if @organizer.failure?
-        flash[:error] = error.message
-        logger.error "#{error.message}\n#{error.backtrace.join("\n")}"
+        flash[:error] = @organizer.message
+        logger.error "#{@organizer.message}\n#{@organizer.backtrace.join("\n")}"
         employee_role_id = @organizer.employee_role.id if @organizer.employee_role
-        consumer_role_id = @organizer.consumer_role.id if @organizer.consumer_role
-        return redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, consumer_role_id: consumer_role_id, enrollment_kind: @enrollment_kind)
+        # TODO
+        # redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, enrollment_kind: @enrollment_kind)
       end
 
-      enrollments_presistence = @organizer.shopping_enrollments.map(&:save)
-      raise "You must select the primary applicant to enroll in the healthcare plan" unless enrollments_presistence.all?(true)
+      if @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?
+        # TODO
+        # redirect_to thankyou_insured_plan_shopping_path(change_plan: @change_plan, market_kind: @market_kind, coverage_kind: @adapter.coverage_kind, id: hbx_enrollment.id, plan_id: @adapter.previous_hbx_enrollment.product_id)
+      else
+        redirect_to continuous_show_insured_product_shoppings_path(@organizer[:plan_selection_json])
+      end
     end
   end
 end

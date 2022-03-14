@@ -4,7 +4,7 @@
 <% effective_date_for_display = @organizer.effective_on_date || @organizer.new_effective_on %>
 <div class="container group-selection">
   <div class="row">
-    <%= form_tag(:insured_members_selections, :id => "group-selection-form", remote: true) do %>
+    <%= form_tag(:insured_members_selections, :id => "group-selection-form") do %>
       <div class="col-xs-8">
         <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
         <p class="twenty">Select who needs coverage and the type of coverage needed. When you’re finished, select CONTINUE.</p>

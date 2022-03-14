@@ -9,7 +9,7 @@ class AssignShopAttributesToEnrollments
     context.shopping_enrollments.each do |hbx_enrollment|
       keep_existing_plan_attributes(hbx_enrollment) if context.params[:commit] == "Keep existing plan"
       hbx_enrollment.generate_hbx_signature
-      hbx_enrollment.original_application_type = session[:original_application_type]
+      hbx_enrollment.original_application_type = context.session_original_application_type
       assign_cobra_attributes(hbx_enrollment) if context.employee_role.is_cobra_status?
     end
   end

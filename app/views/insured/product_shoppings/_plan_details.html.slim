@@ -1,0 +1,149 @@
+- # plan_carrier = Caches::MongoidCache.lookup(CarrierProfile, product.carrier_profile_id) { product.carrier_profile }
+- member_enrollment = product.group_enrollment
+- product = product.group_enrollment.product
+- product_carrier = ::Caches::CustomCache.lookup(::BenefitSponsors::Organizations::Organization, :plan_shopping, product.issuer_profile_id) { product.issuer_profile }
+
+.module.plan-row.panel.panel-default
+  .panel-body
+    .row
+      - if product.try(:is_standard_plan)
+        .col-md-12
+          span style="color:green"
+            i.fas.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+            = l10n("standard_plan").to_s.upcase
+    .row.mt-1
+      - if @context.enrolled_hbx_enrollment_plan_ids.include?(product.id)
+        link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous"
+        .col-md-12
+          span.fas.fa-star.fa-lg.enrolling style=("color: gold")
+          h5.current.bg-title = l10n("your_current_plan", year: product.try(:active_year)).to_s.upcase
+    .row
+      .col-md-2.col-sm-2 = display_carrier_logo(Maybe.new(product), {width: 80})
+      .col-md-7
+        h3.no-buffer
+          = link_to summary_products_plans_path({:standard_component_id => product.hios_id, hbx_enrollment_id: @context.hbx_enrollment.id, active_year: product.try(:active_year), market_kind: @context.market_kind, coverage_kind: @context.coverage_kind}), {:remote => true} do
+            - if false # product.is_csr?
+              i.fa.fa-check-square-o title="Eligible for Cost Sharing Reduction" data-toggle="tooltip"
+            = product.title
+          br
+          small = product_carrier.legal_name
+      .col-md-3
+        .price-wrapper.pull-right
+          h2.no-buffer.plan-premium.plan-details = number_to_currency(member_enrollment.product_cost_total - member_enrollment.sponsor_contribution_total)
+          small
+            = l10n("month")
+    br
+    .row
+      .col-md-12
+        table.table.gn-10
+          thead
+            tr.run-glossary
+              th scope="col" TYPE
+              th scope="col" LEVEL
+              th scope="col" NETWORK
+              th scope="col"
+                - if @context.hbx_enrollment.hbx_enrollment_members.size > 1
+                  | FAMILY DEDUCTIBLE
+                - else
+                  | DEDUCTIBLE
+
+          tbody
+            tr
+              td = product.product_type ? product.product_type.upcase : ""
+              td
+                - product_level = product.metal_level_kind.to_s.humanize
+                span class="#{product_level.downcase}-icon"
+                  = product_level != 'Dental' ? product_level : display_dental_metal_level(product).humanize
+              td
+                - if offers_nationwide_plans?
+                  - if product.network_information.present?``
+                    | NETWORK NOTES
+                    a href="#" data-toggle="tooltip" data-placement="right" data-container="body" title="#{product.network_information}"
+                      i.fas.fa-question-circle.fa-lg.pl-1 aria-hidden="true"
+
+              td
+                - if EnrollRegistry[:add_deductible_display].feature.is_enabled
+                  table.wdfull
+                    tr
+                      td Individual
+                      td.pull-right = number_to_currency(product.medical_individual_deductible, precision: 2)
+                    tr
+                      td Family
+                      td.pull-right = number_to_currency(product.medical_family_deductible, precision: 2)
+                - elsif @context.hbx_enrollment.hbx_enrollment_members.size > 1
+                  = product.family_deductible
+                - else
+                  = product.deductible
+    .row
+      .col-xs-3
+        .checkbox.no-buffer
+          label
+            input#compare_plan_checkbox.checkbox-custom.select-plan-for-comparison type="checkbox" data-hbx-id="#{@context.hbx_enrollment.id}" data-hios-id="#{product.hios_id}" data-plan-year="#{product.active_year}" data-plan-enrollment-kind="#{@context.enrollment_kind}" data-plan-change-plan="#{@context.change_plan}" onclick="comparePlan(this)"
+            span.checkbox-custom-label for="compare_plan_checkbox" style="font-weight: normal" Compare
+      .col-xs-4 style="padding-left: 0; padding-right: 5px"
+        = render partial: "shared/plan_shoppings/sbc_link", locals: { plan: product, plan_shopping: true }
+      .col-md-5.col-sm-5.col-xs-5.text-right style="padding-left: 0"
+
+      
+        = link_to("Select Plan", continuous_show_insured_product_shoppings_path(health: @context.health, dental: @context.dental, cart: @context.cart.merge({@context.coverage_kind => {id: @context.hbx_enrollment.id, product_id: product.id}})), class: 'btn btn-default btn-right plan-select select')
+        = link_to "See Details", summary_products_plans_path({:standard_component_id => product.hios_id, hbx_enrollment_id: @context.hbx_enrollment.id, market_kind: @context.market_kind, coverage_kind: @context.coverage_kind, enrollment_kind: @context.enrollment_kind, active_year: product.try(:active_year)}), {:class => "btn btn-default ml-1", :remote => true}
+
+javascript:
+
+  $(function() {
+    runGlossary();
+  });
+
+	function comparePlan(element) {
+    plansToCompareArray = [];
+		checkboxes = document.querySelectorAll('#compare_plan_checkbox')
+		count = 0;
+		checkboxes.forEach(function(checkbox) {
+			//
+			if (checkbox.checked) {
+				count++;
+				hios = checkbox.dataset.hiosId;
+				planYear = checkbox.dataset.planYear;
+        hbxId = checkbox.dataset.hbxId;
+        enrollmentKind = checkbox.dataset.planEnrollmentKind;
+        changePlan = checkbox.dataset.planChangePlan;
+        uri = checkbox
+
+				var compareBtn = document.getElementById('compareBtn')
+
+				if (count > 1) {
+					compareBtn.classList.remove('hidden')
+				} else {
+          compareBtn.classList.add('hidden')
+        }
+
+				if (count > 3) {
+					checkbox.checked = false;
+					swal({
+						title: "Plan count exceeded",
+						text: "You may only compare up to 3 plans at a time",
+						icon: "warning"
+					});
+				}
+
+				if (count <= 3) {
+          plansToCompareArray.push(hios)
+				}
+			}
+		})
+	}
+
+  function compareResults() {
+    uri = document.getElementById('compareBtn').dataset.uri;
+  	$.ajax({
+  		type: "GET",
+  	url: uri,
+  	dataType: 'script',
+  	data: {
+  		"standard_component_ids": plansToCompareArray,"hbx_enrollment_id": hbxId, "active_year": planYear, "enrollment_kind": enrollmentKind,
+      "change_plan": changePlan
+  	}
+  	});
+  }
+
+

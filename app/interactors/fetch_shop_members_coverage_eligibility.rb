@@ -4,7 +4,7 @@ class FetchShopMembersCoverageEligibility
   include Interactor
 
   before do
-    context.fail if context.benefit_group.blank?
+    context.fail!(message: "no benefit_group") if context.benefit_group.blank?
   end
 
   def call
