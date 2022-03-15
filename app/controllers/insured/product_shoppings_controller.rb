@@ -31,7 +31,7 @@ module Insured
 
       set_consumer_bookmark_url(family_account_path)
 
-
+      @market_kind = 'shop'
       @change_plan = params[:change_plan].present? ? params[:change_plan] : ''
       @enrollment_kind = params[:enrollment_kind].present? ? params[:enrollment_kind] : ''
 
