@@ -24,6 +24,6 @@ class FindEnrollmentAndAssociations
   end
 
   def hbx_enrollment_id
-    context.shop_attributes&.dig(:enrollment_id) || context.hbx_enrollment_id || context.params&.dig(:id)
+    context.shop_attributes&.dig(:enrollment_id) || context.hbx_enrollment_id || context.params&.dig(:id) || context.params&.dig(:enrollment_id)
   end
 end
