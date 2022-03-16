@@ -299,10 +299,8 @@ Rails.application.routes.draw do
         collection do
           get 'continuous_show'
           get 'thankyou'
-          get 'router'
-          post 'select'
-          get 'health'
-          get 'dental'
+          post 'checkout'
+          get 'receipt'
         end
       end
   end
