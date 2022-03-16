@@ -8,6 +8,7 @@ class BuildJsonForCheckout
                     enrollment: context.hbx_enrollment,
                     member_group: context.member_group,
                     employer_profile: context.employer_profile,
+                    employee_role: context.hbx_enrollment.employee_role,
                     coverage_kind: context.coverage_kind,
                     enrollment_kind: context.enrollment_kind,
                     market_kind: context.market_kind,

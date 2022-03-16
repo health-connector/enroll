@@ -1,0 +1,61 @@
+<% content_for :horizontal_status do %>
+  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 3} %>
+<% end %>
+<div class="container" id='printArea'>
+  <div class="employee-welocome">
+    <div class="row">
+
+        <div class="col-lg-9 col-md-9 col-sm-10 col-xs-12">
+          <div class="col-md-12 col-sm-12 no-pd col-xs-12">
+            <h1 class="darkblue">Enrollment Submitted</h1>
+            <% health, dental = @context.collect{|k,v| v[:hbx_enrollment].coverage_kind}.flatten %>
+            <% employer_profile = @context.collect{|k,v| v[:employer_profile]}.flatten.uniq.first %>
+
+            <% if @context.select{|k,v| v[:hbx_enrollment].coverage_kind}.flatten.count > 1 %>
+              <p>Your <%= health %> and <%= dental %> enrollments has been submitted as of <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+            <% else %>
+             <p>Your enrollment has been submitted as of <%= format_datetime(@context.select{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+             <% end %>
+            <p>Please print this page for your records. A copy of this confirmation has also been emailed to you.</p>
+            <% if employer_profile.present? %>
+              <strong><%= employer_profile.legal_name %></strong>
+              </br>
+              </br>
+            <% end %>
+            <% @context.each do |key,value| %>
+              <p>
+                <strong><%= value.product.carrier_profile.legal_name %> <%= value.product.name %></strong><br>
+                Benefit: <%= value.hbx_enrollment.coverage_kind %><br>
+                Market: <%= show_market_name_by_enrollment value.hbx_enrollment %><br>
+                Metal level : <%= display_dental_metal_level value.product %>
+              </p>
+
+              <% if value.hbx_enrollment.employee_role.present? %>
+              <%= render "insured/product_shoppings/coverage_information", :enrollment => value.hbx_enrollment, :member_group => value.member_group %>
+              <% end %>
+
+              <% if value.hbx_enrollment.is_cobra_status? %>
+                <p>* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.</p>
+              <% end %>
+               <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
+            <%  end %>
+          </div>
+          <%= link_to 'Print', '#', id: 'btnPrint', class: "btn btn-default interaction-click-control-print-purchase-confirmation" %>
+        </div>
+
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 right-section plan_receipt">
+        <% if @change_plan.blank? %>
+          <%= render  partial: 'shared/signup_progress', locals: {step: '7'} %>
+        <% elsif @change_plan == "change_by_qle" %>
+        <%= render partial: 'shared/qle_progress', locals: {step: '4'} %>
+        <% elsif @change_plan == "change_plan" %>
+        <% if (@market_kind == "individual" && !is_under_open_enrollment?) || @hbx_enrollment_kind == 'sep' %>
+        <%= render  partial: 'shared/sep_shop_for_plans_progress', locals: {step: '4'} %>
+        <% else %>
+        <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '3'} %>
+        <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div><br>
