@@ -19,9 +19,11 @@ class AnalyzeCartForNextShoppingFlow
       if context.dental.present?
         context.shop_for = :dental
         context.shop_attributes = context.dental
-      else
+      elsif context.dental_offering == 'true'
         context.go_to_coverage_selection = true
         context.coverage_for = :dental
+      elsif context.dental_offering == 'false'
+        context.go_to_coverage_selection = false
       end
     elsif context.cart[:dental].present?
       unless context.cart[:health].present?
