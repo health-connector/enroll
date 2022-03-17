@@ -10,7 +10,8 @@ module Insured
         @can_shop_both_markets = false
         set_bookmark_url
       else
-        redirect_to new_insured_members_selections_path
+        flash[:error] = @organizer.message
+        redirect_to(:back)
       end
     end
 

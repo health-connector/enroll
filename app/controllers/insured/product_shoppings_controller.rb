@@ -6,7 +6,8 @@ module Insured
     before_action :set_current_person, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout, :terminate]
 
     def continuous_show
-      @context = Organizers::FetchProductsForShoppingEnrollment.call(health: params[:health]&.deep_symbolize_keys, dental: params[:dental]&.deep_symbolize_keys, cart: params[:cart]&.deep_symbolize_keys)
+      @context = Organizers::FetchProductsForShoppingEnrollment.call(health: params[:health]&.deep_symbolize_keys, dental: params[:dental]&.deep_symbolize_keys,
+                                                                     cart: params[:cart]&.deep_symbolize_keys, dental_offering: params[:dental_offering],  health_offering: params[:health_offering])
       set_employee_bookmark_url(family_account_path)
 
       if @context.shop_attributes.present?
