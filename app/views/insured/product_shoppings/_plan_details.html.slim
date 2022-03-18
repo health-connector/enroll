@@ -84,8 +84,7 @@
         = render partial: "shared/plan_shoppings/sbc_link", locals: { plan: product, plan_shopping: true }
       .col-md-5.col-sm-5.col-xs-5.text-right style="padding-left: 0"
 
-      
-        = link_to("Select Plan", continuous_show_insured_product_shoppings_path(health: @context.health, dental: @context.dental, cart: @context.cart.merge({@context.coverage_kind => {id: @context.hbx_enrollment.id, product_id: product.id}})), class: 'btn btn-default btn-right plan-select select')
+        = link_to("Select Plan", continuous_show_insured_product_shoppings_path(health: @context.health, dental: @context.dental, dental_offering: @context.dental_offering, health_offering: @context.health_offering, cart: @context.cart.merge({@context.coverage_kind => {id: @context.hbx_enrollment.id, product_id: product.id}})), class: 'btn btn-default btn-right plan-select select')
         = link_to "See Details", summary_products_plans_path({:standard_component_id => product.hios_id, hbx_enrollment_id: @context.hbx_enrollment.id, market_kind: @context.market_kind, coverage_kind: @context.coverage_kind, enrollment_kind: @context.enrollment_kind, active_year: product.try(:active_year)}), {:class => "btn btn-default ml-1", :remote => true}
 
 javascript:
