@@ -4,7 +4,8 @@ class FetchShoppingProducts
   include Interactor
 
   def call
-    return  if @context.shop_for.nil? && @context.go_to_coverage_selection == false
+    return  if @context.shop_for.nil? && @context.go_to_coverage_selection == true
+
     sponsored_cost_calculator = HbxEnrollmentSponsoredCostCalculator.new(hbx_enrollment)
     sponsored_benefit = hbx_enrollment.sponsored_benefit
     rate_schedule_date = sponsored_benefit.rate_schedule_date
@@ -17,6 +18,8 @@ class FetchShoppingProducts
 
     fetch_plan_details
   end
+
+  private
 
   def fetch_plan_details
     case coverage_kind
@@ -33,7 +36,7 @@ class FetchShoppingProducts
   end
 
   def hbx_enrollment
-    context.hbx_enrollment
+    @hbx_enrollment ||= context.hbx_enrollment
   end
 
   def coverage_kind

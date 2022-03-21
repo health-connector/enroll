@@ -2,7 +2,6 @@
 
 module Insured
   class MembersSelectionController < ApplicationController
-
     def new
       @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys)
 
@@ -13,6 +12,18 @@ module Insured
         flash[:error] = @organizer.message
         redirect_to(:back)
       end
+    end
+
+    def eligible_coverage_selection
+      # @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.symbolize_keys)
+
+      # if @organizer.success?
+      #   @can_shop_both_markets = false
+      #   set_bookmark_url
+      # else
+      #   flash[:error] = @organizer.message
+      #   redirect_to(:back)
+      # end
     end
 
     def fetch

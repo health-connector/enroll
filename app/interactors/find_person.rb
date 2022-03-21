@@ -4,6 +4,7 @@ class FindPerson
   include Interactor
 
   before do
+    # TODO move this to translations
     context.fail!(message: "missing person id in params") unless context.params[:person_id].present?
   end
 

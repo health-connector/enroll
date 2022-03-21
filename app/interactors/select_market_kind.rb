@@ -3,6 +3,10 @@
 class SelectMarketKind
   include Interactor
 
+  before do
+    context.fail!(message: "cannot set market kind without person") if person.blank?
+  end
+
   def call
     context.market_kind = select_market(context.params)
   end
@@ -27,6 +31,6 @@ class SelectMarketKind
   end
 
   def person
-    context.person
+    @person ||= context.person
   end
 end
