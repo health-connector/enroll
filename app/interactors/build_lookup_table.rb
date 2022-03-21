@@ -4,7 +4,8 @@ class BuildLookupTable
   include Interactor
 
   def call
-    return  if @context.shop_for.nil? && @context.go_to_coverage_selection == false
+    return  if @context.shop_for.nil? && @context.go_to_coverage_selection == true
+
     issuer_profiles = []
     @issuer_profile_ids = context.products.map(&:issuer_profile_id).uniq
     ip_lookup_table = {}

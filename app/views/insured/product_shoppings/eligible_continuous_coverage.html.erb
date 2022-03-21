@@ -1,0 +1,31 @@
+<% content_for :horizontal_status do %>
+  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 2} %>
+<% end %>
+<div class="container group-selection">
+  <div class="row">
+    <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
+    <p class="twenty">Select who needs coverage and the type of coverage needed. When you’re finished, select CONTINUE.</p>
+      <div class="col-xs-8">
+      <table class="col-md-12">
+        <tbody>
+          <tr style="padding: 2px;">
+            <td style="padding: 2px;">
+              <%= radio_button_tag("eligible_continue", "yes") %>
+              <%= label_tag("eligible_continue", "Yes") %>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 2px;">
+              <%= radio_button_tag("eligible_continue", "no") %>
+              <%= label_tag("eligible_continue", "No") %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="col-xs-3 right-section pull-right">
+        <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5'} %>
+    </div>
+  </div>
+</div>

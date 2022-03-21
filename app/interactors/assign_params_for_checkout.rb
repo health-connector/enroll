@@ -9,6 +9,6 @@ class AssignParamsForCheckout
   end
 
   def hbx_enrollment
-    context.hbx_enrollment
+    @hbx_enrollment ||= context.hbx_enrollment
   end
 end

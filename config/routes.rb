@@ -292,6 +292,7 @@ Rails.application.routes.draw do
     resources :members_selections, controller: "members_selection", only: [:new, :create] do
       collection do
         get :fetch
+        get :eligible_coverage_selection
       end
     end
 

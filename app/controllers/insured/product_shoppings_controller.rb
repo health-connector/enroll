@@ -8,8 +8,14 @@ module Insured
     def continuous_show
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: params[:health]&.deep_symbolize_keys, dental: params[:dental]&.deep_symbolize_keys,
                                                                      cart: params[:cart]&.deep_symbolize_keys, dental_offering: params[:dental_offering],  health_offering: params[:health_offering])
+
+      if @context.failure?
+        flash[:error] = @context.message
+        redirect_to family_account_path # TODO
+      end
       set_employee_bookmark_url(family_account_path)
 
+      # TODO: check for values and move to interractor
       if @context.shop_attributes.present?
         @context.change_plan = @context.shop_attributes[:change_plan] || ''
         @context.enrollment_kind = @context.shop_attributes[:enrollment_kind] || ''
@@ -17,6 +23,11 @@ module Insured
 
       if @context.shop_for.nil? && @context.go_to_coverage_selection == false
         redirect_to thankyou_insured_product_shoppings_path(@context.cart)
+      elsif @context.go_to_coverage_selection == true
+        @mini_context = ExtractContinuousShoppingParams.call(cart: @context.cart.to_h)
+        @mini_context.to_h.merge!(coverage_for: @context.coverage_for)
+
+        render 'eligible_continuous_coverage'
       else
         render :show
       end
@@ -85,6 +96,8 @@ module Insured
 
       # send_receipt_emails if @person.emails.first
     end
+
+    private
 
     def send_receipt_emails
       UserMailer.generic_consumer_welcome(@person.first_name, @person.hbx_id, @person.emails.first.address).deliver_now
