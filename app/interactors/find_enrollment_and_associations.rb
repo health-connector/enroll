@@ -5,7 +5,7 @@ class FindEnrollmentAndAssociations
 
   def call
     return  if @context.shop_for.nil? && @context.go_to_coverage_selection == true
-binding.pry
+
     context.fail!(message: "no hbx enrollment found for given id") unless hbx_enrollment.present?
     return unless hbx_enrollment.is_shop?
 

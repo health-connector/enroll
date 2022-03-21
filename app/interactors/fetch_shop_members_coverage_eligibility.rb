@@ -38,7 +38,7 @@ class FetchShopMembersCoverageEligibility
   end
 
   def coverage_start
-    context.new_effective_on
+    context.new_effective_on || Date.strptime(context.params[:new_effective_on], '%m/%d/%Y')
   end
 
   def primary_relationship

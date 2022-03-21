@@ -15,7 +15,7 @@ module Insured
     end
 
     def eligible_coverage_selection
-      # @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.symbolize_keys)
+      @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.symbolize_keys)
 
       # if @organizer.success?
       #   @can_shop_both_markets = false
