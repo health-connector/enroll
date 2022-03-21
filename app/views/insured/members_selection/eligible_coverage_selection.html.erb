@@ -1,0 +1,73 @@
+<% content_for :horizontal_status do %>
+  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 1} %>
+<% end %>
+<% effective_date_for_display = @organizer.effective_on_date || @organizer.new_effective_on %>
+<div class="container group-selection">
+  <div class="row">
+    <%= form_tag(:insured_members_selections, :id => "group-selection-form") do %>
+      <div class="col-xs-8">
+        <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
+        <p class="twenty">Select who needs coverage and the type of coverage needed. When you’re finished, select CONTINUE.</p>
+        <div style="font-size :24px">
+
+          <%if @organizer.effective_on_date.present? || @organizer.new_effective_on.present? %>
+            <%= l10n("insured.group_selection.new.effective_date") %>: <span style="color: red;"><%= format_date(effective_date_for_display) %></span>
+          <%end%>
+        </div>
+
+
+        <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
+        <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
+        <%= hidden_field_tag(:is_waiving, nil, id: "is_waiving_hidden_value_field") %>
+        <%= hidden_field_tag(:person_id, @organizer.person.id) %>
+        <%= hidden_field_tag(:coverage_household_id, @organizer.coverage_household.id) %>
+        <%= hidden_field_tag(:enrollment_kind, @organizer.enrollment_kind) %>
+        <%= hidden_field_tag(:hbx_enrollment_id, @organizer.hbx_enrollment.id) if @organizer.hbx_enrollment.present? %>
+        <%= hidden_field_tag(:shop_under_current, @organizer.shop_under_current) if @organizer.shop_under_current %>
+        <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
+
+        <% if @organizer.can_shop_shop %>
+          <div id="coverage-household" class='row no-buffer'>
+
+                <% @show_residency_alert = false %>
+                <%= render 'coverage_household' %>
+          </div>
+        <% end %>
+
+        <% if @organizer.can_shop_shop %>
+            <%= hidden_field_tag 'market_kind', 'shop' %>
+        <% else %>
+          <% if @market_kind.present? %>
+            <%= hidden_field_tag 'market_kind', @market_kind %>
+          <% end %>
+        <% end %>
+
+        <% if @organizer.change_plan.present? %>
+          <%= hidden_field_tag 'change_plan', @organizer.change_plan %>
+          <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
+          <br/>
+          <h3><%= l10n("insured.group_selection.new.what_would_you_like_to_do") %></h3>
+            <%= submit_tag l10n('shop_for_new_plan'), class: 'btn btn-primary  btn-lg'+ pundit_class(Family, :updateable?) %>
+          <% if @organizer.hbx_enrollment.present? && @organizer.hbx_enrollment.may_terminate_coverage? %>
+            <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.hbx_enrollment, @organizer.new_effective_on) %>
+	          <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
+          <% end %>
+        <% end %>
+        <br/>
+        <br/>
+        <%= link_to l10n("back_to_my_account"), family_account_path, class: 'btn btn-default btn btn-lg' %>
+      </div>
+      <div class="col-xs-3 right-section pull-right">
+          <% if @organizer.change_plan.blank? %>
+            <%= render  partial: 'shared/signup_progress', locals: {step: '4'} %>
+          <% elsif @organizer.change_plan == "change_by_qle" %>
+            <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
+          <% elsif @organizer.change_plan == "change_plan" %>
+              <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '1', show_waive: true} %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <%= render :partial => "ui-components/v1/modals/waive_confirmation", :locals => {:enrollment => @organizer.hbx_enrollment } if (@organizer.hbx_enrollment.present? && (@organizer.hbx_enrollment.employee_role.present? || @organizer.hbx_enrollment.benefit_group.present?)) %>
+</div>
