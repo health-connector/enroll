@@ -4,7 +4,7 @@ class BuildLookupTable
   include Interactor
 
   def call
-    return  if @context.shop_for.nil? && @context.go_to_coverage_selection == true
+    return if context.action == "continuous_show" && @context.shop_for.nil?
 
     issuer_profiles = []
     @issuer_profile_ids = context.products.map(&:issuer_profile_id).uniq
@@ -15,7 +15,7 @@ class BuildLookupTable
         ip_lookup_table[ipo.issuer_profile.id] = ipo.issuer_profile
       end
     end
-    context.carrier_names = issuer_profiles.pluck(:legal_name)
+    context.carrier_names = issuer_profiles.map(&:legal_name)
     ::Caches::CustomCache.allocate(::BenefitSponsors::Organizations::Organization, :plan_shopping, ip_lookup_table)
   end
 end
