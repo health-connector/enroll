@@ -23,4 +23,13 @@ $(document).ready(function () {
       }
     });
   });
+
+  $('#eligible_continue_yes, #eligible_continue_no').on('click', function(e) {
+    console.log($(this).data('href'))
+    console.log('something')
+    debugger;
+    var href = $(this).data('href')
+    console.log(href)
+    $('#eligible-btn-continue').attr('href', href)    
+  })
 });
