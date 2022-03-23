@@ -16,7 +16,7 @@ class FetchEmployeeRole
       context.fail!(message: "no employee_role found for given id")
     end
   rescue StandardError => _e
-    context.fail!(message: "invalid ID")
+    context.fail!(message: "invalid employee role ID")
   end
 
   def employee_role_id

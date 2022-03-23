@@ -10,9 +10,9 @@ class DisableMarketKinds
   private
 
   def disable_market_kind(params)
-    if context.change_plan == 'change_by_qle' || context.enrollment_kind == 'sep'
-      select_market(params) == "shop" ? "individual" : "shop"
-    end
+    return unless context.change_plan == 'change_by_qle' || context.enrollment_kind == 'sep'
+
+    select_market(params) == "shop" ? "individual" : "shop"
   end
 
   def select_market(params)

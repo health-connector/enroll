@@ -15,6 +15,7 @@ class BuildJsonPayloadForShopping
 
     context.plan_selection_json[:health_offering] = offering_health
     context.plan_selection_json[:dental_offering] = offering_dental
+    context.plan_selection_json[:cart] = context.params[:cart]
   end
 
   def offering_health

@@ -6,6 +6,7 @@ module Organizers
 
     organize [FindPerson,
               FindPrimaryFamily,
+              ConvertCartToHash,
               FetchCoverageHouseholdAndFamilyMembers,
               AssignCommonParamsForMemberSelection,
               FindPreviousHbxEnrollment,

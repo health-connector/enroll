@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Insured
   module ShoppingsHelper
     def disable_continuous_purchase?(enrollables, hbx_enrollments, options = {})
@@ -11,7 +13,7 @@ module Insured
     end
 
     def build_hash_to_checkout(context)
-      context.each_with_object({}) do |(k,v), output|
+      context.each_with_object({}) do |(k,v), output| # rubocop:disable Style/HashTransformValues
 
         output[k] = {
           :employee_role_id => v[:employee_role].id,
@@ -24,6 +26,22 @@ module Insured
           :use_family_deductable => "true",
           :waivable => "true"
         }
+      end
+    end
+
+    def can_display_health_coverage?(health_eligibility)
+      if @organizer[:params][:action] == "eligible_coverage_selection"
+        health_eligibility && @organizer[:params][:coverage_for] == 'health'
+      else
+        health_eligibility
+      end
+    end
+
+    def can_display_dental_coverage?(dental_eligibility)
+      if @organizer[:params][:action] == "eligible_coverage_selection"
+        dental_eligibility && @organizer[:params][:coverage_for] == 'dental'
+      else
+        dental_eligibility
       end
     end
   end

@@ -17,13 +17,10 @@ module Insured
     def eligible_coverage_selection
       @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.symbolize_keys)
 
-      # if @organizer.success?
-      #   @can_shop_both_markets = false
-      #   set_bookmark_url
-      # else
-      #   flash[:error] = @organizer.message
-      #   redirect_to(:back)
-      # end
+      if @organizer.failure? # rubocop:disable Style/GuardClause
+        flash[:error] = @organizer.message
+        redirect_to(:back)
+      end
     end
 
     def fetch
@@ -44,7 +41,7 @@ module Insured
       if @organizer.failure?
         flash[:error] = @organizer.message
         logger.error "#{@organizer.message}\n#{@organizer.backtrace.join("\n")}"
-        employee_role_id = @organizer.employee_role.id if @organizer.employee_role
+        #employee_role_id = @organizer.employee_role.id if @organizer.employee_role
         # TODO
         # redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, enrollment_kind: @enrollment_kind)
       end

@@ -5,12 +5,12 @@ module Organizers
     include Interactor::Organizer
 
     organize [FindPerson,
-      FindPrimaryFamily,
-      FetchCoverageHouseholdAndFamilyMembers,
-      FindPreviousHbxEnrollment,
-      FetchParamsForEligibleSelection,
-      AssignCommonParamsForMemberSelection,
-      AssignNewParamsForMemberSelection,
-      FetchShopMembersCoverageEligibility]
+              FindPrimaryFamily,
+              FetchCoverageHouseholdAndFamilyMembers,
+              FindPreviousHbxEnrollment,
+              FetchParamsForEligibleSelection,
+              AssignCommonParamsForMemberSelection,
+              AssignNewParamsForMemberSelection,
+              FetchShopMembersCoverageEligibility]
   end
 end

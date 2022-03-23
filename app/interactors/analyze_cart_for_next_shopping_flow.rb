@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+#TODO: revisit class too complex
 class AnalyzeCartForNextShoppingFlow
   include Interactor
 
@@ -33,3 +35,4 @@ class AnalyzeCartForNextShoppingFlow
     end
   end
 end
+# rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

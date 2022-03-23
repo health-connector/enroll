@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/AbcSize
 class AssignCommonParamsForMemberSelection
   include Interactor
 
@@ -15,3 +16,4 @@ class AssignCommonParamsForMemberSelection
     context.commit = context.params[:commit]
   end
 end
+# rubocop:enable Metrics/AbcSize
