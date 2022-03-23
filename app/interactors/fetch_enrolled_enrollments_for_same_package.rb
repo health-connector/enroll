@@ -4,7 +4,7 @@ class FetchEnrolledEnrollmentsForSamePackage
   include Interactor
 
   def call
-    return if @context.shop_for.nil? && @context.go_to_coverage_selection == true
+    return if context.action == "continuous_show" && @context.shop_for.nil?
 
     enrolled_plans = context.family.active_household.hbx_enrollments.enrolled_and_renewing.by_coverage_kind(context.coverage_kind)
 
