@@ -25,7 +25,7 @@ class FindOrCreateInsuredPerson
       end
       person.save
       user = person.user if context.role_type == User::ROLES[:consumer]
-      person = person
+      person = person #rubocop:disable Lint/SelfAssignment
       is_new = false
     when 0
       return if context.ssn.present? && Person.where(encrypted_ssn: Person.encrypt_ssn(context.ssn)).present?
