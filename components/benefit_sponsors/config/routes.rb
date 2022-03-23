@@ -32,6 +32,7 @@ BenefitSponsors::Engine.routes.draw do
         get :export_census_employees
         post :bulk_employee_upload
         get :coverage_reports
+        get :estimate_cost
         collection do
           get :generate_sic_tree
           get :show_pending
