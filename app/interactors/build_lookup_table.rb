@@ -15,7 +15,7 @@ class BuildLookupTable
         ip_lookup_table[ipo.issuer_profile.id] = ipo.issuer_profile
       end
     end
-    context.carrier_names = issuer_profiles.map{|ip| ip.legal_name}
+    context.carrier_names = issuer_profiles.pluck(:legal_name)
     ::Caches::CustomCache.allocate(::BenefitSponsors::Organizations::Organization, :plan_shopping, ip_lookup_table)
   end
 end

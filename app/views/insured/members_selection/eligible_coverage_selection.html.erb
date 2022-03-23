@@ -17,6 +17,7 @@
 
 
         <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
+        <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
         <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
         <%= hidden_field_tag(:is_waiving, nil, id: "is_waiving_hidden_value_field") %>
         <%= hidden_field_tag(:person_id, @organizer.person.id) %>
@@ -25,12 +26,13 @@
         <%= hidden_field_tag(:hbx_enrollment_id, @organizer.hbx_enrollment.id) if @organizer.hbx_enrollment.present? %>
         <%= hidden_field_tag(:shop_under_current, @organizer.shop_under_current) if @organizer.shop_under_current %>
         <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
+        <%= hidden_field_tag(:change_plan, @organizer.change_plan) %>
+        <%= hidden_field_tag(:cart, @organizer[:params][:cart]) if @organizer[:params][:cart] %>
 
         <% if @organizer.can_shop_shop %>
           <div id="coverage-household" class='row no-buffer'>
-
-                <% @show_residency_alert = false %>
-                <%= render 'coverage_household' %>
+            <% @show_residency_alert = false %>
+            <%= render 'coverage_household' %>
           </div>
         <% end %>
 
@@ -59,7 +61,7 @@
       </div>
       <div class="col-xs-3 right-section pull-right">
           <% if @organizer.change_plan.blank? %>
-            <%= render  partial: 'shared/signup_progress', locals: {step: '4'} %>
+            <%= render  partial: '/shared/product_shoppings/signup_progress', locals: {step: '4'} %>
           <% elsif @organizer.change_plan == "change_by_qle" %>
             <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
           <% elsif @organizer.change_plan == "change_plan" %>

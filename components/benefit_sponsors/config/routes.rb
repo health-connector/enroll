@@ -93,7 +93,7 @@ BenefitSponsors::Engine.routes.draw do
             get :calculate_employer_contributions
           end
 
-          collection do 
+          collection do
             get :calculate_employee_cost_details
             get :calculate_employer_contributions
           end

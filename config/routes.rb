@@ -296,14 +296,14 @@ Rails.application.routes.draw do
       end
     end
 
-      resources :product_shoppings, controller: "product_shoppings", only: [] do
-        collection do
-          get 'continuous_show'
-          get 'thankyou'
-          post 'checkout'
-          get 'receipt'
-        end
+    resources :product_shoppings, controller: "product_shoppings", only: [] do
+      collection do
+        get 'continuous_show'
+        get 'thankyou'
+        post 'checkout'
+        get 'receipt'
       end
+    end
   end
 
   namespace :employers do

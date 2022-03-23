@@ -2,7 +2,7 @@
   <tbody>
     <% @organizer.family_members.each_with_index do |family_member, index| %>
     <%= hidden_field_tag("family_member_ids[#{index}]", family_member.id) if true%>
-      <% if @can_shop_shop %>
+      <% if @organizer.can_shop_shop %>
         <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_group.id.to_s][family_member.id.to_s] %>
       <% end %>
 
@@ -13,43 +13,48 @@
         <h4><strong><%= label_tag("family_member_ids[#{index}]", "#{family_member.full_name} (Age : #{pluralize(calculate_age_by_dob(family_member.dob), 'year')})") %></strong></h4>
         </td>
       </tr>
-    
-      <tr style="padding: 2px;">
-        <td style="padding: 2px;"> <%= label_tag("family_member_ids[#{index}]",  "Health Coverage") %> </td>
-      </tr>
-      <tr style="padding: 2px;">
-        <td style="padding: 2px;">
-          <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll') %>
-          <%= label_tag("health[enroll][#{index}]", "Enroll") %>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding: 2px;">
-          <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive') %>
-          <%= label_tag("health[waive][#{index}]", "Waive") %>
-        </td>
-      </tr>
-      <tr style="padding: 2px;">
-        <td style="padding: 2px;"> <%= label_tag("family_member_ids[#{index}]",  "Dental Coverage") %> </td>
-      </tr> 
-      <tr>
-        <td style="padding: 2px;">
-          <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll') %>
-          <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding: 2px;">
-          <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive') %>
-          <%= label_tag("dental[waive][#{index}]", "Waive") %>
-        </td>
-      </tr>
-        <% @organizer.person.active_employee_roles.each do |employee_role| %>
-          <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_group.id.to_s][family_member.id.to_s] %>
 
-          <td class='<%= "health_errors_#{employee_role.id}" %>'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: @coverage_kind)  if !is_health_coverage && !is_health_coverage.nil? %></td>
-          <td class='<%= "dental_errors_#{employee_role.id}" %>'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: @coverage_kind)  if !is_dental_coverage && !is_dental_coverage.nil? %></td>
-        <% end %>
+      <% if can_display_health_coverage?(is_health_coverage) %>
+        <tr style="padding: 2px;">
+          <td style="padding: 2px;"> <%= label_tag("family_member_ids[#{index}]",  "Health Coverage") %> </td>
+        </tr>
+        <tr style="padding: 2px;">
+          <td style="padding: 2px;">
+            <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll') %>
+            <%= label_tag("health[enroll][#{index}]", "Enroll") %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 2px;">
+            <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive') %>
+            <%= label_tag("health[waive][#{index}]", "Waive") %>
+          </td>
+        </tr>
+      <% end %>
+
+      <% if can_display_dental_coverage?(is_dental_coverage) %>
+        <tr style="padding: 2px;">
+          <td style="padding: 2px;"> <%= label_tag("family_member_ids[#{index}]",  "Dental Coverage") %> </td>
+        </tr>
+        <tr>
+          <td style="padding: 2px;">
+            <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll') %>
+            <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 2px;">
+            <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive') %>
+            <%= label_tag("dental[waive][#{index}]", "Waive") %>
+          </td>
+        </tr>
+      <% end %>
+      <% @organizer.person.active_employee_roles.each do |employee_role| %>
+        <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_group.id.to_s][family_member.id.to_s] %>
+
+        <td class='<%= "health_errors_#{employee_role.id}" %>'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: @coverage_kind)  if !is_health_coverage && !is_health_coverage.nil? %></td>
+        <td class='<%= "dental_errors_#{employee_role.id}" %>'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: @coverage_kind)  if !is_dental_coverage && !is_dental_coverage.nil? %></td>
+      <% end %>
       <tr style="padding: 2px;">
         <td style="padding: 2px;"> <hr style="height:2px;border-width:0;color:gray;background-color:#80808026"></td>
       </tr> 
