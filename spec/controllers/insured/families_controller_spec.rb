@@ -526,6 +526,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   describe "POST record_sep", dbclean: :after_each do
 
     before :each do
+      EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
       date = TimeKeeper.date_of_record - 10.days
       @qle = FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date)
       @family = FactoryGirl.build(:family, :with_primary_family_member)
