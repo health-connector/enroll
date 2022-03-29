@@ -96,7 +96,7 @@ class Insured::FamiliesController < FamiliesController
       action_params.merge!({change_plan: "change_plan"})
     end
 
-    redirect_to new_insured_members_selection_path(action_params)
+    redirect_to continuous_plan_shopping(action_params)
   end
 
   def personal
@@ -243,6 +243,14 @@ class Insured::FamiliesController < FamiliesController
   end
 
   private
+
+  def continuous_plan_shopping(action_params)
+    if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+      new_insured_members_selection_path(action_params)
+    else
+      new_insured_group_selection_path(action_params)
+    end
+  end
 
   def updateable?
     authorize Family, :updateable?
