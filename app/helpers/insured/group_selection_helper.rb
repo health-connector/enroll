@@ -163,8 +163,14 @@ module Insured
     end
 
     def is_employer_disabled?(employee_role)
-      market_kind = @mc_market_kind || @organizer.market_kind
-      hbx_enrollment = @hbx_enrollment || @organizer.previous_hbx_enrollment
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        market_kind = @organizer.market_kind
+        hbx_enrollment = @organizer.previous_hbx_enrollment
+      else
+        market_kind = @mc_market_kind
+        hbx_enrollment = @hbx_enrollment
+      end
+
       if market_kind.present? && hbx_enrollment.present?
         market_kind == "individual" || hbx_enrollment&.employee_role&.id != employee_role.id
       else
@@ -173,7 +179,12 @@ module Insured
     end
 
     def is_employer_checked?(employee_role)
-      market_kind = @mc_market_kind || @organizer.market_kind
+      market_kind = if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+                      @organizer.market_kind
+                    else
+                      @mc_market_kind
+                    end
+
       if market_kind.present?
         !(is_employer_disabled?(employee_role))
       else
