@@ -15,7 +15,7 @@
           - if display_plan_cost_warning(@benefit_group)
             b = l10n("insured.plan_shoppings.final_cost_change")
           .row.no-buffer
-            = render "shared/plan_shoppings/more_plan_details"
+            = render "shared/product_shoppings/more_plan_details"
           p.pull-right
             a.btn.btn-default.compare-selected-plans-link href="javascript:void(0);" style="display: none;" data-uri="#{comparison_products_plans_path(market_kind: @context.market_kind, coverage_kind: @coverage_kind)}"
               = l10n("compare_plans").to_s.upcase

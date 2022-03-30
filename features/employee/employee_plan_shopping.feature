@@ -11,6 +11,7 @@ Feature: Employees can purchase coverage from both active and renewing plan year
   Scenario: Employee can buy coverage under previous expired plan year using QLE if he is eligible
 
     Given there exists Patrick Doe employee for employer ABC Widgets
+    Given Continuous plan shopping is turned off
     And employer ABC Widgets has expired and renewing active benefit applications
     And employee Patrick Doe has past hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
@@ -30,6 +31,7 @@ Feature: Employees can purchase coverage from both active and renewing plan year
   Scenario: Employee can buy coverage from active plan year through qle with active plan year's plans in renewal period
 
     Given there exists Patrick Doe employee for employer ABC Widgets
+    Given Continuous plan shopping is turned off
     And employer ABC Widgets has active and renewing enrollment_open benefit applications
     And employee Patrick Doe has past hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
@@ -63,6 +65,7 @@ Feature: Employees can purchase coverage from both active and renewing plan year
   Scenario: Employee should see the correct EE contribution on their current plan when doing plan shop
 
     Given there exists Patrick Doe employee for employer ABC Widgets
+    Given Continuous plan shopping is turned off
     And initial employer ABC Widgets has active benefit application
     And employee Patrick Doe has past hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal

@@ -3,6 +3,7 @@ Feature: Make Changes Button Appears on Tile
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given Continuous plan shopping is turned off
     Given Qualifying life events are present
     And there is an employer ABC Widgets
     Given there exists Patrick Doe employee for employer ABC Widgets

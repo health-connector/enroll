@@ -19,6 +19,7 @@ Feature: Annual Deductible Display
     Given Add Deductible Display is Enabled
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given Continuous plan shopping is turned off
     Given Qualifying life events are present
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role

@@ -3,6 +3,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
   Background: Setup site, employer, and benefit market catalogs
     Given a CCA site exists with a benefit market
     And benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given Continuous plan shopping is turned off
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
 

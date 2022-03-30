@@ -2,6 +2,7 @@ Feature: Employee of a Sole Source Employer Shopping During Open Enrollment
   Background:
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given Continuous plan shopping is turned off
     And there is an employer Acme Inc.
     And initial employer Acme Inc. has enrollment_open benefit application
     And Acme Inc. employer has a staff role
