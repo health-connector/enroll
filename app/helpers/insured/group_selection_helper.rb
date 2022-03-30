@@ -171,7 +171,7 @@ module Insured
         hbx_enrollment = @hbx_enrollment
       end
 
-      if market_kind.present? && hbx_enrollment.present?
+      if market_kind.present?
         market_kind == "individual" || hbx_enrollment&.employee_role&.id != employee_role.id
       else
         false

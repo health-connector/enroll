@@ -3,6 +3,10 @@ require "rails_helper"
 RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_each do
   let(:subject)  { Class.new { extend Insured::GroupSelectionHelper } }
 
+  before :each do
+    EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
+  end
+
   describe "#can shop individual" do
     let(:person) { FactoryGirl.create(:person) }
 
