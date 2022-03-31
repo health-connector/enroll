@@ -172,7 +172,9 @@ module Insured
       end
 
       if market_kind.present?
-        market_kind == "individual" || hbx_enrollment&.employee_role&.id != employee_role.id
+        market_kind == "individual"
+      elsif hbx_enrollment.present?
+        hbx_enrollment&.employee_role&.id != employee_role.id
       else
         false
       end

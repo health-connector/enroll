@@ -414,8 +414,8 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
             expect(helper.is_employer_disabled?(employee_role_one)).to eq false
           end
 
-          it "should disable all the other employers other than the one user clicked shop enrollment ER" do
-            expect(helper.is_employer_disabled?(employee_role_two)).to eq true
+          it "should not disable all the other employers other than the one user clicked shop enrollment ER" do
+            expect(helper.is_employer_disabled?(employee_role_two)).to eq false
           end
         end
       end
@@ -470,8 +470,8 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
             expect(helper.is_employer_checked?(employee_role_one)).to eq true
           end
 
-          it "should not check all the other employers other than the one user clicked shop enrollment ER" do
-            expect(helper.is_employer_checked?(employee_role_two)).to eq false
+          it "should check all the other employers other than the one user clicked shop enrollment ER" do
+            expect(helper.is_employer_checked?(employee_role_two)).to eq true
           end
         end
       end
