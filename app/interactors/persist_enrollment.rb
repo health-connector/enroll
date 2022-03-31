@@ -27,10 +27,10 @@ class PersistEnrollment
   end
 
   def hbx_enrollment
-    @hbx_enrollment ||= context.hbx_enrollment
+    context.hbx_enrollment
   end
 
   def product
-    @product ||= context.product
+    context.product
   end
 end

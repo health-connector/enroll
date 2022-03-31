@@ -16,21 +16,25 @@ class SelectMarketKind
   def select_market(params)
     return params[:market_kind] if params[:market_kind].present?
 
-    if params[:qle_id].present? && !person.has_active_resident_role?
+    if params[:qle_id].present? && !person_has_active_resident_role
       qle = QualifyingLifeEventKind.find(params[:qle_id])
       return qle.market_kind
     end
 
     if person.has_active_employee_role?
       'shop'
-    elsif person.has_active_consumer_role? && !person.has_active_resident_role?
+    elsif person.has_active_consumer_role? && !person_has_active_resident_role
       'individual'
-    elsif person.has_active_resident_role?
+    elsif person_has_active_resident_role
       'coverall'
     end
   end
 
   def person
-    @person ||= context.person
+    context.person
+  end
+
+  def person_has_active_resident_role
+    @person_has_active_resident_role ||= person.has_active_resident_role?
   end
 end
