@@ -179,16 +179,17 @@ module Insured
     end
 
     def is_employer_checked?(employee_role)
-      market_kind = if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
-                      @organizer.market_kind
-                    else
-                      @mc_market_kind
-                    end
-
-      if market_kind.present?
-        !(is_employer_disabled?(employee_role))
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        market_kind = @organizer.mc_market_kind
+        shopping_role = @organizer.employee_role
       else
-        employee_role.id == @employee_role.id
+        market_kind = @mc_market_kind
+        shopping_role = @employee_role
+      end
+      if market_kind.present?
+        !is_employer_disabled?(employee_role)
+      else
+        employee_role.id == shopping_role&.id
       end
     end
 
