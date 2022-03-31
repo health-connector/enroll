@@ -28,9 +28,14 @@ class AnalyzeCartForNextShoppingFlow
         context.go_to_coverage_selection = false
       end
     elsif context.cart[:dental].present?
-      unless context.cart[:health].present?
+      if context.health.present?
+        context.shop_for = :health
+        context.shop_attributes = context.health
+      elsif context.health_offering == 'true'
         context.go_to_coverage_selection = true
         context.coverage_for = :health
+      elsif context.health_offering == 'false'
+        context.go_to_coverage_selection = false
       end
     end
   end
