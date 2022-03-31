@@ -395,6 +395,7 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
 
           before do
             helper.instance_variable_set("@mc_market_kind", "individual")
+            helper.instance_variable_set("@hbx_enrollment", hbx_enrollment)
           end
 
           it "should disable all the employers if user clicked on 'make changes' for IVL enrollment" do
@@ -451,6 +452,7 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
 
           before do
             helper.instance_variable_set("@mc_market_kind", "individual")
+            helper.instance_variable_set("@hbx_enrollment", hbx_enrollment)
           end
 
           it "should not check any of the employers when user clicked on 'make changes' for IVL enrollment" do
