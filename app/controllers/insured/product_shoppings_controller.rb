@@ -99,7 +99,32 @@ module Insured
       # send_receipt_emails if @person.emails.first
     end
 
+    def waive
+      context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: params[:id], waiver_reason: params[:waiver_reason])
+
+      if context.waiver_enrollment.inactive?
+        redirect_to print_waiver_insured_plan_shopping_path(context.waiver_enrollment), notice: 'Waive Coverage Successful'
+      else
+        redirect_to new_insured_members_selection_path(person_id: @person.id, change_plan: 'change_plan', hbx_enrollment_id: context.hbx_enrollment.id), alert: 'Waive Coverage Failed'
+      end
+    rescue StandardError => e
+      log(e.message, :severity => 'error')
+      redirect_to new_insured_members_selection_path(person_id: @person.id, change_plan: 'change_plan', hbx_enrollment_id: context.hbx_enrollment.id), alert: 'Waive Coverage Failed'
+    end
+
+    def print_waiver
+      @hbx_enrollment = HbxEnrollment.find(params.require(:id))
+    end
+
     private
+
+    def sanatize_params(param)
+      if param.instance_of?(Hash)
+        param
+      elsif param.instance_of?(String)
+        JSON.parse(param)
+      end
+    end
 
     def send_receipt_emails
       UserMailer.generic_consumer_welcome(@person.first_name, @person.hbx_id, @person.emails.first.address).deliver_now
