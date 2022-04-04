@@ -7,6 +7,7 @@ module Organizers
     organize [
       FindEnrollment,
       ConstructWaiverEnrollment,
-      TriggerWaive]
+      TriggerWaive
+]
   end
 end
