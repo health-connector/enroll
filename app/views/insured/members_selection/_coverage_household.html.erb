@@ -30,7 +30,7 @@
         </tr>
       <% else %>
         <tr>
-          <td class='<%= "member_health_errors_#{family_member.id}" %>'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'health') %></td>
+          <td class='<%= "member_health_errors_#{family_member.id}" %>' data-cuke='member_health_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'health') %></td>
         </tr>
       <% end %>
 
@@ -52,7 +52,7 @@
         </tr>
       <% else %>
         <tr>
-          <td class='<%= "member_dental_errors_#{family_member.id}" %>'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'dental') %></td>
+          <td class='<%= "member_dental_errors_#{family_member.id}" %>' data-cuke='member_dental_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'dental') %></td>
         </tr>
       <% end %>
 
