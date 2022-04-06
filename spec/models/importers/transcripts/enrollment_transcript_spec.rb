@@ -27,8 +27,8 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
   include_context "setup initial benefit application"
 
   context '.process' do
-    let(:source_effective_on) { Date.new(TimeKeeper.date_of_record.year, 1, 1) }
-    let(:other_effective_on) { Date.new(TimeKeeper.date_of_record.year, TimeKeeper.date_of_record.beginning_of_month.month, TimeKeeper.date_of_record.day) }
+    let(:source_effective_on) { current_effective_date }
+    let(:other_effective_on) { current_effective_date + 2.months }
     let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:other_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
     let(:source_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
