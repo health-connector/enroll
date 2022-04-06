@@ -20,7 +20,7 @@
         </tr>
         <tr style="padding: 2px;">
           <td style="padding: 2px;">
-            <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll') %>
+            <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', checked: true) %>
             <%= label_tag("health[enroll][#{index}]", "Enroll") %>
           </td>
         </tr>
@@ -38,7 +38,7 @@
         </tr>
         <tr>
           <td style="padding: 2px;">
-            <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll') %>
+            <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', checked: true) %>
             <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
           </td>
         </tr>
