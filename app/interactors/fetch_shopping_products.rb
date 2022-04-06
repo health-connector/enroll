@@ -4,7 +4,7 @@ class FetchShoppingProducts
   include Interactor
 
   def call
-    return if context.action == "continuous_show" && @context.shop_for.nil?
+    return if context.action == "continuous_show" && context.shop_for.nil?
 
     sponsored_cost_calculator = HbxEnrollmentSponsoredCostCalculator.new(hbx_enrollment)
     sponsored_benefit = hbx_enrollment.sponsored_benefit
@@ -36,7 +36,7 @@ class FetchShoppingProducts
   end
 
   def hbx_enrollment
-    @hbx_enrollment ||= context.hbx_enrollment
+    context.hbx_enrollment
   end
 
   def coverage_kind

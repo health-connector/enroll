@@ -1204,3 +1204,7 @@ Given(/^a Hbx admin with read and write permissions and employers$/) do
   org2 = FactoryGirl.create(:organization, legal_name: 'Chase & Assoc', hbx_id: "67890")
   employer_profile = FactoryGirl.create :employer_profile, organization: org2
 end
+
+Given(/^Continuous plan shopping is turned off$/) do
+  EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
+end

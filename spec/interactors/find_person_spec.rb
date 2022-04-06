@@ -18,7 +18,7 @@ describe FindPerson, :dbclean => :after_each do
 
       expect(context.person).to be nil
       expect(context.failure?).to be true
-      expect(context.message.to_s).to eq "invalid ID"
+      expect(context.message.to_s).to eq "invalid Person ID"
     end
   end
 
@@ -28,7 +28,7 @@ describe FindPerson, :dbclean => :after_each do
 
       expect(context.person).to be nil
       expect(context.failure?).to be true
-      expect(context.message.to_s).to eq "invalid ID"
+      expect(context.message.to_s).to eq "invalid Person ID"
     end
   end
 end

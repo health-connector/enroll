@@ -15,7 +15,7 @@
           - if display_plan_cost_warning(@benefit_group)
             b = l10n("insured.plan_shoppings.final_cost_change")
           .row.no-buffer
-            = render "shared/plan_shoppings/more_plan_details"
+            = render "shared/product_shoppings/more_plan_details"
           p.pull-right
             a.btn.btn-default.compare-selected-plans-link href="javascript:void(0);" style="display: none;" data-uri="#{comparison_products_plans_path(market_kind: @context.market_kind, coverage_kind: @coverage_kind)}"
               = l10n("compare_plans").to_s.upcase
@@ -56,7 +56,7 @@
           - if (@context.market_kind == "individual" && !is_under_open_enrollment?) || @context.enrollment_kind == 'sep'
             = render partial: 'shared/sep_shop_for_plans_progress', locals: {step: '2'}
           - else
-            = render partial: 'shared/shop_for_plans_progress', locals: {step: '1', show_waive: true}
+            = render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1', show_waive: true}
 
 .modal.fade#plans-compare-alert
   .modal-dialog.modal-lg
@@ -70,7 +70,7 @@
       .modal-footer
         button.btn.btn-default type="button" data-dismiss="modal"
 
-= render :partial => "ui-components/v1/modals/waive_confirmation_during_shopping", :locals => {:enrollment => @context.hbx_enrollment } if @context.hbx_enrollment.is_shop?
+= render :partial => "insured/product_shoppings/waive_confirmation_during_shopping", :locals => {:enrollment => @context.hbx_enrollment } if @context.hbx_enrollment.is_shop?
 
 = render :partial => "ui-components/v1/modals/help_with_plan", :locals => {:enrollment => @context.hbx_enrollment }
 

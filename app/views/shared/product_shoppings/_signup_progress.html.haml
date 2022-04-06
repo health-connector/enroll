@@ -43,7 +43,6 @@
   = link_to 'CONTINUE', eligible_coverage_selection_insured_members_selections_path(@mini_context.to_h), class: 'btn btn-lg btn-primary  btn-block', id: 'eligible-btn-continue'
 - elsif step == 6
   = link_to purchase_or_confirm, checkout_insured_product_shoppings_path(build_hash_to_checkout(@context)), :class => 'btn btn-lg btn-primary  btn-block', id: 'btn-continue', :method => :post, :disabled => disable_continuous_purchase?(@context.values.collect{|hash| hash[:enrollable]}, @context.values.collect{|hash| hash[:enrollment]})
-  = link_to 'Waive Coverage', '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn-waive btn btn-round btn-default' if @context.values.collect{|hash| hash[:enrollment]}.present? && @context.values.collect{|hash| hash[:employee_role]}.uniq.present?
 - elsif step == 7
   = link_to 'CONTINUE', family_account_path, class: 'btn btn-lg btn-primary  btn-block', id: 'btn-continue'
 - else

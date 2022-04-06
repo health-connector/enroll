@@ -3,6 +3,7 @@ Feature: EE plan purchase
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given Continuous plan shopping is turned off
     Given Qualifying life events are present
 
   Scenario: when EE purchase plan for self
