@@ -1208,3 +1208,11 @@ end
 Given(/^Continuous plan shopping is turned off$/) do
   EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
 end
+
+Given(/^Continuous plan shopping is enabled$/) do
+  EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
+end
+
+Then(/Employee should see the ineligible for (.+) coverage message/) do |coverage_type|
+  expect(find_all("[data-cuke='member_#{coverage_type}_error']").present?).to eq true
+end
