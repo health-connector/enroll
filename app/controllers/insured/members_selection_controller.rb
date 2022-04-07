@@ -3,7 +3,7 @@
 module Insured
   class MembersSelectionController < ApplicationController
     def new
-      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys.except(:controller, :action))
+      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys.except(:controller, :action), event: params[:event])
 
       if @organizer.success?
         @can_shop_both_markets = false
@@ -24,7 +24,7 @@ module Insured
     end
 
     def fetch
-      @organizer = Organizers::CoverageEligibilityForGivenEmployeeRole.call(params: params.symbolize_keys, market_kind: params["market_kind"])
+      @organizer = Organizers::CoverageEligibilityForGivenEmployeeRole.call(params: params.symbolize_keys, market_kind: params["market_kind"], event: params[:event])
 
       if @organizer.success?
         respond_to do |format|

@@ -3,6 +3,7 @@ $(document).ready(function () {
     var person_id = $("#person_id").val();
     var market_kind = $("#market_kind").val();
     var employee_role_id = $("#employer_profile_legal_name").val();
+    var event = $("#event").val();
 
     console.log('here')
     $.ajax({
@@ -11,7 +12,8 @@ $(document).ready(function () {
         person_id: person_id,
         employee_role_id: employee_role_id,
         new_effective_on: "",
-        market_kind: market_kind
+        market_kind: market_kind,
+        event: event
       },
       url: '/insured/members_selections/fetch',
       success: function (data) {

@@ -31,14 +31,14 @@
               </p>
 
               <% if value.hbx_enrollment.employee_role.present? %>
-              <%= render "insured/product_shoppings/coverage_information", :enrollment => value.hbx_enrollment, :member_group => value.member_group %>
+                <%= render "insured/product_shoppings/coverage_information", :enrollment => value.hbx_enrollment, :member_group => value.member_group %>
               <% end %>
 
               <% if value.hbx_enrollment.is_cobra_status? %>
                 <p>* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.</p>
               <% end %>
-               <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
-            <%  end %>
+                <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
+            <% end %>
           </div>
           <%= link_to 'Print', '#', id: 'btnPrint', class: "btn btn-default interaction-click-control-print-purchase-confirmation" %>
         </div>
@@ -47,13 +47,13 @@
         <% if @change_plan.blank? %>
           <%= render  partial: 'shared/signup_progress', locals: {step: '7'} %>
         <% elsif @change_plan == "change_by_qle" %>
-        <%= render partial: 'shared/qle_progress', locals: {step: '4'} %>
+          <%= render partial: 'shared/qle_progress', locals: {step: '4'} %>
         <% elsif @change_plan == "change_plan" %>
-        <% if (@market_kind == "individual" && !is_under_open_enrollment?) || @hbx_enrollment_kind == 'sep' %>
-        <%= render  partial: 'shared/sep_shop_for_plans_progress', locals: {step: '4'} %>
-        <% else %>
-        <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '3'} %>
-        <% end %>
+          <% if (@market_kind == "individual" && !is_under_open_enrollment?) || @hbx_enrollment_kind == 'sep' %>
+            <%= render  partial: 'shared/sep_shop_for_plans_progress', locals: {step: '4'} %>
+          <% else %>
+            <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '3'} %>
+          <% end %>
         <% end %>
       </div>
     </div>

@@ -9,7 +9,7 @@ module Insured
     def continuous_show
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: params[:health]&.deep_symbolize_keys, dental: params[:dental]&.deep_symbolize_keys,
                                                                      cart: params[:cart]&.deep_symbolize_keys, dental_offering: params[:dental_offering],  health_offering: params[:health_offering],
-                                                                     action: params[:action])
+                                                                     action: params[:action], event: params[:event])
 
       if @context.failure?
         flash[:error] = @context.message

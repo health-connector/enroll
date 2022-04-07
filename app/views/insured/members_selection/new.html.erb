@@ -20,6 +20,7 @@
 
         <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
         <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
+        <%= hidden_field_tag(:event, @organizer.event) %>
         <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
         <%= hidden_field_tag(:is_waiving, nil, id: "is_waiving_hidden_value_field") %>
         <%= hidden_field_tag(:person_id, @organizer.person.id) %>
