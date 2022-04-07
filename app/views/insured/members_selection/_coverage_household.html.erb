@@ -16,13 +16,13 @@
                 </tr>
                 <tr style="padding: 2px;">
                   <td style="padding: 2px;">
-                    <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', checked: true) %>
+                    <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', true, 'data-cuke': 'health-enroll-radio') %>
                     <%= label_tag("health[enroll][#{index}]", "Enroll") %>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 2px;">
-                    <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive') %>
+                    <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio') %>
                     <%= label_tag("health[waive][#{index}]", "Waive") %>
                   </td>
                 </tr>
@@ -35,7 +35,6 @@
               <td class='<%= "member_health_errors_#{family_member.id}" %>' data-cuke='member_health_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'health') %></td>
             </tr>
           <% end %>
-
           <% if (can_display_dental_coverage?(is_dental_coverage) && @organizer.event == "shop_for_plans") ||  @organizer.event == "make_changes_for_dental"%>
             <table class="col-md-12" id="family_member_id_<%=family_member.id%>_dental">
               <tbody>
@@ -44,13 +43,13 @@
                 </tr>
                 <tr>
                   <td style="padding: 2px;">
-                    <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', checked: true) %>
+                    <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', true, 'data-cuke': 'dental-enroll-radio') %>
                     <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 2px;">
-                    <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive') %>
+                    <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive', false, 'data-cuke': 'dental-waive-radio') %>
                     <%= label_tag("dental[waive][#{index}]", "Waive") %>
                   </td>
                 </tr>
