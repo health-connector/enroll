@@ -21,20 +21,20 @@ class AnalyzeCartForNextShoppingFlow
       if context.dental.present?
         context.shop_for = :dental
         context.shop_attributes = context.dental
-      elsif context.dental_offering == 'true'
+      elsif context.dental_offering == 'true' && context.event == "shop_for_plans"
         context.go_to_coverage_selection = true
         context.coverage_for = :dental
-      elsif context.dental_offering == 'false'
+      elsif context.dental_offering == 'false' || (context.health_offering == 'true' && context.event.match?(/make_changes_/))
         context.go_to_coverage_selection = false
       end
     elsif context.cart[:dental].present?
       if context.health.present?
         context.shop_for = :health
         context.shop_attributes = context.health
-      elsif context.health_offering == 'true'
+      elsif context.health_offering == 'true' && context.event == "shop_for_plans"
         context.go_to_coverage_selection = true
         context.coverage_for = :health
-      elsif context.health_offering == 'false'
+      elsif context.health_offering == 'false' || (context.health_offering == 'true' && context.event.match?(/make_changes_/))
         context.go_to_coverage_selection = false
       end
     end
