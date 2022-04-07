@@ -2,7 +2,7 @@
 
 #insured/product_shoppings/continuous_show
 class EmployeeEnrollInAPlan
-  
+
   def self.find_your_doctor_btn
     'button[class$="interaction-click-control-find-your-doctor"]'
   end
@@ -35,4 +35,3 @@ class EmployeeEnrollInAPlan
     'a[class$="all-plans"]'
   end
 end
-  

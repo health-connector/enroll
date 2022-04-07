@@ -2,7 +2,7 @@
 
 #insured/members_selections/new?change_plan
 class EmployeeChooseCoverage
-  
+
   def self.enroll_health
     '[data-cuke="health-enroll-radio"]'
   end

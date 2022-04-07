@@ -10,7 +10,7 @@ class AdminHomepage
 
   def self.families_tab
     'a[href="/exchanges/hbx_profiles/family_index_dt"]'
-  end 
+  end
 
   def self.employers_tab
     'a[href="/exchanges/hbx_profiles/employer_datatable"]'
@@ -27,7 +27,7 @@ class AdminHomepage
   def self.products_tab
     'a[href="/exchanges/hbx_profiles/product_index"]'
   end
-  
+
   def self.brokers_dropdown
     'a[class$="interaction-click-control-brokers"]'
   end
@@ -43,7 +43,7 @@ class AdminHomepage
   def self.admin_dropdown
     'a[class$="interaction-click-control-admin"]'
   end
-   
+
   def self.calendar
     'a[href="/exchanges/scheduled_events"]'
   end
