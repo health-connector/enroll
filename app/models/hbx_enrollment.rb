@@ -726,7 +726,12 @@ class HbxEnrollment
     return unless census_employee.present? && census_employee.valid?
     return if CensusEmployee::COBRA_STATES.include?(census_employee.aasm_state)
 
-    census_employee.update_attributes!(expected_selection: "waive")
+    case aasm_state
+    when "coverage_selected"
+      census_employee.update_attributes!(expected_selection: "enroll")
+    when "inactive"
+      census_employee.update_attributes!(expected_selection: "waive")
+    end
   end
 
   def non_inactive_transition?
@@ -1579,7 +1584,7 @@ class HbxEnrollment
 
   aasm do
     state :shopping, initial: true
-    state :coverage_selected, :after_enter => :update_renewal_coverage
+    state :coverage_selected, :after_enter => [:update_renewal_coverage, :update_expected_selection]
     state :transmitted_to_carrier
     state :coverage_enrolled, :after_enter => :update_renewal_coverage
 

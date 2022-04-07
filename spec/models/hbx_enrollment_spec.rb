@@ -1693,10 +1693,41 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
                              aasm_state: 'shopping')
         end
 
+        let(:new_enrollment2) do
+          FactoryGirl.create(:hbx_enrollment,
+                             household: shop_family.latest_household,
+                             coverage_kind: 'health',
+                             effective_on: enrollment_effective_on,
+                             enrollment_kind: enrollment_kind,
+                             kind: 'employer_sponsored',
+                             submitted_at: TimeKeeper.date_of_record,
+                             benefit_sponsorship_id: benefit_sponsorship.id,
+                             sponsored_benefit_package_id: current_benefit_package.id,
+                             sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                             employee_role_id: employee_role.id,
+                             benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                             product_id: enrollment.product_id,
+                             aasm_state: 'shopping')
+        end
+
         context 'when census_employee is not cobra' do
-          it 'should update expected_selection on census employee to waive' do
+          before do
             new_enrollment.waive_coverage!
-            expect(new_enrollment.census_employee.expected_selection).to eq 'waive'
+          end
+
+          context 'employee waives the coverage' do
+            it 'should update expected_selection on census employee to waive' do
+              expect(new_enrollment.census_employee.expected_selection).to eq 'waive'
+            end
+          end
+
+          context 'employee waives and enroll in coverage' do
+            it 'should update expected_selection on census employee to enroll' do
+              expect(new_enrollment.census_employee.expected_selection).to eq 'waive'
+              new_enrollment2.select_coverage!
+              new_enrollment.census_employee.reload
+              expect(new_enrollment.census_employee.expected_selection).to eq 'enroll'
+            end
           end
         end
 
@@ -1723,10 +1754,24 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         end
 
         context 'when census_employee is cobra eligible' do
-          it 'should not update expected_selection on census employee to waive' do
+          before do
             new_enrollment.census_employee.update_attributes!(aasm_state: 'cobra_eligible', cobra_begin_date: (Date.today - 1.month).beginning_of_month)
             new_enrollment.waive_coverage!
-            expect(new_enrollment.census_employee.expected_selection).to eq 'enroll'
+          end
+
+          context 'employee waives the coverage' do
+            it 'should not update expected_selection on census employee to waive' do
+              expect(new_enrollment.census_employee.expected_selection).to eq 'enroll'
+            end
+          end
+
+          context 'employee waives and enroll in coverage' do
+            it 'should not update expected_selection on census employee' do
+              expect(new_enrollment.census_employee.expected_selection).to eq 'enroll'
+              new_enrollment2.select_coverage!
+              new_enrollment.census_employee.reload
+              expect(new_enrollment.census_employee.expected_selection).to eq 'enroll'
+            end
           end
         end
       end
