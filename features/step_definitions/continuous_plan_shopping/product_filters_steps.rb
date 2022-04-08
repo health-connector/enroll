@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/the Employee will see a Metal Level Filter/) do
   expect(find_all(EmployeeEnrollInAPlan.plan_metal_level_filter).present?).to eq true
 end
