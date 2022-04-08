@@ -38,4 +38,8 @@ class EmployeeEnrollInAPlan
   def self.dental_header_text
     'Enroll in a Dental Plan'
   end
+
+  def self.health_header_text
+    'Enroll in a Health Plan'
+  end
 end

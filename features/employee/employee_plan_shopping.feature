@@ -95,4 +95,4 @@ Feature: Employees can purchase coverage from both active and renewing plan year
     Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
     Then Employee should see the list of plans
-    Then Employee should see the header text related to dental plan
+    Then Employee should see the header text related to health plan

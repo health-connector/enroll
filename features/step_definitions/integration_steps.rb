@@ -874,8 +874,8 @@ Then(/^.+ should see the list of plans$/) do
   screenshot("plan_shopping")
 end
 
-Then(/^.+ should see the header text related to dental plan$/) do
-  expect(page).to have_content(EmployeeEnrollInAPlan.dental_header_text)
+Then(/^.+ should see the header text related to health plan$/) do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
 end
 
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
