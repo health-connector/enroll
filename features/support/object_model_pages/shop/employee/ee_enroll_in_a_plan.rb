@@ -34,4 +34,8 @@ class EmployeeEnrollInAPlan
   def self.back_to_results_btn
     'a[class$="all-plans"]'
   end
+
+  def self.dental_header_text
+    'Enroll in a Dental Plan'
+  end
 end
