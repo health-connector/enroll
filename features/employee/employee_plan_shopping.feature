@@ -79,3 +79,20 @@ Feature: Employees can purchase coverage from both active and renewing plan year
     Then Employee should see the list of plans
     Then Employee should see their current plan
     Then Employee should see the correct employee contribution on plan tile
+
+  Scenario: Employee should see the correct EE contribution on their current plan when doing plan shop
+
+    Given there exists Patrick Doe employee for employer ABC Widgets
+    Given Continuous plan shopping is enabled
+    And initial employer ABC Widgets has active benefit application
+    And employee Patrick Doe has past hired on date
+    And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
+    And Patrick Doe should have a ER sponsored enrollment
+    When Employee click the "Married" in qle carousel
+    And Employee select a past qle date
+    Then Employee should see confirmation and clicks continue
+    Then Employee should see family members page and clicks continue
+    Then Employee should see the group selection page
+    When Employee clicks continue on the group selection page
+    Then Employee should see the list of plans
+    Then Employee should see the header text related to health plan

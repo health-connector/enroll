@@ -874,6 +874,10 @@ Then(/^.+ should see the list of plans$/) do
   screenshot("plan_shopping")
 end
 
+Then(/^.+ should see the header text related to health plan$/) do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
+end
+
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
   benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
   expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
