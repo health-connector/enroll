@@ -203,7 +203,6 @@ Feature: EE plan purchase
 
   Scenario: EE sees product filters while continuous plan shopping
     Given Continuous plan shopping is enabled
-    Given Nationwide markets are enabled
     Given there is an employer Acme Inc.
     And Acme Inc. employer has a staff role
     When staff role person logged in
@@ -222,8 +221,6 @@ Feature: EE plan purchase
     And the Employee will have the ability to filter plans by metal level
     Then the Employee will see a Plan Type Filter
     And the Employee will have the ability to filter plans by plan type
-    # Then the Employee will see a Network Filter
-    # And the Employee will have the ability to filter plans by network
     Then the Employee will see a Carrier dropdown
     And the Employee will have the ability to view plans by carrier
     Then the Employee will see a HSA Eligible dropdown
