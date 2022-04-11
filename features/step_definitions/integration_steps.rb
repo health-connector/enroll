@@ -878,6 +878,11 @@ Then(/^.+ should see the header text related to health plan$/) do
   expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
 end
 
+Then("Employee should see enroll & waive buttons") do
+  expect(page.has_css?(EmployeeChooseCoverage.enroll_health)).to eq true
+  expect(page.has_css?(EmployeeChooseCoverage.waive_health)).to eq true
+end
+
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
   benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
   expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
