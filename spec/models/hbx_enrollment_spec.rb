@@ -1679,36 +1679,36 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         context "Health" do
           let(:new_enrollment) do
             FactoryGirl.create(:hbx_enrollment,
-                              household: shop_family.latest_household,
-                              coverage_kind: 'health',
-                              effective_on: enrollment_effective_on,
-                              enrollment_kind: enrollment_kind,
-                              kind: 'employer_sponsored',
-                              submitted_at: TimeKeeper.date_of_record,
-                              benefit_sponsorship_id: benefit_sponsorship.id,
-                              sponsored_benefit_package_id: current_benefit_package.id,
-                              sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                              employee_role_id: employee_role.id,
-                              benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                              product_id: enrollment.product_id,
-                              aasm_state: 'shopping')
+                               household: shop_family.latest_household,
+                               coverage_kind: 'health',
+                               effective_on: enrollment_effective_on,
+                               enrollment_kind: enrollment_kind,
+                               kind: 'employer_sponsored',
+                               submitted_at: TimeKeeper.date_of_record,
+                               benefit_sponsorship_id: benefit_sponsorship.id,
+                               sponsored_benefit_package_id: current_benefit_package.id,
+                               sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                               employee_role_id: employee_role.id,
+                               benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                               product_id: enrollment.product_id,
+                               aasm_state: 'shopping')
           end
 
           let(:new_enrollment2) do
             FactoryGirl.create(:hbx_enrollment,
-                              household: shop_family.latest_household,
-                              coverage_kind: 'health',
-                              effective_on: enrollment_effective_on,
-                              enrollment_kind: enrollment_kind,
-                              kind: 'employer_sponsored',
-                              submitted_at: TimeKeeper.date_of_record,
-                              benefit_sponsorship_id: benefit_sponsorship.id,
-                              sponsored_benefit_package_id: current_benefit_package.id,
-                              sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                              employee_role_id: employee_role.id,
-                              benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                              product_id: enrollment.product_id,
-                              aasm_state: 'shopping')
+                               household: shop_family.latest_household,
+                               coverage_kind: 'health',
+                               effective_on: enrollment_effective_on,
+                               enrollment_kind: enrollment_kind,
+                               kind: 'employer_sponsored',
+                               submitted_at: TimeKeeper.date_of_record,
+                               benefit_sponsorship_id: benefit_sponsorship.id,
+                               sponsored_benefit_package_id: current_benefit_package.id,
+                               sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                               employee_role_id: employee_role.id,
+                               benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                               product_id: enrollment.product_id,
+                               aasm_state: 'shopping')
           end
 
           context 'when census_employee is not cobra' do
@@ -1735,17 +1735,17 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           context 'when there is no census_employee record' do
             let(:new_enrollment) do
               FactoryGirl.create(:hbx_enrollment,
-                                household: shop_family.latest_household,
-                                coverage_kind: 'health',
-                                effective_on: enrollment_effective_on,
-                                enrollment_kind: enrollment_kind,
-                                kind: 'employer_sponsored',
-                                submitted_at: TimeKeeper.date_of_record,
-                                benefit_sponsorship_id: benefit_sponsorship.id,
-                                sponsored_benefit_package_id: current_benefit_package.id,
-                                sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                                product_id: enrollment.product_id,
-                                aasm_state: 'shopping')
+                                 household: shop_family.latest_household,
+                                 coverage_kind: 'health',
+                                 effective_on: enrollment_effective_on,
+                                 enrollment_kind: enrollment_kind,
+                                 kind: 'employer_sponsored',
+                                 submitted_at: TimeKeeper.date_of_record,
+                                 benefit_sponsorship_id: benefit_sponsorship.id,
+                                 sponsored_benefit_package_id: current_benefit_package.id,
+                                 sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                                 product_id: enrollment.product_id,
+                                 aasm_state: 'shopping')
             end
 
             it 'should not raise error when no census employee' do
@@ -1783,38 +1783,38 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
 
           let(:new_enrollment) do
             FactoryGirl.create(:hbx_enrollment,
-                              household: shop_family.latest_household,
-                              coverage_kind: 'dental',
-                              effective_on: enrollment_effective_on,
-                              enrollment_kind: enrollment_kind,
-                              kind: 'employer_sponsored',
-                              submitted_at: TimeKeeper.date_of_record,
-                              benefit_sponsorship_id: benefit_sponsorship.id,
-                              sponsored_benefit_package_id: current_benefit_package.id,
-                              sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
-                              employee_role_id: employee_role.id,
-                              benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                              product_id: enrollment.product_id,
-                              aasm_state: 'shopping')
+                               household: shop_family.latest_household,
+                               coverage_kind: 'dental',
+                               effective_on: enrollment_effective_on,
+                               enrollment_kind: enrollment_kind,
+                               kind: 'employer_sponsored',
+                               submitted_at: TimeKeeper.date_of_record,
+                               benefit_sponsorship_id: benefit_sponsorship.id,
+                               sponsored_benefit_package_id: current_benefit_package.id,
+                               sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
+                               employee_role_id: employee_role.id,
+                               benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                               product_id: enrollment.product_id,
+                               aasm_state: 'shopping')
 
 
           end
 
           let(:new_enrollment2) do
             FactoryGirl.create(:hbx_enrollment,
-                              household: shop_family.latest_household,
-                              coverage_kind: 'dental',
-                              effective_on: enrollment_effective_on,
-                              enrollment_kind: enrollment_kind,
-                              kind: 'employer_sponsored',
-                              submitted_at: TimeKeeper.date_of_record,
-                              benefit_sponsorship_id: benefit_sponsorship.id,
-                              sponsored_benefit_package_id: current_benefit_package.id,
-                              sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
-                              employee_role_id: employee_role.id,
-                              benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                              product_id: enrollment.product_id,
-                              aasm_state: 'shopping')
+                               household: shop_family.latest_household,
+                               coverage_kind: 'dental',
+                               effective_on: enrollment_effective_on,
+                               enrollment_kind: enrollment_kind,
+                               kind: 'employer_sponsored',
+                               submitted_at: TimeKeeper.date_of_record,
+                               benefit_sponsorship_id: benefit_sponsorship.id,
+                               sponsored_benefit_package_id: current_benefit_package.id,
+                               sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
+                               employee_role_id: employee_role.id,
+                               benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                               product_id: enrollment.product_id,
+                               aasm_state: 'shopping')
           end
 
           context 'when census_employee is not cobra' do
