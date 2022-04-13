@@ -72,7 +72,7 @@ module BenefitApplicationWorld
     end
   end
 
-  def create_application(new_application_status, dental=false)
+  def create_application(new_application_status, dental: false)
     application_start_date = application_effective_on(new_application_status) || current_effective_date
     application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
@@ -212,7 +212,7 @@ end
 
 And(/^employer (.*) has (?:a |an )?(.*) benefit application with dental$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
-  app = create_application(new_application_status.to_sym, true)
+  app = create_application(new_application_status.to_sym, dental: true)
   app.recorded_service_area_ids = [BenefitMarkets::Locations::ServiceArea.where(active_year: app.effective_period.min.year).first.id]
   app.save
   app
