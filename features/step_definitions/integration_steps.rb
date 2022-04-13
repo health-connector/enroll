@@ -883,6 +883,10 @@ Then("Employee should see enroll & waive buttons") do
   expect(page.has_css?(EmployeeChooseCoverage.waive_health)).to eq true
 end
 
+And(/^Employee waives dental plan$/) do
+    find(EmployeeChooseCoverage.waive_dental).click
+end
+
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
   benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
   expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
@@ -892,6 +896,13 @@ When(/^.+ selects? a plan on the plan shopping page$/) do
   first(:link, 'Select Plan').click
 end
 
+When(/^.+ selects? a health plan on the plan shopping page$/) do
+  first(:link, 'Select Plan').click
+end
+
+When(/^.+ selects? a dental plan on the plan shopping page$/) do
+  find(EmployeeEnrollInAPlan.select_plan_btn).click
+end
 Then(/^.+ should see the coverage summary page$/) do
   expect(page).to have_content('Confirm Your Plan Selection')
   screenshot("summary_page")
