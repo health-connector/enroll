@@ -874,6 +874,11 @@ Then(/^.+ should see the list of plans$/) do
   screenshot("plan_shopping")
 end
 
+Then(/^\w+ should see plans count listed$/) do
+  find_all(EmployeeEnrollInAPlan.plan_count).present?
+  find_all(EmployeeEnrollInAPlan.coverage_for).present?
+end
+
 Then(/^.+ should see the header text related to health plan$/) do
   expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
 end
