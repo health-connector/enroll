@@ -72,7 +72,7 @@ module BenefitApplicationWorld
     end
   end
 
-  def create_application(new_application_status: new_application_status, dental: dental)
+  def create_application(new_application_status: application_status, dental: dental_sponsored)
     dental ||= false
     application_start_date = application_effective_on(new_application_status) || current_effective_date
     application_dates = application_dates_for(application_start_date, new_application_status)

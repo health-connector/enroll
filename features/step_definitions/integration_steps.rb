@@ -884,7 +884,7 @@ Then("Employee should see enroll & waive buttons") do
 end
 
 And(/^Employee waives dental plan$/) do
-    find(EmployeeChooseCoverage.waive_dental).click
+  find(EmployeeChooseCoverage.waive_dental).click
 end
 
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
