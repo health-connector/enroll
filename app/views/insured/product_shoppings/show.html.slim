@@ -223,7 +223,7 @@ javascript:
       })
       return resultsData;
   }
-  
+
   function filterByCarrier(carrier, dataArray) {
       var resultsData = [];
       dataArray.forEach(function (enrollment) {
@@ -233,7 +233,7 @@ javascript:
       })
       return resultsData;
   }
-  
+
   function filterByHSA(selectedHSA, dataArray) {
       var resultsData = [];
       var hsa = Boolean;
@@ -323,7 +323,7 @@ javascript:
     if (selections.deductibleFromAmountValue != "" || selections.deductibleToAmountValue != "") {
         resultsArray = filterByDeductibleAmountRange(selections, resultsArray)
     }
-    
+
     // Removes duplicates from results array
     filteredArray = removeDuplicates(resultsArray)
     // Shows results in the view
@@ -369,7 +369,7 @@ javascript:
       div.setAttribute('class', 'myfilteredPlans')
       div.innerHTML =
       `
-      <div class="module plan-row panel panel-default">
+      <div class="module plan-row panel panel-default" data-cuke="filtered-plan">
               <div class="panel-body">
                 <div class="row ${result.product.is_standard_plan? '' : 'hidden'}">
                   <span class="ml-1 text-uppercase" style="color:green"><i class="fas fa-bookmark"></i> Standard Plan</span>
