@@ -72,7 +72,7 @@ module BenefitApplicationWorld
     end
   end
 
-  def create_application(new_application_status: new_application_status)
+  def create_application(new_application_status, dental: false)
     application_start_date = application_effective_on(new_application_status) || current_effective_date
     application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
@@ -83,7 +83,8 @@ module BenefitApplicationWorld
                        open_enrollment_period: application_dates[:open_enrollment_period],
                        recorded_rating_area: rating_area,
                        recorded_service_areas: [service_area],
-                       package_kind: package_kind)
+                       package_kind: package_kind,
+                       dental_sponsored_benefit: dental)
     @new_application.benefit_sponsor_catalog.benefit_application = @new_application
     @new_application.benefit_sponsor_catalog.save!
     @new_application
@@ -168,7 +169,7 @@ end
 #     renewal employer Acme Inc. has expired  and renewal active benefit applications
 And(/^renewal employer (.*) has (.*) and renewal (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
   @employer_profile = employer_profile(legal_name)
-  earlier_application = create_application(new_application_status: earlier_application_status.to_sym)
+  earlier_application = create_application(earlier_application_status.to_sym)
   new_renewal_rating_area = renewal_rating_area
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
   @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym, recorded_rating_area: new_renewal_rating_area)
@@ -185,7 +186,7 @@ end
 #     initial employer Acme Inc. has draft benefit application
 And(/^initial employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = employer_profile(legal_name)
-  app = create_application(new_application_status: new_application_status.to_sym)
+  app = create_application(new_application_status.to_sym)
   app.update_attributes!(recorded_rating_area: renewal_rating_area) if current_effective_date.month == 2
   app
 end
@@ -193,7 +194,7 @@ end
 And(/^initial employer (.*) has (.*) benefit application with (.*) plan options$/) do |legal_name, new_application_status, plan_option|
   @package_kind = plan_option.downcase.gsub(/\s/, '_')
   @employer_profile = employer_profile(legal_name)
-  create_application(new_application_status: new_application_status.to_sym)
+  create_application(new_application_status.to_sym)
 end
 
 # Following step will create renewal benefit application and predecessor application with given states
@@ -203,12 +204,19 @@ end
 #     employer Acme Inc. has expired  and renewing active benefit applications
 And(/employer (.*) has (.*) and renewing (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
   @employer_profile = employer_profile(legal_name)
-  earlier_application = create_application(new_application_status: earlier_application_status.to_sym)
+  earlier_application = create_application(earlier_application_status.to_sym)
   renewal_rating_area
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
   @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)
 end
 
+And(/^employer (.*) has (?:a |an )?(.*) benefit application with dental$/) do |legal_name, new_application_status|
+  @employer_profile = @organization[legal_name].employer_profile
+  app = create_application(new_application_status.to_sym, dental: true)
+  app.recorded_service_area_ids = [BenefitMarkets::Locations::ServiceArea.where(active_year: app.effective_period.min.year).first.id]
+  app.save
+  app
+end
 
 # Following step will create initial benefit application with given state
 # ex: employer Acme Inc. has enrollment_open benefit application
@@ -217,7 +225,7 @@ end
 #     employer Acme Inc. has draft benefit application
 And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
-  app = create_application(new_application_status: new_application_status.to_sym)
+  app = create_application(new_application_status.to_sym)
   app.recorded_service_area_ids = [BenefitMarkets::Locations::ServiceArea.where(active_year: app.effective_period.min.year).first.id]
   app.save
   app

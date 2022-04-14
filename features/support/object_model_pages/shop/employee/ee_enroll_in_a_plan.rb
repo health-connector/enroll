@@ -24,7 +24,7 @@ class EmployeeEnrollInAPlan
   end
 
   def self.select_plan_btn
-    'a[class$="interaction-click-control-select-plan"]'
+    '.interaction-click-control-select-plan'
   end
 
   def self.see_details_btn
