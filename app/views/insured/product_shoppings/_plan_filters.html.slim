@@ -3,7 +3,7 @@
       - if !@context.hbx_enrollment.is_shop?
         h4 = link_to l10n('estimate_your_costs'), "https://dc.checkbookhealth.org/hie/dc/#{@context.hbx_enrollment.coverage_year}/", target: '_blank'
   h3.header-title Filter Results
-  - if @context.market_kind == "shop" || @context.benefit_group.try(:plan_option_kind) == "single_carrier"
+  - if @context.market_kind == "shop" || @context.market_kind == "employer_sponsored" || @context.benefit_group.try(:plan_option_kind) == "single_carrier"
     .checkbox-filter-wrapper-uc
       h5
         strong Metal Level
@@ -15,7 +15,7 @@
             checkbox
               label
                 input id="plan-metal-level-#{level}" class="plan-metal-level-selection-filter checkbox-custom" name="plan-metal-level-#{level}" type="checkbox" onClick="filterMetalLevel(this)" data-plan-metal-level="#{level}" data-category="planMetalLevel"
-                label for="plan-metal-level-#{level}" class="checkbox-custom-label"
+                label for="plan-metal-level-#{level}" class="checkbox-custom-label" data-cuke="plan-metal-level-filter"
                   span data-toggle="tooltip" data-placement="right" data-container="body" title="#{l10n('insured.plan_shoppings.plan_filters_'"#{level}"'_title_info')}"
                   = l10n("#{level}")
     .checkbox-filter-wrapper-uc
@@ -29,7 +29,7 @@
             checkbox
               label
                 input id="checkbox-#{10+i}" class="plan-type-selection-filter checkbox-custom" name="checkbox-#{10+i}" type="checkbox" data-plan-type="#{type}" onClick="filterPlanType(this)" data-category="planType"
-                label for="checkbox-#{10+i}" class="checkbox-custom-label"
+                label for="checkbox-#{10+i}" class="checkbox-custom-label" data-cuke="plan-type-filter"
                   span data-toggle="tooltip" data-placement="right" data-container="body" title="#{l10n('insured.plan_shoppings.'"#{type}"'_title_info')}"
                   = l10n("#{type}")
     - if offers_nationwide_plans?
@@ -44,7 +44,7 @@
               checkbox
                 label
                   input id="checkbox-#{13+i}" class="plan-metal-network-selection-filter checkbox-custom" name="checkbox-#{13+i}" type="checkbox" data-plan-network="#{network}" onClick="filterPlanNetwork(this)" data-category="planNetwork"
-                  label for="checkbox-#{13+i}" class="checkbox-custom-label"
+                  label for="checkbox-#{13+i}" class="checkbox-custom-label" data-cuke="plan-network-filter"
                     span data-toggle="tooltip" data-placement="right" data-container="body" title="#{l10n('insured.plan_shoppings.plan_shoppings_'"#{network}"'_title_info')}"
                     = l10n("#{network}")
     .checkbox-filter-wrapper-uc
@@ -54,7 +54,7 @@
             i.fas.fa-question-circle.fa-lg.pl-1 aria-hidden="true"
       ul.list-unstyled
           li
-            .filter-input-block
+            .filter-input-block data-cuke="plan-carrier-filter"
               = select_tag :carrier, options_for_select(@context.carrier_names), class: "plan-carrier-selection-filter", include_blank: "All", onchange:"filterPlanCarriers(this)"
     .checkbox-filter-wrapper-uc
       h5
@@ -63,7 +63,7 @@
             i.fas.fa-question-circle.fa-lg.pl-1 aria-hidden="true"
       ul.list-unstyled
         li
-          .filter-input-block
+          .filter-input-block data-cuke="plan-hsa-filter"
             = select_tag :hsa_eligibility, options_for_select(["Yes", "No"]), class: "plan-hsa-eligibility-selection-filter", include_blank: "All", onchange:"filterHSAEligibility(this)"
     .checkbox-filter-wrapper-uc
       h5
@@ -71,17 +71,17 @@
         a href="#" data-toggle="tooltip" data-container="body" data-placement="right" title="#{l10n("insured.plan_shoppings.premium_amount_title_info")}"
             i.fas.fa-question-circle.fa-lg.pl-1 aria-hidden="true"
       .filter-input-block
-        input.plan-metal-premium-from-selection-filter.form-control  type="text" placeholder="$0" value='0' onblur="premuimFromAmount(this)" maxlength="10" oninput="toCurrency(this)"
+        input.plan-metal-premium-from-selection-filter.form-control  type="text" placeholder="$0" value='0' onblur="premuimFromAmount(this)" maxlength="10" oninput="toCurrency(this)" name="plan-premium-from" data-cuke="plan-premium-filter"
         small To
         input.plan-metal-premium-to-selection-filter.form-control.fr type="text" placeholder="$#{@context.max_total_employee_cost || 2000}" value="#{@context.max_total_employee_cost || 2000}" onblur="premiumToAmount(this)" maxlength="10" oninput="toCurrency(this)"
         = hidden_field_tag :max_total_employee_cost, (@context.max_total_employee_cost || 2000)
       h5
         strong = l10n("deductible_amount")
       .filter-input-block
-        input.plan-metal-deductible-from-selection-filter.form-control type="text" placeholder="$0" value='0' onblur="deductibleFromAmount(this)" maxlength="10" oninput="toCurrency(this)"
+        input.plan-metal-deductible-from-selection-filter.form-control type="text" placeholder="$0" value='0' onblur="deductibleFromAmount(this)" maxlength="10" oninput="toCurrency(this)" name="plan-deductible-from"  data-cuke="plan-deductible-filter"
         small To
         input.plan-metal-deductible-to-selection-filter.form-control type="text" placeholder="$#{@context.max_deductible || 5000}" onblur="deductibleToAmount(this)" maxlength="10" oninput="toCurrency(this)" value='#{@context.max_deductible || 5000}'
-    - if @context.person.has_active_consumer_role? && @context.tax_household.present? && @context.market_kind == "individual"
+    - if @person.has_active_consumer_role? && @context.tax_household.present? && @context.market_kind == "individual"
       .aptc
         hr
           .row
@@ -106,7 +106,7 @@
           output name="pct" 85 %
     .checkbox-filter-wrapper-uc
       .form-inline.search-apply-wrapper.mt-1
-        a.btn.btn-primary.mz href="javascript:void(0)" onclick="filterResults()"
+        a.btn.btn-primary.mz href="javascript:void(0)" onclick="filterResults()" data-cuke="apply-plan-filters-btn"
           = l10n("apply")
-        a.btn.btn-default onclick="resetAllFilters()"
+        a.btn.btn-default onclick="resetAllFilters()" data-cuke="reset-plan-filters-btn"
           = l10n("reset")

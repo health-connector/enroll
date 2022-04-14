@@ -170,33 +170,62 @@ Feature: EE plan purchase
     Then Patrick Doe should see primary person
     And Employee logs out
 
-    Scenario: EE having an ineligible family member & doing continuous plan shop
-      Given Continuous plan shopping is enabled
-      Given there is an employer Acme Inc.
-      And Acme Inc. employer has a staff role
-      When staff role person logged in
-      And employer Acme Inc. has active benefit application
-      And Acme Inc. employer visit the Employee Roster
-      And there is a census employee record for Patrick Doe for employer Acme Inc.
-      Then Employer logs out
-      And Employee has not signed up as an HBX user
-      And Patrick Doe visits the employee portal
-      And Patrick Doe has a matched employee role
-      And Employee sees the Household Info: Family Members page and clicks Continue
-      Then Employee should see the ineligible for dental coverage message
-      And Employee sees the Choose Coverage for your Household page and clicks Continue
-      And Employee selects the first plan available
-      And Employee clicks Confirm
-      And Employee sees the Enrollment Submitted page and clicks Continue
-      When Employee click the "Married" in qle carousel
-      And Employee select a past qle date
-      Then Employee should see confirmation and clicks continue
-      Then Employee should see the dependents page
-      When Employee clicks Add Member
-      Then Employee should see the new dependent form
-      When Employee enters the dependent info of Patrick daughter
-      When Employee clicks confirm member
-      Then Employee should see 1 dependents
-      When Employee clicks continue on group selection page for dependents
-      Then Employee should see the ineligible for dental coverage message
-      Then Employee should see the ineligible for health coverage message
+  Scenario: EE having an ineligible family member & doing continuous plan shop
+    Given Continuous plan shopping is enabled
+    Given there is an employer Acme Inc.
+    And Acme Inc. employer has a staff role
+    When staff role person logged in
+    And employer Acme Inc. has active benefit application
+    And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
+    Then Employer logs out
+    And Employee has not signed up as an HBX user
+    And Patrick Doe visits the employee portal
+    And Patrick Doe has a matched employee role
+    And Employee sees the Household Info: Family Members page and clicks Continue
+    Then Employee should see the ineligible for dental coverage message
+    And Employee sees the Choose Coverage for your Household page and clicks Continue
+    And Employee selects the first plan available
+    And Employee clicks Confirm
+    And Employee sees the Enrollment Submitted page and clicks Continue
+    When Employee click the "Married" in qle carousel
+    And Employee select a past qle date
+    Then Employee should see confirmation and clicks continue
+    Then Employee should see the dependents page
+    When Employee clicks Add Member
+    Then Employee should see the new dependent form
+    When Employee enters the dependent info of Patrick daughter
+    When Employee clicks confirm member
+    Then Employee should see 1 dependents
+    When Employee clicks continue on group selection page for dependents
+    Then Employee should see the ineligible for dental coverage message
+    Then Employee should see the ineligible for health coverage message
+
+  Scenario: EE sees product filters while continuous plan shopping
+    Given Continuous plan shopping is enabled
+    Given there is an employer Acme Inc.
+    And Acme Inc. employer has a staff role
+    When staff role person logged in
+    And employer Acme Inc. has active benefit application
+    And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
+    Then Employer logs out
+    And Employee has not signed up as an HBX user
+    And Patrick Doe visits the employee portal
+    And Patrick Doe has a matched employee role
+    And Employee sees the Household Info: Family Members page and clicks Continue
+    Then Employee should see the ineligible for dental coverage message
+    And Employee sees the Choose Coverage for your Household page and clicks Continue
+    # Start Filter Tests
+    Then the Employee will see a Metal Level Filter
+    And the Employee will have the ability to filter plans by metal level
+    Then the Employee will see a Plan Type Filter
+    And the Employee will have the ability to filter plans by plan type
+    Then the Employee will see a Carrier dropdown
+    And the Employee will have the ability to view plans by carrier
+    Then the Employee will see a HSA Eligible dropdown
+    And the Employee will have the ability to view plans by HSA eligibility
+    Then the Employee will see premium amount fields
+    And the Employee will have the ability to enter a premium amount number range
+    Then the Employee will see deductible amount fields
+    And the Employee will have the ability to enter a deductible amount number range
