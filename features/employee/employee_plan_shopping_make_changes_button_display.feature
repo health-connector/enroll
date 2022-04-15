@@ -21,3 +21,13 @@ Feature: Make Changes Button Appears on Tile
     And I abandon shopping and clicks My Insured Portal to return to families home page
     # And I click the Back to My Account button
     Then the employee should not see the Make Changes button on their current enrollment tile
+
+  Scenario: Verify Shop for new plan button
+    Given Continuous plan shopping is enabled
+    And Patrick Doe has active coverage in coverage enrolled state
+    When I click the "Had a baby" in qle carousel
+    And I select current date as qle date
+    Then I should see confirmation and continue
+    When I click on continue button on household info form
+    And I click on the Shop for new plan button
+    Then I should see the header text related to health plan

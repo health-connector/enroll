@@ -1236,3 +1236,8 @@ end
 Then(/Employee should see the ineligible for (.+) coverage message/) do |coverage_type|
   expect(find_all("[data-cuke='member_#{coverage_type}_error']").present?).to eq true
 end
+
+And(/^.+ click on the Shop for new plan button$/) do
+  expect(page.has_css?(EmployeeChooseCoverage.shop_for_new_plan_btn)).to eq true
+  find(EmployeeChooseCoverage.shop_for_new_plan_btn).click
+end
