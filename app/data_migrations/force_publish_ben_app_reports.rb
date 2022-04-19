@@ -1,3 +1,10 @@
+# rubocop:disable Style/CyclomaticComplexity
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/PerceivedComplexity
+# rubocop:disable Metrics/MethodLength
+# frozen_string_literal: true
+
+
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
 # frozen_string_literal: true
@@ -71,6 +78,7 @@ class ForcePublishBenAppReports < MongoidMigrationTask
             next if census.employee_role.blank?
             next if census.benefit_group_assignments.where(:benefit_package_id.in => bene_app.benefit_packages.map(&:id)).blank?
             next unless ["employment_terminated","rehired","cobra_terminated"].include?(census.aasm_state)
+
             data = [ben_spon.fein, ben_spon.legal_name, census.full_name, census.id]
             csv << data
             census.try(:save!)
@@ -145,7 +153,7 @@ class ForcePublishBenAppReports < MongoidMigrationTask
       end
     end
   end
- 
+
   def non_detail_active_bg_ids(active_bg_ids)
     active_enrollment_count = 0
     enrollments = HbxEnrollment.where({
@@ -315,7 +323,11 @@ class ForcePublishBenAppReports < MongoidMigrationTask
     elsif current_year_state.nil? && ["coverage_selected", "coverage_enrolled"].include?(prev_year_state)
       "Enrollment plan was changed either for current year or previous year" unless rp_id == cp_id
     else
-      return ''
+      ''
     end
   end
 end
+# rubocop:enable Metrics/PerceivedComplexity
+# rubocop:enable Style/CyclomaticComplexity
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength
