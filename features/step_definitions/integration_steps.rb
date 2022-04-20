@@ -892,6 +892,8 @@ And(/^Employee waives health plan$/) do
 end
 
 And(/^Employee clicks no on choose coverage for household$/) do
+  expect(find_all(EmployeeEnrollInAPlan.available_coverage).present?).to eq true
+  expect(find_all(EmployeeEnrollInAPlan.shop_for_text).present?).to eq true
   find(EmployeeEnrollInAPlan.ee_choose_coverage).click
   find(EmployeeEnrollInAPlan.continue_coverage_button).click
 end

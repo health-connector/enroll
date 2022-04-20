@@ -118,4 +118,12 @@ class EmployeeEnrollInAPlan
   def self.dental_enrollment_confirmation
     'Your dental'
   end
+
+  def self.available_coverage
+    '[data-cuke="available-coverage"]'
+  end
+
+  def self.shop_for_text
+    '[data-cuke="shop-for"]'
+  end
 end
