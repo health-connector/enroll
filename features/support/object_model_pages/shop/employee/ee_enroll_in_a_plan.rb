@@ -102,4 +102,20 @@ class EmployeeEnrollInAPlan
   def self.reset_filters_btn
     '[data-cuke="reset-plan-filters-btn"]'
   end
+
+  def self.dual_enrollment_text
+    '[data-cuke="dual-enrollment-text"]'
+  end
+
+  def self.ee_choose_coverage
+    '[class$="interaction-choice-control-value-eligible-continue-no"]'
+  end
+
+  def self.continue_coverage_button
+    '.interaction-click-control-continue'
+  end
+
+  def self.dental_enrollment_confirmation
+    'Your dental'
+  end
 end
