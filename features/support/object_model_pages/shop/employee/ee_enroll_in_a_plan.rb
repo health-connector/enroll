@@ -24,7 +24,11 @@ class EmployeeEnrollInAPlan
   end
 
   def self.select_plan_btn
-    '.interaction-click-control-select-plan'
+    'a[class$="interaction-click-control-select-plan"]'
+  end
+
+  def self.filtered_select_plan_btn
+    '[data-cuke="cps-select-plan"]'
   end
 
   def self.see_details_btn
