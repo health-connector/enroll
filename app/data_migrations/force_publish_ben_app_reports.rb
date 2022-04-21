@@ -321,7 +321,7 @@ class ForcePublishBenAppReports < MongoidMigrationTask
     elsif current_year_state.nil? && prev_year_state.in?(HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
       "Previous plan has waived or terminated and did not generate renewal"
     elsif current_year_state.nil? && ["coverage_selected", "coverage_enrolled"].include?(prev_year_state)
-      if current_year_state.nil? 
+      if current_year_state.nil?
         if ben_app.benefit_packages.first&.is_renewal_benefit_available?(enrollment_prev_year)
           "Renewal product is offered by the employer (Offering #{ben_app.benefit_packages.count} benefit packages), but enrollment renewal failed"
         else
@@ -330,7 +330,7 @@ class ForcePublishBenAppReports < MongoidMigrationTask
       else
         "Enrollment plan was changed either for current year or previous year" unless rp_id == cp_id
       end
-     
+
     else
       ''
     end
