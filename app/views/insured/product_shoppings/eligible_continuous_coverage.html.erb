@@ -4,7 +4,8 @@
 <div class="container group-selection">
   <div class="row">
     <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
-    <p class="twenty">Select who needs coverage and the type of coverage needed. When you’re finished, select CONTINUE.</p>
+    <p class="twenty" data-cuke="available-coverage"><%= l10n("ability_to_purchase_msg_1") %> <%= @context[:coverage_for] %> <%= l10n("ability_to_purchase_msg_2") %></p>
+    <p class="twenty" data-cuke="shop-for"> <%= l10n("ability_to_purchase_msg_3") %> <%= @context[:coverage_for] %>? </p>
       <div class="col-xs-8">
       <table class="col-md-12">
         <tbody>
@@ -16,7 +17,7 @@
           </tr>
           <tr>
             <td style="padding: 2px;">
-            <%= radio_button_tag('eligible_continue', 'yes', false, 'data-href': thankyou_insured_product_shoppings_path(@context.cart))%>
+            <%= radio_button_tag('eligible_continue', 'no', false, 'data-href': thankyou_insured_product_shoppings_path(@context.cart))%>
               <%= label_tag("eligible_continue", "No") %>
             </td>
           </tr>

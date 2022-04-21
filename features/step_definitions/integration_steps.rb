@@ -887,6 +887,17 @@ And(/^Employee waives dental plan$/) do
   find(EmployeeChooseCoverage.waive_dental).click
 end
 
+And(/^Employee waives health plan$/) do
+  find(EmployeeChooseCoverage.waive_health).click
+end
+
+And(/^Employee clicks no on choose coverage for household$/) do
+  expect(find_all(EmployeeEnrollInAPlan.available_coverage).present?).to eq true
+  expect(find_all(EmployeeEnrollInAPlan.shop_for_text).present?).to eq true
+  find(EmployeeEnrollInAPlan.ee_choose_coverage).click
+  find(EmployeeEnrollInAPlan.continue_coverage_button).click
+end
+
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
   benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
   expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
@@ -1240,4 +1251,12 @@ end
 And(/^.+ click on the Shop for new plan button$/) do
   expect(page.has_css?(EmployeeChooseCoverage.shop_for_new_plan_btn)).to eq true
   find(EmployeeChooseCoverage.shop_for_new_plan_btn).click
+end
+
+Then(/^.+ should see both health & dental plans on receipt page$/) do
+  expect(page.has_css?(EmployeeEnrollInAPlan.dual_enrollment_text)).to eq true
+end
+
+Then("Employee should see dental enrollment text on receipt page") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_confirmation)
 end

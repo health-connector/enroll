@@ -37,7 +37,6 @@ module Insured
 
     def create
       @organizer = Organizers::CreateShoppingEnrollments.call(params: params.symbolize_keys, market_kind: params["market_kind"], session_original_application_type: session[:original_application_type], current_user: current_user)
-
       if @organizer.failure?
         flash[:error] = @organizer.message
         logger.error "#{@organizer.message}\n#{@organizer.backtrace.join("\n")}"
@@ -48,10 +47,17 @@ module Insured
 
       if @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?
         # TODO
-        # redirect_to thankyou_insured_plan_shopping_path(change_plan: @change_plan, market_kind: @market_kind, coverage_kind: @adapter.coverage_kind, id: hbx_enrollment.id, plan_id: @adapter.previous_hbx_enrollment.product_id)
+        redirect_to thankyou_insured_product_shoppings_path(keep_existing_plan_cart)
       else
         redirect_to continuous_show_insured_product_shoppings_path(@organizer[:plan_selection_json])
       end
+    end
+
+    private
+
+    def keep_existing_plan_cart
+      shopping_enrollment = @organizer.shopping_enrollments.first
+      {shopping_enrollment.coverage_kind => {"id": shopping_enrollment.id, "product_id": @organizer.previous_hbx_enrollment.product_id}}
     end
   end
 end
