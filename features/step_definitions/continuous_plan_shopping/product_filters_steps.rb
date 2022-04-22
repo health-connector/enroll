@@ -9,6 +9,7 @@ Then(/the Employee will have the ability to filter plans by metal level/) do
   find_all(EmployeeEnrollInAPlan.plan_metal_level_filter).first.click
   find(EmployeeEnrollInAPlan.apply_filters_btn).click
   expect(find_all(EmployeeEnrollInAPlan.filtered_plan).count).to eq 1
+  expect(find_all(EmployeeEnrollInAPlan.filtered_select_plan_btn).first[:href].include?("product_shoppings")).to eq true
   find(EmployeeEnrollInAPlan.reset_filters_btn).click
 end
 
@@ -21,6 +22,7 @@ Then(/the Employee will have the ability to filter plans by plan type/) do
   find_all(EmployeeEnrollInAPlan.plan_type_filter).first.click
   find(EmployeeEnrollInAPlan.apply_filters_btn).click
   expect(find_all(EmployeeEnrollInAPlan.filtered_plan).count).to eq 1
+  expect(find_all(EmployeeEnrollInAPlan.filtered_select_plan_btn).first[:href].include?("product_shoppings")).to eq true
   find(EmployeeEnrollInAPlan.reset_filters_btn).click
 end
 
@@ -38,6 +40,7 @@ Then(/the Employee will have the ability to filter plans by network/) do
   find_all(EmployeeEnrollInAPlan.plan_network_filter_option).last.click
   find(EmployeeEnrollInAPlan.apply_filters_btn).click
   expect(find_all(EmployeeEnrollInAPlan.filtered_plan).count).to eq 1
+  expect(find_all(EmployeeEnrollInAPlan.filtered_select_plan_btn).first[:href].include?("product_shoppings")).to eq true
   find(EmployeeEnrollInAPlan.reset_filters_btn).click
 end
 
@@ -51,6 +54,7 @@ Then(/the Employee will have the ability to view plans by carrier/) do
   find_all(EmployeeEnrollInAPlan.plan_carrier_filter_option).last.click
   find(EmployeeEnrollInAPlan.apply_filters_btn).click
   expect(find_all(EmployeeEnrollInAPlan.filtered_plan).count).to eq 1
+  expect(find_all(EmployeeEnrollInAPlan.filtered_select_plan_btn).first[:href].include?("product_shoppings")).to eq true
   find(EmployeeEnrollInAPlan.reset_filters_btn).click
 end
 
@@ -64,6 +68,7 @@ Then(/the Employee will have the ability to view plans by HSA eligibility/) do
   find_all(EmployeeEnrollInAPlan.plan_hsa_filter_option).last.click
   find(EmployeeEnrollInAPlan.apply_filters_btn).click
   expect(find_all(EmployeeEnrollInAPlan.filtered_plan).count).to eq 1
+  expect(find_all(EmployeeEnrollInAPlan.filtered_select_plan_btn).first[:href].include?("product_shoppings")).to eq true
   find(EmployeeEnrollInAPlan.reset_filters_btn).click
 end
 
@@ -88,5 +93,6 @@ Then(/the Employee will have the ability to enter a deductible amount number ran
   fill_in EmployeeEnrollInAPlan.plan_deductible_filter_from, with: 1
   find(EmployeeEnrollInAPlan.apply_filters_btn).click
   expect(find_all(EmployeeEnrollInAPlan.filtered_plan).count).to eq 1
+  expect(find_all(EmployeeEnrollInAPlan.filtered_select_plan_btn).first[:href].include?("product_shoppings")).to eq true
   find(EmployeeEnrollInAPlan.reset_filters_btn).click
 end
