@@ -323,8 +323,8 @@ class ForcePublishBenAppReports < MongoidMigrationTask
       if current_year_state.nil?
         spons_ben_match_enrollment_kind = ben_app.benefit_packages.first.sponsored_benefits.detect{|sponsored_benefit| sponsored_benefit.product_kind == enrollment_prev_year.coverage_kind.to_sym }
         if ben_app.benefit_packages.first.sponsored_benefits.blank? || spons_ben_match_enrollment_kind.blank?
-          "No sponsored benefits for benefit_package: #{ben_app.benefit_packages.first.id.to_s}"
-        elsif ben_app.benefit_packages.first&.is_renewal_benefit_available?(enrollment_prev_year) 
+          "No sponsored benefits for benefit_package: #{ben_app.benefit_packages.first.id}"
+        elsif ben_app.benefit_packages.first&.is_renewal_benefit_available?(enrollment_prev_year)
           "Renewal product is offered by the employer (Offering #{ben_app.benefit_packages.count} benefit packages), but enrollment renewal failed"
         else
           "Renewal product is not offered by the employer (Offering #{ben_app.benefit_packages.count} benefit packages)"
