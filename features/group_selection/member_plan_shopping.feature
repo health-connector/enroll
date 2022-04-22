@@ -50,6 +50,7 @@ Feature: EE plan purchase
 	Then Employee should see the dependents page
 	When Employee clicks continue on the dependents page
 	Then Employee should see the group selection page
+	Then Employee should see enroll buttons are checked by default
 	Then Employee should see enroll & waive buttons
 	And Employee waives health plan
 	When Employee clicks continue button on group selection page for dependents
