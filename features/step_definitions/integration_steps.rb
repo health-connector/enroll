@@ -878,6 +878,11 @@ Then(/^.+ should see the header text related to health plan$/) do
   expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
 end
 
+Then("Employee should see enroll buttons are checked by default") do
+  expect(find_all(EmployeeChooseCoverage.enroll_health).first[:checked]).to eq "true"
+  expect(find_all(EmployeeChooseCoverage.enroll_dental).first[:checked]).to eq "true"
+end
+
 Then("Employee should see enroll & waive buttons") do
   expect(page.has_css?(EmployeeChooseCoverage.enroll_health)).to eq true
   expect(page.has_css?(EmployeeChooseCoverage.waive_health)).to eq true
