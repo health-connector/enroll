@@ -183,7 +183,7 @@ Feature: EE plan purchase
     And Patrick Doe visits the employee portal
     And Patrick Doe has a matched employee role
     And Employee sees the Household Info: Family Members page and clicks Continue
-    Then Employee should see the ineligible for dental coverage message
+    Then Employee should not see the ineligible for dental coverage message if dental is not offered
     And Employee sees the Choose Coverage for your Household page and clicks Continue
     And Employee selects the first plan available
     And Employee clicks Confirm
@@ -198,7 +198,7 @@ Feature: EE plan purchase
     When Employee clicks confirm member
     Then Employee should see 1 dependents
     When Employee clicks continue on group selection page for dependents
-    Then Employee should see the ineligible for dental coverage message
+    Then Employee should not see the ineligible for dental coverage message if dental is not offered
     Then Employee should see the ineligible for health coverage message
 
   Scenario: EE sees product filters while continuous plan shopping
@@ -214,7 +214,7 @@ Feature: EE plan purchase
     And Patrick Doe visits the employee portal
     And Patrick Doe has a matched employee role
     And Employee sees the Household Info: Family Members page and clicks Continue
-    Then Employee should see the ineligible for dental coverage message
+    Then Employee should not see the ineligible for dental coverage message if dental is not offered
     And Employee sees the Choose Coverage for your Household page and clicks Continue
     # Start Filter Tests
     Then the Employee will see a Metal Level Filter
