@@ -28,7 +28,8 @@ module Insured
         redirect_to thankyou_insured_product_shoppings_path(@context.cart)
       elsif @context.go_to_coverage_selection == true
         mini_context_hash = ExtractContinuousShoppingParams.call(cart: @context.cart.to_h)
-        @mini_context = mini_context_hash.to_h.merge!(coverage_for: @context.coverage_for, change_plan: @context.health[:change_plan])
+        coverage_hash = @context&.health || @context&.dental
+        @mini_context = mini_context_hash.to_h.merge!(coverage_for: @context.coverage_for, change_plan: coverage_hash.dig(:change_plan))
         render 'eligible_continuous_coverage'
       else
         render :show
