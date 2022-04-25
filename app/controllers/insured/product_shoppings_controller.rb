@@ -5,7 +5,7 @@ module Insured
 
     before_action :set_current_person, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout, :terminate]
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
       attr = params.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
@@ -29,7 +29,7 @@ module Insured
       elsif @context.go_to_coverage_selection == true
         mini_context_hash = ExtractContinuousShoppingParams.call(cart: @context.cart.to_h)
         coverage_hash = @context&.health || @context&.dental
-        @mini_context = mini_context_hash.to_h.merge!(coverage_for: @context.coverage_for, change_plan: coverage_hash.dig(:change_plan))
+        @mini_context = mini_context_hash.to_h.merge!(coverage_for: @context.coverage_for, change_plan: coverage_hash[:change_plan])
         render 'eligible_continuous_coverage'
       else
         render :show
@@ -37,7 +37,7 @@ module Insured
 
       ::Caches::CustomCache.release(::BenefitSponsors::Organizations::Organization, :plan_shopping)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def thankyou
       @context = params.except(:controller, :action).each_with_object({}) do |(k,v),output|
