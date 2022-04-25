@@ -6,7 +6,7 @@ class FetchShopBenefit
   def call
     return unless context.market_kind == 'shop' || context.market_kind == 'fehb'
 
-    context.benefit_group = if possible_benefit_package.present? && assigned_benefit_package&.start_on != possible_benefit_package.start_on
+    context.benefit_package = if possible_benefit_package.present? && assigned_benefit_package&.start_on != possible_benefit_package.start_on
                               possible_benefit_package
                             else
                               assigned_benefit_package

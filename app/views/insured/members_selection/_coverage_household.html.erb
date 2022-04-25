@@ -2,7 +2,7 @@
   <tbody>
     <% @organizer.family_members.each_with_index do |family_member, index| %>
     <%= hidden_field_tag("family_member_ids[#{index}]", family_member.id) if true%>
-      <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_group.id.to_s][family_member.id.to_s] %>
+      <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_package.id.to_s][family_member.id.to_s] %>
 
       <tr style="padding: 2px;">
         <td style="padding: 2px;" id="family_member_id_<%=family_member.id%>">
@@ -30,7 +30,7 @@
             </table>
           <% elsif  @organizer.event == "make_changes_for_dental" %>
             <%#= Do not display anything %>
-          <% elsif @organizer.dig(:params, :cart).nil? %>
+          <% elsif @organizer.dig(:params, :cart).nil? && @organizer.benefit_package.health_sponsored_benefit.present?%>
             <tr>
               <td class='<%= "member_health_errors_#{family_member.id}" %>' data-cuke='member_health_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'health') %></td>
             </tr>
@@ -57,7 +57,7 @@
             </table>
           <% elsif @organizer.event == "make_changes_for_health" %>
             <%#= Do not display anything %>
-          <% elsif @organizer.dig(:params, :cart).nil? %>
+          <% elsif @organizer.dig(:params, :cart).nil? && @organizer.benefit_package.dental_sponsored_benefit.present? %>
             <tr>
               <td class='<%= "member_dental_errors_#{family_member.id}" %>' data-cuke='member_dental_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'dental') %></td>
             </tr>
