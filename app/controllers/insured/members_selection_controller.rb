@@ -21,6 +21,8 @@ module Insured
         flash[:error] = @organizer.message
         redirect_to(:back)
       end
+
+      @organizer.event = "shop_for_plans"
     end
 
     def fetch
