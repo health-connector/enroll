@@ -15,7 +15,6 @@
           <%end%>
         </div>
 
-
         <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
         <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
         <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
@@ -61,7 +60,7 @@
       </div>
       <div class="col-xs-3 right-section pull-right">
           <% if @organizer.change_plan.blank? %>
-            <%= render  partial: '/shared/product_shoppings/signup_progress', locals: {step: '4'} %>
+            <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5', freeze_progress_panel: true} %>
           <% elsif @organizer.change_plan == "change_by_qle" %>
             <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
           <% elsif @organizer.change_plan == "change_plan" %>

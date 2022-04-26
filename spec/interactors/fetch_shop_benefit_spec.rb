@@ -26,7 +26,7 @@ describe FetchShopBenefit, :dbclean => :after_each do
 
     it "should fetch employee_role" do
       context = described_class.call(employee_role: employee_role, market_kind: "shop")
-      expect(context.benefit_group).to be_truthy
+      expect(context.benefit_package).to be_truthy
     end
   end
 end
