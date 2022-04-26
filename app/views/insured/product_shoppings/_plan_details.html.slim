@@ -23,7 +23,7 @@
         h3.no-buffer
           = link_to summary_products_plans_path({:standard_component_id => product.hios_id, hbx_enrollment_id: @context.hbx_enrollment.id, active_year: product.try(:active_year), market_kind: @context.market_kind, coverage_kind: @context.coverage_kind}), {:remote => true} do
             - if false # product.is_csr?
-              i.fa.fa-check-square-o title="Eligible for Cost Sharing Reduction" data-toggle="tooltip"
+              i.fa.fa-check-square-o title="#{l10n('insured.plan_shoppings.eligible_cost_sharing')}" data-toggle="tooltip"
             = product.title
           br
           small = product_carrier.legal_name
@@ -38,14 +38,14 @@
         table.table.gn-10
           thead
             tr.run-glossary
-              th scope="col" TYPE
-              th scope="col" LEVEL
-              th scope="col" NETWORK
+              th scope="col" #{l10n('type_title')}
+              th scope="col" #{l10n('level_title')}
+              th scope="col" #{l10n('network_title')}
               th scope="col"
                 - if @context.hbx_enrollment.hbx_enrollment_members.size > 1
-                  | FAMILY DEDUCTIBLE
+                  | #{l10n('family_deductible_title')}
                 - else
-                  | DEDUCTIBLE
+                  | #{l10n('eductible_title')}
 
           tbody
             tr
