@@ -41,14 +41,7 @@
       p.pull-right
         a.btn.btn-default.compare-selected-plans-link href="javascript:void(0);" style="display: none;" data-uri="#{comparison_products_plans_path(market_kind: @context.market_kind, coverage_kind: @coverage_kind)}" = l10n("compare_plans").to_s.upcase
       .col-lg-3.col-md-3.col-sm-3.col-xs-12.col-md-offset-1.col-sm-offset-1.right-section
-        - if @context.change_plan.blank? && @context.market_kind == "individual"
-          - if @context.enrollment_kind.blank? && is_under_open_enrollment?
-            = render partial: 'shared/individual_progress', locals: {step: '4'}
-          - else
-            = render partial: 'shared/sep_progress', locals: {step: '5'}
-        - elsif @context.change_plan.blank? && @context.market_kind == "coverall"
-          = render partial: 'shared/resident_progress', locals: {step: '4'}
-        - elsif @context.change_plan.blank?
+        - if @context.change_plan.blank?
           = render partial: 'shared/signup_progress', locals: {step: '5'}
         - elsif @context.change_plan == "change_by_qle"
           = render partial: 'shared/qle_progress', locals: {step: '2',show_button:'true'}

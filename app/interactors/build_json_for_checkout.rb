@@ -15,6 +15,7 @@ class BuildJsonForCheckout
                     family: context.family,
                     use_family_deductable: context.use_family_deductable,
                     enrollable: context.enrollable,
-                    waivable: context.waivable}
+                    waivable: context.waivable,
+                    event: context.event}
   end
 end

@@ -8,6 +8,6 @@ class FetchParamsForEligibleSelection
   end
 
   def call
-    context.benefit_group = context.previous_hbx_enrollment.sponsored_benefit_package
+    context.benefit_package = context.previous_hbx_enrollment.sponsored_benefit_package
   end
 end
