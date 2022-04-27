@@ -23,7 +23,7 @@
                       </div>
                       <div class="radio-input">
                         <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio') %>
-                        <%= label_tag("health[waive][#{index}]", "Waive") %>
+                        <%= label_tag("health[waive][#{index}]", "Do Not Enroll") %>
                       </div>
                     </div>
                   </td>
@@ -52,7 +52,7 @@
                       </div>
                       <div class="radio-input">
                         <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive', false, 'data-cuke': 'dental-waive-radio') %>
-                        <%= label_tag("dental[waive][#{index}]", "Waive") %>
+                        <%= label_tag("dental[waive][#{index}]", "Do Not Enroll") %>
                       </div>
                     </div>
                   </td>
