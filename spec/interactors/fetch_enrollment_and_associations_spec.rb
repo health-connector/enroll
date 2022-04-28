@@ -50,28 +50,28 @@ describe FindEnrollmentAndAssociations, :dbclean => :after_each do
 
     context "when hbx_enrollment_id is sent through shopping attributes" do
       it "should fetch hbx_enrollment" do
-        context = described_class.call(action: "continuous_show", shop_for: "health", shop_attributes: {enrollment_id: hbx_enrollment.id})
+        context = described_class.call(action: "continuous_show", shop_for: "health", shop_attributes: {enrollment_id: hbx_enrollment.id}, event: "shop_for_plans")
         expect(context.hbx_enrollment.present?).to be_truthy
       end
     end
 
     context "when hbx_enrollment_id is sent as hbx_enrollment_id" do
       it "should fetch hbx_enrollment" do
-        context = described_class.call(action: "continuous_show", shop_for: "health", hbx_enrollment_id: hbx_enrollment.id)
+        context = described_class.call(action: "continuous_show", shop_for: "health", hbx_enrollment_id: hbx_enrollment.id, event: "shop_for_plans")
         expect(context.hbx_enrollment.present?).to be_truthy
       end
     end
 
     context "when hbx_enrollment_id is sent as params id" do
       it "should fetch hbx_enrollment" do
-        context = described_class.call(action: "continuous_show", shop_for: "health", params: {id: hbx_enrollment.id})
+        context = described_class.call(action: "continuous_show", shop_for: "health", params: {id: hbx_enrollment.id, event: "shop_for_plans"})
         expect(context.hbx_enrollment.present?).to be_truthy
       end
     end
 
     context "when hbx_enrollment_id is sent as params enrollment_id" do
       it "should fetch hbx_enrollment" do
-        context = described_class.call(action: "continuous_show", shop_for: "health", params: {enrollment_id: hbx_enrollment.id})
+        context = described_class.call(action: "continuous_show", shop_for: "health", params: {enrollment_id: hbx_enrollment.id, event: "shop_for_plans"})
         expect(context.hbx_enrollment.present?).to be_truthy
       end
     end
