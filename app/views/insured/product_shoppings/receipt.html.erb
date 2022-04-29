@@ -12,18 +12,18 @@
             <% employer_profile = @context.collect{|k,v| v[:employer_profile]}.flatten.uniq.first %>
 
             <% if @context.select{|k,v| v[:hbx_enrollment].coverage_kind}.flatten.count > 1 %>
-              <p>Your <%= health %> and <%= dental %> enrollments has been submitted as of <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+              <p><%= l10n("your") %> <%= health %> <%= l10n("and") %> <%= dental %> <%= l10n("enrollment_submitted_as_of") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
             <% else %>
-             <p>Your enrollment has been submitted as of <%= format_datetime(@context.select{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+             <p><%= l10n("enrollment_submitted_message_1") %> <%= format_datetime(@context.select{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
              <% end %>
-            <p>Please print this page for your records. A copy of this confirmation has also been emailed to you.</p>
+            <p><%= l10n("print_message") %></p>
             <% if employer_profile.present? %>
               <strong><%= employer_profile.legal_name %></strong>
               </br>
               </br>
             <% end %>
             <% @context.each do |key,value| %>
-              <p>
+              <p data-cuke="<%= value.hbx_enrollment.coverage_kind %>-product-confirmation">
                 <strong><%= value.product.carrier_profile.legal_name %> <%= value.product.name %></strong><br>
                 Benefit: <%= value.hbx_enrollment.coverage_kind %><br>
                 Market: <%= show_market_name_by_enrollment value.hbx_enrollment %><br>
@@ -35,7 +35,7 @@
               <% end %>
 
               <% if value.hbx_enrollment.is_cobra_status? %>
-                <p>* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.</p>
+                <p><%= l10n("employer_cobra_message") %></p>
               <% end %>
                 <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
             <% end %>

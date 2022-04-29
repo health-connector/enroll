@@ -338,6 +338,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.standard_plan' => "Standard Plan",
   :'en.insured.plan_shoppings.standard_plan_title_info' => "Each health insurance company offers a standard plan at each metal level. Benefits and cost-sharing are the same among standard plans of the same metal level, but monthly premiums and provider network options may be different. This makes it easier for consumers to compare plans at the same metal level and choose what’s best for them.",
   :'en.your_current_plan' => "Your Current %{year} Plan",
+  :'en.insured.plan_shoppings.eligible_cost_sharing' => "Eligible for Cost Sharing Reduction",
   :'en.type' => "Type",
   :'en.level' => "Level",
   :'en.network' => "Network",
@@ -405,5 +406,19 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.plan_shoppings.thankyou.additional_administration_msg' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.",
   :'en.ability_to_purchase_msg_1' => "The ability to purchase",
   :'en.ability_to_purchase_msg_2' => "coverage is available for your household.",
-  :'en.ability_to_purchase_msg_3' => "Shop for"
+  :'en.ability_to_purchase_msg_3' => "Shop for",
+  :'en.type_title' => "TYPE",
+  :'en.level_title' => "LEVEL",
+  :'en.network_title' => "NETWORK",
+  :'en.family_deductible_title' => "FAMILY DEDUCTIBLE",
+  :'en.deductible_title' => "DEDUCTIBLEEEE",
+  :'en.your' => "Your",
+  :'en.and' => "and",
+  :'en.enrollment_submitted_as_of' => "enrollments has been submitted as of",
+  :'en.enrollment_submitted_message_1' => "Your enrollment has been submitted as of",
+  :'en.print_message' => "Please print this page for your records. A copy of this confirmation has also been emailed to you.",
+  :'en.employer_cobra_message' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.",
+  :'en.coverage_for' => "Coverage For:",
+  :'en.plans_for' => "Plans:",
+  :'en.effective_date_for' => "Effective Date:"
 }.freeze
