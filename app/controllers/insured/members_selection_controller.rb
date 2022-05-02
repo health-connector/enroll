@@ -41,10 +41,12 @@ module Insured
       @organizer = Organizers::CreateShoppingEnrollments.call(params: params.symbolize_keys, market_kind: params["market_kind"], session_original_application_type: session[:original_application_type], current_user: current_user)
       if @organizer.failure?
         flash[:error] = @organizer.message
-        logger.error "#{@organizer.message}\n#{@organizer.backtrace.join("\n")}"
+        logger.error "#{@organizer.message}\n"
         #employee_role_id = @organizer.employee_role.id if @organizer.employee_role
         # TODO
-        # redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, enrollment_kind: @enrollment_kind)
+        redirect_to(:back)
+        return
+        # redirect_to new_insured_members_selection_path(person_id:  @organizer.person.id, employee_role_id:  @organizer.employee_role.id, change_plan:  @organizer.change_plan, market_kind:  @organizer.market_kind, enrollment_kind:  @organizer.enrollment_kind)
       end
 
       if @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?

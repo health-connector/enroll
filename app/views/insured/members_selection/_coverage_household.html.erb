@@ -18,12 +18,11 @@
                   <td class="table-cell">
                     <div class="radio-container">
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', true, 'data-cuke': 'health-enroll-radio', id: "test1_true") %>
+                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', true, 'data-cuke': 'health-enroll-radio') %>
                         <%= label_tag("health[enroll][#{index}]", "Enroll") %>
                       </div>
                       <div class="radio-input">
-                        <%= label_tag("health[waive][#{index}]", "Do Not Enroll") %>
-                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio', id: "test1_false") %>
+                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio') %>
                         <%= label_tag("health[waive][#{index}]", "Waive") %>
                       </div>
                     </div>
@@ -48,11 +47,11 @@
                   <td class="table-cell">
                     <div class="radio-container">
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', true, 'data-cuke': 'dental-enroll-radio', id: "test2_true") %>
+                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', true, 'data-cuke': 'dental-enroll-radio') %>
                         <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
                       </div>
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive', false, 'data-cuke': 'dental-waive-radio', id: "test2_false") %>
+                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive', false, 'data-cuke': 'dental-waive-radio') %>
                         <%= label_tag("dental[waive][#{index}]", "Waive") %>
                       </div>
                     </div>

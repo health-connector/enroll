@@ -76,32 +76,25 @@
   <%= render :partial => "ui-components/v1/modals/continuous_waive_confirmation", :locals => {:enrollment => @organizer.previous_hbx_enrollment } if (@organizer.previous_hbx_enrollment.present? && (@organizer.previous_hbx_enrollment.employee_role.present? || @organizer.previous_hbx_enrollment.benefit_group.present?)) %>
 </div>
 
-<!-- function onSubmit() { -->
-
 <script type="text/javascript">
- var test1 = document.getElementById('test1_false').checked;
- var test2 = document.getElementById('test2_false').checked;
-
-  $(document).ready(function() {
-
-    $('input[type=radio][id="test1_false"]').change(function() {
-      if ($(this).val() == 'waive')
-        test1 = true
-      else
-        test1 = false
+  function onSubmit(e) {
+    var enrollNumber = 0;
+    $("[data-cuke=health-enroll-radio]").each(function () {
+        if ($(this).is(":checked")) {
+            enrollNumber++;
+        }
     });
-    $('input[type=radio][id="test2_false"]').change(function() {
-      if ($(this).val() == 'waive')
-        test2 = true
-      else
-        test2 = false
+    $("[data-cuke=dental-enroll-radio]").each(function () {
+        if ($(this).is(":checked")) {
+            enrollNumber++;
+        }
     });
-  });
-
-  function onSubmit() {
-    if (test1 == true && test2 == true){
-      alert("In order to continue, at least one member must be selected to enroll in coverage.");
-      return false;
+    if (enrollNumber < 1) {debugger;
+        event.preventDefault();
+        $(".myAlertText").remove();
+        $("#group-selection-form h1").before(
+            "<span class='myAlertText' style='color:red'>In order to continue, at least one member must be selected to enroll in coverage</span>"
+        );
     }
   }
 
