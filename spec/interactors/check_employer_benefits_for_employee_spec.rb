@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
-require './spec//shared_context/setup_shop_families_enrollments'
+require './spec/shared_context/setup_shop_families_enrollments'
 
 describe CheckEmployerBenefitsForEmployee, :dbclean => :after_each do
   include_context "setup shop families enrollments"

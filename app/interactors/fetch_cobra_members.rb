@@ -16,7 +16,9 @@ class FetchCobraMembers
   end
 
   def shop_market_enrollment
-    enrollments = context.primary_family.active_household.hbx_enrollments.shop_market if context.primary_family.present?
+    return unless context.primary_family.present?
+
+    enrollments = context.primary_family.active_household.hbx_enrollments.shop_market
     @shop_market_enrollment ||= enrollments&.enrolled_and_renewing&.effective_desc&.detect(&:may_terminate_coverage?)
   end
 end

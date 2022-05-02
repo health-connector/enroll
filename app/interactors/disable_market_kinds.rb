@@ -23,6 +23,8 @@ class DisableMarketKinds
       return qle.market_kind
     end
 
+    return unless person.present?
+
     if person.has_active_employee_role?
       'shop'
     elsif person.has_active_consumer_role? && !person.has_active_resident_role?

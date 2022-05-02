@@ -3,7 +3,7 @@
 require "rails_helper"
 require './spec/shared_context/setup_shop_families_enrollments'
 
-describe AssignChangePlanForShop, :dbclean => :after_each do
+describe FetchEnrolledEnrollmentsForSamePackage, :dbclean => :after_each do
   include_context "setup shop families enrollments"
 
   context 'should not assign change plan' do
