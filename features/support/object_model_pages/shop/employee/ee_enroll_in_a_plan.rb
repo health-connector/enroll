@@ -120,7 +120,7 @@ class EmployeeEnrollInAPlan
   end
 
   def self.dental_enrollment_confirmation
-    'Your dental'
+    'Your enrollment'
   end
 
   def self.health_product_confirmation
