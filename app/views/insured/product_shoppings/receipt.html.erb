@@ -8,18 +8,16 @@
         <div class="col-lg-9 col-md-9 col-sm-10 col-xs-12">
           <div class="col-md-12 col-sm-12 no-pd col-xs-12" data-cuke="dual-enrollment-text">
             <h1 class="darkblue">Enrollment Submitted</h1>
-            <% health, dental = @context.collect{|k,v| v[:hbx_enrollment].coverage_kind}.flatten %>
             <% employer_profile = @context.collect{|k,v| v[:employer_profile]}.flatten.uniq.first %>
 
-            <% if @context.select{|k,v| v[:hbx_enrollment].coverage_kind}.flatten.count > 1 %>
-              <p><%= l10n("your") %> <%= health %> <%= l10n("and") %> <%= dental %> <%= l10n("enrollment_submitted_as_of") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+            <% if @context.collect{|k,v| v[:hbx_enrollment].coverage_kind}.flatten.count > 1 %>
+              <p><%= l10n("enrollments_submitted_header_1") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
             <% else %>
-             <p><%= l10n("enrollment_submitted_message_1") %> <%= format_datetime(@context.select{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+             <p><%= l10n("enrollment_submitted_header_1") %> <%= format_datetime(@context.select{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
              <% end %>
             <p><%= l10n("print_message") %></p>
             <% if employer_profile.present? %>
               <strong><%= employer_profile.legal_name %></strong>
-              </br>
               </br>
             <% end %>
             <% @context.each do |key,value| %>
@@ -44,16 +42,17 @@
         </div>
 
       <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 right-section plan_receipt">
-        <% if @change_plan.blank? %>
-          <%= render  partial: 'shared/signup_progress', locals: {step: '7'} %>
-        <% elsif @change_plan == "change_by_qle" %>
-          <%= render partial: 'shared/qle_progress', locals: {step: '4'} %>
-        <% elsif @change_plan == "change_plan" %>
-          <% if (@market_kind == "individual" && !is_under_open_enrollment?) || @hbx_enrollment_kind == 'sep' %>
-            <%= render  partial: 'shared/sep_shop_for_plans_progress', locals: {step: '4'} %>
-          <% else %>
-            <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '3'} %>
-          <% end %>
+        <% enrollment_kind = @context.collect{|k,v| v[:enrollment_kind]}.uniq.first %>
+        <% event = @context.collect{|k,v| v[:event]}.uniq.first %>
+         <% default_events = ["make_changes_for_health", "make_changes_for_dental", "shop_for_plans"] %>
+
+        <% if enrollment_kind == "open_enrollment" && !default_events.include?(event)  %>
+          <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '7'} %>
+        <% elsif enrollment_kind == "special_enrollment" && !default_events.include?(event) %>
+          <%= render partial: 'insured/product_shoppings/qle_progress', locals: {step: '4'} %>
+        <% else %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '3'} %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'receipt'} %>
         <% end %>
       </div>
     </div>
