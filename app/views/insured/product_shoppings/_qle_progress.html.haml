@@ -30,8 +30,7 @@
 - qle = (@change_plan == 'change_by_qle' || @enrollment_kind == 'sep')
 
 - if step == 3 && !no_purchase
-  = link_to purchase_or_confirm, checkout_insured_plan_shopping_path(@enrollment.id, plan_id: @plan.id, change_plan: @change_plan, coverage_kind: @coverage_kind, market_kind: @market_kind), :class => "btn btn-lg btn-primary  btn-block #{'disabled' if kind == 'individual'}", id: 'btn-continue', :method => :post, :disabled => disable_purchase?(!@enrollable, @enrollment, qle: qle)
-
+  = link_to purchase_or_confirm, checkout_insured_product_shoppings_path(build_hash_to_checkout(@context)), :class => "btn btn-lg btn-primary  btn-block", id: 'btn-continue', :method => :post
   %ul.list-unstyled.list-right-section
     %li
       %a.back{href: '#'}

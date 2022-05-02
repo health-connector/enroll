@@ -25,7 +25,7 @@ module Insured
       end
 
       if @context.shop_for.nil? && @context.go_to_coverage_selection == false
-        redirect_to thankyou_insured_product_shoppings_path(@context.cart)
+        redirect_to thankyou_insured_product_shoppings_path(cart: @context.cart, event: @context.event)
       elsif @context.go_to_coverage_selection == true
         mini_context_hash = ExtractContinuousShoppingParams.call(cart: @context.cart.to_h)
         coverage_hash = @context&.health || @context&.dental
@@ -40,19 +40,13 @@ module Insured
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def thankyou
-      @context = params.except(:controller, :action).each_with_object({}) do |(k,v),output|
-        context = Organizers::PrepareForCheckout.call(params: v, person: @person)
+      @context = params[:cart].each_with_object({}) do |(k,v),output|
+        context = Organizers::PrepareForCheckout.call(params: v, person: @person, event: params[:event])
         output[k] = context.json
       end
 
       @context = Hash[@context.sort.reverse]
-
       set_consumer_bookmark_url(family_account_path)
-
-      # TODO: move below lines to new interractor
-      @market_kind = 'shop'
-      @change_plan = params[:change_plan].present? ? params[:change_plan] : ''
-      @enrollment_kind = params[:enrollment_kind].present? ? params[:enrollment_kind] : ''
 
       respond_to do |format|
         format.html { render 'thankyou.html.erb' }
