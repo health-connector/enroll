@@ -51,7 +51,7 @@
           <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
           <br/>
           <h3><%= l10n("insured.group_selection.new.what_would_you_like_to_do") %></h3>
-            <%= submit_tag l10n('shop_for_new_plan'), class: 'btn btn-primary  btn-lg'+ pundit_class(Family, :updateable?) %>
+            <%= submit_tag l10n('shop_for_new_plan'), class: 'btn btn-primary  btn-lg'+ pundit_class(Family, :updateable?), onclick: 'return onSubmit();' %>
           <% if @organizer.previous_hbx_enrollment.present? && @organizer.previous_hbx_enrollment.may_terminate_coverage? %>
             <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.previous_hbx_enrollment, @organizer.new_effective_on) %>
             <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
@@ -75,3 +75,34 @@
   </div>
   <%= render :partial => "ui-components/v1/modals/continuous_waive_confirmation", :locals => {:enrollment => @organizer.previous_hbx_enrollment } if (@organizer.previous_hbx_enrollment.present? && (@organizer.previous_hbx_enrollment.employee_role.present? || @organizer.previous_hbx_enrollment.benefit_group.present?)) %>
 </div>
+
+<!-- function onSubmit() { -->
+
+<script type="text/javascript">
+ var test1 = document.getElementById('test1_false').checked;
+ var test2 = document.getElementById('test2_false').checked;
+
+  $(document).ready(function() {
+
+    $('input[type=radio][id="test1_false"]').change(function() {
+      if ($(this).val() == 'waive')
+        test1 = true
+      else
+        test1 = false
+    });
+    $('input[type=radio][id="test2_false"]').change(function() {
+      if ($(this).val() == 'waive')
+        test2 = true
+      else
+        test2 = false
+    });
+  });
+
+  function onSubmit() {
+    if (test1 == true && test2 == true){
+      alert("In order to continue, at least one member must be selected to enroll in coverage.");
+      return false;
+    }
+  }
+
+</script>
