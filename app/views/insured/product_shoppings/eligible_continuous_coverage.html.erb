@@ -28,7 +28,8 @@
       <% if @mini_context[:change_plan].blank? %>
         <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5'} %>
       <% elsif @mini_context[:change_plan] == "change_by_qle" %>
-        <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
+        <%= render partial: 'shared/product_shoppings/qle_progress', locals: {step: '1'} %>
+        <%= render partial: 'shared/product_shoppings/qle_buttons', locals: {step: 'eligible_continue'} %>
       <% elsif @mini_context[:change_plan] == "change_plan" %>
         <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1', eligible_continue: true} %>
         <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'eligible_continue'} %>
