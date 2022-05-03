@@ -27,6 +27,7 @@
         <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
         <%= hidden_field_tag(:change_plan, @organizer.change_plan) %>
         <%= hidden_field_tag(:cart, @organizer[:params][:cart]) if @organizer[:params][:cart] %>
+        <%= hidden_field_tag(:event, @organizer&.event) %>
 
         <% if @organizer.can_shop_shop %>
           <div id="coverage-household" class='row no-buffer'>
@@ -64,7 +65,8 @@
           <% elsif @organizer.change_plan == "change_by_qle" %>
             <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
           <% elsif @organizer.change_plan == "change_plan" %>
-              <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '1', show_waive: true} %>
+              <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1'} %>
+              <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'show_waive'} %>
           <% end %>
         </div>
       </div>

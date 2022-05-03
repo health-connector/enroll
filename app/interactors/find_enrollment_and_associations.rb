@@ -9,13 +9,17 @@ class FindEnrollmentAndAssociations
     context.fail!(message: "no hbx enrollment found for given id") unless hbx_enrollment.present?
     return unless hbx_enrollment.is_shop?
 
-
     hbx_enrollment.set_special_enrollment_period
     find_associated_fields
     context.hbx_enrollment = hbx_enrollment
+    context.event = event
   end
 
   private
+
+  def event
+    context&.event || context.params[:event]
+  end
 
   def find_associated_fields
     context.coverage_kind = hbx_enrollment.coverage_kind

@@ -24,7 +24,8 @@ module Insured
           :market_kind => "employer_sponsored",
           :product_id => v[:product].id,
           :use_family_deductable => "true",
-          :waivable => "true"
+          :waivable => "true",
+          :event => v[:event]
         }
       end
     end

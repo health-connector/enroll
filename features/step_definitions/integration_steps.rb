@@ -892,8 +892,20 @@ And(/^Employee waives dental plan$/) do
   find(EmployeeChooseCoverage.waive_dental).click
 end
 
+And(/^Employee waives dental plan for dependent$/) do
+  find_all(EmployeeChooseCoverage.waive_dental).last.click
+end
+
 And(/^Employee waives health plan$/) do
   find(EmployeeChooseCoverage.waive_health).click
+end
+
+And(/^Employee waives health plan for dependent$/) do
+  find_all(EmployeeChooseCoverage.waive_health).last.click
+end
+
+And(/^Employee clicks on employee household continue$/) do
+  find(EmployeeFamilyMembers.continue_btn).click
 end
 
 And(/^Employee clicks no on choose coverage for household$/) do
@@ -1272,4 +1284,11 @@ end
 
 Then("Employee should see an error message") do
   expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
+
+Then("Employee should see health product confirmation on receipt page") do
+  expect(find_all(EmployeeEnrollInAPlan.health_product_confirmation).present?).to eq true
+end
+
+Then("Employee should see dental product confirmation on receipt page") do
+  expect(find_all(EmployeeEnrollInAPlan.dental_product_confirmation).present?).to eq true
 end

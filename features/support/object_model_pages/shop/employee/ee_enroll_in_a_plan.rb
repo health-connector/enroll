@@ -120,7 +120,15 @@ class EmployeeEnrollInAPlan
   end
 
   def self.dental_enrollment_confirmation
-    'Your dental'
+    'Your enrollment'
+  end
+
+  def self.health_product_confirmation
+    '[data-cuke="health-product-confirmation"]'
+  end
+
+  def self.dental_product_confirmation
+    '[data-cuke="dental-product-confirmation"]'
   end
 
   def self.available_coverage

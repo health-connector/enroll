@@ -24,11 +24,14 @@ class BuildJsonPayloadForShopping
   end
 
   def offering_health
-    context[:shopping_enrollments].first&.sponsored_benefit_package&.health_sponsored_benefit.present?
+    return unless context[:shopping_enrollments].present?
+
+    context[:shopping_enrollments].first.sponsored_benefit_package.health_sponsored_benefit.present?
   end
 
   def offering_dental
-    context[:shopping_enrollments].first&.sponsored_benefit_package&.dental_sponsored_benefit.present?
-  end
+    return unless context[:shopping_enrollments].present?
 
+    context[:shopping_enrollments].first.sponsored_benefit_package.dental_sponsored_benefit.present?
+  end
 end

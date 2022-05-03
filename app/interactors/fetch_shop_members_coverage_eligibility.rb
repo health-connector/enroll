@@ -12,6 +12,8 @@ class FetchShopMembersCoverageEligibility
   end
 
   def member_coverage_eligibilities
+    return unless context.family_members.present?
+
     context.family_members.each_with_object({}) do |family_member, output|
       member_eligibilities = shop_health_and_dental_attributes(family_member)
       output[family_member.id.to_s] = member_eligibilities

@@ -4,6 +4,8 @@ class ConstructWaiverEnrollment
   include Interactor
 
   def call
+    return unless hbx_enrollment.present?
+
     if hbx_enrollment.shopping?
       context.waiver_enrollment = hbx_enrollment
       return
