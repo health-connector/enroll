@@ -3,10 +3,6 @@
 class BuildEnrollmentForShop
   include Interactor
 
-  before do
-    context.fail!(message: "missing person id in params") unless context.params[:shopping_members].present?
-  end
-
   def call
     return unless context.market_kind == 'shop'
 

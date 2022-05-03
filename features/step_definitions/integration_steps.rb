@@ -1269,3 +1269,7 @@ end
 Then("Employee should see dental enrollment text on receipt page") do
   expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_confirmation)
 end
+
+Then("Employee should see an error message") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
+end
