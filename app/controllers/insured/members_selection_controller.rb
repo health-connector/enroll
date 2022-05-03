@@ -46,7 +46,7 @@ module Insured
         # TODO
         redirect_to(:back)
         return
-        # redirect_to new_insured_members_selection_path(person_id:  @organizer.person.id, employee_role_id:  @organizer.employee_role.id, change_plan:  @organizer.change_plan, market_kind:  @organizer.market_kind, enrollment_kind:  @organizer.enrollment_kind)
+        # redirect_to new_insured_members_selection_path(person_id: person.id, employee_role_id: employee_role_id, change_plan: change_plan, market_kind: market_kind, enrollment_kind: enrollment_kind)
       end
 
       if @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?
