@@ -10,7 +10,7 @@ class AssignShopAttributesToEnrollments
       keep_existing_plan_attributes(hbx_enrollment) if context.params[:commit] == "Keep existing plan"
       hbx_enrollment.generate_hbx_signature
       hbx_enrollment.original_application_type = context.session_original_application_type
-      assign_cobra_attributes(hbx_enrollment) if context.employee_role.is_cobra_status?
+      assign_cobra_attributes(hbx_enrollment) if context&.employee_role&.is_cobra_status?
     end
   end
 
@@ -20,7 +20,9 @@ class AssignShopAttributesToEnrollments
   end
 
   def assign_cobra_attributes(hbx_enrollment)
-    census_employee = context.employee_role.census_employee
+    census_employee = context&.employee_role&.census_employee
+    return unless census_employee.present?
+
     hbx_enrollment.kind = 'employer_sponsored_cobra'
     hbx_enrollment.effective_on = census_employee.cobra_begin_date if census_employee.cobra_begin_date > hbx_enrollment.effective_on
   end

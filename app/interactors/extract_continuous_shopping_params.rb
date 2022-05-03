@@ -8,6 +8,8 @@ class ExtractContinuousShoppingParams
   end
 
   def call
+    return unless hbx_enrollment.present?
+
     context.employee_role_id = hbx_enrollment.employee_role.id
     context.person_id = hbx_enrollment.employee_role.person.id
     context.market_kind = "shop" # This is considered as param from UI, Passing this as default shop
