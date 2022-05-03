@@ -1289,3 +1289,7 @@ end
 Then("Employee should see dental product confirmation on receipt page") do
   expect(find_all(EmployeeEnrollInAPlan.dental_product_confirmation).present?).to eq true
 end
+
+Then("Employee should see an error message") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
+end
