@@ -8,6 +8,8 @@ class CalculateNewEffectiveOn
   end
 
   def call
+    return unless context.primary_family.present?
+
     context.new_effective_on = if context.market_kind == "individual"
                                  calculate_effective_on
                                else
