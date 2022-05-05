@@ -27,6 +27,7 @@
     <div class="col-xs-3 right-section pull-right">
       <% if @mini_context[:change_plan].blank? %>
         <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5'} %>
+        <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'eligible_continue', freeze_progress_panel: false} %>
       <% elsif @mini_context[:change_plan] == "change_by_qle" %>
         <%= render partial: 'shared/product_shoppings/qle_progress', locals: {step: '1'} %>
         <%= render partial: 'shared/product_shoppings/qle_buttons', locals: {step: 'eligible_continue'} %>

@@ -8,7 +8,7 @@
         <td class="table-cell" id="family_member_id_<%=family_member.id%>">
           <h4><strong><%= label_tag("family_member_id[#{family_member.id}]", "#{family_member.full_name} (Age : #{pluralize(calculate_age_by_dob(family_member.dob), 'year')})") %></strong></h4>
 
-          <% if (can_display_health_coverage?(is_health_coverage) && @organizer.event == "shop_for_plans") ||  @organizer.event == "make_changes_for_health"%>
+          <% if (can_display_health_coverage?(is_health_coverage) && ["shop_for_plans", "make_changes_for_health", "change_by_qle", "sign_up"].include?(@organizer.event)) %>
             <table class="col-md-12" id="family_member_id_<%=family_member.id%>_health">
               <tbody>
                 <tr>
@@ -37,7 +37,7 @@
               <td class='<%= "member_health_errors_#{family_member.id}" %>' data-cuke='member_health_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'health') %></td>
             </tr>
           <% end %>
-          <% if (can_display_dental_coverage?(is_dental_coverage) && @organizer.event == "shop_for_plans") ||  @organizer.event == "make_changes_for_dental"%>
+          <% if (can_display_dental_coverage?(is_dental_coverage) && ["shop_for_plans", "make_changes_for_dental", "change_by_qle", "sign_up"].include?(@organizer.event))%>
             <table class="col-md-12" id="family_member_id_<%=family_member.id%>_dental">
               <tbody>
                 <tr style="padding: 2px;">

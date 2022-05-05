@@ -96,7 +96,7 @@ class Insured::FamiliesController < FamiliesController
       action_params.merge!({change_plan: "change_plan"})
     end
 
-    redirect_to continuous_plan_shopping(action_params)
+    redirect_to continuous_plan_shopping(action_params.merge!(event: "change_by_qle"))
   end
 
   def personal
