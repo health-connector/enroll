@@ -28,7 +28,7 @@ describe AddingEmployeeRole, dbclean: :after_each do
 
   let(:given_task_name) { "adding_employee_role" }
   subject { AddingEmployeeRole.new(given_task_name, double(:current_scope => nil)) }
-  
+
   # Flickering spec
   # describe "given a task name" do
   #   it "has the given task name" do
