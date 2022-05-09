@@ -721,6 +721,19 @@ class HbxEnrollment
     renew_benefit(successor_benefit_package) if active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition? && non_terminated_enrollment?
   end
 
+  def update_expected_selection
+    return unless is_shop?
+    return unless census_employee.present? && census_employee.valid?
+    return if CensusEmployee::COBRA_STATES.include?(census_employee.aasm_state)
+
+    case aasm_state
+    when "coverage_selected"
+      census_employee.update_attributes!(expected_selection: "enroll")
+    when "inactive"
+      census_employee.update_attributes!(expected_selection: "waive")
+    end
+  end
+
   def non_inactive_transition?
     !(aasm.from_state == :inactive && aasm.to_state == :inactive)
   end
@@ -1571,7 +1584,7 @@ class HbxEnrollment
 
   aasm do
     state :shopping, initial: true
-    state :coverage_selected, :after_enter => :update_renewal_coverage
+    state :coverage_selected, :after_enter => [:update_renewal_coverage, :update_expected_selection]
     state :transmitted_to_carrier
     state :coverage_enrolled, :after_enter => :update_renewal_coverage
 
@@ -1581,7 +1594,7 @@ class HbxEnrollment
     state :coverage_reinstated    # coverage reinstated
 
     state :coverage_expired
-    state :inactive, :after_enter => :update_renewal_coverage   # indicates SHOP 'waived' coverage. :after_enter inform census_employee
+    state :inactive, :after_enter => [:update_renewal_coverage, :update_expected_selection]   # indicates SHOP 'waived' coverage. :after_enter inform census_employee
 
     # Verified Lawful Presence (VLP) flags
     state :unverified
