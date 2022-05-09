@@ -1279,7 +1279,7 @@ Then(/^.+ should see both health & dental plans on receipt page$/) do
 end
 
 Then("Employee should see dental enrollment text on receipt page") do
-  expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_confirmation)
+  expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_text)
 end
 
 Then("Employee should see health product confirmation on receipt page") do
@@ -1288,4 +1288,20 @@ end
 
 Then("Employee should see dental product confirmation on receipt page") do
   expect(find_all(EmployeeEnrollInAPlan.dental_product_confirmation).present?).to eq true
+end
+
+Then("Employee should see health confirmation text") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_enrollment_text)
+end
+
+Then("Employee should see health & dental confirmation text") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_and_dental_enrollment_text)
+end
+
+Then("Employee clicks on continue") do
+  find(EmployeeEnrollInAPlan.continue_coverage_button).click
+end
+
+Then("Employee selects no for dental coverage") do
+  find(EmployeeEnrollInAPlan.ee_choose_coverage).click
 end
