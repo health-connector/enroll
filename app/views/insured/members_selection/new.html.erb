@@ -51,7 +51,7 @@
           <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
           <br/>
           <h3><%= l10n("insured.group_selection.new.what_would_you_like_to_do") %></h3>
-            <%= submit_tag l10n('shop_for_new_plan'), class: 'btn btn-primary  btn-lg'+ pundit_class(Family, :updateable?) %>
+            <%= submit_tag l10n('shop_for_new_plan'), class: 'btn btn-primary  btn-lg'+ pundit_class(Family, :updateable?), onclick: 'return onSubmit();'%>
           <% if @organizer.previous_hbx_enrollment.present? && @organizer.previous_hbx_enrollment.may_terminate_coverage? %>
             <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.previous_hbx_enrollment, @organizer.new_effective_on) %>
             <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
@@ -75,3 +75,27 @@
   </div>
   <%= render :partial => "ui-components/v1/modals/continuous_waive_confirmation", :locals => {:enrollment => @organizer.previous_hbx_enrollment } if (@organizer.previous_hbx_enrollment.present? && (@organizer.previous_hbx_enrollment.employee_role.present? || @organizer.previous_hbx_enrollment.benefit_group.present?)) %>
 </div>
+
+<script type="text/javascript">
+  function onSubmit(e) {
+    var enrollNumber = 0;
+    $("[data-cuke=health-enroll-radio]").each(function () {
+        if ($(this).is(":checked")) {
+            enrollNumber++;
+        }
+    });
+    $("[data-cuke=dental-enroll-radio]").each(function () {
+        if ($(this).is(":checked")) {
+            enrollNumber++;
+        }
+    });
+    if (enrollNumber < 1) {debugger;
+        event.preventDefault();
+        $(".myAlertText").remove();
+        $("#group-selection-form h1").before(
+            "<span class='myAlertText' style='color:red'>In order to continue, at least one member must be selected to enroll in coverage</span>"
+        );
+    }
+  }
+
+</script>

@@ -14,8 +14,8 @@ describe BuildJsonPayloadForShopping, :dbclean => :after_each do
                                       change_plan: 'change_by_qle')
     end
 
-    it 'should return plan_selection_json' do
-      expect(@context.plan_selection_json[:health]).to eq(nil)
+    it 'should return error message when there are no shopping enrollments' do
+      expect(@context[:message]).to eq("In order to continue, at least one member must be selected to enroll in coverage.")
     end
   end
 

@@ -150,4 +150,8 @@ class EmployeeEnrollInAPlan
   def self.dental_enrollment_text
     'Your dental enrollment'
   end
+
+  def self.waived_error_message
+    'In order to continue, at least one member must be selected to enroll in coverage.'
+  end
 end
