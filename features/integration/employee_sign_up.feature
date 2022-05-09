@@ -77,3 +77,6 @@ Feature: Employee Sign Up when Employer exists and has a matching roster employe
     When Employee clicks continue on the dependents page
     Then Employee should see the group selection page
     Then Employee should see enroll & waive buttons
+    When Employee clicks continue button on group selection page for dependents
+    Then Employee should see the list of plans
+    Then Employee should see plans count listed
