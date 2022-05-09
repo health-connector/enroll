@@ -1305,3 +1305,7 @@ end
 Then("Employee selects no for dental coverage") do
   find(EmployeeEnrollInAPlan.ee_choose_coverage).click
 end
+
+Then("Employee should see an error message") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
+end
