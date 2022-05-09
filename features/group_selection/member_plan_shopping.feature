@@ -89,7 +89,6 @@ Feature: EE plan purchase
     Then Employee should see health product confirmation on receipt page
   	Then Employee should see dental product confirmation on receipt page
 
-<<<<<<< HEAD
   Scenario: Display health & dental confirmation text
 	And Employee has not signed up as an HBX user
 	And Patrick Doe visits the employee portal
