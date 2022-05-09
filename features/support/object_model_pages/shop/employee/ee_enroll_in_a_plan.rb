@@ -47,6 +47,26 @@ class EmployeeEnrollInAPlan
     'Enroll in a Health Plan'
   end
 
+  def self.plan_count
+    '[data-cuke="plan-count"]'
+  end
+
+  def self.coverage_for
+    '[data-cuke="coevrage-for"]'
+  end
+
+  def self.previous
+    'a[class="interaction-click-control-previous"]'
+  end
+
+  def self.save_and_exit
+    'a[class="interaction-click-control-save---exit"]'
+  end
+
+  def self.find_your_doctor_link
+    '.interaction-click-control-find-your-doctor'
+  end
+
   def self.filtered_plan
     '[data-cuke="filtered-plan"]'
   end
