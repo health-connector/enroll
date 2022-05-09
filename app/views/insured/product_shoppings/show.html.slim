@@ -41,14 +41,7 @@
       p.pull-right
         a.btn.btn-default.compare-selected-plans-link href="javascript:void(0);" style="display: none;" data-uri="#{comparison_products_plans_path(market_kind: @context.market_kind, coverage_kind: @coverage_kind)}" = l10n("compare_plans").to_s.upcase
       .col-lg-3.col-md-3.col-sm-3.col-xs-12.col-md-offset-1.col-sm-offset-1.right-section
-        - if @context.change_plan.blank? && @context.market_kind == "individual"
-          - if @context.enrollment_kind.blank? && is_under_open_enrollment?
-            = render partial: 'shared/individual_progress', locals: {step: '4'}
-          - else
-            = render partial: 'shared/sep_progress', locals: {step: '5'}
-        - elsif @context.change_plan.blank? && @context.market_kind == "coverall"
-          = render partial: 'shared/resident_progress', locals: {step: '4'}
-        - elsif @context.change_plan.blank?
+        - if @context.change_plan.blank?
           = render partial: 'shared/signup_progress', locals: {step: '5'}
         - elsif @context.change_plan == "change_by_qle"
           = render partial: 'shared/qle_progress', locals: {step: '2',show_button:'true'}
@@ -223,7 +216,7 @@ javascript:
       })
       return resultsData;
   }
-  
+
   function filterByCarrier(carrier, dataArray) {
       var resultsData = [];
       dataArray.forEach(function (enrollment) {
@@ -233,7 +226,7 @@ javascript:
       })
       return resultsData;
   }
-  
+
   function filterByHSA(selectedHSA, dataArray) {
       var resultsData = [];
       var hsa = Boolean;
@@ -323,7 +316,7 @@ javascript:
     if (selections.deductibleFromAmountValue != "" || selections.deductibleToAmountValue != "") {
         resultsArray = filterByDeductibleAmountRange(selections, resultsArray)
     }
-    
+
     // Removes duplicates from results array
     filteredArray = removeDuplicates(resultsArray)
     // Shows results in the view
@@ -367,9 +360,19 @@ javascript:
 
       var div = document.createElement('div')
       div.setAttribute('class', 'myfilteredPlans')
+
+      var context_health = ""
+      var context_dental = ""
+      if ("#{@context.health}" != "") {
+        context_health += "&health%5Bchange_plan%5D=#{@context.health&.[](:change_plan)}&health%5Benrollment_id%5D=#{@context.health&.[](:enrollment_id)}&health%5Benrollment_kind%5D=#{@context.health&.[](:enrollment_kind)}&health%5Bmarket_kind%5D=#{@context.health&.[](:market_kind)}"
+      }
+      if ("#{@context.dental}" != "") {
+        context_dental += "&dental%5Bchange_plan%5D=#{@context.dental&.[](:change_plan)}&dental%5Benrollment_id%5D=#{@context.dental&.[](:enrollment_id)}&dental%5Benrollment_kind%5D=#{@context.dental&.[](:enrollment_kind)}&dental%5Bmarket_kind%5D=#{@context.dental&.[](:market_kind)}"
+      }
+
       div.innerHTML =
       `
-      <div class="module plan-row panel panel-default">
+      <div class="module plan-row panel panel-default" data-cuke="filtered-plan">
               <div class="panel-body">
                 <div class="row ${result.product.is_standard_plan? '' : 'hidden'}">
                   <span class="ml-1 text-uppercase" style="color:green"><i class="fas fa-bookmark"></i> Standard Plan</span>
@@ -437,7 +440,7 @@ javascript:
                     </a>
                   </div>
                   <div class="col-md-5 col-sm-5 col-xs-5 pl-0 pr-0">
-                    <a class="btn btn-default btn-right plan-select select" href="/insured/plan_shoppings/#{@context.hbx_enrollment.id.to_s}/thankyou?change_plan=&coverage_kind=${result.product.kind}&enrollment_kind=&market_kind=${result.product.benefit_market_kind.replace('aca_','')}&plan_id=${result.product._id}">Select Plan</a>
+                    <a class="btn btn-default btn-right plan-select select" href="/insured/product_shoppings/continuous_show?cart%5B${result.product.kind}%5D%5Bid%5D=#{@context.hbx_enrollment.id.to_s}&cart%5B${result.product.kind}%5D%5Bproduct_id%5D=${result.product._id}&dental_offering=#{@context.dental_offering}&event=#{@context.event}&health_offering=#{@context.health_offering}${context_health}${context_dental}" data-cuke="cps-select-plan">Select Plan</a>
                     <a class="btn btn-default ml-1" data-remote="true" href="/products/plans/summary?active_year=${result.rate_schedule_date.split('-')[0]}&coverage_kind=${result.product.kind}&enrollment_kind=&hbx_enrollment_id=#{@context.hbx_enrollment.id.to_s}&market_kind=${result.product.benefit_market_kind.replace('aca_','')}&standard_component_id=${result.product.hios_id}">See Details</a>
                   </div>
                 </div>

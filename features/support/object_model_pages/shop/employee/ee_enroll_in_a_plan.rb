@@ -27,6 +27,10 @@ class EmployeeEnrollInAPlan
     'a[class$="interaction-click-control-select-plan"]'
   end
 
+  def self.filtered_select_plan_btn
+    '[data-cuke="cps-select-plan"]'
+  end
+
   def self.see_details_btn
     'a[class$="interaction-click-control-see-details"]'
   end
@@ -61,5 +65,109 @@ class EmployeeEnrollInAPlan
 
   def self.find_your_doctor_link
     '.interaction-click-control-find-your-doctor'
+  end
+
+  def self.filtered_plan
+    '[data-cuke="filtered-plan"]'
+  end
+
+  def self.plan_type_filter
+    '[data-cuke="plan-type-filter"]'
+  end
+
+  def self.plan_metal_level_filter
+    '[data-cuke="plan-metal-level-filter"]'
+  end
+
+  def self.plan_network_filter
+    '[data-cuke="plan-network-filter"]'
+  end
+
+  def self.plan_network_filter_option
+    '[data-cuke="plan-network-filter"]'
+  end
+
+  def self.plan_carrier_filter
+    '[data-cuke="plan-carrier-filter"]'
+  end
+
+  def self.plan_carrier_filter_option
+    '[data-cuke="plan-carrier-filter"] li'
+  end
+
+  def self.plan_hsa_filter
+    '[data-cuke="plan-hsa-filter"]'
+  end
+
+  def self.plan_hsa_filter_option
+    '[data-cuke="plan-hsa-filter"] li'
+  end
+
+  def self.plan_premium_filter
+    '[data-cuke="plan-premium-filter"]'
+  end
+
+  def self.plan_premium_filter_from
+    'plan-premium-from'
+  end
+
+  def self.plan_deductible_filter
+    '[data-cuke="plan-deductible-filter"]'
+  end
+
+  def self.plan_deductible_filter_from
+    'plan-deductible-from'
+  end
+
+  def self.apply_filters_btn
+    '[data-cuke="apply-plan-filters-btn"]'
+  end
+
+  def self.reset_filters_btn
+    '[data-cuke="reset-plan-filters-btn"]'
+  end
+
+  def self.dual_enrollment_text
+    '[data-cuke="dual-enrollment-text"]'
+  end
+
+  def self.ee_choose_coverage
+    '[class$="interaction-choice-control-value-eligible-continue-no"]'
+  end
+
+  def self.continue_coverage_button
+    '.interaction-click-control-continue'
+  end
+
+  def self.dental_enrollment_confirmation
+    'Your enrollment'
+  end
+
+  def self.health_product_confirmation
+    '[data-cuke="health-product-confirmation"]'
+  end
+
+  def self.dental_product_confirmation
+    '[data-cuke="dental-product-confirmation"]'
+  end
+
+  def self.available_coverage
+    '[data-cuke="available-coverage"]'
+  end
+
+  def self.shop_for_text
+    '[data-cuke="shop-for"]'
+  end
+
+  def self.health_and_dental_enrollment_text
+    'Your health and dental enrollments'
+  end
+
+  def self.health_enrollment_text
+    'Your health enrollment'
+  end
+
+  def self.dental_enrollment_text
+    'Your dental enrollment'
   end
 end

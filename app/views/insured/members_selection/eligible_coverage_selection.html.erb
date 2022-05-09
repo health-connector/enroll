@@ -7,14 +7,13 @@
     <%= form_tag(:insured_members_selections, :id => "group-selection-form") do %>
       <div class="col-xs-8">
         <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
-        <p class="twenty">Select who needs coverage and the type of coverage needed. When you’re finished, select CONTINUE.</p>
+        <p class="twenty"><%= l10n("insured.group_selection.new.select_who_needs_coverage") %></p>
         <div style="font-size :24px">
 
           <%if @organizer.effective_on_date.present? || @organizer.new_effective_on.present? %>
             <%= l10n("insured.group_selection.new.effective_date") %>: <span style="color: red;"><%= format_date(effective_date_for_display) %></span>
           <%end%>
         </div>
-
 
         <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
         <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
@@ -28,6 +27,7 @@
         <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
         <%= hidden_field_tag(:change_plan, @organizer.change_plan) %>
         <%= hidden_field_tag(:cart, @organizer[:params][:cart]) if @organizer[:params][:cart] %>
+        <%= hidden_field_tag(:event, @organizer&.event) %>
 
         <% if @organizer.can_shop_shop %>
           <div id="coverage-household" class='row no-buffer'>
@@ -61,11 +61,12 @@
       </div>
       <div class="col-xs-3 right-section pull-right">
           <% if @organizer.change_plan.blank? %>
-            <%= render  partial: '/shared/product_shoppings/signup_progress', locals: {step: '4'} %>
+            <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5', freeze_progress_panel: true} %>
           <% elsif @organizer.change_plan == "change_by_qle" %>
             <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
           <% elsif @organizer.change_plan == "change_plan" %>
-              <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '1', show_waive: true} %>
+              <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1'} %>
+              <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'show_waive'} %>
           <% end %>
         </div>
       </div>

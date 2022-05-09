@@ -1,5 +1,6 @@
 = pundit_span EmployerProfile, :updateable?
 - step = (defined? step) ? step.to_i : 1
+- freeze_progress_panel = (defined? freeze_progress_panel) ? freeze_progress_panel : false
 
 - percent_complete = 0
 - percent_complete = (step == 2) ? 15 : ((step == 3) ? 30 : ((step == 4) ? 45 : ((step == 5) ? 60 : ((step == 6) ? 75 : ((step == 7) ? 100 : 0)))))
@@ -39,7 +40,7 @@
 - elsif step == 2
   %span.btn.btn-primary.btn-block#btn-continue
     CONTINUE
-- elsif step == 5 || step == 2
+- elsif (step == 5 && !freeze_progress_panel) || step == 2
   = link_to 'CONTINUE', eligible_coverage_selection_insured_members_selections_path(@mini_context.to_h), class: 'btn btn-lg btn-primary  btn-block', id: 'eligible-btn-continue'
 - elsif step == 6
   = link_to purchase_or_confirm, checkout_insured_product_shoppings_path(build_hash_to_checkout(@context)), :class => 'btn btn-lg btn-primary  btn-block', id: 'btn-continue', :method => :post, :disabled => disable_continuous_purchase?(@context.values.collect{|hash| hash[:enrollable]}, @context.values.collect{|hash| hash[:enrollment]})

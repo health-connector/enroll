@@ -3,9 +3,10 @@
 <% end %>
 <div class="container group-selection">
   <div class="row">
-    <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
-    <p class="twenty">Select who needs coverage and the type of coverage needed. When you’re finished, select CONTINUE.</p>
-      <div class="col-xs-8">
+    <div class="col-xs-8">
+      <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
+      <p class="twenty" data-cuke="available-coverage"><%= l10n("ability_to_purchase_msg_1") %> <%= @context[:coverage_for] %> <%= l10n("ability_to_purchase_msg_2") %></p>
+      <p class="twenty" data-cuke="shop-for"> <%= l10n("ability_to_purchase_msg_3") %> <%= @context[:coverage_for] %>? </p>
       <table class="col-md-12">
         <tbody>
           <tr style="padding: 2px;">
@@ -16,16 +17,22 @@
           </tr>
           <tr>
             <td style="padding: 2px;">
-            <%= radio_button_tag('eligible_continue', 'yes', false, 'data-href': thankyou_insured_product_shoppings_path(@context.cart))%>
+            <%= radio_button_tag('eligible_continue', 'no', false, 'data-href': thankyou_insured_product_shoppings_path(cart: @context.cart, event: @context.event))%>
               <%= label_tag("eligible_continue", "No") %>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    
     <div class="col-xs-3 right-section pull-right">
+      <% if @mini_context[:change_plan].blank? %>
         <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5'} %>
+      <% elsif @mini_context[:change_plan] == "change_by_qle" %>
+        <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
+      <% elsif @mini_context[:change_plan] == "change_plan" %>
+        <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1', eligible_continue: true} %>
+        <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'eligible_continue'} %>
+      <% end %>
     </div>
   </div>
 </div>
