@@ -138,4 +138,16 @@ class EmployeeEnrollInAPlan
   def self.shop_for_text
     '[data-cuke="shop-for"]'
   end
+
+  def self.health_and_dental_enrollment_text
+    'Your health and dental enrollments'
+  end
+
+  def self.health_enrollment_text
+    'Your health enrollment'
+  end
+
+  def self.dental_enrollment_text
+    'Your dental enrollment'
+  end
 end
