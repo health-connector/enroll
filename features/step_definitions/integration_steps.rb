@@ -874,6 +874,11 @@ Then(/^.+ should see the list of plans$/) do
   screenshot("plan_shopping")
 end
 
+Then(/^\w+ should see plans count listed$/) do
+  find_all(EmployeeEnrollInAPlan.plan_count).present?
+  find_all(EmployeeEnrollInAPlan.coverage_for).present?
+end
+
 Then(/^.+ should see the header text related to health plan$/) do
   expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
 end
@@ -1279,7 +1284,7 @@ Then(/^.+ should see both health & dental plans on receipt page$/) do
 end
 
 Then("Employee should see dental enrollment text on receipt page") do
-  expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_confirmation)
+  expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_text)
 end
 
 Then("Employee should see health product confirmation on receipt page") do
@@ -1288,4 +1293,24 @@ end
 
 Then("Employee should see dental product confirmation on receipt page") do
   expect(find_all(EmployeeEnrollInAPlan.dental_product_confirmation).present?).to eq true
+end
+
+Then("Employee should see health confirmation text") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_enrollment_text)
+end
+
+Then("Employee should see health & dental confirmation text") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_and_dental_enrollment_text)
+end
+
+Then("Employee clicks on continue") do
+  find(EmployeeEnrollInAPlan.continue_coverage_button).click
+end
+
+Then("Employee selects no for dental coverage") do
+  find(EmployeeEnrollInAPlan.ee_choose_coverage).click
+end
+
+Then("Employee should see an error message") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
 end

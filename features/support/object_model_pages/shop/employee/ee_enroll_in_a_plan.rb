@@ -47,6 +47,26 @@ class EmployeeEnrollInAPlan
     'Enroll in a Health Plan'
   end
 
+  def self.plan_count
+    '[data-cuke="plan-count"]'
+  end
+
+  def self.coverage_for
+    '[data-cuke="coevrage-for"]'
+  end
+
+  def self.previous
+    'a[class="interaction-click-control-previous"]'
+  end
+
+  def self.save_and_exit
+    'a[class="interaction-click-control-save---exit"]'
+  end
+
+  def self.find_your_doctor_link
+    '.interaction-click-control-find-your-doctor'
+  end
+
   def self.filtered_plan
     '[data-cuke="filtered-plan"]'
   end
@@ -137,5 +157,21 @@ class EmployeeEnrollInAPlan
 
   def self.shop_for_text
     '[data-cuke="shop-for"]'
+  end
+
+  def self.health_and_dental_enrollment_text
+    'Your health and dental enrollments'
+  end
+
+  def self.health_enrollment_text
+    'Your health enrollment'
+  end
+
+  def self.dental_enrollment_text
+    'Your dental enrollment'
+  end
+
+  def self.waived_error_message
+    'In order to continue, at least one member must be selected to enroll in coverage.'
   end
 end

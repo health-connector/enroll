@@ -11,15 +11,16 @@
             <% employer_profile = @context.collect{|k,v| v[:employer_profile]}.flatten.uniq.first %>
 
             <% if @context.collect{|k,v| v[:hbx_enrollment].coverage_kind}.flatten.count > 1 %>
-              <p><%= l10n("enrollments_submitted_header_1") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+              <p><%= l10n("enrollment_submitted_text_1") %> <%= @context.collect{|k,v| v[:coverage_kind]}.uniq.first %> <%= l10n("enrollment_submitted_text_2") %> <%= @context.collect{|k,v| v[:coverage_kind]}.uniq.last %> <%= l10n("enrollment_submitted_text_3") %> <%= l10n("enrollment_submitted_text_5") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
             <% else %>
-             <p><%= l10n("enrollment_submitted_header_1") %> <%= format_datetime(@context.select{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+             <p><%= l10n("enrollment_submitted_text_1") %> <%= @context.collect{|k,v| v[:coverage_kind]}.uniq.first %> <%= l10n("enrollment_submitted_text_4") %> <%= l10n("enrollment_submitted_text_6") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
              <% end %>
             <p><%= l10n("print_message") %></p>
             <% if employer_profile.present? %>
               <strong><%= employer_profile.legal_name %></strong>
               </br>
             <% end %>
+            <br>
             <% @context.each do |key,value| %>
               <p data-cuke="<%= value.hbx_enrollment.coverage_kind %>-product-confirmation">
                 <strong><%= value.product.carrier_profile.legal_name %> <%= value.product.name %></strong><br>

@@ -6,7 +6,7 @@
   <% end %>
 
   <div class="pull-left">
-    <span class="ttu lg twelve"><%= l10n("coverage_for") %></span>
+    <span class="ttu lg twelve" data-cuke="coverage-for"><%= l10n("coverage_for") %></span>
     &nbsp;
     <strong><%= plan_shopping_dependent_text(@context.hbx_enrollment) %></strong>
     &nbsp;&nbsp;
@@ -15,7 +15,7 @@
     <strong><%= @context.hbx_enrollment.try(:benefit_sponsorship).try(:organization).try(:legal_name) %></strong>
     &nbsp;&nbsp;
     <% end %>
-    <span class="ttu lg twelve"><%= l10n("plans_for") %></span>
+    <span class="ttu lg twelve" data-cuke="plan-count"><%= l10n("plans_for") %></span>
     &nbsp;
     <strong id='plans-count'><%= @context.member_groups.count %></strong>
     &nbsp;&nbsp;
