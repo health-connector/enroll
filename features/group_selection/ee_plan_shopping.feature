@@ -184,7 +184,7 @@ Feature: EE plan purchase
     And Patrick Doe has a matched employee role
     And Employee sees the Household Info: Family Members page and clicks Continue
     Then Employee should not see the ineligible for dental coverage message if dental is not offered
-    And Employee sees the Choose Coverage for your Household page and clicks Continue
+    And Employee sees the Choose Coverage for your Household page and clicks Shop for new plan button
     And Employee selects the first plan available
     And Employee clicks Confirm
     And Employee sees the Enrollment Submitted page and clicks Continue
