@@ -913,6 +913,11 @@ And(/^Employee clicks on employee household continue$/) do
   find(EmployeeFamilyMembers.continue_btn).click
 end
 
+Then(/dependent child should be ineligible for health and dental coverage/) do
+  expect(find_all(EmployeeChooseCoverage.member_health_error).count).to eq 1
+  expect(find_all(EmployeeChooseCoverage.member_dental_error).count).to eq 1
+end
+
 And(/^Employee clicks no on choose coverage for household$/) do
   expect(find_all(EmployeeEnrollInAPlan.available_coverage).present?).to eq true
   expect(find_all(EmployeeEnrollInAPlan.shop_for_text).present?).to eq true

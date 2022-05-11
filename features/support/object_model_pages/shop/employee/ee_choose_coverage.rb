@@ -26,4 +26,12 @@ class EmployeeChooseCoverage
   def self.back_to_my_account_btn
     'a[class$="interaction-click-control-back-to-my-account"]'
   end
+
+  def self.member_health_error
+    '[data-cuke="member_health_error"]'
+  end
+
+  def self.member_dental_error
+    '[data-cuke="member_dental_error"]'
+  end
 end
