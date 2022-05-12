@@ -46,7 +46,7 @@ describe AssignShopAttributesToEnrollments, :dbclean => :after_each do
     context 'when employee is cobra' do
       before :each do
         allow(employee_role).to receive(:is_cobra_status?).and_return(true)
-        ce.update_attributes(cobra_begin_date: hbx_enrollment.effective_on + 10.days)
+        census_employee.update_attributes(cobra_begin_date: hbx_enrollment.effective_on + 10.days)
         described_class.call(market_kind: 'shop', shopping_enrollments: [hbx_enrollment],
                              employee_role: employee_role,
                              params: {commit: 'Keep existing plan'})
@@ -57,7 +57,7 @@ describe AssignShopAttributesToEnrollments, :dbclean => :after_each do
       end
 
       it 'should set effective_on' do
-        expect(hbx_enrollment.effective_on).to eq(ce.cobra_begin_date)
+        expect(hbx_enrollment.effective_on).to eq(census_employee.cobra_begin_date)
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require './spec/shared_context/setup_shop_families_enrollments'
 
@@ -137,8 +139,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
   describe "GET #checkout" do
     let!(:params) do
-      { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans", "family_id" => family.id, "market_kind" => "employer_sponsored", "product_id" => all_dental_products.first.id, "use_family_deductable" => "true", "waivable" => "true"},
-        "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans", "family_id" => family.id, "market_kind" => "employer_sponsored",
+      { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
+                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                     "family_id" => family.id, "market_kind" => "employer_sponsored",
+                     "product_id" => all_dental_products.first.id, "use_family_deductable" => "true", "waivable" => "true"},
+        "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
+                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                     "family_id" => family.id, "market_kind" => "employer_sponsored",
                      "product_id" => all_health_products.first.id, "use_family_deductable" => "true", "waivable" => "true"} }
     end
 
