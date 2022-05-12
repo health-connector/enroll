@@ -46,7 +46,7 @@
           <% end %>
         <% end %>
 
-        <% if ["shop_for_plans", "change_by_qle"].include?(@organizer.event) %>
+        <% if ["sign_up"].exclude?(@organizer.event) %>
           <%= hidden_field_tag 'change_plan', @organizer.change_plan %>
           <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
           <br/>
