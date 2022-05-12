@@ -74,10 +74,11 @@ module Insured
 
     def group_selection_continuous_shopping_helper(effective_on_option)
       if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        event = params[:qle_id].present? ? 'change_by_qle' : 'shop_for_plans'
         new_insured_members_selection_path(person_id: @person.id, employee_role_id: @employee_role.try(:id),
                                            consumer_role_id: @consumer_role.try(:id), change_plan: @change_plan,
                                            market_kind: @market_kind, sep_id: @sep.try(:id), qle_id: @qle.try(:id),
-                                           effective_on_option_selected: effective_on_option, change_plan_date: @change_plan_date, event: "shop_for_plans")
+                                           effective_on_option_selected: effective_on_option, change_plan_date: @change_plan_date, event: event)
       else
         new_insured_group_selection_path(person_id: @person.id, employee_role_id: @employee_role.try(:id),
                                          consumer_role_id: @consumer_role.try(:id), change_plan: @change_plan,

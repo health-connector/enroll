@@ -5,6 +5,8 @@ class HireAndAssignCurrentUserBrokerAgency
 
   def call
     return unless broker_role.present?
+    return unless context.primary_family.present?
+    return unless context.shopping_enrollments.present?
 
     context.primary_family.hire_broker_agency(broker_role.id)
     context.shopping_enrollments.each do |hbx_enrollment|
