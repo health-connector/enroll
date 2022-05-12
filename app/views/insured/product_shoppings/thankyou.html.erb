@@ -46,7 +46,7 @@
       <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 right-section">
         <% enrollment_kind = @context.collect{|k,v| v[:enrollment_kind]}.uniq.first %>
         <% event = @context.collect{|k,v| v[:event]}.uniq.first %>
-        <% default_events = ["make_changes_for_health", "make_changes_for_dental", "shop_for_plans"] %>
+        <% default_events = ["shop_for_plans"] %>
 
         <% if enrollment_kind == "open_enrollment" && !default_events.include?(event) %>
           <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '6'} %>

@@ -46,7 +46,7 @@
         - if event == "sign_up"
           = render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5'}
           = render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'sign_up'}
-        - elsif event == "change_by_qle"
+        - elsif event == "change_by_qle" || event.match?(/make_changes_/)
           = render partial: 'shared/product_shoppings/qle_progress', locals: {step: '2'}
           = render partial: 'shared/product_shoppings/qle_buttons', locals: {step: 'show_waive'}
         - else
