@@ -26,14 +26,14 @@ describe AssignParamsForCheckout, :dbclean => :after_each do
     end
 
     it 'should employee_is_shopping_before_hire to true' do
-      ce.update_attributes(hired_on: TimeKeeper.date_of_record + 1.day)
+      census_employee.update_attributes(hired_on: TimeKeeper.date_of_record + 1.day)
       context = described_class.call(hbx_enrollment: hbx_enrollment)
       expect(context.employee_is_shopping_before_hire).to eq true
     end
 
     it 'should attributes to true' do
       hbx_enrollment.update_attributes(enrollment_kind: 'special_enrollment')
-      ce.update_attributes(hired_on: TimeKeeper.date_of_record + 1.day)
+      census_employee.update_attributes(hired_on: TimeKeeper.date_of_record + 1.day)
       context = described_class.call(hbx_enrollment: hbx_enrollment)
       expect(context.qle).to eq true
       expect(context.employee_is_shopping_before_hire).to eq true
