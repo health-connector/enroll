@@ -410,7 +410,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.type_title' => "TYPE",
   :'en.level_title' => "LEVEL",
   :'en.network_title' => "NETWORK",
-  :'en.family_deductible_title' => "FAMILY DEDUCTIBLE",
+  :'en.family_deductible_title' => "Eductible Title",
   :'en.deductible_title' => "DEDUCTIBLEEEE",
   :'en.enrollment_submitted_text_1' => "Your",
   :'en.enrollment_submitted_text_2' => "and",
