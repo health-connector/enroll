@@ -246,7 +246,7 @@ class Insured::FamiliesController < FamiliesController
 
   def continuous_plan_shopping(action_params)
     if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
-      new_insured_members_selection_path(action_params)
+      new_insured_members_selection_path(action_params.merge!(event: "change_by_qle"))
     else
       new_insured_group_selection_path(action_params)
     end

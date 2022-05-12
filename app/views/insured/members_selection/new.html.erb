@@ -46,7 +46,7 @@
           <% end %>
         <% end %>
 
-        <% if @organizer.change_plan.present? %>
+        <% if ["sign_up"].exclude?(@organizer.event) %>
           <%= hidden_field_tag 'change_plan', @organizer.change_plan %>
           <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
           <br/>
@@ -62,12 +62,16 @@
         <%= link_to l10n("back_to_my_account"), family_account_path, class: 'btn btn-default btn btn-lg' %>
       </div>
       <div class="col-xs-3 right-section pull-right">
-          <% if @organizer.change_plan.blank? %>
-            <%= render  partial: 'shared/signup_progress', locals: {step: '4'} %>
-          <% elsif @organizer.change_plan == "change_by_qle" %>
-            <%= render partial: 'shared/qle_progress', locals: {step: '2',show_button:false} %>
-          <% elsif @organizer.change_plan == "change_plan" %>
-              <%= render partial: 'shared/shop_for_plans_progress', locals: {step: '1', show_waive: true} %>
+          <%  event = @organizer.event %>
+          <% if event == "sign_up" %>
+            <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '4'} %>
+            <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: '4'} %>
+          <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
+            <%= render partial: 'shared/product_shoppings/qle_progress', locals: {step: '2'} %>
+            <%= render partial: 'shared/product_shoppings/qle_buttons', locals: {step: 'no_button'} %>
+          <% else %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1'} %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'show_waive'} %>
           <% end %>
         </div>
       </div>
@@ -93,7 +97,7 @@
         event.preventDefault();
         $(".myAlertText").remove();
         $("#group-selection-form h1").before(
-            "<span class='myAlertText' style='color:red'>In order to continue, at least one member must be selected to enroll in coverage</span>"
+            "<span class='myAlertText' style='color:red'>In order to continue, at least one member must be selected to enroll in coverage.</span>"
         );
     }
   }

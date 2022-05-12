@@ -45,11 +45,12 @@
       <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 right-section plan_receipt">
         <% enrollment_kind = @context.collect{|k,v| v[:enrollment_kind]}.uniq.first %>
         <% event = @context.collect{|k,v| v[:event]}.uniq.first %>
-         <% default_events = ["make_changes_for_health", "make_changes_for_dental", "shop_for_plans"] %>
+         <% default_events = ["shop_for_plans"] %>
 
-        <% if enrollment_kind == "open_enrollment" && !default_events.include?(event)  %>
+        <% if event == "sign_up" %>
           <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '7'} %>
-        <% elsif enrollment_kind == "special_enrollment" && !default_events.include?(event) %>
+          <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'home'} %>
+        <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
           <%= render partial: 'insured/product_shoppings/qle_progress', locals: {step: '4'} %>
         <% else %>
             <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '3'} %>
