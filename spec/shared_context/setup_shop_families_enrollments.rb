@@ -9,8 +9,8 @@ RSpec.shared_context "setup shop families enrollments", :shared_context => :meta
   include_context "setup initial benefit application"
   include_context "setup employees with benefits"
 
-  let!(:ce) { benefit_sponsorship.census_employees.first }
-  let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+  let!(:census_employee) { benefit_sponsorship.census_employees.first }
+  let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: census_employee.first_name, last_name: census_employee.last_name, dob: census_employee.dob, ssn: census_employee.ssn, gender: census_employee.gender) }
   let!(:employee_role) do
     ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
     ee_person.employee_roles.first
@@ -44,9 +44,9 @@ RSpec.shared_context "setup shop families enrollments", :shared_context => :meta
   end
 
   before :each do
-    ce.employee_role_id = employee_role.id
-    ce.save
-    employee_role.census_employee_id = ce.id
+    census_employee.employee_role_id = employee_role.id
+    census_employee.save
+    employee_role.census_employee_id = census_employee.id
     ee_person.save
   end
 end
