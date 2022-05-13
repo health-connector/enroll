@@ -20,7 +20,6 @@
               <strong><%= employer_profile.legal_name %></strong>
               </br>
             <% end %>
-            <br>
             <% @context.each do |key,value| %>
               <p data-cuke="<%= value.hbx_enrollment.coverage_kind %>-product-confirmation">
                 <strong><%= value.product.carrier_profile.legal_name %> <%= value.product.name %></strong><br>
