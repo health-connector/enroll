@@ -14,7 +14,8 @@ module Insured
 
       if @context.failure?
         flash[:error] = @context.message
-        redirect_to family_account_path # TODO
+        redirect_to family_account_path
+        return
       end
       set_employee_bookmark_url(family_account_path)
 
@@ -26,6 +27,7 @@ module Insured
 
       if @context.shop_for.nil? && @context.go_to_coverage_selection == false
         redirect_to thankyou_insured_product_shoppings_path(cart: @context.cart, event: @context.event)
+        return
       elsif @context.go_to_coverage_selection == true
         mini_context_hash = ExtractContinuousShoppingParams.call(cart: @context.cart.to_h)
         coverage_hash = @context&.health || @context&.dental
@@ -68,10 +70,7 @@ module Insured
         return
       end
 
-      # TODO
-      # hbx_enrollments = @context.values.select{|hash| hash[:hbx_enrollment]}
       if @context.values.select{|hash| hash[:can_select_coverage]}.any?(false)
-        # flash[:error] = hbx_enrollments.map(&:errors).map(&:full_messages) if hbx_enrollments.map(&:errors).flatten.compact.present?
         redirect_to :back
         return
       end

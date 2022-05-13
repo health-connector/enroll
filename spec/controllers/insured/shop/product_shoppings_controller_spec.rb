@@ -3,6 +3,8 @@
 require 'rails_helper'
 require './spec/shared_context/setup_shop_families_enrollments'
 
+# TODO: Add negative scenarios
+# TODO: Add more scenarios
 RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: :after_each do
   include_context "setup shop families enrollments"
 
@@ -86,82 +88,133 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
 
   describe "GET #continuous_show" do
-    let!(:params) do
-      {"dental" => {"change_plan" => "", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-       "dental_offering" => "true", "event" => "shop_for_plans",
-       "health" => {"change_plan" => "", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"}, "health_offering" => "true"}
+    context '#success' do
+      let!(:params) do
+        {"dental" => {"change_plan" => "", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "dental_offering" => "true", "event" => "shop_for_plans",
+         "health" => {"change_plan" => "", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"}, "health_offering" => "true"}
+      end
+
+      before do
+        sign_in user
+        get :continuous_show, params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "context object should be success and not nil" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).success?).to be_truthy
+      end
+
+      it "products present for shopping" do
+        expect(assigns(:context).products.present?).to be_truthy
+      end
     end
 
-    before do
-      sign_in user
-      get :continuous_show, params
-    end
+    context '#failure' do
+      let!(:params) do
+        {"dental" => {"change_plan" => "", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "dental_offering" => "true", "event" => "shop_for_plans",
+         "health" => {"change_plan" => "", "enrollment_kind" => "", "market_kind" => "employer_sponsored"}, "health_offering" => "true"}
+      end
 
-    it "returns http success" do
-      expect(response).to have_http_status(:success)
-    end
+      before do
+        sign_in user
+        get :continuous_show, params
+      end
 
-    it "context object should be success and not nil" do
-      expect(assigns(:context)).not_to be_nil
-      expect(assigns(:context).success?).to be_truthy
-    end
+      it "redirects to family_account page" do
+        expect(response).to redirect_to family_account_path
+      end
 
-    it "products present for shopping" do
-      expect(assigns(:context).products.present?).to be_truthy
+      it "context object should be failure and not nil" do
+        expect(assigns(:context).failure?).to be_truthy
+      end
     end
   end
 
   describe "GET #thankyou" do
-    let!(:params) do
-      {"cart" => {"dental" => {"id" => dental_enrollment.id, "product_id" => all_dental_products.first.id},
-                  "health" => {"id" => health_enrollment.id, "product_id" => all_health_products.first.id}},
-       "dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-       "dental_offering" => "true", "event" => "shop_for_plans",
-       "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-       "health_offering" => "true"}
-    end
+    context '#success' do
+      let!(:params) do
+        {"cart" => {"dental" => {"id" => dental_enrollment.id, "product_id" => all_dental_products.first.id},
+                    "health" => {"id" => health_enrollment.id, "product_id" => all_health_products.first.id}},
+         "dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "dental_offering" => "true", "event" => "shop_for_plans",
+         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "health_offering" => "true"}
+      end
 
-    before do
-      sign_in user
-      get :thankyou, params
-    end
+      before do
+        sign_in user
+        get :thankyou, params
+      end
 
-    it "returns http success" do
-      expect(response).to have_http_status(:success)
-    end
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
 
-    it "context object should have dental and health in cart" do
-      expect(assigns(:context)).not_to be_nil
-      expect(assigns(:context).key?("health")).to be_truthy
-      expect(assigns(:context).key?("dental")).to be_truthy
+      it "context object should have dental and health in cart" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).key?("health")).to be_truthy
+        expect(assigns(:context).key?("dental")).to be_truthy
+      end
     end
   end
 
   describe "GET #checkout" do
-    let!(:params) do
-      { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
-                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
-                     "family_id" => family.id, "market_kind" => "employer_sponsored",
-                     "product_id" => all_dental_products.first.id, "use_family_deductable" => "true", "waivable" => "true"},
-        "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
-                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
-                     "family_id" => family.id, "market_kind" => "employer_sponsored",
-                     "product_id" => all_health_products.first.id, "use_family_deductable" => "true", "waivable" => "true"} }
-    end
+    context '#success' do
+      let!(:params) do
+        { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
+                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                       "family_id" => family.id, "market_kind" => "employer_sponsored",
+                       "product_id" => all_dental_products.first.id, "use_family_deductable" => "true", "waivable" => "true"},
+          "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
+                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                       "family_id" => family.id, "market_kind" => "employer_sponsored",
+                       "product_id" => all_health_products.first.id, "use_family_deductable" => "true", "waivable" => "true"} }
+      end
 
-    before do
-      sign_in user
-      get :checkout, params
-    end
+      before do
+        sign_in user
+        post :checkout, params
+      end
 
-    it "returns http success" do
-      expect(response).to redirect_to receipt_insured_product_shoppings_path(assigns(:context))
-    end
+      it "redirect to receipt page" do
+        expect(response).to redirect_to receipt_insured_product_shoppings_path(assigns(:context))
+      end
 
-    it "context object should have dental and health in cart" do
-      expect(assigns(:context)).not_to be_nil
-      expect(assigns(:context).key?("health")).to be_truthy
-      expect(assigns(:context).key?("dental")).to be_truthy
+      it "context object should have dental and health in cart" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).key?("health")).to be_truthy
+        expect(assigns(:context).key?("dental")).to be_truthy
+      end
+    end
+  end
+
+  describe "GET #receipt" do
+    context '#success' do
+      let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
+
+      let!(:params) do
+        {"dental" => {"can_select_coverage" => "true", "coverage_kind" => "dental", "employee_is_shopping_before_hire" => "false",
+                      "enrollment_id" => dental_enrollment.id, "event" => "make_changes_for_dental", "product_id" => dental_enrollment.product_id, "qle" => "false"}}
+      end
+
+      before do
+        sign_in user
+        get :receipt, params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "context object should not be empty" do
+        expect(assigns(:context)).not_to be_nil
+      end
     end
   end
 end
