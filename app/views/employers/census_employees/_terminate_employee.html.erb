@@ -3,8 +3,8 @@
     <td class="confirm-terminate-wrapper show_confirm_<%= @census_employee.id %>" colspan="10" id="enter-date">
       <tr>
         <td class="confirm-terminate-wrapper show_confirm_<%= @census_employee.id %>"  colspan="10"  id="enter-date">
-          <div class="confirm-terminate <%=pundit_class EmployerProfile, :updateable?%>">
-            <h5 style="margin-top: 0; margin-bottom: 0;"><strong><%= l10n('employers.census_employees.term_date_to_remove') %> <%= name_to_listing(@census_employee) %></strong>
+          <div class="confirm-terminate <%=pundit_class EmployerProfile, :updateable?%>"
+            <h5 style="margin-top: 0; margin-bottom: 0;"><strong><%= l10n('employers.census_employees.terminate.termination_date_heading')%> <%= name_to_listing(@census_employee) %></strong>
               <br/>
               <span class="lg fourteen">(<%= l10n('employers.census_employees.term_date_period') %>)</span>
             </h5>

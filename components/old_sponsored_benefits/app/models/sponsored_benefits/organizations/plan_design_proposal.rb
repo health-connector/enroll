@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SponsoredBenefits
   module Organizations
     class PlanDesignProposal
@@ -5,8 +7,8 @@ module SponsoredBenefits
       include Mongoid::Timestamps
       include AASM
 
-      RENEWAL_STATES = %w(renewing_draft renewing_published renewing_claimed renewing_expired)
-      EXPIRABLE_STATES = %w(draft renewing_draft)
+      RENEWAL_STATES = %w[renewing_draft renewing_published renewing_claimed renewing_expired].freeze
+      EXPIRABLE_STATES = %w[draft renewing_draft].freeze
 
       embedded_in :plan_design_organization, class_name: "SponsoredBenefits::Organizations::PlanDesignOrganization"
 
@@ -22,27 +24,31 @@ module SponsoredBenefits
       delegate :effective_date, to: :profile
       validates_uniqueness_of :claim_code, :case_sensitive => false, :allow_nil => true
 
-      scope :datatable_search, ->(query) { self.where({"$or" => ([{"title" => ::Regexp.compile(::Regexp.escape(query), true)}])}) }
+      scope :datatable_search, ->(query) { where({"$or" => [{"title" => ::Regexp.compile(::Regexp.escape(query), true)}]}) }
       ## TODO: how are we defining 'initial' vs 'renewing'?
       scope :initial, -> { not_in(aasm_state: RENEWAL_STATES) }
       scope :renewing, ->{ any_in(aasm_state: RENEWAL_STATES) }
-      scope :draft, -> { any_in(aasm_state: %w(draft renewing_draft)) }
-      scope :published, -> { any_in(aasm_state: %w(published renewing_published)) }
-      scope :expired, -> { any_in(aasm_state: %w(expired renewing_expired)) }
-      scope :claimed, -> { any_in(aasm_state: %w(claimed renewing_claimed)) }
+      scope :draft, -> { any_in(aasm_state: %w[draft renewing_draft]) }
+      scope :published, -> { any_in(aasm_state: %w[published renewing_published]) }
+      scope :expired, -> { any_in(aasm_state: %w[expired renewing_expired]) }
+      scope :claimed, -> { any_in(aasm_state: %w[claimed renewing_claimed]) }
 
       def active_benefit_group
         return nil if profile.nil?
         return nil if profile.benefit_sponsorships.empty?
+
         sponsorship = profile.benefit_sponsorships.first
         return nil if sponsorship.benefit_applications.empty?
+
         application = sponsorship.benefit_applications.first
         return nil if application.benefit_groups.empty?
+
         application.benefit_groups.first
       end
 
       def active_census_employees
         return nil if profile.benefit_sponsorships.empty?
+
         sponsorship = profile.benefit_sponsorships.first
         sponsorship.census_employees
       end
@@ -57,7 +63,7 @@ module SponsoredBenefits
         # find plan_design_proposal object by id
         def find(id)
           organization = SponsoredBenefits::Organizations::PlanDesignOrganization.where("plan_design_proposals._id" => BSON::ObjectId.from_string(id)).first
-          organization.plan_design_proposals.detect{|proposal| proposal.id == BSON::ObjectId.from_string(id)}
+          organization.plan_design_proposals.detect{|proposal| proposal.id == BSON::ObjectId.from_string(id)} if organization.present?
         end
 
         # find plan_design_proposal object by claim_code
@@ -76,48 +82,45 @@ module SponsoredBenefits
 
         def claim_code_status?(quote_claim_code)
           quote = find_quote(quote_claim_code) # search for the quote that is in published status
-          if quote.present?
-            return [quote.aasm_state, quote] # quote is present, return its current status.
-          else
-            return "invalid" # quote is not present, return invalid(replicating the same functionality as in dc enroll.)
-          end
-        end
+          return [quote.aasm_state, quote] if quote.present? # quote is present, return its current status.
 
+          "invalid" # quote is not present, return invalid(replicating the same functionality as in dc enroll.)
+        end
 
         # this method creates a draft plan year from a valid claim code entered on benefits page(in employer portal).
         def build_plan_year_from_quote(employer_profile, quote)
           builder = SponsoredBenefits::BenefitApplications::EmployerProfileBuilder.new(quote, employer_profile)
-          if builder.quote_valid?
-            builder.add_plan_year
-            # builder.add_census_members
-            quote.claim_date = TimeKeeper.date_of_record
-            quote.claim!
-          end
+          return unless builder.quote_valid?
+
+          builder.add_plan_year
+          # builder.add_census_members
+          quote.claim_date = TimeKeeper.date_of_record
+          quote.claim!
         end
       end
 
       def can_quote_be_published?
-        self.valid?
+        valid?
       end
 
       def can_be_expired?
-        self.valid? && !plan_design_organization.is_prospect?
+        valid? && !plan_design_organization.is_prospect?
       end
 
       def generate_character
-        ascii = rand(36) + 48
+        ascii = rand(48..83)
         ascii += 39 if ascii >= 58
         ascii.chr.upcase
       end
 
       def employer_claim_code
-        4.times.map{generate_character}.join + '-' + 4.times.map{generate_character}.join
+        Array.new(4){generate_character}.join + '-' + Array.new(4){generate_character}.join
       end
 
       def set_employer_claim_code
         self.claim_code = employer_claim_code
         self.published_on = TimeKeeper.date_of_record
-        self.save!
+        save!
       end
 
       aasm do

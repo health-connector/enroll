@@ -46,6 +46,18 @@ module BenefitSponsors
       raw("<span class='copyright'><i class='fa fa-copyright fa-lg' aria-hidden='true'></i> #{Settings.site.copyright_period_start}-#{TimeKeeper.date_of_record.year} #{Settings.site.short_name}. All Rights Reserved.</span>")
     end
 
+    def amount_color_style(amount)
+      return "" if amount.blank?
+
+      amount > 0 ? 'style=color:red' : ""
+    end
+
+    def payment_amount_color_style(amount)
+      return "" if amount.blank?
+
+      amount < 0 ? 'style=color:red' : ""
+    end
+
     def render_flash
       rendered = []
       flash.each do |type, messages|
@@ -88,6 +100,13 @@ module BenefitSponsors
 
     def find_and_sort_inbox_messages(provider, folder)
       provider.inbox.messages.select {|m| folder == (m.folder.try(:capitalize) || 'Inbox')}.sort_by(&:created_at).reverse
+    end
+
+    def add_plan_year_button_business_rule(benefit_sponsorship, benefit_applications)
+      canceled_rule_check = benefit_applications.active.present? && benefit_applications.canceled.select{ |ba| ba.start_on > benefit_applications.active.first.end_on }.present?
+      ineligible_rule_check = benefit_applications.enrollment_ineligible.effective_date_begin_on
+      published_and_ineligible_apps = benefit_applications.published + benefit_applications.enrollment_ineligible + benefit_applications.pending
+      ((published_and_ineligible_apps - ineligible_rule_check).blank? || canceled_rule_check || benefit_sponsorship.is_potential_off_cycle_employer?)
     end
 
     def benefit_application_claim_quote_warnings(benefit_applications)

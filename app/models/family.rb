@@ -233,11 +233,26 @@ class Family
                                                     :"households.hbx_enrollments" => {
                                                       :$elemMatch => {
                                                         :sponsored_benefit_package_id => {"$in" => benefit_application.benefit_packages.pluck(:_id) },
-                                                        :aasm_state => {"$nin" => %w(coverage_canceled shopping coverage_terminated) },
-                                                        :coverage_kind => "health"
+                                                        :aasm_state => {'$nin' => %w[coverage_canceled shopping coverage_terminated] }
                                                       }
                                                   })}
 
+
+  def enrollment_is_not_most_recent_sep_enrollment?(hbx_enrollment)
+    coverage_kind = hbx_enrollment.coverage_kind
+    target_enrollment_effective_on = hbx_enrollment.effective_on
+    most_recent_sep_enrollment_by_coverage_kind = enrollments.where(
+      coverage_kind: coverage_kind,
+      enrollment_kind: 'special_enrollment'
+    ).last
+    # Return false if no SEP enrollments
+    return false if most_recent_sep_enrollment_by_coverage_kind.blank?
+    # Return true if referring to the same target enrollment being checked
+    return true if hbx_enrollment == most_recent_sep_enrollment_by_coverage_kind
+    # Return true here because you should be able to edit the most recent enrollment only,
+    # but if this is trying to render on an old enrollment, don't show
+    return true if most_recent_sep_enrollment_by_coverage_kind.effective_on > target_enrollment_effective_on
+  end
 
   def active_broker_agency_account
     broker_agency_accounts.detect { |baa| baa.is_active? }
@@ -297,6 +312,10 @@ class Family
     family_members.detect { |family_member| family_member.is_primary_applicant? && family_member.is_active? }
   end
 
+  def primary_person
+    primary_applicant&.person
+  end
+
   def primary_family_member=(new_primary_family_member)
     self.primary_family_member.is_primary_applicant = false unless primary_family_member.blank?
 
@@ -308,6 +327,19 @@ class Family
     end
 
     primary_family_member
+  end
+
+  def terminated_enrollments
+    active_household.hbx_enrollments.where(:aasm_state.in=> ["coverage_terminated", "coverage_termination_pending"])
+  end
+
+
+  def set_admin_dt_enrollments(enrollment_set)
+    @admin_dt_enrollments = enrollment_set
+  end
+
+  def admin_dt_enrollments
+    @admin_dt_enrollments || []
   end
 
   # @deprecated Use {primary_applicant}
@@ -570,19 +602,15 @@ class Family
 
   def terminate_date_for_shop_by_enrollment(enrollment=nil)
     if latest_shop_sep.present?
-      terminate_date = if latest_shop_sep.qualifying_life_event_kind.reason == 'death'
-                         latest_shop_sep.qle_on
-                       else
-                         latest_shop_sep.qle_on.end_of_month
-                       end
-      if enrollment.present?
-        if enrollment.effective_on > latest_shop_sep.qle_on
-          terminate_date = enrollment.effective_on
-        elsif enrollment.effective_on >= terminate_date
-          terminate_date = TimeKeeper.date_of_record.end_of_month
-        end
-      end
-      terminate_date
+      coverage_end_date = if latest_shop_sep.qualifying_life_event_kind.reason == 'death'
+                            latest_shop_sep.qle_on
+                          else
+                            latest_shop_sep.qle_on.end_of_month
+                          end
+
+      coverage_end_date = enrollment.effective_on if enrollment.present? && enrollment.effective_on >= coverage_end_date
+
+      coverage_end_date
     else
       TimeKeeper.date_of_record.end_of_month
     end

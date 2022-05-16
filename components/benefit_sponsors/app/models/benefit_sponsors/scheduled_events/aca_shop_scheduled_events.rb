@@ -17,6 +17,7 @@ module BenefitSponsors
         shop_daily_events
         auto_submit_renewal_applications
         # process_applications_missing_binder_payment #refs 39124 - Had to comment out as we got rid of states on BS.
+        auto_transmit_monthly_ineligible_benefit_sponsors
         auto_cancel_ineligible_applications
         auto_transmit_monthly_benefit_sponsors
         close_enrollment_quiet_period
@@ -59,10 +60,7 @@ module BenefitSponsors
 
       def benefit_termination_pending
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_terminate_pending_benefit_coverage?(new_date)
-
-        benefit_sponsorships.each do |benefit_sponsorship|
-          execute_sponsor_event(benefit_sponsorship, :terminate_pending_sponsor_benefit)
-        end
+        execute_sponsor_event(benefit_sponsorships, :terminate_pending_sponsor_benefit)
       end
 
       def benefit_renewal
@@ -111,6 +109,14 @@ module BenefitSponsors
         end
       end
 
+      def auto_transmit_monthly_ineligible_benefit_sponsors
+        if EnrollRegistry.feature_enabled?(:automation_of_ineligible_benefit_sponsors)
+          if (new_date.mday) == EnrollRegistry[:automation_of_ineligible_benefit_sponsors].setting(:ineligible_employer_transmission_day_of_month).item
+            auto_transmit_ineligible_renewal_benefit_sponsors(new_date)
+          end
+        end
+      end
+
       def transmit_scheduled_benefit_sponsors(new_date, feins=[])
         start_on = new_date.prev_day.next_month.beginning_of_month
         transition_at = (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month ? nil : new_date.prev_day
@@ -125,6 +131,15 @@ module BenefitSponsors
         execute_sponsor_event(initial_benefit_sponsorships, :transmit_initial_eligible_event)
       end
 
+      def auto_transmit_ineligible_renewal_benefit_sponsors(new_date, feins=[])
+        start_on = new_date.prev_day.next_month.beginning_of_month
+        benefit_sponsors = BenefitSponsors::BenefitSponsorships::BenefitSponsorship
+        benefit_sponsors = benefit_sponsors.find_by_feins(feins) if feins.any?
+
+        ineligible_renewal_benefit_sponsorships = benefit_sponsors.may_transmit_as_renewal_ineligible?(start_on)
+        execute_sponsor_event(ineligible_renewal_benefit_sponsorships, :transmit_ineligible_renewal_carrier_drop_event)
+      end
+
       def close_enrollment_quiet_period
         if new_date.prev_day.mday == Settings.aca.shop_market.initial_application.quiet_period.mday
           effective_on = (new_date.prev_day.beginning_of_month - Settings.aca.shop_market.initial_application.quiet_period.month_offset.months).to_s(:db)
@@ -135,7 +150,9 @@ module BenefitSponsors
       private
 
       def execute_sponsor_event(benefit_sponsorships, event)
+        notify_logger("Event: #{event}. Process started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
         BenefitSponsors::BenefitSponsorships::BenefitSponsorshipDirector.new(new_date).process(benefit_sponsorships, event)
+        notify_logger("Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
       end
 
       def process_events_for(&block)
@@ -145,6 +162,11 @@ module BenefitSponsors
           @logger.error e.message
           @logger.error e.backtrace.join("\n")
         end
+      end
+
+      def notify_logger(message)
+        @logger.info(message)
+        log(message) unless Rails.env.test?
       end
 
       def initialize_logger

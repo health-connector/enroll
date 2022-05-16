@@ -23,6 +23,19 @@
         <div class="panel-body">
           <span class="plan-label">Type: </span><span><%= plan.plan_type %></span><br>
           <span class="plan-label">Carrier: </span><span><%= carriers_cache[plan.carrier_profile_id] %></span><br>
+          <div>
+            <div class="plan-label rp-deductible-label run-glossary">Deductible: </div>
+            <div class="rp-bqt-deductible-info">
+              <div class="rp-deductible-types">
+                <span>Individual: </span><br>
+                <span>Family: </span>
+              </div>
+              <div class="pull-right">
+                <span id="ded-ind-value"><%= @plan_deductibles[plan.id][:deductible] %></span><br>
+                <span id="ded-fam-value"><%= @plan_deductibles[plan.id][:family_deductible] %></span>
+              </div>
+            </div>
+          </div>
           <span class="plan-label">Level: </span><span><%= plan.metal_level.titleize %></span><br>
           <span>
             <%= render partial: "shared/network_data", locals: {plan: plan} %>

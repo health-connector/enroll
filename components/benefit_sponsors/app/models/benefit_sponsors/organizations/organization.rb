@@ -24,7 +24,7 @@ module BenefitSponsors
         :health_insurance_exchange,
       ]
 
-      FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected"}
+      FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected", "dba" => "name_changed"}.freeze
 
       field :hbx_id, type: String
 
@@ -104,7 +104,7 @@ module BenefitSponsors
       # validates_presence_of :benefit_sponsorships, if: :is_benefit_sponsor?
 
       before_save  :generate_hbx_id
-      after_update :notify_observers
+      after_update :notify_observers, :update_plan_design_organization
       after_create :notify_on_create
 
 
@@ -346,6 +346,15 @@ module BenefitSponsors
 
       def is_benefit_sponsor?
         profiles.any? { |profile| profile.is_benefit_sponsorship_eligible? }
+      end
+
+      def update_plan_design_organization
+        return if employer_profile.blank?
+        return unless fein_changed? || legal_name_changed?
+
+        ::SponsoredBenefits::Organizations::PlanDesignOrganization.where(:sponsor_profile_id => BSON::ObjectId.from_string(employer_profile.id)).each do |pdo|
+          pdo.update_attributes(legal_name: legal_name, fein: fein)
+        end
       end
     end
   end

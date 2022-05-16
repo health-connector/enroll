@@ -19,8 +19,51 @@ module Config::AcaHelper
     Settings.aca.shop_market.mid_month_benefit_application_terminations.non_payment
   end
 
+  def add_deductible_display_enabled?
+    EnrollRegistry[:add_deductible_display].feature.is_enabled
+  end
+
   def aca_shop_market_employer_family_contribution_percent_minimum
     @aca_shop_market_employer_family_contribution_percent_minimum ||= Settings.aca.shop_market.employer_family_contribution_percent_minimum
+  end
+
+  def flexible_contribution_model_enabled_for_bqt_for_period
+    application_period = ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:initial_application_period).item.split('..')
+    min = Date.strptime(application_period[0], '%m/%d/%Y')
+    max = Date.strptime(application_period[1], '%m/%d/%Y')
+    min..max
+  end
+
+  def retrive_date(val)
+    val.split('-').first.size == 4 ? Date.strptime(val,"%Y-%m-%d") : Date.strptime(val,"%m/%d/%Y")
+  end
+
+  def hbx_shop_market_employer_family_contribution_percent_minimum
+    @hbx_shop_market_employer_family_contribution_percent_minimum ||= Settings.aca.shop_market.amnesty.employer_family_contribution_percent_minimum
+  end
+
+  def flexible_family_contribution_percent_minimum_for_bqt
+    @flexible_family_contribution_percent_minimum_for_bqt ||= ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:employer_family_contribution_percent_minimum).item
+  end
+
+  def flexible_employer_contribution_percent_minimum_for_bqt
+    @flexible_employer_contribution_percent_minimum_for_bqt ||= ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:employer_contribution_percent_minimum).item
+  end
+
+  def family_contribution_percent_minimum_for_application_start_on(start_on, is_renewing)
+    !is_renewing && flexible_contribution_model_enabled_for_bqt_for_period.cover?(start_on) ? flexible_family_contribution_percent_minimum_for_bqt : aca_shop_market_employer_family_contribution_percent_minimum
+  end
+
+  def employer_contribution_percent_minimum_for_application_start_on(start_on, is_renewing)
+    !is_renewing && flexible_contribution_model_enabled_for_bqt_for_period.cover?(start_on) ? flexible_employer_contribution_percent_minimum_for_bqt : aca_shop_market_employer_contribution_percent_minimum
+  end
+
+  def flexbile_contribution_model_enabled_for_bqt_for_renewals
+    @flexbile_contribution_model_enabled_for_bqt_for_renewals ||= ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:enabled_for_renewal_applications).item
+  end
+
+  def shop_market_employer_family_contribution_percent_minimum
+    amnesty_enabled_for_bqt? ? hbx_shop_market_employer_family_contribution_percent_minimum : aca_shop_market_employer_family_contribution_percent_minimum
   end
 
   def aca_shop_market_employer_contribution_percent_minimum
@@ -49,6 +92,10 @@ module Config::AcaHelper
   # @return { False } otherwise
   def general_agency_enabled?
     Settings.aca.general_agency_enabled
+  end
+
+  def enrollments_reinstate_enabled?
+    Settings.aca.enrollments_reinstate_enabled
   end
 
   def broker_carrier_appointments_enabled?

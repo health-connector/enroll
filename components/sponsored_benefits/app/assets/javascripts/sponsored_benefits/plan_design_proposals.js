@@ -66,6 +66,7 @@ function attachEmployerHealthContributionShowHide() {
 
 function fetchCarriers() {
   var active_year = $("#forms_plan_design_proposal_effective_date").val().substr(0,4);
+  var quote_effective_date = $("#forms_plan_design_proposal_effective_date").val();
   var selected_carrier_level = $(this).siblings('input').val();
   var plan_design_organization_id = $('#plan_design_organization_id').val();
   var kind = $("#benefits_kind").val();
@@ -76,6 +77,7 @@ function fetchCarriers() {
     type: "GET",
     data:{
       active_year: active_year,
+      quote_effective_date: quote_effective_date,
       selected_carrier_level: selected_carrier_level,
       kind: kind
     },

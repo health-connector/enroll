@@ -99,7 +99,7 @@ module BenefitSponsors
     end
 
     def auto_cancel_ineligible
-      benefit_sponsorship.benefit_applications.each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
+      benefit_sponsorship.benefit_applications.enrollment_closed_and_ineligible.each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
     end
 
     def transmit_initial_eligible_event
@@ -114,6 +114,12 @@ module BenefitSponsors
 
     def transmit_renewal_carrier_drop_event
       if benefit_sponsorship.is_renewal_carrier_drop?
+        notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG})
+      end
+    end
+
+    def transmit_ineligible_renewal_carrier_drop_event
+      unless benefit_sponsorship.is_renewal_transmission_eligible?
         notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG})
       end
     end

@@ -9,6 +9,15 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
+    # Added this module as a temporary fix for EMPLOYER FLEXIBILITY PROJECT
+    module ContributionModuleAssociation
+      def contribution_model
+        assigned_contribution_model || super
+      end
+    end
+
+    prepend ContributionModuleAssociation
+
     embedded_in :packagable, polymorphic: true
 
     field :application_period,      type: Range
@@ -22,6 +31,12 @@ module BenefitMarkets
                 class_name: "BenefitMarkets::Products::Product"
 
     embeds_one  :contribution_model,
+                class_name: "BenefitMarkets::ContributionModels::ContributionModel"
+
+    embeds_one  :assigned_contribution_model,
+                class_name: "BenefitMarkets::ContributionModels::ContributionModel"
+
+    embeds_many :contribution_models,
                 class_name: "BenefitMarkets::ContributionModels::ContributionModel"
 
     embeds_one  :pricing_model,
@@ -46,18 +61,36 @@ module BenefitMarkets
         ]
     end
 
-    def lowest_cost_product(effective_date)
-      return @lowest_cost_product if defined? @lowest_cost_product
-      @lowest_cost_product = load_base_products.min_by { |product|
-          product.min_cost_for_application_period(effective_date)
-      }
+    def products=(attributes)
+      new_products =
+        attributes.collect do |attribute|
+          if attribute.is_a?(Hash)
+            kind = attribute[:kind].to_s.titleize
+            product_class = "BenefitMarkets::Products::#{kind}Products::#{kind}Product".constantize
+            product_class.new(attribute)
+          else
+            attribute
+          end
+        end
+      products << new_products
     end
 
-    def highest_cost_product(effective_date)
+    def lowest_cost_product(effective_date, issuer_hios_ids = nil)
+      return @lowest_cost_product if defined? @lowest_cost_product
+
+      load_filtered_products = issuer_hios_ids.present? ? load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))} : load_base_products
+      @lowest_cost_product = load_filtered_products.min_by do |product|
+        product.min_cost_for_application_period(effective_date)
+      end
+    end
+
+    def highest_cost_product(effective_date, issuer_hios_ids = nil)
       return @highest_cost_product if defined? @highest_cost_product
-      @highest_cost_product ||= load_base_products.max_by { |product|
+
+      load_filtered_products = issuer_hios_ids.present? ? load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))} : load_base_products
+      @highest_cost_product ||= load_filtered_products.max_by do |product|
         product.max_cost_for_application_period(effective_date)
-      }
+      end
     end
 
     def products_sorted_by_cost

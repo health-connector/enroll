@@ -345,7 +345,7 @@ module SponsoredBenefits
         end
 
         if open_enrollment_period.begin < (effective_period.begin - Settings.aca.shop_market.open_enrollment.maximum_length.months.months)
-          errors.add(:open_enrollment_period.begin, "can't occur earlier than 60 days before start date")
+          errors.add(:open_enrollment_period, "can't occur earlier than 60 days before start date")
         end
 
         if open_enrollment_period.end > (open_enrollment_period.begin + Settings.aca.shop_market.open_enrollment.maximum_length.months.months)
@@ -364,7 +364,7 @@ module SponsoredBenefits
 
       def update_benefit_sponsor_catalog(benefit_application, benefit_sponsorship)
         #update benefit sponsor catalog details
-        benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.resolve_service_areas, benefit_application.effective_period.begin)
+        benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin)
         catalog = benefit_application.benefit_sponsor_catalog
         catalog.benefit_application = benefit_application
         catalog.save

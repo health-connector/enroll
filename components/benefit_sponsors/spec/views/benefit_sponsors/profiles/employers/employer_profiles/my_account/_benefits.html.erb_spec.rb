@@ -21,6 +21,7 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/my_a
       view.extend BenefitSponsors::PermissionHelper
       view.extend BenefitSponsors::ApplicationHelper
       view.extend BenefitSponsors::Employers::EmployerHelper
+      view.extend BenefitSponsors::L10nHelper
 
       benefit_sponsorship.benefit_applications.flat_map(&:benefit_packages).each { |bp| bp.sponsored_benefits.delete_all }
       allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true, revert_application?: true, list_enrollments?: true))
@@ -34,7 +35,7 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/my_a
 
       let(:renewal_benefit_sponsor_catalog) { build(:benefit_markets_benefit_sponsor_catalog, effective_date: renewal_effective_date, effective_period: renewal_effective_date..renewal_effective_date.next_year.prev_day, open_enrollment_period: renewal_effective_date.prev_month..(renewal_effective_date - 15.days)) }
       let!(:renewal_application) {
-          renewal_application = initial_application.renew(renewal_benefit_sponsor_catalog)
+          renewal_application = initial_application.renew
           renewal_application.save
           renewal_benefit_sponsor_catalog.save
           renewal_application

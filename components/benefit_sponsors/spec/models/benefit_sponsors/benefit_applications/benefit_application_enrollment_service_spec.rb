@@ -1,6 +1,5 @@
 require 'rails_helper'
 
-require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
@@ -589,10 +588,45 @@ module BenefitSponsors
               initial_application.reload
               expect(initial_application.aasm_state).to eq :enrollment_closed
             end
+
+            it 'should create final pricing determination before close of open enrollment' do
+              expect(subject).to receive(:calculate_pricing_determinations).with(initial_application).ordered
+              expect(initial_application).to receive(:end_open_enrollment!).ordered
+
+              subject.end_open_enrollment
+            end
           end
 
           context "and the benefit_application enrollment fails eligibility policy validation" do
             let(:business_policy) { instance_double("some_policy", fail_results: { business_rule: "failed validation" })}
+            let!(:hbx_enrollment) do
+              create(
+                :hbx_enrollment,
+                :with_enrollment_members, :with_product,
+                household: family.active_household,
+                aasm_state: "coverage_selected",
+                effective_on: initial_application.start_on,
+                rating_area_id: initial_application.recorded_rating_area_id,
+                coverage_kind: "health",
+                sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                employee_role_id: employee_role.id
+              )
+            end
+            let(:person)                   { create(:person, :with_family)}
+            let(:family)                   { person.primary_family }
+            let(:benefit_package)          { initial_application.benefit_packages.first }
+            let(:benefit_group_assignment) { build(:benefit_group_assignment, benefit_group: benefit_package)}
+            let(:employee_role)            { create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+            let(:census_employee) do
+              create(
+                :census_employee,
+                employer_profile: benefit_sponsorship.profile,
+                benefit_sponsorship: benefit_sponsorship,
+                benefit_group_assignments: [benefit_group_assignment]
+              )
+            end
 
             it "should close open enrollment and transition into :enrollment_ineligible state" do
               allow(subject).to receive(:business_policy).and_return(business_policy)
@@ -602,6 +636,16 @@ module BenefitSponsors
               initial_application.reload
               expect(initial_application.aasm_state).to eq :enrollment_ineligible
               expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
+            end
+
+            it 'should cancel enrollments' do
+              census_employee.update_attributes(employee_role_id: employee_role.id)
+              allow(subject).to receive(:business_policy).and_return(business_policy)
+              allow(subject).to receive(:business_policy_satisfied_for?).with(:end_open_enrollment).and_return(false)
+              subject.end_open_enrollment
+              initial_application.reload
+              hbx_enrollment.reload
+              expect(hbx_enrollment.aasm_state).to eq "coverage_canceled"
             end
           end
 
@@ -872,6 +916,46 @@ module BenefitSponsors
         end
       end
 
+      context 'when an employer is termination pending' do
+        include_context "setup initial benefit application"
+        subject {BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService}
+
+        context 'with end of the month date' do
+          before do
+            start_on = TimeKeeper.date_of_record.beginning_of_month - 6.months
+            end_on = (TimeKeeper.date_of_record.end_of_month + 4.months ).end_of_month
+            initial_application.reload
+            initial_application.update_attributes(effective_period: start_on..end_on, aasm_state: :termination_pending, terminated_on: TimeKeeper.date_of_record, termination_kind: "voluntary", termination_reason: "Company went out of business/bankrupt")
+            ba = initial_application
+            @result1 = subject.new(initial_application).terminate(end_on, ba.terminated_on, ba.termination_kind, ba.termination_reason)
+            initial_application.reload
+          end
+
+          it 'should terminate benefit application' do
+            expect(initial_application.aasm_state).to eq :terminated
+          end
+        end
+
+        context 'with mid month date' do
+          before do
+            start_on = TimeKeeper.date_of_record.beginning_of_month - 6.months
+            end_on = TimeKeeper.date_of_record.end_of_month - 15.day + 4.months
+            initial_application.reload
+            initial_application.update_attributes(effective_period: start_on..end_on, aasm_state: :termination_pending, terminated_on: TimeKeeper.date_of_record, termination_kind: "voluntary", termination_reason: "Company went out of business/bankrupt")
+            ba = initial_application
+            @result2 = subject.new(initial_application).terminate(end_on, ba.terminated_on, ba.termination_kind, ba.termination_reason)
+            initial_application.reload
+          end
+
+          it 'should not terminate benefit application' do
+            expect(initial_application.aasm_state).to eq :termination_pending
+          end
+
+          it 'should generate error' do
+            expect(@result2[2][:mid_month_voluntary_term]).to eq "Exchange doesn't allow mid month voluntary terminations"
+          end
+        end
+      end
     end
 
     describe '.reinstate' do

@@ -75,11 +75,80 @@ module BenefitSponsors
       end
     end
 
+    describe '.census_employees_assigned_on' do
+      let(:renewed_enrollment) { double("hbx_enrollment")}
+      let(:ra) {initial_application.renew}
+      let(:ia) {predecessor_application}
+      let(:bs) { ra.predecessor.benefit_sponsorship}
+      let(:cbp){ra.predecessor.benefit_packages.first}
+      let(:rbp){ra.benefit_packages.first}
+      let!(:rhsb) do
+        sb = rbp.health_sponsored_benefit
+        sb.product_package_kind = :single_product
+        sb.save
+        sb
+      end
+      let(:ibp){ia.benefit_packages.first}
+      let(:roster_size) { 5 }
+      let(:enrollment_kinds) { ['health'] }
+      let!(:census_employees) { create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: bs, employer_profile: bs.profile, benefit_group: cbp) }
+      let!(:person) { create(:person) }
+      let!(:family) {create(:family, :with_primary_family_member, person: person)}
+      let!(:employee_role) { create(:benefit_sponsors_employee_role, person: person)}
+      let!(:census_employee) { census_employees.first }
+      let(:hbx_enrollment) do
+        build(
+          :hbx_enrollment,
+          :shop,
+          household: family.active_household,
+          product: cbp.sponsored_benefits.first.reference_product,
+          coverage_kind: :health,
+          employee_role_id: census_employee.employee_role.id,
+          sponsored_benefit_package_id: cbp.id,
+          benefit_group_assignment_id: census_employee.benefit_group_assignments.last.id
+        )
+      end
+
+      let(:renewal_product_package)    { renewal_benefit_market_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
+      let(:product) { renewal_product_package.products[0] }
+
+      let!(:update_product) do
+        reference_product = current_benefit_package.sponsored_benefits.first.reference_product
+        reference_product.renewal_product = product
+        reference_product.save!
+      end
+
+      let(:active_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee)}
+      let(:renewal_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee)}
+
+      let(:renewal_benefit_package) { ra.benefit_packages.last }
+
+      before :each do
+        ra.benefit_packages.build(title: "Fake Title", probation_period_kind: ::BenefitMarkets::PROBATION_PERIOD_KINDS.sample).save!
+        new_benefit_package = ra.benefit_packages.last
+        renewal_benefit_package.benefit_sponsorship.census_employees.each do |census_employee|
+          census_employee.add_renew_benefit_group_assignment([new_benefit_package])
+          census_employee.benefit_group_assignments.each do |bga|
+            allow(bga).to receive(:start_on).and_return(ra.start_on)
+          end
+        end
+      end
+
+      it "should return census employees by the benefit_packages package and assignment date" do
+        expect(renewal_benefit_package.census_employees_assigned_on(ra.start_on).last.class).to eq(CensusEmployee)
+      end
+
+      it "should return blank if no census employees in non term and pending state" do
+        renewal_benefit_package.benefit_sponsorship.census_employees.update_all(aasm_state: 'employment_terminated')
+        expect(renewal_benefit_package.census_employees_assigned_on(ra.start_on).length).to eq(0)
+      end
+    end
+
     describe ".renew" do
       context "when passed renewal benefit package to current benefit package for renewal" do
 
-        let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
-        let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+        let(:renewal_application)             { initial_application.renew }
+        let(:renewal_benefit_sponsor_catalog) { renewal_application.benefit_sponsor_catalog }
         let!(:renewal_benefit_package)        { renewal_application.benefit_packages.build }
 
         before do
@@ -137,11 +206,17 @@ module BenefitSponsors
       end
 
       context "when employer offering both health and dental coverages" do
+        before :each do
+          BenefitMarkets::Products::Product.each do |product|
+            product.update_attributes!(issuer_profile_id: issuer_profile.id) unless product.issuer_profile_id
+          end
+        end
+
         let(:product_kinds)  { [:health, :dental] }
         let(:dental_sponsored_benefit) { true }
 
-        let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
-        let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+        let(:renewal_application)             { initial_application.renew }
+        let(:renewal_benefit_sponsor_catalog) { renewal_application.benefit_sponsor_catalog }
         let(:renewal_bp)        { renewal_application.benefit_packages.build }
 
         let(:current_app) { benefit_sponsorship.benefit_applications[0] }
@@ -151,17 +226,17 @@ module BenefitSponsors
           current_bp.renew(renewal_bp)
         end
 
-        context "when renewal product available for both health and dental" do 
+        context "when renewal product available for both health and dental" do
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
-  
+
           it "does build valid renewal benefit package" do
             expect(subject.valid?).to be_truthy
           end
 
           it "does renew health sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:health)).to be_present 
+            expect(subject.sponsored_benefit_for(:health)).to be_present
           end
 
           it "does renew health reference product" do
@@ -175,7 +250,7 @@ module BenefitSponsors
           end
 
           it "does renew dental sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:dental)).to be_present 
+            expect(subject.sponsored_benefit_for(:dental)).to be_present
           end
 
           it "does renew dental reference product" do
@@ -190,22 +265,27 @@ module BenefitSponsors
         end
 
         context "when renewal product available for health only" do
-          let!(:dental_products) { create_list(:benefit_markets_products_dental_products_dental_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_product],
-            service_area: service_area,
-            metal_level_kind: :dental)
-          }
+          let!(:dental_products) do
+            create_list(
+              :benefit_markets_products_dental_products_dental_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_product],
+              service_area: service_area,
+              metal_level_kind: :dental
+            )
+          end
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
-  
+
           it "does build valid renewal benefit package" do
             expect(subject.valid?).to be_truthy
           end
 
           it "does renew health sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:health)).to be_present 
+            expect(subject.sponsored_benefit_for(:health)).to be_present
           end
 
           it "does renew health reference product" do
@@ -219,31 +299,36 @@ module BenefitSponsors
           end
 
           it "does not renew dental sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:dental)).to be_blank 
+            expect(subject.sponsored_benefit_for(:dental)).to be_blank
           end
         end
 
         context "when renewal product available for dental only" do
-          let!(:health_products) { create_list(:benefit_markets_products_health_products_health_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_issuer, :metal_level, :single_product],
-            service_area: service_area,
-            metal_level_kind: :gold)
-          }
+          let!(:health_products) do
+            create_list(
+              :benefit_markets_products_health_products_health_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_issuer, :metal_level, :single_product],
+              service_area: service_area,
+              metal_level_kind: :gold
+            )
+          end
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
-  
+
           it "does build valid renewal benefit package" do
             expect(subject.valid?).to be_truthy
           end
 
           it "does not renew health sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:health)).to be_blank 
+            expect(subject.sponsored_benefit_for(:health)).to be_blank
           end
 
           it "does renew dental sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:dental)).to be_present 
+            expect(subject.sponsored_benefit_for(:dental)).to be_present
           end
 
           it "does renew dental reference product" do
@@ -257,38 +342,48 @@ module BenefitSponsors
           end
         end
 
-        context "when renewal product not available for both health and dental" do 
-          let!(:health_products) { create_list(:benefit_markets_products_health_products_health_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_issuer, :metal_level, :single_product],
-            service_area: service_area,
-            metal_level_kind: :gold)
-          }
+        context "when renewal product not available for both health and dental" do
+          let!(:health_products) do
+            create_list(
+              :benefit_markets_products_health_products_health_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_issuer, :metal_level, :single_product],
+              service_area: service_area,
+              metal_level_kind: :gold
+            )
+          end
 
-          let!(:dental_products) { create_list(:benefit_markets_products_dental_products_dental_product, 5,
-            application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-            product_package_kinds: [:single_product],
-            service_area: service_area,
-            metal_level_kind: :dental)
-          }
+          let!(:dental_products) do
+            create_list(
+              :benefit_markets_products_dental_products_dental_product,
+              5,
+              issuer_profile: issuer_profile,
+              application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+              product_package_kinds: [:single_product],
+              service_area: service_area,
+              metal_level_kind: :dental
+            )
+          end
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
-  
+
           it "does build valid renewal benefit package" do
             expect(subject.valid?).to be_truthy
           end
 
           it "does not renew health sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:health)).to be_blank 
+            expect(subject.sponsored_benefit_for(:health)).to be_blank
           end
 
           it "does not renew dental sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:dental)).to be_blank 
+            expect(subject.sponsored_benefit_for(:dental)).to be_blank
           end
         end
 
-        context "when employer has conversion dental sponsored benefit" do 
+        context "when employer has conversion dental sponsored benefit" do
 
           let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
           let(:dental_sb) { current_bp.sponsored_benefits.unscoped.detect{|sb| sb.product_kind == :dental } }
@@ -303,7 +398,7 @@ module BenefitSponsors
           end
 
           it "does renew health sponsored benefit" do
-            expect(subject.sponsored_benefit_for(:health)).to be_present 
+            expect(subject.sponsored_benefit_for(:health)).to be_present
           end
 
           it "does renew health reference product" do
@@ -319,7 +414,7 @@ module BenefitSponsors
           it "does renew dental sponsored benefit" do
             expect(dental_sb.source_kind).to eq :conversion
             expect(subject.sponsored_benefit_for(:dental)).to be_present
-            expect(subject.sponsored_benefit_for(:dental).source_kind).to eq :benefit_sponsor_catalog 
+            expect(subject.sponsored_benefit_for(:dental).source_kind).to eq :benefit_sponsor_catalog
           end
 
           it "does renew dental reference product" do
@@ -381,13 +476,37 @@ module BenefitSponsors
       let(:renewal_product_package)    { renewal_benefit_market_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
       let(:product) { renewal_product_package.products[0] }
 
-      let!(:update_product){
+      let!(:update_product) do
         reference_product = current_benefit_package.sponsored_benefits.first.reference_product
         reference_product.renewal_product = product
         reference_product.save!
-      }
+      end
+
+      let(:active_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee)}
+      let(:renewal_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee)}
+
+      let!(:census_update) do
+        census_employee.benefit_group_assignments = [active_bga, renewal_bga]
+        census_employee.save!
+      end
+
+      let(:hbx_enrollment) do
+        create(
+          :hbx_enrollment,
+          :shop,
+          household: family.active_household,
+          product: cbp.sponsored_benefits.first.reference_product,
+          coverage_kind: :health,
+          effective_on: predecessor_application.start_on,
+          employee_role_id: census_employee.employee_role.id,
+          sponsored_benefit_package_id: cbp.id,
+          benefit_sponsorship: bs,
+          benefit_group_assignment: active_bga
+        )
+      end
 
       before do
+        allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
         census_employee.update_attributes(employee_role_id: employee_role.id)
         census_employee.employee_role.primary_family.active_household.hbx_enrollments << hbx_enrollment
         census_employee.employee_role.primary_family.save
@@ -436,9 +555,9 @@ module BenefitSponsors
         reference_product.renewal_product = product
         reference_product.save!
       }
-      
-      let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(benefit_sponsorship.service_areas_on(renewal_effective_date), renewal_effective_date) }
-      let(:renewal_application)             { initial_application.renew(renewal_benefit_sponsor_catalog) }
+
+      let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date) }
+      let!(:renewal_application)             { initial_application.renew }
       let(:renewal_benefit_package)         { renewal_application.benefit_packages.build }
 
       context "when renewal product missing" do
@@ -460,16 +579,40 @@ module BenefitSponsors
         end
       end
 
-      context "when renewal product offered by employer" do
+      context 'can_renew?' do
         let(:hbx_enrollment) { double(product: current_benefit_package.sponsored_benefits.first.reference_product, coverage_kind: :health, is_coverage_waived?: false, coverage_termination_pending?: false) }
-        let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(             
-            product_package_kind: :single_issuer
-          ) 
-        }
+        let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(product_package_kind: :single_issuer) }
+        let(:renewal_product) { create(:benefit_markets_products_product) }
 
         before do
           allow(sponsored_benefit).to receive(:products).and_return(renewal_product_package.products)
-          allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(sponsored_benefit) 
+          allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(sponsored_benefit)
+        end
+
+        it 'should return false if renewal product is not present' do
+          allow_any_instance_of(BenefitSponsors::SponsoredBenefits::SponsoredBenefit).to receive(:renewal_product).and_return(nil)
+          expect(renewal_benefit_package.can_renew?).to be_falsey
+        end
+
+        it 'should return false if renewal product is present and its rates are not present' do
+          allow_any_instance_of(BenefitSponsors::SponsoredBenefits::SponsoredBenefit).to receive(:renewal_product).and_return(renewal_product)
+          expect(renewal_benefit_package.can_renew?).to be_falsey
+        end
+
+        it 'should return false if renewal product is present and its rates are not present' do
+          allow_any_instance_of(BenefitSponsors::SponsoredBenefits::SponsoredBenefit).to receive(:renewal_product).and_return(renewal_product)
+          allow(renewal_benefit_package).to receive(:renewal_date).and_return(renewal_product.application_period.min)
+          expect(renewal_benefit_package.can_renew?).to be_truthy
+        end
+      end
+
+      context "when renewal product offered by employer" do
+        let(:hbx_enrollment) { double(product: current_benefit_package.sponsored_benefits.first.reference_product, coverage_kind: :health, is_coverage_waived?: false, coverage_termination_pending?: false) }
+        let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(product_package_kind: :single_issuer) }
+
+        before do
+          allow(sponsored_benefit).to receive(:products).and_return(renewal_product_package.products)
+          allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(sponsored_benefit)
         end
 
         it 'should return true' do
@@ -478,16 +621,13 @@ module BenefitSponsors
       end
 
       context "when renewal product not offered by employer" do
-        let(:product) {FactoryGirl.create(:benefit_markets_products_health_products_health_product)}
+        let(:product) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile)}
         let(:hbx_enrollment) { double(product: current_benefit_package.sponsored_benefits.first.reference_product, coverage_kind: :health, is_coverage_waived?: false, coverage_termination_pending?: false) }
-        let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(             
-            product_package_kind: :single_issuer
-          ) 
-        }
+        let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(product_package_kind: :single_issuer) }
 
         before do
           allow(sponsored_benefit).to receive(:products).and_return(renewal_product_package.products)
-          allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(sponsored_benefit) 
+          allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(sponsored_benefit)
         end
 
         it "should return false" do
@@ -537,22 +677,22 @@ module BenefitSponsors
       context 'when application got canceled due to ineligble state' do
 
 
-        context 'given employee coverages got canceled after application cancellation' do 
+        context 'given employee coverages got canceled after application cancellation' do
 
-          it 'should reinstate their canceled coverages' do 
+          it 'should reinstate their canceled coverages' do
           end
         end
 
         context 'given employee coverages got canceled before application cancellation' do
 
-          it 'should not reinstate their canceled coverages' do 
-          end 
+          it 'should not reinstate their canceled coverages' do
+          end
         end
       end
 
-      context 'when application not canceled due to ineligble state' do 
+      context 'when application not canceled due to ineligble state' do
 
-        it 'should not process any reinstatements on enrollments' do 
+        it 'should not process any reinstatements on enrollments' do
         end
       end
     end
@@ -680,6 +820,19 @@ module BenefitSponsors
           expect(hbx_enrollment.terminated_on).to eq hbx_enrollment_terminated_on
         end
       end
+
+      context "terminate_benefit_group_assignments", :dbclean => :after_each do
+
+        before :each do
+          @bga = initial_application.benefit_sponsorship.census_employees.first.benefit_group_assignments.first
+          @bga.update_attributes!(end_on: benefit_package.end_on)
+        end
+
+        it "should update benefit_group_assignment end_on if end_on < benefit_application end on" do
+          benefit_package.terminate_benefit_group_assignments
+          expect(benefit_package.end_on).to eq @bga.end_on
+        end
+      end
     end
 
     describe '.expire_member_benefits', :dbclean => :after_each do
@@ -785,6 +938,7 @@ module BenefitSponsors
         benefit_sponsorship: benefit_sponsorship,
         benefit_group_assignments: [benefit_group_assignment]
       )}
+      let!(:benefit_group_assignment_1) {FactoryGirl.create(:benefit_group_assignment, benefit_group: benefit_package, census_employee: census_employee_1)}
       let(:person_1)       { FactoryGirl.create(:person, :with_family) }
       let!(:family_1)       { person_1.primary_family }
       let!(:hbx_enrollment_1) {
@@ -838,6 +992,19 @@ module BenefitSponsors
 
         it "should update hbx_enrollment terminated_on if terminated_on > benefit_application end on" do
           expect(hbx_enrollment_1.terminated_on).to eq end_on
+        end
+      end
+
+      context "pending terminate_benefit_group_assignments", :dbclean => :after_each do
+        before :each do
+          @bga = initial_application.benefit_sponsorship.census_employees.first.benefit_group_assignments.first
+          @bga.update_attributes!(end_on: nil)
+        end
+
+        it "should update benefit_group_assignment end_on if end_on > benefit_application end on" do
+          expect(@bga.end_on).to eq nil
+          benefit_package.terminate_benefit_group_assignments
+          expect(@bga.end_on).to eq benefit_package.end_on
         end
       end
 

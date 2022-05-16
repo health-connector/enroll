@@ -6,33 +6,69 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   let(:current_effective_date)  { TimeKeeper.date_of_record }
 
   let!(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+  let(:service_area) do
+    county_zip_id = create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id
+    create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
+  end
+  let(:benefit_market) { site.benefit_markets.first }
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:current_benefit_market_catalog) do
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      issuer_profile: issuer_profile,
+      title: "SHOP Benefits for #{current_effective_date.year}",
+      application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
+    )
+  end
   let!(:organization_with_hbx_profile)  { site.owner_organization }
   let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
-  let!(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
-  let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-                              :with_benefit_package,
-                              :benefit_sponsorship => benefit_sponsorship,
-                              :aasm_state => :enrollment_closed,
-                              :effective_period =>  start_on..(start_on + 1.year) - 1.day
-  )}
-  let!(:benefit_package)  {benefit_application.benefit_packages.first}
+  let!(:benefit_sponsorship) do
+    sponsorship = employer_profile.add_benefit_sponsorship
+    sponsorship.save
+    sponsorship
+  end
+  let(:effective_period) { start_on..(start_on + 1.year) - 1.day }
+  let!(:benefit_application) do
+    application = FactoryGirl.create(
+      :benefit_sponsors_benefit_application,
+      :with_benefit_sponsor_catalog,
+      :with_benefit_package,
+      :benefit_sponsorship => benefit_sponsorship,
+      :aasm_state => :enrollment_closed,
+      :effective_period => effective_period
+    )
+    application.benefit_sponsor_catalog.save!
+    application
+  end
+
+  let!(:benefit_package) do
+    benefit_application.benefit_packages[0]
+  end
+
   let(:person)       { FactoryGirl.create(:person, :with_family) }
   let(:family)       { person.primary_family }
   let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, active_benefit_group_assignment: benefit_package.id ) }
   let(:employee_role)     { FactoryGirl.create(:benefit_sponsors_employee_role, employer_profile: employer_profile, person: person, census_employee_id: census_employee.id) }
   let!(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
 
-  let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product, 
-                        household: family.active_household, 
-                        aasm_state: "coverage_selected",
-                        effective_on: benefit_application.start_on,
-                        rating_area_id: benefit_application.recorded_rating_area_id,
-                        sponsored_benefit_id: benefit_application.benefit_packages.first.health_sponsored_benefit.id,
-                        sponsored_benefit_package_id:benefit_application.benefit_packages.first.id,
-                        benefit_sponsorship_id:benefit_application.benefit_sponsorship.id, 
-                        employee_role_id: employee_role.id,
-  )}
+  let!(:hbx_enrollment) do
+    FactoryGirl.create(
+      :hbx_enrollment,
+      :with_enrollment_members,
+      household: family.active_household,
+      aasm_state: "coverage_selected",
+      effective_on: benefit_application.start_on,
+      rating_area_id: benefit_application.recorded_rating_area_id,
+      sponsored_benefit_id: benefit_application.benefit_packages.first.health_sponsored_benefit.id,
+      sponsored_benefit_package_id: benefit_application.benefit_packages.first.id,
+      product_id: benefit_package.health_sponsored_benefit.reference_product.id,
+      benefit_sponsorship_id: benefit_application.benefit_sponsorship.id,
+      employee_role_id: employee_role.id
+    )
+  end
 
   before do
     census_employee.update_attributes(employee_role_id: employee_role.id)

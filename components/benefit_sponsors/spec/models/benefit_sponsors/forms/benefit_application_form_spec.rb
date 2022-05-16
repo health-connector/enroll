@@ -5,6 +5,11 @@ module BenefitSponsors
 
     subject { BenefitSponsors::Forms::BenefitApplicationForm.new }
 
+    let(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key) }
+    let(:organization)     { create(:benefit_sponsors_organizations_general_organization, "with_aca_shop_#{Settings.site.key}_employer_profile".to_sym, site: site) }
+    let(:employer_profile)    { organization.employer_profile }
+    let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+
     describe "model attributes" do
       it {
         [:start_on, :end_on, :open_enrollment_start_on, :open_enrollment_end_on, :admin_datatable_action].each do |key|
@@ -71,7 +76,8 @@ module BenefitSponsors
           :start_on => (TimeKeeper.date_of_record.beginning_of_month + 2.months).strftime("%m/%d/%Y"),
           :end_on => (TimeKeeper.date_of_record.beginning_of_month + 1.year + 2.months - 1.day).strftime("%m/%d/%Y"),
           :open_enrollment_start_on => (TimeKeeper.date_of_record.beginning_of_month).strftime("%m/%d/%Y"),
-          :open_enrollment_end_on => (TimeKeeper.date_of_record.beginning_of_month + 1.month + Settings.aca.shop_market.open_enrollment.monthly_end_on.days).strftime("%m/%d/%Y")
+          :open_enrollment_end_on => (TimeKeeper.date_of_record.beginning_of_month + 1.month + Settings.aca.shop_market.open_enrollment.monthly_end_on.days).strftime("%m/%d/%Y"),
+          :has_active_ba => false
         }
       }
 
@@ -84,7 +90,6 @@ module BenefitSponsors
     end
 
     describe ".submit_application" do
-      let!(:benefit_sponsorship) { FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
       let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(id: benefit_application.id) }
       let!(:service_object) { double("BenefitApplicationService")}
@@ -104,7 +109,6 @@ module BenefitSponsors
     end
 
     describe ".force_submit_application_with_eligibility_errors" do
-      let!(:benefit_sponsorship) { FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
       let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(id: benefit_application.id) }
       let!(:service_object) { double("BenefitApplicationService")}
@@ -118,7 +122,6 @@ module BenefitSponsors
     end
 
     describe ".revert" do
-      let!(:benefit_sponsorship) { FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
       let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(id: benefit_application.id) }
       let!(:service_object) { double("BenefitApplicationService")}
@@ -138,7 +141,6 @@ module BenefitSponsors
     end
 
     describe ".persist" do
-      let!(:benefit_sponsorship) { FactoryGirl.build(:benefit_sponsors_benefit_sponsorship)}
       let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application)}
       let!(:service_object) { double("BenefitApplicationService")}
@@ -178,8 +180,8 @@ module BenefitSponsors
           benefit_sponsorship_id: 'id',
           start_on: TimeKeeper.date_of_record + 3.months,
           end_on: TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
-          open_enrollment_start_on: TimeKeeper.date_of_record + 2.months,
-          open_enrollment_end_on: TimeKeeper.date_of_record + 2.months + 20.day
+          open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months),
+          open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day)
         }
       }
 
@@ -189,8 +191,8 @@ module BenefitSponsors
           benefit_sponsorship_id: 'id',
           start_on: TimeKeeper.date_of_record + 3.months,
           end_on:  TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
-          open_enrollment_start_on: TimeKeeper.date_of_record + 2.months + 20.day,
-          open_enrollment_end_on: TimeKeeper.date_of_record + 2.months
+          open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months + 20.day),
+          open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months)
         }
       }
 

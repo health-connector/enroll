@@ -17,24 +17,26 @@ module Effective
         }, :sortable => false, :filter => false
 
         table_column :dob, :label => 'DOB', :proc => Proc.new { |row|
-          row.dob
+          row.dob.strftime("%m/%d/%Y") if row.dob.present?
         }, :sortable => false, :filter => false
 
         table_column :hired_on, :proc => Proc.new { |row|
-          row.hired_on
+          row.hired_on.strftime("%m/%d/%Y") if row.hired_on.present?
         }, :sortable => false, :filter => false
 
         table_column :terminated_on, :proc => Proc.new { |row|
-          row.employment_terminated_on || "Active"
+          row.employment_terminated_on.present? ? row.employment_terminated_on.strftime("%m/%d/%Y") : "Active"
         }, :sortable => false, :filter => false, :visible => true
 
         table_column :status, :proc => Proc.new { |row|
           employee_state_format(row, row.aasm_state, row.employment_terminated_on)
         }, :sortable => false, :filter => false
 
-        table_column :benefit_package, :proc => Proc.new { |row|
-          row.active_benefit_group_assignment.benefit_group.title.capitalize if row.active_benefit_group_assignment.present?
-        }, :sortable => false, :filter => false
+        unless attributes['current_py_terminated']
+          table_column :benefit_package, :proc => proc { |row|
+            row.active_benefit_group_assignment.benefit_group.title.capitalize if row.active_benefit_group_assignment.present?
+          }, :sortable => false, :filter => false
+        end
 
         if attributes["renewal"]
           table_column :renewal_benefit_package, :label => 'Renewal Benefit Package', :proc => Proc.new { |row|
@@ -42,13 +44,27 @@ module Effective
           }, :filter => false, :sortable => false
         end
 
-        table_column :enrollment_status, :proc => Proc.new { |row|
+        if attributes["off_cycle"]
+          table_column :off_cycle_benefit_package, :label => 'Off-Cycle Benefit Package', :proc => proc { |row|
+            row.off_cycle_benefit_group_assignment.benefit_package.title.capitalize if row.off_cycle_benefit_group_assignment.present?
+          }, :filter => false, :sortable => false
+        end
+
+        unless attributes['current_py_terminated']
+          table_column :enrollment_status, :proc => proc { |row|
             enrollment_state(row)
-        }, :sortable => false, :filter => false
+          }, :sortable => false, :filter => false
+        end
 
         if attributes["renewal"]
           table_column :renewal_enrollment_status, :proc => Proc.new { |row|
             renewal_enrollment_state(row)
+          }, :filter => false, :sortable => false
+        end
+
+        if attributes["off_cycle"] && attributes["is_off_cycle_submitted"]
+          table_column :off_cycle_enrollment_status, :proc => proc { |row|
+            off_cycle_enrollment_state(row)
           }, :filter => false, :sortable => false
         end
 
@@ -80,21 +96,15 @@ module Effective
       end
 
       def cobra_possible? census_employee
-        return 'disabled' if census_employee.cobra_linked?
-        return 'disabled' if census_employee.cobra_eligible?
-        return 'disabled' if census_employee.rehired?
-        census_employee.active_or_pending_termination? ? 'ajax' : 'disabled'
+        census_employee.is_cobra_possible? ? 'ajax' : 'disabled'
       end
 
       def rehire_possible? census_employee
-        return 'disabled' if census_employee.cobra_linked?
-        return 'disabled' if census_employee.cobra_eligible?
-        return 'disabled' if census_employee.rehired?
-        census_employee.active_or_pending_termination? ? 'ajax' : 'disabled'
+        census_employee.is_rehired_possible? ? 'ajax' : 'disabled'
       end
 
       def terminate_possible? census_employee
-        census_employee.active_or_pending_termination? ? 'disabled' : 'ajax'
+        census_employee.is_terminate_possible? ? 'ajax' : 'disabled'
       end
 
       def nested_filter_definition

@@ -8,6 +8,8 @@ class BrokerRole
   PROVIDER_KINDS = %W[broker assister]
   BROKER_UPDATED_EVENT_NAME = "acapi.info.events.broker.updated"
 
+  BROKER_ROLE_STATUS_TYPES = ['applicant', 'certified', 'pending', 'decertified', 'denied', 'extended', 'all'].freeze
+
   MARKET_KINDS_OPTIONS = {
     "Individual & Family Marketplace ONLY" => "individual",
     "Small Business Marketplace ONLY" => "shop",
@@ -148,7 +150,9 @@ class BrokerRole
   end
 
   def phone
-    parent.phones.where(kind: "phone main").first || broker_agency_profile.phone || parent.phones.where(kind: "work").first rescue ""
+    parent.phones.where(kind: "work").first || parent.phones.where(kind: "main").first || broker_agency_profile.phone
+  rescue StandardError => _e
+    ""
   end
 
   def email=(new_email)

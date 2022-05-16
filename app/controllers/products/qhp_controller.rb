@@ -21,13 +21,13 @@ class Products::QhpController < ApplicationController
       @member_groups.each do |member_group|
         employee_cost_hash[member_group.group_enrollment.product.hios_id] = (member_group.group_enrollment.product_cost_total.to_f - member_group.group_enrollment.sponsor_contribution_total.to_f).round(2)
       end
-      @qhps = find_qhp_cost_share_variances.each do |qhp|
+      @qhps = find_qhp_cost_share_variances.compact.each do |qhp|
         qhp[:total_employee_cost] = employee_cost_hash[qhp.hios_plan_and_variant_id]
       end
     else
       tax_household = get_shopping_tax_household_from_person(current_user.person, @hbx_enrollment.effective_on.year)
       @plans = @hbx_enrollment.decorated_elected_plans(@coverage_kind)
-      @qhps = find_qhp_cost_share_variances
+      @qhps = find_qhp_cost_share_variances.compact
 
       @qhps = @qhps.each do |qhp|
         qhp.hios_plan_and_variant_id = qhp.hios_plan_and_variant_id[0..13] if @coverage_kind == "dental"
@@ -92,7 +92,6 @@ class Products::QhpController < ApplicationController
   end
 
   def find_qhp_cost_share_variances
-    Products::QhpCostShareVariance.find_qhp_cost_share_variances(@standard_component_ids, @active_year.to_i, @coverage_kind)
+    Products::QhpCostShareVariance.find_qhp_cost_share_variances(@standard_component_ids, @active_year.to_i, @coverage_kind) || []
   end
-
 end

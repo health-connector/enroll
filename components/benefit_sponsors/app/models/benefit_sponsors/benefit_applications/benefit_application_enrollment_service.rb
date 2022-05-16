@@ -13,18 +13,9 @@ module BenefitSponsors
 
     def renew_application
       if business_policy_satisfied_for?(:renew_benefit_application)
-        renewal_effective_date = benefit_application.effective_period.end.to_date.next_day
-        service_areas = benefit_application.benefit_sponsorship.service_areas_on(renewal_effective_date)
-        benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(service_areas, renewal_effective_date)
-
-        if benefit_sponsor_catalog
-          new_benefit_application = benefit_application.renew(benefit_sponsor_catalog)
-          if new_benefit_application.save
-            benefit_sponsor_catalog.save
-          end
-        end
-
-        [true, new_benefit_application, business_policy.success_results]
+        renewal_application = benefit_application.renew
+        renewal_application.save
+        [true, renewal_application, business_policy.success_results]
       else
         [false, benefit_application, business_policy.fail_results]
       end
@@ -33,6 +24,7 @@ module BenefitSponsors
     def revert_application
       if benefit_application.may_revert_application?
         benefit_application.revert_application!
+
         [true, benefit_application, {}]
       else
         [false, benefit_application]
@@ -138,14 +130,18 @@ module BenefitSponsors
     def end_open_enrollment(end_date = nil)
       if benefit_application.may_end_open_enrollment?
         benefit_application.update(open_enrollment_period: benefit_application.open_enrollment_period.min..end_date) if end_date.present?
-        benefit_application.end_open_enrollment!
 
         if business_policy_satisfied_for?(:end_open_enrollment)
-          benefit_application.approve_enrollment_eligiblity! if benefit_application.is_renewing? && benefit_application.may_approve_enrollment_eligiblity?
           calculate_pricing_determinations(benefit_application)
+          benefit_application.end_open_enrollment!
+          benefit_application.approve_enrollment_eligiblity! if benefit_application.is_renewing? && benefit_application.may_approve_enrollment_eligiblity?
+
           [true, benefit_application, business_policy.success_results]
         else
+          benefit_application.end_open_enrollment!
           benefit_application.deny_enrollment_eligiblity! if benefit_application.may_deny_enrollment_eligiblity?
+          benefit_application.benefit_packages.map(&:cancel_member_benefits) unless Settings.aca.shop_market.auto_cancel_ineligible
+
           [false, benefit_application, business_policy.fail_results]
         end
       end
@@ -348,6 +344,8 @@ module BenefitSponsors
     def validate_benefit_application_termination_date(end_on, termination_kind)
       errors = {}
       result = true
+      end_on = end_on.to_date
+
       if termination_kind == 'voluntary'
         if !allow_mid_month_voluntary_terms? && end_on != end_on.end_of_month
           result = false
@@ -414,7 +412,7 @@ module BenefitSponsors
     #TODO: FIX this
     def non_owner_employee_present?
       benefit_application.benefit_packages.any?{ |benefit_package|
-        benefit_package.census_employees_assigned_on(benefit_application.start_on, !benefit_application.is_renewing?).active.non_business_owner.present?
+        benefit_package.census_employees_assigned_on(benefit_application.start_on).active.non_business_owner.present?
       }
     end
   end

@@ -2,23 +2,21 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
         <h4 class="modal-title"><%= l10n('employers.plan_years.create_py_claim_bq') %></h4>
       </div>
+
       <div class="modal-body">
         <p>
           <%= l10n('br_quote_claim') %>
         </p>
-        <!-- form_for @employer_profile, url: {action: "link_from_quote"}, method: "get", class: "form-inline" do |f|  -->
         <%= form_for :employer_profile, url: sponsored_benefits.organizations_plan_design_proposal_claim_path(@employer_profile), method: "get", class: "form-inline" do |f| %>
-        <label><%= text_field_tag :claim_code, nil, placeholder: 'X X X X - X X X X', maxlength: 9 %></label>
-      </br></br>
-      <!--   <p><label><%= check_box_tag "import_roster", "yes", false %> Import roster</label></p>
-      </br> -->
-        <%= submit_tag l10n('claim_code'), class: 'btn btn-primary' %>
+          <label><%= text_field_tag :claim_code, nil, placeholder: 'X X X X - X X X X', maxlength: 9 %></label>
+          </br></br>
+          <%= submit_tag 'Claim Code', class: 'btn btn-primary' %>
         <%end%>
-
-
         <ul class="application-warnings"></ul>
       </div>
       <div class="modal-footer">
@@ -27,6 +25,3 @@
     </div>
   </div>
 </div>
-<script>
-
-</script>

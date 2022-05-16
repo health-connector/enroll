@@ -7,7 +7,13 @@
     </div>
     <% end %>
     <div class="col-xs-8">
-      <h1 class="heading-text"><%= l10n('benefits_cov_offered') %></h1>
+      <h1 class="heading-text">
+        <% if @benefit_applications.blank? || (@benefit_applications.coverage_effective.blank? && @benefit_applications.draft_state.present?) %>
+          <%= l10n("employers.plan_years.benefits_title_with_draft_py") %>
+        <% else %>
+          <%= l10n("employers.plan_years.benefits_title") %>
+        <% end %>
+      </h1>
     </div>
     <div class="col-xs-4">
       <% if site_broker_claim_quoting_enabled? %>
@@ -21,7 +27,7 @@
         <% end %>
       <% end %>
       <%#= pundit_span EmployerProfile,:updateable? %>
-        <% if @benefit_applications.present? && (@benefit_applications.published.blank? || (@benefit_applications.active.present? && @benefit_applications.canceled.select{ |ba| ba.start_on > @benefit_applications.active.first.end_on }.present?)) && !@benefit_applications.any?{|app| app.is_renewing?} %>
+        <% if @benefit_applications.present? && add_plan_year_button_business_rule(@benefit_sponsorship, @benefit_applications) %>
         <%= link_to l10n('add_plan_yr'), new_benefit_sponsorship_benefit_application_path(@benefit_sponsorship), class: "btn btn-default btn-block mt-1", data: {loading_text: "Loading..."}, onclick:"checkForDraftPlans(this)" %>
         <% end %>
       </span>
@@ -29,9 +35,11 @@
     <% unless @benefit_applications.blank? || @benefit_applications.published.present? %>
     <% if @employer_profile.renewal_benefit_application.blank? || @employer_profile.active_benefit_application.blank? %>
     <div class="col-xs-12">
-      <h4><%= l10n('.plan_info_and_pricing_text') %></h4>
       <h4>
-        <%= l10n('.publish_plan_yr_notification_text') %>
+        <%= l10n("employers.plan_years.benefits_with_plan") %>
+      </h4>
+      <h4>
+        <%= l10n("employers.plan_years.benefits_with_plan.important") %>
       </h4>
       <br/>
     </div>
@@ -161,13 +169,14 @@
         <% end %>
 
         <% benefit_application.benefit_packages.each do |package| %>
-        <div class="benefit-group">
-          <% # next if package.reference_plan_id.blank? %>
+          <div class="benefit-group">
+            <% # next if package.reference_plan_id.blank? %>
 
-          <% if package.is_default %>
-          <% active = 'active' %>
-          <% end %>
+            <% if package.is_default %>
+                <% active = 'active' %>
+            <% end %>
 
+<<<<<<< HEAD
           <div class="benefit-package">
 <!--             <a class='make_default_benefit_group_link' data-benefit-group-id="<%= package.id %>" data-href="<%#= employers_employer_profile_plan_year_make_default_benefit_group_path(@employer_profile, benefit_application.id) %>" data-plan-year-id="<%= benefit_application.id %>" href="#"
               style='display:none;'></a> -->
@@ -204,18 +213,18 @@
                     <% if benefit_application.terminated_on %>
                       <td>
                           <header><%= l10n('exchange.employer_applications.terminated_on') %></header>
-                      </td>
-                      <td>
-                         <p>
+                        </td>
+                        <td>
+                          <p>
                             <%= benefit_application.terminated_on.to_date.to_formatted_s :long_ordinal %>
-                         </p>
+                          </p>
+                        </td>
+                      <% end %>
+                    </tr>
+                    <tr>
+                      <td>
+                        <header><%= l10n('eligibility') %></header>
                       </td>
-                    <%end%>
-                  </tr>
-                  <tr>
-                    <td>
-                      <header><%= l10n('eligibility') %></header>
-                    </td>
                     <td>
                       <p>
                         <%= package.probation_period_display_name %>
@@ -226,21 +235,21 @@
               </div>
             </div>
 
-            <% package.sponsored_benefits.each do |sponsored_benefit| %>
-              <%= render 'sponsored_benefit', sponsored_benefit: sponsored_benefit %>
-            <% end %>
+              <% package.sponsored_benefits.each do |sponsored_benefit| %>
+                <%= render 'sponsored_benefit', sponsored_benefit: sponsored_benefit %>
+              <% end %>
 
 
-            <br class="clear"/>
-          </div>
+              <br class="clear"/>
+            </div>
             <%= pundit_span @employer_profile, :updateable? %>
-                <div class="below clear">
-                  <%= link_to "Delete Benefit Package <i class='fas fa-trash-alt' aria-hidden='true'></i> ".html_safe, "", data: { toggle: "modal", target: "#deleteBenefitPackageModal-#{package.id.to_s}" }, class: 'btn btn-default' if benefit_application.aasm_state.to_s == "draft" || benefit_application.aasm_state.to_s == "renewing_draft" %>
-                  <%= render partial: "benefit_sponsors/profiles/employers/benefit_packages/delete_benefit_package_modal", locals: { benefit_application: benefit_application, package: package } if benefit_application.aasm_state.to_s == "draft" || benefit_application.aasm_state.to_s == "renewing_draft" %>
-                </div>
+            <div class="below clear">
+              <%= link_to "Delete Benefit Package <i class='fas fa-trash-alt' aria-hidden='true'></i> ".html_safe, "", data: {toggle: "modal", target: "#deleteBenefitPackageModal-#{package.id.to_s}"}, class: 'btn btn-default' if benefit_application.aasm_state.to_s == "draft" || benefit_application.aasm_state.to_s == "renewing_draft" %>
+              <%= render partial: "benefit_sponsors/profiles/employers/benefit_packages/delete_benefit_package_modal", locals: {benefit_application: benefit_application, package: package} if benefit_application.aasm_state.to_s == "draft" || benefit_application.aasm_state.to_s == "renewing_draft" %>
+            </div>
             </span>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
         <br/>
         <br/>
 
@@ -248,12 +257,11 @@
 
         <%= render "benefit_sponsors/benefit_applications/benefit_applications/submit_application_modal", benefit_application: benefit_application %>
         <%= render "benefit_sponsors/benefit_applications/benefit_applications/revert_application_modal", benefit_application: benefit_application %>
-
+      </div>
     <% end %>
   <% else %>
       <h4>
-        It's time to create a benefits package. Select 'Add Plan Year' to create your first one. Most employers only create one benefits package but you'll have the opportunity to create more than one if you want to offer different benefits to different
-        groups of employees.
+        <%=l10n("employers.plan_years.benefits_without_plan")%>
       </h4>
       <br/>
       <%=pundit_span @employer_profile, :updateable?%>
@@ -261,7 +269,6 @@
       </span>
   <% end %>
   </div>
-</div>
 
 <%= render "benefit_sponsors/profiles/employers/benefit_applications/claim_quote_modal" %>
 

@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Phasing this out. We will use qhp_deductibles going forward
+# which supports saving multiple deductibles
 class Products::QhpDeductable
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -5,7 +9,7 @@ class Products::QhpDeductable
   embedded_in :qhp_cost_share_variance
 
   # Plan deductable list
-  field :deductible_type, type: String   
+  field :deductible_type, type: String
   field :in_network_tier_1_individual, type: String
   field :in_network_tier_1_family, type: String
   field :coinsurance_in_network_tier_1, type: String

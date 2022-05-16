@@ -75,7 +75,6 @@ class Employers::EmployerProfilesController < Employers::EmployersController
           end
         end
       else
-        params.permit!
         build_organization
         @employer_profile.attributes = params[:employer_profile]
         @organization.save(validate: false)
@@ -128,8 +127,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
   def update
     sanitize_employer_profile_params
-    params.permit!
-    @organization = Organization.find(params[:id])
+    @organization = Organization.find(params.permit(:id))
 
     #save duplicate office locations as json in case we need to refresh
     @organization_dup = @organization.office_locations.as_json
@@ -179,7 +177,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
   def export_census_employees
     respond_to do |format|
-      format.csv { send_data @employer_profile.census_employees.sorted.to_csv, filename: "#{@employer_profile.legal_name.parameterize.underscore}_census_employees_#{TimeKeeper.date_of_record}.csv" }
+      format.csv { send_data CensusEmployee.download_census_employees_roster(@employer_profile.id), filename: "#{@employer_profile.legal_name.parameterize.underscore}_census_employees_#{TimeKeeper.date_of_record}.csv" }
     end
   end
 
@@ -336,7 +334,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
     if params[:page].present?
       page_no = cur_page_no(@page_alphabets.first)
-      @census_employees = census_employees.where("last_name" => /^#{page_no}/i).page(params[:pagina])
+      @census_employees = census_employees.where("last_name" => /^#{Regexp.escape(page_no)}/i).page(params[:pagina])
       #@avaliable_employee_names ||= @census_employees.limit(20).map(&:full_name).map(&:strip).map {|name| name.squeeze(" ")}.uniq
     else
       @total_census_employees_quantity = census_employees.count

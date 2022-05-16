@@ -9,7 +9,7 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
     let(:benefit_sponsorship) {FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_initial_benefit_application)}
     let(:benefit_package) {benefit_sponsorship.benefit_applications.first.benefit_packages.first}
     let(:census_employee) {FactoryGirl.build(:benefit_sponsors_census_employee, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship)}
-    let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_package_id: benefit_package.id, census_employee: census_employee)}
+    let(:benefit_group_assignment) {FactoryGirl.create(:benefit_group_assignment, benefit_package_id: benefit_package.id, census_employee: census_employee, start_on: benefit_package.start_on, end_on: benefit_package.end_on)}
     let(:health_plan) {FactoryGirl.create(:plan, coverage_kind: "health")}
     let(:dental_plan) {FactoryGirl.create(:plan, coverage_kind: "dental", dental_level: "high")}
     let(:health_enrollment) {FactoryGirl.create(:hbx_enrollment,
@@ -118,6 +118,7 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
           before do
             allow_any_instance_of(BenefitSponsors::ModelEvents::HbxEnrollment).to receive(:notify_on_save).and_return(nil)
             employee_role.update_attributes!(census_employee_id: census_employee.id)
+            allow(health_enrollment).to receive(:update_employee_roster)
             health_enrollment.terminate_coverage!
             allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([health_enrollment])
           end
@@ -131,6 +132,7 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
           before do
             allow_any_instance_of(BenefitSponsors::ModelEvents::HbxEnrollment).to receive(:notify_on_save).and_return(nil)
             employee_role.update_attributes!(census_employee_id: census_employee.id)
+            allow(health_enrollment).to receive(:update_employee_roster)
             health_enrollment.schedule_coverage_termination!
             allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([health_enrollment])
           end

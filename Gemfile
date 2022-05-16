@@ -1,16 +1,20 @@
 source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '2.6.5'
 
 gem "benefit_markets", path: "components/benefit_markets"
 gem "benefit_sponsors", path: "components/benefit_sponsors"
 
 gem 'aasm', '~> 4.8.0'
-gem 'acapi', git: "https://github.com/dchbx/acapi.git", branch: 'development'
-gem 'addressable', '2.3.8'
+gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
+gem 'addressable', '2.8.0'
 gem 'animate-rails', '~> 1.0.7'
 gem 'aws-sdk', '2.2.4'
 gem 'bcrypt', '~> 3.1'
 gem 'bootstrap-multiselect-rails', '~> 0.9.9'
 gem 'bootstrap-slider-rails', '6.0.17'
+gem 'browser', '2.7.0'
 gem 'bson', '~> 4.3.0'
 gem 'carrierwave-mongoid', :require => 'carrierwave/mongoid'
 gem 'chosen-rails'
@@ -19,7 +23,7 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'combine_pdf'
 gem 'config', '~> 1.0.0'
 gem 'curl'
-gem 'devise', '>= 3.5.4'
+gem 'devise',  '~> 4.5'
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
 gem 'haml'
 gem 'httparty'
@@ -36,7 +40,7 @@ gem 'language_list', '~> 1.1.0'
 gem 'less-rails-bootstrap', '~> 3.3.1.0'
 gem 'mail', '2.6.3'
 gem 'maskedinput-rails'
-gem 'money-rails', '~> 1.3.0'
+gem 'money-rails', '~> 1.10.0'
 gem 'mongo', '2.5.1'
 gem 'mongo_session_store-rails4', '~> 6.0.0'
 gem 'mongoid', '~> 5.4.0'
@@ -46,14 +50,15 @@ gem 'mongoid-history'
 gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', git: 'https://github.com/adacosta/mongoid_rails_migrations.git', branch: 'master'
 gem 'mongoid_userstamp'
-gem 'nokogiri', '1.6.7.2'
+gem 'nokogiri', '1.9.1'
 gem 'nokogiri-happymapper', :require => 'happymapper'
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem "notifier",           path: "components/notifier"
-gem 'openhbx_cv2', git: 'https://github.com/dchbx/openhbx_cv2.git', branch: 'master'
+gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: 'trunk'
+gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', branch: 'trunk'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 1.0.1'
-gem 'rails', '4.2.7.1'
+gem 'rails', '4.2.11'
 gem 'rails-i18n', '4.0.8'
 gem 'recurring_select', :git => 'https://github.com/brianweiner/recurring_select'
 gem "recaptcha", '4.3.1', require: 'recaptcha/rails'
@@ -78,6 +83,7 @@ gem 'virtus'
 gem 'wicked_pdf', '1.0.6'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'webpacker'
+gem 'rubyXL'
 
 #######################################################
 # Removed gems
@@ -104,12 +110,13 @@ end
 group :development do
   gem "certified"
   gem 'overcommit'
-  gem 'rubocop', "0.54.0", require: false
+  gem 'rubocop', require: false
   gem 'rubocop-git'
   gem 'web-console', '2.3.0'
 end
 
 group :development, :test do
+  gem 'brakeman'
   gem 'capistrano', '3.3.5'
   gem 'capistrano-rails', '1.1.6'
   gem 'climate_control', '0.2.0'
@@ -117,7 +124,7 @@ group :development, :test do
   gem 'factory_girl_rails', '4.6.0'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
-  gem 'puma'
+  gem 'puma', '4.3.6'
   gem 'railroady', '~> 1.5.2'
   gem 'rspec-rails', '~> 3.4.2'
   gem 'rspec_junit_formatter', '0.2.3'
@@ -128,14 +135,15 @@ end
 
 group :test do
   gem 'action_mailer_cache_delivery', '~> 0.3.7'
-  gem 'capybara', '2.6.2'
+  gem 'capybara'
   gem 'capybara-screenshot'
-  gem 'cucumber', '2.3.3'
-  gem 'cucumber-rails', '1.4.3', :require => false
+  gem 'cucumber', '3.1.2'
+  gem 'cucumber-rails', '1.6.0', :require => false
   gem 'database_cleaner', '1.5.3'
   gem 'fakeredis', :require => 'fakeredis/rspec'
   gem 'mongoid-rspec', '3.0.0'
-  gem 'poltergeist'
+  gem 'selenium-webdriver', '3.14.0'
+  gem 'webdriver'
   gem 'rspec-instafail'
   gem 'rspec-benchmark'
   gem 'ruby-progressbar', '~> 1.7'
@@ -144,11 +152,12 @@ group :test do
   gem 'test-prof', '0.5.0'
   gem 'warden'
   gem 'watir'
+  gem 'webdrivers', '~> 3.0'
   gem 'webmock'
 end
 
 group :production do
-  gem 'eye', '0.8.0'
+  gem 'eye', '0.10.0'
   gem 'newrelic_rpm'
   gem 'unicorn', '~> 4.8.3'
 end

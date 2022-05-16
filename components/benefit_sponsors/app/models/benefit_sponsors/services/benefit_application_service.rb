@@ -13,9 +13,14 @@ module BenefitSponsors
       end
 
       def load_form_metadata(form)
-        schedular = BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new
         find_benefit_sponsorship(form)
-        form.start_on_options = schedular.start_on_options_with_schedule(form.admin_datatable_action)
+        form.has_active_ba = has_an_active_ba? if form.admin_datatable_action
+        form.start_on_options = filter_start_on_options(form)
+      end
+
+      def filter_start_on_options(form)
+        schedular = BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new
+        schedular.start_on_options_with_schedule(form.admin_datatable_action)
       end
 
       def load_form_params_from_resource(form)
@@ -36,33 +41,74 @@ module BenefitSponsors
         create_or_cancel_draft_ba(form, model_attributes)
       end
 
-      def can_create_draft_ba?
+      def has_an_active_ba?
         bas = benefit_sponsorship.benefit_applications
-        bas.active_states_per_dt_action.present? ? false : true
+        bas.active_states_per_dt_action.present?
+      end
+
+      def can_create_draft_ba?(form)
+        bas = benefit_sponsorship.benefit_applications
+        return true unless bas.present?
+
+        term_pending_bas = bas.termination_pending
+        if term_pending_bas.present?
+          !can_create_draft_for_tp?(term_pending_bas, form)
+        else
+          bas.active_states_per_dt_action.present? || bas.canceled.present? || bas.draft.present?
+        end
+      end
+
+      def can_create_draft_for_tp?(bas, form)
+        start_on_date = Date.strptime(form.start_on, "%m/%d/%Y")
+        bas.any? { |ba| ba.effective_period.cover?(start_on_date)}
+      end
+
+      def has_overlap_application?(model_attributes)
+        terminated_bas = @benefit_sponsorship.benefit_applications.terminated_or_termination_pending +
+                         @benefit_sponsorship.benefit_applications.enrollment_eligible +
+                         @benefit_sponsorship.benefit_applications.enrollment_closed
+        terminated_bas.any? {|ba| ba.effective_period.cover?(model_attributes[:effective_period].min)}
       end
 
       def create_or_cancel_draft_ba(form, model_attributes)
-        if form.admin_datatable_action && !can_create_draft_ba?
+        if form.admin_datatable_action && !can_create_draft_ba?(form) || has_overlap_application?(model_attributes)
           form.errors.add(:base, 'Existing plan year with overlapping coverage exists')
           [false, nil]
         else
-          #build cca/dc application
           benefit_application = benefit_application_factory.call(benefit_sponsorship, model_attributes)
           save_result, persisted_object = store(form, benefit_application)
           if save_result
-            benefit_sponsorship.revert_to_applicant! if benefit_sponsorship.may_revert_to_applicant? && !benefit_sponsorship.applicant?
-            cancel_draft_and_ineligible_applications(persisted_object)
+            if form.admin_datatable_action
+              terminate_active_applications(persisted_object)
+            elsif benefit_sponsorship.may_revert_to_applicant? && !benefit_sponsorship.applicant?
+              benefit_sponsorship.revert_to_applicant!
+            end
+            cancel_unwanted_applications(persisted_object, admin_datatable_action: form.admin_datatable_action)
           end
           [save_result, persisted_object]
         end
       end
 
-      def cancel_draft_and_ineligible_applications(benefit_application)
-        applications_for_cancel  = benefit_sponsorship.benefit_applications.draft_and_exception.select{|existing_application| existing_application != benefit_application}
-        applications_for_cancel += benefit_sponsorship.benefit_applications.enrollment_ineligible.to_a
+      def applications_for_cancel(benefit_application, admin_datatable_action)
+        applications = benefit_sponsorship.benefit_applications.draft_and_exception.reject { |existing_application| existing_application == benefit_application }
+                        # + benefit_sponsorship.benefit_applications.enrollment_ineligible.reject(&:is_renewing?)
+        applications += benefit_sponsorship.benefit_applications.enrolling.to_a + benefit_sponsorship.benefit_applications.enrollment_eligible.to_a if admin_datatable_action
+        applications
+      end
 
-        applications_for_cancel.each do |application|
+      def cancel_unwanted_applications(benefit_application, admin_datatable_action: false)
+        applications_for_cancel(benefit_application, admin_datatable_action).each do |application|
           application.cancel! if application.may_cancel?
+        end
+      end
+
+      def terminate_active_applications(new_ba)
+        termination_date = new_ba.start_on.prev_day
+        applications_for_termination = benefit_sponsorship.benefit_applications.where(aasm_state: :active).select { |ba| ba.effective_period.cover?(new_ba.start_on) }
+
+        applications_for_termination.each do |application|
+          enrollment_service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(application)
+          enrollment_service.schedule_termination(termination_date, TimeKeeper.date_of_record, "voluntary", "Other", true)
         end
       end
 
@@ -157,7 +203,8 @@ module BenefitSponsors
         valid_according_to_factory = benefit_application_factory.validate(benefit_application)
         if valid_according_to_factory
           benefit_sponsorship = benefit_application.benefit_sponsorship || find_benefit_sponsorship(form)
-          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.resolve_service_areas, benefit_application.effective_period.begin)
+          # TODO: enable it for new domain operations
+          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin)
           # assign_rating_and_service_area(benefit_application)
         else
           map_errors_for(benefit_application, onto: form)

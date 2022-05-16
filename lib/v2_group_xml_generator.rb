@@ -12,6 +12,7 @@
 # v2_group_xml_generator =  V2GroupXmlGenerator.new(feins, start_date, end_date)
 # v2_group_xml_generator.generate_xmls
 class V2GroupXmlGenerator
+  include ::FloatHelper
 
   XML_NS = "http://openhbx.org/api/terms/1.0"
 
@@ -35,6 +36,7 @@ class V2GroupXmlGenerator
     views_helper = ActionView::Base.new views
     views_helper.class.send(:include, EventsHelper)
     views_helper.class.send(:include, Config::AcaHelper)
+    views_helper.class.send(:include, FloatHelper)
 
     organizations_hash = {} # key is carrier name, value is the return object of remove_other_carrier_nodes()
 

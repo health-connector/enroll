@@ -85,6 +85,8 @@ module SponsoredBenefits
     let(:valid_session) { {} }
 
     before do
+      allow(plan_design_organization).to receive(:is_renewing_employer?).and_return false
+      benefit_application
       allow(subject).to receive(:current_person).and_return(current_person)
       allow(subject).to receive(:active_user).and_return(active_user)
       allow(current_person).to receive(:broker_role).and_return(broker_role)

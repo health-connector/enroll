@@ -1,7 +1,7 @@
 BenefitSponsors::Engine.routes.draw do
 
   namespace :profiles do
-    resources :registrations do
+    resources :registrations, :except => [:index] do
       post :counties_for_zip_code, on: :collection
     end
 
@@ -32,12 +32,14 @@ BenefitSponsors::Engine.routes.draw do
         get :export_census_employees
         post :bulk_employee_upload
         get :coverage_reports
+        get :estimate_cost
         collection do
           get :generate_sic_tree
           get :show_pending
         end
         member do
           get :inbox
+          get :show_invoice if Settings.aca.autopay_enabled
           get :download_invoice
         end
 
@@ -92,7 +94,7 @@ BenefitSponsors::Engine.routes.draw do
             get :calculate_employer_contributions
           end
 
-          collection do 
+          collection do
             get :calculate_employee_cost_details
             get :calculate_employer_contributions
           end

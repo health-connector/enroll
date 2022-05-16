@@ -11,13 +11,18 @@ module BenefitSponsors
     let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
     let(:benefit_market) { site.benefit_markets.first }
     let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
-    let!(:current_benefit_market_catalog) do
-      BenefitSponsors::ProductSpecHelpers.construct_cca_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
-      benefit_market.benefit_market_catalogs.where(
-        "application_period.min" => effective_period_start_on
-      ).first
-    end
 
+    let!(:current_benefit_market_catalog) do
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{effective_period_start_on.year}",
+        application_period: effective_period
+      )
+    end
+    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:service_areas) do
       ::BenefitMarkets::Locations::ServiceArea.where(
         :active_year => current_benefit_market_catalog.application_period.min.year
@@ -30,6 +35,7 @@ module BenefitSponsors
       ).first
     end
 
+    let!(:rating_area_next) { FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: current_benefit_market_catalog.application_period.min.year) }
     let(:current_effective_date)  { effective_period_start_on }
     let(:product_package) { current_benefit_market_catalog.product_packages.first }
     let!(:security_question)  { FactoryGirl.create_default :security_question }
@@ -96,6 +102,7 @@ module BenefitSponsors
           fte_count: "5",
           pte_count: "5",
           msp_count: "5",
+          benefit_sponsor_catalog_id: BSON::ObjectId.new
         }
       }
 

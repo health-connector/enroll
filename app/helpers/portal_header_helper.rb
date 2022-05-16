@@ -39,7 +39,8 @@ module PortalHeaderHelper
     broker_agency_profile = current_user.person.broker_role.broker_agency_profile
 
     #if class is from benefit sponsor
-    klass_name = broker_agency_profile.class.to_s.demodulize.constantize
+    model = broker_agency_profile.class.to_s.demodulize
+    klass_name = ["BrokerAgencyProfile"].include?(model) ? model.constantize : nil
 
     if broker_agency_profile.is_a? BrokerAgencyProfile
       main_app.broker_agencies_profile_path(id: current_user.person.broker_role.broker_agency_profile_id)

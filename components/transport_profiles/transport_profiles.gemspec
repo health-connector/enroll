@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = TransportProfiles::VERSION
   s.authors     = ["Trey Evans"]
   s.email       = ["lewis.r.evans@gmail.com"]
-  s.homepage    = "https://github.com/dchbx"
+  s.homepage    = "https://github.com/ideacrew"
   s.summary     = "Transport gateway credentials and providers"
   s.description = "Transport gateway credentials and providers"
   s.license     = "MIT"
@@ -19,12 +19,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '>= 4.2.0', '< 5.0'
   s.add_dependency 'mongoid', '5.4.0'
   s.add_dependency 'transport_gateway'
-  s.add_dependency 'nokogiri', '1.6.7.2'
+  s.add_dependency 'nokogiri', '1.9.1'
   s.add_dependency 'acapi'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'rubyzip', '1.2.1'
 
-  s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'rspec'
