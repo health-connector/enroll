@@ -51,6 +51,10 @@ class EmployeeEnrollInAPlan
     '[data-cuke="plan-count"]'
   end
 
+  def self.employer_name
+    '[data-cuke="employer-name"]'
+  end
+
   def self.coverage_for
     '[data-cuke="coevrage-for"]'
   end

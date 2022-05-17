@@ -876,6 +876,7 @@ end
 
 Then(/^\w+ should see plans count listed$/) do
   find_all(EmployeeEnrollInAPlan.plan_count).present?
+  find_all(EmployeeEnrollInAPlan.employer_name).present?
   find_all(EmployeeEnrollInAPlan.coverage_for).present?
 end
 
