@@ -114,7 +114,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
         within("#family_member_id_#{family_member.id}") do
           expect(page).to have_content dependent.first_name
           expect(page).not_to have_content "Dental Coverage"
-          expect(page).not_to have_content "Health Coverage"
+          expect(page).to have_content "Health Coverage"
         end
       end
     end
@@ -175,7 +175,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
         within("#family_member_id_#{family_member.id}") do
           expect(page).to have_content dependent.first_name
           expect(page).not_to have_content "Dental Coverage"
-          expect(page).not_to have_content "Health Coverage"
+          expect(page).to have_content "Health Coverage"
         end
       end
     end

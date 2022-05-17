@@ -33,9 +33,28 @@
           <% elsif  @organizer.event == "make_changes_for_dental" %>
             <%#= Do not display anything %>
           <% elsif @organizer.dig(:params, :cart).nil? && @organizer.benefit_package.health_sponsored_benefit.present?%>
-            <tr>
+            <table class="col-md-12" id="family_member_id_<%=family_member.id%>_health">
+                <tbody>
+                  <tr>
+                    <td style="padding: 2px;"> <strong><%= label_tag("family_member_ids[#{index}]",  "Health Coverage") %></strong></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell">
+                      <div class="radio-container">
+                        <div class="radio-input">
+                          <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', false, 'data-cuke': 'health-enroll-radio', disabled: 'true') %>
+                          <%= label_tag("health[enroll][#{index}]", "Enroll") %>
+                        </div>
+                        <div class="radio-input">
+                          <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio', disabled: 'true') %>
+                          <%= label_tag("health[waive][#{index}]", "Do Not Enroll") %>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
               <td class='<%= "member_health_errors_#{family_member.id}" %>' data-cuke='member_health_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'health') %></td>
-            </tr>
           <% end %>
           <% if (can_display_dental_coverage?(is_dental_coverage) && ["shop_for_plans", "make_changes_for_dental", "change_by_qle", "sign_up"].include?(@organizer.event))%>
             <table class="col-md-12" id="family_member_id_<%=family_member.id%>_dental">
@@ -62,9 +81,26 @@
           <% elsif @organizer.event == "make_changes_for_health" %>
             <%#= Do not display anything %>
           <% elsif @organizer.dig(:params, :cart).nil? && @organizer.benefit_package.dental_sponsored_benefit.present? %>
-            <tr>
-              <td class='<%= "member_dental_errors_#{family_member.id}" %>' data-cuke='member_dental_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'dental') %></td>
-            </tr>
+            <tbody>
+              <tr>
+                <td style="padding: 2px;"> <strong><%= label_tag("family_member_ids[#{index}]",  "Dental Coverage") %></strong></td>
+              </tr>
+              <tr>
+                <td class="table-cell">
+                  <div class="radio-container">
+                    <div class="radio-input">
+                      <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', false, 'data-cuke': 'health-enroll-radio', disabled: 'true') %>
+                      <%= label_tag("health[enroll][#{index}]", "Enroll") %>
+                    </div>
+                    <div class="radio-input">
+                      <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio', disabled: 'true') %>
+                      <%= label_tag("health[waive][#{index}]", "Do Not Enroll") %>
+                    </div>
+                  </div>
+                </td>
+                <td class='<%= "member_dental_errors_#{family_member.id}" %>' data-cuke='member_dental_error'><%= l10n("insured.group_selection.coverage_household_ineligible_coverage", coverage_kind: 'dental') %></td>
+              </tr>
+            </tbody>
           <% end %>
         </td>
       </tr>
