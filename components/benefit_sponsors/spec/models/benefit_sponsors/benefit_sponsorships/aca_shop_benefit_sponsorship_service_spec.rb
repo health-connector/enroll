@@ -69,14 +69,14 @@ module BenefitSponsors
     #   end
     # end
 
-    describe '.auto_cancel_enrollment_closed' do
-      let(:sponsorship_state)               { :applicant }
-      let(:initial_application_state)       { :enrollment_closed }
-      let(:renewal_application_state)       { :enrollment_closed }
+    describe '#auto_cancel_ineligible' do
 
       context  'when initial employer missed binder payment' do 
+        let(:sponsorship_state)               { :applicant }
+        let(:initial_application_state)       { :enrollment_closed }
+        let(:renewal_application_state)       { :enrollment_closed }
 
-        it "should move applications into ineligible state" do
+        it "should move applications into canceled state" do
           (april_sponsors + april_renewal_sponsors).each do |sponsor|
             benefit_application = sponsor.benefit_applications.detect{|application| application.is_renewing?}
             benefit_application = sponsor.benefit_applications.first if benefit_application.blank?
@@ -91,6 +91,28 @@ module BenefitSponsors
 
             expect(sponsor.applicant?).to be_truthy
             expect(benefit_application.canceled?).to be_truthy
+          end
+        end
+      end
+
+      context 'when employer has draft applications' do
+
+        let(:sponsorship_state)               { :applicant }
+        let(:initial_application_state)       { :draft }
+        let(:renewal_application_state)       { :draft }
+
+        it "should not move applications into canceled state" do
+          (april_sponsors + april_renewal_sponsors).each do |sponsor|
+            benefit_application = sponsor.benefit_applications.detect(&:is_renewing?)
+            benefit_application = sponsor.benefit_applications.first if benefit_application.blank?
+
+            sponsorship_service = subject.new(benefit_sponsorship: sponsor)
+            sponsorship_service.auto_cancel_ineligible
+
+            sponsor.reload
+            benefit_application.reload
+
+            expect(benefit_application.canceled?).to be_falsey
           end
         end
       end
@@ -172,23 +194,77 @@ module BenefitSponsors
       end
     end
 
-   describe ".update_fein" do
-    let(:benefit_sponsorship) { employer_organization.employer_profile.add_benefit_sponsorship }
-    let(:exisitng_org) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
-    let(:service_instance) { BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: benefit_sponsorship)}
-    let(:legal_name) { exisitng_org.legal_name }
+    describe ".update_fein" do
+      let(:benefit_sponsorship) do
+        sponsorship = employer_organization.employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
+      let(:exisitng_org) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
+      let(:service_instance) { BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: benefit_sponsorship)}
+      let(:legal_name) { exisitng_org.legal_name }
 
-    it "should update fein" do
-      service_instance.update_fein("048459845")
-      expect(benefit_sponsorship.organization.fein).to eq "048459845"
+      it "should update fein" do
+        service_instance.update_fein("048459845")
+        expect(benefit_sponsorship.organization.fein).to eq "048459845"
+      end
+
+      it "should not update fein" do
+        exisitng_org.update_attributes(fein: "098735672")
+        error_messages = service_instance.update_fein("098735672")
+        expect(error_messages[0]).to eq false
+        expect(error_messages[1].first).to eq("FEIN matches HBX ID #{exisitng_org.hbx_id}, #{exisitng_org.legal_name}")
+      end
     end
 
-     it "should not update fein" do
-      exisitng_org.update_attributes(fein: "098735672")
-      error_messages = service_instance.update_fein("098735672")
-      expect(error_messages[0]).to eq false
-      expect(error_messages[1].first).to eq ("FEIN matches HBX ID #{exisitng_org.hbx_id}, #{exisitng_org.legal_name}")
-     end
-   end
+    describe ".transmit_renewal_carrier_drop_event" do
+      let!(:benefit_market) { site.benefit_markets.first }
+      let!(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
+      let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_dc_employer_profile_renewal_application, site: site)}
+      let(:employer_profile) {organization.employer_profile}
+      let(:benefit_package) { employer_profile.latest_benefit_application.benefit_packages.first }
+      let!(:health_sponsored_benefit) {benefit_package.health_sponsored_benefit}
+      let!(:issuer_profile)  { FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile) }
+      let!(:renewal_application)  { employer_profile.renewal_benefit_application }
+      let!(:active_application)  { employer_profile.active_benefit_application }
+      let!(:active_application_product)  do
+        FactoryGirl.create(:benefit_markets_products_health_products_health_product,
+                          application_period: TimeKeeper.date_of_record.beginning_of_year.last_year..TimeKeeper.date_of_record.end_of_year.last_year,
+                          issuer_profile_id: issuer_profile.id)
+      end
+      let!(:new_renewal_app_product)  { FactoryGirl.create(:benefit_markets_products_health_products_health_product)}
+      let!(:update_benefit_application) do
+        active_application.benefit_sponsor_catalog.product_packages.where(product_kind: :health).first.update_attributes(package_kind: :single_product)
+        renewal_application.benefit_sponsor_catalog.product_packages.where(product_kind: :health).first.update_attributes(package_kind: :single_product)
+        renewal_application.update_attributes!(aasm_state: :enrollment_eligible)
+        active_application.benefit_packages.first.health_sponsored_benefit.update_attributes(reference_product_id: active_application_product.id, product_package_kind: :single_product)
+        renewal_application.benefit_packages.first.health_sponsored_benefit.update_attributes(product_package_kind: :single_product)
+        product = renewal_application.benefit_packages.first.health_sponsored_benefit.reference_product
+        product.update_attributes(issuer_profile_id: issuer_profile.id)
+      end
+
+      let!(:service_instance)  { subject.new(benefit_sponsorship: employer_profile.active_benefit_sponsorship) }
+
+      context "change in renewal application products" do
+        before do
+          sponsored_benefit = renewal_application.benefit_packages.first.health_sponsored_benefit
+          sponsored_benefit.update_attributes(reference_product_id: new_renewal_app_product.id)
+        end
+
+        it "should notify carrier drop event" do
+          expect(service_instance).to receive(:notify).with('acapi.info.events.employer.benefit_coverage_renewal_carrier_dropped', {employer_id: employer_profile.hbx_id, event_name: "benefit_coverage_renewal_carrier_dropped"})
+          service_instance.transmit_renewal_carrier_drop_event
+        end
+      end
+
+      context "NO change in renewal application products" do
+
+        it "should not notify carrier drop event" do
+          expect(service_instance).to receive(:notify).exactly(0).times
+          service_instance.transmit_renewal_carrier_drop_event
+        end
+      end
+
+    end
   end
 end

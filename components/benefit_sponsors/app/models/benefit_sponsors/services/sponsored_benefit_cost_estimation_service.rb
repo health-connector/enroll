@@ -24,8 +24,10 @@ module BenefitSponsors
             estimated_enrollee_maximum: tier_costs.max
           }
         else
-          lowest_cost_product = package.lowest_cost_product(sponsored_benefit.benefit_package.start_on)
-          highest_cost_product = package.highest_cost_product(sponsored_benefit.benefit_package.start_on)
+          issuer_hios_ids = reference_product.carrier_profile_hios_ids if package.package_kind == :single_issuer
+
+          lowest_cost_product = package.lowest_cost_product(benefit_application.start_on, issuer_hios_ids)
+          highest_cost_product = package.highest_cost_product(benefit_application.start_on, issuer_hios_ids)
           group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
           sponsored_benefit_with_lowest_cost_product  = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, lowest_cost_product, package)
           sponsored_benefit_with_highest_cost_product = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, highest_cost_product, package)
@@ -70,8 +72,10 @@ module BenefitSponsors
             estimated_enrollee_maximum: tier_costs.max
           }
         else
-          lowest_cost_product = package.lowest_cost_product(sponsored_benefit.benefit_package.start_on)
-          highest_cost_product = package.highest_cost_product(sponsored_benefit.benefit_package.start_on)
+          issuer_hios_ids = reference_product.carrier_profile_hios_ids if package.package_kind == :single_issuer
+
+          lowest_cost_product = package.lowest_cost_product(benefit_application.start_on, issuer_hios_ids)
+          highest_cost_product = package.highest_cost_product(benefit_application.start_on, issuer_hios_ids)
           group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
           sponsored_benefit_with_lowest_cost_product  = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, lowest_cost_product, package)
           sponsored_benefit_with_highest_cost_product = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, highest_cost_product, package)
@@ -112,6 +116,7 @@ module BenefitSponsors
       protected
 
       def calculate_employee_estimates_for_package_action(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
+        # TODO: Sometimes benefit_application/benefit_sponsorship are nil, gotta figure out if its from the form
         cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
         sponsor_contribution, total, employer_costs = cost_estimator.calculate(
           sponsored_benefit,
@@ -143,8 +148,11 @@ module BenefitSponsors
             }
           end
         else
-          lowest_cost_product = package.lowest_cost_product(benefit_application.start_on)
-          highest_cost_product = package.highest_cost_product(benefit_application.start_on)
+          issuer_hios_ids = reference_product.carrier_profile_hios_ids if package.package_kind == :single_issuer
+
+          lowest_cost_product = package.lowest_cost_product(benefit_application.start_on, issuer_hios_ids)
+          highest_cost_product = package.highest_cost_product(benefit_application.start_on, issuer_hios_ids)
+
           group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
 
           sponsored_benefit_with_lowest_cost_product  = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, lowest_cost_product, package)
@@ -201,8 +209,10 @@ module BenefitSponsors
             estimated_enrollee_maximum: tier_costs.max
           }
         else
-          lowest_cost_product = package.lowest_cost_product(benefit_application.start_on)
-          highest_cost_product = package.highest_cost_product(benefit_application.start_on)
+          issuer_hios_ids = reference_product.carrier_profile_hios_ids if package.package_kind == :single_issuer
+
+          lowest_cost_product = package.lowest_cost_product(benefit_application.start_on, issuer_hios_ids)
+          highest_cost_product = package.highest_cost_product(benefit_application.start_on, issuer_hios_ids)
           group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
           sponsored_benefit_with_lowest_cost_product  = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, lowest_cost_product, package)
           sponsored_benefit_with_highest_cost_product = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, highest_cost_product, package)

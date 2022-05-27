@@ -20,6 +20,7 @@ module BenefitSponsors
       attribute :benefit_sponsorship_id, String
       attribute :start_on_options, Hash
       attribute :admin_datatable_action, Boolean, default: false
+      attribute :has_active_ba, Boolean, default: false
 
       validates :start_on, presence: true
       validates :end_on, presence: true
@@ -119,9 +120,7 @@ module BenefitSponsors
       end
 
       def validate_oe_dates
-        if admin_datatable_action && open_enrollment_end_on <= open_enrollment_start_on
-          errors.add(:base, "Open Enrollment Start Date can't be later than the Open Enrollment End Date")
-        end
+        errors.add(:base, "Open Enrollment Start Date can't be later than the Open Enrollment End Date") if admin_datatable_action && Date.strptime(open_enrollment_end_on,'%m/%d/%Y') <= Date.strptime(open_enrollment_start_on,'%m/%d/%Y')
       end
 
       def validate_application_dates

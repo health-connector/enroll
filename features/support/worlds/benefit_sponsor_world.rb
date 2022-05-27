@@ -9,13 +9,16 @@ module BenefitSponsorWorld
   end
 
   def benefit_sponsor_catalog(employer = nil)
-    @benefit_sponsor_catalog ||= benefit_sponsorship(employer).benefit_sponsor_catalog_for(service_areas, effective_period.min).tap(&:save!)
+    @benefit_sponsor_catalog ||= benefit_sponsorship(employer).benefit_sponsor_catalog_for(effective_period.min).tap(&:save!)
   end
 
   def issuer_profile
     @issuer_profile ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site)
   end
 
+  def dental_issuer_profile
+    @dental_issuer_profile ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site)
+  end
 end
 
 World(BenefitSponsorWorld)

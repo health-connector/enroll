@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = TransportGateway::VERSION
   s.authors     = ["Dan Thomas"]
   s.email       = ["dan@ideacrew.com"]
-  s.homepage    = "https://github.com/dchbx"
+  s.homepage    = "https://github.com/ideacrew"
   s.summary     = %q{A gateway for receiving and forwarding messages over various protocols}
   s.description = %q{A gateway that abstracts and transmits message payloads over SMTP, SFTP, HTTP, file and other protocols}
   s.license     = "MIT"
@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'net-ssh', '4.2.0'
   s.add_dependency 'aws-sdk', '~> 2.2.4'
 
-  s.add_development_dependency 'rspec-rails'
+  s.add_development_dependency 'rspec-rails', '3.4.2'
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'rspec'

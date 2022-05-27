@@ -11,6 +11,9 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
+    COMBINED_MEDICAL = 'Combined Medical and Drug EHB Deductible'.freeze
+    MEDICAL_ONLY = 'Medical EHB Deductible'.freeze
+    DRUG_ONLY = 'Drug EHB Deductible'.freeze
 
     field :benefit_market_kind,   type: Symbol
 
@@ -120,13 +123,18 @@ module BenefitMarkets
     # ex: application_period --> [2018-02-01 00:00:00 UTC..2019-01-31 00:00:00 UTC]
     #     BenefitProduct avilable for both 2018 and 2019
     # output: might pull multiple records
-    scope :by_application_period,       ->(application_period){ 
+    scope :by_application_period,       lambda{|application_period|
       where(
         "$or" => [
           {"application_period.min" => {"$lte" => application_period.max, "$gte" => application_period.min}},
           {"application_period.max" => {"$lte" => application_period.max, "$gte" => application_period.min}},
           {"application_period.min" => {"$lte" => application_period.min}, "application_period.max" => {"$gte" => application_period.max}}
         ])
+    }
+
+    scope :by_year, lambda {|year|
+      where('$and' => [{'application_period.min' => {'$lte' => Date.new(year.to_i)}},
+                       {'application_period.max' => {'$gte' => Date.new(year.to_i).end_of_year}}])
     }
 
     #Products retrieval by type
@@ -140,7 +148,7 @@ module BenefitMarkets
     # only be evaluated once.
     def self.by_coverage_date(collection, coverage_date)
       collection.select do |product|
-        product.premium_tables.any? do |pt| 
+        product.premium_tables.any? do |pt|
           (pt.effective_period.min <= coverage_date) && (pt.effective_period.max >= coverage_date)
         end
       end
@@ -183,20 +191,36 @@ module BenefitMarkets
     end
 
     def min_cost_for_application_period(effective_date)
-      p_tables = premium_tables.effective_period_cover(effective_date)
-      if premium_tables.any?
-        p_tables.flat_map(&:premium_tuples).select do |pt|
-          pt.age == premium_ages.min
-        end.min_by { |pt| pt.cost }.cost
+      Rails.cache.fetch("min-cost-#{id}-#{effective_date}", expires_in: 12.hour) do
+        BenefitMarkets::Products::Product.collection.aggregate(
+          [
+            {'$match' => {'_id' => id}},
+            {'$unwind' => '$premium_tables'},
+            {'$match' => {'premium_tables.effective_period.min' => {'$lte' => effective_date}}},
+            {'$match' => {'premium_tables.effective_period.max' => {'$gte' => effective_date}}},
+            {'$unwind' => '$premium_tables.premium_tuples'},
+            {'$match' => {'premium_tables.premium_tuples.age' => {'$eq' => premium_ages.min}}},
+            {'$group' => {'_id' => 0, 'cost' => {'$min' => '$premium_tables.premium_tuples.cost'}}},
+            {'$project' => {'_id' => 0}}
+          ]
+        ).to_a.first['cost']
       end
     end
 
     def max_cost_for_application_period(effective_date)
-      p_tables = premium_tables.effective_period_cover(effective_date)
-      if premium_tables.any?
-        p_tables.flat_map(&:premium_tuples).select do |pt|
-          pt.age == premium_ages.min
-        end.max_by { |pt| pt.cost }.cost
+      Rails.cache.fetch("max-cost-#{id}-#{effective_date}", expires_in: 12.hour) do
+        BenefitMarkets::Products::Product.collection.aggregate(
+          [
+            {'$match' => {'_id' => id}},
+            {'$unwind' => '$premium_tables'},
+            {'$match' => {'premium_tables.effective_period.min' => {'$lte' => effective_date}}},
+            {'$match' => {'premium_tables.effective_period.max' => {'$gte' => effective_date}}},
+            {'$unwind' => '$premium_tables.premium_tuples'},
+            {'$match' => {'premium_tables.premium_tuples.age' => {'$eq' => premium_ages.min}}},
+            {'$group' => {'_id' => 0, 'cost' => {'$max' => '$premium_tables.premium_tuples.cost'}}},
+            {'$project' => {'_id' => 0}}
+          ]
+        ).to_a.first['cost']
       end
     end
 
@@ -314,6 +338,44 @@ module BenefitMarkets
       end
     end
 
+    def qhp_cost_share_variance
+      ::Products::QhpCostShareVariance.find_qhp_cost_share_variance(hios_id, active_year, kind.to_s).first
+    end
+
+    def deductibles
+      Rails.cache.fetch("product_deductibles_#{id}_#{kind}", expires_in: 1.week) do
+        qhp_cost_share_variance&.qhp_deductibles
+      end
+    end
+
+    def medical_deductible
+      deductibles&.detect{ |a| [COMBINED_MEDICAL, MEDICAL_ONLY].include?(a.deductible_type) }
+    end
+
+    def drug_deductible
+      deductibles&.detect{ |a| a.deductible_type == DRUG_ONLY }
+    end
+
+    def medical_individual_deductible
+      medical_deductible&.individual
+    end
+
+    def medical_family_deductible
+      medical_deductible&.family
+    end
+
+    def rx_individual_deductible
+      return 'N/A' if drug_deductible.blank?
+
+      drug_deductible.individual
+    end
+
+    def rx_family_deductible
+      return 'N/A' if drug_deductible.blank?
+
+      drug_deductible.family
+    end
+
     def health?
       kind == :health
     end
@@ -322,12 +384,13 @@ module BenefitMarkets
       kind == :dental
     end
 
-    # private
+    private
+
     # self.class.new(attrs_without_tuples)
     # def attrs_without_tuples
     #   attributes.inject({}) do |attrs, (key, val)|
     #     if key == "premium_tables"
-    #       attrs[key] = val.map do |pt| 
+    #       attrs[key] = val.map do |pt|
     #         pt.tap {|t| t.delete("premium_tuples") }
     #       end
     #     elsif key == "sbc_document"
@@ -338,5 +401,9 @@ module BenefitMarkets
     #     attrs
     #   end
     # end
+
+    def carrier_profile_hios_ids
+      issuer_profile&.issuer_hios_ids
+    end
   end
 end

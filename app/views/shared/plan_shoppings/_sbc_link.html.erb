@@ -1,25 +1,28 @@
+<% bc_text = (defined? plan_shopping) ?  "<span>Benefits and Coverage</span>": "Benefits and Coverage" %>
 <% custom_css = (defined? custom_css) ? custom_css : false %>
+<% link_text = ("Summary of " + bc_text).html_safe %>
+<% link_text_class = "Summary-of-Benefits-and-Coverage" %>
+<% text_class = "health" %>
+<% plan_kind = (plan.try(:kind) || plan.try(:coverage_kind)).to_s %>
+<% text_class = "dental" unless plan_kind == "health" %>
 <% if plan.sbc_document.present? %>
-  <% plan_kind = (plan.try(:kind) || plan.try(:coverage_kind)).to_s %>
-  <% link_text = "Summary of Benefits and Coverage" %>
-  <% link_text_class = "Summary-of-Benefits-and-Coverage" %>
   <% link_text = "Plan Summary" unless plan_kind == "health" %>
   <% link_text_class = "plan-summary" unless plan_kind == "health" %>
   <% icon_class = "pull-left" unless plan_kind == "health" %>
-  <% text_class = "health" %>
-  <% text_class = "dental" unless plan_kind == "health" %>
-
   <% key, bucket = get_key_and_bucket(plan.sbc_document.identifier) %>
   <% plan_name = plan.try(:title) || plan.try(:name) %>
   <%= link_to(main_app.document_download_path(bucket, key) + "?content_type=application/pdf&filename=#{plan_name.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline", class: "sbc_link #{text_class} vertically-aligned-row", :target => "_blank") do %>
     <% if custom_css.present? %>
-      <i class="fa fa-file-pdf-o fa-2x pull-left" ></i>
-      <div class="fa-icon-label <%= text_class %>" style="display: inline; font-size: 10px;"><%= link_text %></div>
+      <i class="fa fa-file-pdf-o fa-2x pull-left mr-1" ></i>
+      <div class="fa-icon-label <%= text_class %> sbc-text" style="display: inline; font-size: 10px;"><%= link_text %></div>
     <% else %>
-      <i class="far fa-file-pdf fa-2x <%= icon_class %>" ></i>
-      <span class = "<%= link_text_class %>"><%= link_text %></span>
+      <i class="far fa-file-pdf fa-2x <%= icon_class %> mr-1" ></i>
+      <div class="<%= link_text_class %> sbc-text" style="padding-left: 5px"><%= link_text %></div>
     <% end %>
   <% end %>
 <% else %>
-  <i class="far fa-file-pdf fa-2x <%= text_class %> no-plan-sbc-doc-found"></i><span class="<%= link_text_class %>"><%= link_text %></span>
+  <span style="display: flex;">
+    <i class="far fa-file-pdf fa-2x <%= text_class %> no-plan-sbc-doc-found mr-1"></i>
+    <div class="<%= link_text_class %> sbc-text" style="padding-left: 0px"><%= link_text %></div>
+  </span>
 <% end %>

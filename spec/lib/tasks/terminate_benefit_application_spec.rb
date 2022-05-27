@@ -13,7 +13,7 @@ describe 'terminating employer active benefit application & enrollments', :dbcle
     let!(:sponsored_benefit_package) { initial_application.benefit_packages[0] }
     let!(:employer_profile) {benefit_sponsorship.profile}
     let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
-    let(:employee_role)     { FactoryGirl.create(:employee_role)}
+    let(:employee_role)     { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: employer_profile.id, employer_profile_id: nil)}
     let!(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
     let!(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id) }
     let!(:termination_date){TimeKeeper.date_of_record.strftime('%m/%d/%Y')}

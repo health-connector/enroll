@@ -35,8 +35,11 @@ RSpec.describe ApplicationHelper, :type => :helper do
     let(:benefit_sponsorship){ double("benefit_sponsorship") }
 
     context "when active_benefit_application is present" do
-      it "should return false" do
+      before do
         allow(benefit_sponsorship).to receive(:active_benefit_application).and_return(true)
+      end
+
+      it "should return false" do
         expect(helper.product_rates_available?(benefit_sponsorship)).to eq false
       end
     end
@@ -46,8 +49,9 @@ RSpec.describe ApplicationHelper, :type => :helper do
         allow(benefit_sponsorship).to receive(:active_benefit_application).and_return(false)
         allow(benefit_sponsorship).to receive(:applicant?).and_return(true)
       end
+
       it "should return false if not in late rates" do
-        expect(helper.product_rates_available?(benefit_sponsorship)).to eq false
+        expect(helper.product_rates_available?(benefit_sponsorship, TimeKeeper.date_of_record)).to eq false
       end
 
       it "should return true if during late rates" do
@@ -141,6 +145,44 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
     it "display progress bar" do
       expect(helper.enrollment_progress_bar(plan_year, 1, minimum: false)).to include('<div class="progress-wrapper employer-dummy">')
+    end
+
+    context 'when only one employee is enrolled out of 2' do
+      let!(:census_employees) { create_list(:census_employee, 2, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
+
+      context 'for employers with relaxed rules - no minimum participation requirement' do
+        # No minimum participation requirements
+        let(:minimum_participation) { 0 }
+
+        before do
+          allow(plan_year).to receive(:total_enrolled_count).and_return(1)
+          allow(plan_year).to receive_message_chain(:non_business_owner_enrolled, :count).and_return(1)
+          allow(plan_year).to receive(:progressbar_covered_count).and_return(1)
+          allow(plan_year).to receive(:waived_count).and_return(0)
+
+        end
+
+        it 'should display in green' do
+          expect(helper.enrollment_progress_bar(plan_year, minimum_participation)).to include('<div class="progress-bar progress-bar-success')
+        end
+      end
+
+      context 'for regular employers' do
+        # 2/3 minimum participation is required
+        let(:minimum_participation) { 2 }
+
+        before do
+          allow(plan_year).to receive(:total_enrolled_count).and_return(1)
+          allow(plan_year).to receive_message_chain(:non_business_owner_enrolled, :count).and_return(1)
+          allow(plan_year).to receive(:progressbar_covered_count).and_return(1)
+          allow(plan_year).to receive(:waived_count).and_return(0)
+
+        end
+
+        it 'should display in green' do
+          expect(helper.enrollment_progress_bar(plan_year, minimum_participation)).to include('<div class="progress-bar progress-bar-danger')
+        end
+      end
     end
 
     context ">200 census employees" do
@@ -270,17 +312,60 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
   describe "#calculate_participation_minimum" do
-    let(:plan_year_1) { double("PlanYear", eligible_to_enroll_count: 5) }
-    before do
-      @current_plan_year = plan_year_1
-    end
-    it "should  return 0 when eligible_to_enroll_count is zero" do
-      expect(@current_plan_year).to receive(:eligible_to_enroll_count).and_return(0)
-      expect(helper.calculate_participation_minimum).to eq 0
+
+    context 'initial employers' do
+
+      let(:plan_year_1) { double("PlanYear", eligible_to_enroll_count: 5, is_renewing?: false) }
+
+      it "should return 0 when eligible_to_enroll_count is zero" do
+        @current_plan_year = plan_year_1
+        expect(@current_plan_year).to receive(:eligible_to_enroll_count).and_return(0)
+        expect(helper.calculate_participation_minimum).to eq 0
+      end
+
+      context "should calculate eligible_to_enroll_count when not zero" do
+        let(:flex_plan_year) { double("PlanYear", start_on: Date.new(2021, 3, 1), eligible_to_enroll_count: 5, is_renewing?: false) }
+        let(:standard_plan_year) { double("PlanYear", start_on: Date.new(2029, 3, 1), eligible_to_enroll_count: 5, is_renewing?: false) }
+
+        let(:min_participation_count_for_flex) do
+          (flex_plan_year.eligible_to_enroll_count * 0).ceil
+        end
+
+        let(:min_participation_count_for_standard) do
+          (standard_plan_year.eligible_to_enroll_count * Settings.aca.shop_market.employee_participation_ratio_minimum).ceil
+        end
+
+        before do
+          allow(flex_plan_year).to receive(:employee_participation_ratio_minimum).and_return(0)
+          allow(standard_plan_year).to receive(:employee_participation_ratio_minimum).and_return(Settings.aca.shop_market.employee_participation_ratio_minimum)
+        end
+
+        it 'for employer eligible for flexible contribution model' do
+          @current_plan_year = flex_plan_year
+          expect(helper.calculate_participation_minimum.ceil).to eq min_participation_count_for_flex
+        end
+
+        it 'for employer NOT eligible for flexible contribution model' do
+          @current_plan_year = standard_plan_year
+          expect(helper.calculate_participation_minimum.ceil).to eq min_participation_count_for_standard
+        end
+      end
     end
 
-    it "should calculate eligible_to_enroll_count when not zero" do
-      expect(helper.calculate_participation_minimum.ceil).to eq 4
+    context 'renewing employers' do
+      let(:renewing_plan_year) { double("PlanYear", eligible_to_enroll_count: 5, is_renewing?: true) }
+      let(:min_participation_count) do
+        (renewing_plan_year.eligible_to_enroll_count * Settings.aca.shop_market.employee_participation_ratio_minimum).ceil
+      end
+
+      before do
+        allow(renewing_plan_year).to receive(:employee_participation_ratio_minimum).and_return(Settings.aca.shop_market.employee_participation_ratio_minimum)
+      end
+
+      it 'should calculate eligible_to_enroll_count' do
+        @current_plan_year = renewing_plan_year
+        expect(helper.calculate_participation_minimum.ceil).to eq min_participation_count
+      end
     end
   end
 
@@ -441,6 +526,38 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
     it "should return nil given an invalid enrollment ID" do
       expect(helper.find_plan_name(invalid_enrollment_id)).to eq  nil
+    end
+  end
+
+  describe 'participation_rule', :dbclean => :after_each do
+    include_context 'setup benefit market with market catalogs and product packages'
+    include_context 'setup initial benefit application' do
+      let(:aasm_state) {:enrollment_closed}
+    end
+    include_context 'setup employees with benefits'
+    let!(:employer) {abc_profile}
+    let!(:date_range) do
+      date = initial_application.effective_period.min.beginning_of_year
+      date..date + 12.months - 1.day
+    end
+
+    context 'for 1/1 plan year' do
+      it 'should return yes' do
+        initial_application.update_attributes(effective_period: date_range)
+        expect(helper.participation_rule(employer)).to eq '1. 2/3 Rule Met? : Yes'
+      end
+    end
+
+    context 'for non 1/1 plan year' do
+      let(:start_on) { date_range.min + 1.month }
+      let(:end_on)  { date_range.max + 1.month }
+      let!(:initial_application_update) {initial_application.update_attributes(effective_period: start_on..end_on)}
+
+      it 'should return no' do
+        display_text =
+          EnrollRegistry.feature_enabled?("aca_shop_fetch_enrollment_minimum_participation_#{start_on.year}".to_sym) ? "1. 2/3 Rule Met? : Yes" : '1. 2/3 Rule Met? : No (4 more required)'
+        expect(helper.participation_rule(employer)).to eq display_text
+      end
     end
   end
 end

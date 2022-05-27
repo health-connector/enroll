@@ -199,7 +199,9 @@ module Factories
       census_employee.employer_profile = employer_profile
       employee_role.employer_profile = employer_profile
       census_employee.benefit_group_assignments.each do |bga|
-        if bga.coverage_selected? && bga.hbx_enrollment.present? && !bga.hbx_enrollment.inactive?
+        next unless bga.hbx_enrollment.present?
+
+        if bga.hbx_enrollment.coverage_selected? && bga.hbx_enrollment.present? && !bga.hbx_enrollment.inactive?
           bga.hbx_enrollment.employee_role_id = employee_role.id
           bga.hbx_enrollment.save
         end
@@ -225,6 +227,7 @@ module Factories
     def self.build_employee_role(person, person_new, employer_profile, census_employee, hired_on)
       role = find_or_build_employee_role(person, employer_profile, census_employee, hired_on)
       self.link_census_employee(census_employee, role, employer_profile)
+      validate_and_update_person(person, census_employee, employer_profile)
       family, primary_applicant = self.initialize_family(person, census_employee.census_dependents)
       family.family_members.map(&:__association_reload_on_person)
       family.save_relevant_coverage_households
@@ -260,6 +263,8 @@ module Factories
       if person.present? && person.persisted?
         relationship = person_relationship_for(dependent.employee_relationship)
         primary.ensure_relationship_with(person, relationship)
+        primary.save!
+        family.primary_applicant.person = primary
         family.add_family_member(person) unless family.find_family_member_by_person(person)
       end
       person
@@ -308,6 +313,14 @@ module Factories
     def self.find_or_build_resident_role(person)
       return person.resident_role if person.resident_role.present?
       person.build_resident_role(is_applicant: true)
+    end
+
+    def self.validate_and_update_person(person, census_employee, employer_profile)
+      return unless person.employer_staff_roles
+      return unless person.employer_staff_roles.map(&:benefit_sponsor_employer_profile_id).include?(employer_profile.id)
+      return unless person.ssn.blank? || person.gender.blank?
+
+      person.update_attributes(ssn: census_employee.ssn, gender: census_employee.gender)
     end
 
     private

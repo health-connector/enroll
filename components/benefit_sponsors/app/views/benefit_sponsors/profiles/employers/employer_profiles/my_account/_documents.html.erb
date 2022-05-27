@@ -3,9 +3,7 @@
 
   <div class="col-md-12">
     <h1 class="heading-text">Verification of Employer Eligibility</h1>
-    <p class="twenty">Before you can complete your application, you will need to submit proof of your eligibility to shop as a small business through the <%= Settings.site.short_name %>. You will need to submit this proof before you are able to finalize your plan year.</p>
-    <p class="twenty"> Please review our list of <%= link_to "documents that can be used as proof", Settings.aca.shop_market.valid_employer_attestation_documents_url %> and ensure that you have the right documentation available.
-    </p>
+    <p class="twenty"><%= l10n("employers.employer_profiles.my_account.eligibility_verification_html", link_to: Settings.aca.shop_market.valid_employer_attestation_documents_url) %></p>
   </div>
 
   <div class="pull-right upload-document-location">
@@ -27,7 +25,7 @@
                 <button class="btn btn-default" onclick='printDoc("<%=doc.id%>")'>Print</button>
               </p>
               <p id="print_<%=doc.id%>">
-                <iframe src="<%= main_app.document_download_path(bucket, key) + "?id=#{@employer_profile.id}&content_type=#{doc.format}&filename=#{doc.title.gsub(/[^0-9a-z]/i,'')}&disposition=inline" %>" width="100%" height="600" frameborder="0" scrolling="no" name="iframe_<%= doc.id%>"></iframe>
+                <iframe src="<%= main_app.document_download_path(bucket, key) + "?id=#{@employer_profile.id}&content_type=#{doc.format}&filename=#{doc.title.gsub(/[^0-9a-z]/i,'')}&disposition=inline#zoom=50" %>" width="100%" height="600" frameborder="0" scrolling="no" name="iframe_<%= doc.id%>"></iframe>
               </p>
             </div>
           </div>

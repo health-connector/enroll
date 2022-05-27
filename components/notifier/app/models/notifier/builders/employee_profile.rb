@@ -107,6 +107,16 @@ module Notifier
       merge_model.census_employee.latest_terminated_dental_enrollment_plan_name.present?
     end
 
+    def has_parent_enrollment?
+      bgas = []
+      bgas << census_employee_record.active_benefit_group_assignment
+      bgas << census_employee_record.renewal_benefit_group_assignment
+      waiver_enr = bgas.compact.flat_map(&:hbx_enrollments).select {|en| HbxEnrollment::WAIVED_STATUSES.include?(en.aasm_state)}.first
+      return false if waiver_enr.blank?
+
+      waiver_enr.parent_enrollment.present?
+    end
+
     def has_multiple_enrolled_enrollments?
       enrolled_enrollments.size > 1
     end
@@ -163,9 +173,9 @@ module Notifier
     end
 
     def dependent_termination_date
-      merge_model.dependent_termination_date = format_date(TimeKeeper.date_of_record.end_of_month)
+      term_date = payload["notice_params"]["dependent_termination_date"].present? ? Date.strptime(payload["notice_params"]["dependent_termination_date"].to_s, "%m/%d/%Y") : TimeKeeper.date_of_record.end_of_month
+      merge_model.dependent_termination_date = format_date(term_date)
     end
-    
     # Using same merge model for special enrollment period and qualifying life event kind.
     def special_enrollment_period
       return @special_enrollment_period if defined? @special_enrollment_period

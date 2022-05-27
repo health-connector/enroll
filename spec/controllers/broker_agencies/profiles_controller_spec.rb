@@ -75,7 +75,7 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :after_each do
         office_locations_attributes: {
           "0"=> {
             "address_attributes" => {"kind"=>"primary", "address_1"=>"234 nfgjkhghf", "address_2"=>"", "city"=>"jfhgdfhgjgdf", "state"=>"DC", "zip"=>"35645"},
-            "phone_attributes"=> {"kind"=>"phone main", "area_code"=>"564", "number"=>"111-1111", "extension"=>"111"}
+            "phone_attributes" => { "kind" => "work", "area_code" => "564", "number" => "111-1111", "extension" => "111" }
           }
         }
       }
@@ -89,7 +89,7 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :after_each do
     end
 
     it "should update person main phone" do
-      broker_agency_profile.primary_broker_role.person.phones[0].update_attributes(kind: "phone main")
+      broker_agency_profile.primary_broker_role.person.phones[0].update_attributes(kind: "work")
       post :update, id: broker_agency_profile.id, organization: organization_params
        broker_agency_profile.primary_broker_role.person.reload
        expect(broker_agency_profile.primary_broker_role.person.phones[0].extension).to eq "111"
@@ -112,6 +112,29 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :after_each do
       broker_agency_profile.reload
       expect(broker_agency_profile.accept_new_clients).to be_truthy
       expect(broker_agency_profile.working_hours).to be_truthy
+    end
+  end
+
+  describe "GET index - no broker agency profile present" do
+    let(:user) { double("user", :has_hbx_staff_role? => true, :has_broker_agency_staff_role? => false)}
+    # Blank broker agency staff role simulates a blank broker_agency_profile_id
+    let(:person) { double("person", broker_agency_staff_roles: [])}
+    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:hbx_profile) { double("hbx_profile")}
+
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(false)
+      allow(user).to receive(:has_csr_role?).and_return(false)
+      allow(user).to receive(:has_broker_role?).and_return(true)
+      allow(user).to receive(:person).and_return(person)
+      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
+      allow(user).to receive(:has_broker_agency_staff_role?).and_return(true)
+      sign_in(user)
+      get :index
+    end
+    it "should redirect to new path" do
+      expect(response).to redirect_to(new_broker_agencies_profile_path)
     end
   end
 

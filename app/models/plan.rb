@@ -437,6 +437,28 @@ class Plan
     end
   end
 
+  def product
+    @product ||= ::BenefitMarkets::Products::Product.by_year(active_year)
+                                                    .where(hios_id: hios_id)
+                                                    .first
+  end
+
+  def medical_individual_deductible
+    product.medical_individual_deductible
+  end
+
+  def medical_family_deductible
+    product.medical_family_deductible
+  end
+
+  def rx_individual_deductible
+    product.rx_individual_deductible
+  end
+
+  def rx_family_deductible
+    product.rx_family_deductible
+  end
+
   def ehb
     percent = read_attribute(:ehb)
     (percent && percent > 0) ? percent : 1

@@ -488,10 +488,11 @@ describe Family do
       let(:family_member_person) { FamilyMember.new(is_primary_applicant: true, is_consent_applicant: true, person: person) }
 
       let(:qlek) { FactoryGirl.build(:qualifying_life_event_kind, reason: 'death') }
-      let(:date) { TimeKeeper.date_of_record - 10.days }
+      let(:date) { (TimeKeeper.date_of_record + 1.month).beginning_of_month + 20.days }
       let(:normal_sep) { FactoryGirl.build(:special_enrollment_period, family: family, qle_on: date) }
       let(:death_sep) { FactoryGirl.build(:special_enrollment_period, family: family, qle_on: date, qualifying_life_event_kind: qlek) }
       let(:hbx) { HbxEnrollment.new }
+      let(:end_of_month) { date.end_of_month }
 
       before do
         allow(family).to receive(:primary_applicant).and_return family_member_person
@@ -511,11 +512,11 @@ describe Family do
         allow(family).to receive(:latest_shop_sep).and_return normal_sep
         allow(normal_sep).to receive(:qle_on).and_return date.end_of_month
         allow(hbx).to receive(:effective_on).and_return (date.end_of_month)
-        expect(family.terminate_date_for_shop_by_enrollment(hbx)).to eq (TimeKeeper.date_of_record.end_of_month)
+        expect(family.terminate_date_for_shop_by_enrollment(hbx)).to eq end_of_month
       end
 
       it "when qle_on is less than hbx effective_on" do
-        effective_on = date + 10.days
+        effective_on = date.end_of_month
         allow(family).to receive(:latest_shop_sep).and_return normal_sep
         allow(hbx).to receive(:effective_on).and_return effective_on
         expect(family.terminate_date_for_shop_by_enrollment(hbx)).to eq effective_on
@@ -1445,5 +1446,31 @@ describe "active dependents" do
   it 'should return 1 active dependent when one of the family member is inactive' do
     allow(family_member2).to receive(:is_active).and_return(false)
     expect(family.active_dependents.count).to eq 1
+  end
+end
+
+describe "terminated_enrollments", dbclean: :before_each do
+
+  let!(:person) { FactoryGirl.create(:person)}
+  let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+  let!(:household) { FactoryGirl.create(:household, family: family) }
+  let!(:termination_pending_enrollment) { family.active_household.hbx_enrollments.create!(
+                                            coverage_kind: "health",
+                                            kind:"employer_sponsored",
+                                            aasm_state: 'coverage_termination_pending'
+                                            )}
+  let!(:terminated_enrollment) { family.active_household.hbx_enrollments.create!(
+                                    coverage_kind: "health",
+                                    kind:"employer_sponsored",
+                                    aasm_state: 'coverage_terminated') }
+
+  let!(:expired_enrollment) { family.active_household.hbx_enrollments.create!(
+                                      coverage_kind: "health",
+                                      kind:"employer_sponsored",
+                                      aasm_state: 'coverage_expired') }
+
+  it "should include termination and termination pending enrollments only" do
+    expect(family.terminated_enrollments.count).to eq 2
+    expect(family.terminated_enrollments.map(&:aasm_state)).to eq ["coverage_termination_pending", "coverage_terminated"]
   end
 end

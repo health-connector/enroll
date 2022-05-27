@@ -44,8 +44,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.6.0)
-      public_suffix (>= 2.0.2, < 4.0)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     arel (6.0.4)
     aws-sdk (2.2.37)
       aws-sdk-resources (= 2.2.37)
@@ -79,7 +79,7 @@ GEM
     net-ssh (4.2.0)
     nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
-    public_suffix (3.0.3)
+    public_suffix (4.0.6)
     rack (1.6.11)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -120,7 +120,7 @@ GEM
     rspec-mocks (3.8.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
-    rspec-rails (3.8.2)
+    rspec-rails (3.4.2)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       railties (>= 3.0)
@@ -153,10 +153,10 @@ PLATFORMS
 
 DEPENDENCIES
   rspec
-  rspec-rails
+  rspec-rails (= 3.4.2)
   shoulda-matchers
   transport_gateway!
   webmock
 
 BUNDLED WITH
-   1.14.6
+   1.17.3

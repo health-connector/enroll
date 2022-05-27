@@ -121,11 +121,22 @@ module SponsoredBenefits
       end
 
       def new_proposal_state
-        if employer_profile.present? && employer_profile.active_plan_year.present?
+        if is_renewing_employer?
           'renewing_draft'
         else
           'draft'
         end
+      end
+
+      def valid_plan_design_organization
+        pdp_obj = build_proposal_from_existing_employer_profile
+        result = pdp_obj.plan_design_organization.save
+        pdp_obj = result ? pdp_obj : nil
+        [result, pdp_obj]
+      end
+
+      def is_renewing_employer?
+        employer_profile.present? && employer_profile.active_plan_year.present?
       end
 
       def build_proposal_from_existing_employer_profile

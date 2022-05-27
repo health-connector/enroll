@@ -89,7 +89,7 @@ namespace :load_rating_factors do
                 end
 
                 if is_participation_rate_rating_tier?(rating_factor_class)
-                  factor_key = (factor_key * 100).to_i
+                  factor_key = (factor_key * 100).round(2).to_i
                 end
 
                 factor_value = sheet.cell(i,carrier_column) || 1.0
@@ -174,7 +174,7 @@ namespace :load_rating_factors do
                     end
 
                     if is_participation_rate_rating_tier?(rating_factor_class)
-                      factor_key = (factor_key * 100).to_i
+                      factor_key = (factor_key * 100).round(2).to_i
                     end
 
                     factor_set.rating_factor_entries.new(
@@ -210,14 +210,7 @@ namespace :load_rating_factors do
   end
 
   def number_of_carriers
-    case(@year)
-    when 2017
-      return 12
-    when 2018
-      return 12
-    when 2019
-      return 12
-    end
+    12
   end
 
   def is_group_size_rating_tier?(rating_factor_class)

@@ -7,6 +7,7 @@
     <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
     carrier_id: "#{ck}",
     selected_carrier_level: selected_carrier_level,
+    quote_effective_date: quote_effective_date,
     active_year: active_year), remote: true, :id => "sole_source_#{ck}_link" do %><% end %>
     <div class="col-xs-9">
         <label for="sole_source_<%= ck %>"><h3 class="pdp-titles-class"><%= cv %></h3></label>
@@ -25,6 +26,7 @@
     <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
     carrier_id: "#{ck}",
     selected_carrier_level: selected_carrier_level,
+    quote_effective_date: quote_effective_date,
     active_year: active_year), remote: true, :id => "single_carrier_#{ck}_link" do %><% end %>
     <div class="col-xs-9">
         <label for="single_carrier_<%= ck %>"><h3 class="pdp-titles-class"><%= cv %></h3></label>
@@ -43,6 +45,7 @@
     <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
     carrier_id: "#{ck}",
     selected_carrier_level: selected_carrier_level,
+    quote_effective_date: quote_effective_date,
     kind: kind,
     active_year: active_year), remote: true, :id => "single_plan_#{ck}_link" do %><% end %>
     <div class="col-xs-9">
@@ -66,6 +69,7 @@
         <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
           selected_carrier_level: 'metal_level',
           metal_level: kind,
+          quote_effective_date: quote_effective_date,
           active_year: active_year), remote: true, :id => "#{kind}_link" do %><% end %>
 
             <div class="col-xs-9">

@@ -19,7 +19,7 @@
           <span class="glyphicon glyphicon-user hidden-md hidden-sm hidden-lg" title="Families"></span>
         <% end %>
       </li>
-      <% if current_user.has_broker_agency_staff_role? %>
+      <% if current_user&.has_broker_agency_staff_role? %>
         <li role="presentation" id="brokers-tab" <%= menu_tab_class(active_tab, "brokers-tab") %>>
           <%= link_to(main_app.broker_agencies_profile_applicants_path(@broker_agency_profile), :remote => true, "aria-expanded" => "true", "aria-controls" => "brokers", "role" => "tab" ) do  %>
             <span class="hidden-xs">Brokers</span>

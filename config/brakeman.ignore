@@ -1,0 +1,769 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "088566b895fef0855e7c446a17c5f13dca0a3088568ab7edcd76cd529278c45c",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/layouts/_flash.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "ScheduledEvent.new(scheduled_event_params).errors.values.flatten.to_sentence",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Exchanges::ScheduledEventsController",
+          "method": "create",
+          "line": 24,
+          "file": "app/controllers/exchanges/scheduled_events_controller.rb",
+          "rendered": {
+            "name": "exchanges/scheduled_events/new",
+            "file": "app/views/exchanges/scheduled_events/new.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "exchanges/scheduled_events/new",
+          "line": 4,
+          "file": "app/views/exchanges/scheduled_events/new.js.erb",
+          "rendered": {
+            "name": "layouts/_flash",
+            "file": "app/views/layouts/_flash.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "layouts/_flash"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "132c37aeaaedb5c65a6e90b1ab75386acec6e2264bbcb81a0c5f780acd2e232f",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "app/data_migrations/cancel_plan_years_group.rb",
+      "line": 24,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "system(\"rake migrations:cancel_plan_year feins='#{row[\"FEIN\"]}' plan_year_state='#{row[\"aasm_state\"]}'\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CancelPlanYearsGroup",
+        "method": "migrate"
+      },
+      "user_input": "row[\"FEIN\"]",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "298d8884d21115556e92df2dee059cd83403047fa17704ac1a2cd0f11aaa4737",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "components/benefit_sponsors/app/controllers/benefit_sponsors/profiles/registrations_controller.rb",
+      "line": 100,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params[:agency].permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BenefitSponsors::Profiles::RegistrationsController",
+        "method": "registration_params"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "2abcc91e2361ce7f713a146b33bd0245f29717af3d4c5647bb10b9795f773268",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "project_gems/effective_datatables-2.6.14/app/models/effective/active_record_datatable_tool.rb",
+      "line": 45,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "collection.order(\"#{(\"\" or \"ISNULL(#{sql_column}), \")}#{sql_column.sub(\"_id\", \"_type\")} #{(\"DESC\" or \"ASC\")}, #{sql_column} #{(\"DESC\" or \"ASC\")}#{(\"\" or (\" NULLS FIRST\" or if (table_column[:nulls] == :last) then\n  \" NULLS LAST\"\nelse\n  \" NULLS #{(direction == :desc) ? (\"FIRST\") : (\"LAST\")}\"\nend))}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Effective::ActiveRecordDatatableTool",
+        "method": "order_column_with_defaults"
+      },
+      "user_input": "sql_column",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 7,
+      "fingerprint": "367e4b918fbbde1349709e45df6d4ed56e0b769aaf8a5766035dc4cb44280e86",
+      "check_name": "ForgerySetting",
+      "message": "`protect_from_forgery` should be called in `TransportGateway::ApplicationController`",
+      "file": "components/transport_gateway/app/controllers/transport_gateway/application_controller.rb",
+      "line": 2,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "controller",
+        "controller": "TransportGateway::ApplicationController"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "3a011fae12dad6be9867045b9be69d5baa81b72d1e01f8e0d357628c0085e4af",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/exchanges/broker_applicants_controller.rb",
+      "line": 47,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:person).require(:broker_role_attributes).permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Exchanges::BrokerApplicantsController",
+        "method": "update"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "3a011fae12dad6be9867045b9be69d5baa81b72d1e01f8e0d357628c0085e4af",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/exchanges/broker_applicants_controller.rb",
+      "line": 56,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:person).require(:broker_role_attributes).permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Exchanges::BrokerApplicantsController",
+        "method": "update"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "3a011fae12dad6be9867045b9be69d5baa81b72d1e01f8e0d357628c0085e4af",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/exchanges/broker_applicants_controller.rb",
+      "line": 61,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:person).require(:broker_role_attributes).permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Exchanges::BrokerApplicantsController",
+        "method": "update"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "3b10520b857ca031c7fa624d6b2603201c4f7fca7710e7a99a0725c9d320a6cf",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "project_gems/effective_datatables-2.6.14/app/models/effective/active_record_datatable_tool.rb",
+      "line": 47,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "collection.order(\"#{sql_column} #{(\"DESC\" or \"ASC\")}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Effective::ActiveRecordDatatableTool",
+        "method": "order_column_with_defaults"
+      },
+      "user_input": "sql_column",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "49f890491d7c2afee6adea867d0d98443cdb5c3b778e2830afb39614ce7362c7",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "lib/transcript_generator.rb",
+      "line": 48,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.open(\"#{TRANSCRIPT_PATH}/#{@count}_#{Transcripts::PersonTranscript.new.transcript[:identifier]}_#{Time.now.to_i}.bin\", \"wb\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TranscriptGenerator",
+        "method": "build_transcript"
+      },
+      "user_input": "Transcripts::PersonTranscript.new.transcript[:identifier]",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "4e89187f690ca3faaa37b5db914a7eb944919ff6b233b009346baa212bf31658",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/employers/premium_statements/_show.html.erb",
+      "line": 12,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::PremiumBillingReportDataTable.new(:id => params.require(:id), :billing_date => (@billing_date)), :sDom => \"<'row'<'col-sm-5'> <'col-sm-5'f> >\", :autowidth => true, :buttons => ([\"csv\", \"excel\"]), :lengthMenu => ([[10, 25, 50, -1], [10, 25, 50, \"All\"]]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Employers::PremiumStatementsController",
+          "method": "show",
+          "line": 17,
+          "file": "app/controllers/employers/premium_statements_controller.rb",
+          "rendered": {
+            "name": "employers/premium_statements/show",
+            "file": "app/views/employers/premium_statements/show.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "employers/premium_statements/show",
+          "line": 2,
+          "file": "app/views/employers/premium_statements/show.js.erb",
+          "rendered": {
+            "name": "employers/premium_statements/_show",
+            "file": "app/views/employers/premium_statements/_show.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "employers/premium_statements/_show"
+      },
+      "user_input": "params.require(:id)",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "66641281ab94a441074632175a6432d3e03269b9a693bd7588e0d3f11738abb0",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/employers/people_controller.rb",
+      "line": 33,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Employers::PeopleController",
+        "method": "match"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "6da7d9920ebb17cac7e152a36ad8020219121041f815c56eefc1867fb48a4379",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/general_agencies/profiles/_employers.html.erb",
+      "line": 5,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::GeneralAgencyDataTable.new(:id => params[:id]), :lengthMenu => ([[10, 25, 50, -1], [10, 25, 50, \"All\"]]), :buttons => ([\"copy\", \"csv\", \"excel\", \"print\"]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "GeneralAgencies::ProfilesController",
+          "method": "employers",
+          "line": 94,
+          "file": "app/controllers/general_agencies/profiles_controller.rb",
+          "rendered": {
+            "name": "general_agencies/profiles/employers",
+            "file": "app/views/general_agencies/profiles/employers.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "general_agencies/profiles/employers",
+          "line": 1,
+          "file": "app/views/general_agencies/profiles/employers.js.erb",
+          "rendered": {
+            "name": "general_agencies/profiles/_employers",
+            "file": "app/views/general_agencies/profiles/_employers.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "general_agencies/profiles/_employers"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "6e197d419416ef96df46eb4c44a1d959d014bffae12c6938b9d7705b1e466b4d",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/users_controller.rb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "UsersController",
+        "method": "confirm_lock"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "725e6a432f0a633359b94a1008214214550ab409c862b5db16f29c145d432867",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "project_gems/effective_datatables-2.6.14/app/models/effective/active_record_datatable_tool.rb",
+      "line": 173,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Effective::Address.where(\"addressable_type = ?\", collection_class.name).where(\"address1 #{ilike} :term OR address2 #{ilike} :term OR city #{ilike} :term OR postal_code #{ilike} :term OR state_code = :code OR country_code = :code\", :term => (\"%#{term}%\"), :code => term)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Effective::ActiveRecordDatatableTool",
+        "method": "search_column_with_defaults"
+      },
+      "user_input": "ilike",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 7,
+      "fingerprint": "80a3cbfa9b6c021d2c62c63ce06752f7edcb0259d26d81c8b580c5be57e55034",
+      "check_name": "ForgerySetting",
+      "message": "`protect_from_forgery` should be called in `TransportProfiles::ApplicationController`",
+      "file": "components/transport_profiles/app/controllers/transport_profiles/application_controller.rb",
+      "line": 2,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "controller",
+        "controller": "TransportProfiles::ApplicationController"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "82b13791cf85bfa05460e8b5a1fccf926f429a5aecf6b35f07c1744e71638f1f",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/insured/interactive_identity_verifications_controller.rb",
+      "line": 27,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:interactive_verification).permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Insured::InteractiveIdentityVerificationsController",
+        "method": "create"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "8ae9d4dec7eeba3275a712dc24ff7b6dfad2655ac7c9b8c72643d4568dfc22e5",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/general_agencies/profiles/_families.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::GeneralAgencyFamilyDataTable.new(:id => params[:id]), :lengthMenu => ([[10, 25, 50], [10, 25, 50]]), :buttons => ([\"copy\", \"csv\", \"excel\", \"print\"]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "GeneralAgencies::ProfilesController",
+          "method": "families",
+          "line": 98,
+          "file": "app/controllers/general_agencies/profiles_controller.rb",
+          "rendered": {
+            "name": "general_agencies/profiles/families",
+            "file": "app/views/general_agencies/profiles/families.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "general_agencies/profiles/families",
+          "line": 1,
+          "file": "app/views/general_agencies/profiles/families.js.erb",
+          "rendered": {
+            "name": "general_agencies/profiles/_families",
+            "file": "app/views/general_agencies/profiles/_families.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "general_agencies/profiles/_families"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 7,
+      "fingerprint": "8c7b5c5b069bc98b25e22fe942e25d32e0be03ee37f96cbbb2779c8bac2787a7",
+      "check_name": "ForgerySetting",
+      "message": "`protect_from_forgery` should be called in `Api::V1::SlcspController`",
+      "file": "app/controllers/api/v1/slcsp_controller.rb",
+      "line": 3,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "controller",
+        "controller": "Api::V1::SlcspController"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "8c86eceb809901ac5d44e8cc6dbc8c781b7bd459de7278d9b92b82fb36cf62f1",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/documents_controller.rb",
+      "line": 17,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(BenefitSponsors::Documents::EmployerAttestationDocument.find_by(:identifier => params[:path]).identifier)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DocumentsController",
+        "method": "download_employer_document"
+      },
+      "user_input": "BenefitSponsors::Documents::EmployerAttestationDocument.find_by(:identifier => params[:path]).identifier",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 7,
+      "fingerprint": "b58e37551288004aa563588ce1d2b45a922b35a5badc9e0cb44b2f6fa51120bb",
+      "check_name": "ForgerySetting",
+      "message": "`protect_from_forgery` should be called in `Notifier::ApplicationController`",
+      "file": "components/notifier/app/controllers/notifier/application_controller.rb",
+      "line": 2,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "controller",
+        "controller": "Notifier::ApplicationController"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "bafc06c301ba8b32e471ec2186e94e537fac6bcbc058f06291df92d6176fa290",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/employers/people_controller.rb",
+      "line": 144,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:person).permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Employers::PeopleController",
+        "method": "person_params"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "c1ff96a3ec7525e3c4d15276201118b431bec5197d4d1cf887332a82158e5fec",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/broker_agencies/applicants/check_ach_routing.js.erb",
+      "line": 5,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "AchRecord.find_by(:routing_number => params[:ach_record][:routing_number]).bank_name",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "BrokerAgencies::BrokerRolesController",
+          "method": "check_ach_routing",
+          "line": 8,
+          "file": "app/controllers/broker_agencies/broker_roles_controller.rb",
+          "rendered": {
+            "name": "broker_agencies/applicants/check_ach_routing",
+            "file": "app/views/broker_agencies/applicants/check_ach_routing.js.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "broker_agencies/applicants/check_ach_routing"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "c52682082343e84c51246edb8d8ad45d30470312d9763527b2c5c5b6777ea619",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "project_gems/effective_datatables-2.6.14/app/models/effective/active_record_datatable_tool.rb",
+      "line": 49,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "collection.order(\"#{(\"\" or \"ISNULL(#{sql_column}), \")}#{sql_column} #{(\"DESC\" or \"ASC\")}#{(\"\" or (\" NULLS FIRST\" or if (table_column[:nulls] == :last) then\n  \" NULLS LAST\"\nelse\n  \" NULLS #{(direction == :desc) ? (\"FIRST\") : (\"LAST\")}\"\nend))}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Effective::ActiveRecordDatatableTool",
+        "method": "order_column_with_defaults"
+      },
+      "user_input": "sql_column",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 116,
+      "fingerprint": "c8697fda60549ca065789e2ea74c94effecef88b2b5483bae17ddd62ece47194",
+      "check_name": "CSRFTokenForgeryCVE",
+      "message": "Rails 4.2.11 has a vulnerability that may allow CSRF token forgery. Upgrade to Rails 5.2.4.3 or patch",
+      "file": "Gemfile.lock",
+      "line": 630,
+      "link": "https://groups.google.com/g/rubyonrails-security/c/NOjKiGeXUgw",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "c9b6be562fb5a70ac288211fa1d0377ceed8ca862353a60903d769188d440e9c",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "components/notifier/app/controllers/notifier/notice_kinds_controller.rb",
+      "line": 60,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(\"#{Rails.root}/tmp/#{Notifier::NoticeKind.find(params[:id]).title.titleize.gsub(/\\s+/, \"_\")}.pdf\", :type => \"application/pdf\", :disposition => \"inline\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Notifier::NoticeKindsController",
+        "method": "preview"
+      },
+      "user_input": "Notifier::NoticeKind.find(params[:id]).title.titleize.gsub(/\\s+/, \"_\")",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "cae4f250812ac10b3146de3493efca4305f38176f6eaab78c0d99000b1c80c99",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `constantize` called with parameter value",
+      "file": "components/notifier/app/controllers/notifier/notice_kinds_controller.rb",
+      "line": 113,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "(params[\"builder\"] or \"Notifier::MergeDataModels::EmployerProfile\").constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Notifier::NoticeKindsController",
+        "method": "get_tokens"
+      },
+      "user_input": "params[\"builder\"]",
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Request Forgery",
+      "warning_code": 7,
+      "fingerprint": "ecf2256ff5bebc84477f7358d0533361cb934649f5fadf3eea23d72e6b5e9c6f",
+      "check_name": "ForgerySetting",
+      "message": "`protect_from_forgery` should be called in `SponsoredBenefits::ApplicationController`",
+      "file": "components/old_sponsored_benefits/app/controllers/sponsored_benefits/application_controller.rb",
+      "line": 2,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "controller",
+        "controller": "SponsoredBenefits::ApplicationController"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "ef486a2f648e540d2eb04ea78e5c6ba243cbaf21350fdec96467367fb1632736",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/employers/employer_profiles_controller.rb",
+      "line": 242,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(EmployerProfile.find(params[:id]).documents.find(params[:ids][0]).identifier, :file_name => EmployerProfile.find(params[:id]).documents.find(params[:ids][0]).title, :content_type => EmployerProfile.find(params[:id]).documents.find(params[:ids][0]).format)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Employers::EmployerProfilesController",
+        "method": "download_documents"
+      },
+      "user_input": "EmployerProfile.find(params[:id]).documents.find(params[:ids][0]).identifier",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "f28e54b1624d684ba27d3c896477a9bc17e4a94fccb4446425c587868d75edf2",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "components/benefit_sponsors/app/controllers/benefit_sponsors/profiles/broker_agencies/broker_roles_controller.rb",
+      "line": 94,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params[:broker_agency].permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BenefitSponsors::Profiles::BrokerAgencies::BrokerRolesController",
+        "method": "initiate_broker_profile"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "f435d56bdacd8a1ceb662cff0ec4488c38edfa542960b683fa8f2da2164a29b3",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/exchanges/hbx_profiles/_view_enrollment_to_update_end_date.html.erb",
+      "line": 22,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "fetch_duplicate_enrollment_ids(Person.find(params[:person_id]).primary_family.enrollments.where(:aasm_state.in => ([\"coverage_terminated\", \"coverage_termination_pending\", \"coverage_expired\"]))).map(&:to_s)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Exchanges::HbxProfilesController",
+          "method": "view_enrollment_to_update_end_date",
+          "line": 413,
+          "file": "app/controllers/exchanges/hbx_profiles_controller.rb",
+          "rendered": {
+            "name": "exchanges/hbx_profiles/view_enrollment_to_update_end_date",
+            "file": "app/views/exchanges/hbx_profiles/view_enrollment_to_update_end_date.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "exchanges/hbx_profiles/view_enrollment_to_update_end_date",
+          "line": 9,
+          "file": "app/views/exchanges/hbx_profiles/view_enrollment_to_update_end_date.js.erb",
+          "rendered": {
+            "name": "exchanges/hbx_profiles/_view_enrollment_to_update_end_date",
+            "file": "app/views/exchanges/hbx_profiles/_view_enrollment_to_update_end_date.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "exchanges/hbx_profiles/_view_enrollment_to_update_end_date"
+      },
+      "user_input": "Person.find(params[:person_id]).primary_family",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "fe835f45f2b7f87b0889e6596337ca16caf17c54204a852676236ccbaaab5c4f",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "components/benefit_sponsors/app/controllers/benefit_sponsors/profiles/registrations_controller.rb",
+      "line": 104,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params[:agency][:organization].permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BenefitSponsors::Profiles::RegistrationsController",
+        "method": "organization_params"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 120,
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 4.2.11.1 ended on 2017-04-27",
+      "file": "Gemfile.lock",
+      "line": 216,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "High",
+      "note": ""
+     }
+  ],
+  "updated": "2021-02-23 13:18:32 -0500",
+  "brakeman_version": "5.0.0"
+}

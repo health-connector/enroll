@@ -39,12 +39,8 @@ class PlanSelection
       hbx_enrollment.special_enrollment_period_id = sep_id
     end
     hbx_enrollment.aasm_state = 'auto_renewing' if hbx_enrollment.is_active_renewal_purchase?
-#    if enrollment_members_verification_status(market_kind)
-#      hbx_enrollment.move_to_contingent!
-#    else
+
     hbx_enrollment.select_coverage!(qle: qle) if hbx_enrollment.may_select_coverage?
-#    end
-    hbx_enrollment.update_existing_shop_coverage
   end
 
   def enrollment_members_verification_status(market_kind)

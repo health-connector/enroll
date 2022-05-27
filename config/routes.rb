@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
   get 'check_time_until_logout' => 'session_timeout#check_time_until_logout', :constraints => { :only_ajax => true }
   get 'reset_user_clock' => 'session_timeout#reset_user_clock', :constraints => { :only_ajax => true }
+  get 'unsupportive_browser' => 'users#unsupportive_browser'
 
   match "hbx_admin/about_us" => "hbx_admin#about_us", as: :about_us, via: :get
   match "hbx_admin/update_aptc_csr" => "hbx_admin#update_aptc_csr", as: :update_aptc_csr, via: [:get, :post]
@@ -42,8 +43,8 @@ Rails.application.routes.draw do
     post "/security_question_responses/replace", controller: "users/security_question_responses", action: 'replace'
 
     member do
-      get :reset_password, :lockable, :confirm_lock, :login_history, :edit
-      put :confirm_reset_password, :update
+      get :reset_password, :lockable, :confirm_lock, :login_history, :edit, :change_username_and_email
+      put :confirm_reset_password, :confirm_change_username_and_email, :update
       post :unlock, :change_password
     end
   end
@@ -86,6 +87,7 @@ Rails.application.routes.draw do
       root 'hbx_profiles#show'
 
       collection do
+        post :reinstate_enrollment
         get :family_index
         get :family_index_dt
         get :outstanding_verification_dt
@@ -124,6 +126,9 @@ Rails.application.routes.draw do
         get :add_sep_form
         get :hide_form
         get :show_sep_history
+        get :view_terminated_hbx_enrollments
+        get :view_enrollment_to_update_end_date
+        post :update_enrollment_termianted_on_date
         get :calendar_index
         get :user_account_index
         get :get_user_info

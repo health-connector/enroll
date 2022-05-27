@@ -31,8 +31,11 @@ class Insured::GroupSelectionController < ApplicationController
     end
     @qle = @adapter.is_qle?
 
+    set_change_plan
     # Benefit group is what we will need to change
     @benefit_group = @adapter.select_benefit_group(params)
+    @shop_under_current = @adapter.shop_under_current
+    @shop_under_future = @adapter.shop_under_future
     @new_effective_on = @adapter.calculate_new_effective_on(params)
 
     @adapter.if_should_generate_coverage_family_members_for_cobra(params) do |cobra_members|
@@ -46,7 +49,7 @@ class Insured::GroupSelectionController < ApplicationController
     @adapter.if_change_plan_selected(params) do |new_effective_date|
       @new_effective_on = new_effective_date
     end
-    
+
     @waivable = @adapter.can_waive?(@hbx_enrollment, params)
   end
 
@@ -69,6 +72,9 @@ class Insured::GroupSelectionController < ApplicationController
     end
 
     hbx_enrollment = build_hbx_enrollment(family_member_ids)
+
+    raise @adapter.no_employer_benefits_error_message(hbx_enrollment) if @market_kind == 'shop' && !hbx_enrollment.sponsored_benefit_package.shoppable?
+
     if @adapter.is_waiving?(params)
       if hbx_enrollment.save
         @adapter.assign_enrollment_to_benefit_package_assignment(@employee_role, hbx_enrollment)
@@ -141,13 +147,19 @@ class Insured::GroupSelectionController < ApplicationController
 
   private
 
+  def set_change_plan
+    @adapter.if_family_has_active_shop_sep do
+      @change_plan = 'change_by_qle'
+    end
+  end
+
   def build_hbx_enrollment(family_member_ids)
     case @market_kind
     when 'shop'
       @adapter.if_employee_role_unset_but_can_be_derived(@employee_role) do |e_role|
         @employee_role = e_role
       end
-      @adapter.if_previous_enrollment_was_special_enrollment do
+      @adapter.if_family_has_active_shop_sep do
         @change_plan = 'change_by_qle'
       end
       benefit_group = nil

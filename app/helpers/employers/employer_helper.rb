@@ -10,7 +10,10 @@ module Employers::EmployerHelper
       return 'Account Linked'
     elsif employee_state == 'eligible'
       return 'No Account Linked'
-    elsif employee_state == "cobra_linked" && census_employee.has_cobra_hbx_enrollment?
+    elsif employee_state == "cobra_linked" && (
+            census_employee.has_cobra_hbx_enrollment? ||
+            census_employee.active_benefit_group_enrollments.present? && census_employee.cobra_begin_date.present?
+          )
       return "Cobra Enrolled"
     else
       return employee_state.humanize
@@ -28,6 +31,13 @@ module Employers::EmployerHelper
 
   def renewal_enrollment_state(census_employee=nil)
     humanize_enrollment_states(census_employee.renewal_benefit_group_assignment).gsub("Coverage Renewing", "Auto-Renewing").gsub("Coverage Selected", "Enrolling").gsub("Coverage Waived", "Waiving").gsub("Coverage Terminated", "Terminating").html_safe
+  end
+
+  def off_cycle_enrollment_state(census_employee = nil)
+    humanize_enrollment_states(census_employee.off_cycle_benefit_group_assignment).gsub("Coverage Selected", "Enrolled")
+                                                                                  .gsub("Coverage Waived", "Waived").gsub("Coverage Terminated", "Terminated")
+                                                                                  .gsub("Coverage Termination Pending", "Coverage Termination Pending")
+                                                                                  .html_safe
   end
 
   def humanize_enrollment_states(benefit_group_assignment)
@@ -114,30 +124,31 @@ module Employers::EmployerHelper
   end
 
   def render_plan_offerings(benefit_group, coverage_type)
-    start_on = benefit_group.plan_year.start_on.year
+    start_on = benefit_group.plan_year.start_on
     reference_plan = benefit_group.reference_plan
-    carrier_profile = reference_plan.carrier_profile
-    employer_profile = benefit_group.employer_profile
-    profile_and_service_area_pairs = CarrierProfile.carrier_profile_service_area_pairs_for(employer_profile, start_on)
-    query = profile_and_service_area_pairs.select { |pair| pair.first == carrier_profile.id }
+    profile_and_service_area_pairs = CarrierProfile.carrier_profile_service_area_pairs_for(benefit_group.employer_profile, start_on.year)
+    query = profile_and_service_area_pairs.select { |pair| pair.first == reference_plan.carrier_profile.id }
+    text = ""
 
-    if coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_plan"
-      plan_count = benefit_group.elected_dental_plan_ids.count
-      "#{plan_count} Plans"
-    elsif coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_carrier"
-      plan_count = Plan.shop_dental_by_active_year(reference_plan.active_year).by_carrier_profile(reference_plan.carrier_profile).count
-      "All #{reference_plan.carrier_profile.legal_name} Plans (#{plan_count})"
-    else
-      return "1 Plan Only" if benefit_group.single_plan_type?
-      return "Sole Source Plan" if benefit_group.plan_option_kind == 'sole_source'
-      if benefit_group.plan_option_kind == "single_carrier"
-        plan_count = Plan.for_service_areas_and_carriers(query, start_on).shop_market.check_plan_offerings_for_single_carrier.health_coverage.and(hios_id: /-01/).count
-        "All #{reference_plan.carrier_profile.legal_name} Plans (#{plan_count})"
-      else
-        plan_count = Plan.for_service_areas_and_carriers(profile_and_service_area_pairs, start_on).shop_market.check_plan_offerings_for_metal_level.health_coverage.by_metal_level(reference_plan.metal_level).and(hios_id: /-01/).count
-        "#{reference_plan.metal_level.titleize} Plans (#{plan_count})"
-      end
-    end
+    plans = if coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_plan"
+              Plan.find(benefit_group.elected_dental_plan_ids)
+            elsif coverage_type == "dental" && benefit_group.dental_plan_option_kind == "single_carrier"
+              text = "All #{reference_plan.carrier_profile.legal_name}"
+              Plan.shop_dental_by_active_year(reference_plan.active_year).by_carrier_profile(reference_plan.carrier_profile)
+            else
+              return "1 Plan Only" if benefit_group.single_plan_type?
+              return "Sole Source Plan" if benefit_group.plan_option_kind == 'sole_source'
+
+              if benefit_group.plan_option_kind == "single_carrier"
+                text = "All #{reference_plan.carrier_profile.legal_name}"
+                Plan.for_service_areas_and_carriers(query, start_on.year).shop_market.check_plan_offerings_for_single_carrier.health_coverage.and(hios_id: /-01/)
+              else
+                text = reference_plan.metal_level.titleize.to_s
+                Plan.for_service_areas_and_carriers(profile_and_service_area_pairs, start_on.year).shop_market.check_plan_offerings_for_metal_level.health_coverage.by_metal_level(reference_plan.metal_level).and(hios_id: /-01/)
+              end
+            end
+    plans = plans.select{ |a| a.premium_tables.by_date(start_on).present? } if start_on.present?
+    text + " Plans (#{plans.count})"
   end
 
   # deprecated
@@ -150,9 +161,13 @@ module Employers::EmployerHelper
   end
 
   def get_benefit_packages_for_census_employee
-    initial_benefit_packages = @benefit_sponsorship.current_benefit_application.benefit_packages if @benefit_sponsorship.current_benefit_application.present?
+    initial_benefit_packages = @benefit_sponsorship.current_benefit_application&.benefit_packages unless @benefit_sponsorship.current_benefit_application&.terminated?
     renewing_benefit_packages = @benefit_sponsorship.renewal_benefit_application.benefit_packages if @benefit_sponsorship.renewal_benefit_application.present?
     return (initial_benefit_packages || []), (renewing_benefit_packages || [])
+  end
+
+  def off_cycle_benefit_packages_for_census_employee
+    @benefit_sponsorship.off_cycle_benefit_application&.benefit_packages || []
   end
 
   def current_option_for_initial_benefit_package
@@ -161,6 +176,17 @@ module Employers::EmployerHelper
     application = @employer_profile.current_benefit_application
     return nil if application.blank?
     return nil if application.benefit_packages.empty?
+    application.benefit_packages[0].id
+  end
+
+  def current_option_for_off_cycle_benefit_package
+    bga = @census_employee.off_cycle_benefit_group_assignment
+    return bga.benefit_package_id if bga&.benefit_package_id
+
+    application = @employer_profile.off_cycle_benefit_application
+    return nil if application.blank?
+    return nil if application.benefit_packages.empty?
+
     application.benefit_packages[0].id
   end
 

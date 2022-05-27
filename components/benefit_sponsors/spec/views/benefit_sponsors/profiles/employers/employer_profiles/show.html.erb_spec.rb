@@ -9,9 +9,9 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/_sho
   let(:employer_profile) { abc_profile }
   let(:benefit_application) { initial_application }
   let(:benefit_group) { current_benefit_package }
-  let(:census_employee1) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
-  let(:census_employee2) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
-  let(:census_employee3) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+  let(:census_employee1) { FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile) }
+  let(:census_employee2) { FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile) }
+  let(:census_employee3) { FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile) }
   let(:user) { FactoryGirl.create(:user) }
   let(:issuer_profile) { FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile)}
   let(:reference_product) { current_benefit_package.sponsored_benefits[0].reference_product }
@@ -19,6 +19,7 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/_sho
   before :each do
     view.extend Pundit
     view.extend BenefitSponsors::ApplicationHelper
+    view.extend BenefitSponsors::L10nHelper
     view.extend BenefitSponsors::Engine.routes.url_helpers
     @employer_profile = employer_profile
     assign(:census_employees, [census_employee1, census_employee2, census_employee3])

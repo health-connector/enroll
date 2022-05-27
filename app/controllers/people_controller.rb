@@ -50,7 +50,7 @@ class PeopleController < ApplicationController
       if params[:commit].downcase.include?('exit')
         # Logout of session
       else
-        redirect_to person_person_landing(@person)
+        redirect_to person_person_landing_path(@person)
       end
     else
       render new, :error => "Please complete all required fields"
@@ -202,7 +202,10 @@ class PeopleController < ApplicationController
       @person.consumer_role.check_for_critical_changes(person_params, @family)
     end
     respond_to do |format|
-      if @person.update_attributes(person_params.except(:is_applying_coverage))
+      @person.assign_attributes(person_params.except(:is_applying_coverage))
+      update_census_employee(@person)
+
+      if @person.save
         @person.consumer_role.update_attribute(:is_applying_coverage, person_params[:is_applying_coverage]) if @person.consumer_role.present?
         format.html { redirect_to redirect_path, notice: 'Person was successfully updated.' }
         format.json { head :no_content }
@@ -271,6 +274,14 @@ class PeopleController < ApplicationController
   def get_member
     member = find_person(params[:id])
     render partial: 'people/landing_pages/member_address', locals: {person: member}
+  end
+
+  def update_census_employee(person)
+    return unless person.valid?
+
+    Operations::CensusMembers::Update.new.call(person: person, action: 'update_census_employee')
+  rescue StandardError => e
+    Rails.logger.error { "Failed to update census employee record for #{person.full_name}(#{person.hbx_id}) due to #{e.inspect}" }
   end
 
 private

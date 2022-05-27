@@ -3,6 +3,7 @@ module BenefitSponsors
   module Organizations
     module Factories
       class ProfileFactory
+        include BenefitSponsors::RegistrationHelper
         include ActiveModel::Validations
         include BenefitSponsors::Forms::NpnField
 
@@ -213,6 +214,9 @@ module BenefitSponsors
                     elsif is_employer_profile?
                       build_sponsor_profile(attrs)
                     end
+
+          return unless profile.present?
+
           profile.office_locations << build_office_locations if profile.office_locations.empty?
           self.profile_id = profile.id
           self.profile = profile
@@ -458,7 +462,7 @@ module BenefitSponsors
         def npn_already_taken?(npn)
           if is_broker_profile?
             if Person.where("broker_role.npn" => npn).any?
-              errors.add(:organization, "NPN has already been claimed by another broker. Please contact HBX-Customer Service - Call (855) 532-5465.")
+              errors.add(:organization, l10n("broker_agencies.profiles.npn_taken_error"))
               return true
             end
           end

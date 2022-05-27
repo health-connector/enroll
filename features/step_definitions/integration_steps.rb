@@ -1,5 +1,4 @@
 # load Rails.root + "db/seeds.rb"
-
 When(/I use unique values/) do
   require 'test/unique_value_stash.rb'
   include UniqueValueStash
@@ -20,7 +19,7 @@ def people
       password: 'aA1!aA1!aA1!',
       legal_name: "Acme Inc.",
       dba: "Acme Inc.",
-      fein: "764141112",
+      fein: @organization.present? ? @organization.values.first.employer_profile.fein : "764141112",
       sic_code: "0111",
       mlegal_name: "Cogswell Cogs, Inc",
       mdba: "Cogswell Cogs, Inc",
@@ -30,9 +29,11 @@ def people
       first_name: "Patrick",
       last_name: "Doe",
       dob: "01/01/1980",
+      dob_date: "01/01/1980".to_date,
       ssn: "786120965",
       email: 'patrick.doe@dc.gov',
-      password: 'aA1!aA1!aA1!'
+      password: 'aA1!aA1!aA1!',
+      fein: registering_employer.fein # 570834919
     },
     "Broker Assisted" => {
       first_name: 'Broker',
@@ -64,6 +65,10 @@ def people
     },
     "Primary Broker" => {
       email: 'ricky.martin@example.com',
+      password: 'aA1!aA1!aA1!'
+    },
+    "Max Planck" => {
+      email: 'max.plank@example.com',
       password: 'aA1!aA1!aA1!'
     },
     "CareFirst Broker" => {
@@ -136,6 +141,14 @@ def people
     "CSR" => {
       email: "sherry.buckner@dc.gov",
       password: 'aA1!aA1!aA1!'
+    },
+    "Ricky Martin" => {
+      first_name: "Ricky",
+      last_name: "Martin",
+      dob_date: '10/10/1984',
+      broker_census_employee: true,
+      password: 'aA1!aA1!aA1!',
+      ssn: "222335220"
     },
     "Hbx AdminEnrollments" => {
       first_name: "Hbx Admin",
@@ -215,7 +228,7 @@ Given(/^Hbx Admin exists$/) do
   p_staff=Permission.create(name: 'hbx_staff', modify_family: true, modify_employer: true, revert_application: true,
                             list_enrollments: true, send_broker_agency_message: true, approve_broker: true, approve_ga: true,
                             modify_admin_tabs: true, view_admin_tabs: true, can_update_ssn: true, can_lock_unlock: true,
-                            can_reset_password: true)
+                            can_reset_password: true, view_the_configuration_tab: true)
   person = people['Hbx Admin']
   hbx_profile = FactoryGirl.create :hbx_profile
   user = FactoryGirl.create :user, :with_family, :hbx_staff, with_security_questions: false, email: person[:email], password: person[:password], password_confirmation: person[:password]
@@ -425,21 +438,23 @@ end
 When(/(^.+) enters? office location for (.+)$/) do |role, location|
   location = eval(location) if location.class == String
   RatingArea.where(zip_code: "01001").first || FactoryGirl.create(:rating_area, zip_code: "01001", county_name: "Hampden", rating_area: Settings.aca.rating_areas.first)
-  fill_in 'organization[office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
-  fill_in 'organization[office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
-  fill_in 'organization[office_locations_attributes][0][address_attributes][city]', :with => location[:city]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][city]', :with => location[:city]
 
-  find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'SELECT STATE')]]").click
-  find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), '#{location[:state]}')]").click
+  # find(:xpath, "//div[contains(@class, 'selectric')][p[contains(text(), 'SELECT STATE')]]").click
+  select "MA", from: "inputState"
+  # agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][state]
+  # find(:xpath, "//div[contains(@class, 'selectric-scroll')]/ul/li[contains(text(), '#{location[:state]}')]").click
 
-  fill_in 'organization[office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
   if role.include? 'Employer'
     wait_for_ajax
-    select "#{location[:county]}", :from => "organization[office_locations_attributes][0][address_attributes][county]"
+    select "#{location[:county]}", :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
   end
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
-  fill_in 'organization[office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
+  #fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
   wait_for_ajax
   page.find('h4', text: "#{Settings.site.byline}").click
 end
@@ -488,8 +503,8 @@ When(/^(.*) logs on to the (.*)?/) do |named_person, portal|
   person = people[named_person]
 
   visit "/"
-  portal_class = "interaction-click-control-#{portal.downcase.gsub(/ /, '-')}"
-  portal_uri = find("a.#{portal_class}")["href"]
+  # portal_class = "interaction-click-control-#{portal.downcase.gsub(/ /, '-')}"
+  # portal_uri = find("a.#{portal_class}")["href"]
 
   visit "/users/sign_in"
   fill_in "user[login]", :with => person[:email]
@@ -498,7 +513,7 @@ When(/^(.*) logs on to the (.*)?/) do |named_person, portal|
   #TODO this fixes the random login fails b/c of empty params on email
   fill_in "user[login]", :with => person[:email] unless find(:xpath, '//*[@id="user_login"]').value == person[:email]
   find('.interaction-click-control-sign-in').click
-  visit portal_uri
+  # visit portal_uri
 end
 
 Then(/^.+ creates (.+) as a roster employee$/) do |named_person|
@@ -555,6 +570,11 @@ When(/^(?:.+) go(?:es)? to the employee account creation page$/) do
   click_link 'Employee Portal'
 end
 
+And(/^employee visits the Employee Portal page$/) do
+  visit "/"
+  click_link 'Employee Portal'
+end
+
 Then(/^(?:.+) should be logged on as an unlinked employee$/) do
   screenshot("logged_in_welcome")
   @browser.a(href: /consumer\/employee\/search/).wait_until_present
@@ -603,7 +623,15 @@ And(/^Primary Broker select the all security question and give the answer$/) do
 end
 
 When(/^Primary Broker have submit the security questions$/) do
-  step 'I have submit the security questions'
+  step 'I have submitted the security questions'
+end
+
+And(/^Hbx Admin select the all security question and give the answer$/) do
+  step 'I select the all security question and give the answer'
+end
+
+When(/^Hbx Admin have submitted the security questions$/) do
+  step 'I have submitted the security questions'
 end
 
 And(/^Broker Assisted select the all security question and give the answer$/) do
@@ -611,7 +639,7 @@ And(/^Broker Assisted select the all security question and give the answer$/) do
 end
 
 When(/^Broker Assisted have submit the security questions$/) do
-  step 'I have submit the security questions'
+  step 'I have submitted the security questions'
 end
 
 When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
@@ -627,13 +655,19 @@ When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
   find('.interaction-click-control-continue').click
 end
 
+And(/^(.*?) sees the option to enroll for all employers$/) do |named_person|
+  @organization.keys.each do |legal_name|
+    expect(page).to have_content("Enroll as an employee of " + legal_name)
+  end
+end
+
 Then(/^.+ should not see the matched employee record form$/) do
   find('.fa-exclamation-triangle')
   expect(page).to_not have_css('.interaction-click-control-this-is-my-employer')
 end
 
 Then(/^Employee should see the matched employee record form$/) do
-  expect(page).to have_content('Acme Inc.')
+  expect(page).to have_content(@organization[@organization.keys.first].legal_name)
   screenshot("employer_search_results")
 end
 
@@ -649,6 +683,10 @@ Then(/^Employee should not see the individual market place workflow$/) do
   end
 end
 
+Given(/^Employer exists and logs in and adds and employee$/) do
+  login_as @staff_role, scope: :user
+end
+
 # TODO: needs to be merged
 Then(/^.+ should see the matching employee record form$/) do
   expect(page).to have_content('Turner Agency')
@@ -661,10 +699,8 @@ When(/^.+ accepts? the matched employer$/) do
 end
 
 Then(/^Employee (.+) should see coverage effective date/) do |named_person|
-  employer_profile = EmployerProfile.find_by_fein(people[named_person][:fein])
   census_employee = CensusEmployee.where(:first_name => /#{people[named_person][:first_name]}/i, :last_name => /#{people[named_person][:last_name]}/i).first
-
-  find('p', text: employer_profile.legal_name)
+  find('p', text: census_employee.benefit_sponsorship.legal_name)
   find('.coverage_effective_date', text: census_employee.earliest_eligible_date.strftime("%m/%d/%Y"))
 end
 
@@ -685,11 +721,11 @@ When(/^.+ completes? the matched employee form for (.*)$/) do |named_person|
   wait_for_ajax(3,2)
 
   #find("#person_addresses_attributes_0_address_1", :wait => 10).click
-  # find("#person_addresses_attributes_0_address_1").trigger('click')
-  # find("#person_addresses_attributes_0_address_2").trigger('click')
+  # find("#person_addresses_attributes_0_address_1").click
+  # find("#person_addresses_attributes_0_address_2").click
   # there is a flickering failure here due to over-lapping modals
-  # find("#person_addresses_attributes_0_city").trigger('click')
-  # find("#person_addresses_attributes_0_zip").trigger('click')
+  # find("#person_addresses_attributes_0_city").click
+  # find("#person_addresses_attributes_0_zip").click
   find_by_id("person_phones_attributes_0_full_phone_number", wait: 10)
   fill_in "person[phones_attributes][0][full_phone_number]", :with => person[:home_phone]
 
@@ -697,7 +733,25 @@ When(/^.+ completes? the matched employee form for (.*)$/) do |named_person|
   wait_for_ajax
   fill_in "person[phones_attributes][0][full_phone_number]", :with => person[:home_phone] #because why not...
   expect(page).to have_field("HOME PHONE", with: "(#{person[:home_phone][0..2]}) #{person[:home_phone][3..5]}-#{person[:home_phone][6..9]}") if person[:home_phone].present?
+  #find("#btn-continue").click
+  click_button 'CONTINUE'
+end
+
+And(/^.+ sees the (.*) page and clicks Continue$/) do |which_page|
+  expect(page).to have_content(which_page)
   find("#btn-continue").click
+  wait_for_ajax
+end
+
+And(/^.+ clicks Confirm$/) do
+  click_link 'Confirm'
+end
+
+And(/^.+ selects the first plan available$/) do
+  links = page.all('a')
+  first_plan_html_class = "btn btn-default btn-right plan-select select interaction-click-control-select-plan"
+  first_plan_select_link = links.detect { |link| link.text == "Select Plan" }
+  first_plan_select_link.click
 end
 
 Then(/^.+ should see the dependents page$/) do
@@ -720,7 +774,7 @@ When(/^.+ clicks? delete on baby Soren$/) do
   @browser.button(text: /Confirm Member/i).wait_while_present
 end
 
-Then(/^.+ should see ((?:(?!the).)+) dependents*$/) do |n|
+Then(/^.+ should see (\d+) dependents*$/) do |n|
   expect(page).to have_selector('li.dependent_list', :count => n.to_i)
 end
 
@@ -749,6 +803,7 @@ When(/^.+ enters? the dependent info of Patrick wife$/) do
   fill_in 'dependent[last_name]', with: 'Patrick'
   fill_in 'dependent[ssn]', with: '123445678'
   fill_in 'jq_datepicker_ignore_dependent[dob]', with: '01/15/1996'
+  find('#dependents_info_wrapper').click
   find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
   find(:xpath, "//li[@data-index='1'][contains(., 'Spouse')]").click
   find(:xpath, "//label[@for='radio_female']").click
@@ -782,7 +837,7 @@ When(/^(?:(?!Employee).)+ clicks? continue on the group selection page$/) do
 end
 
 Then(/^.+ should see the plan shopping welcome page$/) do
-  expect(page).to have_content('Choose Plan')
+  expect(page).to have_content('Enroll in a plan')
   screenshot("plan_shopping_welcome")
 end
 
@@ -802,8 +857,16 @@ When(/^.+ clicks? my insured portal link$/) do
   click_link 'My Insured Portal'
 end
 
+When(/^.+ selects the broker$/) do
+  click_link("Ricky Martin", :visible => true)
+end
+
 When(/^.+ clicks? shop for plans button$/) do
   click_button "Shop for Plans"
+end
+
+When(/^.+ clicks Shop for new plan button$/) do
+  click_button 'Shop for new plan'
 end
 
 Then(/^.+ should see the list of plans$/) do
@@ -812,13 +875,8 @@ Then(/^.+ should see the list of plans$/) do
 end
 
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
-  employer_profile = CensusEmployee.where(first_name: people[named_person][:first_name]).first.employee_role.employer_profile
-  # cannot select a SEP date from expired plan year on 31st.
-  if TimeKeeper.date_of_record.day != 31 || plan_year_state != "expired"
-    expect(page).to have_content "#{employer_profile.plan_years.where(aasm_state: plan_year_state ).first.benefit_groups.first.reference_plan.name}"
-  else
-    expect(page).to have_content "#{employer_profile.plan_years.where(:aasm_state.ne => plan_year_state ).first.benefit_groups.first.reference_plan.name}"
-  end
+  benefit_sponsorship = CensusEmployee.where(first_name: people[named_person][:first_name]).first.benefit_sponsorship
+  expect(page).to have_content benefit_sponsorship.benefit_applications.where(aasm_state: plan_year_state.to_sym).first.benefit_packages.first.health_sponsored_benefit.reference_product.name
 end
 
 When(/^.+ selects? a plan on the plan shopping page$/) do
@@ -841,6 +899,7 @@ Then(/^.+ should see the receipt page$/) do
 end
 
 Then(/^.+ should see the "my account" page$/) do
+  find('.my-account-page')
   expect(page).to have_content("My #{Settings.site.short_name}")
   screenshot("my_account")
 end
@@ -880,6 +939,21 @@ When(/^Employer publishes a plan year$/) do
   find('.interaction-click-control-benefits').click
 
   find('.interaction-click-control-publish-plan-year').click
+end
+And(/^.+ click the Shop for new plan button$/) do
+  click_button 'Shop for new plan'
+end
+
+And(/^.+ abandon shopping and clicks My Insured Portal to return to families home page/) do
+  click_link 'My Insured Portal'
+end
+
+And(/^.+ click the Back to My Account button$/) do
+  click_link 'Back To My Account'
+end
+
+Then(/^.+ should not see the Make Changes button on their current enrollment tile$/) do
+  expect(page).to_not have_content('Make Changes')
 end
 
 When(/^.+ should see a published success message$/) do
@@ -924,14 +998,15 @@ When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) tab$/) do |tab
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) dropdown$/) do |tab_name|
-  find(".#{tab_name.downcase}-dropdown").click
+  target_dropdown = page.all('a').detect { |a| a.text == tab_name }
+  target_dropdown.click
   wait_for_ajax
 end
 
 When(/^(?:(?!General).)+ clicks? on the ((?:(?!General|Staff).)+) option$/) do |tab_name|
   find(".interaction-click-control-#{tab_name.downcase.gsub(' ','-')}").click
   wait_for_ajax
-  find('#myTabContent').trigger('click')
+  find('#myTabContent').click
 end
 
 And(/^clicks on the person in families tab$/) do
@@ -941,7 +1016,7 @@ And(/^clicks on the person in families tab$/) do
   find(:xpath, "//a[@href='/exchanges/hbx_profiles/family_index_dt']").click
   wait_for_ajax(10,2)
   family_member = page.find('a', :text => "#{user.person.full_name}")
-  family_member.trigger('click')
+  family_member.click
   visit verification_insured_families_path
   find(:xpath, "//ul/li/a[contains(@class, 'interaction-click-control-documents')]").click
 end
@@ -978,6 +1053,17 @@ Then(/^I should see not qualify message$/) do
   expect(page).to have_content "The date you submitted does not qualify for special enrollment"
   screenshot("not_qualify")
 end
+
+When(/^I select current date as qle date$/) do
+  expect(page).to have_content "Married"
+  screenshot("past_qle_date")
+  fill_in "qle_date", :with => TimeKeeper.date_of_record.strftime("%m/%d/%Y")
+  click_link(TimeKeeper.date_of_record.day)
+  within '#qle-date-chose' do
+    click_link "CONTINUE"
+  end
+end
+
 
 When(/^I select a past qle date$/) do
   expect(page).to have_content "Married"
@@ -1035,7 +1121,7 @@ And(/I select three plans to compare/) do
 
     wait_for_ajax(10)
     expect(page).to have_content("Choose Plan - Compare Selected Plans")
-    find(:xpath, '//*[@id="plan-details-modal-body"]/div[2]/button[2]').trigger('click')
+    find(:xpath, '//*[@id="plan-details-modal-body"]/div[2]/button[2]').click
   end
 end
 
@@ -1059,17 +1145,35 @@ Then(/Employee should see the correct employee contribution on plan tile/) do
 end
 
 Then(/Employee should see their current plan/) do
-  expect(page).to have_content "YOUR CURRENT #{TimeKeeper.date_of_record.year} PLAN"
+  enrollment = Person.all.first.primary_family.active_household.hbx_enrollments.where(:aasm_state.ne => "shopping").first
+  expect(page).to have_content "YOUR CURRENT #{enrollment.effective_on.year} PLAN"
 end
 
-And(/Employee should have a ER sponsored enrollment/) do
-  person = Person.all.first
-  bg = Organization.all.first.employer_profile.plan_years[0].benefit_groups[0]
-  enrollment = FactoryGirl.create :hbx_enrollment, household: person.primary_family.active_household, aasm_state: "coverage_selected",
-                                    plan: Plan.all.first, benefit_group_id: bg.id
-  enrollment.hbx_enrollment_members << HbxEnrollmentMember.new(is_subscriber: true, applicant_id: person.primary_family.family_members[0].id,
-                                        eligibility_date: TimeKeeper.date_of_record - 1.month, coverage_start_on: TimeKeeper.date_of_record)
-  enrollment.save
+Then("user will click on New Employee Paper Application link") do
+  find('.new_employee_paper_application').click
+end
+
+And(/(.*) should have a ER sponsored enrollment/) do |named_person|
+  person = people[named_person]
+  ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
+  ce.save # to update benefit group assignment that needs to updated.
+  person_rec = Person.where(first_name: /#{person[:first_name]}/i, last_name: /#{person[:last_name]}/i).first
+  benefit_package = ce.active_benefit_group_assignment.benefit_package
+  FactoryGirl.create(:hbx_enrollment,
+                     household: person_rec.primary_family.active_household,
+                     coverage_kind: "health",
+                     effective_on: benefit_package.start_on,
+                     enrollment_kind: "open_enrollment",
+                     kind: "employer_sponsored",
+                     submitted_at: benefit_package.start_on - 20.days,
+                     employee_role_id: person_rec.active_employee_roles.first.id,
+                     benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                     benefit_sponsorship_id: ce.benefit_sponsorship.id,
+                     sponsored_benefit_package_id: benefit_package.id,
+                     sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                     rating_area_id: benefit_package.rating_area.id,
+                     product_id: benefit_package.health_sponsored_benefit.reference_product_id,
+                     issuer_profile_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.issuer_profile.id)
 end
 
 Then(/Devops can verify session logs/) do
@@ -1088,7 +1192,7 @@ Then(/Devops can verify session logs/) do
 end
 
 Given(/^a Hbx admin with read and write permissions and employers$/) do
-  p_staff=FactoryGirl.create :permission, :hbx_update_ssn
+  p_staff=FactoryGirl.create :permission, :hbx_update_ssn, can_access_user_account_tab: true
   person = people['Hbx AdminEnrollments']
   hbx_profile = FactoryGirl.create :hbx_profile
   user = FactoryGirl.create :user, :with_family, :hbx_staff, email: person[:email], password: person[:password], password_confirmation: person[:password]
@@ -1099,29 +1203,4 @@ Given(/^a Hbx admin with read and write permissions and employers$/) do
   employer_profile = FactoryGirl.create :employer_profile, organization: org1
   org2 = FactoryGirl.create(:organization, legal_name: 'Chase & Assoc', hbx_id: "67890")
   employer_profile = FactoryGirl.create :employer_profile, organization: org2
-end
-
-And(/^Hbx Admin click on Employers/) do
-  find_link("Employers").visible?
-  click_link("Employers")
-end
-
-And(/^.+ sees the (.*) page and clicks Continue$/) do |which_page|
-  expect(page).to have_content(which_page)
-  find("#btn-continue").click
-end
-
-And(/^.+ clicks Confirm$/) do
-  click_link 'Confirm'
-end
-
-And(/^.+ selects the first plan available$/) do
-  links = page.all('a')
-  first_plan_html_class = "btn btn-default btn-right plan-select select interaction-click-control-select-plan"
-  first_plan_select_link = links.detect { |link| link.text == "Select Plan" }
-  first_plan_select_link.trigger('click')
-end
-
-When(/^.+ clicks Shop for new plan button$/) do
-  click_button 'Shop for new plan'
 end

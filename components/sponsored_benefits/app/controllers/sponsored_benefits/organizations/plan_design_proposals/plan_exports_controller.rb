@@ -20,6 +20,8 @@ module SponsoredBenefits
           @qhps = ::Products::QhpCostShareVariance.find_qhp_cost_share_variances(plan_array(@plan), plan_design_proposal.effective_date.year, "Health")
         end
 
+        @benefit_group.relationship_benefits = @old_relationship_benefits if @old_relationship_benefits.present?
+
         render pdf: 'plan_details_export', dpi: 72,
                template: 'sponsored_benefits/organizations/plan_design_proposals/plan_exports/_plan_details.html.erb',
                disposition: 'attachment',
@@ -50,6 +52,7 @@ module SponsoredBenefits
               @benefit_group.assign_attributes(dental_benefit_params)
               @benefit_group.elected_dental_plans = @benefit_group.elected_dental_plans_by_option_kind
             else
+              @old_relationship_benefits = @benefit_group.relationship_benefits if @benefit_group.relationship_benefits.present?
               @benefit_group.relationship_benefits = []
               @benefit_group.assign_attributes(benefit_group_params)
             end

@@ -12,7 +12,9 @@ class Employers::CensusEmployeesController < ApplicationController
       benefit_sponsorship_id: @benefit_sponsorship.id,
       benefit_sponsors_employer_profile_id: @employer_profile.id,
       active_benefit_group_assignment: benefit_group_id,
+      off_cycle_benefit_group_assignment: off_cycle_benefit_group_id,
       renewal_benefit_group_assignment: renewal_benefit_group_id
+      # no_ssn_allowed: @benefit_sponsorship.is_no_ssn_enabled
     }))
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
 
@@ -41,7 +43,9 @@ class Employers::CensusEmployeesController < ApplicationController
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
     @census_employee.attributes = census_employee_params.merge!({
       active_benefit_group_assignment: benefit_group_id,
-      renewal_benefit_group_assignment: renewal_benefit_group_id
+      renewal_benefit_group_assignment: renewal_benefit_group_id,
+      off_cycle_benefit_group_assignment: off_cycle_benefit_group_id
+      # no_ssn_allowed: @census_employee.no_ssn_allowed || @benefit_sponsorship.is_no_ssn_enabled
     })
 
     destroyed_dependent_ids = census_employee_params[:census_dependents_attributes].delete_if{|k,v| v.has_key?("_destroy") }.values.map{|x| x[:id]} if census_employee_params[:census_dependents_attributes]
@@ -152,21 +156,16 @@ class Employers::CensusEmployeesController < ApplicationController
       @cobra_date = DateTime.strptime(cobra_date, '%m/%d/%Y').try(:to_date)
     else
       @cobra_date = ""
-    end
-
-    if @cobra_date.present? && @census_employee.can_elect_cobra?
-      if @census_employee.update_for_cobra(@cobra_date, current_user)
-        flash[:notice] = "Successfully update Census Employee."
-      else
-        flash[:error] = "COBRA cannot be initiated for this employee because termination date is over 6 months in the past. Please contact #{site_short_name} at #{contact_center_phone_number} for further assistance."
-      end
-    else
       flash[:error] = "Please enter cobra date."
     end
+
+    elect_cobra if @cobra_date.present?
   end
 
   def confirm_effective_date
     confirmation_type = params[:type]
+    return unless CensusEmployee::CONFIRMATION_EFFECTIVE_DATE_TYPES.include?(confirmation_type)
+
     render "#{confirmation_type}_effective_date"
   end
 
@@ -180,6 +179,7 @@ class Employers::CensusEmployeesController < ApplicationController
 
   def show
     @family = @census_employee.employee_role.person.primary_family if @census_employee.employee_role.present?
+    @hbx_enrollments = @census_employee.enrollments_for_display
     @status = params[:status] || ''
   end
 
@@ -250,6 +250,10 @@ class Employers::CensusEmployeesController < ApplicationController
     params[:census_employee][:renewal_benefit_group_assignments][:benefit_group_id] rescue nil
   end
 
+  def off_cycle_benefit_group_id
+    params[:census_employee][:off_cycle_benefit_group_assignments][:benefit_group_id] if params[:census_employee] && params[:census_employee][:off_cycle_benefit_group_assignments].present?
+  end
+
   def census_employee_params
 =begin
     [:dob, :hired_on].each do |attr|
@@ -296,6 +300,25 @@ class Employers::CensusEmployeesController < ApplicationController
     @census_employee
   end
 
-  private
+  def elect_cobra
+    return flash[:error] = "COBRA can only be initiated for employees who are in terminated or termination pending status" unless @census_employee.can_elect_cobra?
 
+    update_cobra
+  end
+
+  def update_cobra
+    return flash[:notice] = "Successfully update Census Employee." if @census_employee.update_for_cobra(@cobra_date, current_user)
+
+    set_cobra_error_flash
+  end
+
+  def set_cobra_error_flash
+    return flash[:error] = "COBRA cannot be initiated for this employee as coverage termination date is not present" if @census_employee.coverage_terminated_on.blank?
+
+    msg1 = 'COBRA cannot be initiated for this employee with the effective date entered.'
+    msg2 = " Please contact #{site_short_name} at #{contact_center_phone_number} for further assistance."
+    return flash[:error] = msg1 + msg2  if @census_employee.coverage_terminated_on <= @cobra_date
+
+    flash[:error] = "COBRA cannot be initiated for this employee because of invalid date. Please contact #{site_short_name} at #{contact_center_phone_number} for further assistance."
+  end
 end

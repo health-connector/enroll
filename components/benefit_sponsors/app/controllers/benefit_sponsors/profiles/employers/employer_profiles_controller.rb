@@ -3,9 +3,10 @@ module BenefitSponsors
     module Employers
       class EmployerProfilesController < ::BenefitSponsors::ApplicationController
 
-        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice]
+        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost]
         before_action :load_group_enrollments, only: [:coverage_reports], if: :is_format_csv?
-        before_action :check_and_download_invoice, only: [:download_invoice]
+        before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
+        before_action :wells_fargo_sso, only: [:show]
         layout "two_column", except: [:new]
 
         #New profile registration with existing organization and approval request submitted to employer
@@ -29,22 +30,37 @@ module BenefitSponsors
           when 'documents'
             @datatable = ::Effective::Datatables::BenefitSponsorsEmployerDocumentsDataTable.new({employer_profile_id: @employer_profile.id})
             load_documents
+          when 'accounts'
+            collect_and_sort_invoices(params[:sort_order])
+            @benefit_sponsorship = @employer_profile.organization.active_benefit_sponsorship
+            @benefit_sponsorship_account = @benefit_sponsorship.benefit_sponsorship_account
+            @sort_order = params[:sort_order].nil? || params[:sort_order] == "ASC" ? "DESC" : "ASC"
+            #only exists if coming from redirect from sso failing
+            @page_num = params[:page_num] if params[:page_num].present?
+            if @page_num.present?
+              retrieve_payments_for_page(@page_num)
+            else
+              retrieve_payments_for_page(1)
+            end
+            respond_to do |format|
+              format.js {render 'benefit_sponsors/profiles/employers/employer_profiles/my_account/accounts/payment_history'}
+
+              format.html
+            end
           when 'employees'
             @datatable = ::Effective::Datatables::EmployeeDatatable.new(employee_datatable_params)
           when 'brokers'
             @broker_agency_account = @employer_profile.active_broker_agency_account
           when 'inbox'
           when 'families'
-            # employer shouldn't have access to families
-            # Randomly sometimes employer receiving employer_profile_path with tab: families, 40549
-            redirect_to(profiles_employers_employer_profile_path(@employer_profile.id, tab: 'home'))
+            @employees = EmployeeRole.find_by_employer_profile(@employer_profile).select { |ee| CensusEmployee::EMPLOYMENT_ACTIVE_STATES.include?(ee.census_employee.aasm_state)}
           else
             @broker_agency_account = @employer_profile.active_broker_agency_account
             @benefit_sponsorship = @employer_profile.latest_benefit_sponsorship
 
             if @benefit_sponsorship.present?
               @broker_agency_accounts = @benefit_sponsorship.broker_agency_accounts
-              @current_plan_year = @benefit_sponsorship.submitted_benefit_application
+              @current_plan_year = @benefit_sponsorship.submitted_benefit_application(include_term_pending: false)
             end
 
             collect_and_sort_invoices(params[:sort_order])
@@ -78,18 +94,31 @@ module BenefitSponsors
           end
         end
 
+        def show_invoice
+          options = {}
+          options[:filename] = @invoice.title
+          options[:type] = 'application/pdf'
+          options[:disposition] = 'inline'
+          send_data Aws::S3Storage.find(@invoice.identifier), options
+        end
+
         def bulk_employee_upload
           authorize @employer_profile, :show?
-          file = params.require(:file)
-          @roster_upload_form = BenefitSponsors::Forms::RosterUploadForm.call(file, @employer_profile)
           begin
+            file = params.require(:file)
+            @roster_upload_form = BenefitSponsors::Forms::RosterUploadForm.call(file, @employer_profile)
             if @roster_upload_form.save
-              redirect_to @roster_upload_form.redirection_url
+              redirect_to URI.parse(@roster_upload_form.redirection_url).to_s
             else
               render :partial => @roster_upload_form.redirection_url
             end
           rescue Exception => e
-            @roster_upload_form.errors.add(:base, e.message)
+            @roster_upload_form ||= BenefitSponsors::Forms::RosterUploadForm.new
+            if params.permit(:file).blank?
+              @roster_upload_form.errors.add(:base, 'File is missing')
+            else
+              @roster_upload_form.errors.add(:base, e.message)
+            end
             render :partial => (@roster_upload_form.redirection_url || default_url)
           end
         end
@@ -112,7 +141,40 @@ module BenefitSponsors
           render :json => sic_tree
         end
 
+        def estimate_cost
+          find_benefit_package
+          estimate_hash = {}
+          if @benefit_package.present?
+            @benefit_package.sponsored_benefits.each do |sb|
+              estimate_hash[sb.product_kind] = map_sponsored_benefit_estimate_cost(sb)
+            end
+          end
+          render :json => estimate_hash
+        end
+
         private
+
+        def wells_fargo_sso
+          #grab url for WellsFargoSSO and store in insance variable
+          email = @employer_profile.staff_roles.first.present? ? @employer_profile.staff_roles.first.work_email_or_best : nil
+
+          if email.present?
+            wells_fargo_sso =
+              ::WellsFargo::BillPay::SingleSignOn.new(
+                @employer_profile.hbx_id,
+                @employer_profile.hbx_id,
+                @employer_profile.dba.presence || @employer_profile.legal_name,
+                email
+              )
+          end
+          @wf_url = wells_fargo_sso.url if wells_fargo_sso.present? && wells_fargo_sso.token.present?
+        end
+
+        def retrieve_payments_for_page(page_no)
+          return unless (financial_transactions = @benefit_sponsorship.financial_transactions)
+
+          @payments = financial_transactions.order_by(:paid_on => 'desc').skip((page_no.to_i - 1) * 10).limit(10)
+        end
 
         def check_and_download_invoice
           @invoice = @employer_profile.documents.find(params[:invoice_id])
@@ -120,11 +182,12 @@ module BenefitSponsors
 
         def collect_and_sort_invoices(sort_order='ASC')
           @invoices = @employer_profile.invoices
+          @invoice_years = (Settings.invoices.minimum_invoice_display_year..TimeKeeper.date_of_record.year).to_a.reverse
           sort_order == 'ASC' ? @invoices.sort_by!(&:date) : @invoices.sort_by!(&:date).reverse! unless @documents
         end
 
         def find_employer
-          id_params = params.permit(:id, :employer_profile_id)
+          id_params = params.permit(:id, :employer_profile_id, :tab)
           id = id_params[:id] || id_params[:employer_profile_id]
           @organization = BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles._id" => BSON::ObjectId.from_string(id)).first
           @employer_profile = @organization.employer_profile
@@ -138,7 +201,30 @@ module BenefitSponsors
             renewal: true
           }) if @employer_profile.renewal_benefit_application.present?
 
+          if @employer_profile.off_cycle_benefit_application.present?
+            data_table_params[:off_cycle] = true
+            data_table_params[:current_py_terminated] = true if @employer_profile.current_benefit_application&.terminated?
+          end
+
+          data_table_params[:is_submitted] = true if @employer_profile&.renewal_benefit_application&.is_submitted?
+          data_table_params[:is_off_cycle_submitted] = true if @employer_profile&.off_cycle_benefit_application&.is_submitted?
           data_table_params
+        end
+
+        def find_benefit_package
+          benefit_package_id = params[:benefit_package_id]
+          return unless benefit_package_id
+
+          benefit_application = @employer_profile.organization.active_benefit_sponsorship.benefit_applications.where(:"benefit_packages._id" => BSON::ObjectId.from_string(benefit_package_id)).first
+          return unless benefit_application
+
+          @benefit_package = benefit_application.benefit_packages.where(:id => benefit_package_id).first
+        end
+
+        def map_sponsored_benefit_estimate_cost(sponsored_benefit)
+          estimator = ::BenefitSponsors::Services::SponsoredBenefitCostEstimationService.new
+          estimate = estimator.calculate_estimates_for_benefit_display(sponsored_benefit)
+          estimate.each {|k,v| estimate[k] = ActiveSupport::NumberHelper.number_to_currency(v)}
         end
 
         def load_documents
@@ -194,7 +280,7 @@ module BenefitSponsors
                 sponsored_benefit = primary.sponsored_benefit
                 product = @product_info[element.group_enrollment.product[:id]]
                 next if census_employee.blank?
-                csv << [  
+                csv << [
                           census_employee.full_name,
                           census_employee.ssn,
                           census_employee.dob,

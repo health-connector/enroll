@@ -10,7 +10,11 @@ module BenefitSponsors
     let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)              { organization.employer_profile }
-    let(:active_benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+    let(:active_benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
 
     let!(:broker_organization)    { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, site: site)}
     let!(:broker_agency_profile1) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization, market_kind: 'shop', legal_name: 'Legal Name1') }

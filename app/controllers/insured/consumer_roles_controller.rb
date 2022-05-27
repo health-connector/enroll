@@ -70,9 +70,9 @@ class Insured::ConsumerRolesController < ApplicationController
         when :service_unavailable
           format.html { render 'shared/account_lookup_service_unavailable' }
         when :too_many_matches
-          format.html { redirect_to SamlInformation.account_conflict_url }
+          format.html { redirect_to URI.parse(SamlInformation.account_conflict_url).to_s }
         when :existing_account
-          format.html { redirect_to SamlInformation.account_recovery_url }
+          format.html { redirect_to URI.parse(SamlInformation.account_recovery_url).to_s }
         else
           unless params[:persisted] == "true"
             @employee_candidate = Forms::EmployeeCandidate.new(@person_params)
@@ -90,7 +90,7 @@ class Insured::ConsumerRolesController < ApplicationController
             found_person = @resident_candidate.match_person
             if found_person.present? && found_person.resident_role.present?
               begin
-                @resident_role = Factories::EnrollmentFactory.construct_resident_role(params.permit!, actual_user)
+                @resident_role = ::Factories::EnrollmentFactory.construct_resident_role(params.require(:person).permit(person_parameters_list), actual_user)
                 if @resident_role.present?
                   @person = @resident_role.person
                   session[:person_id] = @person.id
@@ -144,7 +144,7 @@ class Insured::ConsumerRolesController < ApplicationController
 
   def create
     begin
-      @consumer_role = Factories::EnrollmentFactory.construct_consumer_role(params.permit!, actual_user)
+      @consumer_role = ::Factories::EnrollmentFactory.construct_consumer_role(params, actual_user)
       if @consumer_role.present?
         @person = @consumer_role.person
       else

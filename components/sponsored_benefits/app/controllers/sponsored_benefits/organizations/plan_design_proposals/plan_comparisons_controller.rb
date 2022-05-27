@@ -28,9 +28,9 @@ module SponsoredBenefits
 
         def csv
           benefit_group = plan_design_proposal.active_benefit_group
-          @service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: benefit_group})
           @qhps = qhps.each do |qhp|
             if benefit_group
+              @service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: benefit_group})
               qhp[:total_employee_cost] = @service.monthly_employer_contribution_amount(qhp.plan)
             else
               qhp[:total_employee_cost] = 0.00
@@ -56,7 +56,8 @@ module SponsoredBenefits
         end
 
         def requested_plans
-          @plans ||= ::Plan.where(:_id => { '$in': params[:plans] } ).map(&:hios_id)
+          @requested_plans ||= ::Plan.where(:_id => { '$in': params[:plans].to_a }).map(&:hios_id)
+          @plans = @requested_plans
         end
 
         def qhps

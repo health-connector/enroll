@@ -39,9 +39,11 @@ module SponsoredBenefits
       let(:benefit_group)             { FactoryGirl.create :benefit_group, title: 'new' }
 
       let(:benefit_market)      { site.benefit_markets.first }
+      let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
       let(:current_effective_date)  { TimeKeeper.date_of_record }
       let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
                                              benefit_market: benefit_market,
+                                             issuer_profile: issuer_profile,
                                              title: "SHOP Benefits for #{current_effective_date.year}",
                                              application_period: (effective_period_start_on.beginning_of_year..effective_period_start_on.end_of_year))
 
@@ -52,7 +54,11 @@ module SponsoredBenefits
       let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: effective_period_start_on.year }
       let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:benefit_sponsor_organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
-      let(:sponsor_benefit_sponsorship) { benefit_sponsor_organization.employer_profile.add_benefit_sponsorship }
+      let(:sponsor_benefit_sponsorship) do
+        sponsorship = benefit_sponsor_organization.employer_profile.add_benefit_sponsorship
+        sponsorship.save
+        sponsorship
+      end
 
       let(:plan_design_organization)  { SponsoredBenefits::Organizations::PlanDesignOrganization.new(legal_name: "xyz llc", office_locations: [office_location]) }
       let(:plan_design_proposal)      { SponsoredBenefits::Organizations::PlanDesignProposal.new(title: "New Proposal") }
@@ -69,7 +75,18 @@ module SponsoredBenefits
         profile.benefit_sponsorships = [benefit_sponsorship]
         benefit_sponsorship.benefit_applications = [benefit_application]
         benefit_application.benefit_groups << benefit_group
-        plan_design_organization.save
+      end
+
+      context "MA SIC code" do
+        it "should not save without a sic code" do
+          plan_design_organization.sic_code = nil
+          expect(plan_design_organization.save).to eq(false)
+        end
+
+        it "should save with a sic code for MA" do
+          plan_design_organization.sic_code = "112233"
+          expect(plan_design_organization.save).to eq(true)
+        end
       end
 
       it "should instantiate a plan year object and must have correct values assigned" do

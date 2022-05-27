@@ -60,8 +60,8 @@ module SponsoredBenefits
           return unless plan_design_organization.present?
           plan_design_organization.has_active_broker_relationship = false
           plan_design_organization.sic_code ||= employer.sic_code
-          plan_design_organization.save!
           plan_design_organization.expire_proposals
+          plan_design_organization.save!
         end
       end
 

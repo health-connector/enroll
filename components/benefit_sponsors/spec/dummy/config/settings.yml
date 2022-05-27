@@ -117,6 +117,7 @@ notices:
 
 invoices:
   addendum: 'ma_non_discrimination_and_language_tags.pdf'
+  minimum_invoice_display_year: 2015
 
 aca:
   state_name: "Massachusetts"
@@ -126,6 +127,7 @@ aca:
   nationwide_markets: false
   general_agency_enabled: false
   broker_carrier_appointments_enabled: true
+  enrollments_reinstate_enabled: false
   dental_market_enabled: false
   calendar_enabled: true
   dental_plan_years_available: [""]
@@ -136,6 +138,7 @@ aca:
   recaptcha_enabled: false
   security_questions: true
   user_accounts_enabled: true
+  support_for_ie_browser: false
   plan_options_available: ["sole_source", "single_carrier", "metal_level"]
   ## acceptable options are ["sole_source", "single_carrier", "metal_level", "single_plan"]
   enabled_metal_levels_for_single_carrier: ["silver", "gold", "dental"]
@@ -250,6 +253,7 @@ aca:
     mid_month_benefit_application_terminations:
       voluntary: false
       non_payment: false
+    auto_cancel_ineligible: false
 
   transmit_employers_immediately: false
   employer_has_sic_field: true

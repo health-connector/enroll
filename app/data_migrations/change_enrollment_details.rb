@@ -164,7 +164,7 @@ class ChangeEnrollmentDetails < MongoidMigrationTask
 
         new_enrollment.save!
 
-        assignment = enrollment.employee_role.census_employee.benefit_group_assignment_by_package(new_enrollment.sponsored_benefit_package_id)
+        assignment = enrollment.employee_role.census_employee.benefit_group_assignment_by_package(new_enrollment.sponsored_benefit_package_id, new_enrollment.effective_on)
         assignment.update_attributes(hbx_enrollment_id: new_enrollment.id)
 
         new_enrollment.select_coverage! if new_enrollment.may_select_coverage?
@@ -179,8 +179,11 @@ class ChangeEnrollmentDetails < MongoidMigrationTask
   end
 
   def transfer_enrollment_from_glue_to_enroll
-    # This method needs to be updated to new model
-    ts = TranscriptGenerator.new
+    ts = if ENV['market'].present?
+           TranscriptGenerator.new(ENV['market'].to_s)
+         else
+           TranscriptGenerator.new
+         end
     ts.display_enrollment_transcripts
   end
 end

@@ -52,12 +52,16 @@ module Config::SiteHelper
     link_to site_home_url, site_home_url
   end
 
+  def site_copyright_period_start
+    EnrollRegistry[:enroll_app].setting(:copyright_period_start).item
+  end
+
   def site_help_url
-    Settings.site.help_url
+    EnrollRegistry[:enroll_app].setting(:help_url).item
   end
 
   def site_business_resource_center_url
-    Settings.site.business_resource_center_url
+    EnrollRegistry[:enroll_app].setting(:business_resource_center_url).item
   end
 
   def link_to_site_business_resource_center
@@ -65,15 +69,15 @@ module Config::SiteHelper
   end
 
   def site_nondiscrimination_notice_url
-    Settings.site.nondiscrimination_notice_url
+    EnrollRegistry[:enroll_app].setting(:nondiscrimination_notice_url).item
   end
 
   def site_policies_url
-    Settings.site.policies_url
+    EnrollRegistry[:enroll_app].setting(:policies_url).item
   end
 
   def site_faqs_url
-    Settings.site.faqs_url
+    EnrollRegistry[:enroll_app].setting(:faqs_url).item
   end
 
   def site_short_name
@@ -117,11 +121,11 @@ module Config::SiteHelper
   end
 
   def health_care_website
-      Settings.site.health_care_website
+    Settings.site.health_care_website
   end
 
   def health_care_website_url
-      Settings.site.health_care_website_url
+    Settings.site.health_care_website_url
   end
 
   def ivl_login_url
@@ -201,7 +205,7 @@ module Config::SiteHelper
   end
 
   def site_tufts_url
-     Settings.site.tufts_premier_url
+    Settings.site.tufts_premier_url
   end
 
   def site_tufts_premier_link

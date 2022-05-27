@@ -2,7 +2,22 @@ module BenefitSponsors
   module BenefitApplications
     class BenefitSponsorHealthCatalogDecorator < SimpleDelegator
 
-      Product = Struct.new(:id, :title, :metal_level_kind, :carrier_name, :issuer_id, :sole_source, :coverage_kind, :product_type, :network_information)
+      Product = Struct.new(
+        :id,
+        :title,
+        :metal_level_kind,
+        :carrier_name,
+        :issuer_id,
+        :sole_source,
+        :coverage_kind,
+        :product_type,
+        :network_information,
+        :deductible_value,
+        :family_deductible_value,
+        :rx_deductible_value,
+        :rx_family_deductible_value
+      )
+
       ContributionLevel = Struct.new(:id, :display_name, :contribution_factor, :is_offered, :contribution_unit_id)
 
       def sponsor_contributions(benefit_package_id = nil)
@@ -14,7 +29,7 @@ module BenefitSponsors
 
 
         @contributions = product_packages.by_product_kind(:health).inject({}) do |contributions, product_package|
-          
+
           if benefit_package.present?
             if sponsored_benefit = benefit_package.sponsored_benefits.detect{|sb| sb.product_package == product_package}
               sponsor_contribution = sponsored_benefit.sponsor_contribution
@@ -28,9 +43,9 @@ module BenefitSponsors
 
           contributions[product_package.package_kind.to_s] = {
             id: nil,
-            contribution_levels: sponsor_contribution.contribution_levels.collect{|cl| 
-                     ContributionLevel.new(cl.id.to_s, cl.display_name, cl.contribution_factor, true, cl.contribution_unit_id)
-                    }
+            contribution_levels: sponsor_contribution.contribution_levels.collect do |cl|
+              ContributionLevel.new(cl.id.to_s, cl.display_name, cl.contribution_factor, true, cl.contribution_unit_id)
+            end
           }
 
           contributions
@@ -63,8 +78,8 @@ module BenefitSponsors
 
       def probation_period_kinds
         [
-          ["First of the month following or coinciding with date of hire", 'first_of_month'], 
-          ["First of the month following 30 days", 'first_of_month_after_30_days'], 
+          ["First of the month following or coinciding with date of hire", 'first_of_month'],
+          ["First of the month following 30 days", 'first_of_month_after_30_days'],
           ["First of the month following 60 days", 'first_of_month_after_60_days']
         ]
       end
@@ -76,14 +91,18 @@ module BenefitSponsors
         product_packages.by_product_kind(:health).each do |product_package|
           package_products = product_package.products.collect do |product|
             Product.new(product.id,
-              product.title,
-              product.metal_level_kind,
-              carriers[product.issuer_profile_id.to_s],
-              product.issuer_profile_id,
-              false,
-              product.is_a?(BenefitMarkets::Products::HealthProducts::HealthProduct) ? "health" : "dental",
-              product.product_type,
-              product.network_information
+                        product.title,
+                        product.metal_level_kind,
+                        carriers[product.issuer_profile_id.to_s],
+                        product.issuer_profile_id,
+                        false,
+                        product.is_a?(BenefitMarkets::Products::HealthProducts::HealthProduct) ? "health" : "dental",
+                        product.product_type,
+                        product.network_information,
+                        product.medical_individual_deductible,
+                        product.medical_family_deductible,
+                        product.rx_individual_deductible,
+                        product.rx_family_deductible
             )
           end
           @products[product_package.package_kind] = case product_package.package_kind
@@ -95,7 +114,6 @@ module BenefitSponsors
               package_products.group_by(&:carrier_name)
             end
         end
-
         @products
       end
 

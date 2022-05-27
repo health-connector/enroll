@@ -14,8 +14,19 @@ namespace :xml do
       result = Parser::PlanCrossWalkListParser.parse(xml.root.canonicalize, :single => true)
       cross_walks = result.to_hash[:crosswalks]
       cross_walks.each do |row|
-        old_hios_id = row["plan_id_#{@previous_year}_hios".to_sym].squish
-        new_hios_id = row["plan_id_#{@current_year}_hios".to_sym].squish
+        old_hios_id = if row["plan_id_#{@previous_year}_hios".to_sym].present?
+          row["plan_id_#{@previous_year}_hios".to_sym]
+        else
+          row["plan_id_cy".to_sym]
+        end.squish
+
+        new_hios_id = if row["plan_id_#{@current_year}_hios".to_sym].present?
+          row["plan_id_#{@current_year}_hios".to_sym]
+        else
+          row["plan_id_fy".to_sym]
+        end.squish
+
+        next if new_hios_id.blank? && row[:crosswalk_level].include?('Discontinue with no crosswalk')
 
         # old model
         new_plans =  Plan.where(hios_id: /#{new_hios_id}/, active_year: @current_year)

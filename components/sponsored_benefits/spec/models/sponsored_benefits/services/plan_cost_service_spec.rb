@@ -74,14 +74,7 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
   end
 
   let!(:sponsor_profile) do
-    if Settings.aca.state_abbreviation == "DC" # toDo
-      FactoryGirl.create(:employer_profile)
-    else
-      FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-        :with_site,
-        :with_aca_shop_cca_employer_profile
-      ).profiles.first
-    end
+    FactoryGirl.create(:employer_profile)
   end
 
   let!(:relationship_benefit) { benefit_group.relationship_benefits.first }
@@ -110,6 +103,25 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
     it "should return total monthly employee contribution amount" do
       # ER contribution is 80%. EE contribution is 20%
       expect(subject.monthly_employee_costs).to eq [0.2*78.0, 0.2*78.0]
+    end
+  end
+
+  context "for dental plan" do
+
+    let(:benefit_group) do
+      benefit_application.benefit_groups.first.tap do |benefit_group|
+        reference_plan_id = FactoryGirl.create(:plan, :with_dental_coverage, :with_complex_premium_tables, :with_rating_factors).id
+        benefit_group.update_attributes(dental_reference_plan_id: reference_plan_id)
+      end
+    end
+
+    before :each do
+      allow(Caches::PlanDetails).to receive(:lookup_rate_with_area).and_return 92.0
+      @pcs = SponsoredBenefits::Services::PlanCostService.new(benefit_group: benefit_group)
+      @pcs.plan = benefit_group.dental_reference_plan
+    end
+    it "should return dental reference plan" do
+      expect(@pcs.reference_plan.dental?).to be_truthy
     end
   end
 end

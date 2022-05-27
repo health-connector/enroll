@@ -6,31 +6,25 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_s
 
 RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean: :after_each do
     #include_context "setup benefit market with market catalogs and product packages"
-  include_context "setup initial benefit application"
 
   let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
   let(:benefit_market) { site.benefit_markets.first }
+  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:current_benefit_market_catalog) do
-    BenefitSponsors::ProductSpecHelpers.construct_cca_simple_benefit_market_catalog(site, benefit_market, effective_period)
-    benefit_market.benefit_market_catalogs.where(
-      "application_period.min" => effective_period.min
-    ).first
+    create(
+      :benefit_markets_benefit_market_catalog,
+      :with_product_packages,
+      benefit_market: benefit_market,
+      issuer_profile: issuer_profile,
+      title: "SHOP Benefits for #{current_effective_date.year}",
+      application_period: current_effective_date.beginning_of_year..current_effective_date.end_of_year
+    )
   end
-
   let(:current_effective_date) { TimeKeeper.date_of_record.end_of_month + 1.day + 1.month }
+  include_context "setup initial benefit application"
 
-  let(:service_areas) do
-    ::BenefitMarkets::Locations::ServiceArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).all.to_a
-  end
-
-  let(:rating_area) do
-    ::BenefitMarkets::Locations::RatingArea.where(
-      :active_year => current_benefit_market_catalog.application_period.min.year
-    ).first
-  end
-
+  let(:rating_area)         { FactoryGirl.create_default :benefit_markets_locations_rating_area, active_year: current_effective_date.year }
+  let(:service_area)        { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: current_effective_date.year }
     let!(:person) {FactoryGirl.create(:person, :with_consumer_role)}
     let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, :person => person)}
     let(:qle_kind) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date) }
@@ -90,7 +84,11 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
                             sponsored_benefit_package_id: initial_application.benefit_packages.first.id) }
     let(:hbx_enrollments) {double(:enrolled => [hbx_enrollment], :where => collectiondouble)}
     let!(:collectiondouble) { double(where: double(order_by: [hbx_enrollment]))}
-    let!(:hbx_profile) {FactoryGirl.create(:hbx_profile)}
+    let!(:hbx_profile) {
+      profile = FactoryGirl.create(:hbx_profile)
+      profile.benefit_sponsorship.benefit_coverage_periods << FactoryGirl.build(:benefit_coverage_period, :next_years_open_enrollment_coverage_period)
+      profile
+    }
     let(:benefit_group) { FactoryGirl.create(:benefit_group)}
     let(:benefit_package) { FactoryGirl.build(:benefit_package,
         benefit_coverage_period: hbx_profile.benefit_sponsorship.benefit_coverage_periods.first,
@@ -362,6 +360,19 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       expect(response).to redirect_to(insured_plan_shopping_path(id: family.active_household.hbx_enrollments[1].id, change_plan: 'change', coverage_kind: 'health', market_kind: 'shop', enrollment_kind: ''))
     end
 
+    it "should raise error if not shoppable" do
+      user = FactoryGirl.create(:user, id: 98, person: FactoryGirl.create(:person))
+      plan_year.update_attributes(aasm_state: :approved)
+      plan_year.save!
+      plan_year.reload
+      sign_in user
+      allow(hbx_enrollment).to receive(:save).and_return(true)
+      post :create, person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids, change_plan: 'change'
+      family.reload
+      family.active_household.reload
+      expect(flash[:error]).to match(/Open enrollment for your employer-sponsored benefits not yet started. Please return on/)
+    end
+
     context "when keep_existing_plan" do
       let(:old_hbx) {hbx_enrollment}
 
@@ -382,6 +393,50 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
       it "should get special_enrollment_period_id" do
         expect(family.active_household.hbx_enrollments[1].special_enrollment_period_id).to eq family.earliest_effective_shop_sep.id
+      end
+    end
+
+    context "family has active sep" do
+      let(:person1) { FactoryGirl.create(:person, :with_family, :with_employee_role)}
+      let(:family1) { person1.primary_family }
+      let(:family_member_ids) {{"0" => family1.family_members.first.id}}
+      let!(:new_household) {family1.households.where(:id => {"$ne" => family.households.first.id.to_s}).first}
+      let(:start_on) { TimeKeeper.date_of_record }
+
+      let(:qle) do
+        QualifyingLifeEventKind.create(
+          title: "Married",
+          tool_tip: "Enroll or add a family member because of marriage",
+          action_kind: "add_benefit",
+          event_kind_label: "Date of married",
+          market_kind: "shop",
+          ordinal_position: 15,
+          reason: "marriage",
+          edi_code: "32-MARRIAGE",
+          effective_on_kinds: ["first_of_next_month"],
+          pre_event_sep_in_days: 0,
+          post_event_sep_in_days: 30,
+          is_self_attested: true
+        )
+      end
+
+      let(:special_enrollment_period) {[double("SpecialEnrollmentPeriod")]}
+      let!(:sep) { family1.special_enrollment_periods.create(qualifying_life_event_kind: qle, qle_on: qle.created_at, effective_on_kind: qle.event_kind_label, effective_on: current_effective_date, start_on: start_on, end_on: start_on + 30.days) }
+      let(:params) do
+        { :person_id => person1.id,
+          :employee_role_id => person1.employee_roles.first.id,
+          :market_kind => "shop",
+          :change_plan => "change_plan",
+          :hbx_enrollment_id => hbx_enrollment.id,
+          :family_member_ids => family_member_ids,
+          :enrollment_kind => 'special_enrollment',
+          :coverage_kind => hbx_enrollment.coverage_kind}
+      end
+
+      it "should create an hbx enrollment" do
+        sign_in user
+        post :create, params
+        expect(assigns(:change_plan)).to eq "change_by_qle"
       end
     end
 
@@ -424,6 +479,25 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       expect(response).not_to redirect_to(new_insured_group_selection_path(person_id: person.id, employee_role_id: employee_role.id, change_plan: '', market_kind: 'shop', enrollment_kind: ''))
     end
 
+    context 'should block user from shopping' do
+
+      it 'when benefit application is in termination pending' do
+        initial_application.update_attributes(aasm_state: :termination_pending)
+        user = create(:user, id: 190, person: create(:person))
+        sign_in user
+        post :create, person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids
+        expect(flash[:error]).to eq "Your employer is no longer offering health insurance through #{Settings.site.short_name}. Please contact your employer or call our Customer Care Center at 1-888-813-9220."
+      end
+
+      it 'when benefit application is terminated' do
+        initial_application.update_attributes(aasm_state: :terminated)
+        user = create(:user, id: 191, person: create(:person))
+        sign_in user
+        post :create, person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids
+        expect(flash[:error]).to eq "Your employer is no longer offering health insurance through #{Settings.site.short_name}. Please contact your employer."
+      end
+    end
+
     it "for cobra with invalid date" do
       user = FactoryGirl.create(:user, id: 196, person: FactoryGirl.create(:person))
       sign_in user
@@ -435,8 +509,9 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       person.reload
       post :create, person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids
       expect(response).to have_http_status(:redirect)
-      expect(flash[:error]).to match /You may not enroll for cobra after/
-      expect(response).to redirect_to(new_insured_group_selection_path(person_id: person.id, employee_role_id: person.employee_roles.first.id, change_plan: '', market_kind: 'shop', enrollment_kind: ''))
+      expect(flash[:error]).to eq nil
+      family.reload
+      expect(response).to redirect_to(insured_plan_shopping_path(id: family.active_household.hbx_enrollments.where(aasm_state: 'shopping').last.id, coverage_kind: 'health', market_kind: 'shop', enrollment_kind: ''))
     end
 
     it "should render group selection page if without family_member_ids" do
@@ -444,6 +519,46 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       expect(response).to have_http_status(:redirect)
       expect(flash[:error]).to eq 'You must select at least one Eligible applicant to enroll in the healthcare plan'
       expect(response).to redirect_to(new_insured_group_selection_path(person_id: person.id, employee_role_id: employee_role.id, change_plan: '', market_kind: 'shop', enrollment_kind: ''))
+    end
+  end
+
+  context 'family with active enrollment and sep' do
+    let!(:update_family) {family.special_enrollment_periods.delete_all}
+    let!(:hbx_enrollment) {FactoryGirl.create(:hbx_enrollment, household: family.active_household, sponsored_benefit_package_id: initial_application.benefit_packages.first.id)}
+    let!(:start_on) {TimeKeeper.date_of_record}
+    let!(:benefit_package) {hbx_enrollment.sponsored_benefit_package}
+
+    let(:qle) do
+      QualifyingLifeEventKind.create(
+        title: 'Married',
+        tool_tip: 'Enroll or add a family member because of marriage',
+        action_kind: 'add_benefit',
+        event_kind_label: 'Date of married',
+        market_kind: 'shop',
+        ordinal_position: 15,
+        reason: 'marriage',
+        edi_code: '32-MARRIAGE',
+        effective_on_kinds: ['first_of_next_month'],
+        pre_event_sep_in_days: 0,
+        post_event_sep_in_days: 30,
+        is_self_attested: true
+      )
+    end
+
+    let(:sep_params) do
+      { qualifying_life_event_kind: qle,
+        qle_on: qle.created_at,
+        effective_on_kind: qle.event_kind_label,
+        effective_on: benefit_package.effective_period.min,
+        start_on: start_on,
+        end_on: start_on + 30.days}
+    end
+
+    it 'should assign change_plan as change_by_qle for make changes on the existing enrollment' do
+      family.special_enrollment_periods.create(sep_params)
+      sign_in user
+      get :new, person_id: person.id, employee_role_id: person.employee_roles.first.id, change_plan: 'change_plan', hbx_enrollment_id: hbx_enrollment.id
+      expect(assigns(:change_plan)).to eq 'change_by_qle'
     end
   end
 end

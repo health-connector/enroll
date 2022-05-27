@@ -68,6 +68,10 @@ contact_center:
   ivl_number: "1-877-623-6765"
   ivl_phone_number: "1-877-623-6765"
   email_address: "smallbusiness@mahealthconnector.org"
+  po_box: "PO Box 960189"
+  city: "Boston"
+  state: "MA"
+  zip_code: "02196"
   small_business_email: "smallbusiness@MAhealthconnector.org"
   non_discrimination_email: "Nondiscrimination@state.ma.us"
 
@@ -130,6 +134,7 @@ notices:
 
 invoices:
   addendum: 'ma_non_discrimination_and_language_tags.pdf'
+  minimum_invoice_display_year: 2015
 
 aca:
   state_name: "Massachusetts"
@@ -139,6 +144,9 @@ aca:
   nationwide_markets: false
   general_agency_enabled: false
   broker_carrier_appointments_enabled: true
+  enrollments_reinstate_enabled: true
+  past_enrollment_eligble_to_retrem:
+    year: 2
   dental_market_enabled: true
   calendar_enabled: true
   dental_plan_years_available: [""]
@@ -149,6 +157,10 @@ aca:
   recaptcha_enabled: false
   security_questions: true
   user_accounts_enabled: true
+  autopay_enabled: true
+  support_for_ie_browser: false
+  block_ie_browser: true
+  block_ie_browser_after: <%= Date.new(2020,6,1) %>
   plan_options_available: ["sole_source", "single_carrier", "metal_level"]
   dental_plan_options_available: ["single_plan"]
   ## acceptable options are ["sole_source", "single_carrier", "metal_level", "single_plan"]
@@ -220,7 +232,7 @@ aca:
     renewal_application:
       earliest_start_prior_to_effective_on:
         months: -2
-        day_of_month: 0
+        day_of_month: 25
       monthly_open_enrollment_end_on: 20
       publish_due_day_of_month: 15
       application_submission_soft_deadline: 10
@@ -264,6 +276,8 @@ aca:
     mid_month_benefit_application_terminations:
       voluntary: false
       non_payment: false
+
+    auto_cancel_ineligible: false
 
   transmit_employers_immediately: false
   employer_has_sic_field: true
