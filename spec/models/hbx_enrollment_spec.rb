@@ -1675,7 +1675,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         end
       end
 
-context '.update_expected_selection' do
+      context '.update_expected_selection' do
         context "Health" do
           let(:new_enrollment) do
             FactoryGirl.create(:hbx_enrollment,
