@@ -31,7 +31,7 @@
       .invalid-feedback
         | Please select a state.
     .col-md-3.col-sm-12.col-xs-12
-      label for="inputZip" Zip
+      label for="inputZip" = l10n('employers.registration.zip')
       = f.text_field :zip, id:'inputZip', class:'form-control mb-1', minlength:'5', maxlength:'5'
       .invalid-feedback
         | Please provide a valid zipcode.
