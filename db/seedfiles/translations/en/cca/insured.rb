@@ -400,5 +400,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.plan_shoppings.thankyou.confirm_your_plan_selection.content' => "Please review your current plan selection. If you want to change your plan, select 'Previous' to go back. If you’ve decided on a plan and are ready to complete your enrollment, select 'Confirm'. </br></br>Note: This is not an invoice. We will send a bill to your employer each month. If you have questions about paying your monthly premium, please check with your employer",
   :'en.important' => "Important",
   :'en.insured.plan_shoppings.thankyou.you_must_complete_steps_to_enroll' => "You must complete these steps to enroll.",
-  :'en.insured.plan_shoppings.thankyou.additional_administration_msg' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer."
+  :'en.insured.plan_shoppings.thankyou.additional_administration_msg' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.",
+  :'en.insured.email_html' => "EMAIL *",
+  :'en.insured.select_kind_html' => "SELECT KIND *"
 }.freeze
