@@ -6,6 +6,8 @@ CENSUS_EMPLOYEE_TRANSLATIONS = {
   :'en.census_employee.first_name_html' =>  "FIRST NAME *",
   :'en.census_employee.last_name_html' =>  "LAST NAME *",
   :'en.census_employee.gender_html' =>  "GENDER *",
-  :'en.census_employee.hired_on_html' =>  "HIRE DATE *"
+  :'en.census_employee.hired_on_html' =>  "HIRE DATE *",
+  :'en.census_employee.dob_html' =>  "DATE OF BIRTH *",
+  :'en.census_employee.ssn_html' =>  "SOCIAL SECURITY *"
 }.freeze
 
