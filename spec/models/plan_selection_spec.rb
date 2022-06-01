@@ -223,6 +223,7 @@ describe PlanSelection, dbclean: :after_each do
         employee_role.census_employee_id = census_employee.id
         person.save
         subject.select_plan_and_deactivate_other_enrollments(initial_enrollment.id,nil)
+
         expect(shop_family.active_household.hbx_enrollments.last.aasm_state).to eq("auto_renewing")
       end
     end
