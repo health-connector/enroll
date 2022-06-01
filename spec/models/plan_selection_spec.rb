@@ -209,7 +209,7 @@ describe PlanSelection, dbclean: :after_each do
 
   before do
     allow_any_instance_of(BenefitMarkets::Products::HealthProducts::HealthProduct).to receive(:renewal_product).and_return(product_package.products.last)
-    TimeKeeper.set_date_of_record_unprotected!(Date.today.next_month.beginning_of_month + 1.day)
+    # TimeKeeper.set_date_of_record_unprotected!(Date.today + 1.day.next_month - 1.day)
   end
 
   after do
@@ -224,7 +224,6 @@ describe PlanSelection, dbclean: :after_each do
         employee_role.census_employee_id = census_employee.id
         person.save
         subject.select_plan_and_deactivate_other_enrollments(initial_enrollment.id,nil)
-
         expect(shop_family.active_household.hbx_enrollments.last.aasm_state).to eq("auto_renewing")
       end
     end
