@@ -209,6 +209,7 @@ describe PlanSelection, dbclean: :after_each do
 
   before do
     allow_any_instance_of(BenefitMarkets::Products::HealthProducts::HealthProduct).to receive(:renewal_product).and_return(product_package.products.last)
+    TimeKeeper.set_date_of_record_unprotected!(Date.today.next_month.beginning_of_month)
   end
 
   after do
