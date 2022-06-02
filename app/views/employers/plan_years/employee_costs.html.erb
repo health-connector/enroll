@@ -1,5 +1,5 @@
 <div class="container" >
-  <h3>PY Cost Impact</h3>
+  <h3><%= l10n('py_cost_impact') %></h3>
   <ul class="nav nav-tabs">
     <% @plan_year.benefit_groups.each do |benefit_group| %>
     <li id="<%= benefit_group.id %>" class=<%= @plan_year.benefit_groups.index(benefit_group).zero? ? "active" : "" %>>

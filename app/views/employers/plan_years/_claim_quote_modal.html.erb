@@ -5,12 +5,12 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Create Plan Year by claiming a broker quote</h4>
+        <h4 class="modal-title"><%= l10n('employers.plan_years.create_py_claim_bq') %></h4>
       </div>
 
       <div class="modal-body">
         <p>
-          Please enter your claim code to create a Plan Year and Benefit Package based on the quote provided by your broker.
+          <%= l10n('br_quote_claim') %>
         </p>
         <%= form_for :employer_profile, url: sponsored_benefits.organizations_plan_design_proposal_claim_path(@employer_profile), method: "get", class: "form-inline" do |f| %>
           <label><%= text_field_tag :claim_code, nil, placeholder: 'X X X X - X X X X', maxlength: 9 %></label>
@@ -20,7 +20,7 @@
         <ul class="application-warnings"></ul>
       </div>
       <div class="modal-footer">
-        <%= link_to 'Cancel', "", class: 'btn btn-default', data: {'dismiss': 'modal' } %>
+        <%= link_to l10n('cancel'), "", class: 'btn btn-default', data: {'dismiss': 'modal' } %>
       </div>
     </div>
   </div>

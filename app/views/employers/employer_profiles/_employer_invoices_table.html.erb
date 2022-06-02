@@ -6,7 +6,7 @@
         <th>
           <span class='sorter'><%= link_to "Statement Date <span class='fa-stack fa-lg'><i class='fa fa-caret-up fa-stack-1x' aria-hidden='true'></i><i class='fa fa-caret-down fa-stack-1x' aria-hidden='true'></i></i></span>".html_safe,employers_employer_profile_path(@employer_profile, :tab => 'billing', :sort_order =>@sort_order)%></span>
         </th>
-        <th>Coverage Period</th>
+        <th><%= l10n('coverage_period') %></th>
       </tr>
     </thead>
     <tbody>
@@ -20,5 +20,5 @@
   </table>
 </div>
 <% else %>
-  <p class="twenty">You don't have any invoices. When you do, they will be displayed here.</p>
+  <p class="twenty"><%= l10n('employers.employer_profiles.invoices_disp') %></p>
 <% end %>

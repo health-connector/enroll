@@ -19,18 +19,18 @@
 
             <% if @census_employee.is_cobra_status? %>
               <div id='cobra_bar'>
-                <div class='title'><strong>COBRA/Continuation</strong></div>
-                <div><strong>effective date:</strong><%= format_date @census_employee.cobra_begin_date %></div>
+                <div class='title'><strong><%= l10n('employers.census_employees.cobra_contin') %></strong></div>
+                <div><strong><%= l10n('effective_date').to_s.downcase %>:</strong><%= format_date @census_employee.cobra_begin_date %></div>
               </div>
             <% end %>
             <span><strong><%= is_rehired(@census_employee) ? "Rehired:" : "Hired:" %></strong>
             <%= format_date @census_employee.hired_on %></span>&nbsp;&nbsp;
             <% if @census_employee.coverage_terminated_on.blank? %>
-            <span><strong>Added to Roster:</strong>
+            <span><strong><%= l10n('employers.census_employees.added_to_roster') %>:</strong>
               <%= format_date TimeKeeper.date_according_to_exchange_at(@census_employee.created_at) %></span>&nbsp;&nbsp;
               <% end %>
             <% if is_terminated(@census_employee)%>
-              <span><strong>Terminated:</strong>
+              <span><strong><%= l10n('terminated') %>:</strong>
               <%= format_date @census_employee.coverage_terminated_on %></span>&nbsp;&nbsp;
             <% end %>
             <h5 class="label label-success census-employee-aasm <%= @census_employee.aasm_state %>">
@@ -48,7 +48,7 @@
     <div class="row">
       <div class="col-xs-12">
         <h3>
-          Details
+          <%= l10n('details') %>
         </h3>
         <div class="panel panel-default module census-employee-details">
           <div class="panel-body">
@@ -65,7 +65,7 @@
       <div class="col-md-6 col-sm-12">
         <h3>
           <%= @census_employee.address.kind.capitalize if @census_employee.address.present?  %>
-          Address
+          <%= l10n('address') %>
         </h3>
         <div class="panel panel-default module census-employee-address">
           <div class="panel-body">
@@ -82,7 +82,7 @@
       <% @census_employee.email = Email.new if @census_employee.email.blank? %>
       <div class="col-md-6 col-sm-12">
         <h3>
-          Email
+          <%= l10n('email') %>
         </h3>
         <div class="panel panel-default module census-employee-email">
           <div class="panel-body">
@@ -101,7 +101,7 @@
       <% @census_employee.enrollments_for_display.compact.each do |enrollment| %>
       <div class="col-xs-12">
         <h3>
-          <%= enrollment.coverage_kind.camelcase %> Enrollment
+          <%= enrollment.coverage_kind.camelcase %> <%= l10n('enrollment') %>
         </h3>
 
         <%= render "insured/families/enrollment", read_only: true, hbx_enrollment: enrollment %>
@@ -112,10 +112,10 @@
     <div class="col-xs-12">
       <div class="row">
         <div class="col-sm-6 text-left">
-        <%= link_to '<i class="fa fa-chevron-left"></i> Back'.html_safe, benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab=>'employees', status: @status), class: 'btn btn-default btn-lg return_to_employee_roster', "aria-expanded" => "true" %>
+        <%= link_to '<i class="fa fa-chevron-left"></i> l10n("back")'.html_safe, benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab=>'employees', status: @status), class: 'btn btn-default btn-lg return_to_employee_roster', "aria-expanded" => "true" %>
         </div>
         <div class="col-sm-6 text-right">
-        <%= link_to 'Cancel'.html_safe, benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab=>'employees', status: @status), class: 'btn btn-default btn-lg', "aria-expanded" => "true" %>
+        <%= link_to l10n('cancel').html_safe, benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab=>'employees', status: @status), class: 'btn btn-default btn-lg', "aria-expanded" => "true" %>
         <button class="btn btn-primary btn-lg" type="submit">
           <%= "Update Employee".html_safe %>
         </button>

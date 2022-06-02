@@ -2,12 +2,12 @@
   <table class="table table-striped table-hover table-sm">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Relationship</th>
-        <th>Age</th>
-        <th>Premium</th>
-        <th>Employer Contribution</th>
-        <th>You Pay</th>
+        <th><%= l10n('name') %></th>
+        <th><%= l10n('relationship') %></th>
+        <th><%= l10n('age') %></th>
+        <th><%= l10n('premium') %></th>
+        <th><%= l10n('employer_contribution') %></th>
+        <th><%= l10n('you_pay') %></th>
       </tr>
     </thead>
     <tbody>
@@ -26,7 +26,7 @@
       <% end %>
       <tr class="gray-row">
         <td class="capital">
-          <strong>Totals</strong>
+          <strong><%= l10n('totals') %></strong>
         </td>
         <td></td>
         <td></td>

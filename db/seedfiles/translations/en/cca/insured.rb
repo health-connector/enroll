@@ -72,6 +72,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.add_member' => "Add Member",
   :'en.choose_files' => "Choose Files",
   :'en.upload' => "Upload",
+  :'en.select_file_upload' => "Select File To Upload",
   :'en.accept' => "Accept",
   :'en.reject' => "Reject",
   :'en.verify' => "Verify",
@@ -108,7 +109,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.enrollments' => "Enrollment(s)",
   :'en.edit' => "Edit",
   :'en.insured.aptc_or_csr' => "APTC/CSR",
-  :'en.members' => "Members",
+  :'en.member' => "Member",
   :'en.plan_contact_info' => "Plan Contact Info",
   :'en.insured.switch_to_all_families' => "Switch to All Families",
   :'en.insured.families_selected' => "families selected",
@@ -277,6 +278,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.city' => "City",
   :'en.state' => "State",
   :'en.zip' => "Zip",
+  :'en.selected_state' => 'Select State',
   :'en.race_or_ethnicity' => "Race/Ethinicity",
   :'en.language' => "Language",
   :'en.is_incarcerated' => "Incarcerated?",
@@ -388,6 +390,8 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.plan_shoppings.you_can_not_waive_confirmation_msg' => "You cannot waive coverage unless you’re in Open Enrollment or a Special Enrollment Period.",
   :'en.insured.plan_shoppings.print_waiver.print_waiver_html' => "<h3>Waiver confirmation</h3><p>You have successfully waived the coverage at %{updated_at}. </p><p>Waiver Reason : %{waiver_reason}. </p><p>Please print this page for your records. </p>",
   :'en.print' => "Print",
+  :'en.choose_plan' => "Choose Plan",
+  :'en.birthdate' => 'Birthdate',
   :'en.insured.plan_shoppings.show.title' => "Enroll in a plan",
   :'en.insured.plan_shoppings.show.title.content' => "Select the plan below that you’d like to enroll in. If you don’t want coverage because you have it through another source, please select Waive Coverage instead.</br></br>If your employer is offering more than one plan for you to choose from, you’ll see all the available options below. You can view plan details and use the filter and compare plan tools to narrow your choices.When you’ve decided on a plan, choose 'Select Plan' to continue.",
   :'en.compare_plans' => "Compare Plans",
@@ -400,5 +404,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.plan_shoppings.thankyou.confirm_your_plan_selection.content' => "Please review your current plan selection. If you want to change your plan, select 'Previous' to go back. If you’ve decided on a plan and are ready to complete your enrollment, select 'Confirm'. </br></br>Note: This is not an invoice. We will send a bill to your employer each month. If you have questions about paying your monthly premium, please check with your employer",
   :'en.important' => "Important",
   :'en.insured.plan_shoppings.thankyou.you_must_complete_steps_to_enroll' => "You must complete these steps to enroll.",
-  :'en.insured.plan_shoppings.thankyou.additional_administration_msg' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer."
+  :'en.insured.plan_shoppings.thankyou.additional_administration_msg' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.",
+  :'en.past_enrollments' => "Past Enrollments",
+  :'en.term_date' => "Termination Date"
 }.freeze

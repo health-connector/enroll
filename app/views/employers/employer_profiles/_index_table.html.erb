@@ -1,17 +1,17 @@
 <thead>
   <tr>
-    <th>HBX Acct</th>
-    <th>Legal Name</th>
-    <th>FEIN</th>
-    <th>EE Ct</th>
-    <th>Enroll Status</th>
-    <th>Effective Date</th>
+    <th><%= l10n('hbx_acct') %></th>
+    <th><%= l10n('legal_name') %></th>
+    <th><%= l10n('fein') %></th>
+    <th><%= l10n('ee_ct') %></th>
+    <th> <%= l10n('enroll_status') %></th>
+    <th><%= l10n('effective_date') %></th>
     <%if controller_name == 'profiles' %>
     <th>Assigned Broker</th>
     <% else %>
-    <th>Broker Agency</th>
+    <th><%= l10n('broker_agency') %></th>
     <% end %>
-    <th>General Agency</th>
+    <th><%= l10n('general_agency') %></th>
     <th>&nbsp;</th>
   </tr>
 </thead>
@@ -25,7 +25,7 @@
       <td><%= er.aasm_state.humanize %></td>
       <td><%= er.published_plan_year.try(:effective_date) %>
       <%= pundit_span EmployerProfile, :list_enrollments? %>
-          <%= link_to ' (Review)', employers_premium_statement_path(er) %></td>
+          <%= link_to "(l10n('review'))", employers_premium_statement_path(er) %></td>
       </span>
       <% if controller_name == 'profiles' %>
         <% broker_agency_profile = er.active_broker_agency_account.broker_agency_profile %>
@@ -38,12 +38,12 @@
         <% broker_agency_profile = er.active_broker_agency_account.broker_agency_profile %>
         <td><%= link_to broker_agency_profile.legal_name, broker_agencies_profile_path(broker_agency_profile) %></td>
       <%- else %>
-        <td>None selected</td>
+        <td><%= l10n('none_selected') %></td>
       <% end %>
       <% end %>
       <td><%= er.active_general_agency_legal_name %></td>
       <% if @profile %>
-        <td><%= link_to 'Send Secure Message'.html_safe, new_employers_inbox_path(id: er.id, profile_id: @profile._id, to: er.legal_name), class: "btn btn-default " + (pundit_class HbxProfile, :modify_admin_tabs?), remote: true %></td>
+        <td><%= link_to l10n('send_secure_message').html_safe, new_employers_inbox_path(id: er.id, profile_id: @profile._id, to: er.legal_name), class: "btn btn-default " + (pundit_class HbxProfile, :modify_admin_tabs?), remote: true %></td>
       <% end %>
     </tr>
   <% end %>

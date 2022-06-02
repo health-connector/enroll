@@ -14,7 +14,7 @@
           <div class="col-md-11 col-sm-12 col-xs-12">
             <% if @employer.errors.any? %>
               <div class="alert alert-error">
-                <h4><%= pluralize(@employer.errors.count, "error") %> prohibited this employer from being saved:</h4>
+                <h4><%= pluralize(@employer.errors.count, "error") %> <%= l10n('employers.census_employees.prohibited_er_from_saved') %>:</h4>
                 <ul>
                   <% @employer.errors.full_messages.each do |msg| %>
                     <li><%= msg %></li>
@@ -32,7 +32,7 @@
             <div id="tax_info" class="focus_effect row personal-info-row" style="opacity: 0.5;">
               <%= render 'tax_fields', f: f %>
               <div class="col-md-2 col-sm-2 col-xs-12 <%= pundit_class EmployerProfile, :updateable?%>">
-                <%= link_to 'Continue', '#', :class => 'btn btn-continue employer_step2' + pundit_class(EmployerProfile,:updateable?) %>
+                <%= link_to l10n('continue'), '#', :class => 'btn btn-continue employer_step2' + pundit_class(EmployerProfile,:updateable?) %>
               </div>
             </div>
 
@@ -43,7 +43,7 @@
             <div id="plan_selection_info" class="focus_effect row personal-info-row hidden" style="opacity: 0.5;">
               <%= render 'plan_selection_fields', f: f %>
               <div class="col-md-2 col-sm-2 col-xs-12 emp-btn-continue <%= pundit_class EmployerProfile, :updateable?%>">
-                <%= link_to 'Continue', '#', :class => 'btn employer_step3' %>
+                <%= link_to l10n('continue'), '#', :class => 'btn employer_step3' %>
               </div>
             </div>
 
@@ -54,7 +54,7 @@
             <div id="broker_info" class="focus_effect row personal-info-row hidden" style="opacity: 0.5;">
               <%= render 'broker_info_fields', f: f %>
               <div class="col-md-2 col-sm-2 col-xs-12 emp-save-btn <%= pundit_class EmployerProfile, :updateable?%>">
-                <%= f.submit 'Save', :class => 'btn btn-continue' %>
+                <%= f.submit l10n('save'), :class => 'btn btn-continue' %>
               </div>
             </div>
 

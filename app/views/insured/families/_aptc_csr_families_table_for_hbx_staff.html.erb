@@ -58,7 +58,7 @@ $(document).ready(function(){
         <%all_active_enrollment_with_aptc(family).each do |hbx|%>
         <tr class="cat<%=ind%>" style="display:none">
           <td colspan = "1"></td>
-          <td colspan = "6">(<b><%= l10n("members") %>:</b> <%=hbx_member_names(hbx.hbx_enrollment_members)%>),  <b>Plan:</b> <%=hbx.plan.name%></td>
+          <td colspan = "6">(<b><%= l10n("member").to_s.pluralize %>:</b> <%=hbx_member_names(hbx.hbx_enrollment_members)%>),  <b>Plan:</b> <%=hbx.plan.name%></td>
         </tr>
         <%end%>
       <% end %>

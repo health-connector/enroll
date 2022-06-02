@@ -3,20 +3,20 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title"><i class='fa fa-trash-o fa-lg' aria-hidden='true'></i> Delete Benefit Package: <%= bg.title %></h4>
+        <h4 class="modal-title"><i class='fa fa-trash-o fa-lg' aria-hidden='true'></i> <%= l10n('employers.plan_years.del_benefit_pkg') %>: <%= bg.title %></h4>
       </div>
       <div class="modal-body">
 				<p>
-          Are you sure you want to delete benefit package <%= bg.title %>?
+          <%= l10n('sure_to')%> <%= l10n('employers.plan_years.del_benefit_pkg').to_s.downcase %> <%= bg.title %>?
           <br/><br/>
-          <strong>Note:</strong> If employees are assigned to this benefit package you will have to reassign them to a different benefit package.
+          <%= l10n('employers.plan_years.re_assign_benefit_pkg') %>
 				</p>
 
         <ul class="application-warnings"></ul>
       </div>
       <div class="modal-footer">
-				<%= link_to 'Cancel', "", class: 'btn btn-default', data: {'dismiss': 'modal' } %>
-        <%= link_to "Delete <i class='fa fa-trash-o' aria-hidden='true'></i> ".html_safe, employers_employer_profile_plan_year_delete_benefit_group_path(employer_profile_id: @employer_profile.id, plan_year_id: plan_year.id, benefit_group_id: bg.id), method: :post, remote: true, class: 'btn btn-primary mtz btn-br' %>
+				<%= link_to l10n('cancel'), "", class: 'btn btn-default', data: {'dismiss': 'modal' } %>
+        <%= link_to "#{l10n('delete')}<i class='fa fa-trash-o' aria-hidden='true'></i> ".html_safe, employers_employer_profile_plan_year_delete_benefit_group_path(employer_profile_id: @employer_profile.id, plan_year_id: plan_year.id, benefit_group_id: bg.id), method: :post, remote: true, class: 'btn btn-primary mtz btn-br' %>
       </div>
     </div>
   </div>

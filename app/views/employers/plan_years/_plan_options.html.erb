@@ -1,4 +1,4 @@
-<option>SELECT REFERENCE PLAN</option>
+<option><%= l10n('employers.plan_years.sel_ref_plan') %></option>
 <% @plans.each do |plan| %>
   <option value='<%= plan.id %>'>
     <%= "#{@carrier_names[plan.carrier_profile_id.to_s]} - #{plan.name}" %>
