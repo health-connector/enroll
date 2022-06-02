@@ -414,6 +414,6 @@ INSURED_TRANSLATIONS = {
   :'en.important' => "Important",
   :'en.insured.plan_shoppings.thankyou.you_must_complete_steps_to_enroll' => "You must complete these steps to enroll.",
   :'en.insured.plan_shoppings.thankyou.additional_administration_msg' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.",
-  :'en.insured.email_html' => "EMAIL *",
-  :'en.insured.select_kind_html' => "SELECT KIND *"
+  :'en.insured.email_text' => "EMAIL *",
+  :'en.insured.select_kind_text' => "SELECT KIND *"
 }.freeze

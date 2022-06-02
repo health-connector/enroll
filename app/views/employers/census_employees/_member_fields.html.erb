@@ -3,13 +3,13 @@
 
     <div class="row row-form-wrapper no-buffer">
       <div class="col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
-        <%= f.text_field :first_name, class: "required floatlabel form-control border-bottom-none", required: true, placeholder: l10n("census_employee.first_name_html"), autocomplete: :off %>
+        <%= f.text_field :first_name, class: "required floatlabel form-control border-bottom-none", required: true, placeholder: l10n("census_employee.first_name_text"), autocomplete: :off %>
       </div>
       <div class="col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
         <%= f.text_field :middle_name, class: "floatlabel form-control", placeholder: 'MIDDLE NAME', autocomplete: :off %>
       </div>
       <div class="col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
-        <%= f.text_field :last_name, class: "required floatlabel form-control", required: true, placeholder: l10n("census_employee.last_name_html"), autocomplete: :off %>
+        <%= f.text_field :last_name, class: "required floatlabel form-control", required: true, placeholder: l10n("census_employee.last_name_text"), autocomplete: :off %>
       </div>
       <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
         <div class="selectric-labeled">
@@ -23,18 +23,18 @@
 
     <div class="row row-form-wrapper no-buffer">
       <div class="col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
-        <%= datepicker_control f, :dob, {:class => "floatlabel form-control interaction-field-control-census-employee-dob", :placeholder => l10n('census_employee.dob_html'),
+        <%= datepicker_control f, :dob, {:class => "floatlabel form-control interaction-field-control-census-employee-dob", :placeholder => l10n('census_employee.dob_text'),
                                          :'data-date-min' => "-110y", :'data-date-max' => "+0", required: true, readonly: !may_update_census_employee?(f.object)} %>
       </div>
       <div class="col-md-3 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
-        <%= f.text_field :ssn, placeholder:l10n('census_employee.ssn_html'), class: "required floatlabel mask-ssn form-control", input_html: {value: "", maxlength: 11}, required: true, readonly: !may_update_census_employee?(f.object) %>
+        <%= f.text_field :ssn, placeholder:l10n('census_employee.ssn_text'), class: "required floatlabel mask-ssn form-control", input_html: {value: "", maxlength: 11}, required: true, readonly: !may_update_census_employee?(f.object) %>
       </div>
 
       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group form-group-lg no-pd no-border-xs">
         <div class="gender-radios">
           <label>
 						<strong style="color: #838780;font-size: 10px;text-transform: uppercase;">
-            	<%= l10n("census_employee.gender_html") %>
+            	<%= l10n("census_employee.gender_text") %>
 						</strong>
           </label>
           <div class="vertically-aligned-row">
