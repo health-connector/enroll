@@ -1076,14 +1076,14 @@ module BenefitSponsors
           let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
           let!(:employer_profile) {benefit_sponsorship.profile}
           let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
-          let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
-          let!(:second_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :expired) }
-          
+          let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
+          let!(:second_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship: benefit_sponsorship, aasm_state: :expired) }
+
           it "should filter out the benefit applications in the expired state" do
             expect(benefit_sponsorship.benefit_applications.non_expired.flatten).to include(initial_application)
             expect(benefit_sponsorship.benefit_applications.non_expired.count).to eql(1)
           end
-          
+
         end
 
         context "contribution key is different from registry setting" do
