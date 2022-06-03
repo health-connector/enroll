@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <% benefit_applications&.order('start_on DESC').each do |application| %>
+        <% benefit_applications.order('start_on DESC').each do |application| %>
           <tr>
             <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s  %></td>
             <td><%= (application.start_on.to_date) %></td>
