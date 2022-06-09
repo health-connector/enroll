@@ -869,6 +869,10 @@ When(/^.+ clicks Shop for new plan button$/) do
   click_button 'Shop for new plan'
 end
 
+When(/^.+ clicks Confirm your Selections button/) do
+  click_button 'Confirm your Selections'
+end
+
 Then(/^.+ should see the list of plans$/) do
   expect(page).to have_link('Select')
   screenshot("plan_shopping")
@@ -1283,6 +1287,11 @@ end
 And(/^.+ click on the Shop for new plan button$/) do
   expect(page.has_css?(EmployeeChooseCoverage.shop_for_new_plan_btn)).to eq true
   find(EmployeeChooseCoverage.shop_for_new_plan_btn).click
+end
+
+And(/^.+ click on the Confirm your Selections button$/) do
+  expect(page.has_css?(EmployeeChooseCoverage.confirm_your_selections)).to eq true
+  find(EmployeeChooseCoverage.confirm_your_selections).click
 end
 
 Then(/^.+ should see both health & dental plans on receipt page$/) do
