@@ -23,6 +23,10 @@ class EmployeeChooseCoverage
     'input[class$="interaction-click-control-shop-for-new-plan"]'
   end
 
+  def self.confirm_your_selections
+    'input[class$="interaction-click-control-confirm-your-selections"]'
+  end
+
   def self.back_to_my_account_btn
     'a[class$="interaction-click-control-back-to-my-account"]'
   end

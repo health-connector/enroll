@@ -308,6 +308,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.group_selection.new.show_residency_alert_msg' => "Since %{full_name} is not a resident of the %{aca_state_name} she/he is not eligible to purchase a plan through %{ site_short_name}. Other members may still be eligible to enroll. Please call us at %{contact_center_phone_number} to learn about other health insurance options for %{full_name}.",
   :'en.insured.group_selection.new.what_would_you_like_to_do' => "What would you like to do?",
   :'en.shop_for_new_plan' => "Shop for new plan",
+  :'en.confirm_your_selections' => "Confirm your Selections",
   :'en.keep_existing_plan' => "Keep existing plan",
   :'en.select_plan_to_terminate' => "Select Plan to Terminate",
   :'en.health_coverage' => "Health Coverage",

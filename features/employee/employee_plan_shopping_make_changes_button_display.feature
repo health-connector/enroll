@@ -29,5 +29,5 @@ Feature: Make Changes Button Appears on Tile
     And I select current date as qle date
     Then I should see confirmation and continue
     When I click on continue button on household info form
-    And I click on the Shop for new plan button
+    And I click on the Confirm your Selections button
     Then I should see the header text related to health plan
