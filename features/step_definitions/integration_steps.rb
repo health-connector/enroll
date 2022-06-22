@@ -1329,3 +1329,7 @@ end
 Then("Employee should see an error message") do
   expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
 end
+
+Then("Employee should see an error message related to primary") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.primary_error_message)
+end

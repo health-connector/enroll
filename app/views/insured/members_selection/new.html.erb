@@ -80,26 +80,53 @@
   <%= render :partial => "ui-components/v1/modals/continuous_waive_confirmation", :locals => {:enrollment => @organizer.previous_hbx_enrollment } if (@organizer.previous_hbx_enrollment.present? && (@organizer.previous_hbx_enrollment.employee_role.present? || @organizer.previous_hbx_enrollment.benefit_group.present?)) %>
 </div>
 
-<script type="text/javascript">
-  function onSubmit(e) {
-    var enrollNumber = 0;
-    $("[data-cuke=health-enroll-radio]").each(function () {
+  <script type="text/javascript">
+    function onSubmit(e) {;
+      var enrollNumber = 0;
+      var primaryHealth = 0;
+      var primaryDental = 0;
+      var waiveNumber = 0;
+      var alertText = '';
+      $("[data-cuke=health-enroll-radio]").each(function (index) {
         if ($(this).is(":checked")) {
-            enrollNumber++;
+          enrollNumber++;
         }
-    });
-    $("[data-cuke=dental-enroll-radio]").each(function () {
+      });
+      $("[data-cuke=dental-enroll-radio]").each(function (index) {
         if ($(this).is(":checked")) {
-            enrollNumber++;
+          enrollNumber++;
         }
-    });
-    if (enrollNumber < 1) {debugger;
-        event.preventDefault();
+      });
+
+      $("[data-cuke=health-waive-radio]").each(function (index) {
+        if ($(this).is(":checked")) {
+          if (index == 0) {waiveNumber++;}
+        }
+      });
+      $("[data-cuke=dental-waive-radio]").each(function (index) {
+        if ($(this).is(":checked")) {
+          if (index == 0) {waiveNumber++;}
+        }
+      });
+
+      if (enrollNumber < 1) {
+        alertText = 'In order to continue, at least one member must be selected to enroll in coverage.';
+        showAlert(alertText);
+      } else if (waiveNumber > 0){
+        alertText = 'Primary person can not be set to "Waive" for either Health or Dental';
+        showAlert(alertText);
+      } else {
+        $(".myAlertText").remove();
+      }
+
+    }
+
+    function showAlert(text) {
+      event.preventDefault();
         $(".myAlertText").remove();
         $("#group-selection-form h1").before(
-            "<span class='myAlertText' style='color:red'>In order to continue, at least one member must be selected to enroll in coverage.</span>"
+          "<span class='myAlertText' style='color:red'>"+text+"</span>"
         );
     }
-  }
 
-</script>
+  </script>
