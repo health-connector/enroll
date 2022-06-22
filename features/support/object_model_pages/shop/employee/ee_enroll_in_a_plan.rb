@@ -178,4 +178,8 @@ class EmployeeEnrollInAPlan
   def self.waived_error_message
     'In order to continue, at least one member must be selected to enroll in coverage.'
   end
+
+  def self.primary_error_message
+    'Primary person can not be set to "Waive" for either Health or Dental'
+  end
 end
