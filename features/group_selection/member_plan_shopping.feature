@@ -54,7 +54,10 @@ Feature: EE plan purchase
 	Then Employee should see enroll & waive buttons
 	And Employee waives health plan
 	When Employee clicks continue button on group selection page for dependents
-	Then Employee should see an error message related to primary
+	When Employee selects a dental plan on the plan shopping page
+	Then Employee clicks no on choose coverage for household
+	When Employee clicks on Confirm button on the coverage summary page
+	Then Employee should see dental enrollment text on receipt page
 
   Scenario: Waive coverage for some members
     And Employee has not signed up as an HBX user
@@ -148,7 +151,11 @@ Feature: EE plan purchase
 	Then Employee should see enroll & waive buttons
 	And Employee waives dental plan
 	When Employee clicks continue button on group selection page for dependents
-	Then Employee should see an error message related to primary
+	When Employee selects a health plan on the plan shopping page
+	Then Employee selects no for dental coverage
+	Then Employee clicks on continue
+	When Employee clicks on Confirm button on the coverage summary page
+	Then Employee should see health confirmation text
 
   Scenario: Employee see error messages when all options are waived
 	And Employee has not signed up as an HBX user

@@ -82,44 +82,38 @@
 
   <script type="text/javascript">
     function onSubmit(e) {;
-      var enrollNumber = 0;
+
+      var healthEnrollNumber = 0;
+      var dentalEnrollNumber = 0;
+
       var primaryHealth = 0;
       var primaryDental = 0;
-      var waiveNumber = 0;
+
       var alertText = '';
       $("[data-cuke=health-enroll-radio]").each(function (index) {
         if ($(this).is(":checked")) {
-          enrollNumber++;
+          if (index == 0) {primaryHealth++;}
+          if (index > 0) {healthEnrollNumber++;}
         }
       });
       $("[data-cuke=dental-enroll-radio]").each(function (index) {
         if ($(this).is(":checked")) {
-          enrollNumber++;
+          if (index == 0) {primaryDental++;}
+          if (index > 0) {dentalEnrollNumber++;}
         }
       });
 
-      $("[data-cuke=health-waive-radio]").each(function (index) {
-        if ($(this).is(":checked")) {
-          if (index == 0) {waiveNumber++;}
-        }
-      });
-      $("[data-cuke=dental-waive-radio]").each(function (index) {
-        if ($(this).is(":checked")) {
-          if (index == 0) {waiveNumber++;}
-        }
-      });
-
-      if (enrollNumber < 1) {
-        alertText = 'In order to continue, at least one member must be selected to enroll in coverage.';
-        showAlert(alertText);
-      } else if (waiveNumber > 0){
+      if (primaryHealth == 0 && healthEnrollNumber != 0 || primaryDental == 0 && dentalEnrollNumber != 0){
         alertText = 'Primary person can not be set to "Waive" for either Health or Dental';
         showAlert(alertText);
-      } else {
+      } else if ((primaryHealth + primaryDental) < 1) {
+        alertText = 'In order to continue, at least one member must be selected to enroll in coverage.';
+        showAlert(alertText);
+      }  else {
         $(".myAlertText").remove();
       }
-
     }
+
 
     function showAlert(text) {
       event.preventDefault();
@@ -130,3 +124,4 @@
     }
 
   </script>
+
