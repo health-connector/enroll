@@ -103,11 +103,11 @@
         }
       });
 
-      if ((primaryHealth + primaryDental) < 1) {
-        alertText = 'In order to continue, at least one member must be selected to enroll in coverage.';
-        showAlert(alertText);
-      } else if (primaryHealth == 0 && healthEnrollNumber != 0 || primaryDental == 0 && dentalEnrollNumber != 0){
+      if (primaryHealth == 0 && healthEnrollNumber != 0 || primaryDental == 0 && dentalEnrollNumber != 0){
         alertText = 'Primary person can not be set to "Waive" for either Health or Dental';
+        showAlert(alertText);
+      } else if ((primaryHealth + primaryDental) < 1) {
+        alertText = 'In order to continue, at least one member must be selected to enroll in coverage.';
         showAlert(alertText);
       }  else {
         $(".myAlertText").remove();
