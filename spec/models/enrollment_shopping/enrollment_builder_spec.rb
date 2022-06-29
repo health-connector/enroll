@@ -315,6 +315,43 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
               expect(enrollment.waiver_reason).to eq "this is waiver reason" if state == "waiver"
             end
           end
+
+          context "with multiple benefit packages assigned" do
+
+            let(:start_on) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
+            let(:aasm_state) { :active }
+
+            let!(:ce) do
+              census_employee = benefit_sponsorship.census_employees.non_business_owner.first
+              census_employee.update(hired_on: TimeKeeper.date_of_record - 2.years)
+              census_employee
+            end
+
+            let(:second_product_package) { benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == 'health' && package != product_package } }
+
+            let!(:second_benefit_package) do
+              FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: second_product_package)
+            end
+
+            let!(:second_benefit_group_assignment) do
+              previous_benefit_group_assignment.update_attributes(end_on: previous_benefit_group_assignment.start_on)
+              FactoryGirl.create(:benefit_group_assignment, benefit_package: second_benefit_package, census_employee: ce, end_on: second_benefit_package.end_on)
+            end
+
+            let(:previous_benefit_group_assignment) { ce.benefit_group_assignments.where(benefit_package_id: current_benefit_package).first }
+
+            let(:benefit_package) {ce.benefit_group_assignments.last.benefit_package}
+            let(:waiver_subject) { enrollment_builder.build_change_waiver_enrollment(previous_enrollment: previous_enrollment, is_qle: is_qle?, optional_effective_on: nil, waiver_reason: "this is waiver reason") }
+            let(:enrolled_subject) { enrollment_builder.build_change_enrollment(previous_enrollment: previous_enrollment, is_qle: is_qle?, optional_effective_on: nil, family_member_ids: family_member_ids) }
+
+            subject(:enrollment) do
+              state == "waiver" ? waiver_subject : enrolled_subject
+            end
+
+            it "should have the most recently assigned benefit package from the employer" do
+              expect(enrollment.sponsored_benefit_package).to eq benefit_package if coverage_kind == 'health' && state == "enrolled"
+            end
+          end
         end
 
         context "during special enrollment period" do
