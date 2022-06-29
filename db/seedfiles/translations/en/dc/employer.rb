@@ -19,5 +19,10 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.benefit_package.employee_cost_button' => "Employee Details Costs",
   :'en.employers.employer_profiles.my_account.important_documents_needed' => "Important Documents Needed",
   :'en.employers.employer_profiles.my_account.eligibility_documents_needed' => "After you complete your application, you will need to submit proof of your eligibility to shop as a small business through the Health Connector. You will need to submit this proof before you are able to shop for a plan. Please review <a href="'https://www.mahealthconnector.org/business/employers/employer-verification-checklist'" target="'_blank'">our list of documents</a> that can be used as proof and make sure that you have the right documentation available.",
-  :'en.employers.census_employees.terminate.termination_date_heading' => "Enter termination date to remove"
+  :'en.employers.census_employees.terminate.termination_date_heading' => "Enter termination date to remove",
+  :'en.employers.registration.kind' => 'Kind *',
+  :'en.employers.registration.address' => 'Address *',
+  :'en.employers.registration.city' => 'City *',
+  :'en.employers.registration.state' => 'State *',
+  :'en.employers.registration.zip' => 'Zip *'
 }.freeze
