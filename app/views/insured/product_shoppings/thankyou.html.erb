@@ -51,7 +51,7 @@
         <% if event == "sign_up" %>
           <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '6'} %>
           <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'checkout'} %>
-        <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
+        <% elsif event == "change_by_qle" || event&.match?(/make_changes_/) %>
           <%= render partial: 'insured/product_shoppings/qle_progress', locals: {step: '3', kind: "employer_sponsored"} %>
         <% else %>
           <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '2'} %>

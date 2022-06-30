@@ -1333,3 +1333,7 @@ end
 Then("Employee should see an error message related to primary") do
   expect(page).to have_content(EmployeeEnrollInAPlan.primary_error_message)
 end
+
+Then("Employee clicks on Keep existing plan") do
+  find(EmployeeChooseCoverage.keep_existing_plan_btn).click
+end
