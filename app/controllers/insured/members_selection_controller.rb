@@ -51,7 +51,7 @@ module Insured
 
       if @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?
         # TODO
-        redirect_to thankyou_insured_product_shoppings_path(keep_existing_plan_cart)
+        redirect_to thankyou_insured_product_shoppings_path({:cart => keep_existing_plan_cart})
       else
         redirect_to continuous_show_insured_product_shoppings_path(@organizer[:plan_selection_json])
       end

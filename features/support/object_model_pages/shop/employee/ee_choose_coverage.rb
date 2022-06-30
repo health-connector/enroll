@@ -38,4 +38,8 @@ class EmployeeChooseCoverage
   def self.member_dental_error
     '[data-cuke="member_dental_error"]'
   end
+
+  def self.keep_existing_plan_btn
+    '[data-cuke="keep_existing_plan_btn"]'
+  end
 end
