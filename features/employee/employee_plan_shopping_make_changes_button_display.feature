@@ -31,3 +31,20 @@ Feature: Make Changes Button Appears on Tile
     When I click on continue button on household info form
     And I click on the Confirm your Selections button
     Then I should see the header text related to health plan
+
+  Scenario: Keep Existing Plan
+    Given Continuous plan shopping is enabled
+    And Patrick Doe has active coverage in coverage enrolled state
+    When I click the "Had a baby" in qle carousel
+    And I select current date as qle date
+    Then I should see confirmation and continue
+    When I click on continue button on household info form
+    And I click on the Confirm your Selections button
+    Then I should see the header text related to health plan
+    When Employee selects a plan on the plan shopping page
+    Then Patrick Doe should see coverage summary page with qle effective date
+    Then Patrick Doe should see the receipt page with qle effective date as effective date
+    Then Patrick Doe should see "my account" page with enrollment
+    When Patrick Doe selects make changes on active enrollment
+    Then Employee clicks on Keep existing plan
+    Then Patrick Doe should see coverage summary page with qle effective date
