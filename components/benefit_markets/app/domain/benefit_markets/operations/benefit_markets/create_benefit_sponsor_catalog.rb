@@ -42,8 +42,7 @@ module BenefitMarkets
 
         def build_product_packages(benefit_market_catalog, application_period, enrollment_eligibility)
           benefit_market_catalog = benefit_market_catalog.value!
-
-          product_packages = benefit_market_catalog.product_packages.collect do |product_package|
+          product_packages = benefit_market_catalog.product_packages&.collect do |product_package|
             product_package_entity_for(product_package, application_period, enrollment_eligibility)
           end
 
@@ -68,6 +67,8 @@ module BenefitMarkets
           product_package_params[:pricing_model][:pricing_units] = build_pricing_units_entities(pricing_units_params, package_kind, product_package[:product_kind])
 
           ::BenefitMarkets::Operations::ProductPackages::Create.new.call(product_package_params: product_package_params, enrollment_eligibility: enrollment_eligibility)
+        rescue StandardError => e
+          ::BenefitMarkets::Operations::ProductPackages::Create.new.fail(exception: e)
         end
 
         def create(sponsor_catalog_params, product_packages)
@@ -114,7 +115,7 @@ module BenefitMarkets
         end
 
         def contribution_models_for(contribution_models_params)
-          contribution_models_params.collect do |contribution_model_params|
+          contribution_models_params&.collect do |contribution_model_params|
             build_contribution_model_entity(contribution_model_params)
           end
         end

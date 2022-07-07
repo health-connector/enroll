@@ -21,6 +21,10 @@ module BenefitMarkets
           Success(product_package)
         end
 
+        def fail(exception:)
+          Failure(exception)
+        end
+
         private
 
         def validate(product_package_params, enrollment_eligibility)
