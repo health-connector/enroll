@@ -9,5 +9,7 @@ CENSUS_EMPLOYEE_TRANSLATIONS = {
   :'en.census_employee.gender_text' =>  "GENDER *",
   :'en.census_employee.hired_on_text' =>  "HIRE DATE *",
   :'en.census_employee.dob_text' =>  "DATE OF BIRTH *",
-  :'en.census_employee.ssn_text' =>  "SOCIAL SECURITY *"
+  :'en.census_employee.ssn_text' =>  "SOCIAL SECURITY *",
+  :'en.census_employee.cobra_fields' =>  "Check the box if this person is already enrolled in COBRA/Continuation outside of %{site_short_name}"
 }.freeze
+
