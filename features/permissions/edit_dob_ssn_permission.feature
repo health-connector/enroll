@@ -3,6 +3,7 @@ Feature: Only Super Admin HBX Staff HBX Tier3 will be able to see & access the E
   Background: Setup site, employer, benefit application and active employee
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given Continuous plan shopping is turned off
     And Qualifying life events are present
     And there is an employer ACME Widgets, Inc.
     And employer ACME Widgets, Inc. has enrollment_open benefit application

@@ -18,6 +18,7 @@ Feature: Employee hired during renewal period
             purchase coverage by clicking on make_changes button on passive renewal
 
     Given there exists Patrick Doe employee for employer ABC Widgets
+    Given Continuous plan shopping is turned off
       And employee Patrick Doe has current hired on date
       And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
       When Employee clicks "Shop for Plans" on my account page

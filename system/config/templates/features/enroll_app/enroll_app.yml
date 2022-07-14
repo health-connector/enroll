@@ -28,3 +28,5 @@ registry:
             item: "https://www.dchealthlink.com/nondiscrimination"
       - key: :employee_roster_updates
         is_enabled: true
+      - key: :continuous_plan_shopping
+        is_enabled: true

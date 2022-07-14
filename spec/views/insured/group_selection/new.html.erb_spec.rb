@@ -51,6 +51,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:effective_on) { benefit_group.effective_on_for(employee_role.hired_on) }
 
     before(:each) do
+      EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
       assign(:person, person)
       assign(:employee_role, employee_role)
       assign(:benefit_group, benefit_group)
@@ -666,6 +667,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:benefit_group) { FactoryGirl.create(:benefit_group) }
 
     before do
+      EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
       assign(:person, person)
       assign(:hbx_enrollment, enrollment)
       assign(:employee_role, employee_role)

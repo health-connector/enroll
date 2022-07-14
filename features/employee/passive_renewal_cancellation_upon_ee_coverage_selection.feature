@@ -5,6 +5,7 @@ Feature: Employee passive renewal should be canceled when Employee selected cove
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given Continuous plan shopping is turned off
     And there is an employer ABC Widgets
     And employer ABC Widgets has active and renewing enrollment_open benefit applications
     And this employer ABC Widgets has first_of_month_after_30_days rule

@@ -73,6 +73,7 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
     let(:new_hire_enrollment_period) { TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 30.days) }
 
     before :each do
+      EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
       assign :person, person
       assign :family, family
       assign :employee_role, employee_role
