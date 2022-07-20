@@ -32,10 +32,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     resource.email = resource.oim_id if resource.email.blank? && resource.oim_id =~ Devise.email_regexp
     resource.handle_headless_records
-
-    resource_saved = resource.save
+    binding.irb
+    resource_saved = handle_recaptcha && resource.save
     yield resource if block_given?
-    if resource_saved
+     if resource_saved 
       # FIXME: DON'T EVER DO THIS!
       # HACK: DON'T EVER DO THIS!
       # NONONONOBAD: We are only doing this because the enterprise service
@@ -86,11 +86,20 @@ class Users::RegistrationsController < Devise::RegistrationsController
   #   super
   # end
 
+
   protected
 
   # You can put the params you want to permit in the empty array.
   def configure_sign_up_params
     devise_parameter_sanitizer.permit(:sign_up, keys: [:oim_id])
+  end
+
+  def handle_recaptcha
+    verify_recaptcha(model: resource) if aca_recaptcha_enabled?
+  end
+
+  def aca_recaptcha_enabled?
+    ENV['RECAPTCHA_IS_ENABLED'] || false
   end
 
   # You can put the params you want to permit in the empty array.
