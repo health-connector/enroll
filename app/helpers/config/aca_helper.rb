@@ -272,6 +272,10 @@ module Config::AcaHelper
     Settings.aca.recaptcha_enabled
   end
 
+  def aca_recaptcha_enabled
+    Settings.aca.recaptcha_enabled
+  end
+
   def aca_security_questions
     Settings.aca.security_questions
   end
@@ -312,5 +316,9 @@ module Config::AcaHelper
 
   def dental_offers_single_plan?
     Settings.aca.dental_plan_options_available.include?("single_plan")
+  end
+  
+  def broker_agency_sent_messages_tab_enabled?
+    Settings.aca.shop_market.broker_agency_profile.broker_agency_sent_messages_tab_enabled
   end
 end
