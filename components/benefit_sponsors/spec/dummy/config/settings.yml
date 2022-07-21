@@ -245,7 +245,6 @@ aca:
       update_transmit_day_of_week: "friday"
 
     broker_agency_profile:
-      broker_agency_sent_messages_tab_enabled: false
       minimum_commission_statement_year: 2017
 
     transmit_scheduled_employers: true
