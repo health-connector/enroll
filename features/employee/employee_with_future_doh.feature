@@ -10,6 +10,7 @@ Feature: Employee with future date of hire
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given Continuous plan shopping is turned off
     Given Qualifying life events are present
     And there is an employer Acme Inc.
     And employer Acme Inc. has enrollment_open benefit application

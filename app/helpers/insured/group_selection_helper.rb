@@ -23,6 +23,14 @@ module Insured
       benefit_group.sole_source? ? composite_benefits(benefit_group) : traditional_benefits(benefit_group)
     end
 
+    def continuous_plan_shopping_helper
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        new_insured_members_selection_path
+      else
+        new_insured_group_selection_path
+      end
+    end
+
     def composite_benefits(benefit_group)
       benefit_group.composite_tier_contributions.select(&:offered).map(&:composite_rating_tier)
     end
@@ -64,6 +72,21 @@ module Insured
       end
     end
 
+    def group_selection_continuous_shopping_helper(effective_on_option)
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        event = params[:qle_id].present? ? 'change_by_qle' : 'shop_for_plans'
+        new_insured_members_selection_path(person_id: @person.id, employee_role_id: @employee_role.try(:id),
+                                           consumer_role_id: @consumer_role.try(:id), change_plan: @change_plan,
+                                           market_kind: @market_kind, sep_id: @sep.try(:id), qle_id: @qle.try(:id),
+                                           effective_on_option_selected: effective_on_option, change_plan_date: @change_plan_date, event: event)
+      else
+        new_insured_group_selection_path(person_id: @person.id, employee_role_id: @employee_role.try(:id),
+                                         consumer_role_id: @consumer_role.try(:id), change_plan: @change_plan,
+                                         market_kind: @market_kind, sep_id: @sep.try(:id), qle_id: @qle.try(:id),
+                                         effective_on_option_selected: effective_on_option, change_plan_date: @change_plan_date)
+      end
+    end
+
     def get_benefit_group(benefit_group, employee_role, qle)
       if benefit_group.present? && (employee_role.employer_profile == benefit_group.employer_profile )
         benefit_group
@@ -94,6 +117,14 @@ module Insured
         renewal_enrollment(enrollments, employee_role)
       else
         active_enrollment(enrollments, employee_role)
+      end
+    end
+
+    def shop_for_plan_widget_enroll_today_helper(new_options)
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        new_insured_members_selection_path(new_options)
+      else
+        new_insured_group_selection_path(new_options)
       end
     end
 
@@ -133,18 +164,33 @@ module Insured
     end
 
     def is_employer_disabled?(employee_role)
-      if @mc_market_kind.present?
-        @mc_market_kind == "individual" || @hbx_enrollment.employee_role.id != employee_role.id
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        market_kind = @organizer.market_kind
+        hbx_enrollment = @organizer.previous_hbx_enrollment
+      else
+        market_kind = @mc_market_kind
+        hbx_enrollment = @hbx_enrollment
+      end
+
+      if market_kind.present? && hbx_enrollment.present?
+        market_kind == "individual" || hbx_enrollment&.employee_role&.id != employee_role.id
       else
         false
       end
     end
 
     def is_employer_checked?(employee_role)
-      if @mc_market_kind.present?
-        !(is_employer_disabled?(employee_role))
+      if EnrollRegistry.feature_enabled?(:continuous_plan_shopping)
+        market_kind = @organizer.mc_market_kind
+        shopping_role = @organizer.employee_role
       else
-        employee_role.id == @employee_role.id
+        market_kind = @mc_market_kind
+        shopping_role = @employee_role
+      end
+      if market_kind.present?
+        !is_employer_disabled?(employee_role)
+      else
+        employee_role.id == shopping_role&.id
       end
     end
 

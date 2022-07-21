@@ -1,0 +1,127 @@
+<% content_for :horizontal_status do %>
+  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 1} %>
+<% end %>
+<% effective_date_for_display = @organizer.effective_on_date || @organizer.new_effective_on %>
+<div class="container group-selection">
+  <div class="row">
+    <%= form_tag(:insured_members_selections, :id => "group-selection-form") do %>
+      <div class="col-xs-8">
+        <h1 class="darkblue"><%= l10n("insured.group_selection.new.choose_coverage_for_your_household") %></h1>
+        <p class="twenty"><%= l10n("insured.group_selection.new.select_who_needs_coverage") %></p>
+        <div style="font-size :24px">
+
+          <%if @organizer.effective_on_date.present? || @organizer.new_effective_on.present? %>
+            <%= l10n("insured.group_selection.new.effective_date") %>: <span style="color: red;"><%= format_date(effective_date_for_display) %></span>
+          <%end%>
+        </div>
+        <% if @organizer.can_shop_shop %>
+          <%= render partial: 'select_employer', locals: {effective_date: effective_date_for_display} %>
+        <% end %>
+
+        <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
+        <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
+        <%= hidden_field_tag(:event, @organizer.event) %>
+        <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
+        <%= hidden_field_tag(:is_waiving, nil, id: "is_waiving_hidden_value_field") %>
+        <%= hidden_field_tag(:person_id, @organizer.person.id) %>
+        <%= hidden_field_tag(:coverage_household_id, @organizer.coverage_household.id) %>
+        <%= hidden_field_tag(:enrollment_kind, @organizer.enrollment_kind) %>
+        <%= hidden_field_tag(:hbx_enrollment_id, (@organizer&.hbx_enrollment&.id || @organizer&.previous_hbx_enrollment&.id)) if(@organizer&.hbx_enrollment&.present? || @organizer&.previous_hbx_enrollment&.present?)%>
+        <%= hidden_field_tag(:shop_under_current, @organizer.shop_under_current) if @organizer.shop_under_current %>
+        <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
+
+        <% if @organizer.can_shop_shop %>
+          <div id="coverage-household" class='row no-buffer'>
+
+                <% @show_residency_alert = false %>
+                <%= render 'coverage_household' %>
+          </div>
+        <% end %>
+
+        <% if @organizer.can_shop_shop %>
+            <%= hidden_field_tag 'market_kind', 'shop' %>
+        <% else %>
+          <% if @market_kind.present? %>
+            <%= hidden_field_tag 'market_kind', @market_kind %>
+          <% end %>
+        <% end %>
+
+        <% if ["sign_up"].exclude?(@organizer.event) %>
+          <%= hidden_field_tag 'change_plan', @organizer.change_plan %>
+          <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
+          <br/>
+          <h3><%= l10n("insured.group_selection.new.what_would_you_like_to_do") %></h3>
+            <%= submit_tag l10n('confirm_your_selections'), class: 'btn btn-primary interaction-click-control-shop-for-new-plan btn-lg'+ pundit_class(Family, :updateable?), onclick: 'return onSubmit();'%>
+          <% if @organizer.previous_hbx_enrollment.present? && @organizer.previous_hbx_enrollment.may_terminate_coverage? %>
+            <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.previous_hbx_enrollment, @organizer.new_effective_on) %>
+            <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
+          <% end %>
+        <% end %>
+        <br/>
+        <br/>
+        <%= link_to l10n("back_to_my_account"), family_account_path, class: 'btn btn-default btn btn-lg' %>
+      </div>
+      <div class="col-xs-3 right-section pull-right">
+          <%  event = @organizer.event %>
+          <% if event == "sign_up" %>
+            <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '4'} %>
+            <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: '4'} %>
+          <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
+            <%= render partial: 'shared/product_shoppings/qle_progress', locals: {step: '2'} %>
+            <%= render partial: 'shared/product_shoppings/qle_buttons', locals: {step: 'no_button'} %>
+          <% else %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1'} %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'show_waive'} %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <%= render :partial => "ui-components/v1/modals/continuous_waive_confirmation", :locals => {:enrollment => @organizer.previous_hbx_enrollment } if (@organizer.previous_hbx_enrollment.present? && (@organizer.previous_hbx_enrollment.employee_role.present? || @organizer.previous_hbx_enrollment.benefit_group.present?)) %>
+</div>
+
+  <script type="text/javascript">
+    function onSubmit(e) {;
+
+      var healthEnrollNumber = 0;
+      var dentalEnrollNumber = 0;
+
+      var primaryHealth = 0;
+      var primaryDental = 0;
+
+      var alertText = '';
+      $("[data-cuke=health-enroll-radio]").each(function (index) {
+        if ($(this).is(":checked")) {
+          if (index == 0) {primaryHealth++;}
+          if (index > 0) {healthEnrollNumber++;}
+        }
+      });
+      $("[data-cuke=dental-enroll-radio]").each(function (index) {
+        if ($(this).is(":checked")) {
+          if (index == 0) {primaryDental++;}
+          if (index > 0) {dentalEnrollNumber++;}
+        }
+      });
+
+      if (primaryHealth == 0 && healthEnrollNumber != 0 || primaryDental == 0 && dentalEnrollNumber != 0){
+        alertText = 'Primary person can not be set to "Waive" for either Health or Dental';
+        showAlert(alertText);
+      } else if ((primaryHealth + primaryDental) < 1) {
+        alertText = 'In order to continue, at least one member must be selected to enroll in coverage.';
+        showAlert(alertText);
+      }  else {
+        $(".myAlertText").remove();
+      }
+    }
+
+
+    function showAlert(text) {
+      event.preventDefault();
+        $(".myAlertText").remove();
+        $("#group-selection-form h1").before(
+          "<span class='myAlertText' style='color:red'>"+text+"</span>"
+        );
+    }
+
+  </script>
+

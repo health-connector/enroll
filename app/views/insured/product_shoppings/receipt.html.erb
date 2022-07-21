@@ -1,0 +1,61 @@
+<% content_for :horizontal_status do %>
+  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 3} %>
+<% end %>
+<div class="container" id='printArea'>
+  <div class="employee-welocome">
+    <div class="row">
+
+        <div class="col-lg-9 col-md-9 col-sm-10 col-xs-12">
+          <div class="col-md-12 col-sm-12 no-pd col-xs-12" data-cuke="dual-enrollment-text">
+            <h1 class="darkblue">Enrollment Submitted</h1>
+            <% employer_profile = @context.collect{|k,v| v[:employer_profile]}.flatten.uniq.first %>
+
+            <% if @context.collect{|k,v| v[:hbx_enrollment].coverage_kind}.flatten.count > 1 %>
+              <p><%= l10n("enrollment_submitted_text_1") %> <%= @context.collect{|k,v| v[:coverage_kind]}.uniq.first %> <%= l10n("enrollment_submitted_text_2") %> <%= @context.collect{|k,v| v[:coverage_kind]}.uniq.last %> <%= l10n("enrollment_submitted_text_3") %> <%= l10n("enrollment_submitted_text_5") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+            <% else %>
+             <p><%= l10n("enrollment_submitted_text_1") %> <%= @context.collect{|k,v| v[:coverage_kind]}.uniq.first %> <%= l10n("enrollment_submitted_text_4") %> <%= l10n("enrollment_submitted_text_6") %> <%= format_datetime(@context.collect{|k,v| v[:hbx_enrollment].updated_at}.uniq.flatten.first) %>.</p>
+             <% end %>
+            <p><%= l10n("print_message") %></p>
+            <% if employer_profile.present? %>
+              <strong><%= employer_profile.legal_name %></strong>
+              </br>
+            <% end %>
+            <% @context.each do |key,value| %>
+              <p data-cuke="<%= value.hbx_enrollment.coverage_kind %>-product-confirmation">
+                <strong><%= value.product.carrier_profile.legal_name %> <%= value.product.name %></strong><br>
+                Benefit: <%= value.hbx_enrollment.coverage_kind %><br>
+                Market: <%= show_market_name_by_enrollment value.hbx_enrollment %><br>
+                Metal level : <%= display_dental_metal_level value.product %>
+              </p>
+
+              <% if value.hbx_enrollment.employee_role.present? %>
+                <%= render "insured/product_shoppings/coverage_information", :enrollment => value.hbx_enrollment, :member_group => value.member_group %>
+              <% end %>
+
+              <% if value.hbx_enrollment.is_cobra_status? %>
+                <p><%= l10n("employer_cobra_message") %></p>
+              <% end %>
+                <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
+            <% end %>
+          </div>
+          <%= link_to 'Print', '#', id: 'btnPrint', class: "btn btn-default interaction-click-control-print-purchase-confirmation" %>
+        </div>
+
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 right-section plan_receipt">
+        <% enrollment_kind = @context.collect{|k,v| v[:enrollment_kind]}.uniq.first %>
+        <% event = @context.collect{|k,v| v[:event]}.uniq.first %>
+         <% default_events = ["shop_for_plans"] %>
+
+        <% if event == "sign_up" %>
+          <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '7'} %>
+          <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'home'} %>
+        <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
+          <%= render partial: 'insured/product_shoppings/qle_progress', locals: {step: '4'} %>
+        <% else %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '3'} %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'receipt'} %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div><br>

@@ -6,6 +6,7 @@ Feature: Broker creates a quote for a prospect employer
   Background: Set up employer, broker and their relationship
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given Continuous plan shopping is turned off
     And the Plans exist
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
