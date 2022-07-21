@@ -172,7 +172,7 @@ module BenefitSponsors
 
           @folder = (params[:folder] || 'Inbox').capitalize
 
-          @provider = (current_user.person._id.to_s == provider_id) ? current_user.person : @broker_agency_provider
+          @provider = current_user.person._id.to_s == provider_id ? current_user.person : @broker_agency_provider
         end
 
         private

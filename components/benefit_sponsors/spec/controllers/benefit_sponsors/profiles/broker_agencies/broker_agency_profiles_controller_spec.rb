@@ -193,9 +193,9 @@ module BenefitSponsors
     end
 
     describe "for broker_agency_profile's inbox" do
-  
+
       let(:unread_messages) { person01.inbox.unread_messages }
-  
+
       context "with a valid message" do
         before :each do
           sign_in(user_with_hbx_staff_role)
