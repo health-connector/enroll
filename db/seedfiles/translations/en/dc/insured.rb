@@ -436,5 +436,7 @@ INSURED_TRANSLATIONS = {
   :'en.employer_cobra_message' => "* Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer.",
   :'en.coverage_for' => "Coverage For:",
   :'en.plans_for' => "Plans:",
-  :'en.effective_date_for' => "Effective Date:"
+  :'en.effective_date_for' => "Effective Date:",
+  :'en.insured.email_text' => "EMAIL *",
+  :'en.insured.select_kind_text' => "SELECT KIND *"
 }.freeze
