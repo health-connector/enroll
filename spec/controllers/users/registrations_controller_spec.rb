@@ -71,9 +71,9 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
       let(:email) { "test@example.com"}
       let(:user) { FactoryGirl.create(:user, email: email, person: person, oim_id: email) }
       let(:person) { FactoryGirl.create(:person) }
-      let(:recaptcha_token) {''} 
+      let(:recaptcha_token) {''}
 
-      before do 
+      before do
         user.save!
         @request.env["devise.mapping"] = Devise.mappings[:user]
       end
@@ -96,10 +96,6 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
         it "should render an error" do
           expect(response).to_not be_success
-        end
-
-        it "should not save user" do
-          binding.irb
         end
       end
     end

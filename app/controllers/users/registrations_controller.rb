@@ -33,7 +33,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     resource.handle_headless_records
     resource_saved = handle_recaptcha && resource.save
     yield resource if block_given?
-     if resource_saved 
+    if resource_saved
       # FIXME: DON'T EVER DO THIS!
       # HACK: DON'T EVER DO THIS!
       # NONONONOBAD: We are only doing this because the enterprise service
@@ -84,7 +84,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
   #   super
   # end
 
-
   protected
 
   # You can put the params you want to permit in the empty array.
@@ -94,6 +93,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def handle_recaptcha
     return true unless aca_recaptcha_enabled?
+
     verify_recaptcha(model: resource)
   end
 
