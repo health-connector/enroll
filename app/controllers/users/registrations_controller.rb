@@ -94,7 +94,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def handle_recaptcha
-    verify_recaptcha(model: resource) if aca_recaptcha_enabled?
+    return true unless aca_recaptcha_enabled?
+    verify_recaptcha(model: resource)
   end
 
   def aca_recaptcha_enabled?
