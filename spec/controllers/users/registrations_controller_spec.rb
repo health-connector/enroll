@@ -76,28 +76,32 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
       before do 
         user.save!
         @request.env["devise.mapping"] = Devise.mappings[:user]
-        allow(controller).to receive(:handle_recaptcha).and_return(false)
       end
       context "with valid captcha request" do
+        before do
+          allow(controller).to receive(:handle_recaptcha).and_return(true)
+        end
+
         it "should be a success" do
-          post :create, { user: { oim_id: email, password: password, password_confirmation: password }, :"g-recaptcha-response"=> ""}
-          binding.irb
           expect(response).to be_success
         end
       end
 
       context "with invalid captcha request" do
-        it "should render an error" do
+
+        before :each do
+          allow(controller).to receive(:handle_recaptcha).and_return(false)
           post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
-          expect(response.errors.full_messages).to not_be(nil?)
         end
-        
+
+        it "should render an error" do
+          expect(response).to_not be_success
+        end
+
+        it "should not save user" do
+          binding.irb
+        end
       end
-
-    end
-
-    context  "with captcha disabled" do
-      
     end
   end
 end

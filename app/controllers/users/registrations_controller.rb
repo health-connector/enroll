@@ -32,7 +32,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     resource.email = resource.oim_id if resource.email.blank? && resource.oim_id =~ Devise.email_regexp
     resource.handle_headless_records
-    binding.irb
     resource_saved = handle_recaptcha && resource.save
     yield resource if block_given?
      if resource_saved 
