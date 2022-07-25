@@ -1,0 +1,63 @@
+<% content_for :horizontal_status do %>
+  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 3} %>
+<% end %>
+<div class="container">
+  <div class="employee-welocome">
+    <div class="row">
+      <div class="col-lg-9 col-md-9 col-sm-10 col-xs-12">
+        <div class="col-md-12 col-sm-12 no-pd col-xs-12" id="confirm_plan">
+          <h1 class="darkblue"><%= l10n('confirm_your_plan_selection') %></h1>
+          <h4><%= l10n('insured.plan_shoppings.thankyou.confirm_your_plan_selection.content') %></h4>
+
+          <% if @context.select{|k,v| v[:employer_profile]}.present? %>
+            <strong><%= @context.collect{|k,v| v[:employer_profile]}.map(&:legal_name).uniq.flatten.first.upcase %></strong>
+            </br>
+            </br>
+          <% end %>
+          <%  @context.each do |key,value| %>
+            <% if value[:enrollment].employee_role.present? %>
+            <% else %>
+              <h4><strong><%= l10n("important") %>:</strong> <%= l10n("insured.plan_shoppings.thankyou.you_must_complete_steps_to_enroll") %></h4>
+            <% end %>
+            <p>
+              <strong><%= value[:product].issuer_profile.legal_name %> <%= value[:product].title %></strong><br>
+              <%= l10n("benefit") %>: <%= value[:enrollment].coverage_kind %><br>
+              <%= l10n("metal_level") %> : <%= display_dental_metal_level value[:product] %><br>
+              <%= l10n("market") %>: <%= show_market_name_by_enrollment value[:enrollment] %>
+            </p>
+            <br>
+            <% if value[:enrollment].employee_role.present? %>
+              <%= render :partial => "insured/product_shoppings/coverage_information", :locals => {:enrollment => value[:enrollment], :member_group => value[:member_group]} %>
+            <% else %>
+              <%= render partial: "insured/plan_shoppings/individual_coverage_information", locals: {calculate: true} %>
+              <%= render "insured/plan_shoppings/individual_agreement" %>
+            <% end %>
+
+            <% if value[:enrollment].is_cobra_status? %>
+              <p><%= l10n("insured.plan_shoppings.thankyou.additional_administration_msg") %></p>
+            <% end %>
+
+
+            <%= render :partial => "ui-components/v1/modals/waive_confirmation_during_shopping", :locals => { :enrollment => value[:enrollment] } if value[:enrollment].employee_role.present? %>
+            <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
+          <% end %>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 right-section">
+        <% enrollment_kind = @context.collect{|k,v| v[:enrollment_kind]}.uniq.first %>
+        <% event = @context.collect{|k,v| v[:event]}.uniq.first %>
+        <% default_events = ["shop_for_plans"] %>
+
+        <% if event == "sign_up" %>
+          <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '6'} %>
+          <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'checkout'} %>
+        <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
+          <%= render partial: 'insured/product_shoppings/qle_progress', locals: {step: '3', kind: "employer_sponsored"} %>
+        <% else %>
+          <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '2'} %>
+          <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'thank_you'} %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div><br>

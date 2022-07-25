@@ -792,10 +792,10 @@ When(/^.+ enters? the dependent info of .+ daughter$/) do
   fill_in 'dependent[last_name]', with: 'White'
   date = TimeKeeper.date_of_record - 28.years
   dob = date.to_s
-  fill_in 'jq_datepicker_ignore_dependent[dob]', with: dob
   find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
   find(:xpath, "//li[@data-index='3'][contains(., 'Child')]").click
   find(:xpath, "//label[@for='radio_female']").click
+  fill_in 'jq_datepicker_ignore_dependent[dob]', with: dob
 end
 
 When(/^.+ enters? the dependent info of Patrick wife$/) do
@@ -869,9 +869,65 @@ When(/^.+ clicks Shop for new plan button$/) do
   click_button 'Shop for new plan'
 end
 
+When(/^.+ clicks Confirm your Selections button/) do
+  click_button 'Confirm your Selections'
+end
+
 Then(/^.+ should see the list of plans$/) do
   expect(page).to have_link('Select')
   screenshot("plan_shopping")
+end
+
+Then(/^\w+ should see plans count listed$/) do
+  find_all(EmployeeEnrollInAPlan.plan_count).present?
+  find_all(EmployeeEnrollInAPlan.employer_name).present?
+  find_all(EmployeeEnrollInAPlan.coverage_for).present?
+end
+
+Then(/^.+ should see the header text related to health plan$/) do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_header_text)
+end
+
+Then("Employee should see enroll buttons are checked by default") do
+  expect(find_all(EmployeeChooseCoverage.enroll_health).first[:checked]).to eq "true"
+  expect(find_all(EmployeeChooseCoverage.enroll_dental).first[:checked]).to eq "true"
+end
+
+Then("Employee should see enroll & waive buttons") do
+  expect(page.has_css?(EmployeeChooseCoverage.enroll_health)).to eq true
+  expect(page.has_css?(EmployeeChooseCoverage.waive_health)).to eq true
+end
+
+And(/^Employee waives dental plan$/) do
+  find(EmployeeChooseCoverage.waive_dental).click
+end
+
+And(/^Employee waives dental plan for dependent$/) do
+  find_all(EmployeeChooseCoverage.waive_dental).last.click
+end
+
+And(/^Employee waives health plan$/) do
+  find(EmployeeChooseCoverage.waive_health).click
+end
+
+And(/^Employee waives health plan for dependent$/) do
+  find_all(EmployeeChooseCoverage.waive_health).last.click
+end
+
+And(/^Employee clicks on employee household continue$/) do
+  find(EmployeeFamilyMembers.continue_btn).click
+end
+
+Then(/dependent child should be ineligible for health and dental coverage/) do
+  expect(find_all(EmployeeChooseCoverage.member_health_error).count).to eq 1
+  expect(find_all(EmployeeChooseCoverage.member_dental_error).count).to eq 1
+end
+
+And(/^Employee clicks no on choose coverage for household$/) do
+  expect(find_all(EmployeeEnrollInAPlan.available_coverage).present?).to eq true
+  expect(find_all(EmployeeEnrollInAPlan.shop_for_text).present?).to eq true
+  find(EmployeeEnrollInAPlan.ee_choose_coverage).click
+  find(EmployeeEnrollInAPlan.continue_coverage_button).click
 end
 
 And (/(.*) should see the plans from the (.*) plan year$/) do |named_person, plan_year_state|
@@ -883,6 +939,13 @@ When(/^.+ selects? a plan on the plan shopping page$/) do
   first(:link, 'Select Plan').click
 end
 
+When(/^.+ selects? a health plan on the plan shopping page$/) do
+  first(:link, 'Select Plan').click
+end
+
+When(/^.+ selects? a dental plan on the plan shopping page$/) do
+  find(EmployeeEnrollInAPlan.select_plan_btn).click
+end
 Then(/^.+ should see the coverage summary page$/) do
   expect(page).to have_content('Confirm Your Plan Selection')
   screenshot("summary_page")
@@ -1203,4 +1266,70 @@ Given(/^a Hbx admin with read and write permissions and employers$/) do
   employer_profile = FactoryGirl.create :employer_profile, organization: org1
   org2 = FactoryGirl.create(:organization, legal_name: 'Chase & Assoc', hbx_id: "67890")
   employer_profile = FactoryGirl.create :employer_profile, organization: org2
+end
+
+Given(/^Continuous plan shopping is turned off$/) do
+  EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
+end
+
+Given(/^Continuous plan shopping is enabled$/) do
+  EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
+end
+
+Then(/Employee should see the ineligible for (.+) coverage message/) do |coverage_type|
+  expect(find_all("[data-cuke='member_#{coverage_type}_error']").present?).to eq true
+end
+
+Then(/Employee should not see the ineligible for (.+) coverage message if (.+) is not offered/) do |coverage_type, _arg2|
+  expect(find_all("[data-cuke='member_#{coverage_type}_error']").present?).to eq false
+end
+
+And(/^.+ click on the Shop for new plan button$/) do
+  expect(page.has_css?(EmployeeChooseCoverage.shop_for_new_plan_btn)).to eq true
+  find(EmployeeChooseCoverage.shop_for_new_plan_btn).click
+end
+
+And(/^.+ click on the Confirm your Selections button$/) do
+  expect(page.has_css?(EmployeeChooseCoverage.confirm_your_selections)).to eq true
+  find(EmployeeChooseCoverage.confirm_your_selections).click
+end
+
+Then(/^.+ should see both health & dental plans on receipt page$/) do
+  expect(page.has_css?(EmployeeEnrollInAPlan.dual_enrollment_text)).to eq true
+end
+
+Then("Employee should see dental enrollment text on receipt page") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.dental_enrollment_text)
+end
+
+Then("Employee should see health product confirmation on receipt page") do
+  expect(find_all(EmployeeEnrollInAPlan.health_product_confirmation).present?).to eq true
+end
+
+Then("Employee should see dental product confirmation on receipt page") do
+  expect(find_all(EmployeeEnrollInAPlan.dental_product_confirmation).present?).to eq true
+end
+
+Then("Employee should see health confirmation text") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_enrollment_text)
+end
+
+Then("Employee should see health & dental confirmation text") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.health_and_dental_enrollment_text)
+end
+
+Then("Employee clicks on continue") do
+  find(EmployeeEnrollInAPlan.continue_coverage_button).click
+end
+
+Then("Employee selects no for dental coverage") do
+  find(EmployeeEnrollInAPlan.ee_choose_coverage).click
+end
+
+Then("Employee should see an error message") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
+end
+
+Then("Employee should see an error message related to primary") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.primary_error_message)
 end

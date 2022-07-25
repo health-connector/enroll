@@ -1,0 +1,36 @@
+= pundit_span EmployerProfile, :updateable?
+- step = (defined? step) ? step : 1
+- freeze_progress_panel = (defined? freeze_progress_panel) ? freeze_progress_panel : false
+
+- if step == 4 && defined? url
+  = link_to 'CONTINUE', url, class: 'btn btn-lg btn-primary  btn-block', id: 'btn-continue'
+- elsif step == 2
+  %span.btn.btn-primary.btn-block#btn-continue
+    CONTINUE
+- elsif (step == "eligible_continue" && !freeze_progress_panel) || step == 2
+  = link_to 'CONTINUE', eligible_coverage_selection_insured_members_selections_path(@mini_context.to_h), class: 'btn btn-lg btn-primary  btn-block', id: 'eligible-btn-continue'
+- elsif step == "checkout"
+  = link_to purchase_or_confirm, checkout_insured_product_shoppings_path(build_hash_to_checkout(@context)), :class => 'btn btn-lg btn-primary  btn-block', id: 'btn-continue', :method => :post, :disabled => disable_continuous_purchase?(@context.values.collect{|hash| hash[:enrollable]}, @context.values.collect{|hash| hash[:enrollment]})
+- elsif step == "home"
+  = link_to 'CONTINUE', family_account_path, class: 'btn btn-lg btn-primary  btn-block', id: 'btn-continue'
+- elsif step == "sign_up"
+  %button.btn.btn-lg.btn-primary.btn-block#btn-continue{disabled: true}
+    CONTINUE
+- else
+  %button.btn.btn-lg.btn-primary.btn-block#btn-continue{type: 'submit'}
+    CONTINUE
+
+-if step != 7
+  %ul.list-unstyled.list-right-section
+    - unless @no_previous_button
+      %li
+        %a.back{href: '#'}
+          = image_tag 'icons/list.png'
+          PREVIOUS
+    - unless @no_save_button
+      %li
+        %a{href: '#'}
+          = image_tag 'icons/list.png'
+          SAVE &amp; EXIT
+        %br
+        %br

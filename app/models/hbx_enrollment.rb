@@ -1245,7 +1245,8 @@ class HbxEnrollment
     benefit_group.effective_on_for(employee_role.hired_on)
   end
 
-  def self.calculate_effective_on_from(market_kind: 'shop', qle: false, family: nil, employee_role: nil, benefit_group: nil, benefit_sponsorship: HbxProfile.current_hbx.benefit_sponsorship)
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists
+  def self.calculate_effective_on_from(market_kind: 'shop', qle: false, family: nil, employee_role: nil, benefit_group: nil, benefit_sponsorship: HbxProfile.current_hbx&.benefit_sponsorship)
     return nil if family.blank?
 
     case market_kind
@@ -1274,6 +1275,7 @@ class HbxEnrollment
     log(e.message, {:severity => "error"})
     nil
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists
 
   def self.effective_date_for_enrollment(employee_role, hbx_enrollment, qle)
 
