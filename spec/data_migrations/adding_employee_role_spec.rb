@@ -27,6 +27,11 @@ describe AddingEmployeeRole, dbclean: :after_each do
   let(:census_employee3) { FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship) }
 
   let(:given_task_name) { "adding_employee_role" }
+
+  before do
+    DatabaseCleaner.clean
+  end
+
   subject { AddingEmployeeRole.new(given_task_name, double(:current_scope => nil)) }
 
   # Flickering spec
