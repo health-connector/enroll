@@ -31,7 +31,11 @@
 <% else %>
   <% action_path = find_sep_insured_families_path  %>
   <% if is_under_open_enrollment? || @employee_role.try(:is_eligible_to_enroll_without_qle?) || @person.consumer_role.present? || @person.resident_role.present? %>
-    <% action_path = new_insured_group_selection_path %>
+    <% if EnrollRegistry.feature_enabled?(:continuous_plan_shopping) %>
+      <% action_path = new_insured_members_selection_path %>
+    <% else %>
+      <% action_path = new_insured_group_selection_path %>
+    <% end %>
   <% end %>
 
   <%= form_tag action_path, method: :get do %>
@@ -42,6 +46,7 @@
     <%= hidden_field_tag 'person_id', @person.try(:id) %>
     <%= hidden_field_tag 'employee_role_id', @employee_role.try(:id) %>
     <%= hidden_field_tag 'shop_for_plans', 'shop_for_plans' %>
+    <%= hidden_field_tag 'event', 'shop_for_plans' %>
 
     <div class="panel panel-default" id='shop-for-plans-widget'>
       <div class="panel-body">
@@ -60,6 +65,8 @@
             </div>
           <% else %>
             <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12  <%=pundit_class Family, :updateable?%>">
+              <% event = @hbx_enrollments.present? ? "shop_for_plans" : "sign_up" %>
+              <%= hidden_field_tag 'event', event %>
               <%= submit_tag l10n("insured.shop_for_plans"), class: "btn btn-default pull-right" %>
             </div>
           <% end %>
@@ -95,7 +102,7 @@
                 <% else %>
                   <% if @employee_role.present? && @employee_role.try(:is_under_open_enrollment?) %>
                     <% new_options = @employee_role&.has_multiple_shop_oe_periods? ? options.merge(shop_under_future: true) : options %>
-                    <p>If you <%= link_to 'enroll today', new_insured_group_selection_path(new_options) %>, coverage will begin <%= format_date @employee_role.benefit_begin_date %>.</p>
+                    <p>If you <%= link_to 'enroll today', shop_for_plan_widget_enroll_today_helper(new_options.merge!(event: "shop_for_plans")) %>, coverage will begin <%= format_date @employee_role.benefit_begin_date %>.</p>
                   <%elsif (@person.consumer_role.present? || @person.resident_role.present?) && is_under_open_enrollment? %>
                     <p>If you <%= link_to 'enroll today', new_insured_group_selection_path(options) %>, coverage will begin <%= format_date ivl_enrollment_effective_date %>.</p>
                   <% end %>
@@ -103,7 +110,7 @@
               <% end %>
 
               <% if @employee_role&.has_multiple_shop_oe_periods? %>
-                <p>If you <%= link_to 'enroll as new hire', new_insured_group_selection_path(options.merge(shop_under_current: true)) %> coverage will begin <%= format_date @employee_role.earliest_effective_on_for_new_hire_in_current_py %>.</p>
+                <p>If you <%= link_to 'enroll as new hire', shop_for_plan_widget_enroll_today_helper(options.merge(shop_under_current: true).merge!(event: "sign_up")) %> coverage will begin <%= format_date @employee_role.earliest_effective_on_for_new_hire_in_current_py %>.</p>
               <% end %>
 
               <% if @family.latest_active_sep %>

@@ -1,6 +1,7 @@
 Feature: Broker Agency Registration
   Scenario: When the broker is hired as a census employee and registration is complete through employee role
     Given a CCA site exists with a benefit market
+    Given Continuous plan shopping is turned off
     # These steps will set up:
     # Given Primary Broker Ricky Martin exists
     When Primary Broker visits the HBX Broker Registration form

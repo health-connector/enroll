@@ -288,6 +288,27 @@ Rails.application.routes.draw do
       end
     end
 
+    #insured/members_selection
+    resources :members_selections, controller: "members_selection", only: [:new, :create] do
+      collection do
+        get :fetch
+        get :eligible_coverage_selection
+      end
+    end
+
+    resources :product_shoppings, controller: "product_shoppings", only: [] do
+      member do
+        get 'waive'
+        get 'print_waiver'
+      end
+
+      collection do
+        get 'continuous_show'
+        get 'thankyou'
+        post 'checkout'
+        get 'receipt'
+      end
+    end
   end
 
   namespace :employers do

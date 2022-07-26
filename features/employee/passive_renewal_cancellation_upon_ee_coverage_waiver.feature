@@ -3,6 +3,7 @@ Feature:  Employee passive renewal should be canceled when Employee waived cover
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for enrollment_open renewal employer with health benefits
+    Given Continuous plan shopping is turned off
     And there is an employer ABC Widgets
     And employer ABC Widgets has active and renewing enrollment_open benefit applications
     And this employer offering 0.75 contribution to Employee
