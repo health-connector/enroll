@@ -212,10 +212,6 @@ describe PlanSelection, dbclean: :after_each do
     allow(census_employee).to receive(:under_new_hire_enrollment_period?).and_return(true)
   end
 
-  after do
-    TimeKeeper.set_date_of_record_unprotected!(Date.today)
-  end
-
   describe ".select_plan_and_deactivate_other_enrollments" do
     context 'hbx_enrollment aasm state check' do
       it 'should generate renewal enrollment' do
