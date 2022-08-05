@@ -253,6 +253,7 @@ aca:
     mid_month_benefit_application_terminations:
       voluntary: false
       non_payment: false
+    auto_cancel_ineligible: false
 
   transmit_employers_immediately: false
   employer_has_sic_field: true

@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/resource_registry.git
-  revision: 8593064c8e19f5de352e7e016f8c3d8bdd30c7f5
-  branch: branch_0.7.0
+  revision: 7b8f396afde849e584d0a749ade9ee88f1717e26
+  branch: trunk
   specs:
     resource_registry (0.7.0)
       bootsnap (~> 1.0)
@@ -38,6 +38,10 @@ PATH
       aasm (~> 4.8.0)
       active_model_serializers
       config
+      dry-monads
+      dry-struct
+      dry-types
+      dry-validation
       i18n (= 0.7.0)
       mini_portile2 (= 2.4.0)
       mongoid (~> 5.4.0)
@@ -75,6 +79,14 @@ PATH
     sponsored_benefits (0.0.1)
       aasm (~> 4.8.0)
       config
+      dry-auto_inject (= 0.6.1)
+      dry-container
+      dry-initializer
+      dry-monads
+      dry-schema (~> 1.0)
+      dry-struct
+      dry-types
+      dry-validation (~> 1.0)
       mongoid (~> 5.4.0)
       rails (~> 4.2.11)
       roo (~> 2.1.0)
@@ -87,8 +99,16 @@ PATH
     benefit_sponsors (0.0.1)
       aasm (~> 4.8.0)
       active_model_serializers
+      browser (= 2.7.0)
       config
       devise (~> 4.5)
+      dry-auto_inject (= 0.6.1)
+      dry-container
+      dry-initializer
+      dry-monads
+      dry-schema (~> 1.0)
+      dry-struct
+      dry-validation (~> 1.0)
       interactor (= 3.1.0)
       interactor-rails (= 2.0.2)
       language_list (~> 1.1.0)
@@ -127,9 +147,9 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    active_model_serializers (0.10.10)
-      actionpack (>= 4.1, < 6.1)
-      activemodel (>= 4.1, < 6.1)
+    active_model_serializers (0.10.12)
+      actionpack (>= 4.1, < 6.2)
+      activemodel (>= 4.1, < 6.2)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     activejob (4.2.11.1)
@@ -147,7 +167,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     arel (6.0.4)
     awesome_print (1.8.0)
@@ -155,9 +175,10 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
-    bcrypt (3.1.13)
-    bootsnap (1.4.6)
+    bcrypt (3.1.16)
+    bootsnap (1.7.2)
       msgpack (~> 1.0)
+    browser (2.7.0)
     bson (4.8.2)
     builder (3.2.4)
     capybara (2.6.2)
@@ -198,7 +219,7 @@ GEM
     deep_merge (1.2.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
-    devise (4.7.1)
+    devise (4.7.3)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 4.1.0)
@@ -207,6 +228,8 @@ GEM
     diff-lcs (1.3)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dry-auto_inject (0.6.1)
+      dry-container (>= 0.3.4)
     dry-configurable (0.9.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.4, >= 0.4.7)
@@ -347,7 +370,7 @@ GEM
       mongoid (>= 4.0.0)
       rails (>= 4.2.0)
       railties (>= 4.2.0)
-    msgpack (1.3.3)
+    msgpack (1.4.2)
     netrc (0.11.0)
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
@@ -355,8 +378,8 @@ GEM
       sprockets (>= 2.0)
     origin (2.3.1)
     orm_adapter (0.5.0)
-    ox (2.13.2)
-    public_suffix (4.0.4)
+    ox (2.14.1)
+    public_suffix (4.0.6)
     pundit (1.0.1)
       activesupport (>= 3.0.0)
     rack (1.6.13)

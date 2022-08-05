@@ -1,5 +1,8 @@
-name: Rspec and Cucumbers
-on: push
+name: Full suite check
+on:
+  push:
+  schedule:
+    - cron: "0 6 * * *"
 
 env: # https://stackoverflow.com/questions/59867124/how-can-i-access-github-action-environment-variables-within-a-bash-script-run-by
   TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: "{spec,components/benefit_markets/spec,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb"
@@ -10,17 +13,30 @@ jobs:
     name: ${{matrix.command_configs.name}}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-18.04]
         node: [9.x]
         mongodb-version: ["3.6"]
         command_configs:
           - name: rubocop
-            skip_js: 'true'
+            skip_js: "true"
             test_command: |
               git fetch --no-tags origin
-              bundle exec rubocop-git origin/master
-          - name: rspec 1/4
+              bundle exec rubocop-git origin/master | grep "no offenses detected"
+          # - name: Brakeman In Main app
+          #   skip_js: 'true'
+          #   test_command: |
+          #     brakeman -i config/brakeman.ignore
+          # - name: Brakeman In Components
+          #   skip_js: 'true'
+          #   test_command: |
+          #     for test_dir in `ls -1 components`; do
+          #       cd components/$test_dir
+          #       brakeman -i config/brakeman.ignore
+          #       cd ../..
+          #     done
+          - name: rspec 1/4s
             test_command: rspec_booster --job 1/4
           - name: rspec 2/4
             test_command: rspec_booster --job 2/4
@@ -180,6 +196,7 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
           gem install treye-semaphore_test_boosters --version '2.5.1'
+          gem install brakeman
       - name: yarn install
         if: matrix.command_configs.skip_js != 'true' && steps.npm-cache.outputs.cache-hit != 'true'
         run: |

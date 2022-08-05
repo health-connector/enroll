@@ -28,8 +28,10 @@ module BenefitSponsors
     APPROVED_STATES               = [:approved, :enrollment_open, :enrollment_extended, :enrollment_closed, :enrollment_eligible, :binder_paid, :active, :suspended].freeze
     SUBMITTED_STATES              = ENROLLMENT_ELIGIBLE_STATES + APPLICATION_APPROVED_STATES + ENROLLING_STATES + COVERAGE_EFFECTIVE_STATES
     TERMINATED_IMPORTED_STATES    = TERMINATED_STATES + IMPORTED_STATES
+    ACTIVE_AND_TERMINATED_STATES  = COVERAGE_EFFECTIVE_STATES + [:terminated]
     APPPROVED_AND_TERMINATED_STATES   = APPROVED_STATES +  [:termination_pending, :terminated, :expired]
     INELIGIBLE_RENEWAL_TRANSMISSION_STATES = APPLICATION_APPROVED_STATES + APPLICATION_DRAFT_STATES + ENROLLMENT_INELIGIBLE_STATES
+    RENEWAL_TRANSMISSION_STATES = APPLICATION_APPROVED_STATES + APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES + ENROLLMENT_INELIGIBLE_STATES
 
     # Deprecated - Use SUBMITTED_STATES
     PUBLISHED_STATES = SUBMITTED_STATES
@@ -139,6 +141,7 @@ module BenefitSponsors
     scope :enrolling,           ->{ any_in(aasm_state: ENROLLING_STATES) }
     scope :enrolling_state,     ->{ any_in(aasm_state: [:enrollment_open, :enrollment_extended]) }
 
+    scope :enrollment_closed_and_ineligible,->{ any_in(aasm_state: ENROLLMENT_INELIGIBLE_STATES + [:enrollment_closed]) }
     scope :enrollment_eligible,             ->{ any_in(aasm_state: ENROLLMENT_ELIGIBLE_STATES) }
     scope :enrollment_ineligible,           ->{ any_in(aasm_state: ENROLLMENT_INELIGIBLE_STATES) }
     scope :coverage_effective,              ->{ any_in(aasm_state: COVERAGE_EFFECTIVE_STATES) }
@@ -148,13 +151,16 @@ module BenefitSponsors
     scope :non_canceled,                    ->{ where(:aasm_state.nin => CANCELED_STATES) }
     scope :non_draft,                       ->{ not_in(aasm_state: APPLICATION_DRAFT_STATES) }
     scope :non_imported,                    ->{ not_in(aasm_state: IMPORTED_STATES) }
-
+    scope :active_and_terminated_states,    ->{ any_in(aasm_state: ACTIVE_AND_TERMINATED_STATES) }
     scope :expired,                         ->{ any_in(aasm_state: EXPIRED_STATES) }
     scope :non_terminated_non_imported,     ->{ not_in(aasm_state: TERMINATED_IMPORTED_STATES) }
     scope :approved_and_terminated,         ->{ any_in(aasm_state: APPPROVED_AND_TERMINATED_STATES) }
+    scope :terminated_or_termination_pending,-> { any_in(aasm_state: [:termination_pending, :terminated]) }
+    scope :termed_or_ineligible,            -> { any_in(aasm_state: [:termination_pending, :terminated] + ENROLLMENT_INELIGIBLE_STATES) }
+    scope :non_expired,                     ->{ not_in(aasm_state: EXPIRED_STATES) }
 
     # Used for specific DataTable Action only
-    scope :active_states_per_dt_action,     ->{ any_in(aasm_state: [:active, :pending, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :termination_pending]) }
+    scope :active_states_per_dt_action,     ->{ any_in(aasm_state: [:active, :pending, :binder_paid, :enrollment_open, :enrollment_eligible, :enrollment_closed, :enrollment_ineligible, :termination_pending]) }
 
     # scope :is_renewing,                     ->{ where(:predecessor => {:$exists => true},
     #                                                   :aasm_state.in => APPLICATION_DRAFT_STATES + ENROLLING_STATES).order_by(:'created_at'.desc)
@@ -322,6 +328,14 @@ module BenefitSponsors
       @recorded_rating_area
     end
 
+    def is_termed_or_ineligible?
+      termination_pending? || terminated? || enrollment_ineligible?
+    end
+
+    def is_off_cycle?
+      self == benefit_sponsorship.off_cycle_benefit_application
+    end
+
     def recorded_rating_area
       return nil if recorded_rating_area_id.blank?
       return @recorded_rating_area if defined? @recorded_rating_area
@@ -459,11 +473,17 @@ module BenefitSponsors
     end
 
     def is_renewing?
-      predecessor.present? && (APPLICATION_APPROVED_STATES + APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES + ENROLLMENT_INELIGIBLE_STATES).include?(aasm_state)
+      required_states = (APPLICATION_APPROVED_STATES + APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES)
+      applications = sponsor_profile.benefit_applications.where(:"effective_period.min".gt => effective_period.min, :aasm_state.in => required_states + [:active, :expired])
+      predecessor.present? && (required_states + ENROLLMENT_INELIGIBLE_STATES).include?(aasm_state) && applications.none?
     end
 
     def is_renewal_enrolling?
       predecessor.present? && (ENROLLING_STATES).include?(aasm_state)
+    end
+
+    def is_enrolling?
+      ENROLLING_STATES.include?(aasm_state)
     end
 
     def open_enrollment_contains?(date)
@@ -596,32 +616,42 @@ module BenefitSponsors
     # @param [ BenefitSponsorCatalog ] The catalog valid for the effective_period immediately following this
     # BenefitApplication instance's effective_period
     # @return [ BenefitApplication ] The built renewal application instance and submodels
-    def renew(new_benefit_sponsor_catalog)
-      if new_benefit_sponsor_catalog.effective_date != end_on + 1.day
-        raise StandardError, "effective period must begin on #{end_on + 1.day}"
-      end
 
+    def renew
+      renewal_effective_date = end_on.to_date.next_day
+
+      renewal_benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date)
       renewal_application = benefit_sponsorship.benefit_applications.new(
-        fte_count:                fte_count,
-        pte_count:                pte_count,
-        msp_count:                msp_count,
-        benefit_sponsor_catalog:  new_benefit_sponsor_catalog,
-        predecessor:              self,
-        effective_period:         new_benefit_sponsor_catalog.effective_period,
-        open_enrollment_period:   new_benefit_sponsor_catalog.open_enrollment_period
+        fte_count: fte_count,
+        pte_count: pte_count,
+        msp_count: msp_count,
+        benefit_sponsor_catalog: renewal_benefit_sponsor_catalog,
+        predecessor: self,
+        effective_period: renewal_benefit_sponsor_catalog.effective_period,
+        open_enrollment_period: renewal_benefit_sponsor_catalog.open_enrollment_period
       )
 
       renewal_application.pull_benefit_sponsorship_attributes
-
-      new_benefit_sponsor_catalog.benefit_application = renewal_application
-      new_benefit_sponsor_catalog.save
+      renewal_benefit_sponsor_catalog.benefit_application = renewal_application
+      renewal_benefit_sponsor_catalog.save
 
       benefit_packages.each do |benefit_package|
-        new_benefit_package = renewal_application.benefit_packages.build
-        benefit_package.renew(new_benefit_package)
+        if benefit_package.can_renew?
+          new_benefit_package = renewal_application.benefit_packages.build
+          benefit_package.renew(new_benefit_package)
+        end
       end
 
       renewal_application
+    end
+
+    def predecessor_benefit_package(current_benefit_package)
+      *previous_title, _b = current_benefit_package.title.split('(')
+      predecessor.benefit_packages.where(:title => previous_title.join('(')).first
+    end
+
+    def successor_benefit_package(current_benefit_package)
+      successors.first.benefit_packages.where(:title => current_benefit_package.title + "(#{current_benefit_package.start_on.next_year.year})").first if successors.any?
     end
 
     def renew_benefit_package_assignments
@@ -748,8 +778,8 @@ module BenefitSponsors
         :binder_paid,
         :enrollment_eligible,
         :active,
-        :expired,
-        :termination_pending
+        # :termination_pending,
+        :expired
       ].include?(aasm_state)
     end
 
@@ -948,55 +978,68 @@ module BenefitSponsors
       return false
     end
 
+    def system_min_participation_default_for(date)
+      date.yday == 1 ? 0 : Settings.aca.shop_market.employee_participation_ratio_minimum.to_f
+    end
+
     ### TODO FIX Move these methods to domain logic
-            def employee_participation_ratio_minimum
-              Settings.aca.shop_market.employee_participation_ratio_minimum.to_f
-            end
+    def employee_participation_ratio_minimum
+      if ::EnrollRegistry.feature_enabled?("#{benefit_market.kind}_fetch_enrollment_minimum_participation_#{start_on.year}")
+        product_package = benefit_packages[0]&.health_sponsored_benefit&.product_package
+        product_package ||= benefit_sponsor_catalog.product_packages[0]
 
-            def eligible_for_export?
-              return false if self.aasm_state.blank?
-              return false if self.imported?
-              return false if self.effective_period.blank?
-              return true if self.enrollment_eligible? || self.binder_paid? || self.active?
-              terminated? || termination_pending? || expired?
-            end
+        result = ::EnrollRegistry["#{benefit_market.kind}_fetch_enrollment_minimum_participation_#{start_on.year}"] do
+          {
+            product_package: product_package,
+            calender_year: start_on.year
+          }
+        end
 
-            def enrollment_quiet_period
-              if predecessor_id.present?
-                # Weird things can happen when you extend open enrollment past
-                # what would 'normally' be the quiet period end.  Can really
-                # only happen on renewals.
-                expected_renewal_transmission_deadline = renewal_quiet_period_end(start_on)
-                deadline_because_of_open_enrollment_end = nil
-                if open_enrollment_end_on.blank?
-                  deadline_because_of_open_enrollment_end = expected_renewal_transmission_deadline
-                else
-                  deadline_because_of_open_enrollment_end = open_enrollment_end_on
-                end
-                quiet_period_start = open_enrollment_start_on
-                quiet_period_end = [expected_renewal_transmission_deadline, deadline_because_of_open_enrollment_end].max
-                TimeKeeper.start_of_exchange_day_from_utc(quiet_period_start)..TimeKeeper.end_of_exchange_day_from_utc(quiet_period_end)
-              else
-                if open_enrollment_end_on.blank?
-                  prev_month = start_on.prev_month
-                  quiet_period_start = Date.new(prev_month.year, prev_month.month, Settings.aca.shop_market.open_enrollment.monthly_end_on + 1)
-                else
-                  quiet_period_start = open_enrollment_end_on + 1.day
-                end
-                expected_intial_or_offcyclerenewal_transmission_deadline = initial_quiet_period_end(start_on)
-                # Scenario when you extend open enrollment beyond start date for initial or offcycle renewal.
-                quiet_period_end = [expected_intial_or_offcyclerenewal_transmission_deadline, quiet_period_start].max
-                TimeKeeper.start_of_exchange_day_from_utc(quiet_period_start)..TimeKeeper.end_of_exchange_day_from_utc(quiet_period_end)
-              end
-            end
+        minimum_participation = result.value! if result.success?
+      end
 
-            def initial_quiet_period_end(start_on)
-              start_on + (Settings.aca.shop_market.initial_application.quiet_period.month_offset.months) + (Settings.aca.shop_market.initial_application.quiet_period.mday - 1).days
-            end
+      minimum_participation || system_min_participation_default_for(start_on)
+    rescue ResourceRegistry::Error::FeatureNotFoundError
+      system_min_participation_default_for(start_on)
+    end
 
-            def renewal_quiet_period_end(start_on)
-              start_on + (Settings.aca.shop_market.renewal_application.quiet_period.month_offset.months) + (Settings.aca.shop_market.renewal_application.quiet_period.mday - 1).days
-            end
+    def eligible_for_export?
+      return false if aasm_state.blank? || imported? || effective_period.blank?
+
+      [:enrollment_eligible, :binder_paid, :active, :terminated, :termination_pending, :expired].include? aasm_state
+    end
+
+    def enrollment_quiet_period
+      if predecessor_id.present?
+        # Weird things can happen when you extend open enrollment past
+        # what would 'normally' be the quiet period end.  Can really
+        # only happen on renewals.
+        expected_renewal_transmission_deadline = renewal_quiet_period_end(start_on)
+        deadline_because_of_open_enrollment_end = open_enrollment_end_on.blank? ? expected_renewal_transmission_deadline : open_enrollment_end_on
+        quiet_period_start = open_enrollment_start_on
+        quiet_period_end = [expected_renewal_transmission_deadline, deadline_because_of_open_enrollment_end].max
+      else
+        quiet_period_start =
+          if open_enrollment_end_on.blank?
+            prev_month = start_on.prev_month
+            Date.new(prev_month.year, prev_month.month, Settings.aca.shop_market.open_enrollment.monthly_end_on + 1)
+          else
+            open_enrollment_end_on + 1.day
+          end
+        expected_intial_or_offcyclerenewal_transmission_deadline = initial_quiet_period_end(start_on)
+        # Scenario when you extend open enrollment beyond start date for initial or offcycle renewal.
+        quiet_period_end = [expected_intial_or_offcyclerenewal_transmission_deadline, quiet_period_start].max
+      end
+      TimeKeeper.start_of_exchange_day_from_utc(quiet_period_start)..TimeKeeper.end_of_exchange_day_from_utc(quiet_period_end)
+    end
+
+    def initial_quiet_period_end(start_on)
+      start_on + Settings.aca.shop_market.initial_application.quiet_period.month_offset.months + (Settings.aca.shop_market.initial_application.quiet_period.mday - 1).days
+    end
+
+    def renewal_quiet_period_end(start_on)
+      start_on + Settings.aca.shop_market.renewal_application.quiet_period.month_offset.months + (Settings.aca.shop_market.renewal_application.quiet_period.mday - 1).days
+    end
     ###
 
 
@@ -1085,6 +1128,10 @@ module BenefitSponsors
       refresh_recorded_rating_area   unless recorded_rating_area.present?
       refresh_recorded_service_areas unless recorded_service_areas.size > 0
       refresh_recorded_sic_code      unless recorded_sic_code.present?
+    end
+
+    def has_unassigned_census_employees?
+      CensusEmployee.employees_for_benefit_application_sponsorship(self).count > CensusEmployee.benefit_application_assigned(self).count
     end
 
     private

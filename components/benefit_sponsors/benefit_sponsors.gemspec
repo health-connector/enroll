@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = BenefitSponsors::VERSION
   s.authors     = ["Dan Thomas"]
   s.email       = ["dan.thomas@dc.gov"]
-  s.homepage    = "https://github.com/dchbx"
+  s.homepage    = "https://github.com/ideacrew"
   s.summary     = "Summary of BenefitSponsors."
   s.description = "Description of BenefitSponsors."
   s.license     = "MIT"
@@ -36,6 +36,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'interactor', '3.1.0'
   s.add_dependency 'interactor-rails', '2.0.2'
   s.add_dependency 'browser', '2.7.0'
+  s.add_dependency 'dry-schema', '~> 1.0'
+  s.add_dependency 'dry-validation', '~> 1.0'
+  s.add_dependency 'dry-initializer'
+  s.add_dependency 'dry-auto_inject', '0.6.1'
+  s.add_dependency 'dry-container'
+  s.add_dependency 'dry-struct'
+  s.add_dependency 'dry-monads'
 
   s.test_files = Dir["spec/**/*"]
 

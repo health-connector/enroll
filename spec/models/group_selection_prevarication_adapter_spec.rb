@@ -65,7 +65,7 @@ RSpec.describe GroupSelectionPrevaricationAdapter, dbclean: :after_each do
       )}
 
       it "checks if dental offered using existing enrollment benefit package and returns true" do
-        result = adapter.is_eligible_for_dental?(employee_role, 'change_plan', hbx_enrollment)
+        result = adapter.is_eligible_for_dental?(employee_role, 'change_plan', hbx_enrollment, enrollment_effective_date)
         expect(result).to be_truthy
       end
     end
@@ -89,7 +89,7 @@ RSpec.describe GroupSelectionPrevaricationAdapter, dbclean: :after_each do
       context "employer offering dental" do 
 
         it "checks if dental eligible using SEP and returns true" do
-          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil)
+          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil, qle_on)
           expect(result).to be_truthy
         end
       end
@@ -98,7 +98,7 @@ RSpec.describe GroupSelectionPrevaricationAdapter, dbclean: :after_each do
         let(:dental_sponsored_benefit) { false }
 
         it "checks if dental eligible using SEP and returns false" do
-          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil)
+          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil, qle_on)
           expect(result).to be_falsey
         end
       end
@@ -122,7 +122,7 @@ RSpec.describe GroupSelectionPrevaricationAdapter, dbclean: :after_each do
 
       context "employer offering dental" do 
         it "returns true" do 
-          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil)
+          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil, qle_on)
           expect(result).to be_truthy
         end
       end
@@ -131,7 +131,7 @@ RSpec.describe GroupSelectionPrevaricationAdapter, dbclean: :after_each do
         let(:dental_sponsored_benefit) { false }
 
         it "returns false" do 
-          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil)
+          result = adapter.is_eligible_for_dental?(employee_role, 'change_by_qle', nil, qle_on)
           expect(result).to be_falsey
         end 
       end 

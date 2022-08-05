@@ -22,25 +22,6 @@ GIT
       sass-rails (>= 4.0)
 
 GIT
-  remote: https://github.com/dchbx/acapi.git
-  revision: ed0c36ae5824466b54e5aa49f987acf34458cb38
-  branch: development
-  specs:
-    acapi (1.1.0)
-      activesupport (~> 4.2.0)
-      bunny (~> 1.7.0)
-      sneakers
-
-GIT
-  remote: https://github.com/dchbx/openhbx_cv2.git
-  revision: b8d2a141ac22c9744c17b4b53a22e9f7a843fadf
-  branch: master
-  specs:
-    openhbx_cv2 (0.0.1)
-      activesupport (>= 3.2)
-      nokogiri-happymapper (~> 0.5)
-
-GIT
   remote: https://github.com/harshared/simple_calendar
   revision: 109781178efa26c89ba51efa496bca29bc70a565
   specs:
@@ -48,9 +29,28 @@ GIT
       rails (>= 3.0)
 
 GIT
+  remote: https://github.com/ideacrew/acapi.git
+  revision: 8f4b6cf53d7eb98f331c722bbcdf8e21aa265a76
+  branch: trunk
+  specs:
+    acapi (1.3.2)
+      activesupport (> 4.2.0)
+      bunny (~> 1.7.0)
+      sneakers
+
+GIT
+  remote: https://github.com/ideacrew/openhbx_cv2.git
+  revision: 6567dd46112982e6a9c90001b617caf313271fc9
+  branch: trunk
+  specs:
+    openhbx_cv2 (0.0.1)
+      activesupport (>= 3.2)
+      nokogiri-happymapper (~> 0.5)
+
+GIT
   remote: https://github.com/ideacrew/resource_registry.git
-  revision: 2f0cb0c88230739c04cce34c5805a2c0750f1379
-  branch: master
+  revision: 7b8f396afde849e584d0a749ade9ee88f1717e26
+  branch: trunk
   specs:
     resource_registry (0.7.0)
       bootsnap (~> 1.0)
@@ -87,6 +87,10 @@ PATH
       aasm (~> 4.8.0)
       active_model_serializers
       config
+      dry-monads
+      dry-struct
+      dry-types
+      dry-validation
       i18n (= 0.7.0)
       mini_portile2 (= 2.4.0)
       mongoid (~> 5.4.0)
@@ -106,6 +110,13 @@ PATH
       browser (= 2.7.0)
       config
       devise (~> 4.5)
+      dry-auto_inject (= 0.6.1)
+      dry-container
+      dry-initializer
+      dry-monads
+      dry-schema (~> 1.0)
+      dry-struct
+      dry-validation (~> 1.0)
       interactor (= 3.1.0)
       interactor-rails (= 2.0.2)
       language_list (~> 1.1.0)
@@ -146,6 +157,14 @@ PATH
     sponsored_benefits (0.0.1)
       aasm (~> 4.8.0)
       config
+      dry-auto_inject (= 0.6.1)
+      dry-container
+      dry-initializer
+      dry-monads
+      dry-schema (~> 1.0)
+      dry-struct
+      dry-types
+      dry-validation (~> 1.0)
       mongoid (~> 5.4.0)
       rails (~> 4.2.11)
       roo (~> 2.1.0)
@@ -210,9 +229,9 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    active_model_serializers (0.10.10)
-      actionpack (>= 4.1, < 6.1)
-      activemodel (>= 4.1, < 6.1)
+    active_model_serializers (0.10.12)
+      actionpack (>= 4.1, < 6.2)
+      activemodel (>= 4.1, < 6.2)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     activejob (4.2.11)
@@ -230,13 +249,14 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.3.8)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
     amq-protocol (1.9.2)
     animate-rails (1.0.10)
       rails
     arel (6.0.4)
-    ast (2.4.1)
+    ast (2.4.2)
     awesome_print (1.8.0)
     aws-sdk (2.2.4)
       aws-sdk-resources (= 2.2.4)
@@ -255,12 +275,13 @@ GEM
     benchmark-trend (0.4.0)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    bootsnap (1.4.6)
+    bootsnap (1.7.2)
       msgpack (~> 1.0)
     bootstrap-multiselect-rails (0.9.9)
       rails (>= 4.0.0)
     bootstrap-slider-rails (6.0.17)
       railties (>= 3.2, < 5.0)
+    brakeman (5.0.0)
     browser (2.7.0)
     bson (4.3.0)
     builder (3.2.4)
@@ -344,7 +365,7 @@ GEM
     combine_pdf (1.0.16)
       ruby-rc4 (>= 0.1.5)
     commonjs (0.2.7)
-    concurrent-ruby (1.1.6)
+    concurrent-ruby (1.1.8)
     config (1.0.0)
       activesupport (>= 3.0)
       deep_merge (~> 1.0.0)
@@ -389,54 +410,52 @@ GEM
       warden (~> 1.2.3)
     diff-lcs (1.3)
     docile (1.1.5)
+    dry-auto_inject (0.6.1)
+      dry-container (>= 0.3.4)
     dry-configurable (0.9.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.4, >= 0.4.7)
     dry-container (0.7.2)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.1, >= 0.1.3)
-    dry-core (0.4.9)
+    dry-core (0.5.0)
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
-    dry-initializer (3.0.3)
-    dry-logic (1.0.6)
+    dry-initializer (3.0.4)
+    dry-logic (1.1.0)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 0.2)
-      dry-equalizer (~> 0.2)
+      dry-core (~> 0.5, >= 0.5)
     dry-matcher (0.8.3)
       dry-core (>= 0.4.8)
     dry-monads (1.3.5)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.4, >= 0.4.4)
       dry-equalizer
-    dry-schema (1.5.1)
+    dry-schema (1.6.1)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.8, >= 0.8.3)
-      dry-core (~> 0.4)
-      dry-equalizer (~> 0.2)
+      dry-core (~> 0.5, >= 0.5)
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
-      dry-types (~> 1.4)
-    dry-struct (1.3.0)
-      dry-core (~> 0.4, >= 0.4.4)
-      dry-equalizer (~> 0.3)
-      dry-types (~> 1.3)
+      dry-types (~> 1.5)
+    dry-struct (1.4.0)
+      dry-core (~> 0.5, >= 0.5)
+      dry-types (~> 1.5)
       ice_nine (~> 0.11)
-    dry-types (1.4.0)
+    dry-types (1.5.1)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
-      dry-core (~> 0.4, >= 0.4.4)
-      dry-equalizer (~> 0.3)
+      dry-core (~> 0.5, >= 0.5)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
-    dry-validation (1.5.0)
+    dry-validation (1.6.0)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.7, >= 0.7.1)
       dry-core (~> 0.4)
       dry-equalizer (~> 0.2)
       dry-initializer (~> 3.0)
-      dry-schema (~> 1.5)
+      dry-schema (~> 1.5, >= 1.5.2)
     easy_diff (1.0.0)
     email_spec (2.0.0)
       htmlentities (~> 4.3.3)
@@ -445,11 +464,11 @@ GEM
     equalizer (0.0.11)
     erubis (2.7.0)
     execjs (2.7.0)
-    eye (0.8)
-      celluloid (~> 0.17.2)
+    eye (0.10.0)
+      celluloid (~> 0.17.3)
       celluloid-io (~> 0.17.0)
-      sigar (~> 0.7.3)
-      state_machine
+      kostya-sigar (~> 2.0.0)
+      state_machines
       thor
     factory_girl (4.5.0)
       activesupport (>= 3.0.0)
@@ -491,7 +510,6 @@ GEM
     interactor-rails (2.0.2)
       interactor (~> 3.0)
       rails (>= 3, < 5.1)
-    jaro_winkler (1.5.4)
     jbuilder (2.9.1)
       activesupport (>= 4.2.0)
     jmespath (1.4.0)
@@ -515,6 +533,7 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     kgio (2.11.3)
+    kostya-sigar (2.0.9)
     language_list (1.1.0)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -526,7 +545,7 @@ GEM
     less-rails-bootstrap (3.3.1.0)
       less-rails (~> 2.6.0)
     libv8 (3.16.14.19)
-    loofah (2.5.0)
+    loofah (2.3.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -579,7 +598,7 @@ GEM
     mongoid_userstamp (0.4.0)
       mongoid (>= 3.0.4)
     mono_logger (1.1.0)
-    msgpack (1.3.3)
+    msgpack (1.4.2)
     multi_json (1.14.1)
     multi_test (0.1.2)
     multi_xml (0.6.0)
@@ -589,7 +608,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
     newrelic_rpm (6.10.0.364)
-    nio4r (2.5.2)
+    nio4r (2.5.7)
     nokogiri (1.9.1)
       mini_portile2 (~> 2.4.0)
     nokogiri-happymapper (0.8.1)
@@ -601,11 +620,11 @@ GEM
     overcommit (0.53.0)
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
-    ox (2.13.2)
+    ox (2.14.1)
     parallel (1.19.1)
     parallel_tests (2.26.2)
       parallel
-    parser (2.7.1.4)
+    parser (3.0.1.1)
       ast (~> 2.4.1)
     pdf-reader (1.4.1)
       Ascii85 (~> 1.0.0)
@@ -613,8 +632,8 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    powerpack (0.1.2)
-    puma (4.3.3)
+    public_suffix (4.0.6)
+    puma (4.3.6)
       nio4r (~> 2.0)
     pundit (1.0.1)
       activesupport (>= 3.0.0)
@@ -693,6 +712,7 @@ GEM
       redis-namespace (~> 1.6)
       sinatra (>= 0.9.2)
       vegas (~> 0.1.2)
+    rexml (3.2.5)
     roo (2.1.1)
       nokogiri (~> 1)
       rubyzip (~> 1.1, < 2.0.0)
@@ -727,17 +747,20 @@ GEM
     rspec_junit_formatter (0.2.3)
       builder (< 4)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.61.1)
-      jaro_winkler (~> 1.5.1)
+    rubocop (0.92.0)
       parallel (~> 1.10)
-      parser (>= 2.5, != 2.5.1.1)
-      powerpack (~> 0.1)
+      parser (>= 2.7.1.5)
       rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.7)
+      rexml
+      rubocop-ast (>= 0.5.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (~> 1.4.0)
+      unicode-display_width (>= 1.4.0, < 2.0)
+    rubocop-ast (1.5.0)
+      parser (>= 3.0.1.1)
     rubocop-git (0.1.3)
       rubocop (>= 0.24.1)
-    ruby-progressbar (1.10.1)
+    ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby-saml (1.3.1)
       nokogiri (>= 1.5.10)
@@ -770,7 +793,6 @@ GEM
     sexp_processor (4.14.1)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
-    sigar (0.7.3)
     sigdump (0.2.4)
     simple_form (4.0.0)
       actionpack (> 4)
@@ -806,10 +828,10 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (>= 2.8, < 4.0)
-    sshkit (1.21.0)
+    sshkit (1.18.2)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
-    state_machine (1.2.0)
+    state_machines (0.5.0)
     symmetric-encryption (3.6.0)
       coercible (>= 1.0.0)
     temple (0.8.2)
@@ -823,7 +845,7 @@ GEM
     thread (0.1.7)
     thread_safe (0.3.6)
     tilt (1.4.1)
-    timers (4.3.0)
+    timers (4.3.3)
     ttfunk (1.0.3)
     turbolinks (2.5.3)
       coffee-rails
@@ -831,7 +853,7 @@ GEM
       thread_safe (~> 0.1)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
-    unicode-display_width (1.4.1)
+    unicode-display_width (1.7.0)
     unicorn (4.8.3)
       kgio (~> 2.6)
       rack
@@ -882,7 +904,7 @@ DEPENDENCIES
   aasm (~> 4.8.0)
   acapi!
   action_mailer_cache_delivery (~> 0.3.7)
-  addressable (= 2.3.8)
+  addressable (= 2.8.0)
   animate-rails (~> 1.0.7)
   aws-sdk (= 2.2.4)
   bcrypt (~> 3.1)
@@ -890,6 +912,7 @@ DEPENDENCIES
   benefit_sponsors!
   bootstrap-multiselect-rails (~> 0.9.9)
   bootstrap-slider-rails (= 6.0.17)
+  brakeman
   browser (= 2.7.0)
   bson (~> 4.3.0)
   capistrano (= 3.3.5)
@@ -911,7 +934,7 @@ DEPENDENCIES
   devise (~> 4.5)
   effective_datatables!
   email_spec (= 2.0.0)
-  eye (= 0.8.0)
+  eye (= 0.10.0)
   factory_girl_rails (= 4.6.0)
   fakeredis
   forgery
@@ -950,7 +973,7 @@ DEPENDENCIES
   overcommit
   parallel_tests (= 2.26.2)
   prawn!
-  puma
+  puma (= 4.3.6)
   pundit (~> 1.0.1)
   railroady (~> 1.5.2)
   rails (= 4.2.11)
@@ -966,7 +989,7 @@ DEPENDENCIES
   rspec-instafail
   rspec-rails (~> 3.4.2)
   rspec_junit_formatter (= 0.2.3)
-  rubocop (= 0.61.1)
+  rubocop
   rubocop-git
   ruby-progressbar (~> 1.7)
   ruby-saml (~> 1.3.0)

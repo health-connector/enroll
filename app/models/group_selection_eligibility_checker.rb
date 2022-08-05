@@ -8,7 +8,7 @@ class GroupSelectionEligibilityChecker
   def initialize(benefit_package, coverage_kind)
     @sponsored_benefit = benefit_package.sponsored_benefits.detect do |sb|
       sb.product_kind.to_s == coverage_kind.to_s
-    end
+    end if benefit_package.present?
     @contribution_model = @sponsored_benefit.contribution_model if @sponsored_benefit.present?
     @age_calculator = ::BenefitSponsors::CoverageAgeCalculator.new
   end
@@ -19,6 +19,9 @@ class GroupSelectionEligibilityChecker
     return true if (rel.to_s == "self")
     return false if dob > coverage_date
     coverage_age = @age_calculator.calc_coverage_age_for(MemberAgeSlug.new(dob, family_member.id), nil, coverage_date, {}, nil)
+    # for ageoff, if rel == child and age >= 26 do not allow
+    return false if rel.to_s == "child" && coverage_age >= 26
+
     # If the relationship doesn't even map, they aren't allowed
     mapped_relationship = @contribution_model.map_relationship_for(rel, coverage_age, disability)
     return false if mapped_relationship.blank?

@@ -365,6 +365,13 @@ class Person
     is_active
   end
 
+  def update_ssn_and_gender_for_employer_role(census_employee)
+    return if census_employee.blank?
+
+    update_attributes(ssn: census_employee.ssn) if ssn.blank?
+    update_attributes(gender: census_employee.gender) if gender.blank?
+  end
+
   # collect all verification types user can have based on information he provided
   def verification_types
     verification_types = []
@@ -405,7 +412,9 @@ class Person
       rel.relative_id.to_s == person.id.to_s
     end
     if existing_relationship
-      existing_relationship.update_attributes(:kind => relationship)
+      existing_relationship.assign_attributes(:kind => relationship)
+      update_census_dependent_relationship(existing_relationship)
+      existing_relationship.save!
     else
       self.person_relationships << PersonRelationship.new({
         :kind => relationship,
@@ -441,6 +450,10 @@ class Person
 
   def work_email
     emails.detect { |adr| adr.kind == "work" }
+  end
+
+  def work_or_home_email
+    work_email || home_email
   end
 
   def work_email_or_best
@@ -483,6 +496,12 @@ class Person
 
   def has_active_employee_role?
     active_employee_roles.any?
+  end
+
+  def has_active_shopping_role?
+    has_active_employee_role? ||
+      has_active_resident_role? ||
+      has_active_consumer_role?
   end
 
   def has_employer_benefits?
@@ -850,6 +869,12 @@ class Person
   end
 
   private
+
+  def update_census_dependent_relationship(existing_relationship)
+    return unless existing_relationship.valid?
+
+    Operations::CensusMembers::Update.new.call(relationship: existing_relationship, action: 'update_relationship')
+  end
 
   def create_inbox
     welcome_subject = "Welcome to #{site_short_name}"

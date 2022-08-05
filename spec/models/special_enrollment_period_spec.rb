@@ -185,6 +185,29 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
     end
   end
 
+  context ".optional_effective_on_dates_within_range" do
+    let(:param_with_invalid_optional_effective_on) do
+      {
+        family: family,
+        qualifying_life_event_kind: shop_qle,
+        effective_on_kind: "first_of_next_month",
+        qle_on: qle_on,
+        optional_effective_on: ["07/03/#{TimeKeeper.date_of_record.year}", "09/07/#{TimeKeeper.date_of_record.year}"]
+      }
+    end
+    it "should throw error with SHOP SEP and next_poss_effective_date nil" do
+      # since module method invokes in class
+      allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(family, "min", "shop").and_return(nil)
+      allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(family, "max", "shop").and_return(nil)
+      expect(
+        SpecialEnrollmentPeriod.create(**param_with_invalid_optional_effective_on).errors[:optional_effective_on]
+      ).to eq [
+        "both min and max sep optional dates are not present for 07/03/#{TimeKeeper.date_of_record.year}. Please specify.",
+        "both min and max sep optional dates are not present for 09/07/#{TimeKeeper.date_of_record.year}. Please specify."
+      ]
+    end
+  end
+
   context ".next_poss_effective_date_within_range" do
     let(:shop_qle_sep) { FactoryGirl.create(:special_enrollment_period, family: family) }
     let(:past_date) { TimeKeeper.date_of_record - 3.months }
@@ -505,6 +528,20 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
     end
   end
 
+  context "#is_eligible" do
+    let(:shop_qle_sep) { family.special_enrollment_periods.build(qualifying_life_event_kind: shop_qle) }
+    let(:employee_role_double) { double(census_employee: census_employee_double, id: 1)}
+    let(:census_employee_double) { double(earliest_eligible_date: nil) }
+
+    before do
+      allow(family.primary_applicant.person).to receive(:active_employee_roles).and_return([employee_role_double])
+      allow(shop_qle_sep).to receive(:is_shop?).and_return(true)
+      allow(shop_qle_sep).to receive(:is_active?).and_return(true)
+    end
+    it "should not throw exception if earliest_eligible_date is nil" do
+      expect(shop_qle_sep.send(:is_eligible?)).to be_falsey
+    end
+  end
 
   context "is reporting a qle before the employer plan start_date" do
     let!(:published_plan_year) { FactoryGirl.create(:next_month_plan_year) }

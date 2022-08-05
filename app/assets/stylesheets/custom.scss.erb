@@ -1093,9 +1093,6 @@ a.list-group-item.confirm {
 .panel-group .panel .list-group-item {
     border-radius: 0px;
 }
-a.wdfull {
-    width: 100%;
-}
 .list-group-item .panel-heading {
     padding: 0px;
 }
@@ -3021,7 +3018,22 @@ ul.list-qle li a:hover {
     border-radius: 0px;
 }
 a.wdfull {
-    width: 100%;
+  width: 100%;
+}
+.wdfull {
+  width: 100%;
+}
+.plan-premium.plan-details {
+  font-weight: 400;
+}
+.sbc-text {
+  font-weight: normal;
+  span {
+    &::before {
+      content: "\A";
+      white-space: pre;
+    }
+  }
 }
 .list-group-item .panel-heading {
     padding: 0px;
@@ -3797,6 +3809,27 @@ ul.list-right-section li a img {
 }
 #qle-details .hbx-enrollment-panel .panel-heading h4{
   color: #69A30D;
+}
+
+.enrollment-tile {
+  .panel-heading h3 {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .panel-body  {
+    font-size: 12px;
+    font-weight: 300;
+    div {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    strong, h5 {
+      font-weight: 400;
+    }
+  }
+  .panel-footer span, .panel-footer div {
+    font-size: 12px;
+  }
 }
 
 #qle-details-for-existing-sep .hbx-enrollment-panel .panel-heading h4{
@@ -4910,4 +4943,27 @@ input:required:valid {
 
 .employer_attestation_fields .radio{
   background-color: transparent;
+}
+
+/* Continuos Plan Shopping */
+
+.members_selection{
+  .group-selection{
+    #group-selection-form{
+      .table-bordered{
+        border: 1px solid #ddd;
+        .table-cell{
+          padding: 5px 0 0 20px;
+        }
+        .radio-container{
+          .radio-input{
+          margin-right: 25px;
+          }
+        }
+        .spliter{
+          border-bottom: 1px solid #ddd;
+        }
+      }
+    }
+  }
 }

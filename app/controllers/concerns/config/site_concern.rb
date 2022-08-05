@@ -7,6 +7,10 @@ module Config::SiteConcern
     Settings.site.use_default_devise_path
   end
 
+  def aca_recaptcha_enabled?
+    ENV['RECAPTCHA_IS_ENABLED'] || false
+  end
+
   def site_create_routes
     Settings.site.create_routes
   end

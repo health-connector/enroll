@@ -97,7 +97,26 @@
         def er_state(row)
           return 'N/A' if row.is_prospect?
           return 'Former Client' if row.broker_relationship_inactive?
-          row.employer_profile.organization.active_benefit_sponsorship.aasm_state.capitalize
+          sponsorship = row.employer_profile.organization.active_benefit_sponsorship
+          benefit_application_summarized_state(sponsorship.dt_display_benefit_application) if sponsorship.dt_display_benefit_application.present?
+        end
+
+        def benefit_application_summarized_state(benefit_application)
+          return if benefit_application.nil?
+
+          aasm_map = {
+            :draft => :draft,
+            :enrollment_open => :enrolling,
+            :enrollment_eligible => :enrolled,
+            :binder_paid => :enrolled,
+            :approved => :published,
+            :pending => :publish_pending
+          }
+
+          renewing = benefit_application.predecessor_id.present? && [:active, :terminated, :termination_pending].exclude?(benefit_application.aasm_state) ? "Renewing" : ""
+          summary_text = aasm_map[benefit_application.aasm_state] || benefit_application.aasm_state
+          summary_text = "#{renewing} #{summary_text.to_s.humanize.titleize}"
+          summary_text.strip
         end
 
         def er_fein(row)

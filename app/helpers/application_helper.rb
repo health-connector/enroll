@@ -502,8 +502,9 @@ module ApplicationHelper
     covered = plan_year.progressbar_covered_count
     waived = plan_year.waived_count
     p_min = 0 if p_min.nil?
+
     unless eligible.zero?
-      condition = (eligible <= 2) ? ((enrolled > (eligible - 1)) && (non_owner > 0)) : ((enrolled >= p_min) && (non_owner > 0))
+      condition = enrolled >= p_min && non_owner > 0
       condition = false if covered == 0 && waived > 0
       progress_bar_class = condition ? 'progress-bar-success' : 'progress-bar-danger'
       progress_bar_width = (enrolled * 100)/eligible
@@ -519,9 +520,9 @@ module ApplicationHelper
           concat content_tag(:small, enrolled, class: 'progress-current', style: "left: #{progress_bar_width - 2}%;")
         end
 
-        if eligible >= 2
-          eligible_text = (options[:minimum] == false) ? "#{p_min}<br>(Minimum)" : "<i class='fa fa-circle manual' data-toggle='tooltip' title='Minimum Requirement' aria-hidden='true'></i>".html_safe unless plan_year.start_on.to_date.month == 1
-          concat content_tag(:p, eligible_text.html_safe, class: 'divider-progress', data: {value: "#{p_min}"}) unless plan_year.start_on.to_date.month == 1
+        if eligible >= 2 && plan_year.employee_participation_ratio_minimum != 0
+          eligible_text = options[:minimum] == false ? "#{p_min}<br>(Minimum)" : "<i class='fa fa-circle manual' data-toggle='tooltip' title='Minimum Requirement' aria-hidden='true'></i>".html_safe
+          concat content_tag(:p, eligible_text.html_safe, class: 'divider-progress', data: {value: p_min.to_s})
         end
 
         concat(content_tag(:div, class: 'progress-val') do
@@ -548,8 +549,11 @@ module ApplicationHelper
 
   def calculate_participation_minimum
     if @current_plan_year.present?
-      return 0 if @current_plan_year.eligible_to_enroll_count == 0
-      return (@current_plan_year.eligible_to_enroll_count * Settings.aca.shop_market.employee_participation_ratio_minimum).ceil
+      if @current_plan_year.eligible_to_enroll_count == 0
+        0
+      else
+        (@current_plan_year.eligible_to_enroll_count * @current_plan_year.employee_participation_ratio_minimum).ceil
+      end
     end
   end
 
@@ -774,4 +778,23 @@ module ApplicationHelper
     end.to_json
   end
 
+  def add_external_links_enabled?
+    EnrollRegistry[:add_external_links].feature.is_enabled
+  end
+
+  def employee_external_link_enabled?
+    add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:employee_display).item
+  end
+
+  def employer_external_link_enabled?
+    add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:employer_display).item
+  end
+
+  def plan_shopping_enabled?
+    add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:plan_shopping_display).item
+  end
+
+  def benefit_application_external_link_enabled?
+    add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:benefit_application_display).item
+  end
 end

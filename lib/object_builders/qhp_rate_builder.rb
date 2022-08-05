@@ -76,14 +76,16 @@ class QhpRateBuilder
       calculate_and_build_metlife_premium_tables
     else
       key = "#{@rate[:plan_id]},#{@rate[:effective_date].to_date.year}"
-      rating_area = Settings.aca.state_abbreviation.upcase == "MA" ? @rate[:rate_area_id].gsub("Rating Area ", "R-MA00") : nil
-      @results[key] << {
-        age: assign_age,
-        start_on: @rate[:effective_date],
-        end_on: @rate[:expiration_date],
-        cost: @rate[:primary_enrollee],
-        rating_area: rating_area
-      }
+      @rate[:rate_area_id].split(",").each do |rating_area_name|
+        rating_area = Settings.aca.state_abbreviation.upcase == "MA" ? rating_area_name.squish.gsub("Rating Area ", "R-MA00") : nil
+        @results[key] << {
+          age: assign_age,
+          start_on: @rate[:effective_date],
+          end_on: @rate[:expiration_date],
+          cost: @rate[:primary_enrollee],
+          rating_area: rating_area
+        }
+      end
     end
   end
 
@@ -128,10 +130,12 @@ class QhpRateBuilder
   def build_product_premium_tables
     active_year = @rate[:effective_date].to_date.year
     applicable_range = @rate[:effective_date].to_date..@rate[:expiration_date].to_date
-    rating_area = Settings.aca.state_abbreviation.upcase == "MA" ? @rate[:rate_area_id].gsub("Rating Area ", "R-MA00") : nil
-    rating_area_id = @rating_area_id_cache[[active_year, rating_area]]
-    @premium_table_cache[[@rate[:plan_id], rating_area_id, applicable_range]][assign_age] = @rate[:primary_enrollee]
-    @results_array << "#{@rate[:plan_id]},#{active_year}"
+    @rate[:rate_area_id].split(",").each do |rating_area_name|
+      rating_area = Settings.aca.state_abbreviation.upcase == "MA" ? rating_area_name.squish.gsub("Rating Area ", "R-MA00") : nil
+      rating_area_id = @rating_area_id_cache[[active_year, rating_area]]
+      @premium_table_cache[[@rate[:plan_id], rating_area_id, applicable_range]][assign_age] = @rate[:primary_enrollee]
+      @results_array << "#{@rate[:plan_id]},#{active_year}"
+    end
   end
 
   def assign_age
@@ -155,8 +159,8 @@ class QhpRateBuilder
       unless INVALID_PLAN_IDS.include?(hios_id)
         @plans = Plan.where(hios_id: /#{hios_id}/, active_year: year)
         @plans.each do |plan|
-          plan.premium_tables = nil
-          plan.premium_tables.create!(premium_tables)
+          plan.premium_tables = []
+          plan.premium_tables = premium_tables
           plan.minimum_age, plan.maximum_age = plan.premium_tables.map(&:age).minmax
           plan.save
         end

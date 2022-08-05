@@ -10,23 +10,19 @@ describe EmployeeRole, dbclean: :after_each do
 
   let(:person) {FactoryGirl.create(:person, :with_family)}
 
-  before do
-    TimeKeeper.set_date_of_record_unprotected!(Date.new(2015, 6, 20))
-  end
-
-  after :all do
-    TimeKeeper.set_date_of_record_unprotected!(Date.today)
-  end
-
   context "employer with two draft plan years exist" do
-    let(:start_on) { TimeKeeper.date_of_record.next_month.beginning_of_month}
-    let(:plan_year_a) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-                                          :with_benefit_package,
-                                          :benefit_sponsorship => benefit_sponsorship,
-                                          :aasm_state => 'draft',
-                                          :effective_period =>  start_on..(start_on + 1.year) - 1.day
-    )}
     let(:plan_year_b) { initial_application }
+    let(:start_on) { plan_year_b.effective_period.max + 1.day}
+    let(:plan_year_a) do
+      FactoryGirl.create(
+        :benefit_sponsors_benefit_application,
+        :with_benefit_sponsor_catalog,
+        :with_benefit_package,
+        :benefit_sponsorship => benefit_sponsorship,
+        :aasm_state => 'draft',
+        :effective_period => start_on..(start_on + 1.year) - 1.day
+      )
+    end
 
     context "with benefit groups" do
       let(:benefit_group_a)    { plan_year_a.benefit_packages.first }

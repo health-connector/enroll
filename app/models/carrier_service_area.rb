@@ -40,14 +40,18 @@ class CarrierServiceArea
       return issuers.service_areas_for(office_location: office_location).any?
     end
 
-    def valid_for_carrier_on(address:, carrier_profile:, year:)
+    def valid_for_carrier_on(address:, carrier_profile:, year:, quote_effective_date: nil)
       return([]) unless address.state.to_s.downcase == aca_state_abbreviation.to_s.downcase
+
+      plans = Plan.valid_shop_by_carrier_and_year(carrier_profile, year)
+                  .select{ |a| a.premium_tables.by_date(quote_effective_date).present? }
       where({
         :active_year => year,
-        issuer_hios_id: { "$in" => carrier_profile.issuer_hios_ids },
+        issuer_hios_id: { "$in" => plans.map{|a| a.hios_id[0..4]}.uniq },
+        service_area_id: { "$in" => plans.map(&:service_area_id).uniq },
         "$or" => [
           {:serves_entire_state => true},
-          {:service_area_zipcode => address.zip, county_name: ::Regexp.compile(::Regexp.escape(address.county).downcase, true)}
+          {:service_area_zipcode => address.zip, county_name: ::Regexp.compile(::Regexp.escape(address.county || '').downcase, true)}
         ]
       })
     end

@@ -117,7 +117,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @orgs = Organization.search(@q).exists(employer_profile: true)
     @page_alphabets = page_alphabets(@orgs, "legal_name")
     page_no = cur_page_no(@page_alphabets.first)
-    @organizations = @orgs.where("legal_name" => /^#{page_no}/i)
+    @organizations = @orgs.where("legal_name" => /^#{Regexp.escape(page_no)}/i) if page_no.present?
 
     @employer_profiles = @organizations.map {|o| o.employer_profile}
 
@@ -212,7 +212,7 @@ def employer_poc
     @page_alphabets = page_alphabets(@staff, "last_name")
     page_no = cur_page_no(@page_alphabets.first)
     if @q.nil?
-      @staff = @staff.where(last_name: /^#{page_no}/i)
+      @staff = @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
     else
       @staff = @staff.where(last_name: @q)
     end
@@ -224,7 +224,7 @@ def employer_poc
     @page_alphabets = page_alphabets(@staff, "last_name")
     page_no = cur_page_no(@page_alphabets.first)
     if @q.nil?
-      @staff = @staff.where(last_name: /^#{page_no}/i)
+      @staff = @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
     else
       @staff = @staff.where(last_name: @q)
     end
@@ -793,7 +793,7 @@ private
   def create_ba_params
     params.merge!({ pte_count: '0', msp_count: '0', admin_datatable_action: true })
     params.permit(:start_on, :end_on, :fte_count, :pte_count, :msp_count,
-                  :open_enrollment_start_on, :open_enrollment_end_on, :benefit_sponsorship_id, :admin_datatable_action)
+                  :open_enrollment_start_on, :open_enrollment_end_on, :benefit_sponsorship_id, :admin_datatable_action, :has_active_ba)
   end
 
   def modify_admin_tabs?

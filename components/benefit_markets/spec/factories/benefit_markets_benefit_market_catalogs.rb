@@ -14,6 +14,8 @@ FactoryGirl.define do
       dental_product_package_kinds { [:single_product] }
       number_of_products 5
       product_kinds { [:health, :dental] }
+      service_area { nil }
+      issuer_profile { nil }
     end
 
     association :benefit_market, factory: :benefit_markets_benefit_market
@@ -22,14 +24,18 @@ FactoryGirl.define do
 
       after(:build) do |benefit_market_catalog, evaluator|
         def create_product_package(product_kind, package_kind, benefit_market_catalog, evaluator)
-          build(:benefit_markets_products_product_package, 
+          build(
+            :benefit_markets_products_product_package,
+            benefit_kind: evaluator.benefit_market.kind,
             packagable: benefit_market_catalog, 
             package_kind: package_kind, 
             product_kind: product_kind,
             title: "#{package_kind.to_s.humanize} #{product_kind}",
             description: "#{package_kind.to_s.humanize} #{product_kind}",
             application_period: benefit_market_catalog.application_period,
-            number_of_products: evaluator.number_of_products
+            number_of_products: evaluator.number_of_products,
+            service_area: evaluator.service_area,
+            issuer_profile: evaluator.issuer_profile
           )
         end
         evaluator.product_kinds.each do |product_kind|

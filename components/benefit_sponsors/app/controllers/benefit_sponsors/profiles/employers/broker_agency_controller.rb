@@ -15,7 +15,7 @@ module BenefitSponsors
 
             if params[:page].present?
               @page_alphabet = cur_page_no(@page_alphabets.first)
-              @organizations = @orgs.where("legal_name" => /^#{@page_alphabet}/i)
+              @organizations = @orgs.where("legal_name" => /^#{Regexp.escape(@page_alphabet)}/i)
             else
               @organizations = @orgs.limit(12).to_a
             end
@@ -61,6 +61,10 @@ module BenefitSponsors
           else
             redirect_to profiles_employers_employer_profile_path(@employer_profile)
           end
+        rescue StandardError => e
+          Rails.logger.warn("Unable to terminate broker. Error: #{e}")
+          flash[:error] = "Unable to terminate broker. Please contact customer service at #{Settings.contact_center.phone_number}."
+          redirect_to profiles_employers_employer_profile_path(@employer_profile, tab: 'brokers')
         end
 
         private

@@ -14,11 +14,26 @@ module BenefitSponsors
     let(:employer_profile)      { benefit_sponsor.employer_profile }
     let!(:rating_area)           { FactoryGirl.create_default :benefit_markets_locations_rating_area }
     let!(:service_area)          { FactoryGirl.create_default :benefit_markets_locations_service_area }
-    let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
+    let(:benefit_sponsorship) do
+      sponsorship = employer_profile.add_benefit_sponsorship
+      sponsorship.save
+      sponsorship
+    end
 
     before do
       controller.prepend_view_path("../../app/views")
       person.employer_staff_roles.create! benefit_sponsor_employer_profile_id: employer_profile.id
+    end
+
+    describe "POST employee_bulk_upload" do
+      before do
+        sign_in user
+        post :bulk_employee_upload, employer_profile_id: benefit_sponsor.profiles.first.id
+      end
+
+      it "displays an error for a missing file" do
+        expect(assigns(:roster_upload_form).errors[:base].first).to eq "File is missing"
+      end
     end
 
     describe "GET show_pending" do
@@ -109,6 +124,20 @@ module BenefitSponsors
 
       it "should render coverage_reports template" do
         expect(response).to render_template("coverage_reports")
+      end
+
+      it "should return http success" do
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    describe "POST estimate_cost" do
+      let!(:employees) { FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)}
+
+      before do
+        sign_in user
+        post :estimate_cost, employer_profile_id: benefit_sponsor.profiles.first.id, benefit_package_id: BSON::ObjectId.new
+        allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
       end
 
       it "should return http success" do

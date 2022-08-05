@@ -145,7 +145,7 @@ def enter_plan_year_info
   find('.interaction-click-control-continue').click
   sleep(3)
   #Benefit Package
-  wait_for_ajax
+  # wait_for_ajax
   fill_in 'benefit_package[title]', with: 'Silver PPO Group'
   fill_in 'benefit_package[description]', with: 'Testing'
 end
@@ -202,6 +202,40 @@ And(/^.+ should be able to enter plan year, benefits, relationship benefits for 
   sleep 2
   find(:xpath, '//*[@id="referencePlanShell"]/div/div[1]/h1').click
   find('.interaction-click-control-create-plan-year').click
+end
+
+Given(/^Add Deductible Display is Enabled$/) do
+  skip_this_scenario unless ::EnrollRegistry.feature_enabled?(:add_deductible_display)
+end
+
+And(/^.+ should be able to see deductible information of plans$/) do
+  enter_plan_year_info
+  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').click
+  wait_for_ajax
+  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').click
+  sleep 2
+  expect(page).to have_content('Select Your Reference Plan')
+  wait_for_ajax
+  expect(page).to have_content('DEDUCTIBLE')
+  expect(page).to have_content('FAMILY')
+  expect(page).to have_content('INDIVIDUAL')
+end
+
+And(/.+ clicks View Summary$/) do
+  enter_plan_year_info
+  find(:xpath, '//*[@id="metal-level-select"]/div/ul/li[1]/a').click
+  wait_for_ajax
+  find(:xpath, '//*[@id="carrier"]/div[1]/div/label').click
+  sleep 2
+  expect(page).to have_content('Select Your Reference Plan')
+  wait_for_ajax
+  find_all('.reference-plans').first.hover
+  expect(page).to have_content("View Summary")
+  find_all('.rp-view-summary').first.click
+end
+
+Then(/.+ should see deductible information in summary$/) do
+  expect(page).to have_content('DEDUCTIBLE')
 end
 
 Then(/^Employer clicks delete in actions$/) do

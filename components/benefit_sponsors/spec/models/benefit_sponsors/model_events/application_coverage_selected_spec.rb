@@ -104,10 +104,10 @@ RSpec.describe 'BenefitSponsors::ModelEvents::ApplicationCoverageSelected', :dbc
         expect(merge_model.employer_name).to eq model_instance.employer_profile.legal_name
       end
       it "should return employee first_name" do
-        expect(merge_model.enrollment.employee_first_name).to eq model_instance.census_employee.first_name
+        expect(merge_model.enrollment.employee_first_name).to eq person.first_name
       end
       it "should return employee last_name" do
-        expect(merge_model.enrollment.employee_last_name).to eq model_instance.census_employee.last_name
+        expect(merge_model.enrollment.employee_last_name).to eq person.last_name
       end
       it "should return enrollment coverage_kind" do
         expect(merge_model.enrollment.coverage_start_on).to eq model_instance.effective_on.strftime('%m/%d/%Y')

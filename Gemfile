@@ -7,8 +7,8 @@ gem "benefit_markets", path: "components/benefit_markets"
 gem "benefit_sponsors", path: "components/benefit_sponsors"
 
 gem 'aasm', '~> 4.8.0'
-gem 'acapi', git: "https://github.com/dchbx/acapi.git", branch: 'development'
-gem 'addressable', '2.3.8'
+gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
+gem 'addressable', '2.8.0'
 gem 'animate-rails', '~> 1.0.7'
 gem 'aws-sdk', '2.2.4'
 gem 'bcrypt', '~> 3.1'
@@ -54,8 +54,8 @@ gem 'nokogiri', '1.9.1'
 gem 'nokogiri-happymapper', :require => 'happymapper'
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem "notifier",           path: "components/notifier"
-gem 'openhbx_cv2', git: 'https://github.com/dchbx/openhbx_cv2.git', branch: 'master'
-gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', branch: 'master'
+gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: 'trunk'
+gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', branch: 'trunk'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 1.0.1'
 gem 'rails', '4.2.11'
@@ -110,12 +110,13 @@ end
 group :development do
   gem "certified"
   gem 'overcommit'
-  gem 'rubocop', "0.61.1", require: false
+  gem 'rubocop', require: false
   gem 'rubocop-git'
   gem 'web-console', '2.3.0'
 end
 
 group :development, :test do
+  gem 'brakeman'
   gem 'capistrano', '3.3.5'
   gem 'capistrano-rails', '1.1.6'
   gem 'climate_control', '0.2.0'
@@ -123,7 +124,7 @@ group :development, :test do
   gem 'factory_girl_rails', '4.6.0'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
-  gem 'puma'
+  gem 'puma', '4.3.6'
   gem 'railroady', '~> 1.5.2'
   gem 'rspec-rails', '~> 3.4.2'
   gem 'rspec_junit_formatter', '0.2.3'
@@ -156,7 +157,7 @@ group :test do
 end
 
 group :production do
-  gem 'eye', '0.8.0'
+  gem 'eye', '0.10.0'
   gem 'newrelic_rpm'
   gem 'unicorn', '~> 4.8.3'
 end

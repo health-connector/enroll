@@ -1,6 +1,7 @@
 Feature: Broker Agency Registration
   Scenario: When the broker is hired as a census employee and registration is complete through employee role
     Given a CCA site exists with a benefit market
+    Given Continuous plan shopping is turned off
     # These steps will set up:
     # Given Primary Broker Ricky Martin exists
     When Primary Broker visits the HBX Broker Registration form
@@ -28,9 +29,6 @@ Feature: Broker Agency Registration
     And there is a census employee record and employee role for Ricky Martin for employer Acme Inc.
     And census employee Ricky Martin is a newly_designated_eligible employee
     And this employer Acme Inc. has first_of_month rule
-
     And employee Ricky Martin already matched with employer Acme Inc. and logged into employee portal
-    Then Employee should click on Manage Family button
-    Then Employee should click on the Personal Tab link
     Then Employee should not see phone main field in the personal information fields
     And Employee Ricky Martin should only have phone with work kind

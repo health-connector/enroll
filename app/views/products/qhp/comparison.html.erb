@@ -1,1 +1,5 @@
-<%= render partial: "shared/comparison", locals: {qhps: @qhps} %>
+<% if @qhps&.compact.blank? %>
+  <%= l10n("no_comparison_available") %>
+<% else %>
+  <%= render partial: "shared/comparison", locals: {qhps: @qhps&.compact} %>
+<% end %>

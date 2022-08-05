@@ -129,7 +129,7 @@ end
 Then(/(.*) should see enrollment on my account page/) do |named_person|
   expect(page).to have_content(named_person)  
   exchange_date = TimeKeeper.date_according_to_exchange_at(Time.current)
-  expect(page).to have_content("Plan Selected: #{exchange_date.strftime("%m/%d/%Y")}")
+  expect(page).to have_content("Plan Selected\n#{exchange_date.strftime('%m/%d/%Y')}")
 end
 
 Then(/(.*) should see \"my account\" page with enrollment/) do |named_person|
@@ -153,6 +153,24 @@ Then(/(.*) should see \"my account\" page with enrollment/) do |named_person|
   enrollment[0].find('.enrollment-created-at', text: exchange_date.strftime("%m/%d/%Y"))
 end
 
+Given(/^.+ should see annual deductible display$/) do
+  expect(page).to have_content(/Deductible/i)
+end
+
+Given(/^.+ should see medical and drug deductible information$/) do
+  expect(page).to have_content(/Rx/i)
+  expect(page).to have_content(/Deductible/i)
+end
+
+Then(/^.+ clicks on close button$/) do
+  click_button 'Close'
+end
+
+Then(/^.+ selects plans to compare$/) do
+  page.all("span.checkbox-custom-label")[0].click
+  page.all("span.checkbox-custom-label")[1].click
+  click_button "COMPARE PLANS"
+end
 
 Then(/(.*) should see \"my account\" page with active enrollment/) do |named_person|
   sleep 3 #wait for e-mail nonsense
@@ -181,7 +199,7 @@ Then(/Employee (.*) should see confirm your plan selection page/) do |named_pers
 end
 
 Then (/(.*) should see renewal policy in active status/) do |named_person|
-  enrollment = page.all('.hbx-enrollment-panel').first
+  enrollment = page.all('.hbx-enrollment-panel')[1]
   enrollment.find('.panel-heading', text: 'Coverage Selected')
 end
 

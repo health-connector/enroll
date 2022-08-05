@@ -1,0 +1,13 @@
+---
+registry:
+  - namespace:
+    - :enroll_app
+    - :aca_shop_market
+    features:
+      - key: :add_deductible_display
+        is_enabled: true
+        settings:
+          - key: :employee_display
+            item: true
+          - key: :employer_display
+            item: true

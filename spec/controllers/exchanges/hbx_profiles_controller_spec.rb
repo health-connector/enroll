@@ -483,6 +483,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       expect(controller).to receive(:find_hbx_profile)
+      allow(controller).to receive(:cur_page_no).and_return("1")
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
       sign_in(user)
       get :employer_index
@@ -1126,11 +1127,17 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
                                 bs
                                }
     let(:effective_period)     { (TimeKeeper.date_of_record + 3.months)..(TimeKeeper.date_of_record + 1.year + 3.months - 1.day) }
+    let(:start_on)             { effective_period.min }
+    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let!(:current_benefit_market_catalog) do
-      BenefitSponsors::ProductSpecHelpers.construct_cca_benefit_market_catalog_with_renewal_catalog(site, benefit_market, effective_period)
-      benefit_market.benefit_market_catalogs.where(
-        "application_period.min" => effective_period.min.to_s
-      ).first
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{effective_period.min.year}",
+        application_period: start_on.beginning_of_year..start_on.end_of_year
+      )
     end
 
     let!(:valid_params)   {
@@ -1159,7 +1166,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context '.new_benefit_application' do
       before :each do
-        xhr :get, :new_benefit_application
+        xhr :get, :new_benefit_application, benefit_sponsorship_id: benefit_sponsorship.id.to_s
       end
 
       it 'should respond with success status' do
@@ -1171,9 +1178,23 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
     end
 
-    context '.create_benefit_application' do
+    context '.create_benefit_application when existing draft application' do
       before :each do
-        xhr :post, :create_benefit_application, valid_params
+        xhr :post, :create_benefit_application, valid_params, has_active_ba: false
+      end
+
+      it 'should respond with success status' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'should render new_benefit_application' do
+        expect(response).to render_template("exchanges/hbx_profiles/create_benefit_application")
+      end
+    end
+
+    context '.create_benefit_application when existing application is in active states' do
+      before :each do
+        xhr :post, :create_benefit_application, valid_params, has_active_ba: true
       end
 
       it 'should respond with success status' do

@@ -99,7 +99,7 @@ module BenefitSponsors
     end
 
     def auto_cancel_ineligible
-      benefit_sponsorship.benefit_applications.each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
+      benefit_sponsorship.benefit_applications.enrollment_closed_and_ineligible.each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
     end
 
     def transmit_initial_eligible_event

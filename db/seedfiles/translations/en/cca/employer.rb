@@ -24,5 +24,11 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.employer_profiles.welcome.submit_verification_documents' => "Submit verification documents",
   :'en.employers.employer_profiles.welcome.submit_verification_documents.content' => "Before you can complete your enrollment, you’ll need to submit proof that your group is eligible to shop through Health Connector for Business. If you haven’t submitted your documentation yet, please review our list of required documents, then <a href='%{documents}'>upload in your account</a>.",
   :'en.employers.employer_profiles.welcome.complete_your_employee_roster' => "Complete your Employee Roster and choose a plan",
-  :'en.employers.employer_profiles.welcome.complete_your_employee_roster.content_html' => "To complete your Employee Roster, select the Employees tab and follow the instructions for adding employees to your group.</br></br>To work on choosing your plan, select the Benefits tab to get started."
+  :'en.employers.employer_profiles.welcome.complete_your_employee_roster.content_html' => "To complete your Employee Roster, select the Employees tab and follow the instructions for adding employees to your group.</br></br>To work on choosing your plan, select the Benefits tab to get started.",
+  :'en.employers.census_employees.terminate.termination_date_heading' => "Enter last day of employment for",
+  :'en.employers.registration.kind' => 'Kind *',
+  :'en.employers.registration.address' => 'Address *',
+  :'en.employers.registration.city' => 'City *',
+  :'en.employers.registration.state' => 'State *',
+  :'en.employers.registration.zip' => 'Zip *'
 }.freeze

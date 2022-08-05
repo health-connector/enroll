@@ -5,9 +5,10 @@ module BenefitSponsors
       include BenefitSponsors::Concerns::EmployerProfileConcern
       include BenefitSponsors::Concerns::Observable
 
-      field :sic_code,            type: String
-      field :referred_by,         type: String
-      field :referred_reason,     type: String
+      field :sic_code,                type: String
+      field :referred_by,             type: String
+      field :referred_reason,         type: String
+      field :enable_roster_updates,   type: Boolean, default: true
 
       # TODO use SIC code validation
       validates_presence_of :sic_code

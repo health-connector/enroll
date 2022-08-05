@@ -139,6 +139,7 @@ if (ENV["type"] != "fixtures") && missing_plan_dumps
   system "bundle exec rake load:benefit_market_catalog[2019]"
   system "bundle exec rake load:benefit_market_catalog[2020]"
   system "bundle exec rake load:benefit_market_catalog[2021]"
+  system "bundle exec rake load:benefit_market_catalog[2022]"
   puts "::: complete :::"
   puts "*"*80
 

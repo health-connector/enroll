@@ -7,6 +7,7 @@ module BenefitSponsors
     helper BenefitSponsors::Engine.helpers
 
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+    rescue_from ActionController::InvalidAuthenticityToken, :with => :bad_token_due_to_session_expired
 
     def self.current_site
       site_key = Settings.site.key
@@ -104,21 +105,34 @@ module BenefitSponsors
 
     def set_last_portal_visited
       if controller_name == "broker_agency_profiles" && action_name == "show"
-        return if (current_user.blank? || (current_user.person.present? && !current_user.person.broker_role.present?) ||current_user.last_portal_visited == request.referrer)
-        current_user.update_attributes(last_portal_visited: request.referrer)
+        return if current_user.blank? || (current_user.person.present? && !current_user.person.broker_role.present?)
+
+        current_user.update_attributes(last_portal_visited: request.path)
       end
     end
 
     private
 
+    def broker_agency_or_general_agency?
+      @profile_type == "broker_agency" || @profile_type == "general_agency"
+    end
+
     def user_not_authorized(exception)
       policy_name = exception.policy.class.to_s.underscore
-
-      flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)"
+      flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)" unless broker_agency_or_general_agency?
       respond_to do |format|
         format.json { render nothing: true, status: :forbidden }
         format.html { redirect_to(session[:custom_url] || request.referrer || main_app.root_path)}
         format.js   { render nothing: true, status: :forbidden }
+      end
+    end
+
+    def bad_token_due_to_session_expired
+      flash[:warning] = "Session expired."
+      respond_to do |format|
+        format.html { redirect_to main_app.root_path}
+        format.js   { render text: "window.location.assign('#{main_app.root_path}');"}
+        format.json { render json: { :token_expired => main_app.root_url }, status: :unauthorized }
       end
     end
   end

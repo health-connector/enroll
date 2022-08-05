@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = SponsoredBenefits::VERSION
   s.authors     = ["raghuram"]
   s.email       = ["raghuramg83@gmail.com"]
-  s.homepage    = "https://github.com/dchbx"
+  s.homepage    = "https://github.com/ideacrew"
   s.summary     = "Summary of SponsoredBenefits."
   s.description = "Description of SponsoredBenefits."
   s.license     = "MIT"
@@ -23,6 +23,14 @@ Gem::Specification.new do |s|
   s.add_dependency 'config'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'roo', '~> 2.1.0'
+  s.add_dependency 'dry-types'
+  s.add_dependency 'dry-schema', '~> 1.0'
+  s.add_dependency 'dry-validation', '~> 1.0'
+  s.add_dependency 'dry-initializer'
+  s.add_dependency 'dry-auto_inject', '0.6.1'
+  s.add_dependency 'dry-container'
+  s.add_dependency 'dry-struct'
+  s.add_dependency 'dry-monads'
 
   s.test_files = Dir["spec/**/*"]
 

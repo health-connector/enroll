@@ -14,4 +14,6 @@ class PremiumTable
 
   validates_inclusion_of :rating_area, :in => market_rating_areas, :allow_nil => true
 
+  scope :by_date, ->(date){ where(:start_on.lte => date, :end_on.gte => date) }
+
 end

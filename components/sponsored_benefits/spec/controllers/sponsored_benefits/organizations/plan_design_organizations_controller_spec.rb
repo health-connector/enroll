@@ -5,6 +5,7 @@ USER_ROLES = [:with_hbx_staff_role, :without_hbx_staff_role]
 module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignOrganizationsController, type: :controller, dbclean: :around_each  do
     routes { SponsoredBenefits::Engine.routes }
+    include Rails.application.routes.url_helpers
 
     let(:valid_session) { {} }
     let(:current_person) { double(:current_person) }
@@ -69,6 +70,33 @@ module SponsoredBenefits
       }
     }
 
+    context "permissions" do
+      context "unauthenticated user" do
+        before do
+          allow(subject).to receive(:current_person).and_return(nil)
+        end
+        it "should be redirected to root path with error message" do
+          get :new, { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}, valid_session
+          expect(response).to redirect_to("http://test.host/")
+          expect(flash[:error]).to eq("You are not authorized to view this page.")
+        end
+      end
+
+      context "user without hbx staff or broker role" do
+        before do
+          allow(subject).to receive(:current_person).and_return(current_person)
+          allow(current_person).to receive(:broker_role).and_return(nil)
+          allow(subject).to receive(:active_user).and_return(active_user)
+          allow(active_user).to receive(:has_hbx_staff_role?).and_return(false)
+        end
+        it "should be redirected to root path with error message" do
+          get :new, { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}, valid_session
+          expect(response).to redirect_to("http://test.host/")
+          expect(flash[:error]).to eq("You are not authorized to view this page.")
+        end
+      end
+    end
+
     before do
       allow(subject).to receive(:current_person).and_return(current_person)
       allow(current_person).to receive(:broker_role).and_return(broker_role)
@@ -76,7 +104,7 @@ module SponsoredBenefits
       allow(subject).to receive(:active_user).and_return(active_user)
       allow(active_user).to receive(:has_hbx_staff_role?).and_return(false)
       allow(broker_role).to receive(:benefit_sponsors_broker_agency_profile_id).and_return(broker_agency_profile.id)
-      allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(broker_agency_profile.id).and_return(broker_agency_profile)
+      allow(prospect_plan_design_organization).to receive(:is_renewing_employer?).and_return(false)
     end
 
     describe "GET #new" do

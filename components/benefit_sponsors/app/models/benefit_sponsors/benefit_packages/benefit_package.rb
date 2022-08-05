@@ -27,7 +27,7 @@ module BenefitSponsors
       delegate :benefit_sponsor_catalog, to: :benefit_application
       delegate :rate_schedule_date,      to: :benefit_application
       delegate :effective_period,        to: :benefit_application
-      delegate :recorded_sic_code, to: :benefit_application
+      delegate :recorded_sic_code,       to: :benefit_application
 
       delegate :start_on, :end_on, :open_enrollment_period, to: :benefit_application
       delegate :open_enrollment_start_on, :open_enrollment_end_on, to: :benefit_application
@@ -37,7 +37,8 @@ module BenefitSponsors
       delegate :benefit_market, to: :benefit_application
       delegate :is_conversion?, to: :benefit_application
       delegate :is_renewing?,   to: :benefit_application
-      delegate :shoppable?,   to: :benefit_application
+      delegate :shoppable?,     to: :benefit_application
+      delegate :cover?,         to: :effective_period
 
       validates_presence_of :title, :probation_period_kind, :is_default, :is_active #, :sponsored_benefits
 
@@ -66,6 +67,12 @@ module BenefitSponsors
       def open_enrollment_contains?(date)
         open_enrollment_period.include?(date)
       end
+
+      # def cover?(date)
+      #   effective_period.cover?(date)
+      # end
+
+
 
       def package_for_open_enrollment(shopping_date)
         if open_enrollment_period.include?(shopping_date)
@@ -186,6 +193,14 @@ module BenefitSponsors
         probation_period_display_texts[probation_period_kind]
       end
 
+      def renewal_date
+        end_on + 1.day
+      end
+
+      def can_renew?
+        sponsored_benefits.unscoped.map{ |sb| sb.can_renew?(renewal_date) }.include?(false) ? false : true
+      end
+
       def renew(new_benefit_package)
         new_benefit_package.assign_attributes({
           title: title + "(#{start_on.year + 1})",
@@ -219,7 +234,7 @@ module BenefitSponsors
         #        will have is_active == false, I think this may always return an empty set.
         #        Because of this, I have removed the 'false' constraint.
 
-        census_employees_assigned_on(effective_period.min, false).each do |member| 
+        census_employees_assigned_on(effective_period.min).each do |member|
           renew_member_benefit(member)
         end
       end
@@ -240,7 +255,7 @@ module BenefitSponsors
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
 
             if hbx_enrollment && is_renewal_benefit_available?(hbx_enrollment)
-              renewed_enrollment = hbx_enrollment.renew_benefit(self)       
+              renewed_enrollment = hbx_enrollment.renew_benefit(self)
             end
 
             trigger_renewal_model_event(sponsored_benefit, census_employee, renewed_enrollment)
@@ -309,14 +324,14 @@ module BenefitSponsors
             if hbx_enrollment
               if (hbx_enrollment.effective_on > benefit_application.end_on)
                 if hbx_enrollment.may_cancel_coverage?
-                  hbx_enrollment.cancel_coverage!
+                  hbx_enrollment.cancel_coverage!(enrollment_term_date)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
               elsif hbx_enrollment.coverage_termination_pending? && hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on < benefit_application.end_on)
                 # do nothing
               elsif hbx_enrollment.may_terminate_coverage?
                 if hbx_enrollment.terminated_on.nil? || (hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on > benefit_application.end_on))
-                  hbx_enrollment.terminate_coverage!
+                  hbx_enrollment.terminate_coverage!(enrollment_term_date)
                   hbx_enrollment.update_attributes!(terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
@@ -337,13 +352,13 @@ module BenefitSponsors
             if hbx_enrollment
               if hbx_enrollment.effective_on > benefit_application.end_on
                 if hbx_enrollment.may_cancel_coverage?
-                  hbx_enrollment.cancel_coverage!
+                  hbx_enrollment.cancel_coverage!(enrollment_term_date)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
               elsif hbx_enrollment.coverage_termination_pending? && hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on < benefit_application.end_on)
                 # do nothing
               elsif hbx_enrollment.may_schedule_coverage_termination?
-                hbx_enrollment.schedule_coverage_termination!
+                hbx_enrollment.schedule_coverage_termination!(enrollment_term_date)
                 hbx_enrollment.update_attributes!(terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
                 hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
               end
@@ -360,14 +375,10 @@ module BenefitSponsors
 
           sponsored_benefits.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-             if hbx_enrollment && hbx_enrollment.may_cancel_coverage?
-               if hbx_enrollment.inactive?
-                 hbx_enrollment.cancel_coverage!
-               else
-                 hbx_enrollment.cancel_coverage!
-                 hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
-               end
-             end
+            if hbx_enrollment&.may_cancel_coverage?
+              hbx_enrollment.cancel_coverage!
+              hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?) unless hbx_enrollment.inactive?
+            end
           end
         end
 
@@ -376,6 +387,10 @@ module BenefitSponsors
           assign_other_benefit_package(other_benefit_package) if other_benefit_package.present?
           deactivate
         end
+      end
+
+      def enrollment_term_date
+        benefit_application.end_on
       end
 
       def canceled_as_ineligible?(transition)
@@ -410,31 +425,32 @@ module BenefitSponsors
         end
       end
 
+      def eligible_assigned_census_employees(effective_date)
+        CensusEmployee.by_benefit_package_and_assignment_on_or_later(self, effective_date).non_term_and_pending
+      end
+
       def assign_other_benefit_package(other_benefit_package)
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
           if is_renewing?
             ce.add_renew_benefit_group_assignment([other_benefit_package])
           else
-            ce.find_or_create_benefit_group_assignment([other_benefit_package])
+            ce.create_benefit_group_assignment([other_benefit_package])
           end
         end
       end
 
       def activate_benefit_group_assignments
-        CensusEmployee.by_benefit_package_and_assignment_on(self, start_on, false).non_terminated.each do |ce|
-          ce.benefit_group_assignments.each do |bga|
-            if bga.benefit_package_id == self.id
-              bga.make_active
-            end
-          end
+        CensusEmployee.by_benefit_package_and_assignment_on(self, start_on).non_terminated.no_timeout.inject([]) do |_dummy, ce|
+          ce.benefit_group_assignments.where(benefit_package_id: id).last&.make_active
         end
       end
 
+      # TODO: Figure this out and depracate
       def deactivate_benefit_group_assignments
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
-            benefit_group_assignment.update(is_active: false) unless is_renewing?
+            benefit_group_assignment.update(end_on: benefit_group_assignment.start_on) unless is_renewing?
           end
         end
       end
@@ -466,12 +482,8 @@ module BenefitSponsors
         sponsored_benefit_for(:dental).present?
       end
 
-      def eligible_assigned_census_employees(effective_date, is_active = true)
-        CensusEmployee.by_benefit_package_and_assignment_on_or_later(self, effective_date, is_active).non_term_and_pending
-      end
-
-      def census_employees_assigned_on(effective_date, is_active = true)
-        CensusEmployee.by_benefit_package_and_assignment_on(self, effective_date, is_active).non_term_and_pending
+      def census_employees_assigned_on(effective_date)
+        CensusEmployee.by_benefit_package_and_assignment_on(self, effective_date).non_term_and_pending
       end
 
       def self.find(id)

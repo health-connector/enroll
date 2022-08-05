@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = BenefitMarkets::VERSION
   s.authors     = ["IdeaCrew"]
   s.email       = ["enroll_app@ideacrew.com"]
-  s.homepage    = "https://github.com/dchbx"
+  s.homepage    = "https://github.com/ideacrew"
   s.summary     = "Create and manage markets that enable benefit sponsors to access products and offer benefits to their members."
   s.description = "Create and manage markets that enable benefit sponsors to access products and offer benefits to their members."
   s.license     = "MIT"
@@ -30,6 +30,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'i18n', '0.7.0'
   s.add_dependency 'nokogiri'
   s.add_dependency 'mini_portile2', '2.4.0'
+  s.add_dependency 'dry-types'
+  s.add_dependency 'dry-validation'
+  s.add_dependency 'dry-struct'
+  s.add_dependency 'dry-monads'
 
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'shoulda-matchers'

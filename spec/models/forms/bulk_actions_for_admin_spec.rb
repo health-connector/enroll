@@ -66,7 +66,7 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
     end
 
     context "cancelling enrollment before close of quiet period" do
-      let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
 
       let(:cancel_arguments) do
         [
@@ -78,6 +78,7 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
         ]
       end
 
+      let!(:update_initial_appliation) {initial_application.update_attributes(open_enrollment_period: (initial_application.open_enrollment_period.min..TimeKeeper.date_of_record.next_day)) }
       let(:subject) { Forms::BulkActionsForAdmin.new(*cancel_arguments)}
       let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
 
@@ -152,7 +153,7 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
     end
 
     context "terminating enrollment before close of quiet period" do
-      let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
       let(:term_arguments) do
         [
           {"termination_date_#{hbx_enrollment.id}" => current_effective_date.end_of_month.to_s,
@@ -162,6 +163,7 @@ describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
            "family_id" => family.id}
         ]
       end
+      let!(:update_initial_appliation) {initial_application.update_attributes(open_enrollment_period: (initial_application.open_enrollment_period.min..TimeKeeper.date_of_record.next_day)) }
       let(:subject) { Forms::BulkActionsForAdmin.new(*term_arguments)}
       let!(:glue_event_queue_name) { "#{Rails.application.config.acapi.hbx_id}.#{Rails.application.config.acapi.environment_name}.q.glue.enrollment_event_batch_handler" }
 

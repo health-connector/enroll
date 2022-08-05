@@ -214,6 +214,9 @@ module BenefitSponsors
                     elsif is_employer_profile?
                       build_sponsor_profile(attrs)
                     end
+
+          return unless profile.present?
+
           profile.office_locations << build_office_locations if profile.office_locations.empty?
           self.profile_id = profile.id
           self.profile = profile

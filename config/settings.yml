@@ -232,7 +232,7 @@ aca:
     renewal_application:
       earliest_start_prior_to_effective_on:
         months: -2
-        day_of_month: 0
+        day_of_month: 24
       monthly_open_enrollment_end_on: 20
       publish_due_day_of_month: 15
       application_submission_soft_deadline: 10
@@ -276,6 +276,8 @@ aca:
     mid_month_benefit_application_terminations:
       voluntary: false
       non_payment: false
+
+    auto_cancel_ineligible: false
 
   transmit_employers_immediately: false
   employer_has_sic_field: true
