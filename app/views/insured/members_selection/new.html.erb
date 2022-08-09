@@ -46,7 +46,7 @@
           <% end %>
         <% end %>
 
-        <% if ["sign_up"].exclude?(@organizer.event) %>
+        <%# making confirm_your_selections button available for all cases. ref:98955 %>
           <%= hidden_field_tag 'change_plan', @organizer.change_plan %>
           <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
           <br/>
@@ -56,7 +56,7 @@
             <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.previous_hbx_enrollment, @organizer.new_effective_on) %>
             <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
           <% end %>
-        <% end %>
+
         <br/>
         <br/>
         <%= link_to l10n("back_to_my_account"), family_account_path, class: 'btn btn-default btn btn-lg' %>
@@ -124,4 +124,3 @@
     }
 
   </script>
-
