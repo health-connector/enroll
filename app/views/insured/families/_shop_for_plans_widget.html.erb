@@ -57,7 +57,7 @@
             </div>
             <strong><%= l10n("insured.shop_for_health_and_dental_plans")%></strong>
           </div>
-          <% if (@family.active_seps.present? && !newhire_enrollment_eligible?(@employee_role)) || (@employee_role&.is_under_open_enrollment? && @employee_role&.census_employee.is_employee_in_term_pending?) || (@employee_role.can_enroll_as_new_hire? && @employee_role.is_under_off_cycle_open_enrollment? && @employee_role.can_get_coverage_under_current_py?)%>
+          <% if (@family.active_seps.present? && !newhire_enrollment_eligible?(@employee_role)) || (@employee_role&.is_under_open_enrollment? && @employee_role&.census_employee.is_employee_in_term_pending?) || @employee_role.can_enroll_as_new_hire? || (@employee_role.is_under_off_cycle_open_enrollment? && @employee_role.can_get_coverage_under_current_py?)%>
             <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12  <%=pundit_class Family, :updateable?%> ">
               <button class="btn btn-default pull-right" data-target="#choose_flow" data-toggle="modal" type="button">
                 <%= l10n("insured.shop_for_plans")%>
@@ -110,7 +110,7 @@
               <% end %>
 
               <% if @employee_role&.has_multiple_shop_oe_periods? %>
-                <p>If you <%= link_to 'enroll as new hire', shop_for_plan_widget_enroll_today_helper(options.merge(shop_under_current: true).merge!(event: "sign_up")) %> coverage will begin <%= format_date @employee_role.earliest_effective_on_for_new_hire_in_current_py %>.</p>
+                <p>If you <%= link_to 'enroll as new hire', shop_for_plan_widget_enroll_today_helper(options.merge(shop_under_current: true).merge!(event: "shop_for_plans")) %> coverage will begin <%= format_date @employee_role.earliest_effective_on_for_new_hire_in_current_py %>.</p>
               <% end %>
 
               <% if @family.latest_active_sep %>
