@@ -63,7 +63,7 @@
       </div>
       <div class="col-xs-3 right-section pull-right">
           <%  event = @organizer.event %>
-          <% if event == "sign_up" && !@organizer.employee_role.can_enroll_as_new_hire? %>
+          <% if event == "sign_up" %>
             <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '4'} %>
             <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: '4'} %>
           <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
