@@ -2,6 +2,7 @@
   <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 1} %>
 <% end %>
 <% effective_date_for_display = @organizer.effective_on_date || @organizer.new_effective_on %>
+<% waive_display = @organizer.employee_role.is_under_open_enrollment? || @organizer.employee_role.can_enroll_as_new_hire? %>
 <div class="container group-selection">
   <div class="row">
     <%= form_tag(:insured_members_selections, :id => "group-selection-form") do %>
@@ -63,7 +64,7 @@
       </div>
       <div class="col-xs-3 right-section pull-right">
           <%  event = @organizer.event %>
-          <% if event == "sign_up" %>
+          <% if event == "sign_up" && !waive_display %>
             <%= render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '4'} %>
             <%= render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: '4'} %>
           <% elsif event == "change_by_qle" || event.match?(/make_changes_/) %>
@@ -71,7 +72,7 @@
             <%= render partial: 'shared/product_shoppings/qle_buttons', locals: {step: 'no_button'} %>
           <% else %>
             <%= render partial: 'shared/product_shoppings/shop_for_plans_progress', locals: {step: '1'} %>
-            <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'show_waive'} %>
+            <%= render partial: 'shared/product_shoppings/shop_for_plans_buttons', locals: {step: 'no_button'} %>
           <% end %>
         </div>
       </div>
