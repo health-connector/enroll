@@ -42,8 +42,9 @@
         a.btn.btn-default.compare-selected-plans-link href="javascript:void(0);" style="display: none;" data-uri="#{comparison_products_plans_path(market_kind: @context.market_kind, coverage_kind: @coverage_kind)}" = l10n("compare_plans").to_s.upcase
       .col-lg-3.col-md-3.col-sm-3.col-xs-12.col-md-offset-1.col-sm-offset-1.right-section
 
+        - waive_display = @context.hbx_enrollment.employee_role.is_under_open_enrollment? || @context.hbx_enrollment.employee_role.can_enroll_as_new_hire?
         - event = @context.event
-        - if event == "sign_up" && !@context.hbx_enrollment.employee_role.can_enroll_as_new_hire?
+        - if event == "sign_up" && !waive_display
           = render  partial: 'shared/product_shoppings/signup_progress', locals: {step: '5'}
           = render  partial: 'shared/product_shoppings/signup_buttons', locals: {step: 'sign_up'}
         - elsif event == "change_by_qle" || event.match?(/make_changes_/)
