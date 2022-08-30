@@ -22,18 +22,21 @@
             &nbsp;|&nbsp;
           </span>
           <%- if @sent_box == true %>
-          <%= link_to(retrieve_inbox_path(provider, folder: 'Sent'), remote: true) do%>
-          <% if @folder == 'Sent' %>
-          <strong>
-            Sent
-          </strong>
-          <% else %>
-          Sent
+            <% if broker_agency_sent_messages_tab_enabled? %>
+              <%= link_to(retrieve_inbox_path(provider, folder: 'Sent'), remote: true) do%>
+                <% if @folder == 'Sent' %>
+                <strong>
+                  Sent
+                </strong>
+                <% else %>
+                Sent
+                <% end %>
+              <% end %>
+              <span class="">
+                &nbsp;|&nbsp;
+              </span>
           <% end %>
-          <% end %>
-          <span class="">
-            &nbsp;|&nbsp;
-          </span>
+          
           <%= link_to(retrieve_inbox_path(provider, folder: 'Deleted'), remote: true) do%>
           <% if @folder == 'Deleted' %>
           <strong>

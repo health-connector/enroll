@@ -313,4 +313,8 @@ module Config::AcaHelper
   def dental_offers_single_plan?
     Settings.aca.dental_plan_options_available.include?("single_plan")
   end
+
+  def broker_agency_sent_messages_tab_enabled?
+    Settings.aca.shop_market.broker_agency_profile.broker_agency_sent_messages_tab_enabled
+  end
 end
