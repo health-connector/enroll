@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Users::RegistrationsController, dbclean: :after_each do
+RSpec.describe Users::RegistrationsController do
 
   context "create" do
     let(:curam_user){ double("CuramUser") }
@@ -63,40 +63,6 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
         post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
         expect(response).to be_success
         expect(response).not_to redirect_to(root_path)
-      end
-    end
-
-    context "with captcha enabled" do
-
-      let(:email) { "test@example.com"}
-      let(:user) { FactoryGirl.create(:user, email: email, person: person, oim_id: email) }
-      let(:person) { FactoryGirl.create(:person) }
-      let(:recaptcha_token) {''}
-
-      before do
-        user.save!
-        @request.env["devise.mapping"] = Devise.mappings[:user]
-      end
-      context "with valid captcha request" do
-        before do
-          allow(controller).to receive(:handle_recaptcha).and_return(true)
-        end
-
-        it "should be a success" do
-          expect(response).to be_success
-        end
-      end
-
-      context "with invalid captcha request" do
-
-        before :each do
-          allow(controller).to receive(:handle_recaptcha).and_return(false)
-          post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
-        end
-
-        it "should render an error" do
-          expect(response).to_not be_success
-        end
       end
     end
   end
