@@ -192,6 +192,31 @@ module BenefitSponsors
       end
     end
 
+    describe "for broker_agency_profile's inbox" do
+
+      let(:unread_messages) { person01.inbox.unread_messages }
+
+      context "with a valid message" do
+        before :each do
+          sign_in(user_with_hbx_staff_role)
+          xhr :get, :inbox, id: person01.id
+        end
+
+        it "should return success http status" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should render inbox template" do
+          expect(response).to render_template("benefit_sponsors/profiles/broker_agencies/broker_agency_profiles/inbox")
+        end
+
+        it "should have inbox messages" do
+          person01.inbox.messages.first.update_attributes!(folder: 'inbox')
+          expect(unread_messages.count).to eql(1)
+        end
+      end
+    end
+
     describe "family_datatable" do
       include_context "setup benefit market with market catalogs and product packages"
       include_context "setup initial benefit application"
