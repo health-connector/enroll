@@ -16,6 +16,8 @@ class Products::QhpCostShareVariance
 
   field :medical_and_drug_deductibles_integrated, type: String
   field :medical_and_drug_max_out_of_pocket_integrated, type: String
+  field :is_specialist_referral_required, type: String
+  field :health_care_specialist_referral_type, type: String
   field :multiple_provider_tiers, type: String
   field :first_tier_utilization, type: String
   field :second_tier_utilization, type: String

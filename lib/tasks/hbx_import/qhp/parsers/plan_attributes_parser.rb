@@ -47,7 +47,7 @@ module Parser
     element :plan_brochure, String, tag: 'planBrochure'
 
     def to_hash
-      {
+      qhp_hash = {
         standard_component_id: standard_component_id.gsub(/\n/,'').strip,
         plan_marketing_name: plan_marketing_name.gsub(/\n/,'').strip,
         hios_product_id: hios_product_id.gsub(/\n/,'').strip,
@@ -61,8 +61,6 @@ module Parser
         unique_plan_design: unique_plan_design.gsub(/\n/,'').strip,
         qhp_or_non_qhp: qhp_or_non_qhp.gsub(/\n/,'').strip,
         insurance_plan_pregnancy_notice_req_ind: insurance_plan_pregnancy_notice_req_ind.gsub(/\n/,'').strip,
-        is_specialist_referral_required: is_specialist_referral_required.gsub(/\n/,'').strip,
-        health_care_specialist_referral_type: health_care_specialist_referral_type.gsub(/\n/,'').strip,
         insurance_plan_benefit_exclusion_text: insurance_plan_benefit_exclusion_text.gsub(/\n/,'').strip,
         indian_plan_variation: indian_plan_variation.gsub(/\n/,'').strip,
         hsa_eligibility: (hsa_eligibility.gsub(/\n/,'').strip rescue ""),
@@ -90,6 +88,9 @@ module Parser
         enrollment_payment_url: enrollment_payment_url.present? ? enrollment_payment_url.gsub(/\n/,'').strip : "",
         plan_brochure: (plan_brochure.gsub(/\n/,'').strip rescue "")
       }
+      qhp_hash.merge!(is_specialist_referral_required: is_specialist_referral_required.gsub(/\n/,'').strip) if is_specialist_referral_required.present?
+      qhp_hash.merge!(health_care_specialist_referral_type: health_care_specialist_referral_type.gsub(/\n/,'').strip) if health_care_specialist_referral_type.present?
+      qhp_hash
     end
   end
 end

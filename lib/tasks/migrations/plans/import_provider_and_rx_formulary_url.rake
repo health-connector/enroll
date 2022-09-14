@@ -73,6 +73,8 @@ namespace :import do
           ["2021_QHP", "2021_QDP"]
         elsif year == 2022
           ["2022_QHP", "2022_QDP"]
+        elsif year == 2023
+          ["2023_QHP", "2023_QDP"]
         end
         sheets.each do |sheet_name|
           sheet_data = result.sheet(sheet_name)
