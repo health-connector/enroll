@@ -268,10 +268,6 @@ module Config::AcaHelper
     Settings.aca.broker_routing_information
   end
 
-  def aca_recaptcha_enabled
-    Settings.aca.recaptcha_enabled
-  end
-
   def aca_security_questions
     Settings.aca.security_questions
   end
