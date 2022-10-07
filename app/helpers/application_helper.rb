@@ -430,14 +430,15 @@ module ApplicationHelper
     carrier_name = carrier_logo(plan)
     image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", width: options[:width]) # Displays carrier logo (Delta Dental => delta_dental.jpg)
   end
-      
+
   def digest_logos
     carrier_logo_hash = Hash.new(carriers:{})
     carriers = ::BenefitSponsors::Organizations::Organization.issuer_profiles
     carriers.each do |car|
       if Rails.env == "production"
         image = "logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
-        digest_image = "/assets/#{Rails.application.assets.find_asset(image).digest_path}"
+        digest_image = "/assets/#{Rails.application.assets.find_asset(image)&.digest_path}"
+        Rails.logger.warn("Unable to find carrier logo asset for #{car.legal_name}.") if Rails.application.assets.find_asset(image)&.digest_path.nil?
         carrier_logo_hash[car.legal_name] = digest_image
       else
         image = "/assets/logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
