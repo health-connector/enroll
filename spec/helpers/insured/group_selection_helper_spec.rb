@@ -385,7 +385,6 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
        )}
 
       let(:employer_profile) { organization.employer_profile }
-  
       let(:employee_role_one) { FactoryGirl.create(:employee_role, employer_profile: employer_profile)}
       let(:employee_role_two) { FactoryGirl.create(:employee_role, employer_profile: employer_profile)}
       let!(:hbx_enrollment) { double("HbxEnrollment", employee_role: employee_role_one)}
