@@ -385,6 +385,7 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
        )}
 
       let(:employer_profile) { organization.employer_profile }
+  
       let(:employee_role_one) { FactoryGirl.create(:employee_role, employer_profile: employer_profile)}
       let(:employee_role_two) { FactoryGirl.create(:employee_role, employer_profile: employer_profile)}
       let!(:hbx_enrollment) { double("HbxEnrollment", employee_role: employee_role_one)}
@@ -459,6 +460,7 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
             expect(helper.is_employer_checked?(employee_role_two)).to eq false
           end
 
+          #99512
           context "when continuous plan shopping is enabled" do
             before do
               EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
@@ -486,6 +488,7 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
             expect(helper.is_employer_checked?(employee_role_two)).to eq false
           end
 
+          #99512
           context "when continuous plan shopping is enabled" do
             before do
               EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
@@ -513,6 +516,7 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
           expect(helper.is_employer_checked?(employee_role_two)).to eq false
         end
 
+        #99512
         context "when continuous plan shopping is enabled" do
           before do
             EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
