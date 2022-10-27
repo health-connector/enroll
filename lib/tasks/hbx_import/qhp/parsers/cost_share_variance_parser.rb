@@ -20,6 +20,8 @@ module Parser
     element :av_calculator_output_number, String, tag: "avCalculatorOutputNumber"
     element :medical_and_drug_deductibles_integrated, String, tag: "medicalAndDrugDeductiblesIntegrated"
     element :medical_and_drug_max_out_of_pocket_integrated, String, tag: "medicalAndDrugMaxOutOfPocketIntegrated"
+    element :is_specialist_referral_required, String, tag: 'isSpecialistReferralRequired'
+    element :health_care_specialist_referral_type, String, tag: 'isSpecialistReferralRequired'
     element :multiple_provider_tiers, String, tag: "multipleProviderTiers"
     element :first_tier_utilization, String, tag: "firstTierUtilization"
     element :second_tier_utilization, String, tag: "secondTierUtilization"
@@ -59,6 +61,8 @@ module Parser
         service_visits_attributes: service_visits_attributes.map(&:to_hash)
       }
       response[:sbc_attributes] = sbc_attributes.to_hash if sbc_attributes
+      response[:cost_share_variance_attributes].merge!(is_specialist_referral_required: is_specialist_referral_required.gsub(/\n/,'').strip) if is_specialist_referral_required.present?
+      response[:cost_share_variance_attributes].merge!(health_care_specialist_referral_type: health_care_specialist_referral_type.gsub(/\n/,'').strip) if health_care_specialist_referral_type.present?
       response
     end
   end

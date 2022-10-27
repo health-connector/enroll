@@ -27,7 +27,7 @@ PLAN_TRANSLATIONS = {
   'en.plans.hne_tty' => '800-439-2370',
   'en.plans.hne_href_tty' => 'tel:+18004392370',
   'en.plans.hne_email' => 'Please log into the  my.healthnewengland.org, our secure member portal , to send an email to our Members Services team. We’ll respond back to you within one business day and during normal business hours.',
-  'en.plans.hne_hours' => 'Monday through Friday, 8:00 a.m. to 6:00 p.m.',
+  'en.plans.hne_hours' => 'Monday through Friday, 8:00 a.m. to 6:00 p.m. Closed Thursdays from 2:30 p.m. to 3:30 p.m. Formerly Boston Medical Center Healthnet Plan',
 
   'en.plans.bcbs_ivl' => 'For Individual/Non-Group:',
   'en.plans.bcbs_small' => 'For Small Group/FOM:',
