@@ -459,6 +459,17 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
             expect(helper.is_employer_checked?(employee_role_one)).to eq false
             expect(helper.is_employer_checked?(employee_role_two)).to eq false
           end
+
+          context "when continuous plan shopping is enabled" do
+            before do
+              EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
+            end
+
+            it "should not fail when organizer is not present" do
+              expect(helper.is_employer_checked?(employee_role_one)).to eq false
+              expect(helper.is_employer_checked?(employee_role_two)).to eq false
+            end
+          end
         end
 
         context "when user clicked on shop enrollment" do
@@ -475,6 +486,17 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
           it "should not check all the other employers other than the one user clicked shop enrollment ER" do
             expect(helper.is_employer_checked?(employee_role_two)).to eq false
           end
+
+          context "when continuous plan shopping is enabled" do
+            before do
+              EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
+            end
+
+            it "should not fail when organizer is not present" do
+              expect(helper.is_employer_checked?(employee_role_one)).to eq true
+              expect(helper.is_employer_checked?(employee_role_two)).to eq false
+            end
+          end
         end
       end
 
@@ -490,6 +512,17 @@ RSpec.describe Insured::GroupSelectionHelper, :type => :helper, dbclean: :after_
 
         it "should not check the other employee roles" do
           expect(helper.is_employer_checked?(employee_role_two)).to eq false
+        end
+
+        context "when continuous plan shopping is enabled" do
+          before do
+            EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(true)
+          end
+
+          it "should not fail when organizer is not present" do
+            expect(helper.is_employer_checked?(employee_role_one)).to eq true
+            expect(helper.is_employer_checked?(employee_role_two)).to eq false
+          end
         end
       end
     end
