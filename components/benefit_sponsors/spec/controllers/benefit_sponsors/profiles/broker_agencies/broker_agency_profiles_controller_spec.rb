@@ -238,7 +238,7 @@ module BenefitSponsors
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
           xhr :get, :family_datatable, id: bap_id
-          @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id)
+          @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
         it "should return a family" do
@@ -273,7 +273,7 @@ module BenefitSponsors
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
           xhr :get, :family_datatable, id: bap_id
-          @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id)
+          @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
         it "should not return family" do
