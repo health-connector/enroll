@@ -1221,6 +1221,7 @@ And(/(.*) should have a ER sponsored enrollment/) do |named_person|
   ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
   ce.save # to update benefit group assignment that needs to updated.
   person_rec = Person.where(first_name: /#{person[:first_name]}/i, last_name: /#{person[:last_name]}/i).first
+  ce.benefit_group_assignments.last.update_attributes!(is_active: true) if TimeKeeper.date_of_record.month > 10
   benefit_package = ce.active_benefit_group_assignment.benefit_package
   FactoryGirl.create(:hbx_enrollment,
                      household: person_rec.primary_family.active_household,
@@ -1237,6 +1238,12 @@ And(/(.*) should have a ER sponsored enrollment/) do |named_person|
                      rating_area_id: benefit_package.rating_area.id,
                      product_id: benefit_package.health_sponsored_benefit.reference_product_id,
                      issuer_profile_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.issuer_profile.id)
+  if TimeKeeper.date_of_record.month > 10
+    new_end = Time.new(TimeKeeper.date_of_record.year, 12,31,0,0,0,0).utc
+    assignment = BenefitGroupAssignment.on_date(ce, TimeKeeper.date_of_record - 2.months)
+    assignment.benefit_group.plan_year.update_attributes!(effective_period: Time.new(2021,11,1,0,0,0,0).utc..Time.new(2022,12,31,0,0,0,0).utc)
+    assignment.update_attributes!(end_on: new_end)
+  end
 end
 
 Then(/Devops can verify session logs/) do

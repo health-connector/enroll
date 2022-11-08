@@ -72,8 +72,28 @@ module BenefitApplicationWorld
     end
   end
 
-  def create_application(new_application_status, dental: false)
-    application_start_date = application_effective_on(new_application_status) || current_effective_date
+  # Addresses certain cucumbers failing in Nov/Dec
+  def safe_application_effective_on(status)
+    case status
+    when :draft, :enrollment_open
+      current_effective_date((TimeKeeper.date_of_record + 2.months).beginning_of_month)
+    when :enrollment_closed, :enrollment_eligible, :enrollment_extended
+      current_effective_date((TimeKeeper.date_of_record + 1.months).beginning_of_month)
+    when :active, :terminated, :termination_pending, :expired
+      if TimeKeeper.date_of_record.month > 10
+        current_effective_date(TimeKeeper.date_of_record.beginning_of_month.prev_year)
+      else
+        current_effective_date((TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year)
+      end
+    end
+  end
+
+  def create_application(new_application_status, dental: false, safe_date: false)
+    application_start_date = if safe_date
+                               safe_application_effective_on(new_application_status) || current_effective_date
+                             else
+                               application_effective_on(new_application_status) || current_effective_date
+                             end
     application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package,
@@ -191,6 +211,14 @@ And(/^initial employer (.*) has (.*) benefit application$/) do |legal_name, new_
   app
 end
 
+# Addresses certain cucumbers failing in Nov/Dec
+And(/^initial SAFE employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
+  @employer_profile = employer_profile(legal_name)
+  app = create_application(new_application_status.to_sym, safe_date: true)
+  app.update_attributes!(recorded_rating_area: renewal_rating_area) if current_effective_date.month == 2
+  app
+end
+
 And(/^initial employer (.*) has (.*) benefit application with (.*) plan options$/) do |legal_name, new_application_status, plan_option|
   @package_kind = plan_option.downcase.gsub(/\s/, '_')
   @employer_profile = employer_profile(legal_name)
@@ -205,6 +233,15 @@ end
 And(/employer (.*) has (.*) and renewing (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
   @employer_profile = employer_profile(legal_name)
   earlier_application = create_application(earlier_application_status.to_sym)
+  renewal_rating_area
+  @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
+  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)
+end
+
+# Addresses certain cucumbers failing in Nov/Dec
+And(/employerSAFE (.*) has (.*) and renewing (.*) benefit applications$/) do |legal_name, earlier_application_status, new_application_status|
+  @employer_profile = employer_profile(legal_name)
+  earlier_application = create_application(earlier_application_status.to_sym, safe_date: true)
   renewal_rating_area
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
   @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)

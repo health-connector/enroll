@@ -1,7 +1,7 @@
 Feature: Add Plan Year For Employer
   Scenario: Setup site, employer, and benefit market
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given SAFE benefit market catalog exists for enrollment_open initial employer with health benefits
     Given the user is on the Employer Registration page
     And Jack Doe create a new account for employer
     And the user is registering a new Employer
@@ -20,7 +20,7 @@ Feature: Add Plan Year For Employer
   Scenario: Add Deductible Display Shows on Plan Tile
     Given Add Deductible Display is Enabled
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given SAFE benefit market catalog exists for enrollment_open initial employer with health benefits
     Given the user is on the Employer Registration page
     And Jack Doe create a new account for employer
     And the user is registering a new Employer
@@ -38,7 +38,7 @@ Feature: Add Plan Year For Employer
   Scenario: Add Deductible Display Shows In View Summary
     Given Add Deductible Display is Enabled
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given SAFE benefit market catalog exists for enrollment_open initial employer with health benefits
     Given the user is on the Employer Registration page
     And Jack Doe create a new account for employer
     And the user is registering a new Employer
@@ -57,7 +57,7 @@ Feature: Add Plan Year For Employer
    Scenario: Employer clicks Add Dental Benefit button
     Given Add Deductible Display is Enabled
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open initial employer that has both health and dental benefits
+    Given SAFE benefit market catalog exists for enrollment_open initial employer that has both health and dental benefits
     Given the user is on the Employer Registration page
     And Jack Doe create a new account for employer
     And the user is registering a new Employer
