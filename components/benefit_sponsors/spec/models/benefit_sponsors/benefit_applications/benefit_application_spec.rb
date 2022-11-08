@@ -937,7 +937,13 @@ module BenefitSponsors
       let(:application_period) { current_effective_date.beginning_of_year..current_effective_date.end_of_year }
       let(:application_period_next_year) { current_effective_date.next_year.beginning_of_year..current_effective_date.next_year.end_of_year }
       let!(:benefit_market_catalog_next_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_next_year) }
-      let!(:benefit_market_catalog)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period) }
+      let!(:benefit_market_catalog) do
+        catalog = build(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period)
+        return catalog if catalog.save
+
+        BenefitMarkets::BenefitMarketCatalog.by_application_date(application_period.min).first
+      end
+
       include_context 'setup initial benefit application'
 
       context 'when intital application open enrollment end date inside plan year start date', dbclean: :after_each do
