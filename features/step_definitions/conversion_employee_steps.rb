@@ -278,7 +278,7 @@ When(/Employee select a past qle date/) do
   expect(page).to have_content "Married"
   screenshot("past_qle_date")
   date = if TimeKeeper.date_of_record.month > 10
-           TimeKeeper.date_of_record - 5.days
+           (TimeKeeper.date_of_record - 1.month).end_of_month
          else
            [renewal_effective_date - 5.days, TimeKeeper.date_of_record - 5.days].min
          end
