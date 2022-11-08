@@ -152,7 +152,6 @@ module BenefitSponsors
       #TODO: Logic around binder payment due dates is not clear at this point. Hence hard-coding the due dates for now.
       def map_binder_payment_due_date_by_start_on(start_on)
         dates_map = {}
-
         {
           "2018-08-01" => '2018,7,24',
           "2018-09-01" => '2018,8,23',
@@ -219,10 +218,10 @@ module BenefitSponsors
           "2023-10-01" => '2023,9,23',
           "2023-11-01" => '2023,10,24',
           "2023-12-01" => '2023,11,23',
-          "2024-01-01" => '2023,12,23',
+          "2024-01-01" => '2023,12,23'
         }.each_pair do |k, v|
-            dates_map[k] = Date.strptime(v, '%Y,%m,%d')
-          end
+          dates_map[k] = Date.strptime(v, '%Y,%m,%d')
+        end
 
         dates_map[start_on.strftime('%Y-%m-%d')] || enrollment_timetable_by_effective_date(start_on)[:binder_payment_due_on]
       end
