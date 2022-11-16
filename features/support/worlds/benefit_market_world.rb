@@ -24,8 +24,8 @@ module BenefitMarketWorld
     @rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year)
   end
 
-  def renewal_rating_area
-    @renewal_rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: renewal_effective_date.year)
+  def renewal_rating_area(effective_date = renewal_effective_date)
+    @renewal_rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: effective_date.year)
   end
 
   def service_area
@@ -78,6 +78,22 @@ module BenefitMarketWorld
     end
   end
 
+  # Addresses certain cucumbers failing in Nov/Dec
+  def safe_initial_application_dates(status)
+    case status
+    when :draft, :enrollment_open
+      if TimeKeeper.date_of_record.month > 10
+        current_effective_date TimeKeeper.date_of_record.beginning_of_month
+      else
+        current_effective_date (TimeKeeper.date_of_record + 2.months).beginning_of_month
+      end
+    when :enrollment_closed, :enrollment_eligible, :enrollment_extended
+      current_effective_date (TimeKeeper.date_of_record + 1.months).beginning_of_month
+    when :active, :terminated, :termination_pending, :expired
+      current_effective_date (TimeKeeper.date_of_record - 2.months).beginning_of_month
+    end
+  end
+
   def set_renewal_application_dates(status)
     case status
     when :draft, :enrollment_open
@@ -89,14 +105,30 @@ module BenefitMarketWorld
     end
   end
 
-  def health_products
+  # Addresses certain cucumbers failing in Nov/Dec
+  def safe_renewal_application_dates(status)
+    case status
+    when :draft, :enrollment_open
+      current_effective_date (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year
+    when :enrollment_closed, :enrollment_eligible, :enrollment_extended
+      current_effective_date (TimeKeeper.date_of_record + 1.months).beginning_of_month.prev_year
+    when :active, :terminated, :termination_pending, :expired
+      if TimeKeeper.date_of_record.month > 10
+        current_effective_date (TimeKeeper.date_of_record - 3.months).beginning_of_month.prev_year
+      else
+        current_effective_date (TimeKeeper.date_of_record - 1.months).beginning_of_month.prev_year
+      end
+    end
+  end
+
+  def health_products(effective_date = current_effective_date)
     create_list(:benefit_markets_products_health_products_health_product,
-        5,
-        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-        product_package_kinds: [:single_issuer, :metal_level, :single_product],
-        service_area: service_area,
-        issuer_profile_id: issuer_profile.id,
-        metal_level_kind: :gold)
+                5,
+                application_period: (effective_date.beginning_of_year..effective_date.end_of_year),
+                product_package_kinds: [:single_issuer, :metal_level, :single_product],
+                service_area: service_area,
+                issuer_profile_id: issuer_profile.id,
+                metal_level_kind: :gold)
   end
 
   def dental_products
@@ -130,17 +162,17 @@ module BenefitMarketWorld
     reset_product_cache
   end
 
-  def renewal_health_products
+  def renewal_health_products(effective_date = current_effective_date)
     create_list(:benefit_markets_products_health_products_health_product,
-        5,
-        :with_renewal_product,
-        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-        product_package_kinds: [:single_issuer, :metal_level, :single_product],
-        service_area: service_area,
-        renewal_service_area: renewal_service_area,
-        issuer_profile_id: issuer_profile.id,
-        #renewal_issuer_profile_id: issuer_profile.id,
-        metal_level_kind: :gold)
+                5,
+                :with_renewal_product,
+                application_period: (effective_date.beginning_of_year..effective_date.end_of_year),
+                product_package_kinds: [:single_issuer, :metal_level, :single_product],
+                service_area: service_area,
+                renewal_service_area: renewal_service_area,
+                issuer_profile_id: issuer_profile.id,
+                #renewal_issuer_profile_id: issuer_profile.id,
+                metal_level_kind: :gold)
   end
 
   def renewal_dental_products
@@ -191,6 +223,17 @@ Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefi
   set_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
+  if TimeKeeper.date_of_record.month > 10
+    create_benefit_market_catalog_for(TimeKeeper.date_of_record.beginning_of_year.prev_year) unless BenefitMarkets::BenefitMarketCatalog.by_application_date(TimeKeeper.date_of_record.prev_year).present?
+    create_benefit_market_catalog_for(TimeKeeper.date_of_record.beginning_of_year.next_year) unless BenefitMarkets::BenefitMarketCatalog.by_application_date(TimeKeeper.date_of_record.next_year).present?
+  end
+end
+
+# Addresses certain cucumbers failing in Nov/Dec
+Given(/^SAFE benefit market catalog exists for (.*) initial employer with health benefits$/) do |status|
+  safe_initial_application_dates(status.to_sym)
+  generate_initial_catalog_products_for([:health])
+  create_benefit_market_catalog_for(current_effective_date)
 end
 
 # Following step can be used to initialize benefit market catalog for renewing employer with health/dental benefits
@@ -202,11 +245,29 @@ Given(/^benefit market catalog exists for (.*) renewal employer with (.*) benefi
   generate_renewal_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
   create_benefit_market_catalog_for(renewal_effective_date)
+
+  create_benefit_market_catalog_for(TimeKeeper.date_of_record.beginning_of_year.prev_year) if TimeKeeper.date_of_record.month > 10 && !BenefitMarkets::BenefitMarketCatalog.by_application_date(TimeKeeper.date_of_record.prev_year).present?
+end
+
+# Addresses certain cucumbers failing in Nov/Dec
+Given(/^SAFE benefit market catalog exists for (.*) renewal employer with health benefits$/) do |status|
+  safe_renewal_application_dates(status.to_sym)
+  generate_renewal_catalog_products_for([:health])
+  create_benefit_market_catalog_for(current_effective_date)
+  create_benefit_market_catalog_for(renewal_effective_date)
 end
 
 Given(/^benefit market catalog exists for (.*) initial employer that has both health and dental benefits$/) do |status|
   coverage_kinds = [:health, :dental]
   set_initial_application_dates(status.to_sym)
+  generate_initial_catalog_products_for(coverage_kinds)
+  create_benefit_market_catalog_for(current_effective_date)
+end
+
+# Addresses certain cucumbers failing in Nov/Dec
+Given(/^SAFE benefit market catalog exists for (.*) initial employer that has both health and dental benefits$/) do |status|
+  coverage_kinds = [:health, :dental]
+  safe_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
 end

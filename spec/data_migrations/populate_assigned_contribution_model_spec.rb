@@ -30,6 +30,10 @@ describe PopulateAssignedContributionModel, dbclean: :after_each do
         product_package.save
       end
       benefit_sponsor_catalog.save!
+
+      # Rake has 2021 hard coded date check
+      benefit_market = site.benefit_markets.where(kind: :aca_shop).first
+      benefit_market.benefit_market_catalogs.first.update_attributes!(application_period: Time.new(2021,1,1,0,0,0,0).utc..Time.new(2021,12,31,0,0,0,0).utc)
     end
 
     let(:health_sponsor_contribution) { initial_application.benefit_packages.first.health_sponsored_benefit.sponsor_contribution }
