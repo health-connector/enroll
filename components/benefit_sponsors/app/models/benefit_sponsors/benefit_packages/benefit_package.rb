@@ -430,7 +430,7 @@ module BenefitSponsors
       end
 
       def assign_other_benefit_package(other_benefit_package)
-        self.benefit_application.benefit_sponsorship.census_employees.active.each do |ce|
+        benefit_application.benefit_sponsorship.census_employees.active.each do |ce|
           if is_renewing?
             ce.add_renew_benefit_group_assignment([other_benefit_package])
           else
