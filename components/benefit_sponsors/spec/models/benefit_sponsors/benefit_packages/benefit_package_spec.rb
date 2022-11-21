@@ -835,6 +835,98 @@ module BenefitSponsors
       end
     end
 
+    describe '.cancel_member_benefits' do
+      include_context "setup renewal application"
+
+      let(:renewed_enrollment) { double("hbx_enrollment")}
+      let(:ra) {renewal_application}
+      let(:ia) {predecessor_application}
+      let(:bs) { ra.predecessor.benefit_sponsorship}
+      let(:cbp){ra.predecessor.benefit_packages.first}
+      let(:rbp){ra.benefit_packages.first}
+      let(:ibp){ia.benefit_packages.first}
+      let(:roster_size) { 5 }
+      let!(:census_employees) { create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: bs, employer_profile: bs.profile, benefit_group: cbp) }
+      let!(:person) { FactoryGirl.create(:person) }
+      let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+      let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person)}
+      let!(:census_employee) { census_employees.first }
+      let(:active_bga) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee, is_active: true)}
+      let(:renewal_bga) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee, is_active: false)}
+
+      let!(:census_update) do
+        census_employee.benefit_group_assignments = [active_bga, renewal_bga]
+        census_employee.save!
+      end
+      let(:hbx_enrollment) do
+        FactoryGirl.create(:hbx_enrollment, :shop,
+                           household: family.active_household,
+                           product: cbp.sponsored_benefits.first.reference_product,
+                           coverage_kind: :health,
+                           effective_on: predecessor_application.start_on,
+                           employee_role_id: census_employee.employee_role.id,
+                           sponsored_benefit_package_id: cbp.id,
+                           benefit_sponsorship: bs,
+                           benefit_group_assignment: active_bga)
+      end
+
+
+      let(:renewal_product_package)    { renewal_benefit_market_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
+      let(:product) { renewal_product_package.products[0] }
+
+      let!(:update_product) do
+        reference_product = current_benefit_package.sponsored_benefits.first.reference_product
+        reference_product.renewal_product = product
+        reference_product.save!
+      end
+
+      let(:active_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee)}
+      let(:renewal_bga) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee)}
+
+      let!(:census_update) do
+        census_employee.benefit_group_assignments = [active_bga, renewal_bga]
+        census_employee.save!
+      end
+
+      let(:hbx_enrollment) do
+        create(
+          :hbx_enrollment,
+          :shop,
+          household: family.active_household,
+          product: cbp.sponsored_benefits.first.reference_product,
+          coverage_kind: :health,
+          effective_on: predecessor_application.start_on,
+          employee_role_id: census_employee.employee_role.id,
+          sponsored_benefit_package_id: cbp.id,
+          benefit_sponsorship: bs,
+          benefit_group_assignment: active_bga
+        )
+      end
+
+      before do
+        allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
+        census_employee.update_attributes(employee_role_id: employee_role.id)
+        census_employee.employee_role.primary_family.active_household.hbx_enrollments << hbx_enrollment
+        census_employee.employee_role.primary_family.save
+        predecessor_application.update_attributes({:aasm_state => "active"})
+        ra.update_attributes({:aasm_state => "enrollment_eligible"})
+        hbx_enrollment.benefit_group_assignment_id = census_employee.benefit_group_assignments[0].id
+        allow(rbp).to receive(:trigger_renewal_model_event).and_return nil
+      end
+
+      it "should not assign a new package to inactive census employees" do
+        census_employees.first.update_attributes!(aasm_state: 'employment_terminated')
+        census_employees.each do |ce|
+          ce.renewal_benefit_group_assignment.update_attributes!(is_active: true)
+        end
+        rbp.benefit_application.benefit_packages << cbp
+
+        rbp.cancel_member_benefits(delete_benefit_package: true)
+        expect(rbp.is_active).to eq false
+        expect(census_employees.first.renewal_benefit_group_assignment).to eq nil
+      end
+    end
+
     describe '.expire_member_benefits', :dbclean => :after_each do
 
       include_context "setup initial benefit application" do
