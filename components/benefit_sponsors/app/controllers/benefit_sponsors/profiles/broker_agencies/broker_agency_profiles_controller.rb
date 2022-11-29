@@ -53,7 +53,7 @@ module BenefitSponsors
           find_broker_agency_profile(BSON::ObjectId.from_string(params.permit(:id)[:id]))
           dt_query = extract_datatable_parameters
 
-          query = BenefitSponsors::Queries::BrokerFamiliesQuery.new(dt_query.search_string, @broker_agency_profile.id)
+          query = BenefitSponsors::Queries::BrokerFamiliesQuery.new(dt_query.search_string, @broker_agency_profile.id, @broker_agency_profile.market_kind)
           @total_records = query.total_count
           @records_filtered = query.filtered_count
           @families = query.filtered_scope.skip(dt_query.skip).limit(dt_query.take).to_a
