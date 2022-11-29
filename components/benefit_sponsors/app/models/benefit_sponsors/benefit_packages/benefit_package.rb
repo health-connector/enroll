@@ -294,7 +294,7 @@ module BenefitSponsors
       def effectuate_member_benefits
         activate_benefit_group_assignments if predecessor.present?
 
-        enrolled_families.each do |family| 
+        enrolled_families.each do |family|
           enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
 
           sponsored_benefits.each do |sponsored_benefit|
@@ -314,7 +314,7 @@ module BenefitSponsors
           end
         end
       end
- 
+
       def terminate_member_benefits
         terminate_benefit_group_assignments
         enrolled_and_terminated_families.each do |family|
@@ -430,7 +430,7 @@ module BenefitSponsors
       end
 
       def assign_other_benefit_package(other_benefit_package)
-        self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
+        benefit_application.benefit_sponsorship.census_employees.active.each do |ce|
           if is_renewing?
             ce.add_renew_benefit_group_assignment([other_benefit_package])
           else
