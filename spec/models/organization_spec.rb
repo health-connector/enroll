@@ -517,6 +517,17 @@ RSpec.describe Organization, dbclean: :after_each do
     end
   end
 
+  context "has_premium_tables" do
+    let(:plan) { FactoryGirl.create(:plan, :with_premium_tables)}
+
+    context "base case" do
+      it "has_premium_tables for current year plan" do
+        plan.reload
+        expect(Organization.has_premium_tables?(plan.carrier_profile.organization)).to be_truthy
+      end
+    end
+  end
+
   describe "notify_legal_name_or_fein_change" do
 
     context "notify update" do

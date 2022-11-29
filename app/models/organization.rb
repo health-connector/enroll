@@ -283,7 +283,6 @@ class Organization
     office_location = filters[:primary_office_location]
     quote_effective_date = filters[:quote_effective_date].to_date
     return get_dental_carriers(office_location, quote_effective_date) if filters[:kind] == "dental"
-
     return self.valid_health_carrier_names unless constrain_service_areas?
 
     cache_string = "load-carriers"
@@ -299,7 +298,9 @@ class Organization
   def self.has_premium_tables?(org)
     Plan.with_premium_tables
         .valid_shop_health_plans("carrier", org.carrier_profile.id)
-        .select{|a| a.premium_tables.present? }.present?
+        .select{|a| a.premium_tables.present? }.present? ||
+      Plan.valid_shop_by_carrier(org.carrier_profile.id).where(coverage_kind: "health")
+          .select{|a| a.premium_tables.present? }.present?
   end
 
   def self.valid_carrier_names(filters = { sole_source_only: false, primary_office_location: nil, selected_carrier_level: nil, active_year: nil })
