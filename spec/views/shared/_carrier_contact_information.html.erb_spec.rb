@@ -15,7 +15,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
   context 'for BMC HealthNet Plan' do
     before :each do
       allow(plan).to receive(:kind).and_return('health')
-      allow(issuer_profile).to receive(:legal_name).and_return('BMC HealthNet Plan')
+      allow(issuer_profile).to receive(:legal_name).and_return('WellSense Health Plan')
       render partial: "shared/#{Settings.aca.state_abbreviation.downcase}_carrier_contact_information", locals: { plan: plan }
     end
 
@@ -89,7 +89,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
   context 'for AllWays Health Partners' do
     before :each do
       allow(plan).to receive(:kind).and_return('health')
-      allow(issuer_profile).to receive(:legal_name).and_return('AllWays Health Partners')
+      allow(issuer_profile).to receive(:legal_name).and_return('Mass General Brigham Health Plan')
       render partial: "shared/#{Settings.aca.state_abbreviation.downcase}_carrier_contact_information", locals: { plan: plan }
     end
 
