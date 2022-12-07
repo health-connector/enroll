@@ -82,7 +82,7 @@ module BenefitMarketWorld
   def safe_initial_application_dates(status)
     case status
     when :draft, :enrollment_open
-      if TimeKeeper.date_of_record.month > 10 && TimeKeeper.date_of_record.day < 16
+      if TimeKeeper.date_of_record.month == 11 && TimeKeeper.date_of_record.day < 16
         current_effective_date TimeKeeper.date_of_record.beginning_of_month
       else
         current_effective_date (TimeKeeper.date_of_record + 2.months).beginning_of_month
