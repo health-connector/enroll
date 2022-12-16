@@ -181,6 +181,13 @@ module BenefitSponsors
           end
         end
 
+        it "should reference to renewal_product_option_choice" do
+          renewal_benefit_package.sponsored_benefits.each_with_index do |sponsored_benefit, i|
+            current_sponsored_benefit = current_benefit_package.sponsored_benefits[i]
+            expect(sponsored_benefit.product_option_choice).to eq current_sponsored_benefit.reference_product.renewal_product.issuer_profile_id.to_s
+          end
+        end
+
         it "should attach renewal reference product" do
           renewal_benefit_package.sponsored_benefits.each_with_index do |sponsored_benefit, i|
             current_sponsored_benefit = current_benefit_package.sponsored_benefits[i]
