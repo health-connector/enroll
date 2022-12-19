@@ -291,7 +291,7 @@ end
 When(/Employee select a qle date based on expired plan year/) do
   screenshot("past_qle_date")
   if TimeKeeper.date_of_record.month > 10
-    fill_in "qle_date", :with => (TimeKeeper.date_of_record - 20.days).strftime("%m/%d/%Y")
+    fill_in "qle_date", :with => (TimeKeeper.date_of_record.prev_month.end_of_month).strftime("%m/%d/%Y")
   else
     fill_in "qle_date", :with => (renewal_effective_date - 20.days).strftime("%m/%d/%Y")
   end
