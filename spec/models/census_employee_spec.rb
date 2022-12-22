@@ -1596,7 +1596,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         end
         blue_collar_benefit_group_assignment1.hbx_enrollment.aasm_state = 'coverage_selected'
         blue_collar_benefit_group_assignment1.save!(:validate => false)
-        blue_collar_benefit_group_assignment2.hbx_enrollment.aasm_state = 'coverage_waived'
+        blue_collar_benefit_group_assignment2.hbx_enrollment.aasm_state = 'invalid'
         blue_collar_benefit_group_assignment2.hbx_enrollment.save!(:validate => false)
       end
 
@@ -2311,8 +2311,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         benefit_group_assignments: [benefit_group_assignment]
       )
     end
-    let(:waived_hbx_enrollment_double) { double(aasm_state: 'coverage_waived', sponsored_benefit_package_id: benefit_group.id) }
-    let(:coverage_selected_hbx_enrollment_double) { double(aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_group.id) }
+    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', is_coverage_waived?: true, sponsored_benefit_package_id: benefit_group.id) }
+    let(:coverage_selected_hbx_enrollment_double) { double('CoveredHbxEnrollment', is_coverage_waived?: false, sponsored_benefit_package_id: benefit_group.id) }
 
     let(:benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
 
@@ -2329,7 +2329,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   context "when active employeees has renewal benefit group" do
     let(:census_employee) {CensusEmployee.new(**valid_params)}
     let(:benefit_group_assignment) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
-    let(:waived_hbx_enrollment_double) { double(aasm_state: 'coverage_waived') }
+    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', is_coverage_waived?: true, sponsored_benefit_package_id: benefit_group.id) }
     before do
       benefit_group_assignment.update_attribute(:updated_at, benefit_group_assignment.updated_at + 1.day)
       benefit_group_assignment.plan_year.update_attribute(:aasm_state, "renewing_enrolled")
