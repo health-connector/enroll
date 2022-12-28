@@ -97,8 +97,8 @@
 
           #yourReferencePlanDetails
 
-          - if EnrollRegistry[:estimated_employee_costs_nav].feature.is_enabled
-            #employerEstimatedCostsNav
+          - if EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled
+            #employeeEstimatedCosts
 
 // Shows view summary modal
 .modal.fade#viewSummaryModal tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -358,8 +358,8 @@ javascript:
     showFormButtons();
 
     document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
-    if ( #{EnrollRegistry[:estimated_employee_costs_nav].feature.is_enabled} ) {
-      document.getElementById('employerEstimatedCostsNav').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/employer_estimated_costs_nav")}'
+    if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
+      document.getElementById('employeeEstimatedCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/employee_estimated_costs")}'
     }
 
     document.getElementById('referencePlanTitle').append(planTitle);
@@ -733,8 +733,8 @@ javascript:
     $(document).ready(function() {
       productsTotal = "#{@benefit_package_form.products_total}"
       document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
-      if ( #{EnrollRegistry[:estimated_employee_costs_nav].feature.is_enabled} ) {
-        document.getElementById('employerEstimatedCostsNav').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/employer_estimated_costs_nav")}'
+      if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
+        document.getElementById('employeeEstimatedCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/employee_estimated_costs")}'
       }
       productOptionKind = "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}"
       displayReferencePlanDetails(null, {
