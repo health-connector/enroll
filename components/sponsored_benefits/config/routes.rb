@@ -28,7 +28,12 @@ SponsoredBenefits::Engine.routes.draw do
 
     resources :plan_design_proposals, only: [:destroy, :create, :show] do
       resources :contributions, controller: 'plan_design_proposals/contributions', only: [:index]
-      resources :plan_selections, controller: 'plan_design_proposals/plan_selections', only: [:new]
+      resources :plan_selections, controller: 'plan_design_proposals/plan_selections', only: [:new] do
+        collection do
+          get :estimated_employee_cost_details
+        end
+      end
+      # get 'estimated_employee_cost_details', to: 'plan_design_proposals/plan_selections', only: [:estimated_employee_cost_details]
       resources :plan_reviews, controller: 'plan_design_proposals/plan_reviews', only: [:new] do
         collection do
           get :show

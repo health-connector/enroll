@@ -67,6 +67,9 @@ module BenefitSponsors
         render json: @employee_cost_details.to_json
       end
 
+      def estimated_employee_cost_details
+      end
+
       def destroy
         @benefit_package_form = BenefitSponsors::Forms::BenefitPackageForm.fetch(params.permit(:id, :benefit_application_id))
         authorize @benefit_package_form, :updateable?

@@ -98,7 +98,7 @@
           #yourReferencePlanDetails
 
           - if EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled
-            #employeeEstimatedCosts
+            #estimatedEmployeeCosts
 
 // Shows view summary modal
 .modal.fade#viewSummaryModal tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -359,7 +359,7 @@ javascript:
 
     document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
     if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
-      document.getElementById('employeeEstimatedCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/employee_estimated_costs")}'
+      document.getElementById('estimatedEmployeeCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/estimated_employee_costs")}'
     }
 
     document.getElementById('referencePlanTitle').append(planTitle);
@@ -734,7 +734,7 @@ javascript:
       productsTotal = "#{@benefit_package_form.products_total}"
       document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
       if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
-        document.getElementById('employeeEstimatedCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/employee_estimated_costs")}'
+        document.getElementById('estimatedEmployeeCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/estimated_employee_costs")}'
       }
       productOptionKind = "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}"
       displayReferencePlanDetails(null, {

@@ -87,6 +87,7 @@ BenefitSponsors::Engine.routes.draw do
         get :calculate_employee_cost_details, on: :collection
         get :calculate_employee_cost_details, on: :member
         get :reference_product_summary, on: :collection
+        get :estimated_employee_cost_details, on: :collection
 
         resources :sponsored_benefits, controller: "sponsored_benefits/sponsored_benefits" do
           member do
