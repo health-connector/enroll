@@ -7,6 +7,8 @@ module SponsoredBenefits
         plan_design_form.for_new
       end
 
+      def estimated_employee_cost_details; end
+
       private
       helper_method :plan_design_form, :plan_design_organization, :plan_design_proposal, :plan_design_proposal_benefit_group, :kind, :has_dental_benefits?
 
