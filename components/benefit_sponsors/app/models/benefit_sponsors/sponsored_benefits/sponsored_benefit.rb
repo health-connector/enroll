@@ -7,7 +7,7 @@ module BenefitSponsors
       SOURCE_KINDS  = [:benefit_sponsor_catalog, :conversion].freeze
 
 
-      embedded_in :benefit_package, 
+      embedded_in :benefit_package,
                   class_name: "::BenefitSponsors::BenefitPackages::BenefitPackage", inverse_of: :sponsored_benefits
 
       field :product_package_kind,  type: Symbol
@@ -16,10 +16,10 @@ module BenefitSponsors
 
       belongs_to :reference_product, class_name: "::BenefitMarkets::Products::Product", inverse_of: nil
 
-      embeds_one  :sponsor_contribution, 
+      embeds_one  :sponsor_contribution,
                   class_name: "::BenefitSponsors::SponsoredBenefits::SponsorContribution"
 
-      embeds_many :pricing_determinations, 
+      embeds_many :pricing_determinations,
                   class_name: "::BenefitSponsors::SponsoredBenefits::PricingDetermination"
 
       delegate :contribution_model, to: :product_package, allow_nil: true
@@ -97,6 +97,10 @@ module BenefitSponsors
         reference_product.renewal_product
       end
 
+      def renewal_product_option_choice
+        product_package_kind == :single_issuer ? renewal_product.issuer_profile_id.to_s : product_option_choice
+      end
+
       def can_renew?(renewal_effective_date)
         return false if renewal_product.nil?
 
@@ -112,7 +116,7 @@ module BenefitSponsors
 
         new_sponsored_benefit = self.class.new(
           product_package_kind: product_package_kind,
-          product_option_choice: product_option_choice,
+          product_option_choice: renewal_product_option_choice,
           reference_product: renewal_product,
           sponsor_contribution: sponsor_contribution.renew(new_product_package),
           benefit_package: new_benefit_package
