@@ -179,11 +179,20 @@ class CensusEmployee < CensusMember
   }
 
   scope :covered_progressbar, lambda {
-    where(
+    ces_with_covered_start_ons_and_enrollments = where(
       :benefit_group_assignments => {
-        :$elemMatch => { :aasm_state.in => ["coverage_selected","coverage_renewing"]  }
-      }
+        :$elemMatch => { :hbx_enrollment_id.nin => [nil], :start_on.lte => TimeKeeper.date_of_record }
+      },
     )
+    covered_ce_ids = ces_with_covered_start_ons_and_enrollments.select do |ce|
+      current_enrollment = ce.active_benefit_group_assignment&.hbx_enrollment
+      if current_enrollment
+        HbxEnrollment::ENROLLED_STATUSES.include?(current_enrollment.aasm_state) || HbxEnrollment::RENEWAL_STATUSES.include?(current_enrollment.aasm_state)
+      elsif ce.employee_role
+        HbxEnrollment.where(employee_role_id: ce.employee_role.id, :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES || HbxEnrollment::RENEWAL_STATUSES).present?
+      end
+    end.map(&:id)
+    where(:_id.in => covered_ce_ids)
   }
 
   scope :enrolled, -> { any_of([covered.selector, waived.selector]) }
