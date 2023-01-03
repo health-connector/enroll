@@ -182,7 +182,7 @@ class CensusEmployee < CensusMember
     ces_with_covered_start_ons_and_enrollments = where(
       :benefit_group_assignments => {
         :$elemMatch => { :hbx_enrollment_id.nin => [nil], :start_on.lte => TimeKeeper.date_of_record }
-      },
+      }
     )
     covered_ce_ids = ces_with_covered_start_ons_and_enrollments.select do |ce|
       current_enrollment = ce.active_benefit_group_assignment&.hbx_enrollment
