@@ -98,7 +98,7 @@
           #yourReferencePlanDetails
 
           - if EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled
-            #estimatedEmployeeCosts
+            #estimatedEmployeeCostDetailsNav
 
 // Shows view summary modal
 .modal.fade#viewSummaryModal tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -226,6 +226,9 @@ javascript:
       return 0;
     })
     populateReferencePlans(filteredProducts)
+    if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled}) {
+      document.getElementById('estimatedEmployeeCostDetailsNav').innerHTML = '#{(render :partial => "./ui-components/v1/cards/estimated_employee_costs", f: f )}'
+    }
     setTempCL()
     selectDefaultReferencePlan()
   }
@@ -358,10 +361,6 @@ javascript:
     showFormButtons();
 
     document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
-    if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
-      document.getElementById('estimatedEmployeeCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/estimated_employee_costs")}'
-    }
-
     document.getElementById('referencePlanTitle').append(planTitle);
     document.getElementById('rpType').append(planType);
     document.getElementById('rpCarrier').append(carrierName);
@@ -407,6 +406,7 @@ javascript:
 		var savePlanYearButton = document.getElementById('submitBenefitPackage');
     savePlanYearButton.classList.add('disabled');
     disableNewAddBenefitPackageButton()
+    disableEmpDetailedCostsLink()
     disableDentalBenefitPackage()
 		preventSubmissionOnEnter()
   }
@@ -415,6 +415,7 @@ javascript:
 		var savePlanYearButton = document.getElementById('submitBenefitPackage');
     savePlanYearButton.classList.remove('disabled');
     enableNewAddBenefitPackageButton()
+    enableEmpDetailedCostsLink()
     enableDentalBenefitPackage()
   }
 
@@ -426,6 +427,20 @@ javascript:
   function enableNewAddBenefitPackageButton() {
     var addBenefitPackageButton = document.getElementById('addBenefitPackage');
     addBenefitPackageButton.classList.remove('disabled')
+  }
+
+  function enableEmpDetailedCostsLink() {
+      var estimatedEmployeeCostDetailsLink = document.getElementById('estimatedEmployeeCostDetailsLink');
+      if (estimatedEmployeeCostDetailsLink) {
+        estimatedEmployeeCostDetailsLink.classList.remove('disabled')
+      }
+  }
+
+  function disableEmpDetailedCostsLink() {
+      var estimatedEmployeeCostDetailsLink = document.getElementById('estimatedEmployeeCostDetailsLink');
+      if (estimatedEmployeeCostDetailsLink) {
+        estimatedEmployeeCostDetailsLink.classList.add('disabled')
+      }
   }
 
   function disableDentalBenefitPackage() {
@@ -733,9 +748,6 @@ javascript:
     $(document).ready(function() {
       productsTotal = "#{@benefit_package_form.products_total}"
       document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
-      if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
-        document.getElementById('estimatedEmployeeCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/estimated_employee_costs")}'
-      }
       productOptionKind = "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}"
       displayReferencePlanDetails(null, {
         sponsoredBenefitId: "#{@benefit_package_form.sponsored_benefits.first.id}",
