@@ -52,13 +52,13 @@ jobs:
             test_command: rspec_booster --job 7/8
           - name: rspec 8/8
             test_command: rspec_booster --job 8/8
-          - name: cucumber 1/4
+          - name: cucumber 1/8
             test_command: |
               cp -f config/cucumber.yml config/cucumber.yml.bak
               cp -f config/cucumber_split.yml config/cucumber.yml
               cat config/cucumber.yml
               export DISPLAY=:99
-              if cucumber_booster --job 1/4 features
+              if cucumber_booster --job 1/8 features
               then
                 echo "Cucumber passed the first time!"
                 exit 0
@@ -79,13 +79,13 @@ jobs:
                 fi
               fi
             needs_chromedriver: true
-          - name: cucumber 2/4
+          - name: cucumber 2/8
             test_command: |
               cp -f config/cucumber.yml config/cucumber.yml.bak
               cp -f config/cucumber_split.yml config/cucumber.yml
               cat config/cucumber.yml
               export DISPLAY=:99
-              if cucumber_booster --job 2/4 features
+              if cucumber_booster --job 2/8 features
               then
                 echo "Cucumber passed the first time!"
                 exit 0
@@ -106,13 +106,13 @@ jobs:
                 fi
               fi
             needs_chromedriver: true
-          - name: cucumber 3/4
+          - name: cucumber 3/8
             test_command: |
               cp -f config/cucumber.yml config/cucumber.yml.bak
               cp -f config/cucumber_split.yml config/cucumber.yml
               cat config/cucumber.yml
               export DISPLAY=:99
-              if cucumber_booster --job 3/4 features
+              if cucumber_booster --job 3/8 features
               then
                 echo "Cucumber passed the first time!"
                 exit 0
@@ -133,13 +133,125 @@ jobs:
                 fi
               fi
             needs_chromedriver: true
-          - name: cucumber 4/4
+          - name: cucumber 4/8
             test_command: |
               cp -f config/cucumber.yml config/cucumber.yml.bak
               cp -f config/cucumber_split.yml config/cucumber.yml
               cat config/cucumber.yml
               export DISPLAY=:99
-              if cucumber_booster --job 4/4 features
+              if cucumber_booster --job 4/8 features
+              then
+                echo "Cucumber passed the first time!"
+                exit 0
+              else
+                cat config/cucumber.yml
+                cp -f config/cucumber.yml.bak config/cucumber.yml
+                cat config/cucumber.yml
+                ls -ltr && ls -ltr tmp
+                echo "catting rerun.txt"
+                cat rerun.txt
+                echo "Give cucumber one more try"
+                if bundle exec cucumber @rerun.txt --profile first_rerun
+                then
+                  echo "Cucumber worked on retry"
+                  exit 0
+                else
+                  echo "Give cucumber yet another try"
+                  bundle exec cucumber @tmp/cucumber_failures_2.log --profile second_rerun
+                fi
+              fi
+            needs_chromedriver: true
+          - name: cucumber 5/8
+            test_command: |
+              cp -f config/cucumber.yml config/cucumber.yml.bak
+              cp -f config/cucumber_split.yml config/cucumber.yml
+              cat config/cucumber.yml
+              export DISPLAY=:99
+              if cucumber_booster --job 5/8 features
+              then
+                echo "Cucumber passed the first time!"
+                exit 0
+              else
+                cat config/cucumber.yml
+                cp -f config/cucumber.yml.bak config/cucumber.yml
+                cat config/cucumber.yml
+                ls -ltr && ls -ltr tmp
+                echo "catting rerun.txt"
+                cat rerun.txt
+                echo "Give cucumber one more try"
+                if bundle exec cucumber @rerun.txt --profile first_rerun
+                then
+                  echo "Cucumber worked on retry"
+                  exit 0
+                else
+                  echo "Give cucumber yet another try"
+                  bundle exec cucumber @tmp/cucumber_failures_2.log --profile second_rerun
+                fi
+              fi
+            needs_chromedriver: true
+          - name: cucumber 6/8
+            test_command: |
+              cp -f config/cucumber.yml config/cucumber.yml.bak
+              cp -f config/cucumber_split.yml config/cucumber.yml
+              cat config/cucumber.yml
+              export DISPLAY=:99
+              if cucumber_booster --job 6/8 features
+              then
+                echo "Cucumber passed the first time!"
+                exit 0
+              else
+                cat config/cucumber.yml
+                cp -f config/cucumber.yml.bak config/cucumber.yml
+                cat config/cucumber.yml
+                ls -ltr && ls -ltr tmp
+                echo "catting rerun.txt"
+                cat rerun.txt
+                echo "Give cucumber one more try"
+                if bundle exec cucumber @rerun.txt --profile first_rerun
+                then
+                  echo "Cucumber worked on retry"
+                  exit 0
+                else
+                  echo "Give cucumber yet another try"
+                  bundle exec cucumber @tmp/cucumber_failures_2.log --profile second_rerun
+                fi
+              fi
+            needs_chromedriver: true
+          - name: cucumber 7/8
+            test_command: |
+              cp -f config/cucumber.yml config/cucumber.yml.bak
+              cp -f config/cucumber_split.yml config/cucumber.yml
+              cat config/cucumber.yml
+              export DISPLAY=:99
+              if cucumber_booster --job 7/8 features
+              then
+                echo "Cucumber passed the first time!"
+                exit 0
+              else
+                cat config/cucumber.yml
+                cp -f config/cucumber.yml.bak config/cucumber.yml
+                cat config/cucumber.yml
+                ls -ltr && ls -ltr tmp
+                echo "catting rerun.txt"
+                cat rerun.txt
+                echo "Give cucumber one more try"
+                if bundle exec cucumber @rerun.txt --profile first_rerun
+                then
+                  echo "Cucumber worked on retry"
+                  exit 0
+                else
+                  echo "Give cucumber yet another try"
+                  bundle exec cucumber @tmp/cucumber_failures_2.log --profile second_rerun
+                fi
+              fi
+            needs_chromedriver: true
+          - name: cucumber 8/8
+            test_command: |
+              cp -f config/cucumber.yml config/cucumber.yml.bak
+              cp -f config/cucumber_split.yml config/cucumber.yml
+              cat config/cucumber.yml
+              export DISPLAY=:99
+              if cucumber_booster --job 8/8 features
               then
                 echo "Cucumber passed the first time!"
                 exit 0
