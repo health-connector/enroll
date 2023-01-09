@@ -194,7 +194,7 @@ module BenefitSponsors
 
       def calculate_employee_estimates_for_all_products(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
         cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
-        sponsor_contribution, total, employer_costs = cost_estimator.calculate(
+        sponsor_contribution, _total, _employer_costs = cost_estimator.calculate(
           sponsored_benefit,
           reference_product,
           package,
@@ -204,13 +204,11 @@ module BenefitSponsors
 
         if sponsor_contribution.sponsored_benefit.pricing_determinations.any?
           products = [reference_product]
+        elsif package.package_kind == :single_issuer
+          issuer_hios_ids = reference_product.carrier_profile_hios_ids
+          products = package.load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))}
         else
-          if package.package_kind == :single_issuer
-            issuer_hios_ids = reference_product.carrier_profile_hios_ids
-            products = package.load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))}
-          else
-            products = package.load_base_products
-          end
+          products = package.load_base_products
         end
 
         group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
