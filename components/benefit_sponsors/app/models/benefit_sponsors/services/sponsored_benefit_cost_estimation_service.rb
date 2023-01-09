@@ -113,6 +113,10 @@ module BenefitSponsors
         calculate_estimates_for_package_action(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
       end
 
+      def calculate_employee_estimates_for_all_products_in_package(benefit_application, sponsored_benefit, reference_product, package)
+        calculate_employee_estimates_for_all_products(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
+      end
+
       protected
 
       def calculate_employee_estimates_for_package_action(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
@@ -183,6 +187,53 @@ module BenefitSponsors
               reference_estimate: employee_cost_from_group_enrollment(ref_estimate)
             }
           end
+        end
+      end
+
+      def calculate_employee_estimates_for_all_products(benefit_application, sponsored_benefit, reference_product, package, build_objects: false)
+        cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
+        sponsor_contribution, total, employer_costs = cost_estimator.calculate(
+          sponsored_benefit,
+          reference_product,
+          package,
+          rebuild_sponsor_contribution: false,
+          build_new_pricing_determination: build_objects
+        )
+
+        if sponsor_contribution.sponsored_benefit.pricing_determinations.any?
+          products = [reference_product]
+        else
+          if package.package_kind == :single_issuer
+            issuer_hios_ids = reference_product.carrier_profile_hios_ids
+            products = package.load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))}
+          else
+            products = package.load_base_products
+          end
+        end
+
+        group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
+        sb = sponsor_contribution.sponsored_benefit
+
+        products.inject([]) do |result, product|
+          sponsored_benefit_info = group_cost_estimator.calculate(sb, product, package)
+          result << {
+            product_id: product.id,
+            product_name: product.title,
+            employees: sponsored_benefit_info.inject([]) do |employees_result, ce_benefit_info|
+              group_enrollment = ce_benefit_info.group_enrollment
+              member = ce_benefit_info.primary_member.census_member
+
+              employees_result << {
+                id: ce_benefit_info.group_id,
+                name: member.full_name,
+                sponsor_contribution_total: group_enrollment.sponsor_contribution_total,
+                product_cost_total: group_enrollment.product_cost_total,
+                expected_selection: member.expected_selection
+              }
+              employees_result
+            end
+          }
+          result
         end
       end
 
