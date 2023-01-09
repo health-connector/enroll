@@ -5,7 +5,7 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 class AddContributionModelsToProductPackage < MongoidMigrationTask
 
   def migrate
-    year = ENV['year']&.to_i || 2021
+    year = ENV['year']&.to_i || TimeKeeper.date_of_record.year
     date = Date.new(year,1,1)
     site = BenefitSponsors::Site.by_site_key(Settings.site.key).first
 
