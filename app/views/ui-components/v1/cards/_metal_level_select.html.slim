@@ -748,9 +748,6 @@ javascript:
     $(document).ready(function() {
       productsTotal = "#{@benefit_package_form.products_total}"
       document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
-      if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled} ) {
-        document.getElementById('estimatedEmployeeCosts').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/estimated_employee_costs")}'
-      }
       productOptionKind = "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}"
       displayReferencePlanDetails(null, {
         sponsoredBenefitId: "#{@benefit_package_form.sponsored_benefits.first.id}",
