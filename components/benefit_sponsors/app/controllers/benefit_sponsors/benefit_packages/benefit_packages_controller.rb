@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module BenefitPackages
     class BenefitPackagesController < ApplicationController
@@ -81,10 +83,10 @@ module BenefitSponsors
         benefit_package = benefit_application.benefit_packages.where(id: params[:id]).first
 
         @employee_costs_result = ::BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmployeeCosts.new.call({
-                                                                                                               benefit_application: benefit_application,
-                                                                                                               benefit_package: benefit_package,
-                                                                                                               package_kind: params[:kind]
-                                                                                                             }).value!
+                                                                                                                      benefit_application: benefit_application,
+                                                                                                                      benefit_package: benefit_package,
+                                                                                                                      package_kind: params[:kind]
+                                                                                                                    }).value!
         @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)
       end
 
