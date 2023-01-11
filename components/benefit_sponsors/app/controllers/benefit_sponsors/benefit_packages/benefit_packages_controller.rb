@@ -80,13 +80,12 @@ module BenefitSponsors
         benefit_application = benefit_sponsorship.benefit_applications.where(id: application_id).first
         benefit_package = benefit_application.benefit_packages.where(id: params[:id]).first
 
-
-        @employee_costs = ::BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmployeeCosts.new.call({
+        @employee_costs_result = ::BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmployeeCosts.new.call({
                                                                                                                benefit_application: benefit_application,
-                                                                                                               benefit_package: benefit_package
+                                                                                                               benefit_package: benefit_package,
+                                                                                                               package_kind: params[:kind]
                                                                                                              }).value!
-
-        @employee_costs = Kaminari.paginate_array(@employee_costs).page(params[:page]).per(5)
+        @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)
       end
 
       def destroy

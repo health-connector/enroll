@@ -65,9 +65,10 @@
 	#yourReferencePlanDetails
     - if !is_new_benefit && !is_new_benefit.nil?
       #referencePlanEditDisplay
-        span.hidden.edit_flow
-          = f.radio_button :reference_plan_id, f.object.reference_plan_id, :data => {plan_title: f.object.reference_product.title, metal_level: f.object.reference_product.metal_level_kind, carrier_name: f.object.reference_product.issuer_name, plan_type: f.object.reference_product.plan_kind}
-        = render "reference_plan", f: f
+        / span.hidden.edit_flow
+        /   = f.radio_button :reference_plan_id, f.object.reference_plan_id, :data => {plan_title: f.object.reference_product.title, metal_level: f.object.reference_product.metal_level_kind, carrier_name: f.object.reference_product.issuer_name, plan_type: f.object.reference_product.plan_kind}
+        / = render "reference_plan", f: f
+        = render "./ui-components/v1/cards/estimated_employee_costs", f: f
 
 - if !is_new_benefit && !is_new_benefit.nil?
   javascript:
@@ -156,7 +157,7 @@ javascript:
       }
     }
 
-    document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
+    document.getElementById('yourReferencePlanDetails').innerHTML = '#{(render :partial => "./ui-components/v1/cards/estimated_employee_costs", f: f )}'
 
     if (element.parentElement.classList.contains('edit_flow')) {
       document.getElementById('changeReferencePlan').classList.remove('hidden');

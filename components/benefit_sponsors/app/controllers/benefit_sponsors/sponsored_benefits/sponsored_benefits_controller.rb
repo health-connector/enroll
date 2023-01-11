@@ -17,7 +17,12 @@ module BenefitSponsors
 
         if @sponsored_benefit_form.save
           flash[:notice] = "Benefit Package successfully created."
-          redirect_to profiles_employers_employer_profile_path(@sponsored_benefit_form.service.profile, :tab=>'benefits')
+          if params["estimated_employee_costs"] == "true"
+            redirect_to estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@sponsored_benefit_form.benefit_sponsorship_id, @sponsored_benefit_form.benefit_application_id,
+                                                                                                                     @sponsored_benefit_form.benefit_package_id, kind: params["sponsored_benefits"]["kind"])
+          else
+            redirect_to profiles_employers_employer_profile_path(@sponsored_benefit_form.service.profile, :tab=>'benefits')
+          end
         else
           flash[:error] = error_messages(@sponsored_benefit_form)
           render :new
@@ -34,7 +39,12 @@ module BenefitSponsors
         # TODO - add pundit policy
         if @sponsored_benefit_form.update
           flash[:notice] = "Benefit Package successfully updated."
-          redirect_to profiles_employers_employer_profile_path(@sponsored_benefit_form.service.profile, :tab=>'benefits')
+          if params["estimated_employee_costs"] == "true"
+            redirect_to estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@sponsored_benefit_form.benefit_sponsorship_id, @sponsored_benefit_form.benefit_application_id,
+                                                                                                                     @sponsored_benefit_form.benefit_package_id,  kind: params["sponsored_benefits"]["kind"])
+          else
+            redirect_to profiles_employers_employer_profile_path(@sponsored_benefit_form.service.profile, :tab=>'benefits')
+          end
         else
           flash[:error] = error_messages(@sponsored_benefit_form)
           render :edit

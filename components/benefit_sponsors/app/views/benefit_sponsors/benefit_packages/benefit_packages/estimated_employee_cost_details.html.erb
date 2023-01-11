@@ -1,6 +1,65 @@
+<% reference_product = @employee_costs_result[:reference_product] %>
+<% employer_costs = @employee_costs_result[:employer_estimated_costs] %>
+<% plan_kind = reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct" ?
+                 reference_product.health_plan_kind :  reference_product.dental_plan_kind %>
+
 <h2>Benefit Package Set Up</h2>
 
 <% employees = @employee_costs.first[:employees] %>
+
+<div class="panel col-md-12 col-xs-12">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-xs-8">
+        <h3 class="heading-text mt-0"><%= reference_product.title %></h3>
+      </div>
+      <div class="col-xs-4">
+      </div>
+    </div>
+    <div class="row">
+      <table class="table">
+        <tbody>
+        <tr>
+          <th>Type</th>
+          <th>Carrier</th>
+          <th>Metal Level</th>
+          <th>Network</th>
+        </tr>
+        <tr>
+          <td><%= plan_kind %></td>
+          <td><%= reference_product.issuer_profile.legal_name %></td>
+          <td><%= reference_product.metal_level_kind %></td>
+          <td>Plan Network</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="row">
+      <h4 class="pl-1">Your Estimated Monthly Cost</h4>
+    </div>
+    <div class="row">
+      <div class="col-xs-4">
+        <h2 class="mt-0 heading-text" id="estimatedERCost"><%= number_to_currency(employer_costs[:estimated_sponsor_exposure]) %>
+        </h2>
+      </div>
+      <div class="col-xs-3">
+        Estimated monthly cost including all roster employees
+      </div>
+      <div class="col-xs-2">
+        <strong class="mb-1">Min</strong>
+        <br />
+        <span id="estimatedEEMin"><%= number_to_currency(employer_costs[:estimated_enrollee_minimum]) %>
+            </span>
+      </div>
+      <div class="col-xs-2">
+        <strong class="mb-1">Max</strong>
+        <br />
+        <span id="estimatedEEMax"><%= number_to_currency(employer_costs[:estimated_enrollee_maximum]) %>
+            </span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div>
   <table class="ee-costs-table table-wrapper">

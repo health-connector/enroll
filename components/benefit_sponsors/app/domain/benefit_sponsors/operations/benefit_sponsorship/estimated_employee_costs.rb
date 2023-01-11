@@ -27,13 +27,15 @@ module BenefitSponsors
         end
 
         def estimated_employee_costs(values)
-          sponsored_benefit = values[:benefit_package].sponsored_benefits.first
+          sponsored_benefit = values[:package_kind] == "dental" ? values[:benefit_package].sponsored_benefits.where(_type: "BenefitSponsors::SponsoredBenefits::DentalSponsoredBenefit").first :
+                                values[:benefit_package].sponsored_benefits.where(_type: "BenefitSponsors::SponsoredBenefits::HealthSponsoredBenefit").first
           product_package = sponsored_benefit.product_package
 
           estimator = ::BenefitSponsors::Services::SponsoredBenefitCostEstimationService.new
           @employee_costs = estimator.calculate_employee_estimates_for_all_products_in_package(values[:benefit_application], sponsored_benefit, sponsored_benefit.reference_product, product_package)
-
-          Success(@employee_costs)
+          @employer_estimated_costs = estimator.calculate_estimates_for_package_edit(values[:benefit_application], sponsored_benefit, sponsored_benefit.reference_product, product_package)
+          result = { employee_costs: @employee_costs, employer_estimated_costs: @employer_estimated_costs, reference_product: sponsored_benefit.reference_product }
+          Success(result)
         end
       end
     end
