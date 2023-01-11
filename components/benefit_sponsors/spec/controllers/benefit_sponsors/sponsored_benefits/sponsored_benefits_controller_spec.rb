@@ -114,6 +114,14 @@ RSpec.describe BenefitSponsors::SponsoredBenefits::SponsoredBenefitsController, 
       end
     end
 
+    context "successful create and redirect to employer estimated costs page" do
+      it "does a successful redirect" do
+        sign_in user
+        post :create, benefit_package_id: benefit_package.id, benefit_application_id: benefit_application.id, benefit_sponsorship_id: benefit_sponsorship.id, sponsored_benefits: sponsored_benefits_params, :estimated_employee_costs => "true"
+        expect(response.location.include?("estimated_employee_cost_details")).to be_truthy
+      end
+    end
+
     context "when a user not having valid permissions signed in" do
 
       it "should redirect to xxxxx " do

@@ -35,7 +35,11 @@ RSpec.describe BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmploye
     end
 
     it 'should return employee estimated costs' do
-      expect(@result.value!.size).to eq 5
+      expect(@result.value!.size).to eq 3
+    end
+
+    it "should return all needed estimated costs keys" do
+      expect(@result.value!.keys).to include([:employee_costs, :employer_estimated_costs, :reference_product])
     end
   end
 end

@@ -360,7 +360,7 @@ javascript:
     sponsoredBenefitId = options.sponsoredBenefitId;
     showFormButtons();
 
-    // document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
+    document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
     document.getElementById('referencePlanTitle').append(planTitle);
     document.getElementById('rpType').append(planType);
     document.getElementById('rpCarrier').append(carrierName);
@@ -747,7 +747,7 @@ javascript:
   javascript:
     $(document).ready(function() {
       productsTotal = "#{@benefit_package_form.products_total}"
-      // document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
+      document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
       productOptionKind = "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}"
       displayReferencePlanDetails(null, {
         sponsoredBenefitId: "#{@benefit_package_form.sponsored_benefits.first.id}",
