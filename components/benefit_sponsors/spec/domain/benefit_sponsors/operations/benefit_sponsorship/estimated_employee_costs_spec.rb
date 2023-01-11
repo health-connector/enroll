@@ -39,7 +39,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmploye
     end
 
     it "should return all needed estimated costs keys" do
-      expect(@result.value!.keys).to include([:employee_costs, :employer_estimated_costs, :reference_product])
+      expect(@result.value!.keys).to include(:employee_costs, :employer_estimated_costs, :reference_product)
     end
   end
 end
