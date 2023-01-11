@@ -60,6 +60,7 @@
     function disablePlanYearButton() {
       var savePlanYearButton = document.getElementById('submitBenefitPackage');
       savePlanYearButton.classList.add('disabled')
+      document.getElementById('estimatedEmployeeCostDetailsLink').classList.add('disabled')
       disableAddBenefitPackageButton()
       disableDentalBenefitPackage()
       preventSubmissionOnEnter()
@@ -68,6 +69,7 @@
     function enablePlanYearButton() {
       var savePlanYearButton = document.getElementById('submitBenefitPackage');
       savePlanYearButton.classList.remove('disabled')
+      document.getElementById('estimatedEmployeeCostDetailsLink').classList.remove('disabled')
       enableAddBenefitPackageButton()
       enableDentalBenefitPackage()
     }
