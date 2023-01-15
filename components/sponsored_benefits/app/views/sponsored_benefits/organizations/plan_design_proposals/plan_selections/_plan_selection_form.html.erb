@@ -12,6 +12,7 @@
 <%= hidden_field_tag :employer_min_family_contribution, family_contribution_percent_minimum_for_application_start_on(plan_design_proposal.effective_date.to_date, plan_design_organization.is_renewing_employer?) %>
 <%= hidden_field_tag :publish_proposal_url, sponsored_benefits.organizations_plan_design_proposal_publish_path(plan_design_proposal.id) %>
 <%= hidden_field_tag :copy_proposal_url, sponsored_benefits.organizations_plan_design_proposal_proposal_copies_path(plan_design_proposal.id) %>
+<%#= hidden_field_tag :estimated_employee_cost_details_url, sponsored_benefits.estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(plan_design_proposal.id) %>
 <%= hidden_field_tag :benefits_kind, kind %>
 <%= hidden_field_tag :add_dental_url, sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(plan_design_proposal.id, kind: 'dental') %>
 <div class="row">
@@ -119,7 +120,7 @@
         </div>
         <div class="col-md-7">
           <br />
-          <p>Details of the employee costs for your members are shown on the <%= link_to "details page", estimated_employee_cost_details_organizations_plan_design_proposal_plan_selections_path %>. Values are based on benefit type, contribution amounts, and reference plan chosen.</p>
+          <p>Details2 of the employee costs for your members are shown on the <%= button_tag "details page", id: "estimatedEmployerCostsPage", class:'btn btn-primary save-action', type: 'submit' %>. Values are based on benefit type, contribution amounts, and reference plan chosen.</p>
         </div>
       </div>
     </div>
