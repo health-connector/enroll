@@ -18,7 +18,6 @@ module SponsoredBenefits
           flash[:error] = "Something went wrong"
         end
         response_url = edit_organizations_plan_design_organization_plan_design_proposal_path(plan_design_organization, new_plan_design_proposal.proposal.id)
-        binding.pry
         respond_to do |format|
           format.html { redirect_to response_url }
           format.js { render json: { url: response_url }.to_json, content_type: 'application/json' }
