@@ -89,6 +89,7 @@ BenefitSponsors::Engine.routes.draw do
         get :reference_product_summary, on: :collection
         member do
           get :estimated_employee_cost_details
+          get :estimated_employee_cost_pdf
         end
 
         resources :sponsored_benefits, controller: "sponsored_benefits/sponsored_benefits" do
