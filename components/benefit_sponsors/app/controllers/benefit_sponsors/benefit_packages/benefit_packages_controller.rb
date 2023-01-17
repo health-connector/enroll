@@ -78,15 +78,11 @@ module BenefitSponsors
 
       def estimated_employee_cost_details
         application_id = BSON::ObjectId.from_string(params[:benefit_application_id])
-        benefit_sponsorship = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:"benefit_applications._id" => application_id).first
-        benefit_application = benefit_sponsorship.benefit_applications.where(id: application_id).first
-        benefit_package = benefit_application.benefit_packages.where(id: params[:id]).first
+        @benefit_sponsorship = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:"benefit_applications._id" => application_id).first
+        @benefit_application = @benefit_sponsorship.benefit_applications.where(id: application_id).first
+        @benefit_package = @benefit_application.benefit_packages.where(id: params[:id]).first
 
-        @employee_costs_result = ::BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmployeeCosts.new.call({
-                                                                                                                      benefit_application: benefit_application,
-                                                                                                                      benefit_package: benefit_package,
-                                                                                                                      package_kind: params[:kind]
-                                                                                                                    }).value!
+        @employee_costs_result = ::BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmployeeCosts.new.call({}).value!
         @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)
       end
 
