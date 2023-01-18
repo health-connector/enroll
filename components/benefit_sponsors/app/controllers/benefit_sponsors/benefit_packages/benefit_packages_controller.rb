@@ -87,7 +87,7 @@ module BenefitSponsors
                                                                                                                       benefit_package: @benefit_package,
                                                                                                                       package_kind: params[:kind]
                                                                                                                     }).value!
-        @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)      
+        @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)
       end
 
       def estimated_employee_cost_pdf
@@ -100,13 +100,13 @@ module BenefitSponsors
                                                                                                                       benefit_application: @benefit_application,
                                                                                                                       benefit_package: @benefit_package,
                                                                                                                       package_kind: params[:kind]
-                                                                                                                    }).value!        
+                                                                                                                    }).value!
         @employee_costs = @employee_costs_result[:employee_costs]
         respond_to do |format|
           format.pdf do
-              render :pdf => "estimated_employee_cost"
+            render :pdf => "estimated_employee_cost"
           end
-        end          
+        end
       end
 
       def destroy

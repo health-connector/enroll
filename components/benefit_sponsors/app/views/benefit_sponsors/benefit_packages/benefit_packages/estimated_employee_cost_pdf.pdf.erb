@@ -14,7 +14,7 @@
         <div class="col-md-12">
           <%head_pos=0%>
           <%tail_pos=3%>
-  <%employees.each_slice(4) do |sub_employees|%>          
+  <% employees.each_slice(4) do |sub_employees| %>          
   <table style="margin-bottom:15px;" class="ee-costs-table table-wrapper">
     <thead>
       <tr>
@@ -49,11 +49,11 @@
         </tr>
       <% end %>      
     </tbody>
-        <%head_pos=head_pos+4%>
-        <%tail_pos=tail_pos+4%>    
+        <% head_pos=head_pos+4 %>
+        <% tail_pos=tail_pos+4 %>    
   </table>
   
-  <%end%>
+  <% end %>
         </div>
       </div>
     </div>
