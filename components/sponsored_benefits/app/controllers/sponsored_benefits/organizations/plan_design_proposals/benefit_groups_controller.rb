@@ -6,7 +6,11 @@ module SponsoredBenefits
         plan_design_form.for_create(benefit_group_params)
 
         if plan_design_proposal.save
-          render json: { url: new_organizations_plan_design_proposal_plan_review_path(plan_design_proposal) }
+          if params['redirect_page'] == "estimated_employer_costs"
+            render json: { url: estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(plan_design_proposal) }
+          else
+            render json: { url: new_organizations_plan_design_proposal_plan_review_path(plan_design_proposal) }
+          end
         else
           flash[:error] = "Something went wrong"
         end

@@ -47,6 +47,14 @@ module SponsoredBenefits
                disposition: 'attachment'
       end
 
+      def estimated_employee_cost_details
+        @benefit_group = benefit_group
+        @plan_cost_service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: benefit_group})
+        @reference_plan = @plan_cost_service.reference_plan
+        @dental_plan = @benefit_group.dental_reference_plan
+        @dental_reference_plan = @benefit_group.dental_reference_plan if @dental_plan.present?
+      end
+
       private
         helper_method :plan_design_form, :plan_design_organization, :plan_design_proposal, :visit_types
 
