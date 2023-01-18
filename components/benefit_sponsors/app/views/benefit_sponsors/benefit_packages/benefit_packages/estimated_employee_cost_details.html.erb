@@ -74,16 +74,16 @@
 
     <tbody>
       <tr class="employer-row-bg">
-        <td style="background: #d6cece;"> Enroll/Waive </td>
+        <td style="background: #d6cece;"><strong>Enroll/Waive</strong></td>
         <% employees.each do |employee| %>
-        <th><%= employee[:expected_selection]&.humanize %></th>
+        <th><strong><%= employee[:expected_selection]&.humanize %></strong></th>
         <% end %>
       </tr>
 
       <tr class="employer-row-bg">
-        <td style="background: #d6cece;">Employer Benchmark Contribution</td>
+        <td style="background: #d6cece;"><strong>Employer Benchmark Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Benchmark Contribution"></i></strong></td>
         <% employees.each do |employee| %>
-          <td><%= employee[:sponsor_contribution_total].round(2) %></td>
+          <td><strong><%= number_to_currency(employee[:sponsor_contribution_total]) %></strong></td>
         <% end %>
       </tr>
 
@@ -91,7 +91,7 @@
         <tr>
           <td><%= product_info[:product_name] %></td>
           <% product_info[:employees].each do |employee| %>
-            <td><%= (employee[:product_cost_total] - employee[:sponsor_contribution_total]).round(2) %></td>
+            <td><%= number_to_currency(employee[:product_cost_total] - employee[:sponsor_contribution_total]) %></td>
           <% end %>
         </tr>
       <% end %>
@@ -117,7 +117,6 @@
     left: 0;
     color: #373737;
     background: white;
-    width: 50px;
   }
 
   .table-wrapper {
