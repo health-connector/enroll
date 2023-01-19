@@ -206,7 +206,7 @@ module BenefitSponsors
           products = [reference_product]
         elsif package.package_kind == :single_issuer
           issuer_hios_ids = reference_product.carrier_profile_hios_ids
-          products = package.load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))}
+          products = package.load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5)) && p.metal_level_kind.eql?(reference_product.metal_level_kind)}
         else
           products = package.load_base_products
         end
