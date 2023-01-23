@@ -3,82 +3,83 @@
 <% plan_kind = reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct" ?
                  reference_product.health_plan_kind :  reference_product.dental_plan_kind %>
 
-<h2>Benefit Package Set Up</h2>
 
 <% employees = @employee_costs.first[:employees] %>
-
-<div class="panel col-md-12 col-xs-12">
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-xs-8">
-        <h3 class="heading-text mt-0"><%= reference_product.title %></h3>
+<div class="container">
+  <h2><b>Benefit Package Set Up</b></h2><br/>
+  <h3><b>Selected Reference Plan</b></h3>
+  <div class="panel col-md-12 col-xs-12">
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-xs-8">
+          <h3 class="heading-text mt-0"><%= reference_product.title %></h3>
+        </div>
+        <div class="col-xs-4">
+        </div>
       </div>
-      <div class="col-xs-4">
+      <div class="row">
+        <table class="table">
+          <tbody>
+          <tr>
+            <th>Type</th>
+            <th>Carrier</th>
+            <th>Metal Level</th>
+            <th>Network</th>
+          </tr>
+          <tr>
+            <td><%= plan_kind %></td>
+            <td><%= reference_product.issuer_profile.legal_name %></td>
+            <td><%= reference_product.metal_level_kind %></td>
+            <td>Plan Network</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-    <div class="row">
-      <table class="table">
-        <tbody>
-        <tr>
-          <th>Type</th>
-          <th>Carrier</th>
-          <th>Metal Level</th>
-          <th>Network</th>
-        </tr>
-        <tr>
-          <td><%= plan_kind %></td>
-          <td><%= reference_product.issuer_profile.legal_name %></td>
-          <td><%= reference_product.metal_level_kind %></td>
-          <td>Plan Network</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="row">
-      <h4 class="pl-1">Your Estimated Monthly Cost</h4>
-    </div>
-    <div class="row">
-      <div class="col-xs-4">
-        <h2 class="mt-0 heading-text" id="estimatedERCost"><%= number_to_currency(employer_costs[:estimated_sponsor_exposure]) %>
-        </h2>
+      <div class="row">
+        <h4 class="pl-1">Your Estimated Monthly Cost</h4>
       </div>
-      <div class="col-xs-3">
-        Estimated monthly cost including all roster employees
-      </div>
-      <div class="col-xs-2">
-        <strong class="mb-1">Min</strong>
-        <br />
-        <span id="estimatedEEMin"><%= number_to_currency(employer_costs[:estimated_enrollee_minimum]) %>
+      <div class="row">
+        <div class="col-xs-4">
+          <h2 class="mt-0 heading-text" id="estimatedERCost"><%= number_to_currency(employer_costs[:estimated_sponsor_exposure]) %>
+          </h2>
+        </div>
+        <div class="col-xs-3">
+          Estimated monthly cost including all roster employees
+        </div>
+        <div class="col-xs-2">
+          <strong class="mb-1">Min</strong>
+          <br />
+          <span id="estimatedEEMin"><%= number_to_currency(employer_costs[:estimated_enrollee_minimum]) %>
             </span>
-      </div>
-      <div class="col-xs-2">
-        <strong class="mb-1">Max</strong>
-        <br />
-        <span id="estimatedEEMax"><%= number_to_currency(employer_costs[:estimated_enrollee_maximum]) %>
+        </div>
+        <div class="col-xs-2">
+          <strong class="mb-1">Max</strong>
+          <br />
+          <span id="estimatedEEMax"><%= number_to_currency(employer_costs[:estimated_enrollee_maximum]) %>
             </span>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
+  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
 
-<div>
-  <table class="ee-costs-table table-wrapper">
-    <thead>
+  <div>
+    <table class="ee-costs-table table-wrapper">
+      <thead>
       <tr>
         <th style="padding-right: 250px;">Enrollment Options</th>
         <% employees.each do |employee| %>
           <th><%= employee[:name] %></th>
         <% end %>
       </tr>
-    </thead>
+      </thead>
 
-    <tbody>
+      <tbody>
       <tr class="employer-row-bg">
         <td style="background: #d6cece;"><strong>Enroll/Waive</strong></td>
         <% employees.each do |employee| %>
-        <th><strong><%= employee[:expected_selection]&.humanize %></strong></th>
+          <th><strong><%= employee[:expected_selection]&.humanize %></strong></th>
         <% end %>
       </tr>
 
@@ -97,36 +98,37 @@
           <% end %>
         </tr>
       <% end %>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
 
-  <div id="paginator">
-    <%= paginate @employee_costs, :param_name => :page %>
+    <div id="paginator">
+      <%= paginate @employee_costs, :param_name => :page %>
+    </div>
   </div>
+
+  <%= link_to 'Return to Plan Selection', edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => true), method: :get, class: 'btn btn-default mb-1' %>
+
+  <style type="text/css">
+      .ee-costs-table {
+          display: block;
+          width: 100%;
+          table-layout: fixed;
+      }
+
+      .ee-costs-table th:first-child, .ee-costs-table td:first-child {
+          position: sticky;
+          left: 0;
+          color: #373737;
+          background: white;
+      }
+
+      .table-wrapper {
+          overflow-x: scroll;
+          margin: 0 auto;
+      }
+
+      .employer-row-bg {
+          background: #d6cece;
+      }
+  </style>
 </div>
-
-<%= link_to 'Return to Plan Selection', edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => false), method: :get, class: 'btn btn-default mb-1' %>
-
-<style type="text/css">
-  .ee-costs-table {
-    display: block;
-    width: 100%;
-    table-layout: fixed;
-  }
-
-  .ee-costs-table th:first-child, .ee-costs-table td:first-child {
-    position: sticky;
-    left: 0;
-    color: #373737;
-    background: white;
-  }
-
-  .table-wrapper {
-    overflow-x: scroll;
-    margin: 0 auto;
-  }
-
-  .employer-row-bg {
-    background: #d6cece;
-  }
-</style>
