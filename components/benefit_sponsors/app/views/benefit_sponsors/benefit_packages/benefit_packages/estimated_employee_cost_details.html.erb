@@ -92,7 +92,7 @@
 
       <% @employee_costs.each do |product_info| %>
         <tr>
-          <td><%= "<b>(Reference Plan)</b><br/>".html_safe if reference_product.title.eql?(product_info[:product_name]) %><%= product_info[:product_name] %></td>
+          <td><%= "<b>(Reference Plan)</b><br/>".html_safe if reference_product.id.eql?(product_info[:product_id]) %><%= product_info[:product_name] %></td>
           <% product_info[:employees].each do |employee| %>
             <td><%= number_to_currency(employee[:product_cost_total] - employee[:sponsor_contribution_total]) %></td>
           <% end %>
