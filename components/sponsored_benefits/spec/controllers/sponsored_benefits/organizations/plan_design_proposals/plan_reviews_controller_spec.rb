@@ -97,7 +97,7 @@ module SponsoredBenefits
     end
 
     describe "GET #estimated_employee_cost_details" do
-      it "returns success response" do
+      it "returns success response and set employee_costs" do
         get :estimated_employee_cost_details, {
           plan_design_proposal_id: plan_design_proposal.id,
           benefit_group: {
@@ -109,7 +109,10 @@ module SponsoredBenefits
           },
           format: :js
         }, valid_session
+
         expect(response).to be_success
+        expect(assigns(:employee_costs)).not_to be_nil
+        expect(assigns(:employee_costs).size).to eq 1
       end
     end
 

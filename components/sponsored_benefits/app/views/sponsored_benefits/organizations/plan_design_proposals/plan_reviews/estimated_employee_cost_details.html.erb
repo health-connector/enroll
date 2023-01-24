@@ -107,4 +107,71 @@
       </div>
     </div>
   <% end %>
+
+  <div>
+    <% employees = @employee_costs.first[:employees] %>
+    <table class="ee-costs-table table-wrapper">
+      <thead>
+      <tr>
+        <th style="padding-right: 250px;">Enrollment Options</th>
+        <% employees.each do |employee| %>
+          <th><%= employee[:name] %></th>
+        <% end %>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr class="employer-row-bg">
+        <td style="background: #d6cece;"><strong>Enroll/Waive</strong></td>
+        <% employees.each do |employee| %>
+          <th><strong><%= employee[:expected_selection]&.humanize %></strong></th>
+        <% end %>
+      </tr>
+
+      <tr class="employer-row-bg">
+        <td style="background: #d6cece;"><strong>Employer Benchmark Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Benchmark Contribution"></i></strong></td>
+        <% employees.each do |employee| %>
+          <td><strong><%= number_to_currency(employee[:sponsor_contribution_total]) %></strong></td>
+        <% end %>
+      </tr>
+
+      <% @employee_costs.each do |product_info| %>
+        <tr>
+          <td><%= "<b>(Reference Plan)</b><br/>".html_safe if @reference_plan.id.eql?(product_info[:product_id]) %><%= product_info[:product_name] %></td>
+          <% product_info[:employees].each do |employee| %>
+            <td><%= number_to_currency(employee[:employee_contribution_total]) %></td>
+          <% end %>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+
+    <div id="paginator">
+      <%= paginate @employee_costs, :param_name => :page %>
+    </div>
+  </div>
 </div>
+
+<style type="text/css">
+  .ee-costs-table {
+      display: block;
+      width: 100%;
+      table-layout: fixed;
+  }
+
+  .ee-costs-table th:first-child, .ee-costs-table td:first-child {
+      position: sticky;
+      left: 0;
+      color: #373737;
+      background: white;
+  }
+
+  .table-wrapper {
+      overflow-x: scroll;
+      margin: 0 auto;
+  }
+
+  .employer-row-bg {
+      background: #d6cece;
+  }
+</style>
