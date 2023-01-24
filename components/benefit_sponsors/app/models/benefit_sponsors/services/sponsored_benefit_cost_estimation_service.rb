@@ -208,7 +208,7 @@ module BenefitSponsors
           issuer_hios_ids = reference_product.carrier_profile_hios_ids
           products = package.load_base_products.select {|p| issuer_hios_ids.include?(p.hios_id.slice(0, 5))}
         else
-          products = package.load_base_products
+          products = package.load_base_products.select {|p| p.metal_level_kind.eql?(reference_product.metal_level_kind)}
         end
 
         group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
