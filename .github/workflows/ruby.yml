@@ -36,22 +36,14 @@ jobs:
           #       brakeman -i config/brakeman.ignore
           #       cd ../..
           #     done
-          - name: rspec 1/8
-            test_command: rspec_booster --job 1/8
-          - name: rspec 2/8
-            test_command: rspec_booster --job 2/8
-          - name: rspec 3/8
-            test_command: rspec_booster --job 3/8
-          - name: rspec 4/8
-            test_command: rspec_booster --job 4/8
-          - name: rspec 5/8
-            test_command: rspec_booster --job 5/8
-          - name: rspec 6/8
-            test_command: rspec_booster --job 6/8
-          - name: rspec 7/8
-            test_command: rspec_booster --job 7/8
-          - name: rspec 8/8
-            test_command: rspec_booster --job 8/8
+          - name: rspec 1/4s
+            test_command: rspec_booster --job 1/4
+          - name: rspec 2/4
+            test_command: rspec_booster --job 2/4
+          - name: rspec 3/4
+            test_command: rspec_booster --job 3/4
+          - name: rspec 4/4
+            test_command: rspec_booster --job 4/4
           - name: cucumber 1/4
             test_command: |
               cp -f config/cucumber.yml config/cucumber.yml.bak
