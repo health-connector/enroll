@@ -73,6 +73,40 @@ class SponsoredBenefits::Services::PlanCostService
     end
   end
 
+  def calculate_employee_estimates_for_all_products
+    @benefit_group.elected_plans_by_option_kind.to_a.each.inject([]) do |result, plan|
+      self.plan = plan
+      result << {
+        product_id: plan.id,
+        product_name: plan.name,
+        employees: active_census_employees.inject([]) do |employees_result, census_employee|
+          if composite?
+            sponsor_contribution_total = composite_total_premium(census_employee) * employer_contribution_factor(census_employee)
+            employee_contribution_total = (composite_total_premium(census_employee) - sponsor_contribution_total).round(2)
+          else
+            employee_contribution_total = (members(census_employee).reduce(0.00) do |sum, member|
+              (sum + employee_cost_for(member, census_employee)).round(2)
+            end).round(2)
+
+            sponsor_contribution_total = (members(census_employee).reduce(0.00) do |sum, member|
+              (sum + employer_contribution_for(member, census_employee)).round(2)
+            end).round(2)
+          end
+
+          employees_result << {
+            id: census_employee.id,
+            name: census_employee.full_name,
+            employee_contribution_total: employee_contribution_total,
+            expected_selection: census_employee.expected_selection,
+            sponsor_contribution_total: sponsor_contribution_total
+          }
+          employees_result
+        end
+      }
+      result
+    end
+  end
+
   def employee_cost_for(member, census_employee)
     (premium_for(member, census_employee) - employer_contribution_for(member, census_employee) * large_family_factor(member, census_employee)).round(2)
   end
