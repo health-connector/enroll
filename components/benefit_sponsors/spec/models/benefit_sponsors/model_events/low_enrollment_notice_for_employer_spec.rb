@@ -15,6 +15,10 @@ RSpec.describe 'BenefitSponsors::ModelEvents::LowEnrollmentNoticeForEmployer', d
     allow(TimeKeeper).to receive(:date_of_record).and_return initial_application.open_enrollment_period.max - 2.days
   end
 
+  after do
+    allow(TimeKeeper).to receive(:date_of_record).and_call_original
+  end
+
   describe "ModelEvent" do
     it "should trigger model event" do
       initial_application.class.observer_peers.keys.each do |observer|
