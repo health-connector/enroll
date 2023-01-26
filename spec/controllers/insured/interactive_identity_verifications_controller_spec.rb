@@ -3,6 +3,10 @@ require "rails_helper"
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 describe Insured::InteractiveIdentityVerificationsController do
 
+  after do
+    allow(TimeKeeper).to receive(:date_of_record).and_call_original
+  end
+
   describe "GET #new" do
     let(:mock_person) { double }
     let(:mock_user) { double(:person => mock_person) }

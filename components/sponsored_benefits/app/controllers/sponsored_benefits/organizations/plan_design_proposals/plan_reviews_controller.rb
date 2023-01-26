@@ -53,6 +53,7 @@ module SponsoredBenefits
         @reference_plan = @plan_cost_service.reference_plan
         @dental_plan = @benefit_group.dental_reference_plan
         @dental_reference_plan = @benefit_group.dental_reference_plan if @dental_plan.present?
+        @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products).page(params[:page]).per(5)
       end
 
       private
