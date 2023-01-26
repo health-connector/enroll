@@ -89,7 +89,9 @@ module BenefitSponsors
                                                                                                                     }).value!
         respond_to do |format|
           format.html do
-            @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)
+            reference_product_index = @employee_costs_result[:employee_costs].find_index(@employee_costs_result[:employee_costs].select{|e| e[:product_id] == @employee_costs_result[:reference_product].id}.first)
+            results = @employee_costs_result[:employee_costs].insert(0, @employee_costs_result[:employee_costs].delete_at(reference_product_index))
+            @employee_costs = Kaminari.paginate_array(results).page(params[:page]).per(5)
           end
           format.pdf do
             @employee_costs = @employee_costs_result[:employee_costs]
