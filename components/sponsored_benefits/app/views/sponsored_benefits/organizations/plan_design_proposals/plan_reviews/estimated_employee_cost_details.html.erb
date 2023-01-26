@@ -1,4 +1,6 @@
 <div class="container">
+  <h2><b>Benefit Package Set Up</b></h2>
+  <h3><b>Selected Reference Plan</b></h3>
   <div class="panel col-md-12 col-xs-12">
     <div class="panel-body">
       <div class="row">
@@ -51,6 +53,12 @@
         </div>
       </div>
     </div>
+  </div>
+  <div>
+    <h3 class="inline"><b>Estimated Premiums </b></h3> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Estimated Premiums"> </i> <br/><br/>
+    <p class="para"> The Employer Benchmark Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
+    <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
+    <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
   </div>
   <% if @benefit_group.dental_reference_plan.present? %>
     <div class="panel col-md-12 col-xs-12">
@@ -173,5 +181,11 @@
 
   .employer-row-bg {
       background: #d6cece;
+  }
+  .inline {
+    display: inline;
+  }
+  .para {
+    padding-bottom: 10px;
   }
 </style>
