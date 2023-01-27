@@ -58,6 +58,7 @@ module SponsoredBenefits
           format.html do
             @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products).page(params[:page]).per(5)
           end
+          format.js { @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products).page(params[:page]).per(5) }
           format.pdf do
             @employee_costs = @plan_cost_service.calculate_employee_estimates_for_all_products
             render :pdf => "estimated_employee_cost_details"
