@@ -115,6 +115,9 @@
       </div>
     </div>
   <% end %>
+
+ <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF',  estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(@plan_design_proposal, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
+  
   <div>
     <% employees = @employee_costs.first[:employees] %>
     <table class="ee-costs-table table-wrapper">
