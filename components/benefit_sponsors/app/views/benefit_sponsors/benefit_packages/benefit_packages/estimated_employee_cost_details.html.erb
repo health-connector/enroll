@@ -6,13 +6,13 @@
 
 <% employees = @employee_costs.first[:employees] %>
 <div class="container">
-  <h2><b>Benefit Package Set Up</b></h2><br/>
+  <h2><b>Benefit Package Set Up</b></h2>
   <h3><b>Selected Reference Plan</b></h3>
   <div class="panel col-md-12 col-xs-12">
     <div class="panel-body">
       <div class="row">
         <div class="col-xs-8">
-          <h3 class="heading-text mt-0"><%= reference_product.title %></h3>
+          <h4 class="heading-text mt-0"><b><%= reference_product.title %></b></h4>
         </div>
         <div class="col-xs-4">
         </div>
@@ -36,7 +36,7 @@
         </table>
       </div>
       <div class="row">
-        <h4 class="pl-1">Your Estimated Monthly Cost</h4>
+        <h4 class="pl-1"><b>Your Estimated Monthly Cost</b></h4>
       </div>
       <div class="row">
         <div class="col-xs-4">
@@ -44,7 +44,7 @@
           </h2>
         </div>
         <div class="col-xs-3">
-          Estimated monthly cost including all roster employees
+          <b>Estimated monthly cost including all roster employees</b>
         </div>
         <div class="col-xs-2">
           <strong class="mb-1">Min</strong>
@@ -61,7 +61,12 @@
       </div>
     </div>
   </div>
-
+  <div>
+    <h3 class="inline"><b>Estimated Premiums </b></h3> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Estimated Premiums"> </i> <br/><br/>
+    <p class="para"> The Employer Reference Plan Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
+    <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
+    <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
+  </div>
   <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
 
   <div>
@@ -84,7 +89,7 @@
       </tr>
 
       <tr class="employer-row-bg">
-        <td style="background: #d6cece;"><strong>Employer Benchmark Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Benchmark Contribution"></i></strong></td>
+        <td style="background: #d6cece;"><strong>Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i></strong></td>
         <% employees.each do |employee| %>
           <td><strong><%= number_to_currency(employee[:sponsor_contribution_total]) %></strong></td>
         <% end %>
@@ -129,6 +134,12 @@
 
       .employer-row-bg {
           background: #d6cece;
+      }
+      .inline {
+          display: inline;
+      }
+      .para {
+          padding-bottom: 10px;
       }
   </style>
 </div>
