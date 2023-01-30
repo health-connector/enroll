@@ -5,7 +5,7 @@
     <div class="panel-body">
       <div class="row">
         <div class="col-xs-8">
-          <h3 class="heading-text mt-0"><%= @reference_plan.name %></h3>
+          <h4 class="heading-text mt-0"><b><%= @reference_plan.name %></b></h4>
         </div>
         <div class="col-xs-4">
         </div>
@@ -29,7 +29,7 @@
         </table>
       </div>
       <div class="row">
-        <h4 class="pl-1">Your Estimated Monthly Cost</h4>
+        <h4 class="pl-1"><b>Your Estimated Monthly Cost</b></h4>
       </div>
       <div class="row">
         <div class="col-xs-4">
@@ -37,7 +37,7 @@
           </h2>
         </div>
         <div class="col-xs-3">
-          Estimated monthly cost including all roster employees
+          <b>Estimated monthly cost including all roster employees</b>
         </div>
         <div class="col-xs-2">
           <strong class="mb-1">Min</strong>
@@ -54,18 +54,13 @@
       </div>
     </div>
   </div>
-  <div>
-    <h3 class="inline"><b>Estimated Premiums </b></h3> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Estimated Premiums"> </i> <br/><br/>
-    <p class="para"> The Employer Benchmark Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
-    <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
-    <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
-  </div>
+
   <% if @benefit_group.dental_reference_plan.present? %>
     <div class="panel col-md-12 col-xs-12">
       <div class="panel-body">
         <div class="row">
           <div class="col-xs-8">
-            <h3 class="heading-text mt-0"><%= @dental_reference_plan.name %></h3>
+            <h4 class="heading-text mt-0"><b><%= @dental_reference_plan.name %></b></h4>
           </div>
           <div class="col-xs-4">
           </div>
@@ -89,7 +84,7 @@
           </table>
         </div>
         <div class="row">
-          <h4 class="pl-1">Your Estimated Monthly Cost</h4>
+          <h4 class="pl-1"><b>Your Estimated Monthly Cost</b></h4>
         </div>
         <div class="row">
           <div class="col-xs-4">
@@ -97,7 +92,7 @@
             </h2>
           </div>
           <div class="col-xs-3">
-            Estimated monthly cost including all roster employees
+            <b>Estimated monthly cost including all roster employees</b>
           </div>
           <div class="col-xs-2">
             <strong class="mb-1">Min</strong>
@@ -115,6 +110,12 @@
       </div>
     </div>
   <% end %>
+  <div>
+    <h3 class="inline"><b>Estimated Premiums </b></h3> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Estimated Premiums"> </i> <br/><br/>
+    <p class="para"> The Employer Reference Plan Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
+    <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
+    <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
+  </div>
   <div>
     <% employees = @employee_costs.first[:employees] %>
     <table class="ee-costs-table table-wrapper">
@@ -136,7 +137,7 @@
       </tr>
 
       <tr class="employer-row-bg">
-        <td style="background: #d6cece;"><strong>Employer Benchmark Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Benchmark Contribution"></i></strong></td>
+        <td style="background: #d6cece;"><strong>Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i></strong></td>
         <% employees.each do |employee| %>
           <td><strong><%= number_to_currency(employee[:sponsor_contribution_total]) %></strong></td>
         <% end %>
@@ -157,6 +158,7 @@
       <%= paginate @employee_costs, :param_name => :page %>
     </div>
   </div>
+  </br>
   <div class="pull-left">
     <%= link_to 'Return to Plan Selection', sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(@plan_design_proposal), class:'btn btn-primary' %>
   </div>
