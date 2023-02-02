@@ -235,6 +235,10 @@ module BenefitSponsors
           result
         end
 
+        employee_estimated_costs(group_cost_estimator, products, employee_product_costs)
+      end
+
+      def employee_estimated_costs(group_cost_estimator, products, employee_product_costs)
         group_cost_estimator.eligible_employee_criteria.inject([]) do |result, census_employee|
           result << {
             name: census_employee.full_name,
