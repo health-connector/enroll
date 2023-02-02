@@ -1422,7 +1422,14 @@ class CensusEmployee < CensusMember
 
   def waived?
     bga = renewal_benefit_group_assignment || active_benefit_group_assignment
-    bga.present? ? bga&.hbx_enrollment&.is_coverage_waived? : false
+    if bga&.hbx_enrollments.present?
+      return false if bga.hbx_enrollments.select{ |en| HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES.include?(en.aasm_state)}.present?
+
+      waived_enrollment = bga.hbx_enrollments.detect(&:is_coverage_waived?)
+      waived_enrollment.present?
+    else
+      false
+    end
   end
 
   # TODO: Implement for 16219

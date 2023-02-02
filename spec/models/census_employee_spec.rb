@@ -2311,17 +2311,17 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         benefit_group_assignments: [benefit_group_assignment]
       )
     end
-    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', is_coverage_waived?: true, sponsored_benefit_package_id: benefit_group.id) }
-    let(:coverage_selected_hbx_enrollment_double) { double('CoveredHbxEnrollment', is_coverage_waived?: false, sponsored_benefit_package_id: benefit_group.id) }
+    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', is_coverage_waived?: true, aasm_state: "inactive", coverage_kind: 'health', sponsored_benefit_package_id: benefit_group.id) }
+    let(:coverage_selected_hbx_enrollment_double) { double('CoveredHbxEnrollment', is_coverage_waived?: false, aasm_state: "coverage_selected", coverage_kind: 'health', sponsored_benefit_package_id: benefit_group.id) }
 
     let(:benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
 
     it "returns true when employees waive the coverage" do
-      allow(benefit_group_assignment).to receive(:hbx_enrollment).and_return(waived_hbx_enrollment_double)
+      allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([waived_hbx_enrollment_double])
       expect(census_employee.waived?).to be_truthy
     end
     it "returns false for employees who are enrolling" do
-      allow(benefit_group_assignment).to receive(:hbx_enrollment).and_return(coverage_selected_hbx_enrollment_double)
+      allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([coverage_selected_hbx_enrollment_double])
       expect(census_employee.waived?).to be_falsey
     end
   end
@@ -2329,18 +2329,36 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   context "when active employeees has renewal benefit group" do
     let(:census_employee) {CensusEmployee.new(**valid_params)}
     let(:benefit_group_assignment) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
-    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', is_coverage_waived?: true, sponsored_benefit_package_id: benefit_group.id) }
+    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', is_coverage_waived?: true, aasm_state: "inactive", coverage_kind: 'health', sponsored_benefit_package_id: benefit_group.id) }
     before do
       benefit_group_assignment.update_attribute(:updated_at, benefit_group_assignment.updated_at + 1.day)
       benefit_group_assignment.plan_year.update_attribute(:aasm_state, "renewing_enrolled")
     end
 
-    it "returns true when employees waive the coverage" do
+    it "returns false when employees waive the coverage" do
       expect(census_employee.waived?).to be_falsey
     end
-    it "returns false for employees who are enrolling" do
-      allow(benefit_group_assignment).to receive(:hbx_enrollment).and_return(waived_hbx_enrollment_double)
+
+    it "returns true for employees who are enrolling" do
+      allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([waived_hbx_enrollment_double])
       expect(census_employee.waived?).to be_truthy
+    end
+  end
+
+  context "when active employeees have health and dental renewal benefit group" do
+    let(:census_employee) {CensusEmployee.new(**valid_params)}
+    let(:benefit_group_assignment) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
+    let(:waived_hbx_enrollment_double) { double('WaivedHbxEnrollment', coverage_kind: 'dental', aasm_state: "renewing_waived", is_coverage_waived?: true, sponsored_benefit_package_id: benefit_group.id) }
+    let(:coverage_selected_hbx_enrollment_double) { double('CoveredHbxEnrollment', is_coverage_waived?: false, aasm_state: "auto_renewing", coverage_kind: 'health', sponsored_benefit_package_id: benefit_group.id) }
+
+    before do
+      benefit_group_assignment.update_attribute(:updated_at, benefit_group_assignment.updated_at + 1.day)
+      benefit_group_assignment.plan_year.update_attribute(:aasm_state, "renewing_enrolled")
+    end
+
+    it "returns false when employees waive the dental coverage and enroll health" do
+      allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([waived_hbx_enrollment_double, coverage_selected_hbx_enrollment_double])
+      expect(census_employee.waived?).to be_falsey
     end
   end
 
