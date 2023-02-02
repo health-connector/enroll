@@ -227,7 +227,7 @@ module BenefitSponsors
               employees_result << {
                 id: ce_benefit_info.group_id,
                 sponsor_contribution_total: group_enrollment.sponsor_contribution_total,
-                product_cost_total: group_enrollment.product_cost_total,
+                product_cost_total: group_enrollment.product_cost_total
               }
               employees_result
             end
@@ -246,7 +246,7 @@ module BenefitSponsors
                 id: product.id,
                 product_name: product.title,
                 sponsor_contribution_total: employee_info[:sponsor_contribution_total],
-                product_cost_total: employee_info[:product_cost_total],
+                product_cost_total: employee_info[:product_cost_total]
               }
               output
             end
