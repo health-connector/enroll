@@ -118,6 +118,8 @@
 
   <%= link_to 'Return to Plan Selection', edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => true), method: :get, class: 'btn btn-default mb-1 mt-1' %>
 
+  <%= render partial: './ui-components/v1/layouts/footer' %>
+
   <style type="text/css">
       .ee-costs-table {
           display: block;
