@@ -120,40 +120,46 @@
     <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
   </div>
   <div>
-    <% employees = @employee_costs.first[:employees] %>
+    <% products = @employee_costs.first[:products] %>
     <table class="ee-costs-table table-wrapper">
       <thead>
       <tr>
-        <th style="padding-right: 250px;">Enrollment Options</th>
-        <% employees.each do |employee| %>
-          <th><%= employee[:name] %></th>
+        <th>
+          <div style="width: 150px;">
+            Employee Name
+          </div>
+        </th>
+        <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+        <th class="employer-row-bg">
+          <div style="width: 150px;">
+            <strong>
+              Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
+            </strong>
+          </div>
+        </th>
+        <% products.each_with_index do |product_info, i| %>
+          <th>
+            <div style="width: 150px;">
+              <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+            </div>
+          </th>
         <% end %>
       </tr>
       </thead>
 
       <tbody>
-      <tr class="employer-row-bg">
-        <td style="background: #d6cece;"><strong>Enroll/Waive</strong></td>
-        <% employees.each do |employee| %>
-          <th><strong><%= employee[:expected_selection]&.humanize %></strong></th>
+        <% @employee_costs.each do |employee_info| %>
+          <tr>
+            <td><%= employee_info[:name]&.humanize  %></td>
+            <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
+            <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
+            <% employee_info[:products].each do |product_info| %>
+              <td>
+                <%= number_to_currency(product_info[:employee_contribution_total]) %>
+              </td>
+            <% end %>
+          </tr>
         <% end %>
-      </tr>
-
-      <tr class="employer-row-bg">
-        <td style="background: #d6cece;"><strong>Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i></strong></td>
-        <% employees.each do |employee| %>
-          <td><strong><%= number_to_currency(employee[:sponsor_contribution_total]) %></strong></td>
-        <% end %>
-      </tr>
-
-      <% @employee_costs.each do |product_info| %>
-        <tr>
-          <td><%= "<b>(Reference Plan)</b><br/>".html_safe if @reference_plan.id.eql?(product_info[:product_id]) %><%= product_info[:product_name] %></td>
-          <% product_info[:employees].each do |employee| %>
-            <td><%= number_to_currency(employee[:employee_contribution_total]) %></td>
-          <% end %>
-        </tr>
-      <% end %>
       </tbody>
     </table>
 
@@ -163,7 +169,7 @@
   </div>
   </br>
   <div class="pull-left">
-    <%= link_to 'Return to Plan Selection', sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(@plan_design_proposal), class:'btn btn-primary' %>
+    <%= link_to 'Return to Plan Selection', sponsored_benefits.new_organizations_plan_design_proposal_plan_selection_path(@plan_design_proposal), class:'btn btn-primary mt-1' %>
   </div>
 </div>
 </div>

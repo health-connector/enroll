@@ -211,26 +211,44 @@ module BenefitSponsors
           products = package.load_base_products.select {|p| p.metal_level_kind.eql?(reference_product.metal_level_kind)}
         end
 
+
+        products = products.sort_by!(&:name) && ([reference_product] + products).uniq
+
         group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
         sb = sponsor_contribution.sponsored_benefit
 
-        products.inject([]) do |result, product|
+        employee_product_costs = products.inject([]) do |result, product|
           sponsored_benefit_info = group_cost_estimator.calculate(sb, product, package)
           result << {
             product_id: product.id,
-            product_name: product.title,
             employees: sponsored_benefit_info.inject([]) do |employees_result, ce_benefit_info|
               group_enrollment = ce_benefit_info.group_enrollment
-              member = ce_benefit_info.primary_member.census_member
 
               employees_result << {
                 id: ce_benefit_info.group_id,
-                name: member.full_name,
                 sponsor_contribution_total: group_enrollment.sponsor_contribution_total,
                 product_cost_total: group_enrollment.product_cost_total,
-                expected_selection: member.expected_selection
               }
               employees_result
+            end
+          }
+          result
+        end
+
+        group_cost_estimator.eligible_employee_criteria.inject([]) do |result, census_employee|
+          result << {
+            name: census_employee.full_name,
+            expected_selection: census_employee.expected_selection,
+            products: products.inject([]) do |output, product|
+              info = employee_product_costs.detect {|i| i[:product_id] == product.id }
+              employee_info = info[:employees].detect {|i| i[:id] == census_employee.id }
+              output << {
+                id: product.id,
+                product_name: product.title,
+                sponsor_contribution_total: employee_info[:sponsor_contribution_total],
+                product_cost_total: employee_info[:product_cost_total],
+              }
+              output
             end
           }
           result

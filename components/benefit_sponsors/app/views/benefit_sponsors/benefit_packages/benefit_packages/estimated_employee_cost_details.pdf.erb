@@ -7,55 +7,70 @@
   </head>
   <%= wicked_pdf_stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
   <%= wicked_pdf_javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <% employees = @employee_costs.first[:employees] %>
-  <div class="module broker_quote_tool">
+  <% products = @employee_costs.first[:products] %>
+  <div>
     <div class="pdf-body">
-      <div class="row">
-        <div class="col-md-12">
-          <%head_pos=0%>
-          <%tail_pos=3%>
-  <% employees.each_slice(4) do |sub_employees| %>          
-  <table style="margin-bottom:15px;" class="ee-costs-table table-wrapper">
-    <thead>
-      <tr>
-        <th style="padding-right: 250px;">Enrollment Options</th>
-        <% sub_employees.each do |employee| %>
-          <th><%= employee[:name] %></th>
-        <% end %>
-      </tr>
-    </thead>
+      <% lower_lim = 0 %>
+      <% upper_lim = 3 %>
+      <% @items = products %>
 
-    <tbody>
-      <tr class="employer-row-bg">
-        <td> Enroll/Waive </td>
-        <% sub_employees.each do |employee| %>
-        <th><%= employee[:expected_selection]&.humanize %></th>
-        <% end %>
-      </tr>
+      <% until @items.blank? %>
+        <div class="row">
+          <div class="col-md-12">
+            <div>
+              <table class="ee-costs-table table-wrapper">
+                <thead>
+                <tr>
+                  <th>
+                    <div style="width: 150px;">
+                      Employee Name
+                    </div>
+                  </th>
+                  <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+                  <% if lower_lim == 0 %>
+                    <th class="employer-row-bg">
+                      <div style="width: 150px;">
+                        <strong>
+                          Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
+                        </strong>
+                      </div>
+                    </th>
+                  <% end %>
 
-      <tr class="employer-row-bg">
-        <td>Employer Benchmark Contribution</td>
-        <% sub_employees.each do |employee| %>
-          <td><%= employee[:sponsor_contribution_total].round(2) %></td>
-        <% end %>
-      </tr>
+                  <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
+                    <th>
+                      <div style="width: 150px;">
+                        <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
+                      </div>
+                    </th>
+                  <% end %>
+                </tr>
+                </thead>
 
-      <% @employee_costs.each do |product_info| %>
-        <tr>
-          <td><%= product_info[:product_name] %></td>
-          <% product_info[:employees][head_pos..tail_pos].each do |employee| %>
-            <td><%= (employee[:product_cost_total] - employee[:sponsor_contribution_total]).round(2) %></td>
-          <% end %>
-        </tr>
-      <% end %>      
-    </tbody>
-        <% head_pos=head_pos+4 %>
-        <% tail_pos=tail_pos+4 %>    
-  </table>
-  
-  <% end %>
+                <tbody>
+                  <% @employee_costs.each do |employee_info| %>
+                    <tr>
+                      <td><%= employee_info[:name]&.humanize  %></td>
+                      <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
+                      <% if lower_lim == 0 %>
+                        <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
+                      <% end %>
+                      <% employee_info[:products][lower_lim..upper_lim].each do |product_info| %>
+                        <td>
+                          <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
+                        </td>
+                      <% end %>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
+        <% lower_lim += 3 %>
+        <% upper_lim += 3 %>
+        <% @items = products[lower_lim..upper_lim] %>
+      <% end %>
     </div>
   </div>
 

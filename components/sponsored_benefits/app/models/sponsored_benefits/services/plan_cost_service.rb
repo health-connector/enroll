@@ -73,8 +73,16 @@ class SponsoredBenefits::Services::PlanCostService
     end
   end
 
-  def calculate_employee_estimates_for_all_products
-    @benefit_group.elected_plans_by_option_kind.to_a.each.inject([]) do |result, plan|
+  def calculate_employee_estimates_for_all_products(coverage_kind)
+    if coverage_kind == 'dental'
+      plans = @benefit_group.elected_dental_plans_by_option_kind.to_a
+      plans = plans.sort_by!(&:name) && ([@benefit_group.dental_reference_plan] + plans).uniq
+    else
+      plans = @benefit_group.elected_plans_by_option_kind.to_a
+      plans = plans.sort_by!(&:name) && ([reference_plan] + plans).uniq
+    end
+
+    employee_product_costs = plans.each.inject([]) do |result, plan|
       self.plan = plan
       result << {
         product_id: plan.id,
@@ -101,6 +109,26 @@ class SponsoredBenefits::Services::PlanCostService
             sponsor_contribution_total: sponsor_contribution_total
           }
           employees_result
+        end
+      }
+      result
+    end
+
+
+    active_census_employees.inject([]) do |result, census_employee|
+      result << {
+        name: census_employee.full_name,
+        expected_selection: census_employee.expected_selection,
+        products: plans.inject([]) do |output, plan|
+          info = employee_product_costs.detect {|i| i[:product_id] == plan.id }
+          employee_info = info[:employees].detect {|i| i[:id] == census_employee.id }
+          output << {
+            id: plan.id,
+            product_name: plan.name,
+            sponsor_contribution_total: employee_info[:sponsor_contribution_total],
+            employee_contribution_total: employee_info[:employee_contribution_total],
+          }
+          output
         end
       }
       result
