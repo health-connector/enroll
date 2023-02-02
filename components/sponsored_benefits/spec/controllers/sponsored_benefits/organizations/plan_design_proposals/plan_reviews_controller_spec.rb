@@ -111,7 +111,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
 
       expect(response).to be_success
       expect(assigns(:employee_costs)).not_to be_nil
-      expect(assigns(:employee_costs).size).to eq 1
+      expect(assigns(:employee_costs).size).to eq 5
     end
   end
 

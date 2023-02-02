@@ -56,11 +56,11 @@ module SponsoredBenefits
 
         respond_to do |format|
           format.html do
-            @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products).page(params[:page]).per(5)
+            @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products(params[:kind])).page(params[:page]).per(5)
           end
-          format.js { @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products).page(params[:page]).per(5) }
+          format.js { @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products(params[:kind])).page(params[:page]).per(5) }
           format.pdf do
-            @employee_costs = @plan_cost_service.calculate_employee_estimates_for_all_products
+            @employee_costs = @plan_cost_service.calculate_employee_estimates_for_all_products(params[:kind])
             render :pdf => "estimated_employee_cost_details"
           end
         end
