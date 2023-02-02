@@ -3,9 +3,8 @@
 <% plan_kind = reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct" ?
                  reference_product.health_plan_kind :  reference_product.dental_plan_kind %>
 
-
-<% employees = @employee_costs.first[:employees] %>
-<div class="container col-md-12 col-xs-12">
+<% products = @employee_costs.first[:products] %>
+<div class="container">
   <h2><b>Benefit Package Set Up</b></h2>
   <h3><b>Selected Reference Plan</b></h3>
   <div class="panel col-md-12 col-xs-12">
@@ -73,36 +72,42 @@
     <table class="ee-costs-table table-wrapper">
       <thead>
       <tr>
-        <th style="padding-right: 250px;">Enrollment Options</th>
-        <% employees.each do |employee| %>
-          <th><%= employee[:name] %></th>
+        <th>
+          <div style="width: 150px;">
+            Employee Name
+          </div>
+        </th>
+        <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+        <th class="employer-row-bg">
+          <div style="width: 150px;">
+            <strong>
+              Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
+            </strong>
+          </div>
+        </th>
+        <% products.each_with_index do |product_info, i| %>
+          <th>
+            <div style="width: 150px;">
+              <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+            </div>
+          </th>
         <% end %>
       </tr>
       </thead>
 
       <tbody>
-      <tr class="employer-row-bg">
-        <td style="background: #d6cece;"><strong>Enroll/Waive</strong></td>
-        <% employees.each do |employee| %>
-          <th><strong><%= employee[:expected_selection]&.humanize %></strong></th>
+        <% @employee_costs.each do |employee_info| %>
+          <tr>
+            <td><%= employee_info[:name]&.humanize  %></td>
+            <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
+            <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
+            <% employee_info[:products].each do |product_info| %>
+              <td>
+                <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
+              </td>
+            <% end %>
+          </tr>
         <% end %>
-      </tr>
-
-      <tr class="employer-row-bg">
-        <td style="background: #d6cece;"><strong>Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i></strong></td>
-        <% employees.each do |employee| %>
-          <td><strong><%= number_to_currency(employee[:sponsor_contribution_total]) %></strong></td>
-        <% end %>
-      </tr>
-
-      <% @employee_costs.each do |product_info| %>
-        <tr>
-          <td><%= "<b>(Reference Plan)</b><br/>".html_safe if reference_product.id.eql?(product_info[:product_id]) %><%= product_info[:product_name] %></td>
-          <% product_info[:employees].each do |employee| %>
-            <td><%= number_to_currency(employee[:product_cost_total] - employee[:sponsor_contribution_total]) %></td>
-          <% end %>
-        </tr>
-      <% end %>
       </tbody>
     </table>
 
@@ -111,7 +116,7 @@
     </div>
   </div>
 
-  <%= link_to 'Return to Plan Selection', edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => true), method: :get, class: 'btn btn-default mb-1' %>
+  <%= link_to 'Return to Plan Selection', edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => true), method: :get, class: 'btn btn-default mb-1 mt-1' %>
 
   <style type="text/css">
       .ee-costs-table {

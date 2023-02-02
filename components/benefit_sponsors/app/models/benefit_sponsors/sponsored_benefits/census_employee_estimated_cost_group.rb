@@ -112,6 +112,18 @@ module BenefitSponsors
           )
         end
 
+        def eligible_employee_criteria
+          ::CensusEmployee.active_alone.where(
+            :benefit_sponsorship_id => benefit_sponsorship.id,
+            :hired_on => {"$lte" => coverage_start},
+            "$or" => [
+              { "terminated_on" => nil },
+              { "terminated_on" => { "$gt" => coverage_start } },
+              { "terminated_on" => { "$lte" => coverage_start }, "aasm_state" => { "$in" => ["cobra_eligible", "cobra_linked", "cobra_termination_pending"] } }
+            ]
+          )
+        end
+
         protected
 
         def calculate_employee_groups(
@@ -130,18 +142,6 @@ module BenefitSponsors
             price_group = p_calculator.calculate_price_for(pricing_model, roster_group, sponsor_contribution)
             c_calculator.calculate_contribution_for(contribution_model, price_group, sponsor_contribution)
           end
-        end
-
-        def eligible_employee_criteria
-          ::CensusEmployee.active_alone.where(
-            :benefit_sponsorship_id => benefit_sponsorship.id,
-            :hired_on => {"$lte" => coverage_start},
-            "$or" => [
-              { "terminated_on" => nil },
-              { "terminated_on" => { "$gt" => coverage_start } },
-              { "terminated_on" => { "$lte" => coverage_start }, "aasm_state" => { "$in" => ["cobra_eligible", "cobra_linked", "cobra_termination_pending"] } }
-            ]
-          )
         end
       end
     end

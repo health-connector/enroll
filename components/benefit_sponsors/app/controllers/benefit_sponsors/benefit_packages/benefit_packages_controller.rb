@@ -8,7 +8,7 @@ module BenefitSponsors
 
       include Pundit
 
-      layout "two_column"
+      layout "two_column", except: :estimated_employee_cost_details
 
       def new
         authorize @benefit_package_form, :updateable?
@@ -89,9 +89,7 @@ module BenefitSponsors
                                                                                                                     }).value!
         respond_to do |format|
           format.html do
-            reference_product_index = @employee_costs_result[:employee_costs].find_index(@employee_costs_result[:employee_costs].detect{|e| e[:product_id] == @employee_costs_result[:reference_product].id})
-            results = @employee_costs_result[:employee_costs].insert(0, @employee_costs_result[:employee_costs].delete_at(reference_product_index))
-            @employee_costs = Kaminari.paginate_array(results).page(params[:page]).per(5)
+            @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)
           end
           format.pdf do
             @employee_costs = @employee_costs_result[:employee_costs]
