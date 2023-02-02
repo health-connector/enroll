@@ -8,7 +8,7 @@ module BenefitSponsors
 
       include Pundit
 
-      layout "two_column", except: :estimated_employee_cost_details
+      layout "two_column"
 
       def new
         authorize @benefit_package_form, :updateable?
