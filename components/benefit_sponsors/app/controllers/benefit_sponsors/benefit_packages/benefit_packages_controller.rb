@@ -93,7 +93,7 @@ module BenefitSponsors
           end
           format.pdf do
             @employee_costs = @employee_costs_result[:employee_costs]
-            render :pdf => "estimated_employee_cost"
+            render :pdf => "estimated_employee_cost", dpi: 72, disposition: 'attachment'
           end
         end
       end
