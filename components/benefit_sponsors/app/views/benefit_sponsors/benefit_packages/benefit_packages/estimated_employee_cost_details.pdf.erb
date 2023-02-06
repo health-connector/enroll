@@ -5,8 +5,13 @@
       <%= content_for?(:title) ? yield(:title) : 'Employee Cost' %>
     </title>
   </head>
-  <%= wicked_pdf_stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
-  <%= wicked_pdf_javascript_include_tag "application", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag wicked_pdf_asset_base64("pdf") %>
+  <style type="text/css">
+    table, tr, td, th, tbody, thead, tfoot {
+      page-break-inside: avoid !important;
+    }
+  </style>
+
   <% products = @employee_costs.first[:products] %>
   <div>
     <div class="pdf-body">
@@ -20,14 +25,13 @@
             <div>
               <table class="ee-costs-table table-wrapper">
                 <thead>
-                <tr>
-                  <th>
-                    <div style="width: 150px;">
-                      Employee Name
-                    </div>
-                  </th>
-                  <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
-                  <% if lower_lim == 0 %>
+                  <tr>
+                    <th>
+                      <div style="width: 150px;">
+                        Employee Name
+                      </div>
+                    </th>
+                    <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
                     <th class="employer-row-bg">
                       <div style="width: 150px;">
                         <strong>
@@ -35,16 +39,15 @@
                         </strong>
                       </div>
                     </th>
-                  <% end %>
 
-                  <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
-                    <th>
-                      <div style="width: 150px;">
-                        <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
-                      </div>
-                    </th>
-                  <% end %>
-                </tr>
+                    <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
+                      <th>
+                        <div style="width: 150px;">
+                          <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
+                        </div>
+                      </th>
+                    <% end %>
+                  </tr>
                 </thead>
 
                 <tbody>
@@ -52,9 +55,7 @@
                     <tr>
                       <td><%= employee_info[:name]&.humanize  %></td>
                       <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
-                      <% if lower_lim == 0 %>
-                        <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
-                      <% end %>
+                      <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
                       <% employee_info[:products][lower_lim..upper_lim].each do |product_info| %>
                         <td>
                           <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
