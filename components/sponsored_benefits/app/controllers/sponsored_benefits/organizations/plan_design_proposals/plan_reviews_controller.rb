@@ -58,7 +58,9 @@ module SponsoredBenefits
           format.js { @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products(params[:kind])).page(params[:page]).per(5) }
           format.pdf do
             @employee_costs = @plan_cost_service.calculate_employee_estimates_for_all_products(params[:kind])
-            render :pdf => "estimated_employee_cost_details"
+            render pdf: "estimated_employee_cost_details",
+                   dpi: 72,
+                   disposition: 'attachment'
           end
         end
       end
