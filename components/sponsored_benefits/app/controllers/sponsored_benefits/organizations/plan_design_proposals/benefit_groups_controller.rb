@@ -7,7 +7,7 @@ module SponsoredBenefits
 
         if plan_design_proposal.save
           if params['redirect_page'] == "estimated_employer_costs"
-            render json: { url: estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(plan_design_proposal) }
+            render json: { url: estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(plan_design_proposal, kind: params['benefit_group']['kind']) }
           else
             render json: { url: new_organizations_plan_design_proposal_plan_review_path(plan_design_proposal) }
           end

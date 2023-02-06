@@ -1,61 +1,63 @@
 <div class="container">
   <h2><b>Benefit Package Set Up</b></h2>
   <h3><b>Selected Reference Plan</b></h3>
-  <div class="panel col-md-12 col-xs-12">
-    <div class="panel-body">
-      <div class="row">
-        <div class="col-xs-8">
-          <h4 class="heading-text mt-0"><b><%= @reference_plan.name %></b></h4>
+  <% unless @show_dental_plan_details%>
+    <div class="panel col-md-12 col-xs-12">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-8">
+            <h4 class="heading-text mt-0"><b><%= @reference_plan.name %></b></h4>
+          </div>
+          <div class="col-xs-4">
+          </div>
         </div>
-        <div class="col-xs-4">
+        <div class="row">
+          <table class="table">
+            <tbody>
+            <tr>
+              <th>Type</th>
+              <th>Carrier</th>
+              <th>Metal Level</th>
+              <th>Network</th>
+            </tr>
+            <tr>
+              <td><%= @reference_plan.plan_type.upcase %></td>
+              <td><%= @reference_plan.carrier_profile.legal_name %></td>
+              <td><%= @reference_plan.metal_level.capitalize %></td>
+              <td>Plan Network</td>
+            </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <div class="row">
-        <table class="table">
-          <tbody>
-          <tr>
-            <th>Type</th>
-            <th>Carrier</th>
-            <th>Metal Level</th>
-            <th>Network</th>
-          </tr>
-          <tr>
-            <td><%= @reference_plan.plan_type.upcase %></td>
-            <td><%= @reference_plan.carrier_profile.legal_name %></td>
-            <td><%= @reference_plan.metal_level.capitalize %></td>
-            <td>Plan Network</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="row">
-        <h4 class="pl-1"><b>Your Estimated Monthly Cost</b></h4>
-      </div>
-      <div class="row">
-        <div class="col-xs-4">
-          <h2 class="mt-0 heading-text" id="estimatedERCost"><%= number_to_currency(@benefit_group.monthly_employer_contribution_amount) %>
-          </h2>
+        <div class="row">
+          <h4 class="pl-1"><b>Your Estimated Monthly Cost</b></h4>
         </div>
-        <div class="col-xs-3">
-          <b>Estimated monthly cost including all roster employees</b>
-        </div>
-        <div class="col-xs-2">
-          <strong class="mb-1">Min</strong>
-          <br />
-          <span id="estimatedEEMin"><%= number_to_currency(@plan_cost_service.monthly_min_employee_cost) %>
+        <div class="row">
+          <div class="col-xs-4">
+            <h2 class="mt-0 heading-text" id="estimatedERCost"><%= number_to_currency(@benefit_group.monthly_employer_contribution_amount) %>
+            </h2>
+          </div>
+          <div class="col-xs-3">
+            <b>Estimated monthly cost including all roster employees</b>
+          </div>
+          <div class="col-xs-2">
+            <strong class="mb-1">Min</strong>
+            <br />
+            <span id="estimatedEEMin"><%= number_to_currency(@plan_cost_service.monthly_min_employee_cost) %>
             </span>
-        </div>
-        <div class="col-xs-2">
-          <strong class="mb-1">Max</strong>
-          <br />
-          <span id="estimatedEEMax"><%= number_to_currency(@plan_cost_service.monthly_max_employee_cost) %>
+          </div>
+          <div class="col-xs-2">
+            <strong class="mb-1">Max</strong>
+            <br />
+            <span id="estimatedEEMax"><%= number_to_currency(@plan_cost_service.monthly_max_employee_cost) %>
             </span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <% if @benefit_group.dental_reference_plan.present? %>
+  <% if @benefit_group.dental_reference_plan.present? && @show_dental_plan_details%>
     <div class="panel col-md-12 col-xs-12">
       <div class="panel-body">
         <div class="row">

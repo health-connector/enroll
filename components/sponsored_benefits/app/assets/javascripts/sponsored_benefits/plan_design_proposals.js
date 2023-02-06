@@ -631,6 +631,7 @@ function saveProposalAndNavigateToEstimatedEmployerCosts(event) {
   var effectiveDate = $("#forms_plan_design_proposal_effective_date").val();
   var data = buildBenefitGroupParams();
   data['redirect_page'] = "estimated_employer_costs"
+  var kind = $("#benefits_kind").val();
   if (proposalIsInvalid(data) && (effectiveDate !== undefined && effectiveDate.slice(5) !='01-01')) {
 
   } else {
@@ -638,7 +639,8 @@ function saveProposalAndNavigateToEstimatedEmployerCosts(event) {
     $.ajax({
       type: "POST",
       data: data,
-      url: url
+      url: url,
+      kind: kind
     }).done(function(data) {
       window.location.href = data.url;
     });
