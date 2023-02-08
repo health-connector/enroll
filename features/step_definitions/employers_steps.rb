@@ -695,8 +695,8 @@ Then(/^employer should see create plan year button disabled$/) do
   expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
 end
 
-Then(/^employer should see your estimated montly cost$/) do
-  expect(page).to have_content("Your Estimated Monthly Cost")
+Then(/^employer should see employer estimated montly cost$/) do
+  expect(page).to have_content("Employer Estimated Monthly Cost")
 end
 
 And(/^employer clicked on create plan year button$/) do
