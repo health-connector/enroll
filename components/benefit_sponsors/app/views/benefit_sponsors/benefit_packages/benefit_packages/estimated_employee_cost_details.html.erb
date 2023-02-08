@@ -85,13 +85,17 @@
             </strong>
           </div>
         </th>
-        <% products.each_with_index do |product_info, i| %>
-          <th>
-            <div style="width: 150px;">
-              <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
-            </div>
-          </th>
-        <% end %>
+        <%if plan_kind.eql?(reference_product.health_plan_kind)%>
+          <% products.each_with_index do |product_info, i| %>
+            <th>
+              <div style="width: 150px;">
+                <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+              </div>
+            </th>
+          <% end %>
+        <%else%>
+          <%=products[0][:product_name]%>
+        <%end%>
       </tr>
       </thead>
 
@@ -101,11 +105,15 @@
             <td><%= employee_info[:name]&.humanize  %></td>
             <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
             <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
-            <% employee_info[:products].each do |product_info| %>
-              <td>
-                <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
-              </td>
-            <% end %>
+            <%if plan_kind.eql?(reference_product.health_plan_kind)%>
+              <% employee_info[:products].each do |product_info| %>
+                <td>
+                  <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
+                </td>
+              <% end %>
+            <%else%>
+              <%= number_to_currency(employee_info[:products][0][:product_cost_total] - employee_info[:products][0][:sponsor_contribution_total]) %>
+            <%end%>
           </tr>
         <% end %>
       </tbody>
