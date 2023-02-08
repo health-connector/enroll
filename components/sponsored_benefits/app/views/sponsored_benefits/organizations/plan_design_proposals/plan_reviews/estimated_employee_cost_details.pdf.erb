@@ -15,7 +15,7 @@
   </style>
 
   <div>
-    <% products = @employee_costs.first[:products] %>
+    <% products = @employee_costs.present? ? @employee_costs.first[:products] : [] %>
     <% lower_lim = 0 %>
     <% upper_lim = 3 %>
     <% @items = products %>
@@ -32,7 +32,7 @@
           <th class="employer-row-bg">
             <div style="width: 150px;">
               <strong>
-                Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
+                Employer Reference Plan Contribution
               </strong>
             </div>
           </th>
