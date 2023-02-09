@@ -287,8 +287,7 @@ module BenefitSponsors
           ce.save
           ee_person.employee_roles.first.census_employee_id = ce.id
           ee_person.save
-          DataTablesInQuery = Struct.new(:draw, :skip, :take, :search_string)
-          dt_query = DataTablesInQuery.new("1", 0, 10, "")
+          dt_query = OpenStruct.new({ :draw => 1, :skip => 0, :take => 10, :search_string => "" })
           sign_in(user_with_hbx_staff_role)
           Person.create_indexes
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
@@ -311,8 +310,7 @@ module BenefitSponsors
           ce.save
           ee_person.employee_roles.first.census_employee_id = ce.id
           ee_person.save
-          DataTablesInQuery = Struct.new(:draw, :skip, :take, :search_string)
-          dt_query = DataTablesInQuery.new("1", 0, 10, "")
+          dt_query = OpenStruct.new({ :draw => 1, :skip => 0, :take => 10, :search_string => "" })
           Person.create_indexes
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
