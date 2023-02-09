@@ -68,20 +68,20 @@
     <% products = @employee_costs.first[:products] %>
     <table class="ee-costs-table table-wrapper">
       <thead>
-      <tr>
-        <th>
-          <div style="width: 150px;">
-            Employee Name
-          </div>
-        </th>
-        <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
-        <th class="employer-row-bg">
-          <div style="width: 150px;">
-            <strong>
-              Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
-            </strong>
-          </div>
-        </th>
+        <tr>
+          <th>
+            <div style="width: 150px;">
+              Employee Name
+            </div>
+          </th>
+          <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+          <th class="employer-row-bg">
+            <div style="width: 150px;">
+              <strong>
+                Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
+              </strong>
+            </div>
+          </th>
           <% products.each_with_index do |product_info, i| %>
             <th>
               <div style="width: 150px;">
@@ -89,7 +89,7 @@
               </div>
             </th>
           <% end %>
-      </tr>
+        </tr>
       </thead>
 
       <tbody>

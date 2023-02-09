@@ -71,28 +71,28 @@
   <div>
     <table class="ee-costs-table table-wrapper">
       <thead>
-      <tr>
-        <th>
-          <div style="width: 150px;">
-            Employee Name
-          </div>
-        </th>
-        <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
-        <th class="employer-row-bg">
-          <div style="width: 150px;">
-            <strong>
-              Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
-            </strong>
-          </div>
-        </th>
-        <% products.each_with_index do |product_info, i| %>
+        <tr>
           <th>
             <div style="width: 150px;">
-              <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+              Employee Name
             </div>
           </th>
-        <% end %>
-      </tr>
+          <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+          <th class="employer-row-bg">
+            <div style="width: 150px;">
+              <strong>
+                Employer Reference Plan Contribution <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Employer Reference Plan Contribution"></i>
+              </strong>
+            </div>
+          </th>
+          <% products.each_with_index do |product_info, i| %>
+            <th>
+              <div style="width: 150px;">
+                <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+              </div>
+            </th>
+          <% end %>
+        </tr>
       </thead>
 
       <tbody>
