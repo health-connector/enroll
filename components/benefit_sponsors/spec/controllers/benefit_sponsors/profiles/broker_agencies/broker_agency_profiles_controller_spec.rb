@@ -280,6 +280,54 @@ module BenefitSponsors
           expect(@query.total_count).to eq 0
         end
       end
+
+      context "should return family when search by persons name" do
+        before :each do
+          ce.employee_role_id = ee_person.employee_roles.first.id
+          ce.save
+          ee_person.employee_roles.first.census_employee_id = ce.id
+          ee_person.save
+          DataTablesInQuery = Struct.new(:draw, :skip, :take, :search_string)
+          dt_query = DataTablesInQuery.new("1", 0, 10, "")
+          sign_in(user_with_hbx_staff_role)
+          Person.create_indexes
+          allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
+          xhr :get, :family_datatable, id: bap_id
+          @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(ee_person.first_name, organization.profiles.first.id, organization.profiles.first.market_kind)
+        end
+
+        it "should return a family" do
+          expect(@query.filtered_count).not_to eq 0
+        end
+
+        it "should return success http status" do
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      context "should not return family when search incorrect name" do
+        before :each do
+          ce.employee_role_id = ee_person.employee_roles.first.id
+          ce.save
+          ee_person.employee_roles.first.census_employee_id = ce.id
+          ee_person.save
+          DataTablesInQuery = Struct.new(:draw, :skip, :take, :search_string)
+          dt_query = DataTablesInQuery.new("1", 0, 10, "")
+          Person.create_indexes
+          sign_in(user_with_hbx_staff_role)
+          allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
+          xhr :get, :family_datatable, id: bap_id
+          @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new("test", organization.profiles.first.id, organization.profiles.first.market_kind)
+        end
+
+        it "should return a family" do
+          expect(@query.filtered_count).to eq 0
+        end
+
+        it "should return success http status" do
+          expect(response).to have_http_status(:success)
+        end
+      end
     end
   end
 end
