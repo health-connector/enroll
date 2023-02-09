@@ -50,8 +50,7 @@ module SponsoredBenefits
       def estimated_employee_cost_details
         @benefit_group = benefit_group
         @plan_cost_service = SponsoredBenefits::Services::PlanCostService.new({benefit_group: benefit_group})
-        @kind = params[:kind]
-        @reference_plan = @kind == 'dental' ? @benefit_group.dental_reference_plan : @plan_cost_service.reference_plan
+        @reference_plan = params[:kind] == 'dental' ? @benefit_group.dental_reference_plan : @plan_cost_service.reference_plan
         respond_to do |format|
           format.html do
             @employee_costs = Kaminari.paginate_array(@plan_cost_service.calculate_employee_estimates_for_all_products(params[:kind])).page(params[:page]).per(5)
