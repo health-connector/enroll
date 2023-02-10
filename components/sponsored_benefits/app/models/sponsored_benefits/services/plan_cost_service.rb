@@ -75,7 +75,7 @@ class SponsoredBenefits::Services::PlanCostService
 
   def find_plans(coverage_kind)
     if coverage_kind == 'dental'
-      plans = @benefit_group.elected_dental_plans_by_option_kind.to_a
+      plans = [@benefit_group.dental_reference_plan]
       plans.sort_by!(&:name) && ([@benefit_group.dental_reference_plan] + plans).uniq
     else
       plans = @benefit_group.elected_plans_by_option_kind.to_a
