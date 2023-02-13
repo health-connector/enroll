@@ -56,8 +56,8 @@
     </div>
   </div>
 
- <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF',  estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(@plan_design_proposal, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
-  
+  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF',  estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(@plan_design_proposal, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
+
   <div>
     <h3 class="inline"><b>Estimated Premiums </b></h3><br/><br/>
     <p class="para"> The Employer Reference Plan Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
@@ -134,8 +134,21 @@
   }
 
   .table-wrapper {
-      overflow-x: scroll;
-      margin: 0 auto;
+    overflow-x: scroll;
+    margin: 0 auto;
+  }
+
+  .table-wrapper::-webkit-scrollbar:horizontal {
+    height: 11px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, .5);
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    -webkit-appearance: none;
   }
 
   .employer-row-bg {
