@@ -12,14 +12,15 @@
   <div class=" form-group form-group-lg no-pd broker-agency-info weekend-hour">
     <div class="checkbox col-md-6  col-xs-12 interaction-choice-control-broker-agency-evening-weekend-hours">
       <label>
-        <%= f.check_box :working_hours %> EVENING/WEEKEND HOURS?
+        <%= f.check_box :working_hours %> <%= l10n('broker_agencies.profiles.working_hours') %>
       </label>
+      
     </div>
   </div>
   <div class=" form-group form-group-lg form-group no-pd broker-agency-info">
     <div class="checkbox col-md-6  col-xs-12 interaction-choice-control-broker-agency-accept-new-clients">
       <label>
-        <%= f.check_box :accept_new_clients %> ACCEPT NEW CLIENTS?
+        <%= f.check_box :accept_new_clients %> <%= l10n('broker_agencies.profiles.accept_new_clients') %>
       </label>
     </div>
   </div>
