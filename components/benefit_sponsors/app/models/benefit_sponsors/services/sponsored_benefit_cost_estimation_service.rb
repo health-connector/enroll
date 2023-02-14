@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module Services
     class SponsoredBenefitCostEstimationService
 
       def calculate_estimates_for_home_display(sponsored_benefit)
-        query = ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentsQuery.new(sponsored_benefit.benefit_package.benefit_application, sponsored_benefit).call(::Family, TimeKeeper.date_of_record).lazy.map { |rec| rec["hbx_enrollment_id"] }
+        query = ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentsQuery.new(sponsored_benefit.benefit_package.benefit_application, sponsored_benefit)
+                                                                                          .call(::Family, TimeKeeper.date_of_record).lazy.map { |rec| rec["hbx_enrollment_id"] }
         reference_product = sponsored_benefit.reference_product
         benefit_application = sponsored_benefit.benefit_package.benefit_application
         package = sponsored_benefit.product_package
@@ -165,9 +168,7 @@ module BenefitSponsors
           sponsored_benefit_with_highest_cost_product = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, highest_cost_product, package)
           sponsored_benefit_with_reference_product    = group_cost_estimator.calculate(sponsor_contribution.sponsored_benefit, reference_product, package)
           all_estimates = sponsored_benefit_with_lowest_cost_product + sponsored_benefit_with_highest_cost_product + sponsored_benefit_with_reference_product
-          grouped_estimates = all_estimates.group_by do |estimate|
-            estimate.group_id
-          end
+          grouped_estimates = all_estimates.group_by(&:group_id)
           grouped_estimates.values.map do |estimate_set|
             reference_record = estimate_set.first
             main_name = reference_record.primary_member.census_member.full_name
@@ -211,11 +212,11 @@ module BenefitSponsors
           products = package.load_base_products.select {|p| p.metal_level_kind.eql?(reference_product.metal_level_kind)}
         end
 
-        if reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct"
-          products = products.sort_by!(&:name) && ([reference_product] + products).uniq
-        else
-          products = products.sort_by!(&:name) && ([reference_product]).uniq
-        end
+        products = if reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct"
+                     products.sort_by!(&:name) && ([reference_product] + products).uniq
+                   else
+                     products.sort_by!(&:name) && [reference_product].uniq
+                   end
 
         group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
         sb = sponsor_contribution.sponsored_benefit
