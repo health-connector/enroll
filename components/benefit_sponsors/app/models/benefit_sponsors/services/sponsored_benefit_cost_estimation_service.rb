@@ -203,7 +203,8 @@ module BenefitSponsors
           build_new_pricing_determination: build_objects
         )
 
-        if sponsor_contribution.sponsored_benefit.pricing_determinations.any?
+        # for dental we only need to display reference plan
+        if sponsor_contribution.sponsored_benefit.pricing_determinations.any? || reference_product.dental?
           products = [reference_product]
         elsif package.package_kind == :single_issuer
           issuer_hios_ids = reference_product.carrier_profile_hios_ids
@@ -212,11 +213,7 @@ module BenefitSponsors
           products = package.load_base_products.select {|p| p.metal_level_kind.eql?(reference_product.metal_level_kind)}
         end
 
-        products = if reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct"
-                     products.sort_by!(&:name) && ([reference_product] + products).uniq
-                   else
-                     products.sort_by!(&:name) && [reference_product].uniq
-                   end
+        products = products.sort_by!(&:name) && ([reference_product] + products).uniq
 
         group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
         sb = sponsor_contribution.sponsored_benefit
