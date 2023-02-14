@@ -36,7 +36,11 @@ namespace :recurring do
     employee_roles.each do |employee_role|
       next if (employee_role.benefit_group.nil?)
       hbx_enrollments = employee_role.census_employee.active_benefit_group_assignment.hbx_enrollments
-      enrollments = hbx_enrollments.select{|e| (HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES).include?(e.aasm_state)}
+      if new_date < TimeKeeper.date_of_record.beginning_of_month
+        enrollments = hbx_enrollments.select{ |e| e.terminated_on == new_date }
+      else
+        enrollments = hbx_enrollments.select{ |e| (HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES).include?(e.aasm_state) }
+      end
       if enrollments.present?
         covered_members = enrollments.inject([]) do |covered_members, enrollment|
           covered_members += enrollment.hbx_enrollment_members.map(&:family_member).map(&:person)
