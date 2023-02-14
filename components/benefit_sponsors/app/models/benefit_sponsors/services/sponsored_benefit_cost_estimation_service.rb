@@ -211,8 +211,11 @@ module BenefitSponsors
           products = package.load_base_products.select {|p| p.metal_level_kind.eql?(reference_product.metal_level_kind)}
         end
 
-
-        products = products.sort_by!(&:name) && ([reference_product] + products).uniq
+        if reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct"
+          products = products.sort_by!(&:name) && ([reference_product] + products).uniq
+        else
+          products = products.sort_by!(&:name) && ([reference_product]).uniq
+        end
 
         group_cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeEstimatedCostGroup.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
         sb = sponsor_contribution.sponsored_benefit
