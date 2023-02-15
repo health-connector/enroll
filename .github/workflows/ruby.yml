@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-latest]
         node: [9.x]
         mongodb-version: ["3.6"]
         command_configs:
@@ -36,14 +36,30 @@ jobs:
           #       brakeman -i config/brakeman.ignore
           #       cd ../..
           #     done
-          - name: rspec 1/4s
-            test_command: rspec_booster --job 1/4
-          - name: rspec 2/4
-            test_command: rspec_booster --job 2/4
-          - name: rspec 3/4
-            test_command: rspec_booster --job 3/4
-          - name: rspec 4/4
-            test_command: rspec_booster --job 4/4
+          - name: rspec 1/12
+            test_command: rspec_booster --job 1/12
+          - name: rspec 2/12
+            test_command: rspec_booster --job 2/12
+          - name: rspec 3/12
+            test_command: rspec_booster --job 3/12
+          - name: rspec 4/12
+            test_command: rspec_booster --job 4/12
+          - name: rspec 5/12
+            test_command: rspec_booster --job 5/12
+          - name: rspec 6/12
+            test_command: rspec_booster --job 6/12
+          - name: rspec 7/12
+            test_command: rspec_booster --job 7/12
+          - name: rspec 8/12
+            test_command: rspec_booster --job 8/12
+          - name: rspec 9/12
+            test_command: rspec_booster --job 9/12
+          - name: rspec 10/12
+            test_command: rspec_booster --job 10/12
+          - name: rspec 11/12
+            test_command: rspec_booster --job 11/12
+          - name: rspec 12/12
+            test_command: rspec_booster --job 12/12
           - name: cucumber 1/4
             test_command: |
               cp -f config/cucumber.yml config/cucumber.yml.bak
