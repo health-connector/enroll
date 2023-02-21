@@ -256,14 +256,14 @@ function DisableDependentsHealthEnroll() {
 function checkAndDisableDependentsHealthWaivers() {
   $("[id^=health_waive_dependent]").each(function (index) {
     $("[id^=health_waive_dependent]")[index].checked = true
-    $("[id^=health_waive_dependent]")[index].disabled = true
+    $($("[id^=health_waive_dependent]")[index]).find(":radio:not(:checked)").prop({"disabled": true})
   });
 }
 
 function checkAndDisableDependentsDentalWaivers() {
   $("[id^=dental_waive_dependent]").each(function (index) {
     $("[id^=dental_waive_dependent]")[index].checked = true
-    $("[id^=dental_waive_dependent]")[index].disabled = true
+    $($("[id^=dental_waive_dependent]")[index]).find(":radio:not(:checked)").prop({"disabled": true})
   });
 }
 

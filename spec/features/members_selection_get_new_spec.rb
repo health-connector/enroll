@@ -81,7 +81,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
         within("#family_member_id_#{primary_family_member.id}") do
           expect(page).to have_content ee_person.first_name
           expect(page).to have_content "Health Coverage"
-          expect(find("#shopping_members_health_#{primary_family_member.id}_enroll").checked?).to be_truthy
+          expect(find("#health_enroll_primary").checked?).to be_truthy
           expect(page).not_to have_content "Dental Coverage"
         end
       end
@@ -107,7 +107,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
 
           within("#family_member_id_#{primary_family_member.id}_health") do
             expect(page).to have_content "Health Coverage"
-            expect(find("#shopping_members_health_#{primary_family_member.id}_enroll").checked?).to be_truthy
+            expect(find("#health_enroll_primary").checked?).to be_truthy
           end
         end
 
@@ -138,7 +138,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
         within("#family_member_id_#{primary_family_member.id}") do
           expect(page).to have_content ee_person.first_name
           expect(page).to have_content "Health Coverage"
-          expect(find("#shopping_members_health_#{primary_family_member.id}_enroll").checked?).to be_truthy
+          expect(find("#health_enroll_primary").checked?).to be_truthy
           expect(page).to have_content "Dental Coverage"
         end
       end
@@ -163,12 +163,12 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
 
           within("#family_member_id_#{primary_family_member.id}_health") do
             expect(page).to have_content "Health Coverage"
-            expect(find("#shopping_members_health_#{primary_family_member.id}_enroll").checked?).to be_truthy
+            expect(find("#health_enroll_primary").checked?).to be_truthy
           end
 
           within("#family_member_id_#{primary_family_member.id}_dental") do
             expect(page).to have_content "Dental Coverage"
-            expect(find("#shopping_members_dental_#{primary_family_member.id}_enroll").checked?).to be_truthy
+            expect(find("#dental_enroll_primary").checked?).to be_truthy
           end
         end
 
