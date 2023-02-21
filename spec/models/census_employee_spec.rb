@@ -2265,6 +2265,29 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
+  context ".is_enrolled_or_renewed?" do
+    let(:benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:census_employee) do
+      FactoryGirl.create(
+        :benefit_sponsors_census_employee,
+        employer_profile: employer_profile,
+        benefit_sponsorship: organization.active_benefit_sponsorship,
+        benefit_group_assignments: [benefit_group_assignment]
+      )
+    end
+
+    let(:enrolled_hbx_enrollment_double) { double('EnrolledHbxEnrollment', aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_group.id) }
+
+    it "returns false when no enrollment present" do
+      expect(census_employee.is_enrolled_or_renewed?).to be_falsey
+    end
+
+    it "returns true with enrolled enrollment" do
+      allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([enrolled_hbx_enrollment_double])
+      expect(census_employee.is_enrolled_or_renewed?).to be_truthy
+    end
+  end
+
   context "expected to enroll" do
 
     let!(:valid_waived_employee) {FactoryGirl.create :benefit_sponsors_census_employee,

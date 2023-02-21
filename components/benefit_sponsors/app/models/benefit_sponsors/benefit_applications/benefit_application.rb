@@ -1098,7 +1098,7 @@ module BenefitSponsors
 
     # Slightly different logic to count covered renewing to support correct progress bar
     def progressbar_covered_count
-      find_census_employees.covered_progressbar.count
+      active_census_employees.select(&:is_enrolled_or_renewed?).count
     end
 
     def covered_count

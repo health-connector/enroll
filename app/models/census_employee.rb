@@ -1464,6 +1464,13 @@ class CensusEmployee < CensusMember
     employment_terminated_on <= effective_period.max
   end
 
+  def is_enrolled_or_renewed?
+    bga = renewal_benefit_group_assignment || active_benefit_group_assignment
+    return false unless bga.hbx_enrollments.present?
+
+    bga.hbx_enrollments.select{ |en| HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES.include?(en.aasm_state)}.present?
+  end
+
   # Enrollments with current active and renewal benefit applications
   def active_benefit_group_enrollments(coverage_date = TimeKeeper.date_of_record)
     return nil if employee_role.blank?
