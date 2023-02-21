@@ -87,6 +87,7 @@ module BenefitSponsors
                                                                                                                       benefit_package: @benefit_package,
                                                                                                                       package_kind: params[:kind]
                                                                                                                     }).value!
+        @sponsored_benefit = params[:kind] == "dental" ? @benefit_package.dental_sponsored_benefit : @benefit_package.health_sponsored_benefit
         respond_to do |format|
           format.html do
             @employee_costs = Kaminari.paginate_array(@employee_costs_result[:employee_costs]).page(params[:page]).per(5)

@@ -56,6 +56,22 @@
     </div>
   </div>
 
+  <div class="panel col-md-12 col-xs-12 no-pd">
+    <div class="plan_design_proposals">
+      <div class="panel panel-default">
+        <div class="panel-body no-pd">
+          <div class="col-md-10">
+            <div class="col-md-12 no-pd">
+              <% if @benefit_group.sole_source? %>
+                <%= render 'sponsored_benefits/organizations/plan_design_proposals/shared/employee_composite_costs', benefit_group: @benefit_group  %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF',  estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(@plan_design_proposal, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
 
   <div>
