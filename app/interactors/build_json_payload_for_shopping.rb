@@ -26,6 +26,8 @@ class BuildJsonPayloadForShopping
   end
 
   def selected_to_waive(enrollment)
+    return false unless context.enrollments_to_waive.present?
+
     context.enrollments_to_waive.include?(enrollment.coverage_kind)
   end
 
