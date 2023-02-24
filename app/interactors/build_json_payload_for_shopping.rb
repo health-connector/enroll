@@ -14,13 +14,23 @@ class BuildJsonPayloadForShopping
       output[enrollment.coverage_kind.to_sym] = {enrollment_id: enrollment.id,
                                                  market_kind: enrollment.kind,
                                                  enrollment_kind: context.enrollment_kind,
-                                                 change_plan: context.change_plan}
+                                                 change_plan: context.change_plan,
+                                                 selected_to_waive: selected_to_waive(enrollment),
+                                                 waiver_reason: get_waiver_reason(enrollment) }
     end
 
     context.plan_selection_json[:health_offering] = offering_health
     context.plan_selection_json[:dental_offering] = offering_dental
     context.plan_selection_json[:cart] = context.params[:cart]
     context.plan_selection_json[:event] = context.params[:event]
+  end
+
+  def selected_to_waive(enrollment)
+    context.enrollments_to_waive.include?(enrollment.coverage_kind)
+  end
+
+  def get_waiver_reason(enrollment)
+    context.params[:waiver_reason] if enrollment.coverage_kind == 'health'
   end
 
   def offering_health

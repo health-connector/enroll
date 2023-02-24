@@ -307,6 +307,9 @@ Rails.application.routes.draw do
         get 'thankyou'
         post 'checkout'
         get 'receipt'
+        get 'waiver_thankyou'
+        post 'waiver_checkout'
+        get 'waiver_receipt'
       end
     end
   end
