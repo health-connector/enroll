@@ -12,7 +12,6 @@ class BuildJsonForWaiverCheckout
                     market_kind: context.market_kind,
                     family: context.family,
                     event: context.event,
-                    waiver_reason: context[:params][:waiver_reason]
-                  }
+                    waiver_reason: context[:params][:waiver_reason]}
   end
 end
