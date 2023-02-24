@@ -96,7 +96,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
     it "should display the carrier name and number" do
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("866-414-5533")
-      expect(rendered).to match("customerservice@AllWaysHealth.org")
+      expect(rendered).to match("HealthPlanCustomerService-Members@mgb.org")
       expect(rendered).to match("Monday, Tuesday, Wednesday, Friday from 8:00 a.m. to 6:00 p.m.; Thursday from 8:00 a.m. to 8:00 p.m.")
     end
   end

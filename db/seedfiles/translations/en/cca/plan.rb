@@ -46,7 +46,7 @@ PLAN_TRANSLATIONS = {
 
   'en.plans.ahp_phone' => '866-414-5533',
   'en.plans.ahp_href_phone' => 'tel:+18664145533',
-  'en.plans.ahp_email' => 'customerservice@AllWaysHealth.org',
+  'en.plans.ahp_email' => 'HealthPlanCustomerService-Members@mgb.org',
   'en.plans.ahp_hours' => 'Monday, Tuesday, Wednesday, Friday from 8:00 a.m. to 6:00 p.m.; Thursday from 8:00 a.m. to 8:00 p.m.',
 
 
