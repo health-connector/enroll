@@ -138,6 +138,7 @@
           <th>
             <div style="width: 150px;">
               <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+              <%= "<br/><br/><b>Carrier</b><br/>".html_safe %><%= product_info[:carrier_name] %>
             </div>
           </th>
         <% end %>
