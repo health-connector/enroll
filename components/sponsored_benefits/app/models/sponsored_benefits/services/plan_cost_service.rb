@@ -97,7 +97,8 @@ class SponsoredBenefits::Services::PlanCostService
             id: plan.id,
             product_name: plan.name,
             sponsor_contribution_total: employee_info[:sponsor_contribution_total],
-            employee_contribution_total: employee_info[:employee_contribution_total]
+            employee_contribution_total: employee_info[:employee_contribution_total],
+            carrier_name: plan.carrier_profile.legal_name
           }
           output
         end
