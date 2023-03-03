@@ -115,7 +115,7 @@
     <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
     <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
   </div>
-  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
+  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, kind: reference_product.kind.to_s, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
 
   <div>
     <table class="ee-costs-table table-wrapper">
