@@ -4,8 +4,9 @@
 -show_button=(defined? show_button) ? show_button : 'false'
 
 - percent_complete = 0
-- percent_complete = (step == 1) ? 25 : ((step == 2) ? 50 : ((step == 3) ? 75 : ((step == 4) ? 100: 0)))
+- percent_complete = (step == 1) ? 25 : ((step == 2) ? 50 : ((step == 3 || step == 5) ? 75 : ((step == 4) ? 100: 0)))
 
+-
 %h3= "#{percent_complete}% Complete"
 %ul.list-unstyled.progress-wrapper.hidden-xs
   %li{class: add_progress_class(1, step)}
@@ -31,6 +32,13 @@
 
 - if step == 3 && !no_purchase
   = link_to purchase_or_confirm, checkout_insured_product_shoppings_path(build_hash_to_checkout(@context)), :class => "btn btn-lg btn-primary  btn-block", id: 'btn-continue', :method => :post
+  %ul.list-unstyled.list-right-section
+    %li
+      %a.back{href: '#'}
+        = image_tag 'icons/list.png'
+        PREVIOUS
+- elsif step == 9
+  = link_to 'Confirm', waiver_checkout_insured_product_shoppings_path(build_hash_to_checkout(@context)), :class => "btn btn-lg btn-primary  btn-block", id: 'btn-continue', :method => :post
   %ul.list-unstyled.list-right-section
     %li
       %a.back{href: '#'}

@@ -49,7 +49,8 @@ module Insured
         # redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, enrollment_kind: @enrollment_kind)
       end
 
-      if @organizer.enrollments_to_waive.sort == ["dental", "health"].sort
+      sponsored_benefits = @organizer.employee_role&.benefit_package&.sponsored_benefits&.map(&:product_kind)&.map(&:to_s) || ["dental", "health"]
+      if @organizer.enrollments_to_waive.sort == sponsored_benefits.sort
         redirect_to waiver_thankyou_insured_product_shoppings_path(@organizer[:plan_selection_json])
       elsif @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?
         # TODO

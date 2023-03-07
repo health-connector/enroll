@@ -148,8 +148,8 @@ module Insured
     end
 
     def waiver_receipt
-      @health_enrollment = HbxEnrollment.find(params[:health][:waiver_enrollment])
-      @dental_enrollment = HbxEnrollment.find(params[:dental][:waiver_enrollment])
+      @health_enrollment = params[:health].present? ? HbxEnrollment.find(params[:health][:waiver_enrollment]) : nil
+      @dental_enrollment = params[:dental].present? ? HbxEnrollment.find(params[:dental][:waiver_enrollment]) : nil
     end
 
     def waive
