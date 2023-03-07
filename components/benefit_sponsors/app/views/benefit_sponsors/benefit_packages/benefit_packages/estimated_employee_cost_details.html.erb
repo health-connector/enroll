@@ -137,7 +137,7 @@
         <% products.each_with_index do |product_info, i| %>
           <th>
             <div style="width: 150px;">
-              <%= "<br/><br/><b>Carrier:</b><br/>".html_safe %><%= product_info[:carrier_name] %>
+              <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
               <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
             </div>
           </th>

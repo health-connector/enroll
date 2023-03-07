@@ -78,7 +78,7 @@
     <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
     <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
   </div>
-  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF',  estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(@plan_design_proposal, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
+  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF',  estimated_employee_cost_details_organizations_plan_design_proposal_plan_reviews_path(@plan_design_proposal, kind: @kind.to_s, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
   <div>
     <% products = @employee_costs.present? ? @employee_costs.first[:products] : [] %>
     <table class="ee-costs-table table-wrapper">
@@ -100,7 +100,7 @@
         <% products.each_with_index do |product_info, i| %>
           <th>
             <div style="width: 150px;">
-              <%= "<br/><br/><b>Carrier:</b><br/>".html_safe %><%= product_info[:carrier_name] %>
+              <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
               <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
             </div>
           </th>
