@@ -14,6 +14,8 @@ module Insured
       end
     end
 
+    # params = {"change_plan"=>"change_plan", "coverage_kind"=>"dental", "employee_role_id"=>"5b46d6b9aea91a4acd7bf718", "event"=>"make_changes_for_dental", "hbx_enrollment_id"=>"6406366b73722352a12b277d", "person_id"=>"5b46d6b9aea91a4acd7bf714"}
+
     def eligible_coverage_selection
       @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.symbolize_keys)
 
@@ -49,8 +51,8 @@ module Insured
         # redirect_to new_insured_members_selections_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, enrollment_kind: @enrollment_kind)
       end
 
-      sponsored_benefits = @organizer.employee_role&.benefit_package&.sponsored_benefits&.map(&:product_kind)&.map(&:to_s) || ["dental", "health"]
-      if @organizer.enrollments_to_waive.sort == sponsored_benefits.sort
+      sponsored_benefits = params[:shopping_members].keys || @organizer.employee_role&.benefit_package&.sponsored_benefits&.map(&:product_kind) || ["dental", "health"]
+      if @organizer.enrollments_to_waive.sort == sponsored_benefits.map(&:to_s).sort
         redirect_to waiver_thankyou_insured_product_shoppings_path(@organizer[:plan_selection_json])
       elsif @organizer.commit == "Keep existing plan" && @organizer.previous_hbx_enrollment.present?
         # TODO
