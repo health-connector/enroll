@@ -34,7 +34,11 @@
 
   #referencePlanEdit
     = render "./ui-components/v1/cards/reference_plan", f: f
-  i.fas.fa-info-circle.mr-1 
+
+    - if EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled
+      = render "./ui-components/v1/cards/estimated_employee_costs", f: f
+  br
+  i.fas.fa-info-circle.mr-1
   | Your final monthly cost is based on final enrollment.
   br
   br
