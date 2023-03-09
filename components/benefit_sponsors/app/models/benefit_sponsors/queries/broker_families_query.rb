@@ -68,14 +68,14 @@ module BenefitSponsors
             {"$match" => {
               "$text" => {"$search" => clean_str}
             }.merge(Person.search_hash(clean_str))},
-            {"$project" => {"first_name" => 1, "last_name" => 1, "hbx_id" => 1}},
+            {"$project" => {"first_name" => 1, "last_name" => 1, "full_name" => 1}},
             {"$sort" => {"last_name" => 1, "first_name" => 1}},
             {"$project" => {"_id" => 1}}
           ], {allowDiskUse: true}).map do |rec|
             rec["_id"]
           end
         else
-          Person.search(s_string, nil, nil, true).pluck(:_id)
+          Person.search(s_string, nil, nil).pluck(:_id)
         end
       end
     end

@@ -31,11 +31,16 @@ namespace :recurring do
 
   def trigger_dep_age_off_notice(person, new_date = nil)
     new_date ||= TimeKeeper.date_of_record
+    date_string = new_date.strftime('%m/%d/%Y')
     employee_roles = person.active_employee_roles
     employee_roles.each do |employee_role|
       next if (employee_role.benefit_group.nil?)
       hbx_enrollments = employee_role.census_employee.active_benefit_group_assignment.hbx_enrollments
-      enrollments = hbx_enrollments.select{|e| (HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES).include?(e.aasm_state)}
+      if new_date < TimeKeeper.date_of_record.beginning_of_month
+        enrollments = hbx_enrollments.select{ |e| e.terminated_on == new_date }
+      else
+        enrollments = hbx_enrollments.select{ |e| (HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES).include?(e.aasm_state) }
+      end
       if enrollments.present?
         covered_members = enrollments.inject([]) do |covered_members, enrollment|
           covered_members += enrollment.hbx_enrollment_members.map(&:family_member).map(&:person)
@@ -48,7 +53,7 @@ namespace :recurring do
           dep_hbx_ids = aged_off_dependents.map(&:hbx_id)
           event_name ="employee_notice_dependent_age_off_termination_non_congressional"
           observer = Observers::NoticeObserver.new
-          observer.deliver(recipient: employee_role, event_object: employee_role.census_employee, notice_event: event_name,  notice_params: {dep_hbx_ids: dep_hbx_ids})
+          observer.deliver(recipient: employee_role, event_object: employee_role.census_employee, notice_event: event_name,  notice_params: {dep_hbx_ids: dep_hbx_ids, dependent_termination_date: date_string})
           puts "Delivered employee_dependent_age_off_termination notice to #{employee_role.census_employee.full_name}" unless Rails.env.test?
         end
       end
