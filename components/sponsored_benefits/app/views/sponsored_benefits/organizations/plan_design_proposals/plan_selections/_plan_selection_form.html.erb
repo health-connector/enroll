@@ -115,11 +115,11 @@
     <div class="panel panel-default">
       <div class="panel-body">
         <div class="col-md-3">
-          <h3>Estimated Employee Costs</h3>
+          <h3><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
         </div>
         <div class="col-md-7">
           <br />
-          <p>Details of the employee costs for your members are shown on the <%= button_tag "details page.", id: "estimatedEmployerCostsPage", class:'button btn btn-link btn-anchor save-action', type: 'submit' %>Values are based on benefit type, contribution amounts, and reference plan chosen.</p>
+          <p><%= l10n("employers.plan_years.employee_cost_details_description_part1") %> <%= button_tag "details page.", id: "estimatedEmployerCostsPage", class:'button btn btn-link btn-anchor save-action', type: 'submit' %><%= l10n("employers.plan_years.employee_cost_details_description_part2") %></p>
         </div>
       </div>
     </div>
