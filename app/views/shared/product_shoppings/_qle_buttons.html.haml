@@ -2,9 +2,7 @@
 - kind = (defined? kind) ? kind : 'employer_sponsored'
 - show_button=(defined? show_button) ? show_button : 'false'
 
-- if step == "show_waive"
-  -# = link_to 'Waive Coverage', '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-waive btn-default'
-- elsif step == "eligible_continue"
+- if step == "eligible_continue"
   = link_to 'CONTINUE', eligible_coverage_selection_insured_members_selections_path(@mini_context.to_h), class: 'btn btn-lg btn-primary  btn-block', id: 'eligible-btn-continue'
 - elsif step == 3 && !no_purchase
   - qle = (@change_plan == 'change_by_qle' || @enrollment_kind == 'sep')
