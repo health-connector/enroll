@@ -180,7 +180,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         enrollment_progress_bar: 2,
         progressbar_covered_count: 3,
         employee_participation_percent: 40,
-        non_business_owner_enrolled: 10.times.map{|i| double },
+        progressbar_enrolled_non_business_owner_members: 10.times.map{|i| double },
         hbx_enrollments: [hbx_enrollment],
         additional_required_participants_count: 5,
         benefit_groups: benefit_groups,

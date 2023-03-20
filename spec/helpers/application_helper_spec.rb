@@ -156,7 +156,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
         before do
           allow(plan_year).to receive(:total_enrolled_count).and_return(1)
-          allow(plan_year).to receive_message_chain(:non_business_owner_enrolled, :count).and_return(1)
+          allow(plan_year).to receive_message_chain(:progressbar_enrolled_non_business_owner_members, :count).and_return(1)
           allow(plan_year).to receive(:progressbar_covered_count).and_return(1)
           allow(plan_year).to receive(:waived_count).and_return(0)
 
@@ -173,7 +173,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
         before do
           allow(plan_year).to receive(:total_enrolled_count).and_return(1)
-          allow(plan_year).to receive_message_chain(:non_business_owner_enrolled, :count).and_return(1)
+          allow(plan_year).to receive_message_chain(:progressbar_enrolled_non_business_owner_members, :count).and_return(1)
           allow(plan_year).to receive(:progressbar_covered_count).and_return(1)
           allow(plan_year).to receive(:waived_count).and_return(0)
 
