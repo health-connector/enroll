@@ -1,12 +1,25 @@
 require "rails_helper"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe "employers/employer_profiles/my_account/_enrollment_progress_bar.html.erb" do
-  let!(:employer_profile) { FactoryGirl.create(:employer_profile)}
-  let(:plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: Date.new(2015,1,1)) }
-  let(:benefit_group) { FactoryGirl.create(:benefit_group, plan_year: plan_year) }
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application" do
+    let(:aasm_state) { :enrollment_open }
+  end
+
+  let!(:employer_profile)    { abc_profile }
+  let!(:plan_year) { initial_application }
 
 
   context "when plan year is 1/1 plan year" do
+
+    before do
+      allow(plan_year).to receive(:total_enrolled_count).and_return(1)
+      allow(plan_year).to receive_message_chain(:progressbar_enrolled_non_business_owner_members, :count).and_return(1)
+      allow(plan_year).to receive(:progressbar_covered_count).and_return(1)
+      allow(plan_year).to receive(:waived_count).and_return(0)
+    end
 
     it "should not see enrollment target" do
       assign(:current_plan_year, plan_year)
