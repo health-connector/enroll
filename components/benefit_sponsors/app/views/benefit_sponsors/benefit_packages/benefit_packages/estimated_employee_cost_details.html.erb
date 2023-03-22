@@ -1,0 +1,216 @@
+<% reference_product = @employee_costs_result[:reference_product] %>
+<% employer_costs = @employee_costs_result[:employer_estimated_costs] %>
+<% plan_kind = reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct" ?
+                 reference_product.health_plan_kind :  reference_product.dental_plan_kind %>
+
+<% products = @employee_costs.first[:products] %>
+<div class="container">
+  <h2><b>Benefit Package Set Up</b></h2>
+  <h3><b>Selected Reference Plan</b></h3>
+  <div class="panel col-md-12 col-xs-12">
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-xs-8">
+          <h4 class="heading-text mt-0"><b><%= reference_product.title %></b></h4>
+        </div>
+        <div class="col-xs-4">
+        </div>
+      </div>
+      <div class="row">
+        <table class="table">
+          <tbody>
+          <tr>
+            <th>Type</th>
+            <th>Carrier</th>
+            <th>Metal Level</th>
+            <th>Network</th>
+          </tr>
+          <tr>
+            <td><%= plan_kind %></td>
+            <td><%= reference_product.issuer_profile.legal_name %></td>
+            <td><%= reference_product.metal_level_kind %></td>
+            <td>Plan Network</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row">
+        <h4 class="pl-1"><b>Employer Estimated Monthly Cost</b></h4>
+      </div>
+      <div class="row">
+        <div class="col-xs-4">
+          <h2 class="mt-0 heading-text" id="estimatedERCost"><%= number_to_currency(employer_costs[:estimated_sponsor_exposure]) %>
+          </h2>
+        </div>
+        <div class="col-xs-3">
+          <b>Estimated monthly cost for employees listed as "enroll" in the employer census</b>
+        </div>
+        <div class="col-xs-2">
+          <strong class="mb-1">Min</strong>
+          <br />
+          <span id="estimatedEEMin"><%= number_to_currency(employer_costs[:estimated_enrollee_minimum]) %>
+            </span>
+        </div>
+        <div class="col-xs-2">
+          <strong class="mb-1">Max</strong>
+          <br />
+          <span id="estimatedEEMax"><%= number_to_currency(employer_costs[:estimated_enrollee_maximum]) %>
+            </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% if @benefit_package.sole_source? %>
+    <div id="home">
+      <div class="benefits-tab">
+        <div class="col-xs-12 package-offering">
+          <div class="col-xs-12">
+            <table>
+              <% if @sponsored_benefit.pricing_determinations.any? %>
+                <tr>
+                  <th>Member Type</th>
+                  <th>Employer Share</th>
+                  <th>Employee</th>
+                  <th>Employer</th>
+                  <th>Total</th>
+                </tr>
+                <% pd = @sponsored_benefit.latest_pricing_determination %>
+                <% sorted_tiers = pd.pricing_determination_tiers.sort_by { |pdt| pdt.pricing_unit.order } %>
+                <% sorted_tiers.each do |pdt| %>
+                  <% pdt_total = pdt.price %>
+                  <% pdt_employer = BigDecimal.new((pdt_total * pdt.sponsor_contribution_factor).to_s).round(2) %>
+                  <% pdt_employee = BigDecimal.new((pdt_total - pdt_employer).to_s).round(2) %>
+                  <tr>
+                    <td>
+                      <%= raw(pdt.contribution_level.is_offered ? "<i class='far fa-check-square fa-lg offered'></i>"+ " #{pdt.display_name.gsub("Dependents", "Child(ren)").try(:humanize)}" : "<i class='far fa-square fa-lg not-offered'></i>"+ " #{pdt.display_name.gsub("Dependents", "Child(ren)").try(:humanize)}") %>
+                    </td>
+                    <td id="pct">
+                      <%= number_to_percentage((pdt.sponsor_contribution_factor * 100.0), precision: 0) %>
+                    </td>
+                    <td><%= number_to_currency(pdt_employee) %></td>
+                    <td><%= number_to_currency(pdt_employer) %></td>
+                    <td><%= number_to_currency(pdt.price) %></td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <th>Offered</th>
+                  <th>Employer Contribution</th>
+                  <% @sponsored_benefit.sponsor_contribution.contribution_levels.each_with_index do |rb, i| %>
+                  <tr>
+                    <td><%= raw(rb.is_offered ? "<i class='far fa-check-square fa-lg offered'></i>"+ " #{rb.display_name.try(:humanize)}" : "<i class='far fa-square fa-lg not-offered'></i>"+ " #{rb.display_name.try(:humanize)}") %></td>
+                    <td><%= number_to_percentage rb.contribution_pct.ceil, precision: 0 %></td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <div>
+    <h3 class="inline"><b>Estimated Premiums </b></h3> <br/><br/>
+    <p class="para"> The Employer Reference Plan Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
+    <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
+    <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
+  </div>
+  <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, kind: reference_product.kind.to_s, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
+
+  <div>
+    <table class="ee-costs-table table-wrapper">
+      <thead>
+      <tr>
+        <th>
+          <div style="width: 150px;">
+            Employee Name
+          </div>
+        </th>
+        <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+        <th class="employer-row-bg">
+          <div style="width: 150px;">
+            <strong>
+              Employer Reference Plan Contribution
+            </strong>
+          </div>
+        </th>
+        <% products.each_with_index do |product_info, i| %>
+          <th>
+            <div style="width: 150px;">
+              <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
+              <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+            </div>
+          </th>
+        <% end %>
+      </tr>
+      </thead>
+
+      <tbody>
+        <% @employee_costs.each do |employee_info| %>
+          <tr>
+            <td><%= employee_info[:name]&.humanize  %></td>
+            <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
+            <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
+            <% employee_info[:products].each do |product_info| %>
+              <td>
+                <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div id="paginator">
+      <%= paginate @employee_costs, :param_name => :page %>
+    </div>
+  </div>
+
+  <%= link_to 'Return to Plan Selection', edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => true), method: :get, class: 'btn btn-default mb-1 mt-1' %>
+
+  <%= render partial: './ui-components/v1/layouts/footer' %>
+
+  <style type="text/css">
+      .ee-costs-table {
+          display: block;
+          width: 100%;
+          table-layout: fixed;
+      }
+
+      .ee-costs-table th:first-child, .ee-costs-table td:first-child {
+          position: sticky;
+          left: 0;
+          color: #373737;
+          background: white;
+      }
+
+      .table-wrapper {
+          overflow-x: scroll;
+          margin: 0 auto;
+      }
+
+      .table-wrapper::-webkit-scrollbar:horizontal {
+          height: 11px;
+      }
+
+      .table-wrapper::-webkit-scrollbar-thumb {
+          border-radius: 8px;
+          background-color: rgba(0, 0, 0, .5);
+      }
+
+      .table-wrapper::-webkit-scrollbar {
+          -webkit-appearance: none;
+      }
+
+      .employer-row-bg {
+          background: #d6cece;
+      }
+      .inline {
+          display: inline;
+      }
+      .para {
+          padding-bottom: 10px;
+      }
+
+  </style>
+</div>

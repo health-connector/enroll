@@ -16,6 +16,7 @@ $(document).on('click', '#reviewPlanDesignProposal', saveProposalAndNavigateToRe
 $(document).on('click', '#submitPlanDesignProposal', saveProposal);
 $(document).on('click', '#copyPlanDesignProposal', saveProposalAndCopy);
 $(document).on('click', '#publishPlanDesignProposal', saveProposalAndPublish);
+$(document).on('click', '#estimatedEmployerCostsPage', saveProposalAndNavigateToEstimatedEmployerCosts);
 
 $(document).on('click', '.downloadReferencePlanDetailsButton.plan-not-saved', checkIfSbcIncluded);
 $(document).on('click', '.downloadReferencePlanDetailsButton.plan-saved', sendPdf);
@@ -625,6 +626,25 @@ function saveProposalAndNavigateToReview(event) {
     });
   }
 }
+
+function saveProposalAndNavigateToEstimatedEmployerCosts(event) {
+  var effectiveDate = $("#forms_plan_design_proposal_effective_date").val();
+  var data = buildBenefitGroupParams();
+  data['redirect_page'] = "estimated_employer_costs"
+  if (proposalIsInvalid(data) && (effectiveDate !== undefined && effectiveDate.slice(5) !='01-01')) {
+
+  } else {
+    var url = $("#benefit_groups_url").val();
+    $.ajax({
+      type: "POST",
+      data: data,
+      url: url
+    }).done(function(data) {
+      window.location.href = data.url;
+    });
+  }
+}
+
 
 selected_rpids = [];
 

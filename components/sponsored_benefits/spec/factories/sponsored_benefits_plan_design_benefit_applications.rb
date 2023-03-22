@@ -14,5 +14,11 @@ FactoryGirl.define do
         FactoryGirl.build(:sponsored_benefits_benefit_applications_benefit_group, :with_complex_plans, benefit_application: application)
       end
     end
+
+    trait :with_benefit_group_create do
+      after(:create) do |application, _evaluator|
+        FactoryGirl.create(:sponsored_benefits_benefit_applications_benefit_group, benefit_application: application)
+      end
+    end
   end
 end

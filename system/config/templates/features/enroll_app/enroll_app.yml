@@ -30,3 +30,5 @@ registry:
         is_enabled: true
       - key: :continuous_plan_shopping
         is_enabled: true
+      - key: display_estimated_employee_costs
+        is_enabled: true

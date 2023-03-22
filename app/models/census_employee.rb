@@ -1466,9 +1466,7 @@ class CensusEmployee < CensusMember
 
   def is_enrolled_or_renewed?
     bga = renewal_benefit_group_assignment || active_benefit_group_assignment
-    return false unless bga.hbx_enrollments.present?
-
-    bga.hbx_enrollments.select{ |en| HbxEnrollment::ENROLLED_AND_RENEWAL_STATUSES.include?(en.aasm_state)}.present?
+    bga.active_enrollments.present?
   end
 
   # Enrollments with current active and renewal benefit applications

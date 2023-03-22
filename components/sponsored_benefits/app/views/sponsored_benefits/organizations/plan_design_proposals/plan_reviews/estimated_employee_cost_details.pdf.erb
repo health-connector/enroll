@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>
+      <%= content_for?(:title) ? yield(:title) : 'Employee Cost' %>
+    </title>
+  </head>
+
+  <%= stylesheet_link_tag wicked_pdf_asset_base64("pdf") %>
+
+  <style type="text/css">
+    table, tr, td, th, tbody, thead, tfoot {
+      page-break-inside: avoid !important;
+    }
+  </style>
+
+  <div>
+    <% products = @employee_costs.present? ? @employee_costs.first[:products] : [] %>
+    <% lower_lim = 0 %>
+    <% upper_lim = 3 %>
+    <% @items = products %>
+    <% until @items.blank? %>
+      <table class="ee-costs-table table-wrapper">
+        <thead>
+        <tr>
+          <th>
+            <div style="width: 150px;">
+              Employee Name
+            </div>
+          </th>
+          <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+          <th class="employer-row-bg">
+            <div style="width: 150px;">
+              <strong>
+                Employer Reference Plan Contribution
+              </strong>
+            </div>
+          </th>
+          <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
+            <th>
+              <div style="width: 150px;">
+                <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
+                <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+              </div>
+            </th>
+          <% end %>
+        </tr>
+        </thead>
+
+        <tbody>
+          <% @employee_costs.each do |employee_info| %>
+            <tr>
+              <td><%= employee_info[:name]&.humanize  %></td>
+              <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
+              <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
+              <% employee_info[:products][lower_lim..upper_lim].each do |product_info| %>
+                <td>
+                  <%= number_to_currency(product_info[:employee_contribution_total]) %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% lower_lim += 3 %>
+      <% upper_lim += 3 %>
+      <% @items = products[lower_lim..upper_lim] %>
+    <% end %>
+  </div>
+  <body class="pdf">
+  </body>
+</html>

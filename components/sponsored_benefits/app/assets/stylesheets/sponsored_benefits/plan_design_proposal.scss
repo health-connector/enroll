@@ -485,6 +485,16 @@ $brand-primary: $mhc-dark-blue;
   cursor:pointer;
 }
 
+.button.btn.btn-link.btn-anchor.save-action {
+  padding: 0 3px;
+  vertical-align: baseline;
+  &:hover {
+    color: #23527c;
+    text-decoration: underline;
+    padding: 0 3px;
+  }
+}
+
 .plan-details-export {
   background-color: white;
   table.benefit-group-contribution-table {

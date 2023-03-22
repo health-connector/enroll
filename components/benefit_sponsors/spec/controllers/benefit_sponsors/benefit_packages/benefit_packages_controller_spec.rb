@@ -162,6 +162,17 @@ module BenefitSponsors
         end
       end
 
+      context "when create is successful and redirect to estimated employer costs" do
+        before do
+          sign_in user
+          post :create, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params, :estimated_employee_costs => "true"
+        end
+
+        it "should redirect to estimated employee cost page after create" do
+          expect(response.location.include?("estimated_employee_cost_details")).to be_truthy
+        end
+      end
+
       context "when create fails" do
 
         let(:sponsored_benefits_params) {
@@ -297,6 +308,12 @@ module BenefitSponsors
           sign_in user
           post :update, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params, add_dental_benefits: "true"
           expect(response.location.include?("sponsored_benefits/new?kind=dental")).to be_truthy
+        end
+
+        it "should redirect to estimated employee cost page" do
+          sign_in user
+          post :update, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params, estimated_employee_costs: "true"
+          expect(response.location.include?("estimated_employee_cost_details")).to be_truthy
         end
       end
 
