@@ -1,8 +1,9 @@
 $(document).ready(function () {
-  $('#employer_profile_legal_name').click(function () {
+  var employers = $("[id^=employee_role_id_]");
+  employers.on("change", function(){
     var person_id = $("#person_id").val();
     var market_kind = $("#market_kind").val();
-    var employee_role_id = $("#employer_profile_legal_name").val();
+    var employee_role_id = this.value;
     var event = $("#event").val();
 
     console.log('here')
@@ -28,6 +29,6 @@ $(document).ready(function () {
 
   $('#eligible_continue_yes, #eligible_continue_no').on('click', function(e) {
     var href = $(this).data('href')
-    $('#eligible-btn-continue').attr('href', href)    
+    $('#eligible-btn-continue').attr('href', href)
   })
 });
