@@ -2278,7 +2278,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     it "returns true with enrolled enrollment" do
-      allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([enrolled_hbx_enrollment_double])
+      allow(benefit_group_assignment).to receive(:active_enrollments).and_return([enrolled_hbx_enrollment_double])
       expect(census_employee.is_enrolled_or_renewed?).to be_truthy
     end
   end

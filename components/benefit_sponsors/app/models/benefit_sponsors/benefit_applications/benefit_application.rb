@@ -1098,7 +1098,19 @@ module BenefitSponsors
 
     # Slightly different logic to count covered renewing to support correct progress bar
     def progressbar_covered_count
-      active_census_employees.select(&:is_enrolled_or_renewed?).count
+      return @progressbar_covered_count if defined? @progressbar_covered_count
+
+      @progressbar_covered_count = active_census_employees.select(&:is_enrolled_or_renewed?).count
+    end
+
+    def progressbar_enrolled_non_business_owner_members
+      return @progressbar_enrolled_non_business_owner_members if defined? @progressbar_enrolled_non_business_owner_members
+
+      total_enrolled  = enrolled_families
+      owner_employees = active_census_employees.select(&:is_business_owner)
+      total_enrolled = filter_enrolled_employees(owner_employees, total_enrolled)
+      total_enrolled = filter_enrolled_employees(waived_members, total_enrolled)
+      @progressbar_enrolled_non_business_owner_members = total_enrolled
     end
 
     def covered_count

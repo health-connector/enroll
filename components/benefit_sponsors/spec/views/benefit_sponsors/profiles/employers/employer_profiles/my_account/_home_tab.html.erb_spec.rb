@@ -182,7 +182,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
         enrollment_progress_bar: 2,
         progressbar_covered_count: 3,
         employee_participation_percent: 40,
-        non_business_owner_enrolled: Array.new(10).map{|_i| double },
+        progressbar_enrolled_non_business_owner_members: Array.new(10).map{|_i| double },
         hbx_enrollments: [hbx_enrollment],
         additional_required_participants_count: 5,
         benefit_groups: benefit_groups,
