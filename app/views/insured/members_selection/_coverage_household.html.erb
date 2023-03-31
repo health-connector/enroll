@@ -5,6 +5,11 @@
       <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_package.id.to_s][family_member.id.to_s] %>
       <% primary_or_dependent = family_member.is_primary_applicant? ? "primary" : "dependent" %>
       <% is_primary = family_member.is_primary_applicant? %>
+      <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
+      <%= hidden_field_tag(:enrollment_kind, @organizer.enrollment_kind) %>
+      <%= hidden_field_tag(:hbx_enrollment_id, (@organizer&.hbx_enrollment&.id || @organizer&.previous_hbx_enrollment&.id)) if(@organizer&.hbx_enrollment&.present? || @organizer&.previous_hbx_enrollment&.present?)%>
+      <%= hidden_field_tag(:shop_under_current, @organizer.shop_under_current) if @organizer.shop_under_current %>
+      <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
       <tr>
         <td class="table-cell" id="family_member_id_<%=family_member.id%>">
           <h4><strong><%= label_tag("family_member_id[#{family_member.id}]", "#{family_member.full_name} (Age : #{pluralize(calculate_age_by_dob(family_member.dob), 'year')})") %></strong></h4>

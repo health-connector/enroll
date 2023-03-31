@@ -21,22 +21,23 @@
 
         <h3><strong><%= l10n("insured.group_selection.new.who_needs_coverage") %></strong></h3>
         <p class="twenty"><%= l10n("insured.group_selection.new.who_needs_coverage_info") %></p>
-        <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
         <%= hidden_field_tag(:event, @organizer.event) %>
         <%= hidden_field_tag(:waiver_reason, nil, id: "waiver_reason_hidden_value_field") %>
         <%= hidden_field_tag(:is_waiving, nil, id: "is_waiving_hidden_value_field") %>
         <%= hidden_field_tag(:person_id, @organizer.person.id) %>
         <%= hidden_field_tag(:coverage_household_id, @organizer.coverage_household.id) %>
-        <%= hidden_field_tag(:enrollment_kind, @organizer.enrollment_kind) %>
-        <%= hidden_field_tag(:hbx_enrollment_id, (@organizer&.hbx_enrollment&.id || @organizer&.previous_hbx_enrollment&.id)) if(@organizer&.hbx_enrollment&.present? || @organizer&.previous_hbx_enrollment&.present?)%>
-        <%= hidden_field_tag(:shop_under_current, @organizer.shop_under_current) if @organizer.shop_under_current %>
-        <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
 
         <% if @organizer.can_shop_shop %>
           <div id="coverage-household" class='row no-buffer'>
             <% @show_residency_alert = false %>
             <%= render 'coverage_household' %>
           </div>
+        <% else %>
+          <%= hidden_field_tag(:employee_role_id, @organizer.employee_role.id) %>
+          <%= hidden_field_tag(:enrollment_kind, @organizer.enrollment_kind) %>
+          <%= hidden_field_tag(:hbx_enrollment_id, (@organizer&.hbx_enrollment&.id || @organizer&.previous_hbx_enrollment&.id)) if(@organizer&.hbx_enrollment&.present? || @organizer&.previous_hbx_enrollment&.present?)%>
+          <%= hidden_field_tag(:shop_under_current, @organizer.shop_under_current) if @organizer.shop_under_current %>
+          <%= hidden_field_tag(:shop_under_future, @organizer.shop_under_future) if @organizer.shop_under_future %>
         <% end %>
 
         <% if @organizer.can_shop_shop %>
