@@ -549,6 +549,7 @@ module BenefitSponsors
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
         let(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id: nil, benefit_package_id: benefit_package.id)}
         let!(:census_employee) { create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
+        let!(:census_employees) { FactoryGirl.create_list(:census_employee, 4, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, :benefit_group_assignments => [benefit_group_assignment], benefit_group: benefit_package) }
 
         let(:renewal_application) do
           application = initial_application.renew
@@ -618,6 +619,53 @@ module BenefitSponsors
             expect(renewal_application.aasm_state).to eq :active
             renewal_bga = census_employee.benefit_group_assignments.effective_on(renewal_application.effective_period.min).first
             expect(renewal_bga.benefit_application).to eq renewal_application
+          end
+        end
+
+        context '.active_census_employees_under_py', dbclean: :after_each do
+
+          before :each do
+            renewal_application.benefit_packages.first.update_attributes!(_id: CensusEmployee.all.first.benefit_group_assignments.first.benefit_package_id)
+          end
+
+          it 'should not return the terminated EEs' do
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+            term_date = renewal_application.effective_period.min - 10.days
+            ce = renewal_application.active_census_employees_under_py.first
+            ce.aasm_state = 'employment_terminated'
+            ce.employment_terminated_on = term_date
+            ce.benefit_group_assignments.last.update(benefit_package_id: renewal_application.benefit_packages.first.id)
+            ce.save(validate: false)
+            expect(renewal_application.active_census_employees_under_py.count).to eq 4
+          end
+
+          it 'should not return term pending with prior effective date as term date' do
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+            term_date = renewal_application.effective_period.min - 10.days
+            ce = renewal_application.active_census_employees_under_py.first
+            ce.aasm_state = 'employee_termination_pending'
+            ce.employment_terminated_on = term_date
+            ce.benefit_group_assignments.last.update(benefit_package_id: renewal_application.benefit_packages.first.id)
+            ce.save(validate: false)
+            expect(renewal_application.active_census_employees_under_py.count).to eq 4
+          end
+
+          it 'should return term pending with effective date as term date' do
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+            term_date = renewal_application.effective_period.min
+            ce = renewal_application.active_census_employees_under_py.first
+            ce.aasm_state = 'employee_termination_pending'
+            ce.employment_terminated_on = term_date
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+          end
+
+          it 'should return term pending with future effective date as term date' do
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+            term_date = renewal_application.effective_period.min + 1.day
+            ce = renewal_application.active_census_employees_under_py.first
+            ce.aasm_state = 'employee_termination_pending'
+            ce.employment_terminated_on = term_date
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
           end
         end
       end
