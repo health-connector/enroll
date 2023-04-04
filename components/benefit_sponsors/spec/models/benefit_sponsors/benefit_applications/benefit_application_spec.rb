@@ -549,7 +549,9 @@ module BenefitSponsors
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
         let(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id: nil, benefit_package_id: benefit_package.id)}
         let!(:census_employee) { create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
-        let!(:census_employees) { FactoryGirl.create_list(:census_employee, 4, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, :benefit_group_assignments => [benefit_group_assignment], benefit_group: benefit_package) }
+        let!(:census_employees) do
+          FactoryGirl.create_list(:census_employee, 4, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, :benefit_group_assignments => [benefit_group_assignment], benefit_group: benefit_package)
+        end
 
         let(:renewal_application) do
           application = initial_application.renew
