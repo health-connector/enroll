@@ -12,7 +12,7 @@ module Insured
       output.all?(true) ? false : true
     end
 
-    def build_hash_to_checkout(context, waiver_context=nil)
+    def build_hash_to_checkout(context, waiver_context = nil)
       checkout_hash = context.each_with_object({}) do |(k,v), output| # rubocop:disable Style/HashTransformValues
         output[k] = construct_hash_to_checkout(v)
       end
