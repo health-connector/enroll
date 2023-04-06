@@ -34,9 +34,8 @@
 
         <% if @organizer.can_shop_shop %>
           <div id="coverage-household" class='row no-buffer'>
-
-                <% @show_residency_alert = false %>
-                <%= render 'coverage_household' %>
+            <% @show_residency_alert = false %>
+            <%= render 'coverage_household' %>
           </div>
         <% end %>
 
@@ -53,7 +52,7 @@
           <%= hidden_field_tag 'effective_on_option_selected', params[:effective_on_option_selected] if params[:effective_on_option_selected].present?%>
           <br/>
           <h3><%= l10n("insured.group_selection.new.what_would_you_like_to_do") %></h3>
-            <%= submit_tag l10n('confirm_your_selections'), class: 'btn btn-primary interaction-click-control-shop-for-new-plan btn-lg'+ pundit_class(Family, :updateable?), onclick: 'return onSubmit();'%>
+            <%= submit_tag l10n('confirm_your_selections'), class: 'btn btn-primary interaction-click-control-shop-for-new-plan btn-lg'+ pundit_class(Family, :updateable?)%>
           <% if @organizer.previous_hbx_enrollment.present? && @organizer.previous_hbx_enrollment.may_terminate_coverage? %>
             <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.previous_hbx_enrollment, @organizer.new_effective_on) %>
             <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>

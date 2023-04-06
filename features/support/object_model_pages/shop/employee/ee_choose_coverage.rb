@@ -38,4 +38,12 @@ class EmployeeChooseCoverage
   def self.member_dental_error
     '[data-cuke="member_dental_error"]'
   end
+
+  def self.waiver_drop_down_for_primary
+    '[id$="waiver_reasons_for_primary"]'
+  end
+
+  def self.waiver_reason_for_primary_health
+    'div.selectric-open li[data-index="6"]'
+  end
 end
