@@ -52,7 +52,7 @@ module BenefitSponsors
               @member_contributions[m_id] = member_price
             end
             member_discrepency = BigDecimal((@total_contribution - members_total_price).to_s).round(2)
-            @member_contributions[@primary_member_id] = BigDecimal((@member_contributions[@primary_member_id] + member_discrepency).to_s).round(2) 
+            @member_contributions[@primary_member_id] = BigDecimal((@member_contributions[@primary_member_id] + member_discrepency).to_s).round(2)
           else
             @member_ids.each do |m_id|
               @member_contributions[m_id] = 0.00

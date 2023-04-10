@@ -69,7 +69,7 @@ class SponsoredBenefits::Services::PlanCostService
           (sum + employee_cost_for(member, census_employee)).round(2)
         end).round(2)
       end
-      BigDecimal((per_employee_cost).to_s).round(2)
+      BigDecimal(per_employee_cost.to_s).round(2)
     end
   end
 
@@ -166,7 +166,7 @@ class SponsoredBenefits::Services::PlanCostService
     Rails.cache.fetch("premium_for_#{member.id}_#{plan.id}") do
       if contribution_offered_hash[relationship_for(member)]
         value = rate_lookup(age_of(member), member, census_employee, plan)
-        BigDecimal("#{value}").round(2).to_f
+        BigDecimal(value.to_s).round(2).to_f
       else
         0.00
       end
