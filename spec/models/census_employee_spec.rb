@@ -2747,6 +2747,80 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
+  describe "Employee enrolling for cobra" do
+
+    context "and employer reinstate employee as cobra", dbclean: :after_each do
+      # include_context "setup benefit market with market catalogs and product packages"
+      include_context 'setup initial benefit application'
+
+      let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year - 1, 6, 1)}
+      let(:coverage_kind) { 'health' }
+      let(:user) { FactoryGirl.create(:user)}
+      let(:person) { FactoryGirl.create(:person) }
+      let(:census_employee) do
+        ce = create(
+          :benefit_sponsors_census_employee,
+          employer_profile: employer_profile,
+          benefit_sponsorship: organization.active_benefit_sponsorship
+        )
+        employee_role = build(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+        ce.update_attributes({employee_role: employee_role})
+        Family.find_or_build_from_employee_role(employee_role)
+        ce
+      end
+
+      let(:employment_termination_date) { initial_application.start_on + 15.days }
+
+      context "when employee enrolled previously", dbclean: :after_each do
+        let(:benefit_group) { initial_application.benefit_packages.first}
+        let!(:active_bga) {  create(:benefit_sponsors_benefit_group_assignment, benefit_group: initial_application.benefit_packages.first, census_employee: census_employee) }
+
+        let!(:active_enrollment) do
+          create(
+            :hbx_enrollment,
+            household: census_employee.employee_role.person.primary_family.active_household,
+            coverage_kind: "health",
+            kind: "employer_sponsored",
+            effective_on: initial_application.start_on,
+            benefit_sponsorship_id: benefit_sponsorship.id,
+            sponsored_benefit_package_id: benefit_group.id,
+            employee_role_id: census_employee.employee_role.id,
+            benefit_group_assignment_id: active_bga.id,
+            aasm_state: "coverage_selected"
+          )
+        end
+
+        let(:cobra_begin_date) { employment_termination_date.end_of_month + 1.day }
+
+        before do
+          TimeKeeper.set_date_of_record_unprotected!(initial_application.start_on.next_month + 15.days)
+          census_employee.employee_role.update(census_employee_id: census_employee.id)
+          allow(census_employee).to receive(:employee_record_claimed?).and_return(true)
+          # census_employee.employee_role = (employee_role)
+          census_employee.terminate_employment(employment_termination_date)
+          census_employee.reload
+          census_employee.update_for_cobra(cobra_begin_date, user)
+          census_employee.reload
+        end
+
+        after do
+          TimeKeeper.set_date_of_record_unprotected!(Date.today)
+        end
+
+        it 'should reinstate employee cobra coverage' do
+          person.reload
+          cobra_enrollment = person.primary_family.active_household.hbx_enrollments.where(:effective_on => cobra_begin_date).first
+          expect(cobra_enrollment).to be_present
+        end
+
+        it 'should create new valid benefit group assignment' do
+          assignment = census_employee.benefit_group_assignments.where(start_on: cobra_begin_date).first
+          expect(assignment).to be_present
+        end
+      end
+    end
+  end
+
   describe "#is_terminate_possible" do
     let(:params) { valid_params.merge(:aasm_state => aasm_state) }
     let(:census_employee) { CensusEmployee.new(**params) }
