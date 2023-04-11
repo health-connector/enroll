@@ -497,13 +497,13 @@ module ApplicationHelper
     progress_bar_width = 0
     progress_bar_class = ''
     return if plan_year.nil?
-    return if plan_year.employer_profile.census_employees.active.count > 200
+    return if plan_year.sponsor_profile.census_employees.active.count > 200
 
-    eligible = plan_year.eligible_to_enroll_count
-    enrolled = plan_year.total_enrolled_count
+    eligible = plan_year.members_eligible_to_enroll_count
+    enrolled = plan_year.all_enrolled_and_waived_member_count
     non_owner = plan_year.progressbar_enrolled_non_business_owner_members.count
     covered = plan_year.progressbar_covered_count
-    waived = plan_year.waived_count
+    waived = plan_year.waived_member_count
     p_min = 0 if p_min.nil?
 
     unless eligible.zero?
