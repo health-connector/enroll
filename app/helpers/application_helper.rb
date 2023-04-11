@@ -492,6 +492,8 @@ module ApplicationHelper
   end
 
   def enrollment_progress_bar(plan_year, p_min, options = {:minimum => true})
+    start_time = Time.now.to_i
+    Rails.logger.debug("** Started enrollment_progress_bar with start_time - #{start_time}")
     progress_bar_width = 0
     progress_bar_class = ''
     return if plan_year.nil?
@@ -511,6 +513,8 @@ module ApplicationHelper
       progress_bar_width = (enrolled * 100)/eligible
     end
 
+    Rails.logger.debug("** Data fetch complete enrollment_progress_bar and took - #{(Time.now.to_i - start_time).to_i} seconds")
+
     content_tag(:div, class: 'progress-wrapper employer-dummy') do
       content_tag(:div, class: 'progress') do
         concat(content_tag(:div, class: "progress-bar #{progress_bar_class} progress-bar-striped", style: "width: #{progress_bar_width}%;", role: 'progressbar', aria: {valuenow: "#{enrolled}", valuemin: "0", valuemax: "#{eligible}"}, data: {value: "#{enrolled}"}) do
@@ -529,6 +533,7 @@ module ApplicationHelper
         concat(content_tag(:div, class: 'progress-val') do
           concat content_tag(:strong, '0', class: 'pull-left') if (options[:minimum] == false)
           concat content_tag(:strong, (options[:minimum] == false) ? eligible : '', data: {value: "#{eligible}"}, class: 'pull-right')
+          Rails.logger.debug("** content_tag complete enrollment_progress_bar and took - #{(Time.now.to_i - start_time).to_i} seconds")
         end)
       end
     end
