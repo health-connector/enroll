@@ -31,10 +31,14 @@
           td.text-capitalize#rpMetalLevel
           td.text-capitalize#rpNetwork
     .row
-      strong.pl-2 = l10n("employers.plan_years.estimated_monthly_cost_title")
+      strong.pl-2
+        = l10n("employers.plan_years.estimated_monthly_cost_title")
     .row
       .col-xs-4
         h2.heading-text.mt-0#rpEstimatedMonthlyCost
+      .col-xs-3
+        strong
+          = l10n("employers.plan_years.estimated_monthly_cost_description")
       .col-xs-2
         strong.mb-1 Min
         br
