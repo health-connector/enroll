@@ -910,6 +910,11 @@ And(/^Employee waives health plan$/) do
   find(EmployeeChooseCoverage.waive_health).click
 end
 
+And(/^Employee selects Waive reason for health$/) do
+  find(EmployeeChooseCoverage.waiver_drop_down_for_primary).click
+  find(EmployeeChooseCoverage.waiver_reason_for_primary_health).click
+end
+
 And(/^Employee waives health plan for dependent$/) do
   find_all(EmployeeChooseCoverage.waive_health).last.click
 end
@@ -1335,6 +1340,14 @@ end
 
 Then("Employee should see an error message") do
   expect(page).to have_content(EmployeeEnrollInAPlan.waived_error_message)
+end
+
+Then("Employee should not see an error message") do
+  expect(page).to_not have_content(EmployeeEnrollInAPlan.waived_error_message)
+end
+
+Then("Employee should see an error message about waiver reason") do
+  expect(page).to have_content(EmployeeEnrollInAPlan.select_waiver_reason_error_message)
 end
 
 Then("Employee should see an error message related to primary") do

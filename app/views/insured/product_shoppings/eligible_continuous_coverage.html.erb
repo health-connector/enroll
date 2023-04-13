@@ -17,7 +17,7 @@
           </tr>
           <tr>
             <td style="padding: 2px;">
-            <%= radio_button_tag('eligible_continue', 'no', false, 'data-href': thankyou_insured_product_shoppings_path(cart: @context.cart, event: @context.event))%>
+            <%= radio_button_tag('eligible_continue', 'no', false, 'data-href': thankyou_insured_product_shoppings_path(cart: @context.cart, event: @context.event, waiver_attrs: @context.waiver_enrollment_details))%>
               <%= label_tag("eligible_continue", "No") %>
             </td>
           </tr>

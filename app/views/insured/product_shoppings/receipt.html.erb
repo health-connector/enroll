@@ -35,7 +35,15 @@
               <% if value.hbx_enrollment.is_cobra_status? %>
                 <p><%= l10n("employer_cobra_message") %></p>
               <% end %>
-                <hr style="height:2px;border-width:0;color:gray;background-color:#80808026">
+              <hr class="waiver_line">
+            <% end %>
+
+            <% if @health_waiver.present? %>
+              <p><strong><%= l10n("insured.plan_shoppings.waiver_receipt.health_waiver_receipt_html", coverage_kind: @health_waiver.coverage_kind, updated_at: @health_waiver.updated_at, waiver_reason: @health_waiver.waiver_reason || @health_waiver.terminate_reason) %></strong></p>
+            <% end %>
+
+            <% if @dental_waiver.present? %>
+              <p><strong><%= l10n("insured.plan_shoppings.waiver_receipt.dental_waiver_receipt_html",coverage_kind: @dental_waiver.coverage_kind, updated_at: @dental_waiver.updated_at) %></strong></p>
             <% end %>
           </div>
           <%= link_to 'Print', '#', id: 'btnPrint', class: "btn btn-default interaction-click-control-print-purchase-confirmation" %>

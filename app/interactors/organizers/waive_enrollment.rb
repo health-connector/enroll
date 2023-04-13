@@ -8,6 +8,6 @@ module Organizers
       FindEnrollment,
       ConstructWaiverEnrollment,
       TriggerWaive
-]
+    ]
   end
 end

@@ -1,0 +1,14 @@
+.container#printArea
+  .employee-welocome
+    .row
+      .col-lg-9.col-md-9.col-sm-10.col-xs-12
+        .col-md-12.col-sm-12.no-pd.col-xs-12
+          = l10n("insured.plan_shoppings.waiver_receipt.waiver_receipt_header_html")
+          - if @health_enrollment.present?
+            = l10n("insured.plan_shoppings.waiver_receipt.health_waiver_receipt_html", coverage_kind: @health_enrollment.coverage_kind, updated_at: @health_enrollment.updated_at, waiver_reason: @health_enrollment.waiver_reason || @health_enrollment.terminate_reason)
+          .hr.waiver_line
+          - if @dental_enrollment.present?
+            = l10n("insured.plan_shoppings.waiver_receipt.dental_waiver_receipt_html",coverage_kind: @dental_enrollment.coverage_kind, updated_at: @dental_enrollment.updated_at)
+          = link_to l10n('print'), '#', id: 'btnPrint', class: "btn btn-default interaction-click-control-print-waiver-confirmation", style: "float:left;"
+      .col-lg-3.col-md-3.col-sm-3.col-xs-12.right-section.waiver_receipt
+        = render  partial: 'shared/signup_progress', locals: {step: '7'}
