@@ -2,7 +2,7 @@ require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-describe Factories::EnrollmentFactory, "starting with unlinked employee_family and employee_role", :dbclean => :after_each do
+describe Factories::EnrollmentFactory, "starting with unlinked employee_family and employee_role", :dbclean => :around_each do
   def p(model)
     model.class.find(model.id)
   end

@@ -1,9 +1,10 @@
 <table class="col-md-12 table-bordered">
   <tbody>
     <% @organizer.family_members.each_with_index do |family_member, index| %>
-    <%= hidden_field_tag("family_member_ids[#{index}]", family_member.id) if true%>
+    <%= hidden_field_tag("family_member_ids[#{index}]", family_member.id) %>
       <% is_health_coverage, is_dental_coverage = @organizer.coverage_eligibility[@organizer.benefit_package.id.to_s][family_member.id.to_s] %>
-
+      <% primary_or_dependent = family_member.is_primary_applicant? ? "primary" : "dependent" %>
+      <% is_primary = family_member.is_primary_applicant? %>
       <tr>
         <td class="table-cell" id="family_member_id_<%=family_member.id%>">
           <h4><strong><%= label_tag("family_member_id[#{family_member.id}]", "#{family_member.full_name} (Age : #{pluralize(calculate_age_by_dob(family_member.dob), 'year')})") %></strong></h4>
@@ -12,20 +13,32 @@
             <table class="col-md-12" id="family_member_id_<%=family_member.id%>_health">
               <tbody>
                 <tr>
-                  <td style="padding: 2px;"> <strong><%= label_tag("family_member_ids[#{index}]",  "Health Coverage") %></strong></td>
+                  <td style="padding: 2px;">
+                    <strong style="padding: 10px;"><%= label_tag("family_member_ids[#{index}]",  "Health Coverage") %></strong>
+                    <% if is_primary %>
+                      <td id="waiver_header_for_primary" style="padding: 2px;"><%="Reason for Waving Coverage" %></td>
+                    <% end %>
+                  </td>
                 </tr>
                 <tr>
                   <td class="table-cell">
                     <div class="radio-container">
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', true, 'data-cuke': 'health-enroll-radio') %>
+                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'enroll', true, 'data-cuke': 'health-enroll-radio', id: "health_enroll_#{primary_or_dependent}", onclick: "return on#{primary_or_dependent.titleize}HealthEnroll();") %>
                         <%= label_tag("health[enroll][#{index}]", "Enroll") %>
                       </div>
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio') %>
+                        <%= radio_button_tag("shopping_members[health][#{family_member.id}]", 'waive', false, 'data-cuke': 'health-waive-radio', id: "health_waive_#{primary_or_dependent}", onclick: "return on#{primary_or_dependent.titleize}HealthWaive();") %>
                         <%= label_tag("health[waive][#{index}]", "Waive") %>
                       </div>
                     </div>
+                  </td>
+                  <td>
+                    <% if is_primary %>
+                      <div id= "waiver_reasons_for_primary">
+                        <%= select_tag "waiver_reason", options_for_select(HbxEnrollment::WAIVER_REASONS), { include_blank: l10n("please_select_waive_reason")} %>
+                      </div>
+                    <% end %>
                   </td>
                 </tr>
               </tbody>
@@ -40,18 +53,20 @@
           <% if (can_display_dental_coverage?(is_dental_coverage) && ["shop_for_plans", "make_changes_for_dental", "change_by_qle", "sign_up"].include?(@organizer.event))%>
             <table class="col-md-12" id="family_member_id_<%=family_member.id%>_dental">
               <tbody>
-                <tr style="padding: 2px;">
-                  <td style="padding: 2px;"> <strong><%= label_tag("family_member_ids[#{index}]",  "Dental Coverage") %></strong> </td>
+                <tr>
+                  <td style="padding: 2px;">
+                    <strong style="padding: 10px;"><%= label_tag("family_member_ids[#{index}]",  "Dental Coverage") %></strong>
+                  </td>
                 </tr>
                 <tr>
                   <td class="table-cell">
                     <div class="radio-container">
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', true, 'data-cuke': 'dental-enroll-radio') %>
+                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]", 'enroll', true, 'data-cuke': 'dental-enroll-radio', id: "dental_enroll_#{primary_or_dependent}", onclick: "return on#{primary_or_dependent.titleize}DentalEnroll();") %>
                         <%= label_tag("dental[enroll][#{index}]", "Enroll") %>
                       </div>
                       <div class="radio-input">
-                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive', false, 'data-cuke': 'dental-waive-radio') %>
+                        <%= radio_button_tag("shopping_members[dental][#{family_member.id}]",  'waive', false, 'data-cuke': 'dental-waive-radio', id: "dental_waive_#{primary_or_dependent}", onclick: "return on#{primary_or_dependent.titleize}DentalWaive();") %>
                         <%= label_tag("dental[waive][#{index}]", "Waive") %>
                       </div>
                     </div>
@@ -72,3 +87,9 @@
     <% end %>
   </tbody>
 </table>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    hideWaiverDetails();
+  });
+</script>

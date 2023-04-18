@@ -35,7 +35,7 @@
         </table>
       </div>
       <div class="row">
-        <h4 class="pl-1"><b>Employer Estimated Monthly Cost</b></h4>
+        <h4 class="pl-1"><b><%= l10n("employers.plan_years.estimated_monthly_cost_title") %></b></h4>
       </div>
       <div class="row">
         <div class="col-xs-4">
@@ -43,7 +43,7 @@
           </h2>
         </div>
         <div class="col-xs-3">
-          <b>Estimated monthly cost for employees listed as "enroll" in the employer census</b>
+          <b><%= l10n("employers.plan_years.estimated_monthly_cost_description") %></b>
         </div>
         <div class="col-xs-2">
           <strong class="mb-1">Min</strong>
@@ -110,10 +110,10 @@
     </div>
   <% end %>
   <div>
-    <h3 class="inline"><b>Estimated Premiums </b></h3> <br/><br/>
-    <p class="para"> The Employer Reference Plan Contribution reflects the estimated monthly employer share of the premium for each employee based on the selected reference plan. The employer share of the premium will stay the same no matter which plan employees choose. </p>
-    <p class="para"> The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium. </p>
-    <p> Please note that rates are estimates, and final premium amounts are based on actual enrollment.</p>
+    <h3 class="inline"><b><%= l10n("employers.plan_years.benefit_package.estimated_premiums") %>  </b></h3> <br/><br/>
+    <p class="para"> <%= l10n("employers.plan_years.benefit_package.estimated_premiums_contribution_details1") %> </p>
+    <p class="para"> <%= l10n("employers.plan_years.benefit_package.estimated_premiums_contribution_details2") %> </p>
+    <p> <%= l10n("employers.plan_years.benefit_package.estimated_premiums_contribution_details3") %></p>
   </div>
   <%= link_to "<i class='fas fa-file-pdf'></i>".html_safe + ' Export Table to PDF', estimated_employee_cost_details_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship.id, @benefit_application.id, @benefit_package.id, kind: reference_product.kind.to_s, format: :pdf), method: :get, class: 'btn btn-default mb-1' %>
 
@@ -126,11 +126,11 @@
             Employee Name
           </div>
         </th>
-        <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
+        <th class="employer-row-bg"><strong><%= l10n("employers.plan_years.benefit_package.enroll_waive") %></strong></th>
         <th class="employer-row-bg">
           <div style="width: 150px;">
             <strong>
-              Employer Reference Plan Contribution
+              <%= l10n("employers.plan_years.benefit_package.reference_plan_contribution") %>
             </strong>
           </div>
         </th>

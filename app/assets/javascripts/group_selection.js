@@ -205,3 +205,94 @@ $(function(){
 		});
 	}
 })
+
+function onDependentHealthEnroll(e) {}
+function onDependentHealthWaive(e) {}
+function onDependentDentalEnroll(e) {}
+function onDependentDentalWaive(e) {}
+
+function onPrimaryHealthEnroll(e) {
+  hideWaiverDetails();
+  enableDependentHealthEnroll();
+  enableDependentHealthWaive();
+}
+
+function onPrimaryHealthWaive(e) {
+  showWaiverDetails();
+  checkAndDisableDependentsHealthWaivers();
+  DisableDependentsHealthEnroll();
+}
+
+function onPrimaryDentalEnroll(e) {
+  enableDependentDentalEnroll();
+  enableDependentDentalWaive();
+}
+
+function onPrimaryDentalWaive(e) {
+  checkAndDisableDependentsDentalWaivers();
+  DisableDependentsDentalEnroll();
+}
+
+function enableDependentHealthEnroll() {
+  $("[id^=health_enroll_dependent]").each(function (index) {
+    $("[id^=health_enroll_dependent]")[index].checked = true
+    $("[id^=health_enroll_dependent]")[index].disabled = false
+  });
+}
+
+function enableDependentHealthWaive() {
+  $("[id^=health_waive_dependent]").each(function (index) {
+    $("[id^=health_waive_dependent]")[index].disabled = false
+  });
+}
+
+function DisableDependentsHealthEnroll() {
+  $("[id^=health_enroll_dependent]").each(function (index) {
+    $("[id^=health_enroll_dependent]")[index].checked = false
+    $("[id^=health_enroll_dependent]")[index].disabled = true
+  });
+}
+
+function checkAndDisableDependentsHealthWaivers() {
+  $("[id^=health_waive_dependent]").each(function (index) {
+    $("[id^=health_waive_dependent]")[index].checked = true
+    $($("[id^=health_waive_dependent]")[index]).find(":radio:not(:checked)").prop({"disabled": true})
+  });
+}
+
+function checkAndDisableDependentsDentalWaivers() {
+  $("[id^=dental_waive_dependent]").each(function (index) {
+    $("[id^=dental_waive_dependent]")[index].checked = true
+    $($("[id^=dental_waive_dependent]")[index]).find(":radio:not(:checked)").prop({"disabled": true})
+  });
+}
+
+function DisableDependentsDentalEnroll() {
+  $("[id^=health_enroll_dependent]").each(function (index) {
+    $("[id^=dental_enroll_dependent]")[index].checked = false
+    $("[id^=dental_enroll_dependent]")[index].disabled = true
+  });
+}
+
+function enableDependentDentalEnroll() {
+  $("[id^=dental_enroll_dependent]").each(function (index) {
+    $("[id^=dental_enroll_dependent]")[index].checked = true
+    $("[id^=dental_enroll_dependent]")[index].disabled = false
+  });
+}
+
+function enableDependentDentalWaive() {
+  $("[id^=dental_waive_dependent]").each(function (index) {
+    $("[id^=dental_waive_dependent]")[index].disabled = false
+  });
+}
+
+function hideWaiverDetails() {
+  $("[id^=waiver_header_for_primary]").hide();
+  $("[id^=waiver_reasons_for_primary]").hide();
+}
+
+function showWaiverDetails() {
+  $("[id^=waiver_header_for_primary]").show();
+  $("[id^=waiver_reasons_for_primary]").show();
+}
