@@ -65,7 +65,7 @@
             </div>
           <% else %>
             <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12  <%=pundit_class Family, :updateable?%>">
-              <% event = @hbx_enrollments.present? ? "shop_for_plans" : "sign_up" %>
+              <% event = (@hbx_enrollments.present? || @employee_role&.is_under_open_enrollment?) ? "shop_for_plans" : "sign_up" %>
               <%= hidden_field_tag 'event', event %>
               <%= submit_tag l10n("insured.shop_for_plans"), class: "btn btn-default pull-right" %>
             </div>
