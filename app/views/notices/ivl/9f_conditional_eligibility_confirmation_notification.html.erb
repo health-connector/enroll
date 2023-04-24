@@ -76,7 +76,6 @@
     $ [Plan 1 Consumer Monthly Premium]"] } %>
 <% notice.other_enrollments.each do |enrollment| %>
 <% link_text = "Summary of Benefits and Coverage" %>
-<% link_text = "Plan Summary" unless enrollment.coverage_kind == "health" %>
 <%= render partial: 'notices/shared/paragraph', :locals => { content: "<u>#{enrollment.plan_name}</u>"} %>
 
 <%= render partial: 'notices/shared/unordered_list', :locals => { listings:

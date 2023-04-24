@@ -6,8 +6,6 @@
 <% plan_kind = (plan.try(:kind) || plan.try(:coverage_kind)).to_s %>
 <% text_class = "dental" unless plan_kind == "health" %>
 <% if plan.sbc_document.present? %>
-  <% link_text = "Plan Summary" unless plan_kind == "health" %>
-  <% link_text_class = "plan-summary" unless plan_kind == "health" %>
   <% icon_class = "pull-left" unless plan_kind == "health" %>
   <% key, bucket = get_key_and_bucket(plan.sbc_document.identifier) %>
   <% plan_name = plan.try(:title) || plan.try(:name) %>
