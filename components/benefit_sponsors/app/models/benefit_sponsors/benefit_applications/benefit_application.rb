@@ -399,6 +399,10 @@ module BenefitSponsors
       find_census_employees.active
     end
 
+    def active_census_employees_under_py
+      find_census_employees.active.census_employees_active_on(effective_period.min)
+    end
+
     def assigned_census_employees_without_owner
       benefit_sponsorship.census_employees.active.non_business_owner
     end
@@ -498,7 +502,7 @@ module BenefitSponsors
 
     def members_eligible_to_enroll
       return @members_eligible_to_enroll if defined? @members_eligible_to_enroll
-      @members_eligible_to_enroll ||= active_census_employees
+      @members_eligible_to_enroll ||= active_census_employees_under_py
     end
 
     def members_eligible_to_enroll_count
