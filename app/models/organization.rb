@@ -553,6 +553,11 @@ class Organization
   end
 
   class << self
+    # Doesn't show up until Rails 5 as ActiveModel::Type::Boolean.new.cast
+    def working_hours_as_bool(val)
+      (val.to_s.downcase != "false")
+    end
+
     def employer_profile_renewing_starting_on(date_filter)
       employer_profile_renewing_coverage.employer_profile_plan_year_start_on(date_filter)
     end
@@ -574,7 +579,7 @@ class Organization
       end
 
       if !search_params[:working_hours].blank?
-        query_params << {"broker_agency_profile.working_hours" => eval(search_params[:working_hours])}
+        query_params << {"broker_agency_profile.working_hours" => working_hours_as_bool(search_params[:working_hours])}
       end
 
       query_params
