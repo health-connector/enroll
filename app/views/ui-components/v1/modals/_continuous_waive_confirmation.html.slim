@@ -11,7 +11,7 @@
             = select_tag "waiver_reason", options_for_select(HbxEnrollment::WAIVER_REASONS), include_blank: l10n("please_select_waive_reason"), id: "waiver_reason_selection_dropdown"
           .modal-footer class="#{pundit_class Family, :updateable?}"
             button.btn.btn-default type="button" data-dismiss="modal" = l10n("close")
-            = submit_tag l10n("submit"), class: 'btn btn-primary', id: 'waiver_reason_submit', disabled: true
+            = button_tag l10n("submit"), class: 'btn btn-primary', type: 'button', id: 'waiver_reason_submit', disabled: true
       - else
         .modal-header
           button.close type="button" data-dismiss="modal" aria-label="Close"
@@ -19,3 +19,8 @@
           h4.modal-title = l10n("unable_to_waive_coverage")
         .modal-body
           = l10n("insured.plan_shoppings.you_can_not_waive_confirmation_msg")
+
+javascript:
+  document.getElementById('waiver_reason_submit').addEventListener('click', function() {
+    document.getElementById("waiver_reasons_selection_modal_form").submit()
+  })

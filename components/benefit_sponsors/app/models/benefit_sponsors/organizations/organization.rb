@@ -266,6 +266,10 @@ module BenefitSponsors
       end
 
       class << self
+        # Doesn't show up until Rails 5 as ActiveModel::Type::Boolean.new.cast
+        def working_hours_as_bool(val)
+          (val.to_s.downcase != "false")
+        end
 
         def default_search_order
           [[:legal_name, 1]]
@@ -331,7 +335,7 @@ module BenefitSponsors
           end
 
           if !search_params[:working_hours].blank?
-            query_params << { :"profiles.working_hours" => eval(search_params[:working_hours])}
+            query_params << { :"profiles.working_hours" => working_hours_as_bool(search_params[:working_hours])}
           end
 
           query_params

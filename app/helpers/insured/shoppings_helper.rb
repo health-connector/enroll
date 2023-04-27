@@ -12,22 +12,35 @@ module Insured
       output.all?(true) ? false : true
     end
 
-    def build_hash_to_checkout(context)
-      context.each_with_object({}) do |(k,v), output| # rubocop:disable Style/HashTransformValues
-
-        output[k] = {
-          :employee_role_id => v[:employee_role].id,
-          :enrollable => "true",
-          :enrollment_id => v[:enrollment].id,
-          :enrollment_kind => "open_enrollment",
-          :family_id => v[:family].id,
-          :market_kind => "employer_sponsored",
-          :product_id => v[:product].id,
-          :use_family_deductable => "true",
-          :waivable => "true",
-          :event => v[:event]
-        }
+    def build_hash_to_checkout(context, waiver_context = nil)
+      checkout_hash = context.each_with_object({}) do |(k,v), output| # rubocop:disable Style/HashTransformValues
+        output[k] = construct_hash_to_checkout(v)
       end
+
+      if waiver_context.present?
+        checkout_hash[:waiver_context] = waiver_context.each_with_object({}) do |(k,v), output| # rubocop:disable Style/HashTransformValues
+          output[k] = construct_hash_to_checkout(v)
+        end
+      end
+
+      checkout_hash
+    end
+
+    def construct_hash_to_checkout(value)
+      {
+        :employee_role_id => value[:employee_role].id,
+        :enrollable => "true",
+        :enrollment_id => value[:enrollment].id,
+        :enrollment_kind => "open_enrollment",
+        :coverage_kind => value[:enrollment].coverage_kind,
+        :waiver_reason => value[:waiver_reason],
+        :family_id => value[:family].id,
+        :market_kind => "employer_sponsored",
+        :product_id => value[:product]&.id,
+        :use_family_deductable => "true",
+        :waivable => "true",
+        :event => value[:event]
+      }
     end
 
     def can_display_health_coverage?(health_eligibility)

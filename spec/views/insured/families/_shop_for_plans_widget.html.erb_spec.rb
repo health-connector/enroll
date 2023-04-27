@@ -37,7 +37,7 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
       it 'should have title' do
         expect(rendered).to have_selector('strong', "Browse Health and Dental plans from carriers in the DC Health Exchange")
       end
-      
+
       it "should have image" do
         expect(rendered).to have_selector("img")
         expect(rendered).to match /shop_for_plan/
@@ -97,6 +97,30 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
       it "should not have the text 'You are not under open enrollment period.'" do
         render "insured/families/shop_for_plans_widget"
         expect(rendered).not_to have_content "You are not under open enrollment period."
+      end
+    end
+
+    context "during open enrollment period" do
+      before :each do
+        allow(view).to receive(:is_under_open_enrollment?).and_return(true)
+        @employee_role = employee_role
+        allow(employee_role).to receive(:is_under_open_enrollment?).and_return(true)
+      end
+
+      before :each do
+        assign :person, person
+        assign :employee_role, employee_role
+        assign :hbx_enrollments, []
+        assign :family, family
+        allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
+        sign_in(current_user)
+
+        render "insured/families/shop_for_plans_widget"
+      end
+
+      it "should not have link without change_plan" do
+        expect(rendered).not_to have_selector("input[type=hidden][value='sign_up']")
+        expect(rendered).to have_selector("form[action='/insured/group_selections/new']")
       end
     end
 

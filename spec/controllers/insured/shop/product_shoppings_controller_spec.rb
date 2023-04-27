@@ -217,4 +217,79 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       end
     end
   end
+
+  describe "GET #waiver_thankyou" do
+    context '#success' do
+      let!(:params) do
+        {"dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "dental_offering" => "true", "event" => "shop_for_plans",
+         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "health_offering" => "true"}
+      end
+
+      before do
+        sign_in user
+        get :waiver_thankyou, params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "context object should have dental and health" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).key?(:health)).to be_truthy
+        expect(assigns(:context).key?(:dental)).to be_truthy
+      end
+    end
+  end
+
+  describe "GET #waiver_checkout" do
+    context '#success' do
+      let!(:params) do
+        { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
+                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                       "family_id" => family.id, "market_kind" => "employer_sponsored",
+                       "product_id" => nil, "use_family_deductable" => "true", "waivable" => "true"},
+          "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
+                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                       "family_id" => family.id, "market_kind" => "employer_sponsored",
+                       "product_id" => nil, "use_family_deductable" => "true", "waivable" => "true"} }
+      end
+
+      before do
+        sign_in user
+        post :waiver_checkout, params
+      end
+
+      it "redirect to receipt page" do
+        expect(response).to redirect_to waiver_receipt_insured_product_shoppings_path(assigns(:context))
+      end
+
+      it "context object should have dental and health in cart" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).key?("health")).to be_truthy
+        expect(assigns(:context).key?("dental")).to be_truthy
+      end
+    end
+  end
+
+  describe "GET #waiver_receipt" do
+    context '#success' do
+      let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
+
+      let!(:params) do
+        {"health" => {"waiver_enrollment": health_enrollment.id }, "dental" => {"waiver_enrollment": dental_enrollment.id}}
+      end
+
+      before do
+        sign_in user
+        get :waiver_receipt, params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
 end
