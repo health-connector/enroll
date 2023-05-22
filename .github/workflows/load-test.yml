@@ -1,4 +1,9 @@
-k6_load_test:
+k6_load_test: Performance Test
+on:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
   name: k6 Load Test
   runs-on: ubuntu-latest
 
