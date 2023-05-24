@@ -1,5 +1,9 @@
 k6_load_test: Performance Test
 on:
+  push:
+    branches:
+     - rc-*
+
   schedule:
     - cron: "0 6 * * *"
 
