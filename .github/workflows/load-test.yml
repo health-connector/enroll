@@ -23,4 +23,4 @@ jobs:
       - name: Run cloud k6 test
         uses: k6io/action@v0.1
         with:
-          filename: test.js
+          filename: .github/test.js
