@@ -1,10 +1,10 @@
 k6_load_test: Performance Test
-on:
-  push:
-    branches:
-     - rc-* #testing
+# on:
+#   push:
+#     branches:
+#      - rc-* #testing
 
-jobs:
+# jobs:
   name: k6 Load Test
   runs-on: ubuntu-latest
 
