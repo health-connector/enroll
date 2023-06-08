@@ -2,7 +2,7 @@ k6_load_test: Performance Test
 on:
   push:
     branches:
-     - rc-*
+     - rc-* #testing
 
 jobs:
   name: k6 Load Test
