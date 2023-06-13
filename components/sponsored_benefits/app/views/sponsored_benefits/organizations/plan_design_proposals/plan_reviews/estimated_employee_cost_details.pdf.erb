@@ -40,7 +40,7 @@
             <th>
               <div style="width: 150px;">
                 <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
-                <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0) %><%= product_info[:product_name] %>
+                <%= l10n("employers.plan_years.benefit_package.reference_plan_heading").html_safe if (lower_lim == 0) %><%= product_info[:product_name] %>
               </div>
             </th>
           <% end %>
@@ -62,8 +62,8 @@
           <% end %>
         </tbody>
       </table>
-      <% lower_lim += 3 %>
-      <% upper_lim += 3 %>
+      <% lower_lim += 4 %>
+      <% upper_lim += 4 %>
       <% @items = products[lower_lim..upper_lim] %>
     <% end %>
   </div>
