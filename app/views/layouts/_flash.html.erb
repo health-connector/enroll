@@ -1,10 +1,35 @@
 <div class="row flash module">
   <div class="alert alert-<%= type %>">
     <div class="row">
-      <div class="col-xs-12">
-        <a class="close" data-dismiss="alert" href="#">×</a>
-        <%= raw message %>
-      </div>
+      <% if type == 'info' %>
+        <div class="container-fluid">
+          <div class="info-div">
+            <i class="fa fa-info-circle" aria-hidden="true"></i>
+          </div>
+          <div class="flash-msg">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <%= raw message %>
+          </div>
+        </div>
+      <% else %>
+        <div class="col-xs-12">
+          <a class="close" data-dismiss="alert" href="#">×</a>
+          <%= raw message %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
+
+
+<style type="text/css">
+  .info-div {
+    width: 4%;
+    float: left;
+  }
+
+  .flash-msg {
+    width: 96%;
+    float: left;
+  }
+</style>
