@@ -11,5 +11,7 @@ CENSUS_EMPLOYEE_TRANSLATIONS = {
   :'en.census_employee.dob_text' =>  "DATE OF BIRTH *",
   :'en.census_employee.ssn_text' =>  "SOCIAL SECURITY *",
   :'en.census_employee.linked_status' => "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to re-enroll.",
-  :'en.census_employee.eligible_status' => "Employee record updated, the employee is not currently account-linked and will need to register to enroll in coverage."
+  :'en.census_employee.eligible_status' => "Employee record updated, the employee is not currently account-linked and will need to register to enroll in coverage.",
+  :'en.census_employee.linked_ce_roster_changed' => "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to update their account.",
+  :'en.census_employee.eligible_ce_roster_changed' => "Employee’s record is updated. The employee will need to create an employee account to enroll in coverage."
 }.freeze
