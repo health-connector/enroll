@@ -1,5 +1,6 @@
+# frozen_string_literal: true
 
-Then (/^Hbx Admin sees Employees link$/) do
+Then(/^Hbx Admin sees Employees link$/) do
   expect(page).to have_text("Employees")
 end
 
