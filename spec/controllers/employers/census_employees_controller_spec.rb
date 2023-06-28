@@ -223,6 +223,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         end
 
         it "display success message" do
+          expect(flash[:info]).to eq "Employee record updated, the employee is not currently account-linked and will need to register to enroll in coverage."
           expect(flash[:notice]).to eq "Census Employee is successfully updated."
         end
 
@@ -230,6 +231,27 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           census_employee.reload
           expect(census_employee.active_benefit_group_assignment.benefit_package).to eq(second_benefit_package)
           expect(census_employee.active_benefit_group_assignment.benefit_package).to_not eq(first_benefit_package)
+        end
+      end
+
+      context 'when census employee is linked' do
+        before do
+          census_employee.link_employee_role!
+
+          census_employee_update_benefit_package_params = {
+            "first_name" => census_employee.first_name,
+            "middle_name" => "",
+            "last_name" => census_employee.last_name,
+            "gender" => "male",
+            "is_business_owner" => true,
+            "hired_on" => "05/02/2019"
+          }
+
+          post(:update, id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params)
+        end
+
+        it "display account linked success message" do
+          expect(flash[:info]).to eq "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to re-enroll."
         end
       end
 
