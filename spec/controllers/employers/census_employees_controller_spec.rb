@@ -255,6 +255,28 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         end
       end
 
+      context 'when roster composition changes' do
+        before do
+          census_employee.link_employee_role!
+
+          census_employee_update_benefit_package_params = {
+            "first_name" => census_employee.first_name,
+            "middle_name" => "",
+            "last_name" => census_employee.last_name,
+            "gender" => "male",
+            "is_business_owner" => true,
+            "hired_on" => "05/02/2019",
+            "census_dependents_attributes" => {"0" => {"first_name" => "test", "middle_name" => "", "last_name" => "test", "ssn" => "", "_destroy" => "false", "dob" => "2023-06-01", "gender" => "female", "employee_relationship" => "child_under_26"}}
+          }
+
+          post(:update, id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params)
+        end
+
+        it "display composition changed message" do
+          expect(flash[:info]).to eq "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to update their account."
+        end
+      end
+
       it "with no benefit_group_id" do
         post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params
         expect(flash[:notice]).to eq "Census Employee is successfully updated. Note: new employee cannot enroll on #{Settings.site.short_name} until they are assigned a benefit group."
