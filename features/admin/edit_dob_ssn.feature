@@ -35,7 +35,7 @@ Feature: Update DOB and SSN
 
  Scenario: Admin enters invalid DOB or SSN
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
-    And the user is on the Family Index of the Admin Dashboard
+    And the user is on the Employees Index of the Admin Dashboard
     When the user clicks Action for that Employer
     Then the user will see the Edit DOB SSN button
     When user clicks on edit DOB/SSN link
@@ -45,7 +45,7 @@ Feature: Update DOB and SSN
 
  Scenario: Admin enters valid DOB or SSN
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
-    And the user is on the Family Index of the Admin Dashboard
+    And the user is on the Employees Index of the Admin Dashboard
     When the user clicks Action for that Employer
     Then the user will see the Edit DOB SSN button
     When user clicks on edit DOB/SSN link
