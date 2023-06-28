@@ -8,7 +8,7 @@ Feature: Update APTC and CSR
             When Hbx Admin logs on to the Hbx Portal
             And I select the all security question and give the answer
             When I have submitted the security questions
-            Then Hbx Admin sees Families link
+            Then Hbx Admin sees Employees link
             When Hbx Admin clicks on the Families tab
             Then Hbx Admin should see the list of primary applicants and an Action button
             When Hbx Admin clicks on the Action button

@@ -76,9 +76,9 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employers').click
 end
 
-And(/^the user is on the Family Index of the Admin Dashboard$/) do
+And(/^the user is on the Employees Index of the Admin Dashboard$/) do
   visit exchanges_hbx_profiles_path
-  find('.interaction-click-control-families').click
+  find('.interaction-click-control-employees').click
 end
 
 When(/^the user clicks Action for that Employer$/) do
