@@ -20,6 +20,7 @@ class Employers::CensusEmployeesController < ApplicationController
 
     if @census_employee.save
       flash[:notice] = "Census Employee is successfully created."
+      flash[:info] = t('census_employee.created')
       if @census_employee.active_benefit_group_assignment.blank?
         flash[:notice] = "Your employee was successfully added to your roster."
       end

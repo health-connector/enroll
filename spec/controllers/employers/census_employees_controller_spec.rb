@@ -95,6 +95,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         allow(census_employee).to receive(:active_benefit_group_assignment).and_return(true)
         post :create, :employer_profile_id => employer_profile_id, census_employee: {}
         expect(flash[:notice]).to eq "Census Employee is successfully created."
+        expect(flash[:info]).to eq "Your employee’s record is created. The employee will need to create an employee account, to link to your employer account, and enroll if they meet the plan year’s eligibility criteria."
       end
     end
 
