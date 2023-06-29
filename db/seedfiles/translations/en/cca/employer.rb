@@ -22,6 +22,7 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.benefit_package.estimated_premiums_contribution_details2' => "The amounts listed across from each of the available plans reflect the estimated monthly employee share of the premium.",
   :'en.employers.plan_years.benefit_package.estimated_premiums_contribution_details3' => "Please note that rates are estimates, and final premium amounts are based on actual enrollment.",
   :'en.employers.plan_years.benefit_package.reference_plan_contribution' => "Employer Reference Plan Contribution",
+  :'en.employers.plan_years.benefit_package.reference_plan_heading' => "<b>(Reference Plan)</b><br/>",
   :'en.employers.plan_years.benefit_package.enroll_waive' => "Enroll/Waive",
   :'en.employers.plan_years.benefit_package.estimated_premiums' => "Estimated Premiums",
   :'en.employers.employer_profiles.my_account.important_documents_needed' => "Important Documents Needed",
