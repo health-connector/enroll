@@ -2,6 +2,7 @@ Feature: Add, Edit and Delete security questions
 
   Background: Setup Site
     Given a CCA site exists with a benefit market
+    Given all admin tab display features are enabled
 
   Scenario: Hbx Admin can add new security question
     Given Admin is a person
