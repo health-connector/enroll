@@ -432,5 +432,6 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.plans_for' => "Plans:",
   :'en.effective_date_for' => "Effective Date:",
   :'en.insured.email_text' => "EMAIL *",
-  :'en.insured.select_kind_text' => "SELECT KIND *"
+  :'en.insured.select_kind_text' => "SELECT KIND *",
+  :'en.outside_service_area_waiver_error' => "Please contact member services at (800) 813-9220 to confirm your waiver reason of living outside of the plans' service area."
 }.freeze

@@ -242,6 +242,37 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         expect(assigns(:context).key?(:dental)).to be_truthy
       end
     end
+
+    context 'outside service area waiver reason' do
+      let!(:params) do
+        {"dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "dental_offering" => "true", "event" => "shop_for_plans",
+         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored", "waiver_reason" => "I am outside of the plan’s service area"},
+         "health_offering" => "true"}
+      end
+
+      before do
+        request.env["HTTP_REFERER"] = '/'
+        sign_in user
+        get :waiver_thankyou, params
+      end
+
+      context 'with admin user' do
+        let!(:user) { FactoryGirl.create(:user, :hbx_staff, person: ee_person)}
+
+        it "returns http success" do
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      context 'without admin user' do
+        let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+
+        it "returns http success" do
+          expect(response).to have_http_status(:redirect)
+        end
+      end
+    end
   end
 
   describe "GET #waiver_checkout" do
