@@ -39,7 +39,7 @@ class HbxEnrollment
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
 
-
+  OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan’s service area".freeze
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",
       "I have coverage through parent’s employer health plan",
@@ -47,7 +47,8 @@ class HbxEnrollment
       "I have coverage through an individual market health plan",
       "I have coverage through Medicare",
       "I have coverage through Tricare",
-      "I have coverage through Medicaid"
+      "I have coverage through Medicaid",
+      OUTSIDE_SERVICE_AREA_WAIVER_REASON
   ]
   CAN_TERMINATE_ENROLLMENTS = %w(coverage_termination_pending coverage_selected auto_renewing renewing_coverage_selected enrolled_contingent unverified coverage_enrolled)
 

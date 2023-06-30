@@ -36,7 +36,7 @@
                   <td>
                     <% if is_primary %>
                       <div id= "waiver_reasons_for_primary">
-                        <%= select_tag "waiver_reason", options_for_select(HbxEnrollment::WAIVER_REASONS), { include_blank: l10n("please_select_waive_reason")} %>
+                        <%= select_tag "waiver_reason", options_for_select(HbxEnrollment::WAIVER_REASONS), { include_blank: l10n("please_select_waive_reason"), onchange: "onWaiverReasonSelect(this, #{current_user.person.hbx_staff_role.present?})"} %>
                       </div>
                     <% end %>
                   </td>

@@ -296,3 +296,13 @@ function showWaiverDetails() {
   $("[id^=waiver_header_for_primary]").show();
   $("[id^=waiver_reasons_for_primary]").show();
 }
+
+function onWaiverReasonSelect(elem, isAdmin) {
+  if (elem.value == "I am outside of the plan’s service area" && !isAdmin) {
+    $(".interaction-click-control-shop-for-new-plan").attr("disabled", true);
+    $('.outside_service_area_waiver_error').removeClass('hidden');
+  } else {
+    $(".interaction-click-control-shop-for-new-plan").attr("disabled", false);
+    $('.outside_service_area_waiver_error').addClass('hidden');
+  }
+}

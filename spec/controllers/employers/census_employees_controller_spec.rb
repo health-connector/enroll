@@ -224,7 +224,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         end
 
         it "display success message" do
-          expect(flash[:info]).to eq "Employee record updated, the employee is not currently account-linked and will need to register to enroll in coverage."
+          expect(flash[:info]).to eq "Employee’s record is updated. The employee will need to create an employee account to enroll in coverage."
           expect(flash[:notice]).to eq "Census Employee is successfully updated."
         end
 
@@ -252,7 +252,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         end
 
         it "display account linked success message" do
-          expect(flash[:info]).to eq "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to re-enroll."
+          expect(flash[:info]).to eq "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to update their account."
         end
       end
 
