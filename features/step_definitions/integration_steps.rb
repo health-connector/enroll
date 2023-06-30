@@ -1353,3 +1353,15 @@ end
 Then("Employee should see an error message related to primary") do
   expect(page).to have_content(EmployeeEnrollInAPlan.primary_error_message)
 end
+
+Given(/admin issuers tab display feature is enabled/) do
+  EnrollRegistry[:admin_issuers_tab_display].feature.stub(:is_enabled).and_return(true)
+end
+
+Given(/admin products tab display feature is enabled/) do
+  EnrollRegistry[:admin_products_tab_display].feature.stub(:is_enabled).and_return(true)
+end
+
+Given(/admin inbox tab display feature is enabled/) do
+  EnrollRegistry[:admin_inbox_tab_display].feature.stub(:is_enabled).and_return(true)
+end
