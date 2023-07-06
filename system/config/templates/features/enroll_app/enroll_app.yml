@@ -32,3 +32,9 @@ registry:
         is_enabled: true
       - key: display_estimated_employee_costs
         is_enabled: true
+      - key: :admin_issuers_tab_display
+        is_enabled: <%= ENV['ADMIN_ISSUERS_TAB_DISPLAY_IS_ENABLED'] || false %>
+      - key: :admin_products_tab_display
+        is_enabled: <%= ENV['ADMIN_PRODUCTS_TAB_DISPLAY_IS_ENABLED'] || false %>
+      - key: :admin_inbox_tab_display
+        is_enabled: <%= ENV['ADMIN_INBOX_TAB_DISPLAY_IS_ENABLED'] || false %>
