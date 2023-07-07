@@ -11,9 +11,9 @@ module BenefitSponsors
       attribute :end_on, String
       attribute :open_enrollment_start_on, String
       attribute :open_enrollment_end_on, String
-      attribute :fte_count, Integer, default: 0
-      attribute :pte_count, Integer, default: 0
-      attribute :msp_count, Integer, default: 0
+      attribute :fte_count, Integer
+      attribute :pte_count, Integer
+      attribute :msp_count, Integer
       attribute :benefit_packages, Array[BenefitSponsors::Forms::BenefitPackageForm]
 
       attribute :id, String
@@ -27,9 +27,10 @@ module BenefitSponsors
       validates :open_enrollment_start_on, presence: true
       validates :open_enrollment_end_on, presence: true
 
-      validates_presence_of :fte_count, :pte_count, :msp_count, :benefit_sponsorship_id
+      validates_presence_of :fte_count, :benefit_sponsorship_id
 
       validate :validate_oe_dates
+      validate :fte_count_greater_than_zero
       # validates :validate_application_dates
       attr_reader :service, :show_page_model
 
@@ -133,6 +134,9 @@ module BenefitSponsors
         benefit_packages.present? ? benefit_packages.first.service.benefit_application.is_renewing? : false
       end
 
+      def fte_count_greater_than_zero
+        errors.add(:fte_count, "Full Time Employees must be greater than 0") if fte_count && fte_count <= 0
+      end
     end
   end
 end

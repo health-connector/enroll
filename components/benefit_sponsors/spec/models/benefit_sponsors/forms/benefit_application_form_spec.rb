@@ -26,7 +26,8 @@ module BenefitSponsors
           :start_on => TimeKeeper.date_of_record + 3.months,
           :end_on => TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
           :open_enrollment_start_on => TimeKeeper.date_of_record + 2.months,
-          :open_enrollment_end_on => TimeKeeper.date_of_record + 2.months + 20.day
+          :open_enrollment_end_on => TimeKeeper.date_of_record + 2.months + 20.day,
+          :fte_count => 2
         }
       }
 
@@ -142,7 +143,7 @@ module BenefitSponsors
 
     describe ".persist" do
       let(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
-      let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application)}
+      let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, fte_count: 2)}
       let!(:service_object) { double("BenefitApplicationService")}
       context "save request received" do
         it "should save successfully if update request received false" do
@@ -171,6 +172,22 @@ module BenefitSponsors
           expect(benefit_application_form.persist(update: true)).to be_falsy
         end
       end
+
+      context 'when fte less than 0' do
+        let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, fte_count: 0)}
+
+        it "should return false on valid" do
+          expect(benefit_application_form.valid?).to be_falsy
+        end
+      end
+
+      context 'when fte greater than 0' do
+        let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, fte_count: 2)}
+
+        it "should return true on valid" do
+          expect(benefit_application_form.valid?).to be_truthy
+        end
+      end
     end
 
     describe 'validate form for dt action' do
@@ -181,7 +198,8 @@ module BenefitSponsors
           start_on: TimeKeeper.date_of_record + 3.months,
           end_on: TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
           open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months),
-          open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day)
+          open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day),
+          fte_count: 2
         }
       }
 
