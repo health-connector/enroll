@@ -56,11 +56,10 @@
                 = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'staff', link_path: main_app.staff_index_exchanges_hbx_profiles_path, display_name: 'Staff', active_tab: 'staff' }
               li
                 = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'users-orphans', link_path: main_app.users_orphans_path, display_name: 'Orphan Accounts', active_tab: 'users-orphans' }
-          - if EnrollRegistry[:admin_inbox_tab_display].feature.is_enabled
-            li.pl-1 role="presentation" class="#{pundit_class HbxProfile, :view_admin_tabs?}"
-              = link_to(main_app.inbox_exchanges_hbx_profile_path(1), :remote => true, class: 'visible', "aria-expanded" => "true", "aria-controls" => "inbox", "role" => "tab" ) do
-                | Inbox
-                span.badge.ml-half = @unread_messages
+          li.pl-1 role="presentation" class="#{pundit_class HbxProfile, :view_admin_tabs?}"
+            = link_to(main_app.inbox_exchanges_hbx_profile_path(1), :remote => true, class: 'visible', "aria-expanded" => "true", "aria-controls" => "inbox", "role" => "tab" ) do
+              | Inbox
+              span.badge.ml-half = @unread_messages
           li.pl-1 role="presentation" class="#{pundit_class HbxProfile, :view_admin_tabs?}"
             = link_to(notifier.notice_kinds_path, "aria-expanded" => "true", "aria-controls" => "notices", "role" => "tab" ) do
               | Notices
