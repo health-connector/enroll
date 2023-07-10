@@ -1362,12 +1362,7 @@ Given(/admin products tab display feature is enabled/) do
   EnrollRegistry[:admin_products_tab_display].feature.stub(:is_enabled).and_return(true)
 end
 
-Given(/admin inbox tab display feature is enabled/) do
-  EnrollRegistry[:admin_inbox_tab_display].feature.stub(:is_enabled).and_return(true)
-end
-
 Given(/all admin tab display features are enabled/) do
   EnrollRegistry[:admin_issuers_tab_display].feature.stub(:is_enabled).and_return(true)
   EnrollRegistry[:admin_products_tab_display].feature.stub(:is_enabled).and_return(true)
-  EnrollRegistry[:admin_inbox_tab_display].feature.stub(:is_enabled).and_return(true)
 end
