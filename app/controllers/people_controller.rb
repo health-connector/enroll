@@ -192,22 +192,24 @@ class PeopleController < ApplicationController
     @person = find_person(params[:id])
     @family = @person.primary_family
     @person.updated_by = current_user.oim_id unless current_user.nil?
-    if @person.has_active_consumer_role? && request.referer.include?("insured/families/personal")
-      update_vlp_documents(@person.consumer_role, 'person')
-      redirect_path = personal_insured_families_path
-    else
-      redirect_path = family_account_path
-    end
+
+    can_update_vlp = @person.has_active_consumer_role? && request.referer.include?("insured/families/personal")
+    update_vlp_documents(@person.consumer_role, 'person') if can_update_vlp
+
     if @person.has_active_consumer_role?
       @person.consumer_role.check_for_critical_changes(person_params, @family)
     end
     respond_to do |format|
       @person.assign_attributes(person_params.except(:is_applying_coverage))
+
+      redirect_path = personal_insured_families_path
+      info_flash = "#{t('insured.address_updated')} <div class='mt-1'><a href='/insured/families/find_sep' style='text-decoration: underline;'>#{t('insured.shop_with_sep')}</a></div>".html_safe if @person.home_address.changed?
+
       update_census_employee(@person)
 
       if @person.save
         @person.consumer_role.update_attribute(:is_applying_coverage, person_params[:is_applying_coverage]) if @person.consumer_role.present?
-        format.html { redirect_to redirect_path, notice: 'Person was successfully updated.' }
+        format.html { redirect_to redirect_path, :flash => { :notice => 'Person was successfully updated.', :info => info_flash }  }
         format.json { head :no_content }
       else
         if @person.has_active_consumer_role?
