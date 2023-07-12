@@ -48,7 +48,7 @@
     <h3><strong><%= l10n('add_member_header') %></strong></h3>
     <p><%= l10n('add_member_description') %></p>
     <%= link_to new_insured_family_member_path(:family_id => @family.id), :remote => true, :class => "btn btn-primary " do
-      "<i class='fa fa-user-plus'></i> #{l10n('add_member')}".html_safe
+      "#{l10n('add_member')}".html_safe
     end
     %>
   </div>
