@@ -779,7 +779,7 @@ Then(/^.+ should see (\d+) dependents*$/) do |n|
 end
 
 When(/^.+ clicks? Add Member$/) do
-  click_link("Add Member", :visible => true)
+  click_link("Add New Member to Family", :visible => true)
 end
 
 Then(/^.+ should see the new dependent form$/) do
@@ -816,7 +816,7 @@ end
 
 When(/^.+ clicks? confirm member$/) do
   all(:css, ".mz").last.click
-  expect(page).to have_link('Add Member')
+  expect(page).to have_link('Add New Member to Family')
 end
 
 When(/^.+ clicks? continue on the dependents page$/) do
