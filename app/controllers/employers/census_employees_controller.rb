@@ -313,7 +313,11 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def update_cobra
-    return flash[:notice] = "Successfully update Census Employee." if @census_employee.update_for_cobra(@cobra_date, current_user)
+    if @census_employee.update_for_cobra(@cobra_date, current_user)
+      flash[:notice] = "Successfully update Census Employee."
+      flash[:success] = t('census_employee.update_cobra_text')
+      return
+    end
 
     set_cobra_error_flash
   end

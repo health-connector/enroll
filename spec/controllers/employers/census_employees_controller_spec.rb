@@ -579,6 +579,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         allow(census_employee).to receive(:update_for_cobra).and_return true
         xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
         expect(flash[:notice]).to eq "Successfully update Census Employee."
+        expect(flash[:success]).to eq "Employee has successfully been  enrolled into COBRA coverage on selected start date."
         expect(response).to have_http_status(:success)
       end
 
