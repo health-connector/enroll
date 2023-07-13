@@ -1049,7 +1049,7 @@ end
 Then /^employer should see Enter effective date for (.*?) Action/ do |action_name|
   case action_name
   when "Initiate cobra"
-    page_text = "Enter effective date for COBRA coverage to begin"
+    page_text = "NOTE: After selecting 'Initiate COBRA', the employee will be immediately be enrolled into COBRA."
     id = 'cobra-enter-date'
   end
 
