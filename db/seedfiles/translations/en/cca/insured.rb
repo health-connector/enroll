@@ -69,7 +69,9 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.self' => "Self",
   :'en.insured.families.add_or_remove_family_html' => "You have added/removed a family member to your profile. <br>You may qualify for a special enrollment period.",
   :'en.date_label' => "Date",
-  :'en.add_member' => "Add Member",
+  :'en.add_member' => "Add New Member to Family",
+  :'en.add_member_header' => "Adding a Member to Your Family",
+  :'en.add_member_description' => "If you add a member to your family, the new member will not be automatically added to your existing coverage.",
   :'en.choose_files' => "Choose Files",
   :'en.upload' => "Upload",
   :'en.accept' => "Accept",
@@ -433,5 +435,9 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.effective_date_for' => "Effective Date:",
   :'en.insured.email_text' => "EMAIL *",
   :'en.insured.select_kind_text' => "SELECT KIND *",
-  :'en.outside_service_area_waiver_error' => "Please contact member services at (800) 813-9220 to confirm your waiver reason of living outside of the plans' service area."
+  :'en.outside_service_area_waiver_error' => "Please contact member services at (800) 813-9220 to confirm your waiver reason of living outside of the plans' service area.",
+  :'en.insured.address_updated' => "You have updated your home address and may qualify for a special enrollment period.",
+  :'en.insured.shop_with_sep' => "Shop with special enrollment period",
+  :'en.insured.family_member_added' => "A family member has been added to your profile, the new member will not be automatically added to your coverage. You may qualify for a special enrollment period.",
+  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period."
 }.freeze
