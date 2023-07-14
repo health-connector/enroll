@@ -111,6 +111,7 @@ module SponsoredBenefits
         "tax_exempt_organization",
         "c_corporation",
         "s_corporation",
+        "sole_proprietor",
         "partnership",
         "limited_liability_corporation",
         "limited_liability_partnership",
