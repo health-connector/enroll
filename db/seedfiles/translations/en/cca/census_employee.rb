@@ -14,5 +14,9 @@ CENSUS_EMPLOYEE_TRANSLATIONS = {
   :'en.census_employee.eligible_status' => "Employee’s record is updated. The employee will need to create an employee account to enroll in coverage.",
   :'en.census_employee.created' => "Your employee’s record is created. The employee will need to create an employee account, to link to your employer account, and enroll if they meet the plan year’s eligibility criteria.",
   :'en.census_employee.linked_ce_roster_changed' => "Employee record updated. NOTE: These changes will not update any existing coverage. Any household composition changes will require the employee to update their account.",
-  :'en.census_employee.eligible_ce_roster_changed' => "Employee’s record is updated. The employee will need to create an employee account to enroll in coverage."
+  :'en.census_employee.eligible_ce_roster_changed' => "Employee’s record is updated. The employee will need to create an employee account to enroll in coverage.",
+  :'en.census_employee.update_cobra_text' => "Employee has successfully been  enrolled into COBRA coverage on selected start date.",
+  :'en.census_employee.initiate_cobra' => "Initiate Cobra",
+  :'en.census_employee.cobra_eligibility_text' => "Note: This is not a notice of COBRA eligibility.",
+  :'en.census_employee.initiate_cobra_notes' => "After selecting 'Initiate COBRA', the employee will be eligible to be enrolled in COBRA one day after the termination end date.",
 }.freeze
