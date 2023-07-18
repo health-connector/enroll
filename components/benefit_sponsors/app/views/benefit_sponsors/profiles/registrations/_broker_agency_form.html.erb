@@ -4,11 +4,11 @@
     <div class="tab-content" id="myTabContent">
       <div id="broker_agency_form" class="container">
         <div class="row">
-          <%= f.fields_for :staff_roles, @agency.staff_roles, errors: {}, fieldset: false do |f| %>
+          <%= registration_form.fields_for :staff_roles, @agency.staff_roles, errors: {}, fieldset: false do |f| %>
             <%= render "benefit_sponsors/profiles/broker_agencies/broker_agency_profiles/person_info_fields", f: f %>
           <% end %>
 
-          <%= f.fields_for :organization, @agency.organization, errors: {}, fieldset: false do |f| %>
+          <%= registration_form.fields_for :organization, @agency.organization, errors: {}, fieldset: false do |f| %>
             <%= f.hidden_field(:entity_kind, value: f.object.entity_kind) %>
             <div class="row">
               <div class="col-md-9 col-sm-9 col-xs-12">
@@ -25,6 +25,12 @@
                   </div>
                   <div class="row no-buffer row-form-wrapper">
                     <%= render "benefit_sponsors/shared/broker_agency_profile_fields", f: f, read_only_dropdown: 'read_only_dropdown' %>
+                  </div><br>
+                  <div>
+                    <h4>Contact Information</h4>
+                    <div class="row no-buffer row-form-wrapper">
+                      <%= render "benefit_sponsors/shared/broker_agency_contact_information", form: registration_form %>
+                    </div>
                   </div><br>
                   <div class="action-group">
                     <% if (aca_broker_routing_information && @agency.profile_type == "broker_agency") %>
