@@ -692,7 +692,6 @@ And(/^employer (.*) (.*) contribution percent for the application$/) do |create_
 end
 
 Then(/^employer should see create plan year button disabled$/) do
-  binding.pry
   expect(find("#submitBenefitPackage").disabled? || find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
 end
 
