@@ -42,13 +42,13 @@ h1.heading-text Add Benefit Package
     .row.row-form-wrapper#uic-wrapper
       .col-md-4.col-sm-12
         label for="inputFTE" = l10n("employers.plan_years.fte_label")
-        = f.text_field :fte_count, class: "", required: true, placeholder: '##', id:'fteEmployee', onblur:'checkEmployeeCount(this)'
+        = f.text_field :fte_count, required: true, placeholder: '##', id:'fteEmployee', onchange:'checkEmployeeCount(this)'
       .col-md-4.col-sm-12
         label for="inputPTE" = l10n("employers.plan_years.pte_label")
-        = f.text_field :pte_count, class: "", required: false, placeholder: '##', id:'pteEmployee'
+        = f.text_field :pte_count, required: false, placeholder: '##', id:'pteEmployee'
       .col-md-4.col-sm-12
         label for="inputMSP" = l10n("employers.plan_years.msp_label")
-        = f.text_field :msp_count, class: "", required: false, placeholder: '##', id:'medSecPayers'
+        = f.text_field :msp_count, required: false, placeholder: '##', id:'medSecPayers'
 
 #recommend_dates.hidden.mt-1
   = render "benefit_sponsors/benefit_applications/benefit_applications/recommend_dates"
@@ -67,6 +67,7 @@ javascript:
   function selectedDate(element) {
     showHideRecommendDates(element.value);
     setDefaultDates();
+    checkEmployeeCount(element);
   }
 
   function setDueDates(id,newvalue) {
@@ -128,10 +129,10 @@ javascript:
       employeeCounts.fte = element.value
     }
 
-    if (employeeCounts.fte >= 1) {
-      document.getElementById('benefitContinueBtn').classList.remove('disabled')
+    if (employeeCounts.fte >= 1 && defaultOEStartOn && defaultOEEndOn) {
+      document.getElementById('benefitContinueBtn').disabled = false;
     } else {
-      document.getElementById('benefitContinueBtn').classList.add('disabled')
+      document.getElementById('benefitContinueBtn').disabled = true;
     }
   }
 

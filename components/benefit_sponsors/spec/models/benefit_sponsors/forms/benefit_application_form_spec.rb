@@ -188,6 +188,14 @@ module BenefitSponsors
           expect(benefit_application_form.valid?).to be_truthy
         end
       end
+
+      context 'when fte is empty str' do
+        let(:benefit_application_form) { FactoryGirl.build(:benefit_sponsors_forms_benefit_application, fte_count: '')}
+
+        it "should return true on valid" do
+          expect(benefit_application_form.valid?).to be_falsey
+        end
+      end
     end
 
     describe 'validate form for dt action' do
