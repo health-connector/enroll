@@ -8,7 +8,7 @@ module BenefitSponsors
 
       def email
         if is_broker_profile?
-          object.home_email.address
+          object.home_email&.address
         else
           object.work_email_or_best
         end
