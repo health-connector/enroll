@@ -135,7 +135,7 @@ module BenefitSponsors
       end
 
       def fte_count_greater_than_zero
-        errors.add(:fte_count, "Full Time Employees must be greater than 0") if fte_count && fte_count <= 0
+        errors.add(:fte_count, "Full Time Employees must be greater than 0") if fte_count.present? && fte_count <= 0
       end
     end
   end

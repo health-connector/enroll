@@ -625,7 +625,7 @@ And(/^.+ should see a success message after clicking on save plan year button$/)
 end
 
 Then(/^employer should see continue button disabled$/) do
-  expect(find("#benefitContinueBtn")[:class].include?('disabled')).to eql true
+  expect(find("#benefitContinueBtn").disabled?).to eql true
 end
 
 And(/^employer filled all the fields on benefit application form$/) do
@@ -692,7 +692,7 @@ And(/^employer (.*) (.*) contribution percent for the application$/) do |create_
 end
 
 Then(/^employer should see create plan year button disabled$/) do
-  expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
+  expect(find("#submitBenefitPackage").disabled? || find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
 end
 
 Then(/^employer should see employer estimated montly cost$/) do
@@ -1059,9 +1059,9 @@ end
 
 And(/^employer should see that the create plan year is (.*)$/) do |plan_year_btn_enabled|
   if plan_year_btn_enabled == 'true'
-    expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql false
+    expect(find("#submitBenefitPackage").disabled?).to eql false
   else
-    expect(find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
+    expect(find("#submitBenefitPackage").disabled?).to eql true
   end
 end
 
