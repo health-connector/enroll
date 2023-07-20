@@ -11,6 +11,14 @@ module BenefitMarkets
         expect(subject.errors.has_key?(:active_year)).to be_truthy
       end
 
+      it "requires start_on date" do
+        expect(subject.errors.has_key?(:start_on)).to be_truthy
+      end
+
+      it "requires an end_on date" do
+        expect(subject.errors.has_key?(:end_on)).to be_truthy
+      end
+
       it "requires an issuer provided code" do
         expect(subject.errors.has_key?(:issuer_provided_code)).to be_truthy
       end
@@ -46,7 +54,7 @@ module BenefitMarkets
 
     describe "created for a given zip code and county in a state", :dbclean => :after_each do
       let(:county_zip) { ::BenefitMarkets::Locations::CountyZip.create!(county_name: "Hampshire", zip: "01001", state: "MA") }
-      let(:service_area) { ::BenefitMarkets::Locations::ServiceArea.create!(active_year: TimeKeeper.date_of_record.year, county_zip_ids: [county_zip.id], issuer_provided_code: "Some issuer code", issuer_profile_id: BSON::ObjectId.new) }
+      let(:service_area) { ::BenefitMarkets::Locations::ServiceArea.create!(active_year: TimeKeeper.date_of_record.year, county_zip_ids: [county_zip.id], issuer_provided_code: "Some issuer code", issuer_profile_id: BSON::ObjectId.new, start_on: TimeKeeper.date_of_record.beginning_of_year, end_on: TimeKeeper.date_of_record.end_of_year) }
 
       let(:address_outside_county) {
         OpenStruct.new(
@@ -108,7 +116,7 @@ module BenefitMarkets
     end
 
     describe "created for a given state", :dbclean => :after_each do
-      let(:service_area) { ::BenefitMarkets::Locations::ServiceArea.create!(active_year: TimeKeeper.date_of_record.year, covered_states: ["MA"], issuer_provided_code: "Some issuer code", issuer_profile_id: BSON::ObjectId.new) }
+      let(:service_area) { ::BenefitMarkets::Locations::ServiceArea.create!(active_year: TimeKeeper.date_of_record.year, covered_states: ["MA"], issuer_provided_code: "Some issuer code", issuer_profile_id: BSON::ObjectId.new, start_on: TimeKeeper.date_of_record.beginning_of_year, end_on: TimeKeeper.date_of_record.end_of_year) }
 
       let(:address_outside_state) {
         OpenStruct.new(

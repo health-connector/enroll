@@ -9,6 +9,8 @@ module BenefitMarkets
       field :issuer_provided_code, type: String
       field :issuer_profile_id, type: BSON::ObjectId
       field :issuer_hios_id, type: String
+      field :start_on, type: Date
+      field :end_on, type: Date
 
       # The list of county-zip pairs covered by this service area
       field :county_zip_ids, type: Array
@@ -18,6 +20,8 @@ module BenefitMarkets
       field :covered_states, type: Array
 
       validates_presence_of :active_year, allow_blank: false
+      validates_presence_of :start_on, allow_blank: false
+      validates_presence_of :end_on, allow_blank: false
       validates_presence_of :issuer_provided_code, allow_nil: false
       validates_presence_of :issuer_profile_id, allow_nil: false
       validate :location_specified
