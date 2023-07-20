@@ -9,8 +9,8 @@ module BenefitMarkets
       field :issuer_provided_code, type: String
       field :issuer_profile_id, type: BSON::ObjectId
       field :issuer_hios_id, type: String
-      field :start_on, type: Date
-      field :end_on, type: Date
+      field :start_on, type: Date, default: TimeKeeper.date_of_record.beginning_of_year
+      field :end_on, type: Date, default: TimeKeeper.date_of_record.end_of_year
 
       # The list of county-zip pairs covered by this service area
       field :county_zip_ids, type: Array
