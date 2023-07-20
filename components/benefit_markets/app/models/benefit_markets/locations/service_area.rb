@@ -9,8 +9,8 @@ module BenefitMarkets
       field :issuer_provided_code, type: String
       field :issuer_profile_id, type: BSON::ObjectId
       field :issuer_hios_id, type: String
-      field :start_on, type: Date, default: TimeKeeper.date_of_record.beginning_of_year
-      field :end_on, type: Date, default: TimeKeeper.date_of_record.end_of_year
+      field :start_on, type: Date
+      field :end_on, type: Date
 
       # The list of county-zip pairs covered by this service area
       field :county_zip_ids, type: Array
@@ -28,6 +28,8 @@ module BenefitMarkets
 
       index({county_zip_ids: 1})
       index({covered_state_codes: 1})
+
+      after_initialize :set_start_on_and_end_on
 
       def location_specified
         if county_zip_ids.blank? && covered_states.blank?
@@ -55,6 +57,14 @@ module BenefitMarkets
           ]
         )
         service_areas
+      end
+
+      private
+
+      def set_start_on_and_end_on
+        sa_year = active_year || TimeKeeper.date_of_record.year
+        self.start_on ||= Date.new(sa_year,1,1)
+        self.end_on ||= Date.new(sa_year,12,31)
       end
     end
   end

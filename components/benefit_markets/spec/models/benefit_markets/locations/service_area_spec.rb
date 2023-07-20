@@ -12,11 +12,11 @@ module BenefitMarkets
       end
 
       it "requires start_on date" do
-        expect(subject.errors.key?(:start_on)).to be_truthy
+        expect(subject.start_on).to be_present
       end
 
       it "requires an end_on date" do
-        expect(subject.errors.key?(:end_on)).to be_truthy
+        expect(subject.end_on).to be_present
       end
 
       it "requires an issuer provided code" do
