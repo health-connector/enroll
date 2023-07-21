@@ -27,13 +27,13 @@
                 <thead>
                   <tr>
                     <th>
-                      <div style="width: 150px;">
+                      <div style="width: 120px;">
                         Employee Name
                       </div>
                     </th>
                     <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
                     <th class="employer-row-bg">
-                      <div style="width: 150px;">
+                      <div style="width: 120px;">
                         <strong>
                           <%= l10n("employers.plan_years.benefit_package.reference_plan_contribution") %>
                         </strong>
@@ -42,9 +42,9 @@
 
                     <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
                       <th>
-                        <div style="width: 150px;">
+                        <div style="width: 120px;">
                           <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
-                          <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
+                          <%= l10n("employers.plan_years.benefit_package.reference_plan_heading").html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
                         </div>
                       </th>
                     <% end %>
@@ -69,8 +69,8 @@
             </div>
           </div>
         </div>
-        <% lower_lim += 3 %>
-        <% upper_lim += 3 %>
+        <% lower_lim += 4 %>
+        <% upper_lim += 4 %>
         <% @items = products[lower_lim..upper_lim] %>
       <% end %>
     </div>
