@@ -910,6 +910,10 @@ And(/^Employee waives health plan$/) do
   find(EmployeeChooseCoverage.waive_health).click
 end
 
+And(/^Employee enrolls health plan$/) do
+  find(EmployeeChooseCoverage.enroll_health).click
+end
+
 And(/^Employee selects Waive reason for health$/) do
   find(EmployeeChooseCoverage.waiver_drop_down_for_primary).click
   find(EmployeeChooseCoverage.waiver_reason_for_primary_health).click
@@ -1348,6 +1352,19 @@ end
 
 Then("Employee should see an error message about waiver reason") do
   expect(page).to have_content(EmployeeEnrollInAPlan.select_waiver_reason_error_message)
+end
+
+And("Employee selects waiver reason as outside service area") do
+  find(EmployeeChooseCoverage.waiver_drop_down_for_primary).click
+  find(EmployeeChooseCoverage.outside_service_area_waiver_reason).click
+end
+
+Then(/Employee should see confirm your selection (.*)/) do |key|
+  if key == 'enabled'
+    expect(find(EmployeeChooseCoverage.confirm_your_selections).disabled?).to eql false
+  else
+    expect(find(EmployeeChooseCoverage.confirm_your_selections).disabled?).to eql true
+  end
 end
 
 Then("Employee should see an error message related to primary") do

@@ -215,6 +215,7 @@ function onPrimaryHealthEnroll(e) {
   hideWaiverDetails();
   enableDependentHealthEnroll();
   enableDependentHealthWaive();
+  enableConfirmYourSelection();
 }
 
 function onPrimaryHealthWaive(e) {
@@ -305,4 +306,10 @@ function onWaiverReasonSelect(elem, isAdmin) {
     $(".interaction-click-control-shop-for-new-plan").attr("disabled", false);
     $('.outside_service_area_waiver_error').addClass('hidden');
   }
+}
+
+function enableConfirmYourSelection() {
+  $('#waiver_reason').prop('selectedIndex',0)
+  $('select').selectric('refresh');
+  $(".interaction-click-control-shop-for-new-plan").attr("disabled", false);
 }

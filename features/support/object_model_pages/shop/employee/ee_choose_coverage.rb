@@ -46,4 +46,8 @@ class EmployeeChooseCoverage
   def self.waiver_reason_for_primary_health
     'div.selectric-open li[data-index="6"]'
   end
+
+  def self.outside_service_area_waiver_reason
+    'div.selectric-open li[data-index="8"]'
+  end
 end

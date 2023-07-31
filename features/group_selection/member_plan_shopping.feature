@@ -199,3 +199,8 @@ Feature: EE plan purchase
 	And Employee waives health plan
 	When Employee clicks continue button on group selection page for dependents
 	Then Employee should see an error message about waiver reason
+	When Employee waives health plan
+	And Employee selects waiver reason as outside service area
+	Then Employee should see confirm your selection disabled
+	And Employee enrolls health plan
+	Then Employee should see confirm your selection enabled
