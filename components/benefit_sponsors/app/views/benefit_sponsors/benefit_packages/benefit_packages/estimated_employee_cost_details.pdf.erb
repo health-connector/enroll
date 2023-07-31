@@ -5,77 +5,68 @@
       <%= content_for?(:title) ? yield(:title) : 'Employee Cost' %>
     </title>
   </head>
+
   <%= stylesheet_link_tag wicked_pdf_asset_base64("pdf") %>
+
   <style type="text/css">
     table, tr, td, th, tbody, thead, tfoot {
       page-break-inside: avoid !important;
     }
   </style>
 
-  <% products = @employee_costs.first[:products] %>
   <div>
-    <div class="pdf-body">
-      <% lower_lim = 0 %>
-      <% upper_lim = 3 %>
-      <% @items = products %>
-
-      <% until @items.blank? %>
-        <div class="row">
-          <div class="col-md-12">
-            <div>
-              <table class="ee-costs-table table-wrapper">
-                <thead>
-                  <tr>
-                    <th>
-                      <div style="width: 150px;">
-                        Employee Name
-                      </div>
-                    </th>
-                    <th class="employer-row-bg"><strong>Enroll/Waive</strong></th>
-                    <th class="employer-row-bg">
-                      <div style="width: 150px;">
-                        <strong>
-                          <%= l10n("employers.plan_years.benefit_package.reference_plan_contribution") %>
-                        </strong>
-                      </div>
-                    </th>
-
-                    <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
-                      <th>
-                        <div style="width: 150px;">
-                          <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
-                          <%= "<b>(Reference Plan)</b><br/>".html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
-                        </div>
-                      </th>
-                    <% end %>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <% @employee_costs.each do |employee_info| %>
-                    <tr>
-                      <td><%= employee_info[:name]&.humanize  %></td>
-                      <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
-                      <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
-                      <% employee_info[:products][lower_lim..upper_lim].each do |product_info| %>
-                        <td>
-                          <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
-                        </td>
-                      <% end %>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
+    <% products = @employee_costs.first[:products] %>
+    <% lower_lim = 0 %>
+    <% upper_lim = 3 %>
+    <% @items = products %>
+    <% until @items.blank? %>
+      <table class="ee-costs-table table-wrapper">
+        <thead>
+        <tr>
+          <th>
+            <div style="width: 120px;">
+              Employee Name
             </div>
-          </div>
-        </div>
-        <% lower_lim += 3 %>
-        <% upper_lim += 3 %>
-        <% @items = products[lower_lim..upper_lim] %>
-      <% end %>
-    </div>
-  </div>
+          </th>
+          <th class="employer-row-bg"><strong><%= l10n("employers.plan_years.benefit_package.enroll_waive") %></strong></th>
+          <th class="employer-row-bg">
+            <div style="width: 120px;">
+              <strong>
+                <%= l10n("employers.plan_years.benefit_package.employee_name") %>
+              </strong>
+            </div>
+          </th>
+          <% products[lower_lim..upper_lim].each_with_index do |product_info, i| %>
+            <th>
+              <div style="width: 120px;">
+                <%= "<b>Carrier: </b>".html_safe %><%= product_info[:carrier_name] %><br/><br/>
+                <%= l10n("employers.plan_years.benefit_package.reference_plan_heading").html_safe if (i == 0 && lower_lim == 0) %><%= product_info[:product_name] %>
+              </div>
+            </th>
+          <% end %>
+        </tr>
+        </thead>
 
+        <tbody>
+          <% @employee_costs.each do |employee_info| %>
+            <tr>
+              <td><%= employee_info[:name]&.humanize  %></td>
+              <td class="employer-row-bg"><strong><%= employee_info[:expected_selection]&.humanize %></strong></td>
+              <td class="employer-row-bg"><strong><%= number_to_currency(employee_info[:products].first[:sponsor_contribution_total]) %></strong></td>
+              <% employee_info[:products][lower_lim..upper_lim].each do |product_info| %>
+                <td>
+                  <%= number_to_currency(product_info[:product_cost_total] - product_info[:sponsor_contribution_total]) %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% lower_lim += 4 %>
+      <% upper_lim += 4 %>
+      <% @items = products[lower_lim..upper_lim] %>
+    <% end %>
+  </div>
   <body class="pdf">
   </body>
 </html>
