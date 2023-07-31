@@ -74,7 +74,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
     feature 'Eligible employee with one member family clicks shop for plans' do
       scenario "Redirect to members selection page and display's coverage info" do
         click_link_or_button("Shop for Plans")
-        expect(find('#employer_profile_legal_name').checked?).to be_truthy
+        expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
         expect(page).to have_content start_date.to_s
 
@@ -97,7 +97,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
       end
 
       scenario "Redirect to members selection page - display's employee and dependent coverage info" do
-        expect(find('#employer_profile_legal_name').checked?).to be_truthy
+        expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
         expect(page).to have_content start_date.to_s
 
@@ -131,7 +131,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
     feature 'Eligible employee with one member family clicks shop for plans' do
       scenario "Redirect to members selection page and display's coverage info" do
         click_link_or_button("Shop for Plans")
-        expect(find('#employer_profile_legal_name').checked?).to be_truthy
+        expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
         expect(page).to have_content start_date.to_s
 
@@ -154,7 +154,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
       end
 
       scenario "Redirect to members selection page - display's employee and dependent coverage info" do
-        expect(find('#employer_profile_legal_name').checked?).to be_truthy
+        expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
         expect(page).to have_content start_date.to_s
 
