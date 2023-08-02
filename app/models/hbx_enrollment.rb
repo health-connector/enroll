@@ -39,7 +39,7 @@ class HbxEnrollment
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
 
-  OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan’s service area".freeze
+  OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan service area".freeze
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",
       "I have coverage through parent’s employer health plan",
