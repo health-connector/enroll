@@ -299,7 +299,7 @@ function showWaiverDetails() {
 }
 
 function onWaiverReasonSelect(elem, isAdmin) {
-  if (elem.value == "I am outside of the plan’s service area" && !isAdmin) {
+  if (elem.value == "I am outside of the plan service area" && !isAdmin) {
     $(".interaction-click-control-shop-for-new-plan").attr("disabled", true);
     $('.outside_service_area_waiver_error').removeClass('hidden');
   } else {
