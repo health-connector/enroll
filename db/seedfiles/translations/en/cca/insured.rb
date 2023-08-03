@@ -435,7 +435,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.effective_date_for' => "Effective Date:",
   :'en.insured.email_text' => "EMAIL *",
   :'en.insured.select_kind_text' => "SELECT KIND *",
-  :'en.outside_service_area_waiver_error' => "Please contact member services at (800) 813-9220 to confirm your waiver reason of living outside of the plans' service area.",
+  :'en.outside_service_area_waiver_error' => "Please contact member services at (800) 813-9220 to confirm your waiver reason of living outside of the plan service area.",
   :'en.insured.address_updated' => "You have updated your home address and may qualify for a special enrollment period.",
   :'en.insured.shop_with_sep' => "Shop with special enrollment period",
   :'en.insured.family_member_added' => "A family member has been added to your profile, the new member will not be automatically added to your coverage. You may qualify for a special enrollment period.",

@@ -247,7 +247,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       let!(:params) do
         {"dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
          "dental_offering" => "true", "event" => "shop_for_plans",
-         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored", "waiver_reason" => "I am outside of the plan’s service area"},
+         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored", "waiver_reason" => "I am outside of the plan service area"},
          "health_offering" => "true"}
       end
 
