@@ -28,6 +28,7 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.benefit_package.reference_plan_contribution' => "Employer Reference Plan Contribution",
   :'en.employers.plan_years.benefit_package.reference_plan_heading' => "<b>(Reference Plan)</b><br/>",
   :'en.employers.plan_years.benefit_package.enroll_waive' => "Enroll/Waive",
+  :'en.employers.plan_years.benefit_package.employee_name' => "Employee Name",
   :'en.employers.plan_years.benefit_package.estimated_premiums' => "Estimated Premiums",
   :'en.employers.employer_profiles.my_account.important_documents_needed' => "Important Documents Needed",
   :'en.employers.employer_profiles.my_account.eligibility_verification_html' => "You will need to submit proof that your group is an eligible Massachusetts small business before you can complete the enrollment process.</br></br>Please review our list of <a href='%{link_to}' target='_blank'>documents that can be used as proof</a> and upload PDF document(s) that meet the requirements.</br></br>After you’ve uploaded your documents, you can continue with choosing your benefit package. We will review your documents and let you know if we need any further documentation.",
