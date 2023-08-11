@@ -123,6 +123,11 @@ module Insured
     def waiver_thankyou
       attrs = params.deep_symbolize_keys
       enr_details = attrs.slice(:health, :dental)
+
+      health_waiver_reason = enr_details.dig(:health, :waiver_reason)
+      dentalwaiver_reason = enr_details.dig(:dental, :waiver_reason)
+      is_outside_service_area_reason = (health_waiver_reason == HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON) || (dentalwaiver_reason == HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON)
+
       @context = enr_details.each_with_object({}) do |(k,v),output|
         context = Organizers::PrepareForWaiverCheckout.call(params: v, person: @person, event: attrs[:event])
         output[k] = context.json
@@ -132,7 +137,11 @@ module Insured
       set_consumer_bookmark_url(family_account_path)
 
       respond_to do |format|
-        format.html { render 'waiver_thankyou.html.erb' }
+        if is_outside_service_area_reason && current_user.person.hbx_staff_role.blank?
+          format.html { redirect_to :back }
+        else
+          format.html { render 'waiver_thankyou.html.erb' }
+        end
       end
     end
 

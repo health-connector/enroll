@@ -8,6 +8,7 @@ module BenefitSponsors
       attribute :profile_type, String
       attribute :portal, Boolean
       attribute :profile_id, String
+      attribute :contact_information, OpenStruct
       attribute :staff_roles, Array[OrganizationForms::StaffRoleForm]
       attribute :organization, OrganizationForms::OrganizationForm
 

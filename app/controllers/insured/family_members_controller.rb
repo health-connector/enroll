@@ -91,6 +91,7 @@ class Insured::FamilyMembersController < ApplicationController
     end
 
     if @dependent.save && update_vlp_documents(@dependent.family_member.try(:person).try(:consumer_role), 'dependent', @dependent)
+      @banner_text = "#{t('insured.family_member_added')} <div class='mt-1'><a href='/insured/families/find_sep' style='text-decoration: underline;'>#{t('insured.shop_with_sep')}</a></div>".html_safe
       if @family.present?
         active_family_members_count = @family.active_family_members&.count
         household = @family.active_household
@@ -115,6 +116,7 @@ class Insured::FamilyMembersController < ApplicationController
 
   def destroy
     @dependent.destroy!
+    @banner_text = "#{t('insured.family_member_removed')} <div class='mt-1'><a href='/insured/families/find_sep' style='text-decoration: underline;'>#{t('insured.shop_with_sep')}</a></div>".html_safe
     if @family.present?
       active_family_members_count = @family.active_family_members&.count
       household = @family.active_household

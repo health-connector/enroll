@@ -218,6 +218,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       it "should render the show template" do
         expect(response).to have_http_status(:success)
         expect(response).to render_template("show")
+        expect(assigns(:banner_text)).to match(/A family member has been added to your profile, the new member will not be automatically added to your coverage./)
       end
     end
 
@@ -275,6 +276,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       delete :destroy, :id => dependent_id
       expect(response).to have_http_status(:success)
       expect(response).to render_template("index")
+      expect(assigns(:banner_text)).to match(/A family member has been removed from your profile. This will not automatically remove them from any active coverage./)
     end
   end
 

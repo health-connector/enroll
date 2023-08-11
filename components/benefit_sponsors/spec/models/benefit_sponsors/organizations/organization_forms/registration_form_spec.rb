@@ -1,11 +1,12 @@
 require 'rails_helper'
 
 module BenefitSponsors
-
   RSpec.describe Organizations::OrganizationForms::RegistrationForm, type: :model, dbclean: :after_each do
     let(:site)  { create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :cca) }
-    let!(:benefit_market)  { benefit_market = site.benefit_markets.first
-                              benefit_market.save }
+    let!(:benefit_market)  do
+      benefit_market = site.benefit_markets.first
+      benefit_market.save
+    end
     let!(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
     let!(:service_area)                 { FactoryGirl.create_default :benefit_markets_locations_service_area }
 
@@ -16,11 +17,11 @@ module BenefitSponsors
       context "profile_type = benefit_sponsor" do
 
         it 'instantiates a new registration form for employer profile' do
-          form = subject.for_new(profile_type:"benefit_sponsor")
+          form = subject.for_new(profile_type: "benefit_sponsor")
           expect(form.profile_type).to eq 'benefit_sponsor'
           expect(form.profile_id).to eq nil
           expect(form.organization).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::OrganizationForm)
-          expect( form.organization.profile.parent).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::OrganizationForm)
+          expect(form.organization.profile.parent).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::OrganizationForm)
           expect(form.organization.profile).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::ProfileForm)
           expect(form.organization.profile.inbox).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::InboxForm)
           expect(form.organization.profile.office_locations.first).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::OfficeLocationForm)
@@ -31,7 +32,7 @@ module BenefitSponsors
       context "profile_type = broker_agency" do
 
         it 'instantiates a new registration form for broker agency profile' do
-          form = subject.for_new(profile_type:"broker_agency")
+          form = subject.for_new(profile_type: "broker_agency")
           expect(form.profile_type).to eq 'broker_agency'
           expect(form.profile_id).to eq nil
           expect(form.organization).to be_an_instance_of(BenefitSponsors::Organizations::OrganizationForms::OrganizationForm)
@@ -49,48 +50,50 @@ module BenefitSponsors
       let!(:security_question)  { FactoryGirl.create_default :security_question }
 
       let(:params) do
-        {"profile_type"=>"#{profile_type}",
-         "staff_roles_attributes"=>{
-          "0"=>{
-              "first_name"=>"first_name",
-              "last_name"=>"last_name",
-              "dob"=>"05/03/2000",
-              "email"=>"email@gmail.com",
-              "npn"=>"444411112",
-              "area_code" => "123",
-              "number" => "2341231"
-            }
-          },
-         "organization"=>
-             {"legal_name"=>"#{profile_type}",
-              "dba"=>"",
-              "fein"=>"123412341",
-              "profile_attributes"=>
-                  {"entity_kind"=>"s_corporation",
-                   "sic_code"=>"0111",
-                   "market_kind"=>"shop",
-                   "languages_spoken"=>["", "en"],
-                   "working_hours"=>"1",
-                   "accept_new_clients"=>"1",
-                   "referred_by"=>"Other",
-                   "referred_reason"=>"other reason",
-                   "office_locations_attributes"=>
-                       {"0"=>
-                            {"address_attributes"=>{"address_1"=>"new address", "kind"=>"primary", "address_2"=>"", "city"=>"ma_city", "state"=>"MA","zip"=>"01026", "county"=>"Berkshire"},
+        {"profile_type" => profile_type.to_s,
+         "staff_roles_attributes" => {
+           "0" => {
+             "first_name" => "first_name",
+             "last_name" => "last_name",
+             "dob" => "05/03/2000",
+             "email" => "email@gmail.com",
+             "npn" => "444411112",
+             "area_code" => "123",
+             "number" => "2341231"
+           }
+         },
+         "organization" =>
+             {"legal_name" => profile_type.to_s,
+              "dba" => "",
+              "fein" => "123412341",
+              "profile_attributes" =>
+                  {"entity_kind" => "s_corporation",
+                   "sic_code" => "0111",
+                   "market_kind" => "shop",
+                   "languages_spoken" => ["", "en"],
+                   "working_hours" => "1",
+                   "accept_new_clients" => "1",
+                   "referred_by" => "Other",
+                   "referred_reason" => "other reason",
+                   "office_locations_attributes" =>
+                       {"0" =>
+                            {"address_attributes" => {"address_1" => "new address", "kind" => "primary", "address_2" => "", "city" => "ma_city", "state" => "MA","zip" => "01026", "county" => "Berkshire"},
                              "phone_attributes" => { "kind" => "work", "area_code" => "222", "number" => "2221111", "extension" => "" }}},
-                  "contact_method"=>"paper_and_electronic"}},
-         "profile_id"=>nil,
-         "current_user_id"=> profile_type == "benefit_sponsor" ? FactoryGirl.create(:user).id: nil}
+                   "contact_method" => "paper_and_electronic"}},
+         "profile_id" => nil,
+         "current_user_id" => profile_type == "benefit_sponsor" ? FactoryGirl.create(:user).id : nil}
       end
 
       before :each do
-        params["organization"]["profile_attributes"].merge!(
+        if profile_type == 'broker_agency'
+          params["organization"]["profile_attributes"].merge!(
             {
               "ach_account_number" => "1234567890",
               "ach_routing_number" => "011000015",
               "ach_routing_number_confirmation" => "011000015"
             }
-        ) if profile_type == 'broker_agency'
+          )
+        end
       end
 
       let!(:create_form) { BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_create params }
@@ -138,10 +141,10 @@ module BenefitSponsors
       let!(:general_org) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
       let!(:employer_profile) {general_org.employer_profile}
       let!(:primary_office_location_address){employer_profile.primary_office_location.address }
-      let!(:active_employer_staff_role) {FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+      let!(:active_employer_staff_role) {FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
       let(:broker_agency) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
       let!(:broker_agency_profile) {broker_agency.broker_agency_profile}
-      let!(:person) { FactoryGirl.create(:person, emails:[FactoryGirl.build(:email, kind:'work')],employer_staff_roles:[active_employer_staff_role]) }
+      let!(:person) { FactoryGirl.create(:person, emails: [FactoryGirl.build(:email, kind: 'work')],employer_staff_roles: [active_employer_staff_role]) }
       let(:user) { FactoryGirl.create(:user, :person => person)}
 
       before :each do
@@ -170,7 +173,7 @@ module BenefitSponsors
         let(:edit_form) { BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_edit profile_id: broker_agency_profile.id.to_s }
 
         before do
-          person.broker_role = BrokerRole.new(benefit_sponsors_broker_agency_profile_id:broker_agency_profile.id,provider_kind: "broker", npn:'12345678')
+          person.broker_role = BrokerRole.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id,provider_kind: "broker", npn: '12345678')
           person.save!
         end
 
@@ -186,31 +189,31 @@ module BenefitSponsors
       let!(:security_question)  { FactoryGirl.create_default :security_question }
       let!(:general_org) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
       let!(:employer_profile) {general_org.employer_profile}
-      let!(:active_employer_staff_role) {FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+      let!(:active_employer_staff_role) {FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
       let(:broker_agency) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
       let!(:broker_agency_profile) {broker_agency.broker_agency_profile}
-      let!(:person) { FactoryGirl.create(:person, emails:[FactoryGirl.build(:email, kind:'work')],employer_staff_roles:[active_employer_staff_role]) }
+      let!(:person) { FactoryGirl.create(:person, emails: [FactoryGirl.build(:email, kind: 'work')],employer_staff_roles: [active_employer_staff_role]) }
       let(:user) { FactoryGirl.create(:user, :person => person)}
 
       context "profile_type = benefit_sponsor" do
 
         let(:params) do
-          {"organization"=>
-               {"legal_name"=>"new_legal_name",
-                "dba"=>"",
-                "fein"=>"987654312",
-                "profile_attributes"=>
-                    {"id"=>employer_profile.id.to_s,
-                     "sic_code"=>"0111",
-                     "entity_kind"=>"c_corporation",
-                     "office_locations_attributes"=>
-                         {"0"=>
-                              {"address_attributes"=>
-                                   {"kind"=>"primary", "address_1"=>"new_address", "address_2"=>"", "city"=>"ma_city", "state"=>"MA", "zip"=>"01001", "county" => "test"},
+          {"organization" =>
+               {"legal_name" => "new_legal_name",
+                "dba" => "",
+                "fein" => "987654312",
+                "profile_attributes" =>
+                    {"id" => employer_profile.id.to_s,
+                     "sic_code" => "0111",
+                     "entity_kind" => "c_corporation",
+                     "office_locations_attributes" =>
+                         {"0" =>
+                              {"address_attributes" =>
+                                   {"kind" => "primary", "address_1" => "new_address", "address_2" => "", "city" => "ma_city", "state" => "MA", "zip" => "01001", "county" => "test"},
                                "phone_attributes" => { "kind" => "work", "area_code" => "333", "number" => "111-2222", "extension" => "111" }}},
-                     "contact_method"=>"paper_and_electronic"}},
-           "profile_id"=>employer_profile.id.to_s,
-           "current_user_id"=>BSON::ObjectId("#{user.id}")}
+                     "contact_method" => "paper_and_electronic"}},
+           "profile_id" => employer_profile.id.to_s,
+           "current_user_id" => BSON::ObjectId(user.id.to_s)}
         end
 
         let!(:update_form) { BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_update params }
@@ -235,34 +238,36 @@ module BenefitSponsors
 
       context "profile_type = broker_agency" do
         let(:params) do
-          {"organization"=>
-               {"legal_name"=>"new_legal_name",
-                "dba"=>"",
-                "fein"=>"123412341",
-                "profile_attributes"=>
-                    {"id"=>broker_agency_profile.id.to_s,
-                     "entity_kind"=>"s_corporation",
-                     "sic_code"=>"0111",
-                     "ach_account_number"=>"1234567890",
-                     "ach_routing_number"=>"011000015",
-                     "ach_routing_number_confirmation"=>"011000015",
-                     "market_kind"=>"shop",
-                     "languages_spoken"=>["", "en"],
-                     "working_hours"=>"1",
-                     "accept_new_clients"=>"1",
-                     "office_locations_attributes"=>
-                         {"0"=>
-                              {"address_attributes"=>{"address_1"=>"new address", "kind"=>"primary", "address_2"=>"", "city"=>"ma_city", "state"=>"MA", "zip"=>"01001", "county"=>"Hampden"},
+          {"organization" =>
+               {"legal_name" => "new_legal_name",
+                "dba" => "",
+                "fein" => "123412341",
+                "profile_attributes" =>
+                    {"id" => broker_agency_profile.id.to_s,
+                     "entity_kind" => "s_corporation",
+                     "sic_code" => "0111",
+                     "ach_account_number" => "1234567890",
+                     "ach_routing_number" => "011000015",
+                     "ach_routing_number_confirmation" => "011000015",
+                     "market_kind" => "shop",
+                     "languages_spoken" => ["", "en"],
+                     "working_hours" => "1",
+                     "accept_new_clients" => "1",
+                     "office_locations_attributes" =>
+                         {"0" =>
+                              {"address_attributes" => {"address_1" => "new address", "kind" => "primary", "address_2" => "", "city" => "ma_city", "state" => "MA", "zip" => "01001", "county" => "Hampden"},
                                "phone_attributes" => { "kind" => "work", "area_code" => "222", "number" => "2221111", "extension" => "" }}},
-                     "contact_method"=>"paper_and_electronic"}},
-           "profile_id"=>broker_agency_profile.id.to_s,
-           "current_user_id"=> BSON::ObjectId("#{user.id}")}
+                     "contact_method" => "paper_and_electronic"}},
+           "staff_roles_attributes" => {"0" => {"person_id" => person.id, "first_name" => person.first_name, "last_name" => person.last_name, "dob" => person.dob.to_s, "email" => "test@test.com", "npn" => "9238479238"}},
+           "contact_information" => {"work_area_code" => "333", "work_number" => "3333333", "work_email" => "qol2@test.com"},
+           "profile_id" => broker_agency_profile.id.to_s,
+           "current_user_id" => BSON::ObjectId(user.id.to_s)}
         end
 
         let(:update_form) { BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_update params }
 
         before do
-          person.broker_role = BrokerRole.new(benefit_sponsors_broker_agency_profile_id:broker_agency_profile.id,provider_kind: "broker", npn:'12345678')
+          person.broker_role = BrokerRole.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id,provider_kind: "broker", npn: '12345678')
           person.save!
         end
         it "update_form should be valid" do
@@ -274,12 +279,14 @@ module BenefitSponsors
           expect(update_form.organization.legal_name).to eq params["organization"]["legal_name"]
           expect(update_form.organization.fein).to eq params["organization"]["fein"]
           expect(update_form.profile_id).to eq params["profile_id"]
+          expect(update_form.contact_information.class).to eq OpenStruct
         end
 
         it 'should update broker_agency organization legal name' do
           update_form.update
           broker_agency.reload
           expect(broker_agency.legal_name).to eq params["organization"]["legal_name"]
+          expect(person.reload.work_phone.full_phone_number).to eq('3333333333')
         end
       end
     end

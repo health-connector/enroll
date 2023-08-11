@@ -11,8 +11,8 @@ module BenefitSponsors
       attribute :terminated_on,               Types::Date.optional.meta(omittable: true)
       attribute :aasm_state,                  Types::Strict::Symbol
       attribute :fte_count,                   Types::Strict::Integer
-      attribute :pte_count,                   Types::Strict::Integer
-      attribute :msp_count,                   Types::Strict::Integer
+      attribute :pte_count,                   Types::Strict::Integer.optional
+      attribute :msp_count,                   Types::Strict::Integer.optional
       attribute :recorded_sic_code,           Types::String.optional
       attribute :predecessor_id,              Types::Bson.optional
       attribute :recorded_rating_area_id,     Types::Bson

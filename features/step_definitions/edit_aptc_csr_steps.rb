@@ -1,10 +1,11 @@
+# frozen_string_literal: true
 
-Then (/^Hbx Admin sees Families link$/) do
-  expect(page).to have_text("Families")
+Then(/^Hbx Admin sees Employees link$/) do
+  expect(page).to have_text("Employees")
 end
 
-When(/^Hbx Admin click Families link$/) do
-  click_link "Families"
+When(/^Hbx Admin click Employees link$/) do
+  click_link "Employees"
 end
 
 Then(/^Hbx Admin should see an Edit APTC \/ CSR link$/) do

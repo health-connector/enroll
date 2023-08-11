@@ -6,6 +6,20 @@
   <h1><%= l10n("manage_family") %></h1>
 </div>
 
+<div class="account-update-banner hidden">
+  <div class="alert alert-info">
+    <div class="container-fluid">
+      <div class="info-div">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+      </div>
+      <div class="flash-msg">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <span class="account-update-banner-text"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <% if @resident %>
   <div class="content-bottom">
     <%= render "profile_submenu", :active_subtab => "family-tab" %>
@@ -21,3 +35,15 @@
     </div>
   </div>
 <% end %>
+
+<style type="text/css">
+  .info-div {
+    width: 4%;
+    float: left;
+  }
+
+  .flash-msg {
+    width: 96%;
+    float: left;
+  }
+</style>

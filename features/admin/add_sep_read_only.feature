@@ -7,7 +7,7 @@ Feature: Add Sep with read only permissions
     Given a Hbx admin with read only permissions exists
     When Hbx Admin logs on to the Hbx Portal
     And Hbx Admin clicks I'm Admin
-    When Hbx Admin click Families link
+    When Hbx Admin click Employees link
     And the Hbx Admin clicks on the Action button
 
   Scenario: Click on Add Sep
