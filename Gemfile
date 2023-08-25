@@ -142,8 +142,8 @@ group :test do
   gem 'database_cleaner', '1.5.3'
   gem 'fakeredis', :require => 'fakeredis/rspec'
   gem 'mongoid-rspec', '3.0.0'
-  gem 'selenium-webdriver', '3.14.0'
-  gem 'webdriver'
+  # gem 'selenium-webdriver', '3.14.0'
+  # gem 'webdriver'
   gem 'rspec-instafail'
   gem 'rspec-benchmark'
   gem 'ruby-progressbar', '~> 1.7'
@@ -152,7 +152,9 @@ group :test do
   gem 'test-prof', '0.5.0'
   gem 'warden'
   gem 'watir'
-  gem 'webdrivers', '~> 3.0'
+  # gem 'webdrivers', '~> 3.0'
+  gem 'webdrivers', '~> 5.3.1'
+
   gem 'webmock'
 end
 
