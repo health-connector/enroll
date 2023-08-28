@@ -10,3 +10,8 @@ if ($("#add_member_list_<%= @dependent.id %>").length) {
 <% end %>
 
 $("#dependent_buttons").removeClass('hidden');
+
+<% if @banner_text %>
+  $('.account-update-banner').removeClass('hidden');
+  $('.account-update-banner-text').html("<%= @banner_text %>")
+<% end %>

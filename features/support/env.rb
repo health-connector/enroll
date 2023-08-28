@@ -71,7 +71,6 @@ Cucumber::Rails::Database.javascript_strategy = :truncation
 Capybara::Screenshot.webkit_options = { width: 2280, height: 1800 }
 Capybara::Screenshot.prune_strategy = :keep_last_run
 Webdrivers.cache_time = 86_400
-Webdrivers::Chromedriver.required_version = "114.0.5735.90"
 
 Capybara::Screenshot.register_driver(:selenium_chrome_custom) do |driver, path|
   driver.browser.save_screenshot(path)

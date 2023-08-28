@@ -15,6 +15,7 @@ HBX_PROFILES_TRANSLATIONS = {
   :'en.hbx_profiles.ba_success_message' => 'Successfully created a draft plan year',
   :'en.hbx_profiles.effective_start_date' => 'Effective Start Date',
   :'en.hbx_profiles.effective_end_date' => 'Effective End Date',
+  :'en.hbx_profiles.employees' => 'Employees',
   :'en.hbx_profiles.full_time_employees' => 'Full Time Employees',
   :'en.hbx_profiles.oe_start_date' => 'Open Enrollment Start Date',
   :'en.hbx_profiles.provide_fte_count' => 'Please provide full time employees count.',

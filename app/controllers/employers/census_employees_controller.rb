@@ -20,6 +20,7 @@ class Employers::CensusEmployeesController < ApplicationController
 
     if @census_employee.save
       flash[:notice] = "Census Employee is successfully created."
+      flash[:info] = t('census_employee.created')
       if @census_employee.active_benefit_group_assignment.blank?
         flash[:notice] = "Your employee was successfully added to your roster."
       end
@@ -41,6 +42,7 @@ class Employers::CensusEmployeesController < ApplicationController
     @status = params[:status]
 
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
+    dependents_count = @census_employee.census_dependents.size
     @census_employee.attributes = census_employee_params.merge!({
       active_benefit_group_assignment: benefit_group_id,
       renewal_benefit_group_assignment: renewal_benefit_group_id,
@@ -65,7 +67,11 @@ class Employers::CensusEmployeesController < ApplicationController
         end
       end
 
+      ce_roster_composition_changed = (@census_employee.census_dependents.size != dependents_count)
+
       flash[:notice] = "Census Employee is successfully updated."
+      flash[:info] = employee_update_info_flash(@census_employee.is_linked?, ce_roster_composition_changed)
+
       if benefit_group_id.blank?
         flash[:notice] += " Note: new employee cannot enroll on #{site_short_name} until they are assigned a benefit group."
       end
@@ -307,7 +313,11 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def update_cobra
-    return flash[:notice] = "Successfully update Census Employee." if @census_employee.update_for_cobra(@cobra_date, current_user)
+    if @census_employee.update_for_cobra(@cobra_date, current_user)
+      flash[:notice] = "Successfully update Census Employee."
+      flash[:success] = t('census_employee.update_cobra_text')
+      return
+    end
 
     set_cobra_error_flash
   end
@@ -320,5 +330,19 @@ class Employers::CensusEmployeesController < ApplicationController
     return flash[:error] = msg1 + msg2  if @census_employee.coverage_terminated_on <= @cobra_date
 
     flash[:error] = "COBRA cannot be initiated for this employee because of invalid date. Please contact #{site_short_name} at #{contact_center_phone_number} for further assistance."
+  end
+
+  def employee_update_info_flash(is_linked, composition_changed)
+    if is_linked
+      if composition_changed
+        t('census_employee.linked_ce_roster_changed')
+      else
+        t('census_employee.linked_status')
+      end
+    elsif composition_changed
+      t('census_employee.eligible_ce_roster_changed')
+    else
+      t('census_employee.eligible_status')
+    end
   end
 end

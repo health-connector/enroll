@@ -58,6 +58,7 @@
             <%= submit_tag l10n('keep_existing_plan'), class: 'btn btn-primary  btn-lg' + pundit_class(Family, :updateable?) if show_keep_existing_plan(@organizer.shop_for_plans, @organizer.previous_hbx_enrollment, @organizer.new_effective_on) %>
             <%= link_to l10n('select_plan_to_terminate'), '#', data: {toggle: "modal", target: "#waive_confirm"}, class: 'btn btn-primary btn-lg' %>
           <% end %>
+          <div class="outside_service_area_waiver_error hidden"><strong style="color: red;"><%= l10n('outside_service_area_waiver_error') %></strong></div>
 
         <br/>
         <br/>

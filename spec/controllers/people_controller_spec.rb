@@ -64,6 +64,7 @@ RSpec.describe PeopleController, dbclean: :after_each do
 
       it "should not create new address instances on update" do
         expect(person.addresses.count).to eq 2
+        expect(flash[:info]).to match(/You have updated your home address and may qualify for a special enrollment period./)
       end
 
       it "should not empty the person's addresses on update" do
@@ -105,7 +106,7 @@ RSpec.describe PeopleController, dbclean: :after_each do
         allow(person).to receive(:update_attributes).and_return(true)
 
         post :update, id: person.id, person: person_attributes
-        expect(response).to redirect_to(family_account_path)
+        expect(response).to redirect_to('/insured/families/personal')
         expect(flash[:notice]).to eq 'Person was successfully updated.'
       end
     end

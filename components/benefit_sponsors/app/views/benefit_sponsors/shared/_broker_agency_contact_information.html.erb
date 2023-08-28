@@ -1,0 +1,22 @@
+<%= form.fields_for :contact_information, form.object.contact_information, errors: {} do |f| %>
+  <div>
+    <div class="col-md-4 col-sm-4 col-xs-12 form-group form-group-lg no-pd">
+      <span class="form-control">Work Phone</span>
+    </div>
+    <div class="col-md-4 col-sm-4 col-xs-12 form-group form-group-lg no-pd">
+      <%= f.text_field :work_area_code, class: "floatlabel form-control area_code", required: true, placeholder: 'AREA CODE' %>
+    </div>
+    <div class="col-md-4 col-sm-4 col-xs-12 form-group form-group-lg no-pd">
+      <%= f.text_field :work_number, class: "floatlabel form-control phone_number7", required: true, placeholder: 'NUMBER' %>
+    </div>
+  </div>
+
+  <div>
+    <div class="col-md-4 col-sm-4 col-xs-12 form-group form-group-lg no-pd">
+      <span class="form-control">Work Email</span>
+    </div>
+    <div class="col-md-8 col-sm-8 col-xs-12 form-group form-group-lg no-pd">
+      <%= f.text_field :work_email, class: "form-control", required: true, placeholder: 'Email' %>
+    </div>
+  </div>
+<% end %>

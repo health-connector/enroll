@@ -24,7 +24,7 @@ module BenefitSponsors
           organization = factory_obj.get_organization
           organization.assign_attributes(sanitize_organization_params_for_update(attributes[:organization]))
           organization.update_benefit_sponsorship(organization.employer_profile) if (is_employer_profile? && address_changed?(organization.employer_profile))
-          factory_obj.update_representative(factory_obj, attributes[:staff_roles_attributes][0]) if attributes[:staff_roles_attributes].present?
+          factory_obj.update_representative(attributes[:staff_roles_attributes][0], attributes[:contact_information]) if attributes[:staff_roles_attributes].present?
           updated = if organization.valid?
             organization.save!
           else
@@ -34,10 +34,16 @@ module BenefitSponsors
           return factory_obj
         end
 
-        def update_representative(factory_obj, attributes)
+        def update_representative(attributes, contact_information)
           if is_broker_profile?
             person = Person.find(attributes[:person_id])
             person.update_attributes!(attributes.slice(:first_name, :last_name, :dob))
+            person.emails.find_or_initialize_by({kind: "home"}).update_attributes(address: attributes[:email])
+
+            if contact_information.present?
+              person.phones.find_or_initialize_by({kind: "work"}).update_attributes(full_phone_number: contact_information.work_area_code + contact_information.work_number)
+              person.emails.find_or_initialize_by({kind: "work"}).update_attributes(address: contact_information.work_email)
+            end
           end
         end
 

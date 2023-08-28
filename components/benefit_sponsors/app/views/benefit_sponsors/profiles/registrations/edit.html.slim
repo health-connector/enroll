@@ -5,7 +5,7 @@
   = render "benefit_sponsors/shared/profiles/broker_agency/menu", {:broker_profile_id => @agency.profile_id, :active_tab => "home-tab"}
   
   = form_for @agency, as: :agency, url: profiles_registration_path(id: @agency.profile_id), method: :put do |f|
-    = render "benefit_sponsors/profiles/registrations/broker_agency_form", f: f
+    = render "benefit_sponsors/profiles/registrations/broker_agency_form", registration_form: f
 
 - elsif is_sponsor_profile?(profile_type)
   = content_for :navigation do

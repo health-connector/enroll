@@ -10,7 +10,7 @@ Feature: Paper Enrollment options exist
 
   Scenario Outline: Super Admin HBX Tier3 HBX Staff Can able to do Paper Application
     Given that a user with a HBX staff role with <subrole> subrole exists and is logged in
-    And the user is on the Family Index of the Admin Dashboard
+    And the user is on the Employees Index of the Admin Dashboard
     Then I see the Paper link
     And user will click on New Employee Paper Application link
     Then HBX admin start new employee enrollment

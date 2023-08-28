@@ -7,7 +7,11 @@ module BenefitSponsors
       attribute :status, if: :is_employer_profile?
 
       def email
-        object.work_email_or_best
+        if is_broker_profile?
+          object.home_email&.address
+        else
+          object.work_email_or_best
+        end
       end
 
       def person_id
