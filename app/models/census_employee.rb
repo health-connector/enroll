@@ -272,11 +272,13 @@ class CensusEmployee < CensusMember
     matched.by_benefit_group_assignment_ids(benefit_group_assignment_ids)
   }
 
+  # includes cobra employees in eligible to enroll non terminated employees. ref: 102639
   scope :census_employees_active_on, lambda { |date|
     where(
       "$or" => [
         {"employment_terminated_on" => nil},
-        {"employment_terminated_on" => {"$gte" => date}}
+        {"employment_terminated_on" => {"$gte" => date}},
+        {"aasm_state" => "cobra_linked"}
       ]
     )
   }
