@@ -5,6 +5,7 @@ module AcapiVocabularySpecHelpers
 assistance.xsd
 common.xsd
 config.xsd
+credits.xsd
 dms.xsd
 document_storage.xsd
 edi.xsd
@@ -12,6 +13,7 @@ edi_process.xsd
 individual.xsd
 links.xsd
 organization.xsd
+paynow.xsd
 plan.xsd
 policy.xsd
 premium.xsd
