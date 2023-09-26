@@ -6,16 +6,16 @@
       - if @current_plan_year.present?
         = render partial: 'ui-components/v1/cards/employee_enrollments'
         = render partial: 'ui-components/v1/cards/plan_year'
+        - if current_user.has_hbx_staff_role?
+          = render partial: 'ui-components/v1/cards/eligibility_check'
         - @current_plan_year.benefit_groups.each do |bg|
           = render partial: 'ui-components/v1/cards/benefit_groups', locals: { bg: bg }
       - else
         = render partial: 'benefit_sponsors/profiles/employers/employer_profiles/my_account/employer_welcome'
   - if !@current_plan_year.present?
-    .col-xs-4
-      = render partial: 'ui-components/v1/cards/employer_broker_widget'
-  - if employer_external_link_enabled?
-    .col-xs-4
-      = render partial: 'shared/employer_external_links'
+    .row
+      .col-xs-4
+        = render partial: 'ui-components/v1/cards/employer_broker_widget'
 
 javascript:
   $(document).on('ready page:load', function () {

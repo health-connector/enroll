@@ -1,0 +1,101 @@
+.panel.panel-default#employee-enrollments
+  .panel-body
+    .run-eligibility-check-btn-container        
+      = button_to "Run Eligibility Check", '/', class: "btn btn-default", id: "eligibilityCheckButton", data: { url: '/' }
+      //= button_to "Run Eligibility Check", profiles_employers_employer_profile_coverage_reports_path(@employer_profile, format: :csv), class: "btn btn-default", id: "eligibilityCheckButton", data: { url: profiles_employers_employer_profile_run_elgibility_check_path(@employer_profile) }
+      = hidden_field_tag :employer_profile_id, @employer_profile.id
+    .col-xs-12.loading.run-eligibility-processing.hide
+      i.fa.fa-spinner.fa-spin.fa-2x
+    .run-eligibility-check-response-container(style="display: none;")
+      span.eligibility-response-close-icon
+        | X
+      .run-eligibility-check-response
+        p.eligibility-status-text.minimum-participation
+          | Minimum Participation &nbsp;&nbsp;<span class="not-eligible">&#10060;</span> <span style="display:none;" class="is-eligible-checkmark">&#10004;</span>
+        p.eligibility-status-text.non-business-owner-eligibility-count
+          | Non-Business Owner Eligibility Count &nbsp;&nbsp;<span class="not-eligible">&#10060;</span> <span style="display:none;" class="is-eligible-checkmark">&#10004;</span>
+        p.eligibility-status-text.minimum-eligible-member-count
+          | Minimum Eligible Member Count &nbsp;&nbsp;<span class="not-eligible">&#10060;</span> <span style="display:none;" class="is-eligible-checkmark">&#10004;</span>
+
+javascript:
+  document.getElementById('eligibilityCheckButton').addEventListener('click', function() {
+      // Fetch the employerProfileId from the hidden field (if you need it for other purposes)
+      var employerProfileId = document.getElementById('employer_profile_id').value;
+      this.disabled = true;
+      
+      // Show Spinner
+      $('#eligibilityCheckButton').hide();
+      $('.run-eligibility-processing').removeClass("hide");
+      // Fetch the URL from the data attribute
+      var url = this.getAttribute('data-url');
+
+      $.ajax({
+        type: 'GET', 
+        data: {},
+        url: url,
+      }).done(function(response) {
+        $('.run-eligibility-processing').addClass("hide");
+        $('.run-eligibility-check-response-container').show();
+
+        interpretResponse = interpretValidation(response);
+        updateEligibilityUI(interpretResponse);
+      });
+
+      function interpretValidation(response) {
+        // List of all attributes we are checking
+        const attributes = ['minimum_participation_rule', 'non_business_owner_enrollment_count', 'minimum_eligible_member_count'];
+
+        let result = {};
+
+        for (let attribute of attributes) {
+          // If the attribute exists in the response and its value is 'validated successfully', then it's valid.
+          if (response[attribute] && response[attribute] === 'validated successfully') {
+            result[attribute] = true;
+          } else if (response[attribute]) { // If the attribute exists in the response and its value isn't 'validated successfully', then it's invalid.
+            result[attribute] = false;
+          } else { // If the attribute doesn't exist in the response, then it's valid.
+            result[attribute] = true;
+          }
+        }
+        return result;
+      }
+  });
+
+  function updateEligibilityUI(interpretedResponse) {
+      // Getting all the p tags within the parent div
+      const eligibilityStatusElements = document.querySelectorAll(".run-eligibility-check-response .eligibility-status-text");
+
+      eligibilityStatusElements.forEach(element => {
+          // Based on the class of the p tag, deciding which attribute we are currently processing
+          let attribute;
+          if (element.classList.contains("minimum-participation")) {
+              attribute = "minimum_participation_rule";
+          } else if (element.classList.contains("non-business-owner-eligibility-count")) {
+              attribute = "non_business_owner_enrollment_count";
+          } else if (element.classList.contains("minimum-eligible-member-count")) {
+              attribute = "minimum_eligible_member_count";
+          }
+
+          if (interpretedResponse[attribute]) {
+              // If true, show the checkmark and hide the cross
+              element.querySelector('.is-eligible-checkmark').style.display = 'inline';
+              element.querySelector('.not-eligible').style.display = 'none';
+          } else {
+              // If false, show the cross and hide the checkmark
+              element.querySelector('.is-eligible-checkmark').style.display = 'none';
+              element.querySelector('.not-eligible').style.display = 'inline';
+          }
+      });
+  }
+  
+  document.querySelector('.eligibility-response-close-icon').addEventListener('click', function() {
+    // Hide the container
+    $('.run-eligibility-check-response-container').hide();
+
+    // Hide the 'is-eligible-checkmark' and show the 'not-eligible' icon (original state)
+    $('.is-eligible-checkmark').hide();
+    $('.not-eligible').show();
+    
+    // Show the button and activate
+    $('#eligibilityCheckButton').show().prop('disabled', false);
+  });
