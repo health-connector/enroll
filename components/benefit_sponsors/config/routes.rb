@@ -35,6 +35,7 @@ BenefitSponsors::Engine.routes.draw do
         post :bulk_employee_upload
         get :coverage_reports
         get :estimate_cost
+        get :run_elgibility_check
         collection do
           get :generate_sic_tree
           get :show_pending
