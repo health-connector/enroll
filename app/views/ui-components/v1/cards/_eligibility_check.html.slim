@@ -1,8 +1,7 @@
 .panel.panel-default#employee-enrollments
   .panel-body
     .run-eligibility-check-btn-container        
-      = button_to "Run Eligibility Check", '/', class: "btn btn-default", id: "eligibilityCheckButton", data: { url: '/' }
-      //= button_to "Run Eligibility Check", profiles_employers_employer_profile_coverage_reports_path(@employer_profile, format: :csv), class: "btn btn-default", id: "eligibilityCheckButton", data: { url: profiles_employers_employer_profile_run_elgibility_check_path(@employer_profile) }
+      = button_to "Run Eligibility Check", profiles_employers_employer_profile_coverage_reports_path(@employer_profile, format: :csv), class: "btn btn-default", id: "eligibilityCheckButton", data: { url: profiles_employers_employer_profile_run_elgibility_check_path(@employer_profile) }
       = hidden_field_tag :employer_profile_id, @employer_profile.id
     .col-xs-12.loading.run-eligibility-processing.hide
       i.fa.fa-spinner.fa-spin.fa-2x
