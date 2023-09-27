@@ -145,7 +145,7 @@ module BenefitSponsors
       end
     end
 
-    describe "GET run_elgibility_check" do
+    describe "GET run_eligibility_check" do
       let!(:employees) { FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)}
       let(:business_policy) { instance_double("some_policy", success_results: { business_rule: "validated successfully" })}
 
@@ -153,7 +153,7 @@ module BenefitSponsors
         sign_in user
         allow(subject).to receive(:business_policy_for).and_return(business_policy)
         allow(business_policy).to receive(:is_satisfied?).and_return(true)
-        get :run_elgibility_check, employer_profile_id: benefit_sponsor.profiles.first.id
+        get :run_eligibility_check, employer_profile_id: benefit_sponsor.profiles.first.id
         allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
       end
 

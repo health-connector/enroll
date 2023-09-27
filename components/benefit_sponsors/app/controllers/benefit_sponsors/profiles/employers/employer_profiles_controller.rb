@@ -3,7 +3,7 @@ module BenefitSponsors
     module Employers
       class EmployerProfilesController < ::BenefitSponsors::ApplicationController
 
-        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_elgibility_check]
+        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_eligibility_check]
         before_action :load_group_enrollments, only: [:coverage_reports], if: :is_format_csv?
         before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
         before_action :wells_fargo_sso, only: [:show]
@@ -88,7 +88,8 @@ module BenefitSponsors
           end
         end
 
-        def run_elgibility_check
+        def run_eligibility_check
+          authorize @employer_profile
           benefit_sponsorship = @employer_profile.latest_benefit_sponsorship
           benefit_application = benefit_sponsorship.submitted_benefit_application(include_term_pending: false)
           business_policy = business_policy_for(benefit_application)
