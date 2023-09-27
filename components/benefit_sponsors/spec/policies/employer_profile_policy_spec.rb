@@ -57,5 +57,18 @@ module BenefitSponsors
       it_behaves_like 'should not permit for person with active employer staff role', :coverage_reports?
       it_behaves_like 'should not permit for person with active employer staff role', :updateable?
     end
+
+    context 'for a user with admin role' do
+      let(:user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: person) }
+
+      shared_examples_for 'should permit for a user with hbx staff role' do |policy_type|
+        it 'should permit for admin role' do
+          expect(policy.send(policy_type)).to be true
+        end
+      end
+
+      it_behaves_like 'should permit for a user with hbx staff role', :show?
+      it_behaves_like 'should permit for a user with hbx staff role', :run_eligibility_check?
+    end
   end
 end
