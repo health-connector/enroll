@@ -3,12 +3,20 @@
 require "rails_helper"
 
 RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/employers/employer_profiles/my_account/home_tab.html.slim" do
+
   context "employer profile dashboard with current plan year" do
 
     let(:start_on){TimeKeeper.date_of_record.beginning_of_year}
     let(:end_on){TimeKeeper.date_of_record.end_of_year}
     let(:end_on_negative){ TimeKeeper.date_of_record.beginning_of_year - 2.years }
     let(:active_employees) { double("CensusEmployee", count: 10) }
+    let(:mock_user) do
+      instance_double(
+        "User",
+        has_hbx_staff_role?: false,  # Adjust this as needed
+        # Add any other necessary methods and return values
+      )
+    end
 
 
     def new_organization
@@ -270,10 +278,13 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
     end
 
     before :each do
+      view.extend BenefitSponsors::Engine.routes.url_helpers
       allow(::BenefitSponsors::Services::SponsoredBenefitCostEstimationService).to receive(:new).and_return(cost_estimator)
       allow(cost_estimator).to receive(:calculate_estimates_for_home_display).and_return(estimator)
       allow(view).to receive(:pundit_class).and_return(double("EmployerProfilePolicy", updateable?: true))
       allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true))
+      allow(view).to receive(:current_user).and_return(mock_user)
+
 
       assign :employer_profile, employer_profile
       assign :hbx_enrollments, [hbx_enrollment]
