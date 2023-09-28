@@ -1,7 +1,7 @@
 .panel.panel-default#employee-enrollments
   .panel-body
     .run-eligibility-check-btn-container        
-      = button_to "Run Eligibility Check", '/', class: "btn btn-default", id: "eligibilityCheckButton", data: { url: profiles_employers_employer_profile_run_elgibility_check_path(@employer_profile) }
+      = button_to l10n("employers.plan_years.eligibility_button_text"), '/', class: "btn btn-default", id: "eligibilityCheckButton", data: { url: profiles_employers_employer_profile_run_elgibility_check_path(@employer_profile) }
     .col-xs-12.loading.run-eligibility-processing.hide
       i.fa.fa-spinner.fa-spin.fa-2x
     .run-eligibility-check-response-container(style="display: none;")

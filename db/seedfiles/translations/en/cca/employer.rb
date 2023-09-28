@@ -43,6 +43,7 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.employee_cost_details_description_part1' => "Details of the employee costs for your members are shown on the",
   :'en.employers.plan_years.employee_cost_details_description_part2' => "Values are based on benefit type, contribution amounts, and reference plan chosen.",
   :'en.employers.plan_years.estimated_employee_costs' => "Estimated Employee Costs",
+  :'en.employers.plan_years.eligibility_button_text' => "Run Eligibility Check",
   :'en.employers.registration.kind' => 'Kind *',
   :'en.employers.registration.address' => 'Address *',
   :'en.employers.registration.city' => 'City *',
