@@ -641,6 +641,17 @@ module BenefitSponsors
             expect(renewal_application.active_census_employees_under_py.count).to eq 4
           end
 
+          it 'should return the cobra EEs' do
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+            term_date = renewal_application.effective_period.min - 10.days
+            ce = renewal_application.active_census_employees_under_py.first
+            ce.aasm_state = 'cobra_linked'
+            ce.employment_terminated_on = term_date
+            ce.benefit_group_assignments.last.update(benefit_package_id: renewal_application.benefit_packages.first.id)
+            ce.save(validate: false)
+            expect(renewal_application.active_census_employees_under_py.count).to eq 5
+          end
+
           it 'should not return term pending with prior effective date as term date' do
             expect(renewal_application.active_census_employees_under_py.count).to eq 5
             term_date = renewal_application.effective_period.min - 10.days
