@@ -9,11 +9,26 @@
         | X
       .run-eligibility-check-response
         p.eligibility-status-text.minimum-participation
-          = l10n("employers.plan_years.minimum_participation_text") + " &nbsp;&nbsp;<span class=\"not-eligible\">&#10060;</span> <span style=\"display:none;\" class=\"is-eligible-checkmark\">&#10004;</span>"
+          => l10n("employers.plan_years.minimum_participation_text")
+          | &nbsp;&nbsp;
+          span.not-eligible
+            | &#10060;
+          span.is-eligible-checkmark style="display:none;"
+            | &#10004;
         p.eligibility-status-text.non-business-owner-eligibility-count
-          = l10n("employers.plan_years.non-business_owner_eligibility_count_text") + " &nbsp;&nbsp;<span class=\"not-eligible\">&#10060;</span> <span style=\"display:none;\" class=\"is-eligible-checkmark\">&#10004;</span>"
+          => l10n("employers.plan_years.non-business_owner_eligibility_count_text")
+          | &nbsp;&nbsp;
+          span.not-eligible
+            | &#10060;
+          span.is-eligible-checkmark style="display:none;"
+            | &#10004;
         p.eligibility-status-text.minimum-eligible-member-count
-          = l10n("employers.plan_years.minimum_eligible_member_count_text") + " &nbsp;&nbsp;<span class=\"not-eligible\">&#10060;</span> <span style=\"display:none;\" class=\"is-eligible-checkmark\">&#10004;</span>"
+          => l10n("employers.plan_years.minimum_eligible_member_count_text")
+          | &nbsp;&nbsp;
+          span.not-eligible
+            | &#10060;
+          span.is-eligible-checkmark style="display:none;"
+            | &#10004;
 
 
 javascript:
