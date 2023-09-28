@@ -196,7 +196,8 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
         aasm_state: 'draft',
         predecessor_id: nil,
         employee_participation_ratio_minimum: 0.75,
-        employer_profile: double(census_employees: double(active: active_employees))
+        employer_profile: double(census_employees: double(active: active_employees)),
+        open_enrollment_contains?: true
       )
     end
 
@@ -339,6 +340,18 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
 
       it "does not render the 'Run Eligibility Check' button" do
         expect(rendered).not_to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
+      end
+    end
+
+    context "when current plan year is in open enrollment period" do
+      before do
+        allow(mock_user).to receive(:has_hbx_staff_role?).and_return(true)
+        allow(view).to receive(:current_user).and_return(mock_user)
+        render "benefit_sponsors/profiles/employers/employer_profiles/my_account/home_tab"
+      end
+
+      it "renders the 'Run Eligibility Check' button" do
+        expect(rendered).to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
       end
     end
   end
