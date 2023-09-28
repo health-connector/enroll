@@ -13,8 +13,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
     let(:mock_user) do
       instance_double(
         "User",
-        has_hbx_staff_role?: false  # Adjust this as needed
-        # Add any other necessary methods and return values
+        has_hbx_staff_role?: false
       )
     end
 
