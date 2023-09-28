@@ -9,11 +9,12 @@
         | X
       .run-eligibility-check-response
         p.eligibility-status-text.minimum-participation
-          | Minimum Participation &nbsp;&nbsp;<span class="not-eligible">&#10060;</span> <span style="display:none;" class="is-eligible-checkmark">&#10004;</span>
+          = l10n("employers.plan_years.minimum_participation_text") + " &nbsp;&nbsp;<span class=\"not-eligible\">&#10060;</span> <span style=\"display:none;\" class=\"is-eligible-checkmark\">&#10004;</span>"
         p.eligibility-status-text.non-business-owner-eligibility-count
-          | Non-Business Owner Eligibility Count &nbsp;&nbsp;<span class="not-eligible">&#10060;</span> <span style="display:none;" class="is-eligible-checkmark">&#10004;</span>
+          = l10n("employers.plan_years.non-business_owner_eligibility_count_text") + " &nbsp;&nbsp;<span class=\"not-eligible\">&#10060;</span> <span style=\"display:none;\" class=\"is-eligible-checkmark\">&#10004;</span>"
         p.eligibility-status-text.minimum-eligible-member-count
-          | Minimum Eligible Member Count &nbsp;&nbsp;<span class="not-eligible">&#10060;</span> <span style="display:none;" class="is-eligible-checkmark">&#10004;</span>
+          = l10n("employers.plan_years.minimum_eligible_member_count_text") + " &nbsp;&nbsp;<span class=\"not-eligible\">&#10060;</span> <span style=\"display:none;\" class=\"is-eligible-checkmark\">&#10004;</span>"
+
 
 javascript:
   document.getElementById('eligibilityCheckButton').addEventListener('click', function() {
