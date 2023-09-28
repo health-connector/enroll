@@ -283,7 +283,6 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
       allow(cost_estimator).to receive(:calculate_estimates_for_home_display).and_return(estimator)
       allow(view).to receive(:pundit_class).and_return(double("EmployerProfilePolicy", updateable?: true))
       allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true))
-      allow(view).to receive(:current_user).and_return(mock_user)
 
 
       assign :employer_profile, employer_profile
@@ -296,6 +295,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
 
     context "when employer setting is enabled" do
       it "should display the employer external links advertisement" do
+        allow(view).to receive(:current_user).and_return(mock_user)
         EnrollRegistry[:add_external_links].feature.stub(:is_enabled).and_return(true)
         EnrollRegistry[:add_external_links].setting(:employer_display).stub(:item).and_return(true)
 
@@ -308,6 +308,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
 
     context "when employer setting is disabled" do
       it "should not display the employer external links advertisement" do
+        allow(view).to receive(:current_user).and_return(mock_user)
         EnrollRegistry[:add_external_links].feature.stub(:is_enabled).and_return(true)
         EnrollRegistry[:add_external_links].setting(:employer_display).stub(:item).and_return(false)
 
@@ -315,6 +316,30 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
 
         expect(rendered).not_to match(/Save 15% on the cost of your health insurance contributions with our ConnectWell rebate program./i)
         expect(rendered).not_to include("href=\"https://www.mahealthconnector.org/business/employers/connectwell-for-employers")
+      end
+    end
+
+    context "when user is an admin" do
+      before do
+        allow(mock_user).to receive(:has_hbx_staff_role?).and_return(true)
+        allow(view).to receive(:current_user).and_return(mock_user)
+        render "benefit_sponsors/profiles/employers/employer_profiles/my_account/home_tab"
+      end
+
+      it "renders the 'Run Eligibility Check' button" do
+        expect(rendered).to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
+      end
+    end
+
+    context "when user is not an admin" do
+      before do
+        allow(mock_user).to receive(:has_hbx_staff_role?).and_return(false)
+        allow(view).to receive(:current_user).and_return(mock_user)
+        render "benefit_sponsors/profiles/employers/employer_profiles/my_account/home_tab"
+      end
+
+      it "does not render the 'Run Eligibility Check' button" do
+        expect(rendered).not_to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
       end
     end
   end
