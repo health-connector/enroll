@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # MA Census Employee Translations
 EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.reference_plan_details' => "Reference Plan Details",

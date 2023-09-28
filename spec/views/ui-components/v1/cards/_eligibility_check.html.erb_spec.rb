@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "ui-components/v1/cards/_eligibility_check.html.slim" do
