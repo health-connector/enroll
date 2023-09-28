@@ -6,7 +6,7 @@
       - if @current_plan_year.present?
         = render partial: 'ui-components/v1/cards/employee_enrollments'
         = render partial: 'ui-components/v1/cards/plan_year'
-        - if current_user.has_hbx_staff_role?
+        - if current_user.has_hbx_staff_role? && @current_plan_year.open_enrollment_contains?(TimeKeeper.date_of_record)
           = render partial: 'ui-components/v1/cards/eligibility_check'
         - @current_plan_year.benefit_groups.each do |bg|
           = render partial: 'ui-components/v1/cards/benefit_groups', locals: { bg: bg }
