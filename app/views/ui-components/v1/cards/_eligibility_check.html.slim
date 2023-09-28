@@ -2,7 +2,7 @@
   .panel-body
     .run-eligibility-check-btn-container        
       = button_to l10n("employers.plan_years.eligibility_button_text"), '/', class: "btn btn-default", id: "eligibilityCheckButton", data: { url: profiles_employers_employer_profile_run_eligibility_check_path(@employer_profile) }
-    .col-xs-12.loading.run-eligibility-processing.hide
+    .col-xs-12.loading.run-eligibility-processing(style="display: none;")
       i.fa.fa-spinner.fa-spin.fa-2x
     .run-eligibility-check-response-container(style="display: none;")
       span.eligibility-response-close-icon
@@ -37,7 +37,7 @@ javascript:
       
       // Show Spinner
       $('#eligibilityCheckButton').hide();
-      $('.run-eligibility-processing').removeClass("hide");
+      $('.run-eligibility-processing').show();
       // Fetch the URL from the data attribute
       var url = this.getAttribute('data-url');
 
@@ -46,7 +46,7 @@ javascript:
         data: {},
         url: url,
       }).done(function(response) {
-        $('.run-eligibility-processing').addClass("hide");
+        $('.run-eligibility-processing').hide();
         $('.run-eligibility-check-response-container').show();
 
         interpretResponse = interpretValidation(response);

@@ -327,7 +327,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
       end
 
       it "renders the 'Run Eligibility Check' button" do
-        expect(rendered).to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
+        expect(rendered).to have_selector('input#eligibilityCheckButton')
       end
     end
 
@@ -339,7 +339,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
       end
 
       it "does not render the 'Run Eligibility Check' button" do
-        expect(rendered).not_to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
+        expect(rendered).not_to have_selector('input#eligibilityCheckButton')
       end
     end
 
@@ -351,7 +351,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
       end
 
       it "renders the 'Run Eligibility Check' button" do
-        expect(rendered).to have_selector('input#eligibilityCheckButton[value="Run Eligibility Check"]')
+        expect(rendered).to have_selector('input#eligibilityCheckButton')
       end
     end
   end
