@@ -59,5 +59,11 @@ module BenefitSponsors
     def can_modify_employer?
       user.person.hbx_staff_role.permission.modify_employer
     end
+
+    def run_eligibility_check?
+      return false unless user.present?
+
+      user.has_hbx_staff_role?
+    end
   end
 end
