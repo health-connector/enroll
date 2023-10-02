@@ -15,6 +15,7 @@ ARG NODE_VERSION="none"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 RUN su vscode -c '/bin/bash -l -c ". /etc/profile.d/rvm.sh && rvm install 2.6.5"'
+RUN su vscode -c '/bin/bash -l -c ". /etc/profile.d/rvm.sh && rvm gemset create enroll"'
 RUN su vscode -c '/bin/bash -l -c ". /etc/profile.d/rvm.sh && rvm use 2.6.5@enroll"'
 
 USER vscode
