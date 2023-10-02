@@ -1,5 +1,4 @@
 development:
-  # Configure available database sessions. (required)
   clients:
     # Defines the default session. (required)
     default: &default_development

@@ -16,7 +16,7 @@ services:
       - /var/run/docker.sock:/var/run/docker-host.sock 
       - ../:/workspaces/enroll-ma
       - ${PWD}/.devcontainer/patches/mongoid-enroll.yml:/workspaces/enroll-ma/config/mongoid.yml:ro
-      - ${PWD}/.devcontainer/patches/cucumber-env.rb:/workspaces/enroll-ma/features/support/env.rb:ro
+      - ${PWD}/.devcontainer/patches/cucumber_env.rb:/workspaces/enroll-ma/features/support/env.rb:ro
     command: sleep infinity 
 
     # Uncomment the next four lines if you will use a ptrace-based debuggers like C++, Go, and Rust.
