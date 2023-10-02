@@ -1,0 +1,80 @@
+version: '3.4'
+
+services:
+  app:
+    platform: linux/amd64
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUNDLER_VERSION_OVERRIDE: '2.0.1'
+        NODE_VERSION: '12'
+        RUBY_VARIANT: '2.6-bullseye'        
+        RVM_OVERRIDE: '2.6.5'
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker-host.sock 
+      - ../:/workspaces/enroll-ma
+      - ${PWD}/.devcontainer/patches/mongoid-enroll.yml:/workspaces/enroll-ma/config/mongoid.yml:ro
+      - ${PWD}/.devcontainer/patches/cucumber-env.rb:/workspaces/enroll-ma/features/support/env.rb:ro
+    command: sleep infinity 
+
+    # Uncomment the next four lines if you will use a ptrace-based debuggers like C++, Go, and Rust.
+    # cap_add:
+    #  - SYS_PTRACE
+    # security_opt:
+    #   - seccomp:unconfined
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+  # chrome:
+  #   image: seleniarm/node-chromium:latest
+  #   shm_size: 2gb
+  #   depends_on:
+  #     - selenium-hub
+  #   environment:
+  #     - SE_EVENT_BUS_HOST=selenium-hub
+  #     - SE_EVENT_BUS_PUBLISH_PORT=4442
+  #     - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  # selenium-hub:
+  #   image: seleniarm/hub:latest
+  #   container_name: selenium-hub
+  #   ports:
+  #     - "4442:4442"
+  #     - "4443:4443"
+  #     - "4444:4444"
+
+  selenium-chrome:
+    image: seleniarm/standalone-chromium:latest
+    shm_size: 2gb
+    ports:
+      - "4444:4444"
+
+  redis:
+    # hostname: redis
+    image: redis:7.0
+    ports:
+      - 6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+  mongodb:
+    image: mongo:4.2
+    hostname: mongodb
+    # mem_limit: 4000m #trying to replicate mongo memory on prod
+    volumes:
+      - mongodb:/data/db
+      - mongodb_config:/data/configdb
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
+      # interval: 1s
+      # timeout: 5s
+      # retries: 30
+      # start_period: 20s
+volumes:
+  mongodb:
+  mongodb_config:
