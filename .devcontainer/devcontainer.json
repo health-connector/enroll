@@ -23,7 +23,17 @@
 	// 	"ghcr.io/devcontainers/features/common-utils:2": {"installZsh":"true", "configureZshAsDefaultShell":"true","upgradePackages":"true"}
 	// },
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [3000],
+	"forwardPorts": [
+		3000
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot",
+				"GitHub.vscode-pull-request-github"
+			]
+		}
+	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "docker --version",

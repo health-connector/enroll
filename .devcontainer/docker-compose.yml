@@ -46,10 +46,31 @@ services:
   #     - "4444:4444"
 
   selenium-chrome:
+    hostname: selenium-chrome
     image: seleniarm/standalone-chromium:latest
     shm_size: 2gb
+    labels:
+      - "autoheal=true"
     ports:
       - "4444:4444"
+      - "7900:7900"
+    healthcheck:
+      test: '/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444'
+      interval: 15s
+      timeout: 30s
+      retries: 5
+      # start_period: 20s
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    tty: true
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_INTERVAL=60
+      - AUTOHEAL_START_PERIOD=300
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=10
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   redis:
     # hostname: redis
