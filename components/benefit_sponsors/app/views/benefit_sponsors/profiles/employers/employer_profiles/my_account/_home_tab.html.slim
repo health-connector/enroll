@@ -13,9 +13,8 @@
       - else
         = render partial: 'benefit_sponsors/profiles/employers/employer_profiles/my_account/employer_welcome'
   - if !@current_plan_year.present?
-    .row
-      .col-xs-4
-        = render partial: 'ui-components/v1/cards/employer_broker_widget'
+    .col-xs-4
+      = render partial: 'ui-components/v1/cards/employer_broker_widget'
   - if employer_external_link_enabled?
     .col-xs-4
       = render partial: 'shared/employer_external_links'
