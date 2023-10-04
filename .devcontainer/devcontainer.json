@@ -4,11 +4,14 @@
 	"name": "enroll/MA",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/workspaces/enroll-ma/",
+	// "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Use this environment variable if you need to bind mount your local source code into a new container.
 	"remoteEnv": {
-		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+		// "LOCAL_BASENAME": "${localWorkspaceFolderBasename}",
+		// "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+		"LOCAL_WORKSPACE_FOLDER": "enroll-ma"
 	},
 
 	// "features": {

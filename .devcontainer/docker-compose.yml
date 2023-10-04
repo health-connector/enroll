@@ -14,6 +14,7 @@ services:
 
     volumes:
       - /var/run/docker.sock:/var/run/docker-host.sock 
+      # - ../../:/workspaces
       - ../:/workspaces/enroll-ma
       - ${PWD}/.devcontainer/patches/mongoid-enroll.yml:/workspaces/enroll-ma/config/mongoid.yml:ro
       - ${PWD}/.devcontainer/patches/cucumber_env.rb:/workspaces/enroll-ma/features/support/env.rb:ro
