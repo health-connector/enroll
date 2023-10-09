@@ -1,0 +1,47 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-outside-of-docker-compose
+{
+	"name": "enroll/MA",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/enroll-ma/",
+	// "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+	// Use this environment variable if you need to bind mount your local source code into a new container.
+	"remoteEnv": {
+		// "LOCAL_BASENAME": "${localWorkspaceFolderBasename}",
+		// "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+		"LOCAL_WORKSPACE_FOLDER": "enroll-ma"
+	},
+
+	// "features": {
+	// 	// "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+	// 	// 	"version": "20.10",
+	// 	// 	"enableNonRootDocker": "true",
+	// 	// 	"moby": "true"
+	// 	// },
+		// "ghcr.io/devcontainers/features/ruby:1": {"version":"2.6.5"},
+	// 	"ghcr.io/devcontainers/features/node:1": {"version":"14"},
+	// 	// "ghcr.io/devcontainers/features/python:1": {"version":"2.7.18"},
+	// 	"ghcr.io/devcontainers/features/common-utils:2": {"installZsh":"true", "configureZshAsDefaultShell":"true","upgradePackages":"true"}
+	// },
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		3000
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot",
+				"GitHub.vscode-pull-request-github"
+			]
+		}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "docker --version",
+	// "postCreateCommand": "rvm install 2.6.5 && rvm use 2.6.5 && bundle install"
+	// "postCreateCommand": "cd $PWD"
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
