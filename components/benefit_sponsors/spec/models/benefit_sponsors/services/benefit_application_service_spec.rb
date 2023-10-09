@@ -520,16 +520,31 @@ module BenefitSponsors
       end
 
       context 'not for admin_datatable_action' do
+        let(:end_on) { start_on.next_year.prev_day }
+        let(:create_ba_params) do
+          {
+            "start_on" => start_on,
+            "end_on" => end_on,
+            "fte_count" => "11",
+            "pte_count" => '',
+            "open_enrollment_start_on" => Date.new(start_on.year, start_on.prev_month.month, 1),
+            "open_enrollment_end_on" => Date.new(start_on.year, start_on.prev_month.month, 20),
+            "benefit_sponsorship_id" => benefit_sponsorship.id.to_s
+          }
+        end
+
         before :each do
           @form = init_form_for_create
           fetch_bs_for_service(@form)
           @model_attrs = subject.form_params_to_attributes(@form)
         end
 
-        it 'should return true and instance as ba succesfully created' do
+        it 'should return true and instance as ba succesfully created and preserve default values' do
           result = subject.create_or_cancel_draft_ba(@form, @model_attrs)
           benefit_sponsorship.reload
-          expect(result).to eq [true, benefit_sponsorship.benefit_applications.first]
+          new_ba = benefit_sponsorship.benefit_applications.first
+          expect(result).to eq [true, new_ba]
+          expect(new_ba.pte_count).to eq 0
         end
       end
 
