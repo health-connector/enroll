@@ -41,6 +41,9 @@
                     <li onclick="pyAction('cancel','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
                     <li onclick="pyAction('terminate','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
                     <!-- <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= @benefit_sponsorship.id %>', '<%= application.terminated_on %>', '')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li> -->
+                    <%if policy_helper(HbxProfile).can_generate_v2_xml? %>
+                      <li onclick="pyAction('generate_v2_xml','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')"  class="generate-v2-xml-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.generate_v2_xml") %></li>
+                    <%end%>
                 </ul>
               </div>
               
@@ -60,13 +63,60 @@
               </div>
             </td>
             <td colspan="2">
-              <input type="text" class="uidatepicker form-control date py-end-date" style="width:120px" placeholder="Select Term Date" id="date_picker_<%= application.id %>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on) %>', '<%= TimeKeeper.format_date(application.end_on + 1.day) %>')"> <span class="glyphicon glyphicon-calendar" id="calendar_icon" style="font-size:1.5em" aria-hidden="true" ></span>
+              <div class="cancel_action_inputs">
+                <input type="text" class="uidatepicker form-control date py-end-date" style="width:120px" placeholder="Select Term Date" id="date_picker_<%= application.id %>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on) %>', '<%= TimeKeeper.format_date(application.end_on + 1.day) %>')"> <span class="glyphicon glyphicon-calendar" id="calendar_icon" style="font-size:1.5em" aria-hidden="true" ></span>
+              </div>
             </td>
             <td colspan="2">
-              <%= check_box_tag 'transmit_to_carrier', 'transmit_to_carrier', true, disabled: true  %> <%= l10n("exchange.employer_applications.transmit_to_carrier") %>
+              <div class="cancel_action_inputs">
+                <%= check_box_tag 'transmit_to_carrier', 'transmit_to_carrier', true, disabled: true  %> <%= l10n("exchange.employer_applications.transmit_to_carrier") %>
+              </div>
             </td>
             <td colspan="1">
-              <button class="btn btn-primary btn-sm plan-year-submit" onclick="submitPlanActions()"><%= l10n("exchange.employer_applications.submit") %></button>
+              <div class="cancel_action_inputs">
+                <button class="btn btn-primary btn-sm plan-year-submit" onclick="submitPlanActions()"><%= l10n("exchange.employer_applications.submit") %></button>
+              </div>
+            </td>
+          </tr>
+          <tr id="<%= application.id %>" class="v2_xml_inputs hidden">
+            <td colspan="2">
+              <div class="v2_xml_inputs hidden">
+                <!-- Add a dropdown for actions here -->
+                <!-- <label for="actions_dropdown_<%= application.id %>">Event Type</label> -->
+                <select id="actions_dropdown_<%= application.id %>" name="event_type" placeholder='Event Type' onchange="v2DropDownEvents(this.value, '<%= application.id %>')">
+                  <!-- Add the "v2 event type" label here -->
+                  <option selected='selected'>v2 Event Type</option>
+                  <option value="address_changed"><%= l10n("exchange.employer_applications.address_changed")%></option>
+                  <option value="contact_changed"><%= l10n("exchange.employer_applications.contact_changed") %></option>
+                  <option value="fein_corrected"><%= l10n("exchange.employer_applications.fein_corrected") %></option>
+                  <option value="name_changed"><%= l10n("exchange.employer_applications.name_changed") %></option>
+                  <option value="broker_added"><%= l10n("exchange.employer_applications.broker_added") %></option>
+                  <option value="broker_terminated"><%= l10n("exchange.employer_applications.broker_terminated") %></option>
+                  <option value="general_agent_added"><%= l10n("exchange.employer_applications.general_agent_added") %></option>
+                  <option value="general_agent_terminated"><%= l10n("exchange.employer_applications.general_agent_terminated") %></option>
+                  <option value="benefit_coverage_initial_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_initial_application_eligible") %></option>
+                  <option value="benefit_coverage_renewal_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_application_eligible") %></option>
+                  <option value="benefit_coverage_renewal_carrier_dropped"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_carrier_dropped") %></option>
+                  <option value="benefit_coverage_mid_plan_year_initial_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_mid_plan_year_initial_eligible") %></option>
+                  <option value="benefit_coverage_initial_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_initial_application_eligible") %></option>
+                  <option value="benefit_coverage_renewal_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_application_eligible") %></option>
+                  <option value="benefit_coverage_renewal_carrier_dropped"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_carrier_dropped") %></option>
+                  <option value="benefit_coverage_period_terminated_voluntary"><%= l10n("exchange.employer_applications.benefit_coverage_period_terminated_voluntary") %></option>
+                  <option value="benefit_coverage_period_terminated_nonpayment"><%= l10n("exchange.employer_applications.benefit_coverage_period_terminated_nonpayment") %></option>
+                </select>
+              </div>
+            </td>
+            <td colspan="2">
+              <!-- Blue Download button -->
+              <div class="v2_xml_inputs hidden">
+                <%= render partial: 'exchanges/employer_applications/download_v2_xml', locals: {application: application} %>
+              </div>
+            </td>
+            <td colspan="5">
+              <div class="v2_xml_inputs hidden">
+                <a href="/exchanges/employer_applications/<%= application.id %>/upload_v2_xml" class="btn btn-default interaction-click-control-upload" data-remote="true"  id="uplaod_button_<%= application.id %>" >Upload V2 XML
+                </a>
+              </div>
             </td>
           </tr>
         <% end %>

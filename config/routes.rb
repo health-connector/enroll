@@ -160,6 +160,8 @@ Rails.application.routes.draw do
       put :terminate
       put :cancel
       put :reinstate
+      post :download_v2_xml
+      get :upload_v2_xml
       collection do
         get :get_term_reasons
       end

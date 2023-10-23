@@ -54,6 +54,13 @@ class HbxProfilePolicy < ApplicationPolicy
     role.permission.can_modify_plan_year
   end
 
+  def can_generate_v2_xml?
+    role = user_hbx_staff_role
+    return false unless role
+    return false unless role.permission.name == "super_admin"
+    role.permission.can_modify_plan_year
+  end
+
   def can_create_benefit_application?
     role = user_hbx_staff_role
     return false unless role

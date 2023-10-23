@@ -5,6 +5,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   before_action :can_modify_plan_year?, only: [:terminate, :cancel]
   before_action :check_hbx_staff_role, except: :get_term_reasons
   before_action :find_benefit_sponsorship, except: :get_term_reasons
+  before_action :can_generate_v2_xml?, only: [:download_v2_xml, :upload_v2_xml]
 
   def index
     @allow_mid_month_voluntary_terms = allow_mid_month_voluntary_terms?
@@ -54,10 +55,32 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   end
 
+  def download_v2_xml
+    event_name = params[:selected_event]
+    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    employer_hbx_id = @benefit_sponsorship.organization.hbx_id
+    employer = @benefit_sponsorship.profile
+    event_payload = render_to_string "events/v2/employers/updated", :formats => ["xml"], :locals => { employer: employer, manual_gen: false, benefit_application_id: @application.id }
+    employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_hbx_id)
+    group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
+    group_xml_downloader.download(self)
+  end
+
+  def upload_v2_xml
+    # To Do
+    respond_to do |format|
+      format.js #{ render "new_document" }
+    end
+  end
+
   private
 
   def can_modify_plan_year?
     authorize HbxProfile, :can_modify_plan_year?
+  end
+
+  def can_generate_v2_xml?
+    authorize HbxProfile, :can_generate_v2_xml?
   end
 
   def check_hbx_staff_role
