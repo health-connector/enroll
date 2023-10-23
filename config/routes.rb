@@ -150,6 +150,8 @@ Rails.application.routes.draw do
         put :reinstate
         put :revise_end_date
         get :confirmation_details
+        post :download_v2_xml
+        get :upload_v2_xml
       end
     end
 
