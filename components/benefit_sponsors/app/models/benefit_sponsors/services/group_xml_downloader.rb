@@ -15,7 +15,7 @@ module BenefitSponsors
       def download(controller)
         carrier_files = employer_event.render_payloads
         z_file = Tempfile.new("employer_events_digest")
-        zip_path = z_file.path + ".zip"
+        zip_path = "#{z_file.path}.zip"
         z_file.close
         z_file.unlink
         ::Zip::File.open(zip_path, ::Zip::File::CREATE) do |zip|

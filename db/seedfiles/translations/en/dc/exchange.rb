@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.applications" => "applications",
   "en.exchange.employer_applications.start_date" => "Start Date",
@@ -28,6 +30,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.unable_to_change_end_date" => "An error occured when changing end date of an application.",
   "en.exchange.employer_applications.revise_end_date.confirmation_message" => "Are you sure you want to change the end date?",
   "en.exchange.employer_applications.generate_v2_xml" => "Generate V2 XML",
+  "en.exchange.employer_applications.v2_event_type" => "V2 Event Type",
   "en.exchange.employer_applications.name_changed" => "Name Changed",
   "en.exchange.employer_applications.broker_added" => "Broker Added",
   "en.exchange.employer_applications.broker_terminated" => "Broker Terminated",
@@ -37,9 +40,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.benefit_coverage_renewal_application_eligible" => "Benefit Coverage Renewal Application Eligible",
   "en.exchange.employer_applications.benefit_coverage_renewal_carrier_dropped" => "Benefit Coverage Renewal Carrier Dropped",
   "en.exchange.employer_applications.benefit_coverage_mid_plan_year_initial_eligible" => "Benefit Coverage Mid Plan Year Initial Eligible",
-  "en.exchange.employer_applications.benefit_coverage_initial_application_eligible" => "Benefit Coverage Initial Application Eligible",
-  "en.exchange.employer_applications.benefit_coverage_renewal_application_eligible" => "Benefit Coverage Renewal Application Eligible",
-  "en.exchange.employer_applications.benefit_coverage_renewal_carrier_dropped" => "Benefit Coverage Renewal Carrier Dropped",
   "en.exchange.employer_applications.benefit_coverage_period_terminated_voluntary" => "Benefit Coverage Period Terminated Voluntary",
   "en.exchange.employer_applications.benefit_coverage_period_terminated_nonpayment" => "Benefit Coverage Period Terminated Nonpayment"
-}
+}.freeze
