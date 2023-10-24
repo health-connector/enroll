@@ -1,4 +1,4 @@
 <%= form_tag(exchanges_employer_application_download_v2_xml_path(id: application.id, employer_id: @benefit_sponsorship.id, employer_application_id: application.id), method: :post, remote: false, target: "_blank") do %>
-    <%= hidden_field_tag :selected_event, nil, id: 'selected_event_type_' + application.id %>
-    <%= submit_tag "Download V2 XML", id: "download_button_" + application.id, class: "btn btn-primary btn-sm disabled" %>
+    <%= hidden_field_tag :selected_event, nil, id: "selected_event_type_#{application.id}" %>
+    <%= submit_tag "Download V2 XML", id: "download_button_#{application.id}", class: "btn btn-primary btn-sm disabled" %>
 <%end%>
