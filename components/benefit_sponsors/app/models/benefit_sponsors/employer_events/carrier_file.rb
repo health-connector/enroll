@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'set'
+require 'zip'
 
 module BenefitSponsors
   module EmployerEvents
@@ -31,7 +32,8 @@ module BenefitSponsors
 
       def render_event_using(renderer, event)
         if renderer.render_for(carrier, @buffer)
-          @rendered_employers << event.employer_id
+          employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: event.employer_profile_id).first
+          @rendered_employers << employer_profile.organization.hbx_id
           @empty = false
           update_timestamps(renderer.timestamp)
         end
