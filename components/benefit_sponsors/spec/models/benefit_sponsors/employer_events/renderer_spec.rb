@@ -367,7 +367,7 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an plan year cancelat
     BenefitSponsors::EmployerEvents::Renderer.new(employer_event)
   end
 
-  describe "with plan years for the specified carrier, with plan year start date == end date" do
+  describe "with plan years for the specified carrier, with plan year start date == end date", :dbclean => :after_each do
     let(:hbx_carrier_id) { "SOME CARRIER ID" }
     let(:plan_year_start) { Date.today.beginning_of_month }
     let(:plan_year_end) { Date.today.beginning_of_month }
@@ -606,16 +606,19 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
   include_context "setup renewal application"
+
   let(:event_time) { double }
-  let(:employer_id) { "EMPLOYER HBX ID" }
-  let(:employer) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_renewal_benefit_application, hbx_id: employer_id)}
-  let(:old_plan_year) { employer.benefit_applications.last }
+  let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_renewal_benefit_application)}
+  let(:employer) {employer_profile.organization}
+  let(:employer_id) {employer.hbx_id}
+  let(:old_plan_year) { employer_profile.benefit_applications.last }
   let(:old_plan_year_start_date) {old_plan_year.effective_period.min.strftime("%Y%m%d")}
   let(:old_plan_year_end_date) { old_plan_year.effective_period.max.strftime("%Y%m%d")}
-  let(:plan_year) {employer.benefit_applications.first }
+  let(:plan_year) {employer_profile.benefit_applications.first }
   let(:start_date) {plan_year.effective_period.min.strftime("%Y%m%d")}
   let(:end_date) { plan_year.effective_period.max.strftime("%Y%m%d")}
-  let(:carrier) {old_plan_year.benefit_packages.first.health_sponsored_benefit.reference_product.issuer_profile}
+  let(:carrier) {plan_year.benefit_packages.first.health_sponsored_benefit.reference_product.issuer_profile}
+  let(:old_carrier) {old_plan_year.benefit_packages.first.health_sponsored_benefit.reference_product.issuer_profile}
   let!(:plan_years) { [plan_year, old_plan_year]}
   let(:hbx_carrier_id) { "20001"}
   let(:renewal_successful_event) { BenefitSponsors::EmployerEvents::EventNames::RENEWAL_SUCCESSFUL_EVENT }
@@ -751,8 +754,20 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it
     XMLCODE
   end
 
-  let(:employer_event) { instance_double(BenefitSponsors::Services::EmployerEvent, {event_time: event_time, event_name: renewal_successful_event, resource_body: source_document}) }
-  let(:renewal_carrier_change_employer_event) { instance_double(BenefitSponsors::Services::EmployerEvent, {event_time: event_time, event_name: renewal_carrier_change_event, resource_body: source_document}) }
+  let(:employer_event) do
+    instance_double(BenefitSponsors::Services::EmployerEvent,
+                    { event_time: event_time,
+                      event_name: renewal_successful_event,
+                      resource_body: source_document,
+                      employer_profile_id: employer_profile.hbx_id})
+  end
+  let(:renewal_carrier_change_employer_event) do
+    instance_double(BenefitSponsors::Services::EmployerEvent,
+                    { event_time: event_time,
+                      event_name: renewal_carrier_change_event,
+                      resource_body: source_document,
+                      employer_profile_id: employer_profile.hbx_id})
+  end
   let!(:doc)  {Nokogiri::XML(employer_event.resource_body)}
 
   describe "with plan years for the specified carrier", :dbclean => :after_each do
@@ -762,8 +777,6 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it
     end
 
     it "finds updates the event if there is a previous plan year" do
-      allow(employer_event).to receive(:employer_id).and_return(employer.hbx_id)
-      allow(renewal_carrier_change_employer_event).to receive(:employer_id).and_return(employer.hbx_id)
       allow(carrier).to receive(:hbx_carrier_id).and_return(hbx_carrier_id)
 
       expect(subject.update_event_name(carrier, employer_event)).to eq renewal_successful_event
@@ -777,10 +790,10 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it
       <<-XMLCODE
       <organization xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://openhbx.org/api/terms/1.0" xsi:type="EmployerOrganizationType">
         <id>
-          <id>234025</id>
+          <id>#{employer_id}</id>
         </id>
-       <name>SEARCH BEYOND ADVENTURES INC</name>
-        <fein>411444593</fein>
+        <name>#{employer.legal_name}</name>
+        <fein>#{employer.fein}</fein>
         <office_locations>
           <office_location>
             <id>
@@ -860,7 +873,13 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it
       </organization>
       XMLCODE
     end
-    let(:first_time_employer_event) { instance_double(BenefitSponsors::Services::EmployerEvent, {event_time: event_time, event_name: first_time_employer_event_name, resource_body: first_time_employer_source_document}) }
+    let(:first_time_employer_event) do
+      instance_double(BenefitSponsors::Services::EmployerEvent,
+                      { event_time: event_time,
+                        event_name: first_time_employer_event_name,
+                        resource_body: first_time_employer_source_document,
+                        employer_profile_id: employer_profile.hbx_id})
+    end
 
     subject do
       BenefitSponsors::EmployerEvents::Renderer.new(first_time_employer_event)
@@ -868,7 +887,6 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it
 
     describe "with plan years for the specified carrier" do
       it "finds updates the event if there is a previous plan year" do
-        allow(first_time_employer_event).to receive(:employer_id).and_return(employer.hbx_id)
         allow(carrier).to receive(:hbx_carrier_id).and_return(hbx_carrier_id)
 
         expect(subject.update_event_name(carrier, first_time_employer_event)).to eq first_time_employer_event_name
@@ -886,6 +904,9 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given:
   include_context "setup renewal application"
 
   let(:event_time) { double }
+  let(:employer_profile_hbx_id) {benefit_sponsorship.hbx_id}
+  let(:employer) {benefit_sponsorship.organization}
+  let(:employer_id) {employer.hbx_id}
   let(:old_plan_year) { benefit_sponsorship.benefit_applications.last }
   let(:old_plan_year_start_date) {old_plan_year.effective_period.min.strftime("%Y%m%d")}
   let(:old_plan_year_end_date) { old_plan_year.effective_period.max.strftime("%Y%m%d")}
@@ -904,10 +925,10 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given:
     <<-XMLCODE
     <organization xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://openhbx.org/api/terms/1.0" xsi:type="EmployerOrganizationType">
       <id>
-        <id>#{benefit_sponsorship.hbx_id}</id>
+        <id>#{employer.hbx_id}</id>
       </id>
-     <name>#{benefit_sponsorship.legal_name}</name>
-      <fein>#{benefit_sponsorship.fein}</fein>
+     <name>#{employer.legal_name}</name>
+      <fein>#{employer.fein}</fein>
       <office_locations>
         <office_location>
           <id>
@@ -1033,13 +1054,15 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given:
     instance_double(BenefitSponsors::Services::EmployerEvent,
                     { event_time: event_time,
                       event_name: renewal_successful_event,
-                      resource_body: source_document})
+                      resource_body: source_document,
+                      employer_profile_id: employer_profile_hbx_id})
   end
   let(:first_time_employer_event) do
     instance_double(BenefitSponsors::Services::EmployerEvent,
                     { event_time: event_time,
                       event_name: first_time_employer_event_name,
-                      resource_body: source_document})
+                      resource_body: source_document,
+                      employer_profile_id: employer_profile_hbx_id})
   end
 
   let!(:doc)  {Nokogiri::XML(employer_event.resource_body)}
@@ -1049,13 +1072,10 @@ describe BenefitSponsors::EmployerEvents::Renderer, "given:
   end
 
   before :each do
-    allow(employer_event).to receive(:employer_id).and_return(benefit_sponsorship.hbx_id)
-    allow(first_time_employer_event).to receive(:employer_id).and_return(benefit_sponsorship.hbx_id)
     allow(carrier).to receive(:hbx_carrier_id).and_return(hbx_carrier_id)
     allow(old_carrier).to receive(:hbx_carrier_id).and_return(hbx_carrier_id)
     benefit_sponsorship.benefit_applications[1].delete
   end
-
 
   context "when the past plan year is not for the same carrier as the current plan year" do
     let(:previous_plan_year_carrier_id) { "SOME OTHER CARRIER ID" }

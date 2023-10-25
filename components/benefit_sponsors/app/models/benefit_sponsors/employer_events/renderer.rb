@@ -66,7 +66,7 @@ module BenefitSponsors
         all_plan_years = finding_all_plan_years
         return false if all_plan_years.empty?
 
-        sorted_plan_years = finding_sorted_plan_years
+        sorted_plan_years = finding_sorted_plan_years(all_plan_years)
         last_plan_year = sorted_plan_years.last
         if last_plan_year.present? && last_plan_year.xpath("//cv:elected_plans/cv:elected_plan/cv:carrier/cv:id/cv:id[text() = '#{carrier.hbx_carrier_id}']", {:cv => XML_NS}).any?
           start_date = begin
@@ -144,7 +144,7 @@ module BenefitSponsors
         return employer_event.event_name unless qualifies_to_update_event_name?(carrier, employer_event)
 
         employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_profile_id).first
-        raise ::BenefitSponsors::EmployerEvents::Errors::EmployerEventEmployerNotFound, "No employer found for: #{employer_event.employer_profile_id}, Employer Event: #{employer_event.id}" if employer.nil?
+        raise ::BenefitSponsors::EmployerEvents::Errors::EmployerEventEmployerNotFound, "No employer found for: #{employer_event.employer_profile_id}, Employer Event: #{employer_event.id}" if employer_profile.nil?
 
         most_recent_plan_year_dates = find_latest_carrier_plan_year_in_event(carrier)
         raise ::BenefitSponsors::EmployerEvents::Errors::NoCarrierPlanYearsInEvent, "No plan years found in event for: #{carrier.id}, Employer Event: #{employer_event.id}" if most_recent_plan_year_dates.nil?

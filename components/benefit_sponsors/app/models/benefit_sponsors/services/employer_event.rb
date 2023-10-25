@@ -5,8 +5,6 @@ require 'zip'
 module BenefitSponsors
   module Services
     class EmployerEvent
-      include Mongoid::Document
-      include Mongoid::Timestamps
 
       attr_accessor :event_time, :event_name, :resource_body, :employer_profile_id
 
@@ -20,7 +18,7 @@ module BenefitSponsors
 
       def render_payloads
         issuer_profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles || []
-        carrier_files = issuer_profiles.flat_map { |issuer_profile| issuer_profile.profiles || [] }.map do |car|
+        carrier_files = issuer_profiles.flat_map(&:issuer_profile).compact.map do |car|
           BenefitSponsors::EmployerEvents::CarrierFile.new(car)
         end
         event_renderer = BenefitSponsors::EmployerEvents::Renderer.new(self)
