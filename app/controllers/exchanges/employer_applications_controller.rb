@@ -61,10 +61,10 @@ module Exchanges
     def download_v2_xml
       event_name = params[:selected_event]
       @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-      employer_hbx_id = @benefit_sponsorship.organization.hbx_id
+      employer_profile_hbx_id = @benefit_sponsorship.hbx_id
       employer = @benefit_sponsorship.profile
       event_payload = render_to_string "events/v2/employers/updated", :formats => ["xml"], :locals => { employer: employer, manual_gen: false, benefit_application_id: @application.id }
-      employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_hbx_id)
+      employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id)
       group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
       group_xml_downloader.download(self)
     end

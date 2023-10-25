@@ -8,21 +8,22 @@ module BenefitSponsors
       include Mongoid::Document
       include Mongoid::Timestamps
 
-      attr_accessor :event_time, :event_name, :resource_body, :employer_id
+      attr_accessor :event_time, :event_name, :resource_body, :employer_profile_id
 
-      def initialize(event_name, resource_body, employer_id)
+      def initialize(event_name, resource_body, employer_profile_id)
         @event_time = Time.now
         @event_name = event_name
         @resource_body = resource_body
-        @employer_id = employer_id
+        # employer_profile_id is a benefit_sponsorship.hbx_id
+        @employer_profile_id = employer_profile_id
       end
 
       def render_payloads
-        issuer_profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles
-        carrier_files = issuer_profiles.map(&:profiles).flatten.map do |car|
+        issuer_profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles || []
+        carrier_files = issuer_profiles.flat_map { |issuer_profile| issuer_profile.profiles || [] }.map do |car|
           BenefitSponsors::EmployerEvents::CarrierFile.new(car)
         end
-        event_renderer = EmployerEvents::Renderer.new(self)
+        event_renderer = BenefitSponsors::EmployerEvents::Renderer.new(self)
         carrier_files.each do |car|
           car.render_event_using(event_renderer, self)
         end
