@@ -143,23 +143,23 @@ module BenefitSponsors
       def update_event_name(carrier, employer_event)
         return employer_event.event_name unless qualifies_to_update_event_name?(carrier, employer_event)
 
-        employer = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_id).first
-        raise ::BenefitSponsors::EmployerEvents::Errors::EmployerEventEmployerNotFound, "No employer found for: #{employer_event.employer_id}, Employer Event: #{employer_event.id}" if employer.nil?
+        employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_profile_id).first
+        raise ::BenefitSponsors::EmployerEvents::Errors::EmployerEventEmployerNotFound, "No employer found for: #{employer_event.employer_profile_id}, Employer Event: #{employer_event.id}" if employer.nil?
 
         most_recent_plan_year_dates = find_latest_carrier_plan_year_in_event(carrier)
         raise ::BenefitSponsors::EmployerEvents::Errors::NoCarrierPlanYearsInEvent, "No plan years found in event for: #{carrier.id}, Employer Event: #{employer_event.id}" if most_recent_plan_year_dates.nil?
 
         start_date, end_date = most_recent_plan_year_dates
-        plan_year = find_employer_plan_year_by_date(employer, start_date, end_date)
-        if has_previous_plan_year_for_carrier?(employer, plan_year, carrier)
+        plan_year = find_employer_plan_year_by_date(employer_profile, start_date, end_date)
+        if has_previous_plan_year_for_carrier?(employer_profile, plan_year, carrier)
           BenefitSponsors::EmployerEvents::EventNames::RENEWAL_SUCCESSFUL_EVENT
         else
           BenefitSponsors::EmployerEvents::EventNames::FIRST_TIME_EMPLOYER_EVENT_NAME
         end
       end
 
-      def has_previous_plan_year_for_carrier?(employer, plan_year, carrier)
-        previous_plan_years = employer.benefit_applications.where(:'effective_period.max' => (plan_year.start_on - 1.day))
+      def has_previous_plan_year_for_carrier?(employer_profile, plan_year, carrier)
+        previous_plan_years = employer_profile.benefit_applications.where(:'effective_period.max' => (plan_year.start_on - 1.day))
         return false if previous_plan_years.empty?
 
         non_canceled_plan_years = previous_plan_years.reject do |py|
@@ -183,9 +183,9 @@ module BenefitSponsors
         plan_year.end_on >= (plan_year.start_on + 1.year - 1.day)
       end
 
-      def find_employer_plan_year_by_date(employer, start_date, end_date)
-        found_py = employer.benefit_applications.where(:'effective_period.min' => start_date, :'effective_period.max' => end_date).first
-        ::BenefitSponsors::EmployerEvents::Errors::EmployerPlanYearNotFound.new("No plan year found for: #{employer_event.employer_id}, Start: #{start_date}, End: #{end_date}") if found_py.nil?
+      def find_employer_plan_year_by_date(employer_profile, start_date, end_date)
+        found_py = employer_profile.benefit_applications.where(:'effective_period.min' => start_date, :'effective_period.max' => end_date).first
+        ::BenefitSponsors::EmployerEvents::Errors::EmployerPlanYearNotFound.new("No plan year found for: #{employer_event.employer_profile_id}, Start: #{start_date}, End: #{end_date}") if found_py.nil?
         found_py
       end
 
@@ -209,6 +209,7 @@ module BenefitSponsors
       end
 
       def render_for(carrier, out)
+        employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_profile_id).first
         return false unless ::BenefitSponsors::EmployerEvents::EventNames::EVENT_WHITELIST.include?(@employer_event.event_name)
 
         doc = Nokogiri::XML(employer_event.resource_body)
@@ -235,7 +236,7 @@ module BenefitSponsors
                           <employer_event>
                                   <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
                                   <resource_instance_uri>
-                                          <id>urn:openhbx:resource:organization:id##{employer_event.employer_id}</id>
+                                          <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
                                   </resource_instance_uri>
                                   <body>
         XMLHEADER
