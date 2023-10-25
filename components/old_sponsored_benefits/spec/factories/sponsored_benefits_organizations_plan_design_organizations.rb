@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :plan_design_organization, class: 'SponsoredBenefits::Organizations::PlanDesignOrganization' do
-    legal_name  "Turner Agency, Inc"
-    dba         "Turner Brokers"
+    legal_name  {"Turner Agency, Inc"}
+    dba         {"Turner Brokers"}
 
     sequence :sponsor_profile_id do |n|
       "12345#{n}"

@@ -37,7 +37,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
     context "account without person" do
       let(:email) { "devise@test.com" }
-      let!(:user) { FactoryGirl.create(:user, email: email, oim_id: email) }
+      let!(:user) { FactoryBot.create(:user, email: email, oim_id: email) }
 
       before do
         @request.env["devise.mapping"] = Devise.mappings[:user]
@@ -51,8 +51,8 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
     context "account with person" do
       let(:email) { "devisepersoned@test.com"}
-      let(:user) { FactoryGirl.create(:user, email: email, person: person, oim_id: email) }
-      let(:person) { FactoryGirl.create(:person) }
+      let(:user) { FactoryBot.create(:user, email: email, person: person, oim_id: email) }
+      let(:person) { FactoryBot.create(:person) }
 
       before do
         user.save!
@@ -69,8 +69,8 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
     context "with captcha enabled" do
 
       let(:email) { "test@example.com"}
-      let(:user) { FactoryGirl.create(:user, email: email, person: person, oim_id: email) }
-      let(:person) { FactoryGirl.create(:person) }
+      let(:user) { FactoryBot.create(:user, email: email, person: person, oim_id: email) }
+      let(:person) { FactoryBot.create(:person) }
       let(:recaptcha_token) {''}
 
       before do

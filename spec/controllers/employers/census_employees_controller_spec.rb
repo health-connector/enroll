@@ -5,24 +5,24 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
   before(:all) do
-    @user = FactoryGirl.create(:user)
-    p = FactoryGirl.create(:person, user: @user)
-    @hbx_staff_role = FactoryGirl.create(:hbx_staff_role, person: p)
+    @user = FactoryBot.create(:user)
+    p = FactoryBot.create(:person, user: @user)
+    @hbx_staff_role = FactoryBot.create(:hbx_staff_role, person: p)
   end
 
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
   # let(:employer_profile_id) { "abecreded" }
-  # let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  # let!(:site)  { FactoryGirl.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :with_benefit_market_catalog, :dc) }
+  # let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  # let!(:site)  { FactoryBot.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :with_benefit_market_catalog, :dc) }
 
-  # let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_dc_employer_profile)}
+  # let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_dc_employer_profile)}
   let(:organization)  {abc_organization}
   let(:employer_profile) { organization.employer_profile }
   let(:employer_profile_id) { employer_profile.id }
 
   let(:census_employee) do
-    FactoryGirl.create(:benefit_sponsors_census_employee,
+    FactoryBot.create(:benefit_sponsors_census_employee,
                        employer_profile: employer_profile,
                        benefit_sponsorship: employer_profile.active_benefit_sponsorship,
                        employment_terminated_on: TimeKeeper.date_of_record - 45.days,
@@ -39,7 +39,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
      "employer_profile" => employer_profile}
   end
 
-  let(:person) { FactoryGirl.create(:person, first_name: "aqzz", last_name: "White", dob: "11/11/1992", ssn: "123123123", gender: "male", employer_profile_id: employer_profile.id, hired_on: "2014-11-11")}
+  let(:person) { FactoryBot.create(:person, first_name: "aqzz", last_name: "White", dob: "11/11/1992", ssn: "123123123", gender: "male", employer_profile_id: employer_profile.id, hired_on: "2014-11-11")}
   describe "GET new" do
 
     it "should render the new template" do
@@ -116,7 +116,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   end
 
   describe "GET edit" do
-    let(:user) { FactoryGirl.create(:user, :employer_staff) }
+    let(:user) { FactoryBot.create(:user, :employer_staff) }
     it "should be render edit template" do
       sign_in user
       allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
@@ -130,13 +130,13 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     let(:effective_on) { TimeKeeper.date_of_record.beginning_of_month.prev_month }
     # let(:employer) {
-    #   FactoryGirl.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'active')
+    #   FactoryBot.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'active')
     # }
 
     # let(:plan_year) { employer.plan_years[0] }
     # let(:benefit_group) { plan_year.benefit_groups[0] }
 
-    let(:user) { FactoryGirl.create(:user, :employer_staff) }
+    let(:user) { FactoryBot.create(:user, :employer_staff) }
     let(:census_employee_delete_params) do
       {
         "first_name" => "aqzz",
@@ -300,15 +300,15 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     #Scenario: Someone signs up as an employer - a form that does not require gender or SSN.
     context "Linking Employer owner person/user with census employee" do
-      let(:user) {FactoryGirl.create(:user, person: person)}
+      let(:user) {FactoryBot.create(:user, person: person)}
       # Make a user here
-      let(:person) { FactoryGirl.create(:person, gender: nil, ssn: nil)}
+      let(:person) { FactoryBot.create(:person, gender: nil, ssn: nil)}
       let(:organization)  {abc_organization}
       let(:employer_profile) { organization.employer_profile }
       let(:employer_profile_id) { employer_profile.id }
       # This census employee will have that person name and dob
       let(:census_employee) do
-        FactoryGirl.create(:benefit_sponsors_census_employee,
+        FactoryBot.create(:benefit_sponsors_census_employee,
                            employer_profile: employer_profile,
                            benefit_sponsorship: employer_profile.active_benefit_sponsorship,
                            employment_terminated_on: TimeKeeper.date_of_record - 45.days,
@@ -362,19 +362,19 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     let(:benefit_group_assignment) { double(hbx_enrollment: hbx_enrollment, active_hbx_enrollments: [hbx_enrollment]) }
     let(:benefit_group) { double }
     let(:hbx_enrollment) { double }
-    let(:hbx_enrollments) { FactoryGirl.build_stubbed(:hbx_enrollment) }
+    let(:hbx_enrollments) { FactoryBot.build_stubbed(:hbx_enrollment) }
 
-    let(:person) { FactoryGirl.create(:person)}
-    # let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-    let(:employee_role1) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile)}
-    let(:plan_year) {FactoryGirl.create(:plan_year, employer_profile: employer_profile)}
-    let(:benefit_group) {FactoryGirl.create(:benefit_group, plan_year: plan_year)}
-    let(:benefit_group_assignment1) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
-    let(:benefit_group_assignment2) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
-    let(:census_employee1) { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_group_assignments: [benefit_group_assignment1],employee_role_id: employee_role1.id,employer_profile_id: employer_profile.id) }
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member,person: person) }
+    let(:person) { FactoryBot.create(:person)}
+    # let(:employer_profile) { FactoryBot.create(:employer_profile) }
+    let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile)}
+    let(:plan_year) {FactoryBot.create(:plan_year, employer_profile: employer_profile)}
+    let(:benefit_group) {FactoryBot.create(:benefit_group, plan_year: plan_year)}
+    let(:benefit_group_assignment1) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:benefit_group_assignment2) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:census_employee1) { FactoryBot.create(:benefit_sponsors_census_employee, benefit_group_assignments: [benefit_group_assignment1],employee_role_id: employee_role1.id,employer_profile_id: employer_profile.id) }
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
     let(:current_employer_term_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
+      FactoryBot.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "employer_sponsored",
                          employee_role_id: employee_role1.id,
@@ -382,7 +382,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
                          aasm_state: 'coverage_terminated')
     end
     let(:current_employer_active_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
+      FactoryBot.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "employer_sponsored",
                          employee_role_id: employee_role1.id,
@@ -390,20 +390,20 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
                          aasm_state: 'coverage_selected')
     end
     let(:individual_term_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
+      FactoryBot.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "individual",
                          aasm_state: 'coverage_terminated')
     end
     let(:old_employer_term_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
+      FactoryBot.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "employer_sponsored",
                          benefit_group_assignment_id: benefit_group_assignment2.id,
                          aasm_state: 'coverage_terminated')
     end
     let(:expired_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
+      FactoryBot.create(:hbx_enrollment,
                          household: family.active_household,
                          kind: "individual",
                          aasm_state: 'coverage_expired')
@@ -450,12 +450,12 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     # end
 
     # context "for past enrollments" do
-    #   let(:census_employee) { FactoryGirl.build(:census_employee, first_name: person.first_name, last_name: person.last_name, dob: person.dob, ssn: person.ssn, employee_role_id: employee_role.id)}
-    #   let(:household) { FactoryGirl.create(:household, family: person.primary_family)}
-    #   let(:employee_role) { FactoryGirl.create(:employee_role, person: person)}
-    #   let(:person) { FactoryGirl.create(:person, :with_family)}
-    #   let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
-    #   let!(:hbx_enrollment_two) { FactoryGirl.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
+    #   let(:census_employee) { FactoryBot.build(:census_employee, first_name: person.first_name, last_name: person.last_name, dob: person.dob, ssn: person.ssn, employee_role_id: employee_role.id)}
+    #   let(:household) { FactoryBot.create(:household, family: person.primary_family)}
+    #   let(:employee_role) { FactoryBot.create(:employee_role, person: person)}
+    #   let(:person) { FactoryBot.create(:person, :with_family)}
+    #   let!(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
+    #   let!(:hbx_enrollment_two) { FactoryBot.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
 
     #   it "should not have any past enrollments" do
     #     hbx_enrollment.update_attribute(:aasm_state, "coverage_canceled")
@@ -734,9 +734,9 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   describe "POST create, for existing person and new dependent" do
     let(:benefit_group) { double(id: "5453a544791e4bcd33000121") }
 
-    let(:husband) { FactoryGirl.create(:person, :with_family, :with_consumer_role, first_name: 'Stefan') }
+    let(:husband) { FactoryBot.create(:person, :with_family, :with_consumer_role, first_name: 'Stefan') }
     let(:h_family) { husband.primary_family }
-    let(:wife) {FactoryGirl.create(:person, :with_family, first_name: 'Natascha')}
+    let(:wife) {FactoryBot.create(:person, :with_family, first_name: 'Natascha')}
     let(:w_family) { wife.primary_family }
 
     let!(:husbands_family) do

@@ -68,7 +68,7 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :feature
   config.extend ControllerMacros, :type => :controller #real logins for integration testing
   config.include ControllerHelpers, :type => :controller #stubbed logins for unit testing
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
   config.include FederalHolidaysHelper
   config.include Config::AcaModelConcern
 

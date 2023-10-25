@@ -6,12 +6,12 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  # let(:person) {FactoryGirl.create(:person)}
+  # let(:person) {FactoryBot.create(:person)}
   let(:person) { family.primary_person }
-  let(:user) { FactoryGirl.create(:user, person: person) }
-  let(:family){ FactoryGirl.create(:family, :with_primary_family_member_and_dependent) }
+  let(:user) { FactoryBot.create(:user, person: person) }
+  let(:family){ FactoryBot.create(:family, :with_primary_family_member_and_dependent) }
   let(:household){ family.active_household }
-  let(:hbx_enrollment){ FactoryGirl.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+  let(:hbx_enrollment){ FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
                                            household: household,
                                            hbx_enrollment_members: [hbx_enrollment_member],
                                            coverage_kind: "health",
@@ -19,9 +19,9 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
                                            sponsored_benefit_id: sponsored_benefit.id,
                                            rating_area_id: rating_area.id)}
   let(:benefit_group) { current_benefit_package }
-  let!(:census_employee) { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
+  let!(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-  let!(:employee_role) { FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
+  let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
   let(:rate_schedule_date) {TimeKeeper.date_of_record}
   let(:dental_sponsored_benefit) { true }
   let(:product_kinds) { [:health, :dental] }
@@ -55,7 +55,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     ).first
   end
   let(:hbx_enrollment_member) do
-    FactoryGirl.build(
+    FactoryBot.build(
       :hbx_enrollment_member,
       is_subscriber: true,
       applicant_id: family.primary_family_member.id,
@@ -65,7 +65,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   end
 
   let(:shop_health_enrollment) do
-    FactoryGirl.create(
+    FactoryBot.create(
       :hbx_enrollment,
       :with_enrollment_members,
       household: family.active_household,
@@ -78,7 +78,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     )
   end
 
-  let(:shop_dental_enrollment) { FactoryGirl.create(:hbx_enrollment,
+  let(:shop_dental_enrollment) { FactoryBot.create(:hbx_enrollment,
     household: family.active_household,
     product: dental_product,
     sponsored_benefit_id: package.dental_sponsored_benefit.id,
@@ -87,12 +87,12 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     rating_area_id: rating_area.id
   )}
 
-  let(:ivl_health_enrollment) { FactoryGirl.create(:hbx_enrollment,
+  let(:ivl_health_enrollment) { FactoryBot.create(:hbx_enrollment,
     household: family.active_household,
     coverage_kind: "health"
   )}
 
-  let(:ivl_dental_enrollment) { FactoryGirl.create(:hbx_enrollment,
+  let(:ivl_dental_enrollment) { FactoryBot.create(:hbx_enrollment,
     household: family.active_household,
     coverage_kind: "dental"
   )}

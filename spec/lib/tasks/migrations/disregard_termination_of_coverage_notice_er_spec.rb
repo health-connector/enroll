@@ -5,10 +5,10 @@ require File.join(Rails.root, "app/helpers/config/site_helper")
 require File.join(Rails.root, "app/helpers/config/contact_center_helper")
 
 RSpec.describe 'The employees of MA new groups received a notice in their accounts that their coverage was terminated because no payment was received from their employer', :type => :task, :dbclean => :after_each do
-  let(:employer_profile1)     { FactoryGirl.build(:employer_profile) }
-  let(:employer_profile2)     { FactoryGirl.build(:employer_profile) }
-  let!(:organization1) { FactoryGirl.create(:organization, fein: "876456787", employer_profile: employer_profile1) }
-  let!(:organization2) { FactoryGirl.create(:organization, fein: "555123457", employer_profile:employer_profile2) }
+  let(:employer_profile1)     { FactoryBot.build(:employer_profile) }
+  let(:employer_profile2)     { FactoryBot.build(:employer_profile) }
+  let!(:organization1) { FactoryBot.create(:organization, fein: "876456787", employer_profile: employer_profile1) }
+  let!(:organization2) { FactoryBot.create(:organization, fein: "555123457", employer_profile:employer_profile2) }
   
   before do
     load File.expand_path("#{Rails.root}/lib/tasks/migrations/disregard_termination_of_coverage_notice_er.rake", __FILE__)

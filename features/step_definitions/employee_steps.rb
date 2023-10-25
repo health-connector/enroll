@@ -1,11 +1,11 @@
 Given (/a matched Employee exists with only employee role/) do
-  FactoryGirl.create(:user)
-  person = FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: "Employee", last_name: "E", user: user)
-  org = FactoryGirl.create :organization, :with_active_plan_year
+  FactoryBot.create(:user)
+  person = FactoryBot.create(:person, :with_employee_role, :with_family, first_name: "Employee", last_name: "E", user: user)
+  org = FactoryBot.create :organization, :with_active_plan_year
   @benefit_group = org.employer_profile.plan_years[0].benefit_groups[0]
-  bga = FactoryGirl.build :benefit_group_assignment, benefit_group: @benefit_group
+  bga = FactoryBot.build :benefit_group_assignment, benefit_group: @benefit_group
   @employee_role = person.employee_roles[0]
-  ce =  FactoryGirl.build(:census_employee,
+  ce =  FactoryBot.build(:census_employee,
           first_name: person.first_name, 
           last_name: person.last_name, 
           dob: person.dob, 
@@ -36,8 +36,8 @@ end
 
 def employee_by_legal_name(legal_name, person)
   org = org_by_legal_name(legal_name)
-  employee_role = FactoryGirl.create(:employee_role, person: person, benefit_sponsors_employer_profile_id: org.employer_profile.id)
-  ce = FactoryGirl.create(:census_employee,
+  employee_role = FactoryBot.create(:employee_role, person: person, benefit_sponsors_employer_profile_id: org.employer_profile.id)
+  ce = FactoryBot.create(:census_employee,
     first_name: person.first_name,
     last_name: person.last_name,
     ssn: person.ssn,
@@ -49,8 +49,8 @@ def employee_by_legal_name(legal_name, person)
 end
 
 Given (/a person exists with dual roles/) do
-  FactoryGirl.create(:user)
-  FactoryGirl.create(:person, :with_employee_role, :with_consumer_role, :with_family, first_name: "Dual Role Person", last_name: "E", user: user)
+  FactoryBot.create(:user)
+  FactoryBot.create(:person, :with_employee_role, :with_consumer_role, :with_family, first_name: "Dual Role Person", last_name: "E", user: user)
 end
 
 Then (/(.*) sign in to portal/) do |name|
@@ -85,8 +85,8 @@ And(/employee (.*) with a dependent has (.*) relationship with age (.*) than 26/
   person = Person.where(:first_name => /#{person_hash[:first_name]}/i,
                         :last_name => /#{person_hash[:last_name]}/i).first
   @family = person.primary_family
-  dependent = FactoryGirl.create :person, dob: dob
-  fm = FactoryGirl.create :family_member, family: @family, person: dependent
+  dependent = FactoryBot.create :person, dob: dob
+  fm = FactoryBot.create :family_member, family: @family, person: dependent
   person.person_relationships << PersonRelationship.new(kind: kind, relative_id: dependent.id)
   ch = @family.active_household.immediate_family_coverage_household
   ch.coverage_household_members << CoverageHouseholdMember.new(family_member_id: fm.id)

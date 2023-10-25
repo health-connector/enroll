@@ -16,13 +16,14 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 4.2.11"
-  s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", "~> 5.4.0"
+  s.add_dependency "rails", "~> 5.0.7.2"
+  s.add_dependency "slim"#, "~> 3.0.8"
+  s.add_dependency "mongoid", "~> 6.1"
   s.add_dependency "aasm", "~> 4.8.0"
-  s.add_dependency 'config'
+  s.add_dependency 'config', "~> 2.0"
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
-  s.add_dependency 'roo', '~> 2.1.0'
+  # s.add_dependency 'roo', '~> 2.1.0'
+  s.add_dependency 'roo',                       '~> 2.7.0' #stolen from dc
   s.add_dependency 'dry-types'
   s.add_dependency 'dry-schema', '~> 1.0'
   s.add_dependency 'dry-validation', '~> 1.0'

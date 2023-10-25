@@ -90,7 +90,8 @@ module BenefitSponsors
     belongs_to  :organization,
       inverse_of: :benefit_sponsorships,
       counter_cache: true,
-      class_name: "BenefitSponsors::Organizations::Organization"
+      class_name: "BenefitSponsors::Organizations::Organization",
+      optional: true
 
     embeds_many :benefit_applications,
       class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication"
@@ -100,11 +101,13 @@ module BenefitSponsors
 
     belongs_to  :benefit_market,
       counter_cache: true,
-      class_name: "::BenefitMarkets::BenefitMarket"
+      class_name: "::BenefitMarkets::BenefitMarket",
+      optional: true
 
     belongs_to  :rating_area,
       counter_cache: true,
-      class_name: "::BenefitMarkets::Locations::RatingArea"
+      class_name: "::BenefitMarkets::Locations::RatingArea",
+      optional: true
 
     has_and_belongs_to_many :service_areas,
       :inverse_of => nil,

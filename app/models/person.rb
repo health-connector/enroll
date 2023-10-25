@@ -4,7 +4,7 @@ class Person
   include Mongoid::Document
   include SetCurrentUser
   include Mongoid::Timestamps
-  include Mongoid::Versioning
+  # include Mongoid::Versioning
   include Mongoid::Attributes::Dynamic
   include SponsoredBenefits::Concerns::Ssn
   include SponsoredBenefits::Concerns::Dob
@@ -35,6 +35,7 @@ class Person
                         :is_active,
                         :no_ssn],
                 :modifier_field => :modifier,
+                :modifier_field_optional => true,
                 :version_field => :tracking_version,
                 :track_create  => true,    # track document creation, default is false
                 :track_update  => true,    # track document updates, default is true
@@ -92,22 +93,25 @@ class Person
   delegate :is_applying_coverage, to: :consumer_role, allow_nil: true
 
   # Login account
-  belongs_to :user
+  belongs_to :user, inverse_of: :person, optional: true
 
   belongs_to :employer_contact,
                 class_name: "EmployerProfile",
                 inverse_of: :employer_contacts,
-                index: true
+                index: true,
+                optional: true
 
   belongs_to :broker_agency_contact,
                 class_name: "BrokerAgencyProfile",
                 inverse_of: :broker_agency_contacts,
-                index: true
+                index: true,
+                optional: true
 
   belongs_to :general_agency_contact,
                 class_name: "GeneralAgencyProfile",
                 inverse_of: :general_agency_contacts,
-                index: true
+                index: true,
+                optional: true
 
   embeds_one :consumer_role, cascade_callbacks: true, validate: true
   embeds_one :resident_role, cascade_callbacks: true, validate: true

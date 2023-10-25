@@ -17,18 +17,18 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"]
 
-  s.add_dependency "rails", "~> 4.2.11"
-  s.add_dependency "slim", "~> 3.0.9"
-  s.add_dependency "mongoid", "~> 5.4.0"
+  s.add_dependency "rails", "~> 5.0.7.2"
+  s.add_dependency "slim"#, "~> 3.0.9"
+  s.add_dependency "mongoid", "~> 6.1"
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
-  s.add_dependency 'config'
+  s.add_dependency 'config', "~> 2.0"
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'pundit', '~> 1.0.1'
   s.add_dependency 'active_model_serializers'
-  s.add_dependency 'virtus', '1.0.5'
-  s.add_dependency 'i18n', '0.7.0'
-  s.add_dependency 'nokogiri'
+  s.add_dependency 'virtus' #, '1.0.5'
+  s.add_dependency 'i18n'#, '0.7.0'
+  # s.add_dependency 'nokogiri', '~> 1.10.8' #stolen from DC
   s.add_dependency 'mini_portile2', '2.4.0'
   s.add_dependency 'dry-types'
   s.add_dependency 'dry-validation'

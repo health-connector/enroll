@@ -17,8 +17,8 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
   let(:ce) { benefit_sponsorship.census_employees.non_business_owner.first }
 
   let!(:family) {
-    person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
-    employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: abc_profile)
+    person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+    employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: abc_profile)
     ce.update_attributes({employee_role: employee_role})
     Family.find_or_build_from_employee_role(employee_role)
   }
@@ -154,7 +154,7 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
         let(:open_enrollment_end_on) { TimeKeeper.date_of_record + 10.days}
         let(:open_enrollment_period) { open_enrollment_start_on..open_enrollment_end_on }
         let(:aasm_state) { :active }
-        let(:qualifying_life_event_kind) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date) }
+        let(:qualifying_life_event_kind) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_event_date) }
         let(:qle_on) { TimeKeeper.date_of_record - 2.days }
 
         let!(:special_enrollment_period) {
@@ -204,7 +204,7 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
         let(:build_product_package) { coverage_kind == "health" ? product_package : dental_product_package }
 
         let!(:previous_enrollment) {
-          FactoryGirl.create(:hbx_enrollment,
+          FactoryBot.create(:hbx_enrollment,
             household: family.active_household,
             coverage_kind: coverage_kind,
             effective_on: enrollment_effective_date,
@@ -330,12 +330,12 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
             let(:second_product_package) { benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == 'health' && package != product_package } }
 
             let!(:second_benefit_package) do
-              FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: second_product_package)
+              FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: second_product_package)
             end
 
             let!(:second_benefit_group_assignment) do
               previous_benefit_group_assignment.update_attributes(end_on: previous_benefit_group_assignment.start_on)
-              FactoryGirl.create(:benefit_group_assignment, benefit_package: second_benefit_package, census_employee: ce, end_on: second_benefit_package.end_on)
+              FactoryBot.create(:benefit_group_assignment, benefit_package: second_benefit_package, census_employee: ce, end_on: second_benefit_package.end_on)
             end
 
             let(:previous_benefit_group_assignment) { ce.benefit_group_assignments.where(benefit_package_id: current_benefit_package).first }
@@ -358,7 +358,7 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
 
           let(:start_on) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
           let(:aasm_state) { :active }
-          let(:qualifying_life_event_kind) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date) }
+          let(:qualifying_life_event_kind) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_event_date) }
           let(:qle_on) { TimeKeeper.date_of_record - 2.days }
 
           let!(:special_enrollment_period) {
@@ -409,12 +409,12 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
     let(:second_product_package) { benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == 'health' && package != product_package } }
 
     let!(:second_benefit_package) do
-      FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: second_product_package)
+      FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, product_package: second_product_package)
     end
 
     let!(:second_benefit_group_assignment) do
       previous_benefit_group_assignment.update_attributes(end_on: previous_benefit_group_assignment.start_on)
-      FactoryGirl.create(:benefit_group_assignment, benefit_package: second_benefit_package, census_employee: ce, end_on: second_benefit_package.end_on)
+      FactoryBot.create(:benefit_group_assignment, benefit_package: second_benefit_package, census_employee: ce, end_on: second_benefit_package.end_on)
     end
 
     let(:previous_benefit_group_assignment) { ce.benefit_group_assignments.where(benefit_package_id: current_benefit_package).first }
@@ -423,7 +423,7 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
     let(:coverage_kind) { 'health' }
 
     let!(:existing_enrollment) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :hbx_enrollment,
         household: family.active_household,
         coverage_kind: coverage_kind,

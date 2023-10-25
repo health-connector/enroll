@@ -1,12 +1,12 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :sponsored_benefits_site, class: 'SponsoredBenefits::Site' do
     site_key    :acme
-    long_name   "ACME Widget's Benefit Website"
-    short_name  "Benefit Website"
-    domain_name "hbxshop.org"
+    long_name   {"ACME Widget's Benefit Website"}
+    short_name  {"Benefit Website"}
+    domain_name {"hbxshop.org"}
 
     transient do
-      kind :aca_shop
+      kind {:aca_shop}
     end
 
     trait :with_owner_general_organization do

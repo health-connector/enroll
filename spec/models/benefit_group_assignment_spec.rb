@@ -6,14 +6,14 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
   it { should validate_presence_of :benefit_package_id }
   it { should validate_presence_of :start_on }
   let(:site)                  { build(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let(:benefit_sponsor)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let(:benefit_sponsor)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let(:employer_profile)    { benefit_sponsor.employer_profile }
   let(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
     sponsorship.save
     sponsorship
   end
-  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,
@@ -44,9 +44,9 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
   end
 
   let!(:benefit_package) { benefit_sponsorship.benefit_applications.first.benefit_packages.first}
-  let(:employee_role_100) { FactoryGirl.create(:employee_role, employer_profile: employer_profile) }
+  let(:employee_role_100) { FactoryBot.create(:employee_role, employer_profile: employer_profile) }
   let(:census_employee) do
-    ce = FactoryGirl.create(:census_employee, employer_profile: employer_profile)
+    ce = FactoryBot.create(:census_employee, employer_profile: employer_profile)
     employee_role_100.update_attributes(census_employee_id: ce.id)
     ce.update_attributes(employee_role_id: employee_role_100.id)
     ce
@@ -194,7 +194,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
           # end
 
           context "with an associated, matching hbx_enrollment" do
-            let(:employee_role)   { FactoryGirl.build(:employee_role, employer_profile: employer_profile)}
+            let(:employee_role)   { FactoryBot.build(:employee_role, employer_profile: employer_profile)}
             let(:hbx_enrollment)  { HbxEnrollment.new(sponsored_benefit_package: benefit_package, employee_role: census_employee.employee_role) }
 
             before { benefit_group_assignment.hbx_enrollment = hbx_enrollment }
@@ -205,12 +205,12 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
             context "and hbx_enrollment is non-matching" do
 
-              let(:benefit_sponsor2)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_initial_application, site: site) }
+              let(:benefit_sponsor2)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_initial_application, site: site) }
               let(:benefit_sponsorship2)    { benefit_sponsor2.active_benefit_sponsorship }
               let(:other_employer_profile)      {  benefit_sponsorship2.profile }
               let!(:other_benefit_application) { benefit_sponsorship2.benefit_applications.first}
               let!(:other_benefit_package) { benefit_sponsorship2.benefit_applications.first.benefit_packages.first}
-              let(:other_employee_role)     { FactoryGirl.create(:employee_role, employer_profile: employer_profile2) }
+              let(:other_employee_role)     { FactoryBot.create(:employee_role, employer_profile: employer_profile2) }
 
               context "because it has different benefit group" do
                 before do
@@ -272,9 +272,9 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
         context "and coverage is terminated" do
           let(:household) { create(:household, family: family)}
           let(:family) { create(:family, :with_primary_family_member)}
-          # let(:employee_role)   { FactoryGirl.build(:employee_role, employer_profile: employer_profile, census_employee_id: census_employee.id)}
+          # let(:employee_role)   { FactoryBot.build(:employee_role, employer_profile: employer_profile, census_employee_id: census_employee.id)}
           let(:hbx_enrollment1) do
-            FactoryGirl.create(
+            FactoryBot.create(
               :hbx_enrollment,
               employee_role: census_employee.employee_role,
               household: household,
@@ -336,7 +336,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
     shared_examples_for "active, waived and terminated enrollments" do |state, status, result, match_with_package_id, match_with_assignment_id|
 
       let!(:enrollment) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :hbx_enrollment, household: household,
                            :benefit_group_assignment_id => match_with_assignment_id ? census_employee.active_benefit_group_assignment.id : nil,
                            :sponsored_benefit_package_id => match_with_package_id ? census_employee.active_benefit_group_assignment.benefit_package_id : nil,
@@ -370,7 +370,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
     shared_examples_for "active and waived enrollments" do |state, status, result|
 
       let!(:enrollment) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :hbx_enrollment,
           household: household,
           benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
@@ -392,27 +392,27 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
   describe '#active_enrollments', dbclean: :after_each do
 
-    let(:household) { FactoryGirl.create(:household, family: family)}
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: household, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id) }
-    let!(:benefit_group_assignment) { FactoryGirl.create(:benefit_group_assignment, benefit_package: benefit_package, census_employee: census_employee, hbx_enrollment: hbx_enrollment)}
+    let(:household) { FactoryBot.create(:household, family: family)}
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
+    let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: household, aasm_state: 'coverage_selected', sponsored_benefit_package_id: benefit_package.id) }
+    let!(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, benefit_package: benefit_package, census_employee: census_employee, hbx_enrollment: hbx_enrollment)}
     let!(:employee_role) do
-      ee = FactoryGirl.create(:employee_role, person: family.primary_person, employer_profile: employer_profile, census_employee: census_employee)
+      ee = FactoryBot.create(:employee_role, person: family.primary_person, employer_profile: employer_profile, census_employee: census_employee)
       census_employee.update_attributes!(employee_role_id: ee.id)
       ee
     end
 
-    let(:census_employee2)   { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+    let(:census_employee2)   { FactoryBot.create(:census_employee, employer_profile: employer_profile) }
     let!(:employee_role2) do
-      ee = FactoryGirl.create(:employee_role, person: family2.primary_person, employer_profile: employer_profile, census_employee: census_employee2)
+      ee = FactoryBot.create(:employee_role, person: family2.primary_person, employer_profile: employer_profile, census_employee: census_employee2)
       census_employee2.update_attributes!(employee_role_id: ee.id)
       ee
     end
-    let(:household2) { FactoryGirl.create(:household, family: family2)}
-    let(:family2) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let!(:benefit_group_assignment2) { FactoryGirl.create(:benefit_group_assignment, benefit_package: benefit_package, census_employee: census_employee2, end_on: benefit_package.end_on)}
+    let(:household2) { FactoryBot.create(:household, family: family2)}
+    let(:family2) { FactoryBot.create(:family, :with_primary_family_member)}
+    let!(:benefit_group_assignment2) { FactoryBot.create(:benefit_group_assignment, benefit_package: benefit_package, census_employee: census_employee2, end_on: benefit_package.end_on)}
     let!(:enrollment_family2) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :hbx_enrollment,
         household: household2,
         benefit_group_assignment_id: census_employee2.active_benefit_group_assignment.id,
@@ -424,7 +424,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
     shared_examples_for "active enrollments" do |state, status, result, match_with_package_id, match_with_assignment_id|
       let!(:enrollment) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :hbx_enrollment,
           household: household,
           employee_role_id: employee_role.id,
@@ -453,7 +453,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
 
   describe '.make_active' do
     let!(:census_employee) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :census_employee,
         :with_active_assignment,
         benefit_sponsorship: benefit_sponsorship,

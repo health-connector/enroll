@@ -10,8 +10,8 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
   include_context "setup employees with benefits"
 
   let!(:ce) { benefit_sponsorship.census_employees.first }
-  let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
-  let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+  let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+  let!(:user) { FactoryBot.create(:user, :person => ee_person)}
   let!(:employee_role) do
     ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
     ee_person.employee_roles.first
@@ -38,8 +38,8 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
 
 
     context "with two member family" do
-      let!(:dependent) { FactoryGirl.create(:person) }
-      let!(:family_member) { FactoryGirl.create(:family_member, family: family,person: dependent)}
+      let!(:dependent) { FactoryBot.create(:person) }
+      let!(:family_member) { FactoryBot.create(:family_member, family: family,person: dependent)}
       let!(:coverage_household_member) { coverage_household.coverage_household_members.new(:family_member_id => family_member.id) }
 
       it "return http success" do

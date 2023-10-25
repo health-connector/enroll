@@ -65,8 +65,8 @@ describe UsersController do
   end
 
   describe ".confirm_change_username_and_email", dbclean: :after_each do
-    let(:person) { FactoryGirl.create(:person) }
-    let(:user) { FactoryGirl.create(:user, :person => person) }
+    let(:person) { FactoryBot.create(:person) }
+    let(:user) { FactoryBot.create(:user, :person => person) }
     let(:invalid_username) { "ggg" }
     let(:valid_username) { "gariksubaric" }
     let(:invalid_email) { "email@" }
@@ -238,7 +238,7 @@ describe UsersController do
     end
 
   describe '.edit' do
-    let(:user) { FactoryGirl.build(:user, :with_consumer_role) }
+    let(:user) { FactoryBot.build(:user, :with_consumer_role) }
     before do
       sign_in(admin)
       allow(User).to receive(:find).with(user.id).and_return(user)

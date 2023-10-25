@@ -10,8 +10,8 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
   include_context "setup employees with benefits"
 
   given!(:ce) { benefit_sponsorship.census_employees.first }
-  given!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
-  given!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+  given!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+  given!(:user) { FactoryBot.create(:user, :person => ee_person)}
   given!(:employee_role) do
     ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
     ee_person.employee_roles.first
@@ -88,8 +88,8 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
     end
 
     feature "Eligible employee with ineligible dependent clicks shop for plans" do
-      given!(:dependent) { FactoryGirl.create(:person) }
-      given!(:family_member) { FactoryGirl.create(:family_member, family: family,person: dependent)}
+      given!(:dependent) { FactoryBot.create(:person) }
+      given!(:family_member) { FactoryBot.create(:family_member, family: family,person: dependent)}
       given!(:coverage_household_member) { coverage_household.coverage_household_members.create(:family_member_id => family_member.id) }
 
       background(:each) do
@@ -145,8 +145,8 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
     end
 
     feature "Eligible employee with ineligible dependent clicks shop for plans" do
-      given!(:dependent) { FactoryGirl.create(:person) }
-      given!(:family_member) { FactoryGirl.create(:family_member, family: family,person: dependent)}
+      given!(:dependent) { FactoryBot.create(:person) }
+      given!(:family_member) { FactoryBot.create(:family_member, family: family,person: dependent)}
       given!(:coverage_household_member) { coverage_household.coverage_household_members.create(:family_member_id => family_member.id) }
 
       background(:each) do

@@ -95,7 +95,7 @@ module BenefitApplicationWorld
                                application_effective_on(new_application_status) || current_effective_date
                              end
     application_dates = application_dates_for(application_start_date, new_application_status)
-    @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+    @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
                        effective_period: application_dates[:effective_period],
@@ -120,7 +120,7 @@ module BenefitApplicationWorld
     end
 
     application_dates = application_dates_for(renewal_effective_date, renewal_state)
-    @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
+    @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package, :with_predecessor_application,
                        predecessor_application_state: aasm_state,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
@@ -273,7 +273,7 @@ And(/^employer (.*) has draft benefit application for force publishing$/) do |le
   application_start_date = current_effective_date((TimeKeeper.date_of_record + 2.months).beginning_of_month)
   application_dates = application_dates_for(application_start_date, :draft)
   @new_application =
-    FactoryGirl.create(
+    FactoryBot.create(
       :benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
       :with_benefit_package,
       benefit_sponsorship: @employer_profile.active_benefit_sponsorship,

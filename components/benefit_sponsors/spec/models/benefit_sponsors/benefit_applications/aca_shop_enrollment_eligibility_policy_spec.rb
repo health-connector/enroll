@@ -34,8 +34,8 @@ module BenefitSponsors
       context "When all the census employees are emrolled" do
 
         let!(:load_enrollments) {benefit_sponsorship.census_employees.each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }
@@ -49,8 +49,8 @@ module BenefitSponsors
       context "When less then minimum participation of the census employees are emrolled" do
 
         let!(:load_enrollments) {benefit_sponsorship.census_employees.limit(3).each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }
@@ -70,8 +70,8 @@ module BenefitSponsors
       context "When all the census employees are emrolled" do
 
         let!(:load_enrollments) {benefit_sponsorship.census_employees.each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }
@@ -85,8 +85,8 @@ module BenefitSponsors
       context "When less then minimum participation of the census employees are emrolled" do
 
         let!(:load_enrollments) {benefit_sponsorship.census_employees.limit(3).each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }
@@ -107,8 +107,8 @@ module BenefitSponsors
       context "When all the census employees are emrolled" do
 
         let!(:load_enrollments1) {benefit_sponsorship.census_employees.each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }
@@ -123,8 +123,8 @@ module BenefitSponsors
         context "At-least 1.0 non-owner employee enrolled" do
 
           let!(:load_enrollments2) {benefit_sponsorship.census_employees.limit(3).each do |ce|
-            family = FactoryGirl.create(:family, :with_primary_family_member)
-            FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+            family = FactoryBot.create(:family, :with_primary_family_member)
+            FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
             ce.save
           end
           }
@@ -155,8 +155,8 @@ module BenefitSponsors
       context "When all the census employees are emrolled" do
 
         let!(:load_enrollments) {benefit_sponsorship.census_employees.each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }
@@ -171,8 +171,8 @@ module BenefitSponsors
       context "When less then minimum participation of the census employees are emrolled" do
 
         let!(:load_enrollments) {benefit_sponsorship.census_employees.limit(3).each do |ce|
-          family = FactoryGirl.create(:family, :with_primary_family_member)
-          FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
+          family = FactoryBot.create(:family, :with_primary_family_member)
+          FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_group_assignment: ce.benefit_group_assignments.first, sponsored_benefit_package_id: ce.benefit_group_assignments.first.benefit_package.id)
           ce.save
         end
         }

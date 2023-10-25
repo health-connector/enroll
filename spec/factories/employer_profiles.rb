@@ -1,11 +1,11 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :employer_profile_no_attestation, class: EmployerProfile do
-    organization            { FactoryGirl.build(:organization) }
-    entity_kind             "c_corporation"
-    sic_code "1111"
+    organization            { FactoryBot.build(:organization) }
+    entity_kind             {"c_corporation"}
+    sic_code {"1111"}
 
     transient do
-      employee_roles []
+      employee_roles {[]}
     end
 
     before :create do |employer_profile, evaluator|
@@ -16,23 +16,23 @@ FactoryGirl.define do
   end
 
   factory :employer_profile do
-    organization            { FactoryGirl.build(:organization) }
-    entity_kind             "c_corporation"
-    sic_code "1111"
+    organization            { FactoryBot.build(:organization) }
+    entity_kind             {"c_corporation"}
+    sic_code {"1111"}
 
     transient do
-      employee_roles []
-      attested true
+      employee_roles {[]}
+      attested {true}
     end
 
     trait :with_full_inbox do
       after :create do |employer_profile, evaluator|
-        inbox { FactoryGirl.create(:inbox, :with_message, recipient: employer_profile) }
+        inbox { FactoryBot.create(:inbox, :with_message, recipient: employer_profile) }
       end
     end
 
     trait :congress do
-      plan_years { [FactoryGirl.build(:plan_year, :with_benefit_group_congress)] }
+      plan_years { [FactoryBot.build(:plan_year, :with_benefit_group_congress)] }
     end
 
     before :create do |employer_profile, evaluator|
@@ -54,19 +54,19 @@ FactoryGirl.define do
 
   factory :registered_employer, class: EmployerProfile do
 
-    organization { FactoryGirl.build(:organization) }
-    entity_kind "c_corporation"
-    sic_code '1111'
+    organization { FactoryBot.build(:organization) }
+    entity_kind {"c_corporation"}
+    sic_code {'1111'}
     transient do
-      start_on TimeKeeper.date_of_record.beginning_of_month
-      plan_year_state 'draft'
-      renewal_plan_year_state 'renewing_draft'
-      reference_plan_id { FactoryGirl.create(:plan).id }
-      renewal_reference_plan_id { FactoryGirl.create(:plan).id }
-      dental_reference_plan_id nil
-      dental_renewal_reference_plan_id nil
-      with_dental false
-      is_conversion false
+      start_on {TimeKeeper.date_of_record.beginning_of_month}
+      plan_year_state {'draft'}
+      renewal_plan_year_state {'renewing_draft'}
+      reference_plan_id { FactoryBot.create(:plan).id }
+      renewal_reference_plan_id { FactoryBot.create(:plan).id }
+      dental_reference_plan_id {nil}
+      dental_renewal_reference_plan_id {nil}
+      with_dental {false}
+      is_conversion {false}
     end
 
     factory :employer_with_planyear do

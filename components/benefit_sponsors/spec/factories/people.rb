@@ -1,11 +1,11 @@
-# FactoryGirl.define do
+# FactoryBot.define do
 #   factory :person do
-#     first_name 'John'
+#     first_name {'John'}
 #     sequence(:last_name) {|n| "Smith#{n}" }
-#     dob "1972-04-04".to_date
-#     is_incarcerated false
-#     is_active true
-#     gender "male"
+#     dob {"1972-04-04".to_date}
+#     is_incarcerated {false}
+#     is_active {true}
+#     gender {"male"}
 #
 #     after(:create) do |p, evaluator|
 #       # create_list(:address, 2, person: p)
@@ -15,7 +15,7 @@
 #     end
 #
 #     trait :with_mailing_address do
-#       addresses { [FactoryGirl.build(:address, :mailing_kind)]}
+#       addresses { [FactoryBot.build(:address, :mailing_kind)]}
 #     end
 #
 #     trait :with_ssn do
@@ -23,27 +23,27 @@
 #     end
 #
 #     trait :with_work_email do
-#       emails { [FactoryGirl.build(:email, kind: "work") ] }
+#       emails { [FactoryBot.build(:email, kind: "work") ] }
 #     end
 #
 #     trait :with_work_phone do
-#       phones { [FactoryGirl.build(:phone, kind: "work") ] }
+#       phones { [FactoryBot.build(:phone, kind: "work") ] }
 #     end
 #
 #     trait :without_first_name do
-#       first_name ' '
+#       first_name {' '}
 #     end
 #
 #     trait :without_last_name do
-#       last_name ' '
+#       last_name {' '}
 #     end
 #
 #     trait :male do
-#       gender "male"
+#       gender {"male"}
 #     end
 #
 #     trait :female do
-#       gender "female"
+#       gender {"female"}
 #     end
 #
 #     trait :with_employer_staff_role do

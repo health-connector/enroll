@@ -1,24 +1,24 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :plan do
     sequence(:hbx_id)    { |n| n + 12345 }
     sequence(:name)      { |n| "BlueChoice Silver#{n} 2,000" }
     sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }
     active_year         { TimeKeeper.date_of_record.year }
-    coverage_kind       "health"
-    metal_level         "silver"
-    plan_type           "pos"
-    market              "shop"
-    ehb                 0.9943
-    carrier_profile     { FactoryGirl.create(:carrier_profile)  } #{ BSON::ObjectId.from_time(DateTime.now) }
+    coverage_kind       {"health"}
+    metal_level         {"silver"}
+    plan_type           {"pos"}
+    market              {"shop"}
+    ehb                 {0.9943}
+    carrier_profile     { FactoryBot.create(:carrier_profile)  } #{ BSON::ObjectId.from_time(DateTime.now) }
 
-    minimum_age         19
-    maximum_age         66
-    deductible          "$500"
-    family_deductible   "$500 per person | $1000 per group"
+    minimum_age         {19}
+    maximum_age         {66}
+    deductible          {"$500"}
+    family_deductible   {"$500 per person | $1000 per group"}
 
     trait :with_premium_tables do
       transient do
-        premium_tables_count 6
+        premium_tables_count {6}
       end
 
       after(:create) do |plan, evaluator|
@@ -28,7 +28,7 @@ FactoryGirl.define do
         unless Settings.aca.rating_areas.empty?
           plan.service_area_id = CarrierServiceArea.for_issuer(plan.carrier_profile.issuer_hios_ids).first.service_area_id
           plan.save!
-          rating_area = RatingArea.first.try(:rating_area) || FactoryGirl.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
+          rating_area = RatingArea.first.try(:rating_area) || FactoryBot.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
           create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on, rating_area: rating_area)
         else
           create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on)
@@ -42,16 +42,16 @@ FactoryGirl.define do
     end
 
     trait :with_dental_coverage do
-      coverage_kind "dental"
-      metal_level "dental"
-      dental_level "high"
+      coverage_kind {"dental"}
+      metal_level {"dental"}
+      dental_level {"high"}
     end
   end
 
   factory :premium_table do
     sequence(:age, (19..66).cycle)
-    start_on  TimeKeeper.date_of_record.beginning_of_year
-    end_on  TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day
+    start_on  {TimeKeeper.date_of_record.beginning_of_year}
+    end_on  {TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day}
     cost {(age * 1001.00) / 100.00}
 
     after :create do |pt|

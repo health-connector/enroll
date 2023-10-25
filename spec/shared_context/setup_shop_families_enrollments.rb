@@ -10,14 +10,14 @@ RSpec.shared_context "setup shop families enrollments", :shared_context => :meta
   include_context "setup employees with benefits"
 
   let!(:census_employee) { benefit_sponsorship.census_employees.first }
-  let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: census_employee.first_name, last_name: census_employee.last_name, dob: census_employee.dob, ssn: census_employee.ssn, gender: census_employee.gender) }
+  let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: census_employee.first_name, last_name: census_employee.last_name, dob: census_employee.dob, ssn: census_employee.ssn, gender: census_employee.gender) }
   let!(:employee_role) do
     ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
     ee_person.employee_roles.first
   end
   let!(:family)       { ee_person.primary_family }
   let!(:hbx_enrollment) do
-    hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members,
+    hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
                                         household: family.active_household,
                                         aasm_state: "shopping",
                                         effective_on: initial_application.start_on,
@@ -30,7 +30,7 @@ RSpec.shared_context "setup shop families enrollments", :shared_context => :meta
     hbx_enrollment.save!
     hbx_enrollment
   end
-  let(:qle_kind) {FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date)}
+  let(:qle_kind) {FactoryBot.create(:qualifying_life_event_kind, :effective_on_event_date)}
 
   let(:sep) do
     sep = family.special_enrollment_periods.new

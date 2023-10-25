@@ -1,8 +1,8 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_products_health_products_health_product, class: 'BenefitMarkets::Products::HealthProducts::HealthProduct' do
 
-    benefit_market_kind  :aca_shop
-    application_period   Date.new(Date.today.year, 1, 1)..Date.new(Date.today.year, 12, 31)
+    benefit_market_kind  {:aca_shop}
+    application_period   {Date.new(Date.today.year, 1, 1)..Date.new(Date.today.year, 12, 31)}
     sequence(:hbx_id)    { |n| n + 12345 }
 
     sequence(:title)     { |n| "#{issuer_name} #{metal_level_kind}#{n} 2,000" }
@@ -25,7 +25,7 @@ FactoryGirl.define do
 
     trait :with_issuer_profile do
       transient do
-        assigned_site nil
+        assigned_site {nil}
       end
 
       issuer_profile { create(:benefit_sponsors_organizations_issuer_profile, assigned_site: assigned_site) }
@@ -33,7 +33,7 @@ FactoryGirl.define do
 
     trait :with_renewal_product do
       transient do
-        renewal_service_area nil
+        renewal_service_area {nil}
       end
 
       before(:create) do |product, evaluator|
