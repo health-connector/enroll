@@ -63,19 +63,10 @@ namespace :import do
         result = Roo::Spreadsheet.open(file)
         sheets = if year == 2017
           ["MA SHOP QHP"]
-        elsif year == 2018
-          ["2018_QHP", "2018_QDP"]
-        elsif year == 2019
-          ["2019_QHP", "2019_QDP"]
-        elsif year == 2020
-          ["2020_QHP", "2020_QDP"]
-        elsif year == 2021
-          ["2021_QHP", "2021_QDP"]
-        elsif year == 2022
-          ["2022_QHP", "2022_QDP"]
-        elsif year == 2023
-          ["2023_QHP", "2023_QDP"]
+        else
+          ["#{year}_QHP", "#{year}_QDP"]
         end
+
         sheets.each do |sheet_name|
           sheet_data = result.sheet(sheet_name)
 
