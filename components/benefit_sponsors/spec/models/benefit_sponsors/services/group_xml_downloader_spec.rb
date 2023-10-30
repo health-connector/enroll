@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'tempfile'
 require 'zip'
 
-RSpec.describe BenefitSponsors::Services::GroupXmlDownloader do
+
+RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, :dbclean => :after_each do
   let(:employer_event) { instance_double(BenefitSponsors::Services::EmployerEvent) }
   let(:controller) { instance_double(ActionController::Base) }
   let(:downloader) { described_class.new(employer_event) }

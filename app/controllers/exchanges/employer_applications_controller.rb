@@ -71,6 +71,9 @@ module Exchanges
 
     def upload_v2_xml
       # To Do
+      # upload functionality will have ability to upload one file at a time
+      # Need to write a schema validator
+      # publish to acpai message
       respond_to do |format|
         format.js #{ render "new_document" }
       end
