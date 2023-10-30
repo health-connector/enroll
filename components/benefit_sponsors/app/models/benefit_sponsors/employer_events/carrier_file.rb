@@ -73,7 +73,7 @@ module BenefitSponsors
         </employer_digest_event>
         XMLTRAILER
         @buffer << trailer
-        header << @buffer.string
+        header += @buffer.string
         [file_name, header]
       end
 
