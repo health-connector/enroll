@@ -109,9 +109,8 @@
               </div>
             </td>
             <td colspan="5">
-              <div class="v2_xml_inputs hidden">
-                <a href="/exchanges/employer_applications/<%= application.id %>/upload_v2_xml" class="btn btn-default interaction-click-control-upload" data-remote="true"  id="uplaod_button_<%= application.id %>" >Upload V2 XML
-                </a>
+              <div class="upload-v2-xml-location v2_xml_inputs hidden">
+                <%= link_to "<i class='fas fa-cloud-upload-alt' aria-hidden='true'></i> Upload V2 XML".html_safe, exchanges_employer_application_new_v2_xml_path(employer_id: @benefit_sponsorship.id, employer_application_id: application.id), remote: 'true', class: "btn btn-default" %>
               </div>
             </td>
           </tr>

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "insured/families/purchase.html.erb" do
+RSpec.describe "insured/families/purchase.html.erb", :dbclean => :after_each do
 
   let(:employee_role){FactoryGirl.create(:employee_role)}
   let(:plan){FactoryGirl.create(:plan)}
