@@ -85,6 +85,13 @@
                 <select id="actions_dropdown_<%= application.id %>" name="event_type" placeholder='Event Type' onchange="v2DropDownEvents(this.value, '<%= application.id %>')">
                   <!-- Add the "v2 event type" label here -->
                   <option selected='selected'><%= l10n("exchange.employer_applications.v2_event_type")%></option>
+                  <option value="benefit_coverage_initial_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_initial_application_eligible") %></option>
+                  <option value="benefit_coverage_renewal_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_application_eligible") %></option>
+                  <option value="benefit_coverage_renewal_carrier_dropped"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_carrier_dropped") %></option>
+                  <option value="benefit_coverage_mid_plan_year_initial_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_mid_plan_year_initial_eligible") %></option>
+                  <option value="benefit_coverage_period_terminated_voluntary"><%= l10n("exchange.employer_applications.benefit_coverage_period_terminated_voluntary") %></option>
+                  <option value="benefit_coverage_period_terminated_nonpayment"><%= l10n("exchange.employer_applications.benefit_coverage_period_terminated_nonpayment") %></option>
+                  <option value="benefit_coverage_period_reinstated"><%= l10n("exchange.employer_applications.benefit_coverage_period_reinstated") %></option>
                   <option value="address_changed"><%= l10n("exchange.employer_applications.address_changed")%></option>
                   <option value="contact_changed"><%= l10n("exchange.employer_applications.contact_changed") %></option>
                   <option value="fein_corrected"><%= l10n("exchange.employer_applications.fein_corrected") %></option>
@@ -93,12 +100,6 @@
                   <option value="broker_terminated"><%= l10n("exchange.employer_applications.broker_terminated") %></option>
                   <option value="general_agent_added"><%= l10n("exchange.employer_applications.general_agent_added") %></option>
                   <option value="general_agent_terminated"><%= l10n("exchange.employer_applications.general_agent_terminated") %></option>
-                  <option value="benefit_coverage_initial_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_initial_application_eligible") %></option>
-                  <option value="benefit_coverage_renewal_application_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_application_eligible") %></option>
-                  <option value="benefit_coverage_renewal_carrier_dropped"><%= l10n("exchange.employer_applications.benefit_coverage_renewal_carrier_dropped") %></option>
-                  <option value="benefit_coverage_mid_plan_year_initial_eligible"><%= l10n("exchange.employer_applications.benefit_coverage_mid_plan_year_initial_eligible") %></option>
-                  <option value="benefit_coverage_period_terminated_voluntary"><%= l10n("exchange.employer_applications.benefit_coverage_period_terminated_voluntary") %></option>
-                  <option value="benefit_coverage_period_terminated_nonpayment"><%= l10n("exchange.employer_applications.benefit_coverage_period_terminated_nonpayment") %></option>
                 </select>
               </div>
             </td>
