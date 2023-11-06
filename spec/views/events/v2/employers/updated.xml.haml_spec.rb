@@ -213,7 +213,12 @@ RSpec.describe "events/v2/employer/updated.haml.erb", dbclean: :around_each do
     context "when manual gen of cv = true" do
 
       context "non termination case" do
-        let!(:renewal_benefit_application){ FactoryBot.build(:benefit_sponsors_benefit_application,:with_benefit_package, aasm_state: :enrollment_eligible, benefit_sponsorship: employer_profile.active_benefit_sponsorship)}
+        let!(:renewal_benefit_application) do
+          FactoryBot.build(:benefit_sponsors_benefit_application,
+                            :with_benefit_package,
+                            aasm_state: :enrollment_eligible,
+                            benefit_sponsorship: employer_profile.active_benefit_sponsorship)
+        end
         let(:renewal_benefit_package){ renewal_benefit_application.benefit_packages.first}
         let!(:update_renewal) do
           renewal_benefit_application.predecessor_id = benefit_application.id

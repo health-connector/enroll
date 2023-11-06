@@ -257,4 +257,26 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
     end
   end
+
+  describe 'post upload_v2_xml', :dbclean => :after_each do
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1, subrole: "super_admin") }
+    let(:filename) {"#{Rails.root}/spec/test_data/employer_digest/tufts_health_direct.xml"}
+    let(:file) { File.open(filename) }
+    let(:name) {can_generate_v2_xml}
+    let(:uploaded_file) { ActionDispatch::Http::UploadedFile.new({tempfile: file, original_filename: filename}) }
+
+    context "when user has permissions" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true, can_generate_v2_xml: true, name: 'super_admin'))
+        sign_in(user)
+        post :upload_v2_xml, employer_application_id: initial_application.id, id: initial_application.id,  employer_id: benefit_sponsorship.id, file: uploaded_file
+      end
+
+      it "does redirect and be success" do
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:success]).to match "Successfully uploaded V2 digest XML for employer_fein: #{benefit_sponsorship.fein}"
+      end
+    end
+  end
 end
