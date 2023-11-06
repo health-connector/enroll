@@ -613,8 +613,9 @@ RSpec.describe BenefitSponsors::EmployerEvents::Renderer, dbclean: :after_each d
     include_context "setup renewal application"
 
     let(:event_time) { double }
-    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_renewal_benefit_application)}
-    let(:employer) {employer_profile.organization}
+    let(:employer_profile) {benefit_sponsorship}
+    let(:employer_profile_hbx_id) {benefit_sponsorship.hbx_id}
+    let(:employer) {benefit_sponsorship.organization}
     let(:employer_id) {employer.hbx_id}
     let(:old_plan_year) { employer_profile.benefit_applications.last }
     let(:old_plan_year_start_date) {old_plan_year.effective_period.min.strftime("%Y%m%d")}
