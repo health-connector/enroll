@@ -30,5 +30,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.benefit_coverage_renewal_carrier_dropped" => "Benefit Coverage Renewal Carrier Dropped",
   "en.exchange.employer_applications.benefit_coverage_mid_plan_year_initial_eligible" => "Benefit Coverage Mid Plan Year Initial Eligible",
   "en.exchange.employer_applications.benefit_coverage_period_terminated_voluntary" => "Benefit Coverage Period Terminated Voluntary",
-  "en.exchange.employer_applications.benefit_coverage_period_terminated_nonpayment" => "Benefit Coverage Period Terminated Nonpayment"
+  "en.exchange.employer_applications.benefit_coverage_period_terminated_nonpayment" => "Benefit Coverage Period Terminated Nonpayment",
+  "en.exchange.employer_applications.benefit_coverage_period_reinstated" => "Benefit Coverage Period Reinstated"
 }.freeze

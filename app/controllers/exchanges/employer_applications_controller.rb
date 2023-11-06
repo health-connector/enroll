@@ -69,13 +69,22 @@ module Exchanges
       group_xml_downloader.download(self)
     end
 
-    def upload_v2_xml
-      # To Do
-      # upload functionality will have ability to upload one file at a time
-      # Need to write a schema validator
-      # publish to acpai message
+    def new_v2_xml
+      @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       respond_to do |format|
-        format.js #{ render "new_document" }
+        format.js
+      end
+    end
+
+    def upload_v2_xml
+      file = params[:file]
+      xml_file_path = file.tempfile.path
+      v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path)
+      result, errors = v2_xml_uploader.upload
+      if result
+        redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully uploaded V2 digest XML for employer_fein: #{@benefit_sponsorship.organization.fein}" }
+      else
+        redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => errors }
       end
     end
 
