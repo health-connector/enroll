@@ -77,6 +77,11 @@ describe "import_provider_and_rx_formulary_url" do
       expect(@health_product2.provider_directory_url).to eq @row_info[14]
       expect(@health_product2.product_package_kinds).to eq [:metal_level, :single_issuer, :single_product]
     end
+
+    it "should access year from sheet name and update product attributes" do
+      expect(@sheet_data.default_sheet).to eq "2018_QHP"
+      expect(@health_product2.rx_formulary_url).to eq "http://#{@row_info[13]}"
+    end
   end
 end
 
@@ -86,6 +91,6 @@ end
 
 def read_excel(file)
   result = Roo::Spreadsheet.open(file)
-  sheet_data = result.sheet("2018_QHP")
-  @row_info = sheet_data.row(2)
+  @sheet_data = result.sheet("2018_QHP")
+  @row_info = @sheet_data.row(2)
 end

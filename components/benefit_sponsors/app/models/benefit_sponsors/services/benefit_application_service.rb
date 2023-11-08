@@ -180,9 +180,9 @@ module BenefitSponsors
         {
           effective_period: (format_string_to_date(form.start_on)..format_string_to_date(form.end_on)),
           open_enrollment_period: (format_string_to_date(form.open_enrollment_start_on)..format_string_to_date(form.open_enrollment_end_on)),
-          fte_count: form.fte_count,
-          pte_count: form.pte_count,
-          msp_count: form.msp_count
+          fte_count: form.fte_count.to_i,
+          pte_count: form.pte_count.to_i,
+          msp_count: form.msp_count.to_i
         }
       end
 
