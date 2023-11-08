@@ -3,7 +3,7 @@ module BenefitSponsors
     module Employers
       class EmployerProfilesController < ::BenefitSponsors::ApplicationController
 
-        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost]
+        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_eligibility_check]
         before_action :load_group_enrollments, only: [:coverage_reports], if: :is_format_csv?
         before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
         before_action :wells_fargo_sso, only: [:show]
@@ -61,6 +61,7 @@ module BenefitSponsors
             if @benefit_sponsorship.present?
               @broker_agency_accounts = @benefit_sponsorship.broker_agency_accounts
               @current_plan_year = @benefit_sponsorship.submitted_benefit_application(include_term_pending: false)
+              @business_policy = business_policy_for(@current_plan_year)
             end
 
             collect_and_sort_invoices(params[:sort_order])
@@ -85,6 +86,19 @@ module BenefitSponsors
               send_data(csv_for(@group_enrollments), type: csv_content_type, filename: "DCHealthLink_Premium_Billing_Report.csv")
             end
           end
+        end
+
+        def run_eligibility_check
+          authorize @employer_profile
+          benefit_sponsorship = @employer_profile.latest_benefit_sponsorship
+          benefit_application = benefit_sponsorship.submitted_benefit_application(include_term_pending: false)
+          business_policy = business_policy_for(benefit_application)
+          eligibility_hash = if business_policy.is_satisfied?(benefit_application)
+                               business_policy.success_results
+                             else
+                               business_policy.fail_results
+                             end
+          render :json => eligibility_hash
         end
 
         def export_census_employees
@@ -315,6 +329,11 @@ module BenefitSponsors
         def user_not_authorized(exception)
           session[:custom_url] = main_app.new_user_registration_path unless current_user
           super
+        end
+
+        def business_policy_for(benefit_application)
+          enrollment_eligibility_policy = BenefitSponsors::BenefitApplications::AcaShopEnrollmentEligibilityPolicy.new
+          enrollment_eligibility_policy.business_policies_for(benefit_application, :end_open_enrollment)
         end
       end
     end
