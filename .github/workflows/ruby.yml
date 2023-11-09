@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
         node: [9.x]
         mongodb-version: ["3.6"]
         command_configs:
@@ -209,7 +209,6 @@ jobs:
         run: |
           gem install bundler -v '1.17.3'          
           bundle config path vendor/bundle
-          bundle config build.nokogiri --use-system-libraries
           bundle install --jobs 4 --retry 3
           gem install treye-semaphore_test_boosters --version '2.5.1'
           gem install brakeman -v 5.4.1
