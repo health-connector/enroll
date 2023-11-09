@@ -71,7 +71,6 @@ gem 'slim-rails'
 gem 'simple_calendar', :git => 'https://github.com/harshared/simple_calendar'
 gem 'sprockets', '~> 3.5', '>= 3.5.2'
 gem 'symmetric-encryption', '~> 3.6.0'
-# gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '2.5.3'
 gem 'uglifier', '>= 1.3.0', require: 'uglifier'
 gem 'virtus'
@@ -159,7 +158,7 @@ group :test do
   gem 'warden'
   gem 'watir'
   gem 'webdrivers', '~> 5.3.1'
-  gem 'webmock'
+  gem 'webmock', '~> 3.0.1'
 end
 
 group :production do

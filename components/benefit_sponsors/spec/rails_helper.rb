@@ -96,7 +96,6 @@ RSpec.configure do |config|
   end
 end
 
-
 # error: ThreadError: already initialized
 # solution found here https://github.com/rails/rails/issues/34790#issuecomment-450502805
 # In case there are still poor souls on Rails 4.2 with Ruby 2.6/2.7, this is the full file working for my team, required from rails_helper.rb.
