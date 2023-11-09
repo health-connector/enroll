@@ -1248,9 +1248,10 @@ And(/(.*) should have a ER sponsored enrollment/) do |named_person|
                      product_id: benefit_package.health_sponsored_benefit.reference_product_id,
                      issuer_profile_id: benefit_package.health_sponsored_benefit.products(benefit_package.start_on).first.issuer_profile.id)
   if TimeKeeper.date_of_record.month > 10
-    new_end = Time.new(TimeKeeper.date_of_record.year, 12,31,0,0,0,0).utc
+    year = TimeKeeper.date_of_record.year
+    new_end = Time.new(year, 12,31,0,0,0,0).utc
     assignment = BenefitGroupAssignment.on_date(ce, TimeKeeper.date_of_record - 2.months)
-    assignment.benefit_group.plan_year.update_attributes!(effective_period: Time.new(2021,11,1,0,0,0,0).utc..Time.new(2022,12,31,0,0,0,0).utc)
+    assignment.benefit_group.plan_year.update_attributes!(effective_period: Time.new(year - 1,11,1,0,0,0,0).utc..Time.new(year,12,31,0,0,0,0).utc)
     assignment.update_attributes!(end_on: new_end)
   end
 end
