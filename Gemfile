@@ -160,7 +160,7 @@ group :test do
   gem 'warden'
   gem 'watir'
   gem 'webdrivers', '~> 5.3.1'
-  gem 'webmock', '~> 3.0.1'
+  gem 'webmock'
 end
 
 group :production do
