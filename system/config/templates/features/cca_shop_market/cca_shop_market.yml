@@ -1,0 +1,12 @@
+---
+registry:
+  - namespace:
+    - :enroll_app
+    - :aca_shop_market
+    features:
+      - key: :benefit_application_reinstate
+        item: BenefitSponsors::Operations::BenefitApplications::Reinstate.new
+        is_enabled: <%= ENV['BENEFIT_APPLICATION_REINSTATE'] || false %>
+      - key: :benefit_application_revise_end_date
+        item: BenefitSponsors::Operations::BenefitApplications::ReviseEndDate.new
+        is_enabled: <%= ENV['BENEFIT_APPLICATION_REVISE_END_DATE'] || false %>
