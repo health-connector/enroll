@@ -70,7 +70,7 @@ class HbxProfilePolicy < ApplicationPolicy
     role = user_hbx_staff_role
     return false unless role
 
-    role.permission.can_modify_plan_year
+    role.permission.can_generate_v2_xml
   end
 
   def can_create_benefit_application?
