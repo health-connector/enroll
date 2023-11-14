@@ -5,6 +5,9 @@
     <% end %>
   <% end %>
 
+  <% flash_message = l10n('insured.wellsense_provider_flash_message') %>
+  <%= render partial: "layouts/flash", :locals => {:type => "info", :message => flash_message} %>
+
   <div class="pull-left">
     <span class="ttu lg twelve" data-cuke="coverage-for"><%= l10n("coverage_for") %></span>
     &nbsp;
