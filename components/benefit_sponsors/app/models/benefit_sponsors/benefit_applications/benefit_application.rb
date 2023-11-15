@@ -130,7 +130,7 @@ module BenefitSponsors
     embeds_many :benefit_application_items,
                 class_name: "::BenefitSponsors::BenefitApplications::BenefitApplicationItem"
 
-    validates_presence_of :effective_period, :open_enrollment_period, :recorded_service_areas, :recorded_rating_area, :recorded_sic_code
+    validates_presence_of :open_enrollment_period, :recorded_service_areas, :recorded_rating_area, :recorded_sic_code
 
     add_observer ::BenefitSponsors::Observers::BenefitApplicationObserver.new, [:notifications_send]
 
@@ -382,6 +382,10 @@ module BenefitSponsors
       latest_benefit_application_item&.effective_period&.end
     end
 
+    def effective_period
+      start_on..end_on
+    end
+
     # Migration map for plan_year to benefit_application
     def matching_state_for(plan_year)
       plan_year_to_benefit_application_states_map[plan_year.aasm_state.to_sym]
@@ -504,10 +508,10 @@ module BenefitSponsors
     end
 
     # TODO: - some magic here ? (Also, do we still need this ?)
-    def effective_period=(new_effective_period)
-      effective_range = BenefitSponsors.tidy_date_range(new_effective_period, :effective_period)
-      super(effective_range) unless effective_range.blank?
-    end
+    # def effective_period=(new_effective_period)
+    #   effective_range = BenefitSponsors.tidy_date_range(new_effective_period, :effective_period)
+    #   super(effective_range) unless effective_range.blank?
+    # end
 
     def open_enrollment_period=(new_open_enrollment_period)
       open_enrollment_range = BenefitSponsors.tidy_date_range(new_open_enrollment_period, :open_enrollment_period)
@@ -529,7 +533,7 @@ module BenefitSponsors
     end
 
     def active_census_employees_under_py
-      find_census_employees.active.census_employees_active_on(effective_period.min)
+      find_census_employees.active.census_employees_active_on(start_on)
     end
 
     def assigned_census_employees_without_owner
@@ -609,7 +613,7 @@ module BenefitSponsors
 
     def is_renewing?
       required_states = (APPLICATION_APPROVED_STATES + APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES)
-      applications = sponsor_profile.benefit_applications.where(:"effective_period.min".gt => effective_period.min, :aasm_state.in => required_states + [:active, :expired])
+      applications = sponsor_profile.benefit_applications.where(:"benefit_application_items.effective_period.min".gt => start_on, :aasm_state.in => required_states + [:active, :expired])
       predecessor.present? && (required_states + ENROLLMENT_INELIGIBLE_STATES).include?(aasm_state) && applications.none?
     end
 
@@ -885,7 +889,7 @@ module BenefitSponsors
     def recalc_pricing_determinations
       benefit_packages.each do |benefit_package|
         benefit_package.sponsored_benefits.each do |sb|
-          cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_sponsorship, effective_period.min)
+          cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_sponsorship, start_on)
           sbenefit, _price, _cont = cost_estimator.calculate(sb, sb.reference_product, sb.product_package, build_new_pricing_determination: true)
         end
       end
@@ -1288,7 +1292,7 @@ module BenefitSponsors
 
     # TODO: - what is this?
     def set_expiration_date
-      update_attribute(:expiration_date, effective_period.min) unless expiration_date
+      update_attribute(:expiration_date, start_on) unless expiration_date
     end
 
     def refresh_recorded_rating_area

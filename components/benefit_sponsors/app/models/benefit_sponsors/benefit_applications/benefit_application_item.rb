@@ -26,9 +26,15 @@ module BenefitSponsors
       "Non-payment of premium"
     ].freeze
 
+    ITEM_TYPES = [:change, :correction].freeze
+
     field :effective_period,        type: Range
+    # field :start_on,        type: Date
+    # field :end_on,        type: Date
     field :sequence_id,        type: Integer
-    field :event_kind,       type: String # TODO: - come up with better name
-    field :event_reason,     type: String # TODO: - come up with better name
+    field :item_type,       type: Symbol
+    field :item_type_reason,     type: String
+    field :updated_by, type: String
+    field :current_state, type: Symbol
   end
 end
