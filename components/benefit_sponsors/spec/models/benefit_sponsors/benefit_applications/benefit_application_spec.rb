@@ -38,7 +38,7 @@ module BenefitSponsors
 
     let(:params) do
       {
-        effective_period:         effective_period,
+        # effective_period:         effective_period,
         open_enrollment_period:   open_enrollment_period,
         benefit_sponsor_catalog:  benefit_sponsor_catalog,
       }
@@ -46,24 +46,24 @@ module BenefitSponsors
 
     let(:valid_params) do
       {
-          effective_period:         effective_period,
-          open_enrollment_period:   open_enrollment_period,
-          benefit_sponsor_catalog:  benefit_sponsor_catalog,
-          recorded_rating_area_id: rating_area.id,
-          recorded_service_area_ids:[service_area.id],
-          recorded_sic_code: sic_code
+        open_enrollment_period:   open_enrollment_period,
+        benefit_sponsor_catalog:  benefit_sponsor_catalog,
+        recorded_rating_area_id: rating_area.id,
+        recorded_service_area_ids:[service_area.id],
+        recorded_sic_code: sic_code
       }
     end
 
     describe "A new model instance" do
      it { is_expected.to be_mongoid_document }
-     it { is_expected.to have_fields(:effective_period, :open_enrollment_period, :terminated_on)}
+     it { is_expected.to have_field(:open_enrollment_period)}
      it { is_expected.to have_field(:expiration_date).of_type(Date)}
      it { is_expected.to have_field(:aasm_state).of_type(Symbol).with_default_value_of(:draft)}
      it { is_expected.to have_field(:fte_count).of_type(Integer).with_default_value_of(0)}
      it { is_expected.to have_field(:pte_count).of_type(Integer).with_default_value_of(0)}
      it { is_expected.to have_field(:msp_count).of_type(Integer).with_default_value_of(0)}
      it { is_expected.to embed_many(:benefit_packages)}
+     it { is_expected.to embed_many(:benefit_application_items)}
 
       context "with no arguments" do
         subject { described_class.new }
@@ -71,16 +71,6 @@ module BenefitSponsors
         it "should not be valid" do
           subject.validate
           expect(subject).to_not be_valid
-        end
-      end
-
-      context "with no effective_period" do
-        subject { described_class.new(params.except(:effective_period)) }
-
-        it "should not be valid" do
-          subject.validate
-          expect(subject).to_not be_valid
-          expect(subject.errors[:effective_period].first).to match(/can't be blank/)
         end
       end
 
@@ -255,9 +245,9 @@ module BenefitSponsors
       let(:april_open_enrollment_begin_on)  { april_effective_date - 1.month }
       let(:april_open_enrollment_end_on)    { april_open_enrollment_begin_on + 9.days }
 
-      let!(:march_sponsors)                 { FactoryGirl.create_list(:benefit_sponsors_benefit_application, 3,
+      let(:march_sponsors)                 { FactoryGirl.create_list(:benefit_sponsors_benefit_application, 3,
                                               effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)) )}
-      let!(:april_sponsors)                 { FactoryGirl.create_list(:benefit_sponsors_benefit_application, 2,
+      let(:april_sponsors)                 { FactoryGirl.create_list(:benefit_sponsors_benefit_application, 2,
                                               effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)) )}
 
       before { TimeKeeper.set_date_of_record_unprotected!(Date.today) }
@@ -457,13 +447,15 @@ module BenefitSponsors
         date..date.next_year.prev_day
       end
       let!(:initial_application) do
-        application = create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: benefit_sponsorship)
+        application = create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, benefit_sponsorship: benefit_sponsorship)
         terminated_period = effective_period.min..termination_date
-        application.update_attributes!(effective_period: terminated_period)
+        application.benefit_application_items.create(effective_period: terminated_period, item_type: :change, item_type_reason: 'Other')
         application
       end
       let!(:offcycle_application) do
-        create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: offcycle_effective_period, benefit_sponsorship: benefit_sponsorship)
+        application = create(:benefit_sponsors_benefit_application, aasm_state: :draft, benefit_sponsorship: benefit_sponsorship)
+        application.benefit_application_items.create(effective_period: offcycle_effective_period)
+        application
       end
 
       it { expect(initial_application.is_off_cycle?).to be_falsey }
@@ -544,7 +536,16 @@ module BenefitSponsors
 
         let(:application_period_next_year)        { (Date.new(renewal_effective_date.year,1,1))..(Date.new(renewal_effective_date.year,12,31)) }
         let!(:employer_profile) {benefit_sponsorship.profile}
-        let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
+        let!(:initial_application) do
+          item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: :active)
+          create(:benefit_sponsors_benefit_application,
+            benefit_sponsor_catalog: benefit_sponsor_catalog,
+            benefit_sponsorship:benefit_sponsorship,
+            aasm_state: :active,
+            benefit_application_items: [item]
+          )
+          application
+        end
         let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
         let(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id: nil, benefit_package_id: benefit_package.id)}
@@ -940,7 +941,16 @@ module BenefitSponsors
     end
 
     describe ".open_enrollment_length" do
-      let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
+      let!(:initial_application) do
+        item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: :active)
+        create(:benefit_sponsors_benefit_application,
+          benefit_sponsor_catalog: benefit_sponsor_catalog,
+          benefit_sponsorship:benefit_sponsorship,
+          aasm_state: :active,
+          items: [item]
+        )
+      end
+
       let(:min_open_enrollment_length) { 5 }
       let(:start_date) {Date.new(2019,11,16)}
       let(:end_date) {Date.new(2019,11,20)}
@@ -980,7 +990,7 @@ module BenefitSponsors
       it 'should not return start on when non terminated mid plan year converted PY' do
         expect(initial_application.rate_schedule_date).to eq initial_application.start_on
         benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
-        initial_application.update_attributes(effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months))
+        initial_application.benefit_application_items.create(effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months))
         expect(initial_application.rate_schedule_date).not_to eq initial_application.start_on
       end
 
