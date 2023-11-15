@@ -160,7 +160,7 @@ Rails.application.routes.draw do
       put :terminate
       put :cancel
       collection do
-        get :get_term_reasons
+        get :term_reasons
         put :reinstate
       end
     end
