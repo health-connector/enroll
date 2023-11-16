@@ -38,8 +38,8 @@
                   Actions <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" style="padding:10px">
-                    <li onclick="pyAction('cancel','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
-                    <li onclick="pyAction('terminate','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
+                    <li onclick="pyAction('cancel', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
+                    <li onclick="pyAction('terminate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
                     <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
                       <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>', '<%= application.start_on.to_date.to_s %>')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li>
                     <%end%>
@@ -83,7 +83,10 @@
 
 <div class="attestation_form"></div>
 </div>
-<%= render "exchanges/employer_applications/reinstate_benefit_application_modal" %>
+
+<%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
+  <%= render "exchanges/employer_applications/reinstate_benefit_application_modal" %>
+<%end%>
 
 <script type="text/javascript" charset="utf-8">
   initializeDataTables();

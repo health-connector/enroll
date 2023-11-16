@@ -46,9 +46,9 @@ $('#plan-year-btn-group ul li').each(function() {
 
 function populateDropDown(status) {
 
-  var cancel_states = ["approved", "pending", "draft", "imported", "enrollment_open", "enrollment_extended", "enrollment_closed", "enrollment_eligible", "binder_paid", "enrollment_ineligible", "active"]
-  var term_states = ["active", "suspended", "expired", "termination_pending"]
-  var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled", "canceled"]
+  var cancel_states = ["approved", "pending", "draft", "imported", "enrollment_open", "enrollment_extended", "enrollment_closed", "enrollment_eligible", "binder_paid", "enrollment_ineligible", "active"];
+  var term_states = ["active", "suspended", "expired", "termination_pending"];
+  var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled"];
 
   if (cancel_states.indexOf(status) > -1) {
     $('li.cancel-py').removeClass('blocking');
@@ -184,7 +184,7 @@ function validTerminatePy() {
 
 function populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicationId) {
 
-  var canceled_states = ["retroactive_canceled", "canceled"];
+  var canceled_states = ["retroactive_canceled"];
   var terminated_states = ["terminated", "termination_pending"];
 
   if (canceled_states.includes(pyStatus)) {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -123,6 +125,82 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
     it "should be success" do
       expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe "PUT reinstate" do
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+
+    context 'Success' do
+      before :each do
+        allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_reinstate).and_return(true)
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
+        sign_in(user)
+        initial_application.update_attributes!(:aasm_state => :terminated)
+        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+      end
+
+      it 'should have redirect response' do
+        expect(response).to have_http_status(:redirect)
+      end
+
+      it 'should direct to profile root path' do
+        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+      end
+    end
+
+    context 'Failure NotAuthorized' do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: false))
+        sign_in(user)
+        initial_application.update_attributes!(:aasm_state => :terminated)
+        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+      end
+
+      it 'should have redirect response' do
+        expect(response).to have_http_status(:redirect)
+      end
+
+      it 'should return error message' do
+        expect(flash[:error]).to eq nil
+      end
+    end
+
+    context 'Failure Application Not Valid For reinstate' do
+      before :each do
+        EnrollRegistry[:benefit_application_reinstate].feature.stub(:is_enabled).and_return(true)
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
+        sign_in(user)
+        initial_application.update_attributes!(:aasm_state => :enrollment_eligible)
+        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+      end
+
+      it 'should have redirect response' do
+        expect(response).to have_http_status(:redirect)
+      end
+
+      it 'should direct to profile root path' do
+        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+      end
+    end
+
+    context 'Feature disabled' do
+      before :each do
+        EnrollRegistry[:benefit_application_reinstate].feature.stub(:is_enabled).and_return(false)
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
+        sign_in(user)
+        initial_application.update_attributes!(:aasm_state => :enrollment_eligible)
+        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+      end
+
+      it 'should have redirect response' do
+        expect(response).to have_http_status(:redirect)
+      end
+
+      it 'should direct to profile root path' do
+        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+      end
     end
   end
 end

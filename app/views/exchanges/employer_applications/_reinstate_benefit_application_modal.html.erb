@@ -8,14 +8,14 @@
 
       <%= form_tag(reinstate_exchanges_employer_applications_path, method: :put) do %>
           <div class="modal-body">
-            <h4><%= l10n("employer.employer_applications.reinstate.confirmation_message")%></h4>
+            <h4><%= l10n("exchange.employer_applications.reinstate.confirmation_message")%></h4>
           </div>
           <%= hidden_field_tag 'transmit_to_carrier' %>
           <%= hidden_field_tag 'employer_id' %>
           <%= hidden_field_tag 'employer_application_id' %>
           <div class="modal-footer">
-            <span class="btn btn-default btn-small" data-dismiss="modal"><%= l10n("employer.employer_applications.reinstate.cancel")%></span>
-            <%= submit_tag l10n("employer.employer_applications.reinstate.plan_year"), class: "btn btn-primary mtz  btn-small" %>
+            <span class="btn btn-default btn-small" data-dismiss="modal"><%= l10n("exchange.employer_applications.reinstate.cancel")%></span>
+            <%= submit_tag l10n("exchange.employer_applications.reinstate.plan_year"), class: "btn btn-primary mtz  btn-small" %>
           </div>
       <% end %>
     </div>

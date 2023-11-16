@@ -25,9 +25,4 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.registration.city' => 'City *',
   :'en.employers.registration.state' => 'State *',
   :'en.employers.registration.zip' => 'Zip *',
-  :'en.employers.employer_applications.reinstate.plan_year' => 'Yes, Reinstate PY',
-  :'en.employers.employer_applications.reinstate.cancel' => 'Cancel Resinstatement',
-  :'en.employers.employer_applications.success_message' => 'Plan Year Reinstated Successfully Effective',
-  :'en.employers.employer_applications.unable_to_reinstate' => 'An error occured when reinstating application.',
-  :'en.employer.employer_applications.reinstate.confirmation_message' => 'Are you sure you want to reinstate this plan?'
 }.freeze
