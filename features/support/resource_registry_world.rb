@@ -23,3 +23,5 @@ module ResourceRegistryWorld
     registry_name.feature_enabled?(feature_name)
   end
 end
+
+World(ResourceRegistryWorld)

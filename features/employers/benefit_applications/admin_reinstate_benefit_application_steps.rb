@@ -19,3 +19,11 @@ And(/^initial employer ABC Widgets has updated (.*) effective period for reinsta
     employer_profile.benefit_applications.first.update_attributes!(effective_period: effective_period)
   end
 end
+
+Then(/the user will see a (.*) message/) do |message|
+  expect(page).to have_content(message)
+end
+
+Then(/^the user will (.*) Reinstate button$/) do |action|
+  action == 'see' ? (page.has_css?('Reinstate') == true) : (page.has_css?('Reinstate') == false)
+end
