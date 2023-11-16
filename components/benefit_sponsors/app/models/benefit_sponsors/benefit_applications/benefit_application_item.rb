@@ -29,8 +29,6 @@ module BenefitSponsors
     ITEM_TYPES = [:change, :correction].freeze
 
     field :effective_period,        type: Range
-    # field :start_on,        type: Date
-    # field :end_on,        type: Date
     field :sequence_id,        type: Integer
     field :item_type,       type: Symbol
     field :item_type_reason,     type: String

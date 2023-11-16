@@ -44,8 +44,6 @@ module BenefitSponsors
       canceled: :cancel
     }.freeze
 
-
-    # TODO: - All these needs to be in benefit application item.
     VOLUNTARY_TERMINATED_PLAN_YEAR_EVENT_TAG = "benefit_coverage_period_terminated_voluntary".freeze
     VOLUNTARY_TERMINATED_PLAN_YEAR_EVENT = "acapi.info.events.employer.benefit_coverage_period_terminated_voluntary".freeze
 
@@ -55,39 +53,11 @@ module BenefitSponsors
     INITIAL_OR_RENEWAL_PLAN_YEAR_DROP_EVENT_TAG = "benefit_coverage_renewal_carrier_dropped".freeze
     INITIAL_OR_RENEWAL_PLAN_YEAR_DROP_EVENT = "acapi.info.events.employer.benefit_coverage_renewal_carrier_dropped".freeze
 
-    # VOLUNTARY_TERM_REASONS = [
-    #   "Company went out of business/bankrupt",
-    #   "Customer Service did not solve problem/poor experience",
-    #   "Connector website too difficult to use/navigate",
-    #   "Health Connector does not offer desired product",
-    #   "Group is now > 50 lives",
-    #   "Group no longer has employees",
-    #   "Went to carrier directly",
-    #   "Went to an association directly",
-    #   "Added/changed broker that does not work with Health Connector",
-    #   "Company is no longer offering insurance",
-    #   "Company moved out of Massachusetts",
-    #   "Other"
-    # ]
-
-    # NON_PAYMENT_TERM_REASONS = [
-    #   "Non-payment of premium"
-    # ]
-
-    # TODO: - Is this required anywhere ? (what's this ?)
     field :expiration_date,           type: Date
-
-    # TODO: - magic here ?
-    # The date range when this application is active
-    # field :effective_period,        type: Range
 
     # The date range when members may enroll in benefit products
     # Stored locally to enable sponsor-level exceptions
     field :open_enrollment_period,  type: Range
-
-    # TODO: - should this be on benefit application item ? (No longer needed ?)
-    # The date on which this application was canceled or terminated
-    # field :terminated_on,           type: Date
 
     # This application's workflow status
     field :aasm_state,              type: Symbol,   default: :draft do
@@ -117,10 +87,6 @@ module BenefitSponsors
     field :recorded_service_area_ids,   type: Array, default: []
 
     field :benefit_sponsor_catalog_id,  type: BSON::ObjectId
-
-    # TODO: - should be moved to item. (should be instance methods ?)
-    # field :termination_kind,       type: String
-    # field :termination_reason,     type: String
 
     delegate :benefit_market, to: :benefit_sponsorship
 
@@ -175,25 +141,6 @@ module BenefitSponsors
     #                                                   :aasm_state.in => APPLICATION_DRAFT_STATES + ENROLLING_STATES).order_by(:'created_at'.desc)
     #                                             }
 
-    # TODO: - Add a class method to support this.
-    # scope :effective_date_begin_on,         ->(compare_date = TimeKeeper.date_of_record) { where(
-    #                                                                                        :"effective_period.min".lte => compare_date )
-    #                                                                                        }
-
-    # TODO: - Add a class method to support this.
-    # scope :effective_date_end_on,           ->(compare_date = TimeKeeper.date_of_record) { where(
-    #                                                                                        :"effective_period.max".lt => compare_date )
-    #                                                                                        }
-
-    # TODO: - Add a class method to support this.
-    # scope :effective_period_cover,          ->(compare_date = TimeKeeper.date_of_record) { where(
-    #                                                                                          :"effective_period.min".lte => compare_date,
-    #                                                                                        :"effective_period.max".gte => compare_date)
-    #                                                                                        }
-    # TODO - Add a class method to support this.
-    # scope :future_effective_date,           ->(compare_date = TimeKeeper.date_of_record) { where(
-    #                                                                                        :"effective_period.min".gte => compare_date )
-    #                                                                                        }
     scope :open_enrollment_period_cover,    lambda { |compare_date = TimeKeeper.date_of_record|
                                               where(
                                                 :"opem_enrollment_period.min".lte => compare_date,
@@ -210,25 +157,6 @@ module BenefitSponsors
                                                 :"open_enrollment_period.max".lt => compare_date
                                               )
                                             }
-    # TODO: - Add a class method to support this.
-    # scope :benefit_terminate_on,            ->(compare_date = TimeKeeper.date_of_record) { where(
-    #                                                                                      :"terminated_on" => compare_date)
-    #                                                                                      }
-    # TODO - Add a class method to support this.
-    # scope :by_year,                         ->(compare_year = TimeKeeper.date_of_record.year) { where(
-    #                                                                                             :"effective_period.min".gte => Date.new(compare_year, 1, 1),
-    #                                                                                             :"effective_period.min".lte => Date.new(compare_year, 12, -1)
-    #                                                                                           )}
-
-    # TODO: - Add a class method to support this.
-    # scope :by_overlapping_effective_period, ->(effective_period) {
-    #   where(
-    #     "$or" => [
-    #       { :"effective_period.min" => {"$gte" => effective_period.min, "$lte" => effective_period.max }},
-    #       { :"effective_period.max" => {"$gte" => effective_period.min, "$lte" => effective_period.max }}
-    #     ]
-    #   )
-    # }
 
     # TODO
     scope :published,                       ->{ any_in(aasm_state: PUBLISHED_STATES) }
@@ -248,30 +176,6 @@ module BenefitSponsors
       )
     }
 
-    # TODO: - Add a class method to support this.
-    # scope :published_benefit_applications_within_date_range, ->(begin_on, end_on) {
-    #   where(
-    #     "$and" => [
-    #       {:aasm_state.in => APPROVED_STATES },
-    #       {"$or" => [
-    #          { :effective_period.min => {"$gte" => begin_on, "$lte" => end_on }},
-    #          { :effective_period.max => {"$gte" => begin_on, "$lte" => end_on }}
-    #        ]
-    #        }
-    #     ]
-    #   )
-    # }
-
-    # TODO: - Add a class method to support this.
-    # scope :published_benefit_applications_by_date, ->(date) {
-    #   where(
-    #     "$and" => [
-    #       {:aasm_state.in => APPROVED_STATES },
-    #       {:"effective_period.min".lte => date, :"effective_period.max".gte => date}
-    #     ]
-    #   )
-    # }
-
     scope :renewing, lambda {
       where(:predecessor_id => {:$exists => true})
     }
@@ -285,17 +189,6 @@ module BenefitSponsors
         ]
       )
     }
-
-
-    # TODO: - fill theese in
-    def termination_kind; end
-
-    # TODO: - fill theese in
-    def termination_reason; end
-
-    def latest_benefit_application_item
-      @latest_benefit_application_item ||= benefit_application_items.order_by(:created_at.desc).first
-    end
 
     def self.effective_date_begin_on(compare_date = TimeKeeper.date_of_record)
       where(:benefit_application_items => {:"$elemMatch" => {
@@ -326,7 +219,7 @@ module BenefitSponsors
             }})
     end
 
-    # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest
+    # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
     def self.benefit_terminate_on(compare_date = TimeKeeper.date_of_record)
       where(:benefit_application_items => {:"$elemMatch" => {
               :_id => latest_benefit_application_item.id,
@@ -384,6 +277,18 @@ module BenefitSponsors
 
     def effective_period
       start_on..end_on
+    end
+
+    def termination_kind
+      latest_benefit_application_item.item_type
+    end
+
+    def termination_reason
+      latest_benefit_application_item.item_type_reason
+    end
+
+    def latest_benefit_application_item
+      @latest_benefit_application_item ||= benefit_application_items.order_by(:created_at.desc).first
     end
 
     # Migration map for plan_year to benefit_application
@@ -507,12 +412,6 @@ module BenefitSponsors
       @benefit_sponsor_catalog = BenefitMarkets::BenefitSponsorCatalog.find(benefit_sponsor_catalog_id)
     end
 
-    # TODO: - some magic here ? (Also, do we still need this ?)
-    # def effective_period=(new_effective_period)
-    #   effective_range = BenefitSponsors.tidy_date_range(new_effective_period, :effective_period)
-    #   super(effective_range) unless effective_range.blank?
-    # end
-
     def open_enrollment_period=(new_open_enrollment_period)
       open_enrollment_range = BenefitSponsors.tidy_date_range(new_open_enrollment_period, :open_enrollment_period)
       super(open_enrollment_range) unless open_enrollment_range.blank?
@@ -539,16 +438,6 @@ module BenefitSponsors
     def assigned_census_employees_without_owner
       benefit_sponsorship.census_employees.active.non_business_owner
     end
-
-    # # TODO - some magic here
-    # def start_on
-    #   effective_period.begin unless effective_period.blank?
-    # end
-
-    # # TODO - some magic here
-    # def end_on
-    #   effective_period.end unless effective_period.blank?
-    # end
 
     def open_enrollment_start_on
       open_enrollment_period.min unless open_enrollment_period.blank?
@@ -1290,7 +1179,6 @@ module BenefitSponsors
 
     private
 
-    # TODO: - what is this?
     def set_expiration_date
       update_attribute(:expiration_date, start_on) unless expiration_date
     end

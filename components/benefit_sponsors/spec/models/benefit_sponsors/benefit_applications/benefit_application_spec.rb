@@ -1052,7 +1052,11 @@ module BenefitSponsors
 
     describe '.employee_participation_ratio_minimum' do
 
-      let(:application) { subject.class.new(effective_period: effective_period) }
+      let(:application) do
+        app = subject.class.new
+        app.benefit_application_items.build(effective_period: effective_period)
+        app
+      end
       let(:market) { double(kind: :aca_shop) }
       let(:start_on) { TimeKeeper.date_of_record }
       let(:benefit_sponsor_catalog) { double(product_packages: [product_package])}
