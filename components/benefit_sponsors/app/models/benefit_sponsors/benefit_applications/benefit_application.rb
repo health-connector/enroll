@@ -383,12 +383,12 @@ module BenefitSponsors
         write_attribute(:recorded_service_area_ids, [])
         @recorded_service_areas = []
       else
-        raise ArgumentError, "expected ServiceArea" if new_recorded_service_areas.any?{|service_area| !service_area.is_a? BenefitMarkets::Locations::ServiceArea}
+        raise ArgumentError.new("expected ServiceArea") if new_recorded_service_areas.any?{|service_area| !service_area.is_a? BenefitMarkets::Locations::ServiceArea}
 
         write_attribute(:recorded_service_area_ids, new_recorded_service_areas.map(&:_id))
         @recorded_service_areas = new_recorded_service_areas
       end
-      @recorded_service_areas
+       @recorded_service_areas
     end
 
     def recorded_service_areas
@@ -418,7 +418,7 @@ module BenefitSponsors
     end
 
     def adjust_open_enrollment_date
-      open_enrollment_period = ((TimeKeeper.date_of_record.to_time.utc.beginning_of_day)..open_enrollment_end_on) if TimeKeeper.date_of_record > open_enrollment_start_on && TimeKeeper.date_of_record < open_enrollment_end_on
+      ((TimeKeeper.date_of_record.to_time.utc.beginning_of_day)..open_enrollment_end_on) if TimeKeeper.date_of_record > open_enrollment_start_on && TimeKeeper.date_of_record < open_enrollment_end_on
     end
 
     def find_census_employees
@@ -585,7 +585,7 @@ module BenefitSponsors
 
       total_enrolled = enrolled_families
 
-      owner_employees = active_census_employees.select{|ce| ce.is_business_owner}
+      owner_employees  = active_census_employees.select{|ce| ce.is_business_owner}
       total_enrolled = filter_enrolled_employees(owner_employees, total_enrolled)
 
       waived_employees = active_census_employees.select{|ce| ce.waived?}
@@ -713,7 +713,9 @@ module BenefitSponsors
     end
 
     def reinstate_canceled_benefit_package_members
-      benefit_packages.each { |benefit_package| benefit_package.reinstate_canceled_member_benefits } if aasm.from_state == :canceled
+      if aasm.from_state == :canceled
+        benefit_packages.each { |benefit_package| benefit_package.reinstate_canceled_member_benefits }
+      end
     end
 
     def transition_benefit_package_members
@@ -993,7 +995,7 @@ module BenefitSponsors
       #   deny_enrollment_eligiblity!
       # end
 
-      if aasm.to_state == :applicant && aasm.current_event == :cancel!
+      if (aasm.to_state == :applicant && aasm.current_event == :cancel!)
         cancel! if (enrollment_ineligible? || enrollment_closed?) && may_cancel?
       end
     end

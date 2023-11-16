@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 FactoryGirl.define do
 
   factory :benefit_sponsors_benefit_application_item, class: 'BenefitSponsors::BenefitApplications::BenefitApplicationItem' do
-  	effective_period do
+    effective_period do
       if default_effective_period.present?
         default_effective_period
       else
