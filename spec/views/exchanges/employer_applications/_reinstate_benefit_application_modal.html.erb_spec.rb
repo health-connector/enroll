@@ -38,3 +38,6 @@ RSpec.describe "exchanges/employer_applications/_reinstate_benefit_application_m
     expect(rendered).to have_selector('.btn.btn-default', text: 'Cancel')
   end
 end
+
+# To Do
+# going to add feature test case instead rspec for this view file
