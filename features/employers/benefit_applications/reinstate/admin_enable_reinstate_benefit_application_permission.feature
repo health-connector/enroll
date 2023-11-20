@@ -24,3 +24,6 @@ Feature: As an admin user I should have the ability to <action> reinstate button
     |    enabled     |      active         | not see |
     |    disabled    |      active         | not see |
     |    disabled    |    terminated       | not see |
+
+# TO DO
+# Here Resintate confirmation modal feature sceanrio will be added
