@@ -11,22 +11,11 @@ FactoryGirl.define do
     pte_count   FactoryGirl.generate(:random_count)
     msp_count   FactoryGirl.generate(:random_count)
 
-    # design using defining module spec helpers
-    effective_period do
-      if default_effective_period.present?
-        default_effective_period
-      else
-        start_on  = TimeKeeper.date_of_record.beginning_of_month
-        end_on    = start_on + 1.year - 1.day
-        start_on..end_on
-      end
-    end
-
     open_enrollment_period do
       if default_open_enrollment_period.present?
         default_open_enrollment_period
       else
-        start_on = effective_period.min.prev_month
+        start_on = TimeKeeper.date_of_record.beginning_of_month.prev_month
         end_on   = start_on + 9.days
         start_on..end_on
       end
@@ -39,13 +28,24 @@ FactoryGirl.define do
     transient do
       predecessor_application_state :active
       imported_application_state :imported
-      default_effective_period nil
       default_open_enrollment_period nil
       package_kind :single_issuer
       dental_package_kind :single_product
       dental_sponsored_benefit false
       predecessor_application_catalog false
       passed_benefit_sponsor_catalog { nil }
+      benefit_application_items nil
+    end
+
+    after(:build) do |benefit_application, evaluator|
+      if evaluator.benefit_application_items.blank?
+        benefit_application.benefit_application_items = [
+          build(
+            :benefit_sponsors_benefit_application_item,
+            current_state: benefit_application.aasm_state
+          )
+        ]
+      end
     end
 
     trait :without_benefit_sponsor_catalog
@@ -53,7 +53,7 @@ FactoryGirl.define do
     trait :with_benefit_sponsor_catalog do
       after(:build) do |benefit_application, evaluator|
         benefit_sponsorship ||= benefit_application.benefit_sponsorship
-        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.min)
+        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.start_on)
         benefit_sponsor_catalog.save
         benefit_application.benefit_sponsor_catalog = (benefit_sponsor_catalog || ::BenefitMarkets::BenefitSponsorCatalog.new)
         benefit_application.benefit_sponsor_catalog.service_areas = benefit_application.recorded_service_areas
