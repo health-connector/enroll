@@ -8,7 +8,7 @@ Given(/^the Reinstate feature configuration is disabled$/) do
   disable_feature :benefit_application_reinstate
 end
 
-And(/^initial employer ABC Widgets has updated (.*) effective period for reinstate$/) do |aasm_state|
+And(/^initial employer ABC Widgets has updated (.*) effective period for (.*)$/) do |aasm_state|
   if aasm_state == 'terminated'
     employer_profile.benefit_applications.first.workflow_state_transitions << WorkflowStateTransition.new(from_state: 'active', to_state: 'terminated', event: 'terminate!')
     term_ba = employer_profile.benefit_applications.first

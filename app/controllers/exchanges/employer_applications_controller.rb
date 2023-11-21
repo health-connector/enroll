@@ -73,7 +73,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
       revise_end_date = params['revise_end_date']
-      result = EnrollRegistry[:benefit_application_revise_end_date]{ {params: {benefit_application: application, options: {transmit_to_carrier: transmit_to_carrier} } } }
+      result = EnrollRegistry[:benefit_application_revise_end_date]{ {params: {benefit_application: application, options: {transmit_to_carrier: transmit_to_carrier, revise_end_date: revise_end_date} } } }
       if result.success?
         flash[:notice] = "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.revise_end_date.success_message')} #{(application.end_on).to_date}"
       else
