@@ -893,7 +893,7 @@ module BenefitSponsors
 
           let!(:new_application)              { create(:benefit_sponsors_benefit_application,
                                                          benefit_sponsorship: april_sponsor,
-                                                         effective_period: (new_effective_date..(new_effective_date + 1.year - 1.day)),
+                                                         default_effective_period: (new_effective_date..(new_effective_date + 1.year - 1.day)),
                                                          aasm_state: :canceled) }
 
           context "terminted" do
@@ -946,7 +946,7 @@ module BenefitSponsors
 
           let!(:new_application)              { create(:benefit_sponsors_benefit_application,
                                                          benefit_sponsorship: april_sponsor,
-                                                         effective_period: (new_effective_date..(new_effective_date + 1.year - 1.day)),
+                                                         default_effective_period: (new_effective_date..(new_effective_date + 1.year - 1.day)),
                                                          aasm_state: :canceled) }
 
           it "should return may application for enrollment extension" do
@@ -1122,7 +1122,7 @@ module BenefitSponsors
           benefit_sponsorship: benefit_sponsorship,
           recorded_service_areas: benefit_sponsorship.primary_office_service_areas,
           aasm_state: :expired,
-          effective_period: (benefit_sponsorship.active_benefit_application.start_on - 1.year..benefit_sponsorship.active_benefit_application.start_on - 1.day)
+          default_effective_period: (benefit_sponsorship.active_benefit_application.start_on - 1.year..benefit_sponsorship.active_benefit_application.start_on - 1.day)
         )
         active_application = benefit_sponsorship.active_benefit_application
         active_application.predecessor = expired_application
@@ -1164,11 +1164,11 @@ module BenefitSponsors
       let!(:renewal_effective_period)      { (TimeKeeper.date_of_record.beginning_of_month.next_year)..(TimeKeeper.date_of_record.beginning_of_month.prev_day + 2.years) }
 
       shared_examples_for "for an employer on the exchange" do |aasm_state_initial, aasm_state_renewal, expectation|
-        let!(:current_application)           { create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:current_application)           { create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, default_effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
         let!(:renewal_application) do
           return unless aasm_state_renewal.present?
 
-          create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship)
+          create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship)
         end
         it "when #{aasm_state_initial} #{aasm_state_renewal} application(s) are present" do
           expect(active_benefit_sponsorship.is_potential_off_cycle_employer?).to eq expectation
@@ -1207,12 +1207,12 @@ module BenefitSponsors
         let(:termination_date)            { TimeKeeper.date_of_record.next_month.end_of_month }
         let!(:renewal_effective_period)   { termination_date.next_day..termination_date.next_day.next_year.prev_day }
         let!(:effective_period)           { start_on..termination_date }
-        let!(:term_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app1)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app2)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app3)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app4)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:draft_app)                  { create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:term_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, default_effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app1)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app2)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app3)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app4)              { create(:benefit_sponsors_benefit_application, aasm_state: :canceled, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:draft_app)                  { create(:benefit_sponsors_benefit_application, aasm_state: :draft, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
 
 
         it { expect(active_benefit_sponsorship.is_potential_off_cycle_employer?).to eq true }
@@ -1239,21 +1239,24 @@ module BenefitSponsors
         end
 
         let!(:initial_application) do
-          application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship)
+          application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, default_effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship)
           terminated_period = aasm_state_renewal.nil? && ['terminated', 'termination_pending'].include?(aasm_state_initial) ? effective_period.min..termination_date : effective_period
-          application.update_attributes!(effective_period: terminated_period)
+          # application.update_attributes!(effective_period: terminated_period)
+          application.benefit_application_items.create(effective_period: terminated_period)
+          application
         end
         let!(:offcycle_application) do
           return unless aasm_state_off_cycle.present?
 
-          create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_off_cycle, effective_period: offcycle_effective_period, benefit_sponsorship: active_benefit_sponsorship)
+          create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_off_cycle, default_effective_period: offcycle_effective_period, benefit_sponsorship: active_benefit_sponsorship)
         end
         let!(:renewal_application) do
           return unless aasm_state_renewal.present?
 
           terminated_period = ['terminated', 'termination_pending'].include?(aasm_state_renewal) ? renewal_effective_period.min..termination_date : renewal_effective_period
-          application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, effective_period: terminated_period, benefit_sponsorship: active_benefit_sponsorship)
-          application.update_attributes!(effective_period: terminated_period)
+          application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, default_effective_period: terminated_period, benefit_sponsorship: active_benefit_sponsorship)
+          application.benefit_application_items.create(effective_period: terminated_period)
+          application
         end
         it "when #{aasm_state_initial} #{aasm_state_renewal} application(s) are present" do
           expect(active_benefit_sponsorship.off_cycle_benefit_application == offcycle_application).to eq expectation if aasm_state_off_cycle.present?
