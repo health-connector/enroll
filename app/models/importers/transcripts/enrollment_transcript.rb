@@ -443,8 +443,9 @@ module Importers::Transcripts
     end
 
     def find_plan_year_by_effective_date(employer_profile, target_date)
-      benefit_applications = employer_profile.active_benefit_sponsorship.benefit_applications
-      benefit_applications.effective_period_cover(target_date).where(:aasm_state.in =>
+      benefit_sponsorship = employer_profile.active_benefit_sponsorship
+      benefit_applications = benefit_sponsorship.benefit_applications
+      benefit_applications.effective_period_cover(benefit_sponsorship, target_date).where(:aasm_state.in =>
                                                                          [:approved, :enrollment_open, :enrollment_extended, :enrollment_closed, :enrollment_eligible, :binder_paid, :active, :termination_pending, :terminated, :expired]).first
     end
 

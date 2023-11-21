@@ -299,7 +299,7 @@ module BenefitSponsors
     before_validation :pull_profile_attributes, :pull_organization_attributes, :validate_profile_organization
 
     def application_may_renew_effective_on(new_date)
-      benefit_applications.effective_date_end_on(new_date).coverage_effective.first
+      benefit_applications.effective_date_end_on(self, new_date).coverage_effective.first
     end
 
     def application_may_begin_open_enrollment_on(new_date)
@@ -315,7 +315,7 @@ module BenefitSponsors
     end
 
     def application_may_end_benefit_on(new_date)
-      benefit_applications.effective_date_end_on(new_date).coverage_effective.first
+      benefit_applications.effective_date_end_on(self, new_date).coverage_effective.first
     end
 
     def application_may_terminate_on(terminated_on)
@@ -323,7 +323,7 @@ module BenefitSponsors
     end
 
     def pending_application_may_terminate_on(end_on)
-      benefit_applications.effective_date_end_on(end_on).termination_pending.first
+      benefit_applications.effective_date_end_on(self, end_on).termination_pending.first
     end
 
     def application_may_auto_submit(effective_date)
@@ -480,7 +480,7 @@ module BenefitSponsors
 
     def overlapping_coverage_exists?(benefit_application)
       benefit_applications.approved_and_terminated
-       .by_overlapping_effective_period(benefit_application.effective_period)
+       .by_overlapping_effective_period(self, benefit_application.effective_period)
        .reject{|result| result == benefit_application}.present?
     end
 

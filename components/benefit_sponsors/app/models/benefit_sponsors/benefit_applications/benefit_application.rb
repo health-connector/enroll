@@ -190,35 +190,34 @@ module BenefitSponsors
       )
     }
 
-    def self.effective_date_begin_on(compare_date = TimeKeeper.date_of_record)
-      where(:benefit_application_items => {:"$elemMatch" => {
-              :_id => earliest_benefit_application_item.id,
-              :"effective_period.min".lte => compare_date
-            }})
-    end
+    scope :effective_date_begin_on, lambda { |compare_date = TimeKeeper.date_of_record|
+      where(:'benefit_application_items.effective_period.min'.lte => compare_date)
+    }
 
-    def self.effective_date_end_on(compare_date = TimeKeeper.date_of_record)
+    def self.effective_date_end_on(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
+      item_ids = benefit_sponsorship.benefit_applications.map { |app| app.latest_benefit_application_item.id }
+
       where(:benefit_application_items => {:"$elemMatch" => {
-              :_id => latest_benefit_application_item.id,
+              :_id.in => item_ids,
               :"effective_period.max".lt => compare_date
             }})
     end
 
-    def self.effective_period_cover(compare_date = TimeKeeper.date_of_record)
+    def self.effective_period_cover(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
+      earliest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id }
+      latest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.latest_benefit_application_item.id }
+
       where(:benefit_application_items => {:"$elemMatch" => {
               "$and" => [
-                {:_id => earliest_benefit_application_item.id, :"effective_period.min".lte => compare_date },
-                {:_id => latest_benefit_application_item.id, :"effective_period.max".gte => compare_date }
+                {:_id.in => earliest_item_ids, :"effective_period.min".lte => compare_date },
+                {:_id.in => latest_item_ids, :"effective_period.max".gte => compare_date }
               ]
             }})
     end
 
-    def self.future_effective_date(compare_date = TimeKeeper.date_of_record)
-      where(:benefit_application_items => {:"$elemMatch" => {
-              :_id => earliest_benefit_application_item.id,
-              :"effective_period.min".gte => compare_date
-            }})
-    end
+    scope :future_effective_date, lambda { |compare_date = TimeKeeper.date_of_record|
+      where(:'benefit_application_items.effective_period.min'.gte => compare_date)
+    }
 
     # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
     def self.benefit_terminate_on(compare_date = TimeKeeper.date_of_record)
@@ -228,47 +227,58 @@ module BenefitSponsors
             }})
     end
 
-    def self.by_year(compare_year = TimeKeeper.date_of_record.year)
+    def self.by_year(benefit_sponsorship, compare_year = TimeKeeper.date_of_record.year)
+      item_ids = benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id }
+
       where(:benefit_application_items => {:"$elemMatch" => {
-              :_id => earliest_benefit_application_item.id,
+              :_id.in => item_ids,
               :"effective_period.min".gte => Date.new(compare_year, 1, 1),
               :"effective_period.min".lte => Date.new(compare_year, 12, -1)
             }})
     end
 
-    def self.by_overlapping_effective_period(effective_period)
+    def self.by_overlapping_effective_period(benefit_sponsorship, effective_period)
+      earliest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id }
+      latest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.latest_benefit_application_item.id }
+
       where(:benefit_application_items => {:"$elemMatch" => {
               :"$or" => [
-                { :"effective_period.min" => {"$gte" => effective_period.min, "$lte" => effective_period.max }, :_id => earliest_benefit_application_item.id},
-                { :"effective_period.max" => {"$gte" => effective_period.min, "$lte" => effective_period.max }, :_id => latest_benefit_application_item.id}
+                { :"effective_period.min" => {"$gte" => effective_period.min, "$lte" => effective_period.max }, :_id.in => earliest_item_ids},
+                { :"effective_period.max" => {"$gte" => effective_period.min, "$lte" => effective_period.max }, :_id.in => latest_item_ids}
               ]
             }})
     end
 
-    def self.published_benefit_applications_within_date_range(begin_on, end_on)
+    def self.published_benefit_applications_within_date_range(benefit_sponsorship, begin_on, end_on)
+      earliest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id }
+      latest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.latest_benefit_application_item.id }
+
       where(:aasm_state.in => APPROVED_STATES,
             :benefit_application_items => {:"$elemMatch" => {
               "$or" => [
-                 { :effective_period.min => {"$gte" => begin_on, "$lte" => end_on }, :_id => earliest_benefit_application_item.id },
-                 { :effective_period.max => {"$gte" => begin_on, "$lte" => end_on }, :_id => latest_benefit_application_item.id }
+                 { :effective_period.min => {"$gte" => begin_on, "$lte" => end_on }, :_id.in => earliest_item_ids },
+                 { :effective_period.max => {"$gte" => begin_on, "$lte" => end_on }, :_id.in => latest_item_ids }
                ]
             }})
     end
 
-    def self.published_benefit_applications_by_date(date)
+    def self.published_benefit_applications_by_date(benefit_sponsorship, date)
+      earliest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id }
+      latest_item_ids = benefit_sponsorship.benefit_applications.map { |app| app.latest_benefit_application_item.id }
+
       where(
         :aasm_state.in => APPROVED_STATES,
         :benefit_application_items => {:"$elemMatch" => {
           "$and" => [
-            {:_id => earliest_benefit_application_item.id, :"effective_period.min".lte => date },
-            {:_id => latest_benefit_application_item.id, :"effective_period.max".gte => date }
+            {:_id.in => earliest_item_ids, :"effective_period.min".lte => date },
+            {:_id.in => latest_item_ids, :"effective_period.max".gte => date }
           ]
         }}
       )
     end
 
     def start_on
-      latest_benefit_application_item&.effective_period&.begin
+      earliest_benefit_application_item&.effective_period&.begin
     end
 
     def end_on

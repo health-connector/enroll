@@ -608,7 +608,7 @@ class HbxEnrollment
 
   def collect_predecessor_package_ids(benefit_application)
     if benefit_application.is_renewing? && (effective_on == sponsored_benefit_package.start_on) && employer_profile
-      @predecessor_application = employer_profile.benefit_applications.published_benefit_applications_by_date(effective_on.prev_day).first
+      @predecessor_application = employer_profile.benefit_applications.published_benefit_applications_by_date(employer_profile.active_benefit_sponsorship, effective_on.prev_day).first
       @predecessor_application.benefit_packages.pluck(:id) if @predecessor_application
     end
   end
@@ -1482,7 +1482,7 @@ class HbxEnrollment
     return false unless self.coverage_terminated? || self.coverage_termination_pending?
     return false if is_shop? && employee_role.try(:is_cobra_status?) && self.kind == "employer_sponsored"
     return false if is_shop? && !employee_role.try(:is_cobra_status?) && self.kind == 'employer_sponsored_cobra'
-    is_shop? && benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(terminated_on.next_day).present? ||is_ivl_by_kind? && is_effective_in_current_year?
+    is_shop? && benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(benefit_sponsorship, terminated_on.next_day).present? ||is_ivl_by_kind? && is_effective_in_current_year?
   end
 
   def is_effective_in_current_year?
