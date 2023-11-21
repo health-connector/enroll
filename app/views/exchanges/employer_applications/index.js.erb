@@ -200,12 +200,9 @@ function selectReviseEndDate(pyStatus, applicationId) {
 
   var terminated_states = ["terminated", "termination_pending"];
 
-  if (canceled_states.includes(pyStatus)) {
-    showOnlyLastDate(applicationId);
-  }
-
   if (terminated_states.includes(pyStatus)) {
     showOnlyLastDate(applicationId);
+    validateFormat(applicationId);
   }
 }
 
@@ -232,7 +229,6 @@ function pyAction(action, id, status, employer_id, end_on, start_on) {
     clearDatePickerValue();
     disableSubmitButton();
     selectReviseEndDate(pyStatus, applicationId);
-    validateFormat(applicationId)
   }
 
   if (action == 'terminate') {
