@@ -196,6 +196,21 @@ function populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicatio
   }
 }
 
+function selectReviseEndDate(pyStatus, applicationId) {
+
+  var canceled_states = ["retroactive_canceled"];
+  var terminated_states = ["terminated", "termination_pending"];
+
+  if (canceled_states.includes(pyStatus)) {
+    showAllDates(applicationId);
+  }
+
+  if (terminated_states.includes(pyStatus)) {
+    showOnlyLastDate(id);
+  }
+}
+
+
 function pyAction(action, id, status, employer_id, end_on, start_on) {
   actionSelected = action;
   applicationId = id;
@@ -211,6 +226,14 @@ function pyAction(action, id, status, employer_id, end_on, start_on) {
     populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicationId);
     hideTerminationRadios();
     enableSubmitButton();
+  }
+
+  if (action == "revise_end_date") {
+    hideTerminationRadios();
+    clearDatePickerValue();
+    disableSubmitButton();
+    selectReviseEndDate(pyStatus, applicationId);
+    validateFormat(applicationId)
   }
 
   if (action == 'terminate') {
@@ -306,16 +329,20 @@ function checkTermReason(element) {
 
 // You can use the actionSelected here
 function submitPlanActions() {
+  transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
+  $('input:hidden[name=transmit_to_carrier]').val(transmit_to_carrier);
+  $('input:hidden[name=employer_id]').val(employerId);
+  $('input:hidden[name=employer_application_id]').val(applicationId);
+
   if (actionSelected == 'reinstate') {
     $("#reinstateBenefitApplication").modal('show');
-    transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
-    $('input:hidden[name=transmit_to_carrier]').val(transmit_to_carrier);
-    $('input:hidden[name=employer_id]').val(employerId);
-    $('input:hidden[name=employer_application_id]').val(applicationId);
+  } else if (actionSelected == 'revise_end_date') {
+    $("#reviseEndDateBenefitApplication").modal('show');
+    $('input:hidden[name=revise_end_date]').val(pyEndDate);
   } else {
     termKind = actionSelected == "terminate" ? $('input[name=term_actions]:checked').val() : "";
     termReason = $('#term_reason_' + applicationId).val();
-    transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
+
     $.ajax({
       url: "/exchanges/employer_applications/" + applicationId + "/" + actionSelected,
       method: 'PUT',
