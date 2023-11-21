@@ -95,8 +95,8 @@ function validateFormat(id, pyStartOn, pyEndOn) {
   pyEndDate = element;
 
   setTimeout(function() {
-    if (element.length != 10 || element.indexOf("/") != 2 || checkTermReason(ele2)) {
-      if (element.length > 0 && (checkTermReason(ele2) == false)) {
+    if (element.length != 10 || element.indexOf("/") != 2 || checkTermReason(ele2, actionSelected)) {
+      if (element.length > 0 && (checkTermReason(ele2, actionSelected) == false)) {
         element = "";
         alert("Please use mm/dd/yyyy format");
       }
@@ -198,15 +198,14 @@ function populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicatio
 
 function selectReviseEndDate(pyStatus, applicationId) {
 
-  var canceled_states = ["retroactive_canceled"];
   var terminated_states = ["terminated", "termination_pending"];
 
   if (canceled_states.includes(pyStatus)) {
-    showAllDates(applicationId);
+    showOnlyLastDate(applicationId);
   }
 
   if (terminated_states.includes(pyStatus)) {
-    showOnlyLastDate(id);
+    showOnlyLastDate(applicationId);
   }
 }
 
@@ -318,8 +317,11 @@ function addTermReasons(reason, id) {
   return true
 }
 
-function checkTermReason(element) {
-  if (element == undefined || element == "") {
+function checkTermReason(element, actionSelected) {
+  if (actionSelected == 'revise_end_date') {
+    return false
+  }
+  else if (element == undefined || element == "") {
     return true
   }
   else {
@@ -337,8 +339,8 @@ function submitPlanActions() {
   if (actionSelected == 'reinstate') {
     $("#reinstateBenefitApplication").modal('show');
   } else if (actionSelected == 'revise_end_date') {
-    $("#reviseEndDateBenefitApplication").modal('show');
     $('input:hidden[name=revise_end_date]').val(pyEndDate);
+    $("#reviseEndDateBenefitApplication").modal('show');
   } else {
     termKind = actionSelected == "terminate" ? $('input[name=term_actions]:checked').val() : "";
     termReason = $('#term_reason_' + applicationId).val();
