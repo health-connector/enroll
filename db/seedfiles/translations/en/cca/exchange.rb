@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.applications" => "applications",
   "en.exchange.employer_applications.start_date" => "Start Date",
@@ -27,4 +29,4 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.revise_end_date.success_message" => "Plan Year End Date Changed Successfully",
   "en.exchange.employer_applications.unable_to_change_end_date" => "An error occured when changing end date of an application.",
   "en.exchange.employer_applications.revise_end_date.confirmation_message" => "Are you sure you want to change the end date?"
-}
+}.freeze

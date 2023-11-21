@@ -75,7 +75,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       revise_end_date = params['revise_end_date']
       result = EnrollRegistry[:benefit_application_revise_end_date]{ {params: {benefit_application: application, options: {transmit_to_carrier: transmit_to_carrier, revise_end_date: revise_end_date} } } }
       if result.success?
-        flash[:notice] = "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.revise_end_date.success_message')} #{(application.end_on).to_date}"
+        flash[:notice] = "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.revise_end_date.success_message')} #{application.end_on.to_date}"
       else
         flash[:error] = "#{application.benefit_sponsorship.legal_name} - #{result.failure}"
       end
