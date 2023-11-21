@@ -480,8 +480,8 @@ module BenefitSponsors
 
     def overlapping_coverage_exists?(benefit_application)
       benefit_applications.approved_and_terminated
-       .by_overlapping_effective_period(self, benefit_application.effective_period)
-       .reject{|result| result == benefit_application}.present?
+                          .by_overlapping_effective_period(self, benefit_application.effective_period)
+                          .reject{|result| result == benefit_application}.present?
     end
 
     def oe_extended_applications
