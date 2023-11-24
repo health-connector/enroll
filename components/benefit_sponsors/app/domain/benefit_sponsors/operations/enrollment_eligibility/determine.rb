@@ -68,7 +68,7 @@ module BenefitSponsors
         end
 
         def is_initial_sponsor?(benefit_applications, effective_date)
-          recent_benefit_application = benefit_applications.max_by { |benefit_application|  benefit_application.effective_period.min }
+          recent_benefit_application = benefit_applications.max_by { |benefit_application|  benefit_application.earliest_benefit_application_item.effective_period.min }
           return true unless recent_benefit_application
           return true if recent_benefit_application.is_termed_or_ineligible? || recent_benefit_application.aasm_state == :active && recent_benefit_application.effective_period.cover?(effective_date)
 

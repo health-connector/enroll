@@ -88,6 +88,7 @@ module BenefitSponsors
           where(:"benefit_applications.aasm_state".in => BenefitSponsors::BenefitApplications::BenefitApplication::APPLICATION_DRAFT_STATES)
         }
 
+        # TODO: fix this
         scope :effective_date_begin_on, -> (compare_date) {
           where(:"benefit_applications.effective_period.min" => compare_date )
          }
