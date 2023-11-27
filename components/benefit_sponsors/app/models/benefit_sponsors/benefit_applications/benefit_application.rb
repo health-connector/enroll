@@ -94,7 +94,7 @@ module BenefitSponsors
                 class_name: "::BenefitSponsors::BenefitPackages::BenefitPackage"
 
     embeds_many :benefit_application_items,
-                class_name: "::BenefitSponsors::BenefitApplications::BenefitApplicationItem"
+                class_name: "::BenefitSponsors::BenefitApplications::BenefitApplicationItem", cascade_callbacks: true
 
     validates_presence_of :open_enrollment_period, :recorded_service_areas, :recorded_rating_area, :recorded_sic_code
 
@@ -291,6 +291,12 @@ module BenefitSponsors
 
     def termination_reason
       latest_benefit_application_item.item_type_reason
+    end
+
+    def terminated_on
+      return nil unless (termination_pending? || terminated?)
+
+      end_on
     end
 
     def latest_benefit_application_item

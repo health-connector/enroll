@@ -75,14 +75,14 @@ module BenefitSponsors
           ba_states = BenefitSponsors::BenefitApplications::BenefitApplication::RENEWAL_TRANSMISSION_STATES +
                       BenefitSponsors::BenefitApplications::BenefitApplication::CANCELED_STATES +
                       BenefitSponsors::BenefitApplications::BenefitApplication::EXPIRED_STATES
-          effective_date.to_date > recent_benefit_application.effective_period.max.to_date.next_day || ba_states.include?(recent_benefit_application.aasm_state)
+          effective_date.to_date > recent_benefit_application.earliest_benefit_application_item.effective_period.max.to_date.next_day || ba_states.include?(recent_benefit_application.aasm_state)
         end
 
         def is_renewing_sponsor?(benefit_applications, effective_date)
           active_benefit_application = benefit_applications.detect { |benefit_application| benefit_application.aasm_state == :active }
           return false unless active_benefit_application
 
-          effective_date.to_date == active_benefit_application.effective_period.max.to_date.next_day
+          effective_date.to_date == active_benefit_application.earliest_benefit_application_item.effective_period.max.to_date.next_day
         end
       end
     end

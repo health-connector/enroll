@@ -32,11 +32,13 @@ module BenefitSponsors
       ITEM_TYPES = [:change, :correction].freeze
 
       field :effective_period,        type: Range
-      field :sequence_id,        type: Integer
-      field :item_type,       type: Symbol
-      field :item_type_reason,     type: String
-      field :updated_by, type: String
-      field :current_state, type: Symbol
+      field :sequence_id,             type: Integer
+      field :item_type,               type: Symbol
+      field :item_type_reason,        type: String
+      field :updated_by,              type: String
+      field :current_state,           type: Symbol
+
+      validates_presence_of :sequence_id, :effective_period, :current_state
     end
   end
 end
