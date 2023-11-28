@@ -195,10 +195,8 @@ module BenefitSponsors
     }
 
     def self.effective_date_end_on(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
-      item_ids = benefit_sponsorship.benefit_applications.map { |app| app.latest_benefit_application_item.id }
-
       where(:benefit_application_items => {:"$elemMatch" => {
-              :_id.in => item_ids,
+              :_id.in => latest_benefit_application_item_ids(benefit_sponsorship),
               :"effective_period.max".lt => compare_date
             }})
     end
@@ -212,8 +210,11 @@ module BenefitSponsors
             }})
     end
 
-    scope :future_effective_date, lambda { |compare_date = TimeKeeper.date_of_record|
-      where(:'benefit_application_items.effective_period.min'.gte => compare_date)
+    scope :future_effective_date, lambda { |benefit_sponsorship, compare_date = TimeKeeper.date_of_record|
+      where(:benefit_application_items => {:"$elemMatch" => {
+              :_id.in => earliest_benefit_application_item_ids(benefit_sponsorship),
+              :"effective_period.min".gte => compare_date
+            }})
     }
 
     # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
@@ -225,10 +226,8 @@ module BenefitSponsors
     end
 
     def self.by_year(benefit_sponsorship, compare_year = TimeKeeper.date_of_record.year)
-      item_ids = benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id }
-
       where(:benefit_application_items => {:"$elemMatch" => {
-              :_id.in => item_ids,
+              :_id.in => earliest_benefit_application_item_ids(benefit_sponsorship),
               :"effective_period.min".gte => Date.new(compare_year, 1, 1),
               :"effective_period.min".lte => Date.new(compare_year, 12, -1)
             }})

@@ -165,13 +165,6 @@ module BenefitSponsors
             }})
     end
 
-    # scope :may_terminate_pending_benefit_coverage?, -> (compare_date = TimeKeeper.date_of_record) {
-    #   where(:benefit_applications => {
-    #     :$elemMatch => {:"effective_period.max".lt => compare_date, :aasm_state => :termination_pending }}
-    #   )
-    # }
-
-    # TODO: find a way to make query work through latest benefit application item
     def self.may_terminate_pending_benefit_coverage?(compare_date = TimeKeeper.date_of_record)
       where(:benefit_applications => {:"$elemMatch" => {
               :aasm_state => :termination_pending,
@@ -245,6 +238,7 @@ module BenefitSponsors
             }})
     end
 
+    # TODO: remove this scope(?); all the related code around may_deny_initial_enrollment_eligibility is commented out
     def self.may_transition_as_initial_ineligible?(compare_date = TimeKeeper.date_of_record)
       where(:benefit_applications => {:"$elemMatch" => {
               :predecessor_id => { :$exists => false },
@@ -298,6 +292,14 @@ module BenefitSponsors
     before_create :generate_hbx_id
     before_validation :pull_profile_attributes, :pull_organization_attributes, :validate_profile_organization
 
+    def earliest_benefit_application_item_ids
+      benefit_applications.map { |app| app.earliest_benefit_application_item.id }
+    end
+
+    def latest_benefit_application_item_ids
+      benefit_applications.map { |app| app.latest_benefit_application_item.id }
+    end
+
     def application_may_renew_effective_on(new_date)
       benefit_applications.effective_date_end_on(self, new_date).coverage_effective.first
     end
@@ -318,6 +320,7 @@ module BenefitSponsors
       benefit_applications.effective_date_end_on(self, new_date).coverage_effective.first
     end
 
+    # TODO: fix this
     def application_may_terminate_on(terminated_on)
       benefit_applications.benefit_terminate_on(terminated_on).first
     end
@@ -328,6 +331,76 @@ module BenefitSponsors
 
     def application_may_auto_submit(effective_date)
       benefit_applications.effective_date_begin_on(effective_date).renewing.draft_state.first
+    end
+
+    def application_transmit_initial_enrollment(new_date = TimeKeeper.date_of_record)
+      start_on = new_date.prev_day.next_month.beginning_of_month
+      transition_at = (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month ? nil : new_date.prev_day
+
+      if  transition_at.blank?
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:binder_paid, :active]},
+                :"benefit_application_items" => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      else
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:binder_paid, :active]},
+                :workflow_state_transitions => {"$elemMatch" => {"to_state" => :binder_paid, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}},
+                :"benefit_application_items" => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      end
+    end
+
+    def application_transmit_renewal_enrollment(new_date = TimeKeeper.date_of_record)
+      start_on = new_date.prev_day.next_month.beginning_of_month
+      transition_at = (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month ? nil : new_date.prev_day
+
+      if  transition_at.blank?
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:enrollment_eligible, :active]},
+                :"benefit_application_items" => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      else
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:enrollment_eligible, :active]},
+                :workflow_state_transitions => {"$elemMatch" => {"to_state" => :enrollment_eligible, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}},
+                :"benefit_application_items" => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      end
+    end
+
+    def application_transmit_renewal_ineligible(new_date = TimeKeeper.date_of_record)
+      start_on = new_date.prev_day.next_month.beginning_of_month
+
+      where(:benefit_applications => {:"$elemMatch" => {
+              :predecessor_id => { :$exists => true },
+              :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES,
+              :"benefit_application_items" => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+            }}).first
+    end
+
+
+    def self.may_transmit_as_renewal_ineligible?(compare_date = TimeKeeper.date_of_record)
+      where(:benefit_applications => {:"$elemMatch" => {
+              :predecessor_id => { :$exists => true },
+              :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES,
+              :"benefit_application_items.effective_period.min" => compare_date
+            }})
     end
 
     def primary_office_address
@@ -459,7 +532,11 @@ module BenefitSponsors
     end
 
     def active_imported_benefit_application
-      benefit_applications.where(:"effective_period.max".gte => TimeKeeper.date_of_record).order_by(:updated_at.desc).imported.first  if is_conversion?
+      if is_conversion?
+        benefit_applications.order_by(:updated_at.desc).imported.detect do |benefit_application|
+          benefit_application.end_on >= TimeKeeper.date_of_record
+        end
+      end
     end
 
     def imported_benefit_application
@@ -473,8 +550,8 @@ module BenefitSponsors
     # Open enrollment can be extended only for recent applications (i.e, upto 6 months old)
     # Benefit Application's with overlapping coverage can't be extended
     def oe_extendable_benefit_applications
-      benefit_applications.where(:"effective_period.min".gte => TimeKeeper.date_of_record.beginning_of_month).select do |benefit_application|
-        benefit_application.may_extend_open_enrollment? && !overlapping_coverage_exists?(benefit_application)
+      benefit_applications.select do |benefit_application|
+        benefit_application.start_on >= TimeKeeper.date_of_record.beginning_of_month && benefit_application.may_extend_open_enrollment? && !overlapping_coverage_exists?(benefit_application)
       end
     end
 
@@ -521,11 +598,11 @@ module BenefitSponsors
     end
 
     def dt_display_benefit_application
-      benefit_applications.where(:aasm_state.ne => :canceled).order_by(:"effective_period.min".desc).first || latest_benefit_application
+      benefit_applications.where(:aasm_state.ne => :canceled).max_by(&:start_on) || latest_benefit_application
     end
 
     def off_cycle_benefit_application
-      recent_bas = benefit_applications.where(:aasm_state.ne => :canceled).order_by(:created_at.asc).to_a.last(3)
+      recent_bas = benefit_applications.where(:aasm_state.ne => :canceled).sort_by(&:created_at).last(3)
       termed_or_ineligible_app = recent_bas.select(&:is_termed_or_ineligible?).max_by(&:start_on)
       return nil unless termed_or_ineligible_app
 
@@ -567,7 +644,7 @@ module BenefitSponsors
     end
 
     def dt_display_benefit_application
-      benefit_applications.where(:aasm_state.nin => [:canceled, :retroactive_canceled]).order_by(:"effective_period.min".desc).first || latest_benefit_application
+      benefit_applications.where(:aasm_state.nin => [:canceled, :retroactive_canceled]).max_by(&:start_on) || latest_benefit_application
     end
 
     def latest_application

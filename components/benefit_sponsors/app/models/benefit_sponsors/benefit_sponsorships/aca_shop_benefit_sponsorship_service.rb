@@ -99,26 +99,40 @@ module BenefitSponsors
     end
 
     def auto_cancel_ineligible
-      benefit_sponsorship.benefit_applications.enrollment_closed_and_ineligible.each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
+      benefit_sponsorship.benefit_applications.enrollment_closed_and_ineligible.where(:"benefit_application_items" => {:"$elemMatch" => {
+        :_id.in => benefit_sponsorship.earliest_benefit_application_item_ids,
+        :"effective_period.min" => TimeKeeper.date_of_record
+      }}).each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
     end
 
     def transmit_initial_eligible_event
-      notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG})
+      benefit_application = benefit_sponsorship.application_transmit_initial_enrollment
+
+      if benefit_application.present?
+        notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG})
+      end
     end
 
     def transmit_renewal_eligible_event
-      if benefit_sponsorship.is_renewal_transmission_eligible?
+      benefit_application = benefit_sponsorship.application_transmit_renewal_enrollment
+
+      if benefit_application && benefit_sponsorship.is_renewal_transmission_eligible?
         notify(RENEWAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_ELIGIBLE_EVENT_TAG})
       end
     end
 
     def transmit_renewal_carrier_drop_event
-      if benefit_sponsorship.is_renewal_carrier_drop?
+      benefit_application = benefit_sponsorship.application_transmit_renewal_enrollment
+
+      if benefit_application && benefit_sponsorship.is_renewal_carrier_drop?
         notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG})
       end
     end
 
     def transmit_ineligible_renewal_carrier_drop_event
+      benefit_application = benefit_sponsorship.application_transmit_renewal_ineligible
+      return if benefit_application.blank?
+
       unless benefit_sponsorship.is_renewal_transmission_eligible?
         notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG})
       end

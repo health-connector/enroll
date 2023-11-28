@@ -100,7 +100,6 @@ module BenefitSponsors
     describe "For business_policies_for 1/1 effective date" do
 
       let!(:benefit_application_update) {benefit_application.update_attributes(:fte_count => 5,
-                                                                               :effective_period => Range.new(TimeKeeper.date_of_record.beginning_of_year-1.year, TimeKeeper.date_of_record.end_of_year-1.year),
                                                                                :open_enrollment_period => Range.new(Date.today, Date.today + BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN))
       }
 
