@@ -38,7 +38,6 @@ module BenefitSponsors
 
     let(:params) do
       {
-        # effective_period:         effective_period,
         open_enrollment_period: open_enrollment_period,
         benefit_sponsor_catalog: benefit_sponsor_catalog
       }
@@ -46,6 +45,7 @@ module BenefitSponsors
 
     let(:valid_params) do
       {
+        benefit_application_items: [{effective_period: effective_period}],
         open_enrollment_period: open_enrollment_period,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
         recorded_rating_area_id: rating_area.id,
@@ -547,7 +547,6 @@ module BenefitSponsors
                  benefit_sponsorship: benefit_sponsorship,
                  aasm_state: :active,
                  benefit_application_items: [item])
-          application
         end
         let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
@@ -861,14 +860,15 @@ module BenefitSponsors
 
         it "timetable date values should be valid" do
           timetable = subject.enrollment_timetable_by_effective_date(effective_date)
+          application = BenefitApplications::BenefitApplication.new(
+            open_enrollment_period: timetable[:open_enrollment_period],
+            recorded_service_areas: [service_area],
+            recorded_rating_area: rating_area,
+            recorded_sic_code: sic_code
+          )
+          application.benefit_application_items.build(effective_period: timetable[:effective_period])
 
-          expect(BenefitApplications::BenefitApplication.new(
-                   effective_period: timetable[:effective_period],
-                   open_enrollment_period: timetable[:open_enrollment_period],
-                   recorded_service_areas: [service_area],
-                   recorded_rating_area: rating_area,
-                   recorded_sic_code: sic_code
-                 )).to be_valid
+          expect(application).to be_valid
         end
       end
     end
@@ -876,7 +876,6 @@ module BenefitSponsors
     describe "Navigating BenefitSponsorship Predecessor/Successor linked list", :dbclean => :after_each do
       let(:node_a)    do
         described_class.new(benefit_sponsorship: benefit_sponsorship,
-                            effective_period: effective_period,
                             open_enrollment_period: open_enrollment_period,
                             recorded_sic_code: sic_code,
                             recorded_rating_area: rating_area,
@@ -884,7 +883,6 @@ module BenefitSponsors
       end
       let(:node_a1)   do
         described_class.new(benefit_sponsorship: benefit_sponsorship,
-                            effective_period: effective_period,
                             open_enrollment_period: open_enrollment_period,
                             recorded_sic_code: sic_code,
                             recorded_rating_area: rating_area,
@@ -893,7 +891,6 @@ module BenefitSponsors
       end
       let(:node_a1a)  do
         described_class.new(benefit_sponsorship: benefit_sponsorship,
-                            effective_period: effective_period,
                             open_enrollment_period: open_enrollment_period,
                             recorded_sic_code: sic_code,
                             recorded_rating_area: rating_area,
@@ -902,7 +899,6 @@ module BenefitSponsors
       end
       let(:node_b1)   do
         described_class.new(benefit_sponsorship: benefit_sponsorship,
-                            effective_period: effective_period,
                             open_enrollment_period: open_enrollment_period,
                             recorded_sic_code: sic_code,
                             recorded_rating_area: rating_area,
@@ -955,12 +951,11 @@ module BenefitSponsors
 
     describe ".open_enrollment_length" do
       let!(:initial_application) do
-        item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: :active)
         create(:benefit_sponsors_benefit_application,
                benefit_sponsor_catalog: benefit_sponsor_catalog,
                benefit_sponsorship: benefit_sponsorship,
                aasm_state: :active,
-               items: [item])
+               default_effective_period: effective_period)
       end
 
       let(:min_open_enrollment_length) { 5 }
@@ -1169,8 +1164,8 @@ module BenefitSponsors
           let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
           let!(:employer_profile) {benefit_sponsorship.profile}
           let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
-          let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
-          let!(:second_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship: benefit_sponsorship, aasm_state: :expired) }
+          let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, default_effective_period: effective_period, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
+          let!(:second_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, default_effective_period: effective_period, benefit_sponsorship: benefit_sponsorship, aasm_state: :expired) }
 
           it "should filter out the benefit applications in the expired state" do
             expect(benefit_sponsorship.benefit_applications.non_expired.flatten).to include(initial_application)
