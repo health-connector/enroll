@@ -49,6 +49,7 @@ function populateDropDown(status) {
   var cancel_states = ["approved", "pending", "draft", "imported", "enrollment_open", "enrollment_extended", "enrollment_closed", "enrollment_eligible", "binder_paid", "enrollment_ineligible", "active"];
   var term_states = ["active", "suspended", "expired", "termination_pending"];
   var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled"];
+  var revise_end_date_states = ["terminated", "termination_pending"];
 
   if (cancel_states.indexOf(status) > -1) {
     $('li.cancel-py').removeClass('blocking');
@@ -69,6 +70,13 @@ function populateDropDown(status) {
   }
   else {
    $('li.reinstate-py').addClass('blocking');
+  }
+
+  if (revise_end_date_states.indexOf(status) > -1) {
+    $('li.revise-end-date-py').removeClass('blocking');
+  }
+  else {
+   $('li.revise-end-date-py').addClass('blocking');
   }
 }
 
@@ -95,8 +103,8 @@ function validateFormat(id, pyStartOn, pyEndOn) {
   pyEndDate = element;
 
   setTimeout(function() {
-    if (element.length != 10 || element.indexOf("/") != 2 || checkTermReason(ele2)) {
-      if (element.length > 0 && (checkTermReason(ele2) == false)) {
+    if (element.length != 10 || element.indexOf("/") != 2 || checkTermReason(ele2, actionSelected)) {
+      if (element.length > 0 && (checkTermReason(ele2, actionSelected) == false)) {
         element = "";
         alert("Please use mm/dd/yyyy format");
       }
@@ -122,6 +130,7 @@ function validateFormat(id, pyStartOn, pyEndOn) {
 
 function enableDatePicker() {
   $('input#datepicker').prop('disabled', false);
+  $('#' + applicationId).find('input.py-end-date').prop('disabled', false);
 }
 
 function clearDatePickerValue() {
@@ -196,6 +205,17 @@ function populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicatio
   }
 }
 
+function selectReviseEndDate(pyStatus, applicationId) {
+
+  var terminated_states = ["terminated", "termination_pending"];
+
+  if (terminated_states.includes(pyStatus)) {
+    showOnlyLastDate(applicationId);
+    validateFormat(applicationId);
+  }
+}
+
+
 function pyAction(action, id, status, employer_id, end_on, start_on) {
   actionSelected = action;
   applicationId = id;
@@ -211,6 +231,13 @@ function pyAction(action, id, status, employer_id, end_on, start_on) {
     populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicationId);
     hideTerminationRadios();
     enableSubmitButton();
+  }
+
+  if (action == "revise_end_date") {
+    hideTerminationRadios();
+    clearDatePickerValue();
+    disableSubmitButton();
+    selectReviseEndDate(pyStatus, applicationId);
   }
 
   if (action == 'terminate') {
@@ -295,8 +322,11 @@ function addTermReasons(reason, id) {
   return true
 }
 
-function checkTermReason(element) {
-  if (element == undefined || element == "") {
+function checkTermReason(element, actionSelected) {
+  if (actionSelected == 'revise_end_date') {
+    return false
+  }
+  else if (element == undefined || element == "") {
     return true
   }
   else {
@@ -306,16 +336,20 @@ function checkTermReason(element) {
 
 // You can use the actionSelected here
 function submitPlanActions() {
+  transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
+  $('input:hidden[name=transmit_to_carrier]').val(transmit_to_carrier);
+  $('input:hidden[name=employer_id]').val(employerId);
+  $('input:hidden[name=employer_application_id]').val(applicationId);
+
   if (actionSelected == 'reinstate') {
     $("#reinstateBenefitApplication").modal('show');
-    transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
-    $('input:hidden[name=transmit_to_carrier]').val(transmit_to_carrier);
-    $('input:hidden[name=employer_id]').val(employerId);
-    $('input:hidden[name=employer_application_id]').val(applicationId);
+  } else if (actionSelected == 'revise_end_date') {
+    $('input:hidden[name=revise_end_date]').val(pyEndDate);
+    $("#reviseEndDateBenefitApplication").modal('show');
   } else {
     termKind = actionSelected == "terminate" ? $('input[name=term_actions]:checked').val() : "";
     termReason = $('#term_reason_' + applicationId).val();
-    transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
+
     $.ajax({
       url: "/exchanges/employer_applications/" + applicationId + "/" + actionSelected,
       method: 'PUT',

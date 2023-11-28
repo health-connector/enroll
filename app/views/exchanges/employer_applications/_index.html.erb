@@ -43,9 +43,11 @@
                     <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
                       <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>', '<%= application.start_on.to_date.to_s %>')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li>
                     <%end%>
+                    <%if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)%>
+                      <li onclick="pyAction('revise_end_date', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="revise-end-date-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.revise_end_date") %></li>
+                    <%end%>
                 </ul>
               </div>
-              
             </td>
           </tr>
           <% @reasons = BenefitSponsors::BenefitApplications::BenefitApplication::VOLUNTARY_TERM_REASONS %>
@@ -86,6 +88,10 @@
 
 <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
   <%= render "exchanges/employer_applications/reinstate_benefit_application_modal" %>
+<%end%>
+
+<%if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)%>
+  <%= render "exchanges/employer_applications/revise_end_date_benefit_application_modal" %>
 <%end%>
 
 <script type="text/javascript" charset="utf-8">
