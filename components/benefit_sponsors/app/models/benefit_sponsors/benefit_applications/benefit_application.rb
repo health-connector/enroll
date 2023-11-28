@@ -1104,7 +1104,7 @@ module BenefitSponsors
     def progressbar_covered_count
       return @progressbar_covered_count if defined? @progressbar_covered_count
 
-      @progressbar_covered_count = active_census_employees.select(&:is_enrolled_or_renewed?).count
+      @progressbar_covered_count = active_census_employees.select(&:is_employee_covered?).count
     end
 
     def progressbar_enrolled_non_business_owner_members
