@@ -20,7 +20,7 @@ module BenefitSponsors
         assign_application_attributes(args.except(:effective_period))
         @benefit_application.benefit_application_items.build({
                                                                effective_period: args[:effective_period],
-                                                               current_state: @benefit_application.aasm_state,
+                                                               state: @benefit_application.aasm_state,
                                                                sequence_id: 0
                                                              })
         @benefit_application.pull_benefit_sponsorship_attributes

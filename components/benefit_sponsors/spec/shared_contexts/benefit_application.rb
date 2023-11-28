@@ -46,7 +46,7 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
       fte_count: 5,
       pte_count: 0,
       msp_count: 0,
-      benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: aasm_state)]
+      benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, state: aasm_state)]
     )
   end
 
@@ -104,7 +104,7 @@ RSpec.shared_context "setup renewal application", :shared_context => :metadata d
            open_enrollment_period: open_enrollment_period,
            recorded_rating_area: benefit_sponsorship.rating_area,
            recorded_service_areas: recorded_service_areas,
-           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: renewal_state)],
+           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, state: renewal_state)],
            package_kind: package_kind,
            dental_package_kind: dental_package_kind,
            dental_sponsored_benefit: dental_sponsored_benefit,

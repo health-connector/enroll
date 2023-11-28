@@ -33,7 +33,7 @@ RSpec.describe BenefitSponsors::Validators::BenefitApplications::BenefitApplicat
     let(:valid_params) { missing_params.merge({recorded_service_area_ids: [BSON::ObjectId.new], benefit_application_items: [{
       effective_period: effective_period,
       sequence_id: 0,
-      current_state: :draft
+      state: :draft
     }] })}
 
     context "with required params" do

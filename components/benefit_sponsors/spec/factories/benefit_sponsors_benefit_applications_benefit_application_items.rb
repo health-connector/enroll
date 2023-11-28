@@ -17,7 +17,7 @@ FactoryGirl.define do
       default_effective_period nil
     end
 
-    current_state :draft
+    state :draft
     sequence_id 0
   end
 end

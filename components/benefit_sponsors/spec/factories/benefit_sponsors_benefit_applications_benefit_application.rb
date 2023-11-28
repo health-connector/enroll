@@ -43,7 +43,7 @@ FactoryGirl.define do
                                                         [
                                                           build(
                                                             :benefit_sponsors_benefit_application_item,
-                                                            current_state: benefit_application.aasm_state,
+                                                            state: benefit_application.aasm_state,
                                                             default_effective_period: evaluator.default_effective_period
                                                           )
                                                         ]

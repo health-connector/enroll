@@ -45,7 +45,7 @@ module BenefitSponsors
 
     let(:valid_params) do
       {
-        benefit_application_items: [{effective_period: effective_period, sequence_id: 0, current_state: :draft}],
+        benefit_application_items: [{effective_period: effective_period, sequence_id: 0, state: :draft}],
         open_enrollment_period: open_enrollment_period,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
         recorded_rating_area_id: rating_area.id,
@@ -541,7 +541,7 @@ module BenefitSponsors
         let(:application_period_next_year)        { (Date.new(renewal_effective_date.year,1,1))..(Date.new(renewal_effective_date.year,12,31)) }
         let!(:employer_profile) {benefit_sponsorship.profile}
         let!(:initial_application) do
-          item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: :active)
+          item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, state: :active)
           build(:benefit_sponsors_benefit_application,
                 benefit_sponsor_catalog: benefit_sponsor_catalog,
                 benefit_sponsorship: benefit_sponsorship,
@@ -866,7 +866,7 @@ module BenefitSponsors
             recorded_rating_area: rating_area,
             recorded_sic_code: sic_code
           )
-          application.benefit_application_items.build(effective_period: timetable[:effective_period], sequence_id: 0, current_state: :draft)
+          application.benefit_application_items.build(effective_period: timetable[:effective_period], sequence_id: 0, state: :draft)
 
           expect(application).to be_valid
         end
@@ -1000,7 +1000,7 @@ module BenefitSponsors
         initial_application.benefit_application_items.create(
           effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months),
           sequence_id: 0,
-          current_state: :draft
+          state: :draft
         )
         expect(initial_application.rate_schedule_date).not_to eq initial_application.start_on
       end
@@ -1013,7 +1013,7 @@ module BenefitSponsors
         initial_application.benefit_application_items.create(
           effective_period: initial_application.start_on..(initial_application.start_on + 4.months),
           sequence_id: 1,
-          current_state: :terminated
+          state: :terminated
         )
         expect(initial_application.rate_schedule_date).to eq initial_application.start_on
       end
@@ -1070,7 +1070,7 @@ module BenefitSponsors
 
       let(:application) do
         app = subject.class.new
-        app.benefit_application_items.build(effective_period: effective_period, sequence_id: 0, current_state: :draft)
+        app.benefit_application_items.build(effective_period: effective_period, sequence_id: 0, state: :draft)
         app
       end
       let(:market) { double(kind: :aca_shop) }

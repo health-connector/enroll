@@ -42,7 +42,7 @@ module BenefitSponsors::Importers
 
     let(:new_application) {
       application = benefit_sponsorship.benefit_applications.new
-      application.benefit_application_items.build(effective_period: (current_effective_date..current_effective_date.next_year.prev_day), sequence_id: 0, current_state: :draft)
+      application.benefit_application_items.build(effective_period: (current_effective_date..current_effective_date.next_year.prev_day), sequence_id: 0, state: :draft)
       application.pull_benefit_sponsorship_attributes
       application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(application.effective_period.begin)
       catalog = application.benefit_sponsor_catalog

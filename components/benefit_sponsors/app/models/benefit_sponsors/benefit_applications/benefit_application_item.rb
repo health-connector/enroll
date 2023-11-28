@@ -36,9 +36,9 @@ module BenefitSponsors
       field :item_type,               type: Symbol
       field :item_type_reason,        type: String
       field :updated_by,              type: String
-      field :current_state,           type: Symbol
+      field :state,           type: Symbol
 
-      validates_presence_of :sequence_id, :effective_period, :current_state
+      validates_presence_of :sequence_id, :effective_period, :state
     end
   end
 end
