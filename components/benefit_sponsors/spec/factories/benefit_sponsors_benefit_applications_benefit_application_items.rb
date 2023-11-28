@@ -16,5 +16,8 @@ FactoryGirl.define do
     transient do
       default_effective_period nil
     end
+
+    current_state :draft
+    sequence_id 0
   end
 end

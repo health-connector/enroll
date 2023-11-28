@@ -47,6 +47,8 @@ FactoryGirl.define do
             default_effective_period: evaluator.default_effective_period
           )
         ]
+      else
+        benefit_application.benefit_application_items = evaluator.benefit_application_items
       end
     end
 
