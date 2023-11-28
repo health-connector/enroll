@@ -543,10 +543,10 @@ module BenefitSponsors
         let!(:initial_application) do
           item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: :active)
           build(:benefit_sponsors_benefit_application,
-                 benefit_sponsor_catalog: benefit_sponsor_catalog,
-                 benefit_sponsorship: benefit_sponsorship,
-                 aasm_state: :active,
-                 benefit_application_items: [item])
+                benefit_sponsor_catalog: benefit_sponsor_catalog,
+                benefit_sponsorship: benefit_sponsorship,
+                aasm_state: :active,
+                benefit_application_items: [item])
         end
         let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }

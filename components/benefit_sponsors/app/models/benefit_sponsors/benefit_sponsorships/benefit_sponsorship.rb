@@ -340,7 +340,7 @@ module BenefitSponsors
       if  transition_at.blank?
         where(:benefit_applications => {:"$elemMatch" => {
                 :aasm_state => {"$in" => [:binder_paid, :active]},
-                :"benefit_application_items" => {:"$elemMatch" => {
+                :benefit_application_items => {:"$elemMatch" => {
                   :_id.in => earliest_benefit_application_item_ids,
                   :"effective_period.min" => start_on
                 }}
@@ -349,7 +349,7 @@ module BenefitSponsors
         where(:benefit_applications => {:"$elemMatch" => {
                 :aasm_state => {"$in" => [:binder_paid, :active]},
                 :workflow_state_transitions => {"$elemMatch" => {"to_state" => :binder_paid, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}},
-                :"benefit_application_items" => {:"$elemMatch" => {
+                :benefit_application_items => {:"$elemMatch" => {
                   :_id.in => earliest_benefit_application_item_ids,
                   :"effective_period.min" => start_on
                 }}
@@ -364,7 +364,7 @@ module BenefitSponsors
       if  transition_at.blank?
         where(:benefit_applications => {:"$elemMatch" => {
                 :aasm_state => {"$in" => [:enrollment_eligible, :active]},
-                :"benefit_application_items" => {:"$elemMatch" => {
+                :benefit_application_items => {:"$elemMatch" => {
                   :_id.in => earliest_benefit_application_item_ids,
                   :"effective_period.min" => start_on
                 }}
@@ -372,8 +372,10 @@ module BenefitSponsors
       else
         where(:benefit_applications => {:"$elemMatch" => {
                 :aasm_state => {"$in" => [:enrollment_eligible, :active]},
-                :workflow_state_transitions => {"$elemMatch" => {"to_state" => :enrollment_eligible, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}},
-                :"benefit_application_items" => {:"$elemMatch" => {
+                :workflow_state_transitions => {"$elemMatch" => {
+                  "to_state" => :enrollment_eligible, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}
+                }},
+                :benefit_application_items => {:"$elemMatch" => {
                   :_id.in => earliest_benefit_application_item_ids,
                   :"effective_period.min" => start_on
                 }}
@@ -387,20 +389,11 @@ module BenefitSponsors
       where(:benefit_applications => {:"$elemMatch" => {
               :predecessor_id => { :$exists => true },
               :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES,
-              :"benefit_application_items" => {:"$elemMatch" => {
-                  :_id.in => earliest_benefit_application_item_ids,
-                  :"effective_period.min" => start_on
-                }}
+              :benefit_application_items => {:"$elemMatch" => {
+                :_id.in => earliest_benefit_application_item_ids,
+                :"effective_period.min" => start_on
+              }}
             }}).first
-    end
-
-
-    def self.may_transmit_as_renewal_ineligible?(compare_date = TimeKeeper.date_of_record)
-      where(:benefit_applications => {:"$elemMatch" => {
-              :predecessor_id => { :$exists => true },
-              :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES,
-              :"benefit_application_items.effective_period.min" => compare_date
-            }})
     end
 
     def primary_office_address
@@ -532,14 +525,16 @@ module BenefitSponsors
     end
 
     def active_imported_benefit_application
-      if is_conversion?
-        benefit_applications.order_by(:updated_at.desc).imported.detect do |benefit_application|
-          benefit_application.end_on >= TimeKeeper.date_of_record
-        end
+      return unless is_conversion?
+
+      benefit_applications.order_by(:updated_at.desc).imported.detect do |benefit_application|
+        benefit_application.end_on >= TimeKeeper.date_of_record
       end
     end
 
     def imported_benefit_application
+      return unless is_conversion?
+
       benefit_applications.order_by(:"updated_at".desc).imported.first if is_conversion?
     end
 

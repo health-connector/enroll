@@ -293,7 +293,7 @@ module BenefitSponsors
     end
 
     def terminated_on
-      return nil unless (termination_pending? || terminated?)
+      return nil unless termination_pending? || terminated?
 
       end_on
     end
