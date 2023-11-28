@@ -6,9 +6,7 @@ module BenefitSponsors
       transform_keys(&:to_sym)
 
       attribute :expiration_date,             Types::Date.optional
-      # attribute :effective_period,            Types::Range
       attribute :open_enrollment_period,      Types::Range
-      # attribute :terminated_on,               Types::Date.optional.meta(omittable: true)
       attribute :aasm_state,                  Types::Strict::Symbol
       attribute :fte_count,                   Types::Strict::Integer
       attribute :pte_count,                   Types::Strict::Integer.optional
@@ -30,19 +28,6 @@ module BenefitSponsors
       def earliest_benefit_application_item
         benefit_application_items.min_by { |item| item.effective_period.min }
       end
-
-      # def latest_benefit_application_item
-      #   benefit_application_items.min_by { |item| item.effective_period.min }
-      # end
-
-      # def effective_period
-      # end
-
-      # def terminated_on
-      #   return nil unless (aasm_state == :termination_pending || aasm_state == :terminated)
-
-
-      # end
     end
   end
 end
