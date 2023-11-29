@@ -39,15 +39,17 @@ FactoryGirl.define do
     end
 
     after(:build) do |benefit_application, evaluator|
-      if evaluator.benefit_application_items.blank?
-        benefit_application.benefit_application_items = [
-          build(
-            :benefit_sponsors_benefit_application_item,
-            current_state: benefit_application.aasm_state,
-            default_effective_period: evaluator.default_effective_period
-          )
-        ]
-      end
+      benefit_application.benefit_application_items = if evaluator.benefit_application_items.blank?
+                                                        [
+                                                          build(
+                                                            :benefit_sponsors_benefit_application_item,
+                                                            state: benefit_application.aasm_state,
+                                                            default_effective_period: evaluator.default_effective_period
+                                                          )
+                                                        ]
+                                                      else
+                                                        evaluator.benefit_application_items
+                                                      end
     end
 
     trait :without_benefit_sponsor_catalog

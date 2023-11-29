@@ -11,7 +11,7 @@ module BenefitSponsors
           optional(:item_type).maybe(:symbol)
           optional(:item_type_reason).maybe(:string)
           optional(:updated_by).maybe(:string)
-          optional(:current_state).maybe(:symbol)
+          optional(:state).maybe(:symbol)
         end
       end
     end

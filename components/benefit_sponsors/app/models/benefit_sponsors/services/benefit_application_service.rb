@@ -147,7 +147,7 @@ module BenefitSponsors
 
       def update(form)
         benefit_application = find_model_by_id(form.id)
-        model_attributes = form_params_to_attributes(form)
+        model_attributes = form_params_to_attributes(form).except(:effective_period)
         benefit_application.assign_attributes(model_attributes)
         store(form, benefit_application)
       end
@@ -204,7 +204,7 @@ module BenefitSponsors
         if valid_according_to_factory
           benefit_sponsorship = benefit_application.benefit_sponsorship || find_benefit_sponsorship(form)
           # TODO: enable it for new domain operations
-          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin)
+          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.start_on.to_date)
           # assign_rating_and_service_area(benefit_application)
         else
           map_errors_for(benefit_application, onto: form)

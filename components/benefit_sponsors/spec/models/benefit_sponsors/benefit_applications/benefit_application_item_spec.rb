@@ -9,7 +9,7 @@ RSpec.describe BenefitSponsors::BenefitApplications::BenefitApplicationItem, typ
     it { is_expected.to have_field(:item_type).of_type(Symbol)}
     it { is_expected.to have_field(:item_type_reason).of_type(String)}
     it { is_expected.to have_field(:sequence_id).of_type(Integer).with_default_value_of(0)}
-    it { is_expected.to have_field(:current_state).of_type(Symbol)}
+    it { is_expected.to have_field(:state).of_type(Symbol)}
     it { is_expected.to have_field(:updated_by).of_type(String)}
   end
 end

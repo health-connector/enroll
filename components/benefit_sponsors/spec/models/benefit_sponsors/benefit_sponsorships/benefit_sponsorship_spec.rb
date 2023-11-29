@@ -1003,7 +1003,7 @@ module BenefitSponsors
       let!(:benefit_sponsorship)                  { create(:benefit_sponsors_benefit_sponsorship,
                                                      :with_organization_cca_profile, :with_initial_benefit_application,
                                                      default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
-                                                     site: site, aasm_state: sponsorship_state, initial_application_state: aasm_state)
+                                                     site: site, aasm_state: sponsorship_state, initial_application_state: :active)
       }
       let!(:application) { benefit_sponsorship.benefit_applications.detect{|app| app.start_on == effective_date} }
       let!(:aasm_state) { double("AASM::InstanceBase", current_event: :expire!,

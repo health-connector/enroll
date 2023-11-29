@@ -10,7 +10,7 @@ module BenefitSponsors
       attribute :item_type,                   Types::Symbol.optional
       attribute :item_type_reason,            Types::String.optional
       attribute :updated_by,                  Types::String.optional
-      attribute :current_state,               Types::Symbol.optional
+      attribute :state,                       Types::Symbol.optional
     end
   end
 end

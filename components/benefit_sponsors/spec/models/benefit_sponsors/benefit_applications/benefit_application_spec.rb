@@ -45,7 +45,7 @@ module BenefitSponsors
 
     let(:valid_params) do
       {
-        benefit_application_items: [{effective_period: effective_period}],
+        benefit_application_items: [{effective_period: effective_period, sequence_id: 0, state: :draft}],
         open_enrollment_period: open_enrollment_period,
         benefit_sponsor_catalog: benefit_sponsor_catalog,
         recorded_rating_area_id: rating_area.id,
@@ -541,12 +541,12 @@ module BenefitSponsors
         let(:application_period_next_year)        { (Date.new(renewal_effective_date.year,1,1))..(Date.new(renewal_effective_date.year,12,31)) }
         let!(:employer_profile) {benefit_sponsorship.profile}
         let!(:initial_application) do
-          item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, current_state: :active)
-          create(:benefit_sponsors_benefit_application,
-                 benefit_sponsor_catalog: benefit_sponsor_catalog,
-                 benefit_sponsorship: benefit_sponsorship,
-                 aasm_state: :active,
-                 benefit_application_items: [item])
+          item = build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, state: :active)
+          build(:benefit_sponsors_benefit_application,
+                benefit_sponsor_catalog: benefit_sponsor_catalog,
+                benefit_sponsorship: benefit_sponsorship,
+                aasm_state: :active,
+                benefit_application_items: [item])
         end
         let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
         let(:benefit_package)   { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package, benefit_application: initial_application) }
@@ -866,7 +866,7 @@ module BenefitSponsors
             recorded_rating_area: rating_area,
             recorded_sic_code: sic_code
           )
-          application.benefit_application_items.build(effective_period: timetable[:effective_period])
+          application.benefit_application_items.build(effective_period: timetable[:effective_period], sequence_id: 0, state: :draft)
 
           expect(application).to be_valid
         end
@@ -997,7 +997,11 @@ module BenefitSponsors
       it 'should not return start on when non terminated mid plan year converted PY' do
         expect(initial_application.rate_schedule_date).to eq initial_application.start_on
         benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
-        initial_application.benefit_application_items.create(effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months))
+        initial_application.benefit_application_items.create(
+          effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months),
+          sequence_id: 0,
+          state: :draft
+        )
         expect(initial_application.rate_schedule_date).not_to eq initial_application.start_on
       end
 
@@ -1005,7 +1009,12 @@ module BenefitSponsors
         # this is a temporary fix for the bug, need to have more clarity on not to calculated for terminated PY.
         expect(initial_application.rate_schedule_date).to eq initial_application.start_on
         benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
-        initial_application.update_attributes(effective_period: initial_application.start_on..(initial_application.start_on + 4.months), :aasm_state => :terminated)
+        initial_application.update_attributes(:aasm_state => :terminated)
+        initial_application.benefit_application_items.create(
+          effective_period: initial_application.start_on..(initial_application.start_on + 4.months),
+          sequence_id: 1,
+          state: :terminated
+        )
         expect(initial_application.rate_schedule_date).to eq initial_application.start_on
       end
     end
@@ -1061,7 +1070,7 @@ module BenefitSponsors
 
       let(:application) do
         app = subject.class.new
-        app.benefit_application_items.build(effective_period: effective_period)
+        app.benefit_application_items.build(effective_period: effective_period, sequence_id: 0, state: :draft)
         app
       end
       let(:market) { double(kind: :aca_shop) }

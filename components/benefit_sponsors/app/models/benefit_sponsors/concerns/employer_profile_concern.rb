@@ -201,7 +201,7 @@ module BenefitSponsors
           return application, billing_date
         end
 
-        application = valid_applications.future_effective_date(billing_report_date).first
+        application = valid_applications.future_effective_date(active_benefit_sponsorship, billing_report_date).first
         return application, application.start_on.to_date if application.present?
 
         application = valid_applications.effective_period_cover(active_benefit_sponsorship, billing_report_date).first
