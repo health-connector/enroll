@@ -299,11 +299,11 @@ module BenefitSponsors
     end
 
     def latest_benefit_application_item
-      @latest_benefit_application_item ||= benefit_application_items.order_by(:created_at.desc).first
+      @latest_benefit_application_item ||= benefit_application_items.max_by(&:sequence_id)
     end
 
     def earliest_benefit_application_item
-      @earliest_benefit_application_item ||= benefit_application_items.order_by(:created_at.asc).first
+      @earliest_benefit_application_item ||= benefit_application_items.min_by(&:sequence_id)
     end
 
     # Migration map for plan_year to benefit_application
