@@ -81,7 +81,6 @@ gem 'rubyXL'
 #arm64 mac support
 gem 'ffi', '1.14.0'
 gem 'kostya-sigar', '2.0.10'
-gem 'mini_racer', '0.6.4'
 gem 'bigdecimal', '1.3.5'
 gem 'loofah', '~>2.19.1'
 gem 'dry-container', '~> 0.7.2'
@@ -138,6 +137,7 @@ group :development, :test do
   gem 'puma', '4.3.6'
   gem 'railroady', '~> 1.5.2'
   gem 'rspec-rails', '~> 3.4.2'
+  gem 'mini_racer', '0.6.4'
   gem 'rspec_junit_formatter', '0.2.3'
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false
