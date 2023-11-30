@@ -130,7 +130,11 @@ module BenefitSponsors
 
       it "should route to benefits tab if rates are not present" do
         future_date = TimeKeeper.date_of_record + 1.year
-        benefit_application.effective_period = future_date.beginning_of_year..future_date.end_of_year
+        benefit_application.benefit_application_items.create(
+          effective_period: future_date.beginning_of_year..future_date.end_of_year,
+          sequence_id: 1,
+          state: benefit_application.aasm_state
+        )
         benefit_application.save
         sign_in_and_do_new
         expect(response).to redirect_to(profiles_employers_employer_profile_path(assigns(:benefit_package_form).service.employer_profile, :tab=>'benefits'))

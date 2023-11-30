@@ -39,6 +39,8 @@ module BenefitSponsors
       field :state,           type: Symbol
 
       validates_presence_of :sequence_id, :effective_period, :state
+      validates :item_type, inclusion: { in: ITEM_TYPES }, allow_blank: true
+      validates :item_type_reason, inclusion: { in: VOLUNTARY_TERM_REASONS + NON_PAYMENT_TERM_REASONS }, allow_blank: true
     end
   end
 end

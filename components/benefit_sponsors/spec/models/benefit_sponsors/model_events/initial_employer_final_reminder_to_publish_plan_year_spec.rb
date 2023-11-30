@@ -17,7 +17,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerFinalRemainderToPub
     :with_benefit_package,
     :benefit_sponsorship => benefit_sponsorship,
     :aasm_state => 'draft',
-    :effective_period =>  start_on..(start_on + 1.year) - 1.day
+    :default_effective_period =>  start_on..(start_on + 1.year) - 1.day
   )}
   let!(:date_mock_object) { double("Date", day: Settings.aca.shop_market.initial_application.publish_due_day_of_month - 2)}
 

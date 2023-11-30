@@ -97,7 +97,6 @@ module BenefitSponsors
         {
           recorded_rating_area: rating_area,
           recorded_service_areas: service_areas,
-          effective_period: effective_period,
           open_enrollment_period: open_enrollment_period,
           fte_count: "5",
           pte_count: "5",
@@ -106,7 +105,10 @@ module BenefitSponsors
         }
       }
 
-      let(:ben_app)       { benefit_sponsorship.benefit_applications.build(params) }
+      let(:ben_app) do
+        benefit_sponsorship.benefit_applications.build(params)
+        benefit_sponsorship.benefit_application_items.build(effective_period: effective_period, sequence_id: 0, state: :draft)
+      end
     end
 
     before do

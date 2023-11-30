@@ -17,7 +17,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeTerminationNoticeToEmploye
                               :with_benefit_package,
                               :benefit_sponsorship => benefit_sponsorship,
                               :aasm_state => 'active',
-                              :effective_period =>  start_on..(start_on + 1.year) - 1.day
+                              :default_effective_period =>  start_on..(start_on + 1.year) - 1.day
   )}
   let!(:benefit_package)  {benefit_application.benefit_packages.first}
   let!(:person)       { FactoryGirl.create(:person, :with_family) }

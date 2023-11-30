@@ -247,11 +247,11 @@ module BenefitSponsors
 
       let(:march_sponsors)                 do
         FactoryGirl.create_list(:benefit_sponsors_benefit_application, 3,
-                                effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
+                                default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
       end
       let(:april_sponsors)                 do
         FactoryGirl.create_list(:benefit_sponsors_benefit_application, 2,
-                                effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
+                                default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
       end
 
       before { TimeKeeper.set_date_of_record_unprotected!(Date.today) }

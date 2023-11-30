@@ -38,7 +38,7 @@ describe MappingToCorrectHiosId, dbclean: :after_each do
         employer_attestation: employer_attestation)
     end
     let!(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
-    let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
+    let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active)
     }
     let!(:benefit_application_id) { benefit_application.id.to_s }
     let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
