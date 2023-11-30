@@ -764,7 +764,7 @@ module BenefitSponsors
       context "when coverage_selected enrollments are present", :dbclean => :after_each do
 
         before do
-          initial_application.update_attributes!(aasm_state: :terminated, effective_period: initial_application.start_on..end_on, terminated_on: TimeKeeper.date_of_record)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
           benefit_package.terminate_member_benefits
           hbx_enrollment.reload
           hbx_enrollment_1.reload
@@ -788,7 +788,7 @@ module BenefitSponsors
         let(:hbx_enrollment_terminated_on) { end_on.prev_month }
 
         before do
-          initial_application.update_attributes!(aasm_state: :terminated, effective_period: initial_application.start_on..end_on, terminated_on: TimeKeeper.date_of_record)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: hbx_enrollment_terminated_on)
           hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: end_on+2.months)
           benefit_package.terminate_member_benefits
@@ -811,7 +811,7 @@ module BenefitSponsors
         let(:hbx_enrollment_terminated_on) { end_on.prev_month }
 
         before do
-          initial_application.update_attributes!(aasm_state: :terminated, effective_period: initial_application.start_on..end_on, terminated_on: TimeKeeper.date_of_record)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_terminated", terminated_on: hbx_enrollment_terminated_on)
           hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_terminated", terminated_on: end_on+2.months)
           benefit_package.terminate_member_benefits
@@ -970,7 +970,7 @@ module BenefitSponsors
       context "when coverage_selected enrollments are present", :dbclean => :after_each do
 
         before do
-          initial_application.update_attributes!(aasm_state: :expired, effective_period: initial_application.start_on..end_on)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :expired, sequence_id: 1)
           benefit_package.expire_member_benefits
           hbx_enrollment.reload
         end
@@ -986,7 +986,7 @@ module BenefitSponsors
         let(:hbx_enrollment_terminated_on) { end_on.prev_month }
 
         before do
-          initial_application.update_attributes!(aasm_state: :expired, effective_period: initial_application.start_on..end_on)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :expired, sequence_id: 1)
           benefit_package.health_sponsored_benefit.update_attributes(source_kind: :conversion)
           initial_application.reload
           benefit_package.expire_member_benefits
@@ -1058,7 +1058,7 @@ module BenefitSponsors
       let(:end_on) { TimeKeeper.date_of_record.next_month }
 
       before do
-        initial_application.update_attributes!(aasm_state: :termination_pending, effective_period: initial_application.start_on..end_on, terminated_on: TimeKeeper.date_of_record)
+        initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :termination_pending, sequence_id: 1)
         benefit_package.termination_pending_member_benefits
         hbx_enrollment.reload
       end
@@ -1076,7 +1076,7 @@ module BenefitSponsors
         let(:hbx_enrollment_terminated_on) { end_on.prev_month }
 
         before do
-          initial_application.update_attributes!(aasm_state: :termination_pending, effective_period: initial_application.start_on..end_on, terminated_on: TimeKeeper.date_of_record)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :termination_pending, sequence_id: 1)
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: hbx_enrollment_terminated_on)
           hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: end_on+2.months)
           benefit_package.termination_pending_member_benefits
@@ -1112,7 +1112,7 @@ module BenefitSponsors
         let(:hbx_enrollment_terminated_on) { end_on.prev_month }
 
         before do
-          initial_application.update_attributes!(aasm_state: :termination_pending, effective_period: initial_application.start_on..end_on, terminated_on: TimeKeeper.date_of_record)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :termination_pending, sequence_id: 1)
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_terminated", terminated_on: hbx_enrollment_terminated_on)
           benefit_package.termination_pending_member_benefits
           hbx_enrollment.reload
