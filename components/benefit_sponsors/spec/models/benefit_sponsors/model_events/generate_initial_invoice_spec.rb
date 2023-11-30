@@ -13,12 +13,13 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GenerateInitialEmployerInvoice', d
     sponsorship.save
     sponsorship
   end
-  let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-    :with_benefit_package,
-    :benefit_sponsorship => benefit_sponsorship,
-    :aasm_state => 'enrollment_eligible',
-    :default_effective_period =>  start_on..(start_on + 1.year) - 1.day
-  )}
+  let!(:benefit_application) do
+    FactoryGirl.create(:benefit_sponsors_benefit_application,
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'enrollment_eligible',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+  end
 
   describe "ModelEvent" do
     it "should trigger model event" do

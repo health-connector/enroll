@@ -95,7 +95,16 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       let!(:current_effective_date)  { TimeKeeper.date_of_record.next_month.beginning_of_month }
       let!(:start_on)  { current_effective_date }
       let!(:effective_period)  { start_on..start_on.next_year.prev_day }
-      let!(:ineligible_benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package, benefit_sponsorship: benefit_sponsorship, aasm_state: "enrollment_ineligible", default_effective_period: effective_period)}
+      let!(:ineligible_benefit_application) do
+        FactoryGirl.create(
+          :benefit_sponsors_benefit_application,
+          :with_benefit_sponsor_catalog,
+          :with_benefit_package,
+          benefit_sponsorship: benefit_sponsorship,
+          aasm_state: "enrollment_ineligible",
+          default_effective_period: effective_period
+        )
+      end
 
       around do |example|
         ClimateControl.modify action: 'extend_open_enrollment', effective_date: start_on.strftime("%m/%d/%Y"), oe_end_date: start_on.prev_day.strftime("%m/%d/%Y") do
@@ -413,7 +422,14 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
       let!(:renewing_benefit_application) {
-        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: renewing_effective_period, aasm_state: :renewing_enrolling, predecessor_id: old_benefit_application.id)
+        application = FactoryGirl.create(
+          :benefit_sponsors_benefit_application,
+          :with_benefit_sponsor_catalog,
+          benefit_sponsorship: benefit_sponsorship,
+          default_effective_period: renewing_effective_period,
+          aasm_state: :renewing_enrolling,
+          predecessor_id: old_benefit_application.id
+        )
         application.benefit_sponsor_catalog.save!
         application
       }
