@@ -22,6 +22,11 @@ describe CorrectPlanYearEndDate, dbclean: :after_each do
 
     before do
       initial_application.effective_period = Date.new(2019, 1, 1)..Date.new(2019, 9, 30)
+      initial_application.benefit_application_items.create(
+        effective_period: Date.new(2019, 1, 1)..Date.new(2019, 9, 30),
+        state: :draft,
+        sequence_id: 1
+      )
       initial_application.save!(validate: false)
     end
 

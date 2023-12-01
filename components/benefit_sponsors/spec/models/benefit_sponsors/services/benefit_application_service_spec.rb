@@ -175,7 +175,11 @@ module BenefitSponsors
           let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(benefit_sponsorship_id: benefit_sponsorship.id) }
           let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
           let!(:application) do
-            initial_application.update_attributes(effective_period: effective_period_start_on..terminated_date)
+            initial_application.benefit_application_items.create(
+              effective_period: effective_period_start_on..terminated_date,
+              sequence_id: 1,
+              aasm_state: initial_application.aasm_state
+            )
             initial_application
           end
 
@@ -329,6 +333,15 @@ module BenefitSponsors
           let!(:ba) do
             application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: active_state)
             application.update_attributes(effective_period: term_effective_period) if active_state == :termination_pending
+            if active_state == :termination_pending
+              application.benefit_application_items.create(
+                effective_period: term_effective_period,
+                sequence_id: 1,
+                aasm_state: :termination_pending,
+                item_type: :change,
+                item_type_reason: 'Non-payment of premium'
+              )
+            end
             application
           end
 
@@ -384,7 +397,15 @@ module BenefitSponsors
 
       context 'when only canceled benefit application is present' do
         let(:ba_5_start_on) { TimeKeeper.date_of_record.beginning_of_month }
-        let!(:ba_5) { FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :canceled, effective_period: ba_5_start_on..ba_5_start_on.next_year.prev_day) }
+        let!(:ba_5) do
+          FactoryGirl.create(
+            :benefit_sponsors_benefit_application,
+            :with_benefit_sponsor_catalog,
+            benefit_sponsorship: benefit_sponsorship,
+            aasm_state: :canceled,
+            default_effective_period: ba_5_start_on..ba_5_start_on.next_year.prev_day
+          )
+        end
         it 'should return true' do
           create_ba_params['start_on'] = ba_5_start_on.next_month.to_s
           @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
@@ -483,7 +504,7 @@ module BenefitSponsors
         end
 
         context 'with dt active state' do
-          let!(:ba2)  { FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, effective_period: effective_period, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
+          let!(:ba2)  { FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, default_effective_period: effective_period, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
 
           it 'should return true and instance as ba succesfully created' do
             fetch_bs_for_service(@form)
@@ -505,7 +526,12 @@ module BenefitSponsors
 
             before do
               start_on = TimeKeeper.date_of_record.beginning_of_month.prev_year
-              ba2.update_attributes(effective_period: start_on..start_on.next_year.prev_day)
+
+              ba2.create(
+                effective_period: start_on..start_on.next_year.prev_day,
+                sequence_id: 1,
+                aasm_state: ba2.aasm_state
+              )
             end
 
             it 'should not terminate' do
@@ -575,7 +601,13 @@ module BenefitSponsors
           let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(benefit_sponsorship_id: benefit_sponsorship.id) }
           let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
           let!(:application) do
-            initial_application.update_attributes(effective_period: effective_period_start_on..terminated_date) unless aasm_state == :enrollment_ineligible
+            unless aasm_state == :enrollment_ineligible
+              initial_application.create(
+                effective_period: effective_period_start_on..terminated_date,
+                sequence_id: 1,
+                aasm_state: initial_application.aasm_state
+              )
+            end
             initial_application
           end
 
