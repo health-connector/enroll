@@ -536,6 +536,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
           benefit_sponsor_catalog: benefit_sponsor_catalog2,
           open_enrollment_period: open_enrollment_period,
+          aasm_state: :active,
           recorded_rating_area: rating_area,
           recorded_service_areas: service_areas2,
           fte_count: 5,
@@ -626,6 +627,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
         benefit_sponsor_catalog: benefit_sponsor_catalog2,
         open_enrollment_period: open_enrollment_period,
+        aasm_state: aasm_state,
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas2,
         fte_count: 5,
