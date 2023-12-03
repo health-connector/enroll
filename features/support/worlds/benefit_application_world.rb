@@ -235,7 +235,7 @@ And(/employer (.*) has (.*) and renewing (.*) benefit applications$/) do |legal_
   earlier_application = create_application(earlier_application_status.to_sym)
   renewal_rating_area
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
-  @renewal_application.benefit_application_items.create!(state: new_application_status.to_sym)
+  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)
 end
 
 # Addresses certain cucumbers failing in Nov/Dec
@@ -244,7 +244,7 @@ And(/employerSAFE (.*) has (.*) and renewing (.*) benefit applications$/) do |le
   earlier_application = create_application(earlier_application_status.to_sym, safe_date: true)
   renewal_rating_area
   @renewal_application = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(earlier_application).renew_application[1]
-  @renewal_application.benefit_application_items.create!(state: new_application_status.to_sym)
+  @renewal_application.update_attributes!(aasm_state: new_application_status.to_sym)
 end
 
 And(/^employer (.*) has (?:a |an )?(.*) benefit application with dental$/) do |legal_name, new_application_status|
