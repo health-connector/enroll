@@ -557,7 +557,7 @@ module BenefitSponsors
     end
 
     def oe_extended_applications
-      benefit_applications.select do |application| 
+      benefit_applications.select do |application|
         application.enrollment_extended? && TimeKeeper.date_of_record > open_enrollment_period_for(application.effective_date).max
       end
     end
@@ -700,7 +700,7 @@ module BenefitSponsors
       renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind) if renewal_benefit_application.present?
       late_renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - late_renewal_benefit_application.issuers_offered_for(product_kind) if late_renewal_benefit_application.present?
     end
-    
+
     ####
 
     # Workflow for self service
@@ -720,7 +720,7 @@ module BenefitSponsors
       state :suspended                        # Premium payment is 61-90 days past due and Sponsor's benefit coverage has lapsed
       state :terminated                       # Sponsor's ability to offer benefits under this BenefitSponsorship is permanently terminated
       state :ineligible                       # Sponsor is permanently banned from sponsoring benefits due to regulation or policy
-      
+
       # event :approve_initial_application do
       #   transitions from: [:applicant, :initial_application_under_review], to: :initial_application_approved
       # end
