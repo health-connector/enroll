@@ -532,7 +532,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
       let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
       let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min)}
-      let(:initial_application2) {
+      let(:initial_application2) do
         ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
           benefit_sponsor_catalog: benefit_sponsor_catalog2,
           open_enrollment_period: open_enrollment_period,
@@ -545,7 +545,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         )
         ben_app.benefit_application_items.build(effective_period: effective_period, sequence_id: 1, state: :active)
         ben_app
-      }
+      end
       let!(:product_package2) {initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
       let!(:current_benefit_package2) {create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
 
@@ -2075,17 +2075,17 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     let!(:off_cycle_application) do
       ben_app = create(
-                  :benefit_sponsors_benefit_application,
-                  :with_benefit_sponsor_catalog,
-                  :with_benefit_package,
-                  passed_benefit_sponsor_catalog: off_cycle_benefit_sponsor_catalog,
-                  benefit_sponsorship: benefit_sponsorship,
-                  recorded_rating_area: rating_area,
-                  recorded_service_areas: service_areas,
-                  fte_count: 5,
-                  pte_count: 0,
-                  msp_count: 0
-                )
+        :benefit_sponsors_benefit_application,
+        :with_benefit_sponsor_catalog,
+        :with_benefit_package,
+        passed_benefit_sponsor_catalog: off_cycle_benefit_sponsor_catalog,
+        benefit_sponsorship: benefit_sponsorship,
+        recorded_rating_area: rating_area,
+        recorded_service_areas: service_areas,
+        fte_count: 5,
+        pte_count: 0,
+        msp_count: 0
+      )
       ben_app.benefit_application_items.create(effective_period: effective_period, sequence_id: 1, state: :enrollment_open)
       ben_app
     end
