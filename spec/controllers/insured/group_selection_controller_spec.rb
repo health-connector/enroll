@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -27,107 +25,97 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
   let(:rating_area)         { FactoryGirl.create_default :benefit_markets_locations_rating_area, active_year: current_effective_date.year }
   let(:service_area)        { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: current_effective_date.year }
-  let!(:person) {FactoryGirl.create(:person, :with_consumer_role)}
-  let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, :person => person)}
-  let(:qle_kind) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date) }
-  let!(:sep) do
-    sep = family.special_enrollment_periods.new
-    sep.effective_on_kind = 'date_of_event'
-    sep.qualifying_life_event_kind = qle_kind
-    sep.qle_on = TimeKeeper.date_of_record - 7.days
-    sep.save
-    sep
-  end
+    let!(:person) {FactoryGirl.create(:person, :with_consumer_role)}
+    let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, :person => person)}
+    let(:qle_kind) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date) }
+    let!(:sep){
+      sep = family.special_enrollment_periods.new
+      sep.effective_on_kind = 'date_of_event'
+      sep.qualifying_life_event_kind= qle_kind
+      sep.qle_on= TimeKeeper.date_of_record - 7.days
+      sep.save
+      sep
+    }
 
-  let!(:household) {FactoryGirl.create(:household, family: family)}
-  let!(:user) { FactoryGirl.create(:user, :person => person)}
-  let!(:coverage_household) {household.add_household_coverage_member(family.primary_family_member)}
-  let!(:consumer_role) {person.consumer_role}
-  let(:plan_year) {initial_application}
-  let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
-  let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
-  let(:blue_collar_benefit_group) {plan_year.benefit_groups[0]}
-  def blue_collar_benefit_group_assignment
-    BenefitGroupAssignment.new(benefit_group: blue_collar_benefit_group, start_on: plan_year_start_on)
-  end
-
-  let!(:blue_collar_census_employees) do
-    ees = FactoryGirl.build_list(:census_employee, 1, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship)
-    ees.each do |ee|
-      ee.benefit_group_assignments = [blue_collar_benefit_group_assignment]
-      ee.save
-      ee.save!
+    let!(:household) {FactoryGirl.create(:household, family: family)}
+    let!(:user) { FactoryGirl.create(:user, :person => person)}
+    let!(:coverage_household) {household.add_household_coverage_member(family.primary_family_member)}
+    let!(:consumer_role) {person.consumer_role}
+    let(:plan_year) {initial_application}
+    let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
+    let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
+    let(:blue_collar_benefit_group) {plan_year.benefit_groups[0]}
+    def blue_collar_benefit_group_assignment
+      BenefitGroupAssignment.new(benefit_group: blue_collar_benefit_group, start_on: plan_year_start_on)
     end
-    ees
-  end
-  let!(:census_employee) {CensusEmployee.all[0]}
 
-  let!(:employee_role) do
-    person.employee_roles.create(employer_profile: abc_profile, census_employee: census_employee,
-                                 hired_on: census_employee.hired_on)
-  end
-  let(:blue_collar_benefit_group) {initial_application.benefit_groups[0]}
-  let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
-  let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
-  let!(:update_plan_year) do
-    plan_year.benefit_application_items.create(:effective_period => plan_year_start_on..plan_year_end_on, state: :enrollment_open, sequence_id: 1)
-    plan_year.save!
-    plan_year.reload
-  end
+    let!(:blue_collar_census_employees) {ees = FactoryGirl.build_list(:census_employee, 1, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship)
+      ees.each() do |ee|
+        ee.benefit_group_assignments = [blue_collar_benefit_group_assignment]
+        ee.save
+        ee.save!
+      end
+      ees
+    }
+    let!(:census_employee) {CensusEmployee.all[0]}
 
-  let!(:update_person) do
-    person.employee_roles.first.census_employee = census_employee
-    person.employee_roles.first.hired_on = census_employee.hired_on
-    person.employee_roles.first.save
-    person.save
-  end
+    let!(:employee_role) {person.employee_roles.create( employer_profile: abc_profile, census_employee: census_employee,
+    hired_on: census_employee.hired_on)}
+    let(:blue_collar_benefit_group) {initial_application.benefit_groups[0]}
+    let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
+    let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
+    let!(:update_plan_year) {
+      plan_year.benefit_application_items.create(:effective_period => plan_year_start_on..plan_year_end_on, state: :enrollment_open, sequence_id: 1)
+      plan_year.save!
+      plan_year.reload
+    }
 
-  let!(:hbx_enrollment) do
-    FactoryGirl.create(:hbx_enrollment, household: family.active_household,
-                                        sponsored_benefit_package_id: initial_application.benefit_packages.first.id)
-  end
-  let(:hbx_enrollments) {double(:enrolled => [hbx_enrollment], :where => collectiondouble)}
-  let!(:collectiondouble) { double(where: double(order_by: [hbx_enrollment]))}
-  let!(:hbx_profile) do
-    profile = FactoryGirl.create(:hbx_profile)
-    profile.benefit_sponsorship.benefit_coverage_periods << FactoryGirl.build(:benefit_coverage_period, :next_years_open_enrollment_coverage_period)
-    profile
-  end
-  let(:benefit_group) { FactoryGirl.create(:benefit_group)}
-  let(:benefit_package) do
-    FactoryGirl.build(:benefit_package,
-                      benefit_coverage_period: hbx_profile.benefit_sponsorship.benefit_coverage_periods.first,
-                      title: "individual_health_benefits_2015",
-                      elected_premium_credit_strategy: "unassisted",
-                      benefit_eligibility_element_group: BenefitEligibilityElementGroup.new(
-                        market_places: ["individual"],
-                        enrollment_periods: ["open_enrollment", "special_enrollment"],
-                        family_relationships: BenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
-                        benefit_categories: ["health"],
-                        incarceration_status: ["unincarcerated"],
-                        age_range: 0..0,
-                        citizenship_status: ["us_citizen", "naturalized_citizen", "alien_lawfully_present", "lawful_permanent_resident"],
-                        residency_status: ["state_resident"],
-                        ethnicity: ["any"]
-                      ))
-  end
-  let(:bcp) { double }
-  let(:sponsored_benefit_package) do
-    instance_double(
-      ::BenefitSponsors::BenefitPackages::BenefitPackage,
-      :id => sponsored_benefit_package_id,
-      :recorded_rating_area => double(:id => rating_area_id),
-      benefit_sponsorship: double(:id => benefit_sponsorship_id),
-      sponsored_benefits: [sponsored_benefit]
-    )
-  end
-  let(:existing_product_id) { BSON::ObjectId.new }
-  let(:benefit_sponsorship_id) { BSON::ObjectId.new }
-  let(:rating_area_id) { BSON::ObjectId.new }
-  let(:sponsored_benefit_package_id) { BSON::ObjectId.new }
-  let(:coverage_household_id) { BSON::ObjectId.new }
-  let(:sponsored_benefit) { instance_double(::BenefitSponsors::BenefitPackages::BenefitPackage, :id => sponsored_benefit_id) }
-  let(:sponsored_benefit_id) { BSON::ObjectId.new }
+    let!(:update_person) {person.employee_roles.first.census_employee = census_employee
+                        person.employee_roles.first.hired_on =  census_employee.hired_on
+                        person.employee_roles.first.save
+                        person.save}
+
+    let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: family.active_household,
+                            sponsored_benefit_package_id: initial_application.benefit_packages.first.id) }
+    let(:hbx_enrollments) {double(:enrolled => [hbx_enrollment], :where => collectiondouble)}
+    let!(:collectiondouble) { double(where: double(order_by: [hbx_enrollment]))}
+    let!(:hbx_profile) {
+      profile = FactoryGirl.create(:hbx_profile)
+      profile.benefit_sponsorship.benefit_coverage_periods << FactoryGirl.build(:benefit_coverage_period, :next_years_open_enrollment_coverage_period)
+      profile
+    }
+    let(:benefit_group) { FactoryGirl.create(:benefit_group)}
+    let(:benefit_package) { FactoryGirl.build(:benefit_package,
+        benefit_coverage_period: hbx_profile.benefit_sponsorship.benefit_coverage_periods.first,
+        title: "individual_health_benefits_2015",
+        elected_premium_credit_strategy: "unassisted",
+        benefit_eligibility_element_group: BenefitEligibilityElementGroup.new(
+          market_places:        ["individual"],
+          enrollment_periods:   ["open_enrollment", "special_enrollment"],
+          family_relationships: BenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
+          benefit_categories:   ["health"],
+          incarceration_status: ["unincarcerated"],
+          age_range:            0..0,
+          citizenship_status:   ["us_citizen", "naturalized_citizen", "alien_lawfully_present", "lawful_permanent_resident"],
+          residency_status:     ["state_resident"],
+          ethnicity:            ["any"]
+      ))}
+      let(:bcp) { double }
+      let(:sponsored_benefit_package) do
+        instance_double(
+          ::BenefitSponsors::BenefitPackages::BenefitPackage,
+          :id => sponsored_benefit_package_id,
+          :recorded_rating_area => double(:id => rating_area_id),
+          benefit_sponsorship: double(:id => benefit_sponsorship_id),
+          sponsored_benefits: [sponsored_benefit])
+      end
+      let(:existing_product_id) { BSON::ObjectId.new }
+      let(:benefit_sponsorship_id) { BSON::ObjectId.new }
+      let(:rating_area_id) { BSON::ObjectId.new }
+      let(:sponsored_benefit_package_id) { BSON::ObjectId.new }
+      let(:coverage_household_id) { BSON::ObjectId.new }
+      let(:sponsored_benefit) { instance_double(::BenefitSponsors::BenefitPackages::BenefitPackage, :id => sponsored_benefit_id) }
+      let(:sponsored_benefit_id) { BSON::ObjectId.new }
 
   before do
     hbx_enrollment.hbx_enrollment_members.build(applicant_id: family.family_members.first.id, is_subscriber: true, coverage_start_on: "2018-10-23 19:32:05 UTC", eligibility_date: "2018-10-23 19:32:05 UTC")
@@ -194,7 +182,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       allow(hbx_enrollment).to receive(:may_terminate_coverage?).and_return true
       allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return true
       allow(person.employee_roles.first).to receive(:is_cobra_status?).and_return true
-      person.employee_roles.first.census_employee.aasm_state = 'cobra_eligible'
+      person.employee_roles.first.census_employee.aasm_state ='cobra_eligible'
       person.employee_roles.first.census_employee.cobra_begin_date = TimeKeeper.date_of_record
       person.employee_roles.first.census_employee.save
       person.employee_roles.first.save
@@ -338,7 +326,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
   end
 
   context "POST CREATE" do
-    let(:family_member_ids) {{"0" => family.family_members.first.id}}
+    let(:family_member_ids) {{"0"=>family.family_members.first.id}}
 
     before do
       allow(hbx_enrollment).to receive(:is_shop?).and_return(true)
@@ -395,7 +383,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
       it "should redirect" do
         expect(response).to have_http_status(:redirect)
-        expect(response).not_to redirect_to(purchase_insured_families_path(change_plan: 'change', coverage_kind: 'health', market_kind: 'shop', hbx_enrollment_id: old_hbx.id))
+        expect(response).not_to redirect_to(purchase_insured_families_path(change_plan:'change', coverage_kind: 'health', market_kind:'shop', hbx_enrollment_id: old_hbx.id))
       end
 
       it "should get special_enrollment_period_id" do
@@ -465,11 +453,11 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
       it "should redirect" do
         expect(response).to have_http_status(:redirect)
-        expect(response).not_to redirect_to(purchase_insured_families_path(change_plan: 'change', coverage_kind: 'health', market_kind: 'shop', hbx_enrollment_id: old_hbx.id))
+        expect(response).not_to redirect_to(purchase_insured_families_path(change_plan:'change', coverage_kind: 'health', market_kind:'shop', hbx_enrollment_id: old_hbx.id))
       end
 
       it "should get special enrollment id as nil" do
-        expect(flash[:error]).not_to match(/undefined method `id' for nil:NilClass/)
+        expect(flash[:error]).not_to match /undefined method `id' for nil:NilClass/
       end
     end
 
