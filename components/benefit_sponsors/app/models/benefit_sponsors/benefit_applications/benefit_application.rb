@@ -295,7 +295,7 @@ module BenefitSponsors
     def terminated_on
       return nil unless termination_pending? || terminated?
 
-      end_on
+      latest_benefit_application_item.created_at
     end
 
     def latest_benefit_application_item
