@@ -2079,6 +2079,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         :with_benefit_sponsor_catalog,
         :with_benefit_package,
         passed_benefit_sponsor_catalog: off_cycle_benefit_sponsor_catalog,
+        aasm_state: :enrollment_open,
         benefit_sponsorship: benefit_sponsorship,
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas,
