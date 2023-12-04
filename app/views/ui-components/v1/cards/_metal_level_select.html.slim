@@ -83,6 +83,16 @@
                 = link_to '<u> Provider Search </u> <i class="fa fa-external-link-alt" aria-hidden="true"></i> &nbsp;'.html_safe, find_your_doctor_url, target: "_blank"
                 'tool
 
+        .alert.alert-info
+          .row
+            .container-fluid
+              .info-div
+                i.fa.fa-info-circle[aria-hidden="true"]
+              .flash-msg
+                a.close[data-dismiss="alert" href="#"]
+                  | ×
+                =l10n('insured.wellsense_provider_flash_message')
+
         #referencePlans.hidden
           .row
             h2.heading-text.pull-left.pl-1
@@ -766,3 +776,15 @@ javascript:
 			document.getElementById('submitBenefitPackage').innerHTML = "Save Plan Year";
 		},200)
 		})();
+
+
+css:
+  .info-div {
+    width: 4%;
+    float: left;
+  }
+
+  .flash-msg {
+    width: 96%;
+    float: left;
+  }

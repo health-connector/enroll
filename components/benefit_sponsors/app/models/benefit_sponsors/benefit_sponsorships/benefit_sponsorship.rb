@@ -597,7 +597,7 @@ module BenefitSponsors
     end
 
     def off_cycle_benefit_application
-      recent_bas = benefit_applications.where(:aasm_state.ne => :canceled).sort_by(&:created_at).last(3)
+      recent_bas = benefit_applications.where(:aasm_state.ne => :canceled).order_by(:created_at.asc).to_a.last(4)
       termed_or_ineligible_app = recent_bas.select(&:is_termed_or_ineligible?).max_by(&:start_on)
       return nil unless termed_or_ineligible_app
 

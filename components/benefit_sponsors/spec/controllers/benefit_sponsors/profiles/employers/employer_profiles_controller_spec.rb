@@ -144,5 +144,28 @@ module BenefitSponsors
         expect(response).to have_http_status(:success)
       end
     end
+
+    describe "GET run_eligibility_check" do
+      let(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, :person => person)}
+      let!(:employees) { FactoryGirl.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)}
+      let(:business_policy) { instance_double("some_policy", success_results: { business_rule: "validated successfully" })}
+
+      before do
+        sign_in admin_user
+        allow(subject).to receive(:business_policy_for).and_return(business_policy)
+        allow(business_policy).to receive(:is_satisfied?).and_return(true)
+        get :run_eligibility_check, employer_profile_id: benefit_sponsor.profiles.first.id
+        allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+      end
+
+      it "should return http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'responds with a json content type' do
+        expect(response.content_type).to include('application/json')
+        expect(JSON.parse(response.body, symoblize_names: true)).to include("business_rule" => "validated successfully")
+      end
+    end
   end
 end

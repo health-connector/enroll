@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # MA Census Employee Translations
 EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.reference_plan_details' => "Reference Plan Details",
@@ -43,6 +45,10 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.employee_cost_details_description_part1' => "Details of the employee costs for your members are shown on the",
   :'en.employers.plan_years.employee_cost_details_description_part2' => "Values are based on benefit type, contribution amounts, and reference plan chosen.",
   :'en.employers.plan_years.estimated_employee_costs' => "Estimated Employee Costs",
+  :'en.employers.plan_years.eligibility_button_text' => "Run Eligibility Check",
+  :'en.employers.plan_years.minimum_participation_text' => 'Minimum Participation',
+  :'en.employers.plan_years.non-business_owner_eligibility_count_text' => 'Non-Business Owner Eligibility Count',
+  :'en.employers.plan_years.minimum_eligible_member_count_text' => 'Minimum Eligible Member Count',
   :'en.employers.registration.kind' => 'Kind *',
   :'en.employers.registration.address' => 'Address *',
   :'en.employers.registration.city' => 'City *',
