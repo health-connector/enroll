@@ -1241,8 +1241,7 @@ module BenefitSponsors
         let!(:initial_application) do
           application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_initial, default_effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship)
           terminated_period = aasm_state_renewal.nil? && ['terminated', 'termination_pending'].include?(aasm_state_initial) ? effective_period.min..termination_date : effective_period
-          # application.update_attributes!(effective_period: terminated_period)
-          application.benefit_application_items.create(effective_period: terminated_period)
+          application.benefit_application_items.create(effective_period: terminated_period, sequence_id: 1, state: application.aasm_state)
           application
         end
         let!(:offcycle_application) do
@@ -1255,7 +1254,7 @@ module BenefitSponsors
 
           terminated_period = ['terminated', 'termination_pending'].include?(aasm_state_renewal) ? renewal_effective_period.min..termination_date : renewal_effective_period
           application = create(:benefit_sponsors_benefit_application, aasm_state: aasm_state_renewal, default_effective_period: terminated_period, benefit_sponsorship: active_benefit_sponsorship)
-          application.benefit_application_items.create(effective_period: terminated_period)
+          application.benefit_application_items.create(effective_period: terminated_period, sequence_id: 1, state: application.aasm_state)
           application
         end
         it "when #{aasm_state_initial} #{aasm_state_renewal} application(s) are present" do

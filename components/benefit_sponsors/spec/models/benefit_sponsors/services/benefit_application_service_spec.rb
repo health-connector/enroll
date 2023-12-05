@@ -178,7 +178,7 @@ module BenefitSponsors
             initial_application.benefit_application_items.create(
               effective_period: effective_period_start_on..terminated_date,
               sequence_id: 1,
-              aasm_state: initial_application.aasm_state
+              state: initial_application.aasm_state
             )
             initial_application
           end
@@ -337,7 +337,7 @@ module BenefitSponsors
               application.benefit_application_items.create(
                 effective_period: term_effective_period,
                 sequence_id: 1,
-                aasm_state: :termination_pending,
+                state: :termination_pending,
                 item_type: :change,
                 item_type_reason: 'Non-payment of premium'
               )
@@ -371,7 +371,7 @@ module BenefitSponsors
             ba.benefit_application_items.create(
               effective_period: Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30),
               sequence_id: 1,
-              aasm_state: ba.aasm_state
+              state: ba.aasm_state
             )
             create_ba_params['start_on'] = "1/1/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
@@ -387,7 +387,7 @@ module BenefitSponsors
             ba.benefit_application_items.create(
               effective_period: Date.new(current_year - 2, 7, 1)..Date.new(current_year - 1, 6, 30),
               sequence_id: 1,
-              aasm_state: ba.aasm_state
+              state: ba.aasm_state
             )
             fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_truthy
@@ -399,7 +399,7 @@ module BenefitSponsors
             ba.benefit_application_items.create(
               effective_period: Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30),
               sequence_id: 1,
-              aasm_state: ba.aasm_state
+              state: ba.aasm_state
             )
             fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_truthy
@@ -542,7 +542,7 @@ module BenefitSponsors
               ba2.benefit_application_items.create(
                 effective_period: start_on..start_on.next_year.prev_day,
                 sequence_id: 1,
-                aasm_state: ba2.aasm_state
+                state: ba2.aasm_state
               )
             end
 
@@ -614,10 +614,10 @@ module BenefitSponsors
           let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
           let!(:application) do
             unless aasm_state == :enrollment_ineligible
-              initial_application.create(
+              initial_application.benefit_application_items.create(
                 effective_period: effective_period_start_on..terminated_date,
                 sequence_id: 1,
-                aasm_state: initial_application.aasm_state
+                state: initial_application.aasm_state
               )
             end
             initial_application

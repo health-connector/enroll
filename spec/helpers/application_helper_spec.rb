@@ -551,7 +551,13 @@ RSpec.describe ApplicationHelper, :type => :helper do
     context 'for non 1/1 plan year' do
       let(:start_on) { date_range.min + 1.month }
       let(:end_on)  { date_range.max + 1.month }
-      let!(:initial_application_update) {initial_application.update_attributes(effective_period: start_on..end_on)}
+      let!(:initial_application_update) do
+        initial_application.benefit_application_items.create(
+          effective_period: start_on..end_on,
+          sequence_id: 1,
+          state: initial_application.aasm_state
+        )
+      end
 
       it 'should return no' do
         display_text =
