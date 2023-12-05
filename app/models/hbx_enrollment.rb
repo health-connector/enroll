@@ -38,13 +38,6 @@ class HbxEnrollment
   WAIVED_STATUSES     = %w(inactive renewing_waived)
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
-  TERM_REASONS = %w[non_payment voluntary_withdrawl retroactive_canceled].freeze
-
-  module TermReason
-    NON_PAYMENT = 'non_payment'.freeze
-    VOLUNTARY_WITHDRAWL = 'voluntary_withdrawl'.freeze
-    RETROACTIVE_CANCELED = 'retroactive_canceled'.freeze
-  end
 
   OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan service area".freeze
   WAIVER_REASONS = [
