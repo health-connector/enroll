@@ -1294,10 +1294,10 @@ module BenefitSponsors
         let(:termination_date)            { TimeKeeper.date_of_record.next_month.end_of_month }
         let!(:renewal_effective_period)   { termination_date.next_day..termination_date.next_day.next_year.prev_day }
         let!(:effective_period)           { start_on..termination_date }
-        let!(:term_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app1)              { create(:benefit_sponsors_benefit_application, aasm_state: :expired, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:canceled_app2)              { create(:benefit_sponsors_benefit_application, aasm_state: :expired, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-        let!(:draft_app)                  { create(:benefit_sponsors_benefit_application, aasm_state: :draft, effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:term_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, default_effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app1)              { create(:benefit_sponsors_benefit_application, aasm_state: :expired, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:canceled_app2)              { create(:benefit_sponsors_benefit_application, aasm_state: :expired, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+        let!(:draft_app)                  { create(:benefit_sponsors_benefit_application, aasm_state: :draft, default_effective_period: renewal_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
 
 
         it { expect(active_benefit_sponsorship.off_cycle_benefit_application).to eq draft_app }
