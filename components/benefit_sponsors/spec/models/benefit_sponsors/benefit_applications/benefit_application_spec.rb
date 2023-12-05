@@ -382,6 +382,7 @@ module BenefitSponsors
           end
         end
 
+
         context 'revert reverse_enrollment_eligibility' do
           before do
             benefit_application.update_attributes(aasm_state: :binder_paid)
@@ -1203,6 +1204,19 @@ module BenefitSponsors
             expect(application.employee_participation_ratio_minimum).to eq application.system_min_participation_default_for(application.start_on)
           end
         end
+      end
+    end
+
+    describe "cancelling active application" do
+      let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
+      include_context "setup initial benefit application"
+
+      it "should return retroactive_canceled benefit application" do
+        expect(initial_application.aasm_state).to eq :active
+
+        initial_application.cancel!
+
+        expect(initial_application.aasm_state).to eq :retroactive_canceled
       end
     end
   end

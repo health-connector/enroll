@@ -61,14 +61,30 @@ module BenefitSponsors
     end
 
     describe 'cancel_application' do
+      let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
 
-      before do
-        subject.new(initial_application, {transmit_to_carrier: false}).cancel_application
-        initial_application.reload
+      context "cancelling effectuated application" do
+        before do
+          subject.new(initial_application, {transmit_to_carrier: false}).cancel_application
+          initial_application.reload
+        end
+
+        it "should cancel benefit application" do
+          expect(initial_application.aasm_state).to eq :retroactive_canceled
+        end
       end
 
-      it "should cancel benefit application" do
-        expect(initial_application.aasm_state).to eq :canceled
+      context "cancelling non effectuated application" do
+        before do
+          initial_application.update_attributes(aasm_state: :enrollment_ineligible)
+          initial_application.benefit_application_items.create!(state: :enrollment_ineligible, sequence_id: 1, effective_period: effective_period)
+          subject.new(initial_application, {transmit_to_carrier: false}).cancel_application
+          initial_application.reload
+        end
+
+        it "should cancel benefit application" do
+          expect(initial_application.aasm_state).to eq :canceled
+        end
       end
     end
   end

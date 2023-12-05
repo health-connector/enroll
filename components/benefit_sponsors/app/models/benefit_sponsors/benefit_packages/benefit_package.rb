@@ -376,6 +376,7 @@ module BenefitSponsors
           sponsored_benefits.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
             if hbx_enrollment&.may_cancel_coverage?
+              hbx_enrollment.terminate_reason = "retroactive_canceled" if benefit_application.retroactive_canceled?
               hbx_enrollment.cancel_coverage!
               hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?) unless hbx_enrollment.inactive?
             end
@@ -395,6 +396,10 @@ module BenefitSponsors
 
       def canceled_as_ineligible?(transition)
         transition.from_state == 'enrollment_ineligible' && transition.to_state == 'canceled'
+      end
+
+      def canceled_as_active?(transition)
+        transition.from_state == 'active' && ['canceled', 'retroactive_canceled'].include?(transition.to_state)
       end
 
       def canceled_after?(transition, cancellation_time)

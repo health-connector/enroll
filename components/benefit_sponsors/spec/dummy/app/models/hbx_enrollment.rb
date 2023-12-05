@@ -47,7 +47,7 @@ class HbxEnrollment
   WAIVED_STATUSES     = %w(inactive renewing_waived)
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
-
+  TERM_REASONS = %w[non_payment voluntary_withdrawl retroactive_canceled].freeze
 
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",
