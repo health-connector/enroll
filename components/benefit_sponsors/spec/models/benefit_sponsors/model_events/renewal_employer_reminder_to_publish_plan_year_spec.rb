@@ -24,7 +24,6 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerReminderToPublishPl
       sequence_id: 1,
       state: model_instance.aasm_state
     )
-    model_instance.update_attributes(:effective_period =>  renewal_effective_date..(renewal_effective_date + 1.year) - 1.day)
   end
 
   describe "ModelEvent" do
