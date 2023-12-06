@@ -33,7 +33,7 @@ module BenefitSponsors
         benefit_application_items.max_by(&:sequence_id)
       end
 
-      def application_effective_period
+      def effective_period
         earliest_benefit_application_item.effective_period.min..latest_benefit_application_item.effective_period.max
       end
     end

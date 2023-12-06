@@ -35,7 +35,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
       :with_benefit_sponsor_catalog,
       :with_benefit_package,
       benefit_sponsorship: benefit_sponsorship,
-      effective_period: effective_period,
+      default_effective_period: effective_period,
       aasm_state: :active,
       recorded_rating_area: rating_area,
       recorded_service_areas: service_areas,

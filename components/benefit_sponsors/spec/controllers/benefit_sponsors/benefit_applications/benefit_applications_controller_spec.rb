@@ -106,8 +106,9 @@ module BenefitSponsors
       }
 
       let(:ben_app) do
-        benefit_sponsorship.benefit_applications.build(params)
-        benefit_sponsorship.benefit_application_items.build(effective_period: effective_period, sequence_id: 0, state: :draft)
+        application = benefit_sponsorship.benefit_applications.build(params)
+        application.benefit_application_items.build(effective_period: effective_period, sequence_id: 0, state: :draft)
+        application
       end
     end
 

@@ -22,7 +22,8 @@ RSpec.describe BenefitSponsors::Entities::BenefitApplication do
         expiration_date: expiration_date, open_enrollment_period: oe_period, aasm_state: :draft, recorded_rating_area_id: BSON::ObjectId.new,
         benefit_sponsor_catalog_id: BSON::ObjectId.new, recorded_service_area_ids: [BSON::ObjectId.new],
         terminated_on: terminated_on, fte_count: 20, pte_count: 10, msp_count: 1, recorded_sic_code: '034',
-        predecessor_id: BSON::ObjectId.new, termination_kind: termination_kind, termination_reason: termination_reason
+        predecessor_id: BSON::ObjectId.new, termination_kind: termination_kind, termination_reason: termination_reason,
+        benefit_application_items: []
       }
     end
 

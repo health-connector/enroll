@@ -995,7 +995,7 @@ module BenefitSponsors
 
         before do
           initial_application.update_attributes!(aasm_state: :expired)
-          benefit_application.benefit_application_items.create(
+          initial_application.benefit_application_items.create(
             effective_period: initial_application.start_on..end_on,
             sequence_id: 1,
             state: :expired
@@ -1072,7 +1072,7 @@ module BenefitSponsors
 
       before do
         initial_application.update_attributes!(aasm_state: :termination_pending)
-        benefit_application.benefit_application_items.create(
+        initial_application.benefit_application_items.create(
           effective_period: initial_application.start_on..end_on,
           sequence_id: 1,
           state: :termination_pending

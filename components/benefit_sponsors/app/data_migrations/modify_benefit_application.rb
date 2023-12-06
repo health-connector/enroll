@@ -162,7 +162,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
 
   def benefit_applications_for_terminate
     benefit_sponsorship = get_benefit_sponsorship
-    benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(TimeKeeper.date_of_record)
+    benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(benefit_sponsorship, TimeKeeper.date_of_record)
   end
 
   def benefit_applications_for_cancel

@@ -674,9 +674,14 @@ module BenefitSponsors
         msp_count: msp_count,
         benefit_sponsor_catalog: renewal_benefit_sponsor_catalog,
         predecessor: self,
-        effective_period: renewal_benefit_sponsor_catalog.effective_period,
         open_enrollment_period: renewal_benefit_sponsor_catalog.open_enrollment_period
       )
+
+      renewal_application.benefit_application_items.build({
+                                                            effective_period: renewal_benefit_sponsor_catalog.effective_period,
+                                                            state: renewal_application.aasm_state,
+                                                            sequence_id: 0
+                                                          })
 
       renewal_application.pull_benefit_sponsorship_attributes
       renewal_benefit_sponsor_catalog.benefit_application = renewal_application
