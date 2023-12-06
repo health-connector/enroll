@@ -48,7 +48,6 @@ class HbxEnrollment
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
 
-
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",
       "I have coverage through parent’s employer health plan",

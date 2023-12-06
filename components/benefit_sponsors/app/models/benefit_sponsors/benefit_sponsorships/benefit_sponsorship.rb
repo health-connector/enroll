@@ -593,7 +593,7 @@ module BenefitSponsors
     end
 
     def dt_display_benefit_application
-      benefit_applications.where(:aasm_state.ne => :canceled).max_by(&:start_on) || latest_benefit_application
+      benefit_applications.where(:aasm_state.nin => [:canceled,:retroactive_canceled]).max_by(&:start_on) || latest_benefit_application
     end
 
     def off_cycle_benefit_application
