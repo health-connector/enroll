@@ -58,7 +58,14 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
 
     let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
     let!(:renewing_benefit_application) {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: renewing_effective_period, aasm_state: :renewing_enrolling, predecessor_id: old_benefit_application.id)
+      application = FactoryGirl.create(
+        :benefit_sponsors_benefit_application,
+        :with_benefit_sponsor_catalog,
+        benefit_sponsorship: benefit_sponsorship,
+        default_effective_period: renewing_effective_period,
+        aasm_state: :renewing_enrolling,
+        predecessor_id: old_benefit_application.id
+      )
       application.benefit_sponsor_catalog.save!
       application
     }
