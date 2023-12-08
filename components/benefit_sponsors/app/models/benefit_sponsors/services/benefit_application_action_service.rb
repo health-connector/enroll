@@ -44,7 +44,7 @@ module BenefitSponsors
       end
 
       def initialize_service(application)
-        BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(application)
+        BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(application, current_user: args[:current_user])
       end
 
       def map_errors_for(errors, onto:)

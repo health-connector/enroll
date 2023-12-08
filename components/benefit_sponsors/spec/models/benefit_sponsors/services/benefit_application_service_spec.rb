@@ -338,8 +338,9 @@ module BenefitSponsors
                 effective_period: term_effective_period,
                 sequence_id: 1,
                 state: :termination_pending,
-                item_type: :change,
-                item_type_reason: 'Non-payment of premium'
+                action_type: :change,
+                action_kind: 'non_payment',
+                action_reason: 'Non-payment of premium'
               )
             end
             application

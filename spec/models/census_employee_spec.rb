@@ -2118,7 +2118,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     before do
       updated_dates = initial_application.effective_period.min.to_date..terminated_on
-      initial_application.benefit_application_items.create(effective_period: updated_dates, item_type: 'voluntary', item_type_reason: 'voluntary')
+      initial_application.benefit_application_items.create(effective_period: updated_dates, action_type: :change, action_kind: 'voluntary', action_reason: 'voluntary')
       initial_application.terminate_enrollment!
       renewal_application.cancel!
     end
