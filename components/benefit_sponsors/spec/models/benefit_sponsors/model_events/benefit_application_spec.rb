@@ -34,7 +34,7 @@ RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after
         if action == "cancel"
           model_instance.cancel!
         else
-          model_instance.termination_kind = action
+          model_instance.latest_benefit_application_item.item_type = action
           model_instance.terminate_enrollment!
         end
       end
