@@ -219,10 +219,10 @@ module BenefitSponsors
     }
 
     # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
-    def self.benefit_terminate_on(compare_date = TimeKeeper.date_of_record)
-      where(:benefit_application_items => {:"$elemMatch" => {
-              :_id => latest_benefit_application_item.id,
-              :terminated_on => compare_date
+    def self.benefit_terminate_on(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
+      where(:aasm_state.in => [:terminated, :termination_pending], :benefit_application_items => {:"$elemMatch" => {
+              :_id.in => latest_benefit_application_item_ids(benefit_sponsorship),
+              :action_on => compare_date
             }})
     end
 
@@ -286,25 +286,25 @@ module BenefitSponsors
     end
 
     def termination_kind
-      latest_benefit_application_item.item_type
+      latest_benefit_application_item.action_kind
     end
 
     def termination_reason
-      latest_benefit_application_item.item_type_reason
+      latest_benefit_application_item.action_reason
     end
 
     def terminated_on
       return nil unless termination_pending? || terminated?
 
-      latest_benefit_application_item.created_at
+      latest_benefit_application_item.action_on
     end
 
     def latest_benefit_application_item
-      @latest_benefit_application_item ||= benefit_application_items.max_by(&:sequence_id)
+      benefit_application_items.max_by(&:sequence_id)
     end
 
     def earliest_benefit_application_item
-      @earliest_benefit_application_item ||= benefit_application_items.min_by(&:sequence_id)
+      benefit_application_items.min_by(&:sequence_id)
     end
 
     # Migration map for plan_year to benefit_application

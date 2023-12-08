@@ -8,8 +8,9 @@ module BenefitSponsors
         params do
           required(:effective_period).filled(type?: Range)
           required(:sequence_id).filled(:integer)
-          optional(:item_type).maybe(:symbol)
-          optional(:item_type_reason).maybe(:string)
+          optional(:action_type).maybe(:symbol)
+          optional(:action_kind).maybe(:string)
+          optional(:action_reason).maybe(:string)
           optional(:updated_by).maybe(:string)
           optional(:state).maybe(:symbol)
         end

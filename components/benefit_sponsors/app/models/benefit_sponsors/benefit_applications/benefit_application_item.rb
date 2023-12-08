@@ -29,18 +29,22 @@ module BenefitSponsors
         "Non-payment of premium"
       ].freeze
 
-      ITEM_TYPES = [:change, :correction].freeze
+      ACTION_TYPES = [:change, :correction].freeze
+      ACTION_KINDS = ['voluntary', 'non_payment'].freeze
 
       field :effective_period,        type: Range
       field :sequence_id,             type: Integer
-      field :item_type,               type: Symbol
-      field :item_type_reason,        type: String
+      field :action_type,             type: Symbol
+      field :action_kind,             type: String
+      field :action_reason,           type: String
       field :updated_by,              type: String
-      field :state,           type: Symbol
+      field :state,                   type: Symbol
+      field :action_on,               type: Date
 
       validates_presence_of :sequence_id, :effective_period, :state
-      validates :item_type, inclusion: { in: ITEM_TYPES }, allow_blank: true
-      validates :item_type_reason, inclusion: { in: VOLUNTARY_TERM_REASONS + NON_PAYMENT_TERM_REASONS }, allow_blank: true
+      validates :action_type, inclusion: { in: ACTION_TYPES }, allow_blank: true
+      validates :action_kind, inclusion: { in: ACTION_KINDS }, allow_blank: true
+      validates :action_reason, inclusion: { in: VOLUNTARY_TERM_REASONS + NON_PAYMENT_TERM_REASONS }, allow_blank: true
     end
   end
 end
