@@ -22,6 +22,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
   given!(:today) { Date.today }
   given!(:start_date) { today.months_since(2).beginning_of_month }
   given!(:end_date) { start_date.end_of_year + today.month.month }
+  given!(:current_effective_date) { start_date }
 
   given!(:one_issuer_product_package) {initial_application.benefit_sponsor_catalog.product_packages.select {|pp| pp.package_kind == :single_issuer}}
   given!(:all_products) do
@@ -55,7 +56,6 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
     initial_application.update_attributes(
       aasm_state: :enrollment_open,
       :fte_count => 5,
-      effective_period: start_date..end_date,
       :open_enrollment_period => Range.new(Date.today, Date.today + BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN)
     )
 

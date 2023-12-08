@@ -21,7 +21,6 @@ describe CorrectPlanYearEndDate, dbclean: :after_each do
     include_context "setup initial benefit application"
 
     before do
-      initial_application.effective_period = Date.new(2019, 1, 1)..Date.new(2019, 9, 30)
       initial_application.benefit_application_items.create(
         effective_period: Date.new(2019, 1, 1)..Date.new(2019, 9, 30),
         state: :draft,

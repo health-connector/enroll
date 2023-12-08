@@ -982,9 +982,9 @@ module BenefitSponsors
             start_on = TimeKeeper.date_of_record.beginning_of_month - 6.months
             end_on = TimeKeeper.date_of_record.end_of_month - 15.day + 4.months
             initial_application.reload
+            initial_application.update_attributes(aasm_state: :termination_pending)
             initial_application.benefit_application_items.create(effective_period: start_on..end_on, state: :termination_pending, action_kind: 'voluntary', action_reason: 'Company went out of business/bankrupt', sequence_id: 1)
-            ba = initial_application
-            @result2 = subject.new(initial_application).terminate(end_on, ba.terminated_on, ba.termination_kind, ba.termination_reason)
+            @result2 = subject.new(initial_application).terminate(end_on, initial_application.terminated_on, initial_application.termination_kind, initial_application.termination_reason)
             initial_application.reload
           end
 

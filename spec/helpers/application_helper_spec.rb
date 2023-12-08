@@ -543,7 +543,11 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
     context 'for 1/1 plan year' do
       it 'should return yes' do
-        initial_application.update_attributes(effective_period: date_range)
+        initial_application.benefit_application_items.create({
+          effective_period: date_range,
+          sequence_id: 1,
+          state: initial_application.aasm_state
+        })
         expect(helper.participation_rule(employer)).to eq '1. 2/3 Rule Met? : Yes'
       end
     end

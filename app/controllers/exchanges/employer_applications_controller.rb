@@ -50,9 +50,9 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def get_term_reasons
     @reasons = if params[:reason_type_id] == "term_actions_nonpayment"
-      BenefitSponsors::BenefitApplications::BenefitApplication::NON_PAYMENT_TERM_REASONS
+      BenefitSponsors::BenefitApplications::BenefitApplicationItem::NON_PAYMENT_TERM_REASONS
     else
-      BenefitSponsors::BenefitApplications::BenefitApplication::VOLUNTARY_TERM_REASONS
+      BenefitSponsors::BenefitApplications::BenefitApplicationItem::VOLUNTARY_TERM_REASONS
     end
     render json: @reasons
   end
