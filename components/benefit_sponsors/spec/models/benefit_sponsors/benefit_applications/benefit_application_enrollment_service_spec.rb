@@ -879,11 +879,11 @@ module BenefitSponsors
         end
 
         it 'should create terminated benefit application item' do
-            item = initial_application.benefit_application_items.max_by(&:sequence_id)
-            expect(item).not_to eq nil
-            expect(item.state).to eq :termination_pending
-            expect(item.effective_period.max).to eq end_date
-          end
+          item = initial_application.benefit_application_items.max_by(&:sequence_id)
+          expect(item).not_to eq nil
+          expect(item.state).to eq :termination_pending
+          expect(item.effective_period.max).to eq end_date
+        end
       end
     end
 
@@ -973,7 +973,7 @@ module BenefitSponsors
             item = initial_application.benefit_application_items.max_by(&:sequence_id)
             expect(item).not_to eq nil
             expect(item.state).to eq :terminated
-            expect(item.effective_period.max).to eq (TimeKeeper.date_of_record.end_of_month + 4.months ).end_of_month
+            expect(item.effective_period.max).to eq (TimeKeeper.date_of_record.end_of_month + 4.months).end_of_month
           end
         end
 
