@@ -2283,6 +2283,34 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
+  context ".is_employee_covered?" do
+    let(:benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:census_employee) do
+      FactoryGirl.create(
+        :benefit_sponsors_census_employee,
+        employer_profile: employer_profile,
+        benefit_sponsorship: organization.active_benefit_sponsorship,
+        benefit_group_assignments: [benefit_group_assignment]
+      )
+    end
+
+    let(:enrolled_family_double) { double('EnrolledFamily', id: '1') }
+
+    before do
+      allow(census_employee).to receive(:employee_role).and_return double("EmployeeRole")
+      allow(census_employee).to receive(:family).and_return enrolled_family_double
+    end
+
+    it "returns false when no covered employee present" do
+      expect(census_employee.is_employee_covered?).to be_falsey
+    end
+
+    it "returns true with covered employee" do
+      allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignemnt).and_return([enrolled_family_double])
+      expect(census_employee.is_employee_covered?).to be_truthy
+    end
+  end
+
   context "expected to enroll" do
 
     let!(:valid_waived_employee) {FactoryGirl.create :benefit_sponsors_census_employee,
