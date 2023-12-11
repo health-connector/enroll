@@ -1504,13 +1504,13 @@ class HbxEnrollment
   def notify_of_coverage_start(publish_to_carrier)
     config = Rails.application.config.acapi
     notify(
-        "acapi.info.events.hbx_enrollment.coverage_selected",
-        {
-            :reply_to => "#{config.hbx_id}.#{config.environment_name}.q.glue.enrollment_event_batch_handler",
-            "hbx_enrollment_id" => self.hbx_id,
-            "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#initial",
-            "is_trading_partner_publishable" => publish_to_carrier
-        }
+      "acapi.info.events.hbx_enrollment.coverage_selected",
+      {
+        :reply_to => "#{config.hbx_id}.#{config.environment_name}.q.glue.enrollment_event_batch_handler",
+        "hbx_enrollment_id" => hbx_id,
+        "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#initial",
+        "is_trading_partner_publishable" => publish_to_carrier
+      }
     )
   end
 
@@ -2070,18 +2070,17 @@ class HbxEnrollment
   end
 
   def notify_enrollment_cancel_or_termination_event(transmit_flag)
-
-    return unless self.coverage_terminated? || self.coverage_canceled? || self.coverage_termination_pending?
+    return unless coverage_terminated? || coverage_canceled? || coverage_termination_pending?
 
     config = Rails.application.config.acapi
     notify(
-        "acapi.info.events.hbx_enrollment.terminated",
-        {
-            :reply_to => "#{config.hbx_id}.#{config.environment_name}.q.glue.enrollment_event_batch_handler",
-            "hbx_enrollment_id" => self.hbx_id,
-            "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
-            "is_trading_partner_publishable" => transmit_flag
-        }
+      "acapi.info.events.hbx_enrollment.terminated",
+      {
+        :reply_to => "#{config.hbx_id}.#{config.environment_name}.q.glue.enrollment_event_batch_handler",
+        "hbx_enrollment_id" => hbx_id,
+        "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
+        "is_trading_partner_publishable" => transmit_flag
+      }
     )
   end
 
