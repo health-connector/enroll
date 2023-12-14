@@ -50,21 +50,20 @@ namespace :migrations do
                 logger.info "ACTION NEEDED(has term date): -- #{benefit_sponsorship.hbx_id} :: #{application.id} :: #{application.aasm_state}"
                 next
               else
-                wfst = application.workflow_state_transitions.min_by(&:created_at)
+                wfst = application.workflow_state_transitions.min_by(&:transition_at)
                 application.benefit_application_items.create!(
                   sequence_id: 0,
                   effective_period: application.read_attribute(:effective_period),
                   action_on: application.created_at,
                   state: wfst&.from_state || application.aasm_state
                 )
-                logger.info "Created Item for -- #{benefit_sponsorship.hbx_id} :: #{application.id}"
               end
             end
 
             if [:terminated, :termination_pending].include? application.aasm_state
 
               effective_period = application.read_attribute(:effective_period)
-              wfst = application.workflow_state_transitions.min_by(&:created_at)
+              wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
                 sequence_id: 0,
                 effective_period: effective_period.min..(effective_period.min + 1.year - 1.day),
@@ -72,7 +71,6 @@ namespace :migrations do
                 state: wfst&.from_state || application.aasm_state
               )
 
-              logger.info "Created Item for -- #{benefit_sponsorship.hbx_id} :: #{application.id}"
 
               application.benefit_application_items.create!(
                 sequence_id: 1,
@@ -84,18 +82,16 @@ namespace :migrations do
                 state: application.aasm_state
               )
 
-              logger.info "Created Item for -- #{benefit_sponsorship.hbx_id} :: #{application.id}"
             end
 
             if [:canceled].include? application.aasm_state
-              wfst = application.workflow_state_transitions.min_by(&:created_at)
+              wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
                 sequence_id: 0,
                 effective_period: application.read_attribute(:effective_period),
                 action_on: application.created_at,
                 state: wfst&.from_state || application.aasm_state
               )
-              logger.info "Created Item for -- #{benefit_sponsorship.hbx_id} :: #{application.id}"
 
               cancled_wfst = application.workflow_state_transitions.where(to_state: 'canceled').first
               application.benefit_application_items.create!(
@@ -104,7 +100,6 @@ namespace :migrations do
                 action_on: cancled_wfst&.created_at || application.updated_at,
                 state: :canceled
               )
-              logger.info "Created Item for -- #{benefit_sponsorship.hbx_id} :: #{application.id}"
             end
 
             unless all_application_states.include? application.aasm_state
