@@ -283,7 +283,7 @@ module BenefitSponsors
 
     index({"benefit_application._id" => 1})
     index({"benefit_application.predecessor_id" => 1})
-    index({ "benefit_application.aasm_state" => 1, "effective_period.min" => 1, "effective_period.max" => 1},
+    index({ "benefit_application.aasm_state" => 1, "benefit_application_items.effective_period.min" => 1, "benefit_application_items.effective_period.max" => 1},
             { name: "effective_period" })
 
     index({ "benefit_application.aasm_state" => 1, "open_enrollment_period.min" => 1, "open_enrollment_period.max" => 1},
