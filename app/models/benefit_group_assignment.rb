@@ -277,6 +277,21 @@ class BenefitGroupAssignment
     end
   end
 
+  def covered_families_with_benefit_assignemnt
+    Family.where(
+      {
+        "households.hbx_enrollments" => {
+          :"$elemMatch" => {
+            :"$and" => [
+              { :employee_role_id => employee_role_id },
+              { :benefit_group_assignment_id => BSON::ObjectId.from_string(id) }
+            ]
+          }
+        }
+      }
+    )
+  end
+
   def hbx_enrollment
     return @hbx_enrollment if defined? @hbx_enrollment
 

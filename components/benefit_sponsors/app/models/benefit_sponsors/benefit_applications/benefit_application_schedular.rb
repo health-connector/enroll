@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require 'holidays'
+
 module BenefitSponsors
   module BenefitApplications
     class BenefitApplicationSchedular
@@ -148,82 +152,19 @@ module BenefitSponsors
         [open_enrollment_start_on, open_enrollment_end_on]
       end
 
-      #TODO: Implement the binder payment due dates using BankHolidaysHelper
-      #TODO: Logic around binder payment due dates is not clear at this point. Hence hard-coding the due dates for now.
       def map_binder_payment_due_date_by_start_on(start_on)
-        dates_map = {}
-        {
-          "2018-08-01" => '2018,7,24',
-          "2018-09-01" => '2018,8,23',
-          "2018-10-01" => '2018,9,24',
-          "2018-11-01" => '2018,10,23',
-          "2018-12-01" => '2018,11,26',
-          "2019-01-01" => '2018,12,26',
-          "2019-02-01" => '2019,1,24',
-          "2019-03-01" => '2019,2,25',
-          "2019-04-01" => '2019,3,25',
-          "2019-05-01" => '2019,4,23',
-          "2019-06-01" => '2019,5,23',
-          "2019-07-01" => '2019,6,24',
-          "2019-08-01" => '2019,7,23',
-          "2019-09-01" => '2019,8,23',
-          "2019-10-01" => '2019,9,23',
-          "2019-11-01" => '2019,10,23',
-          "2019-12-01" => '2019,11,25',
-          "2020-01-01" => '2019,12,24',
-          "2020-02-01" => '2020,1,23',
-          "2020-03-01" => '2020,2,24',
-          "2020-04-01" => '2020,3,24',
-          "2020-05-01" => '2020,4,23',
-          "2020-06-01" => '2020,5,23',
-          "2020-07-01" => '2020,6,23',
-          "2020-08-01" => '2020,7,23',
-          "2020-09-01" => '2020,8,24',
-          "2020-10-01" => '2020,9,23',
-          "2020-11-01" => '2020,10,23',
-          "2020-12-01" => '2020,11,24',
-          "2021-01-01" => '2020,12,23',
-          "2021-02-01" => '2021,1,23',
-          "2021-03-01" => '2021,2,23',
-          "2021-04-01" => '2021,3,23',
-          "2021-05-01" => '2021,4,23',
-          "2021-06-01" => '2021,5,24',
-          "2021-07-01" => '2021,6,23',
-          "2021-08-01" => '2021,7,23',
-          "2021-09-01" => '2021,8,24',
-          "2021-10-01" => '2021,9,23',
-          "2021-11-01" => '2021,10,23',
-          "2021-12-01" => '2021,11,23',
-          "2022-01-01" => '2021,12,23',
-          "2022-02-01" => '2022,1,24',
-          "2022-03-01" => '2022,2,23',
-          "2022-04-01" => '2022,3,23',
-          "2022-05-01" => '2022,4,23',
-          "2022-06-01" => '2022,5,24',
-          "2022-07-01" => '2022,6,23',
-          "2022-08-01" => '2022,7,23',
-          "2022-09-01" => '2022,8,23',
-          "2022-10-01" => '2022,9,23',
-          "2022-11-01" => '2022,10,24',
-          "2022-12-01" => '2022,11,23',
-          "2023-01-01" => '2022,12,23',
-          "2023-02-01" => '2023,1,23',
-          "2023-03-01" => '2023,2,23',
-          "2023-04-01" => '2023,3,23',
-          "2023-05-01" => '2023,4,24',
-          "2023-06-01" => '2023,5,23',
-          "2023-07-01" => '2023,6,23',
-          "2023-08-01" => '2023,7,24',
-          "2023-09-01" => '2023,8,23',
-          "2023-10-01" => '2023,9,23',
-          "2023-11-01" => '2023,10,24',
-          "2023-12-01" => '2023,11,23',
-          "2024-01-01" => '2023,12,23'
-        }.each_pair do |k, v|
-          dates_map[k] = Date.strptime(v, '%Y,%m,%d')
-        end
+        prior_month = start_on - 1.month
+        binder_payment_due_on = Date.new(prior_month.year, prior_month.month, Settings.aca.shop_market.binder_payment_due_on)
+        first_business_day_after(binder_payment_due_on) || enrollment_timetable_by_effective_date(start_on)[:binder_payment_due_on]
+      end
 
-        dates_map[start_on.strftime('%Y-%m-%d')] || enrollment_timetable_by_effective_date(start_on)[:binder_payment_due_on]
+      def first_business_day_after(date)
+        date = date.next until business_day?(date)
+        date
+      end
+
+      def business_day?(date)
+        !date.saturday? && !date.sunday? && !Holidays.on(date, :us).present?
       end
 
       def shop_enrollment_timetable(new_effective_date)
@@ -268,7 +209,7 @@ module BenefitSponsors
           result = "failure"
           msg = "must choose a start on date #{(TimeKeeper.date_of_record - HbxProfile::ShopOpenEnrollmentBeginDueDayOfMonth + Settings.aca.shop_market.open_enrollment.maximum_length.months.months).beginning_of_month} or later"
         end
-        
+
         {result: (result || "ok"), msg: (msg || "")}
       end
 
