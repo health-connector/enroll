@@ -102,6 +102,7 @@ def can_publish_enrollment?(enrollment, transition_at)
       return false
     end
   rescue => e
+    Rails.logger.error { "subscriber_hbx_id: #{enrollment&.subscriber&.hbx_id}, #{e}, stacktrace: #{e.backtrace}" }
     puts "subscriber_hbx_id: #{enrollment&.subscriber&.hbx_id}, #{e}, stacktrace: #{e.backtrace}"
   end
 end
@@ -126,8 +127,8 @@ purchase_families.each do |fam|
           }
         }).first.transition_at
 
-        puts "---processing #{purchase.hbx_id}---#{purchased_at}---#{Time.now}, "
-        Rails.logger.info "---processing #{purchase.hbx_id}---#{purchased_at}---#{Time.now}"
+        puts "---processing #{purchase&.hbx_id}---#{purchased_at}---#{Time.now}, "
+        Rails.logger.info "---processing #{purchase&.hbx_id}---#{purchased_at}---#{Time.now}"
         if can_publish_enrollment?(purchase, purchased_at)
           Rails.logger.info "-----publishing #{purchase.hbx_id}"
           ShopEnrollmentsPublisher.publish_action( "acapi.info.events.hbx_enrollment.coverage_selected",
@@ -135,11 +136,13 @@ purchase_families.each do |fam|
                          "urn:openhbx:terms:v1:enrollment#initial")
         end
       rescue => e
+        Rails.logger.error { "enrollment_hbx_id: #{purchase&.hbx_id}, #{e}, stacktrace: #{e.backtrace}" }
         puts "enrollment_hbx_id: #{purchase&.hbx_id}, #{e}, stacktrace: #{e.backtrace}"
       end
     end
   rescue => e
-    puts "initial transaction query, issue Family_id: #{fam.id}, #{e}, stacktrace: #{e.backtrace}"
+    Rails.logger.error { "initial transaction query, issue Family_id: #{fam&.id}, #{e}, stacktrace: #{e.backtrace}" }
+    puts "initial transaction query, issue Family_id: #{fam&.id}, #{e}, stacktrace: #{e.backtrace}"
   end
 end
 
@@ -163,10 +166,12 @@ term_families.each do |fam|
                          "urn:openhbx:terms:v1:enrollment#terminate_enrollment")
         end
       rescue => e
+        Rails.logger.error { "enrollment_hbx_id: #{term&.hbx_id}, #{e}, stacktrace: #{e.backtrace}" }
         puts "enrollment_hbx_id: #{term&.hbx_id}, #{e}, stacktrace: #{e.backtrace}"
       end
     end
   rescue => e
-    puts "term transaction query, issue Family_id: #{fam.id}, #{e}, stacktrace: #{e.backtrace}"
+    Rails.logger.error {"term transaction query, issue Family_id: #{fam&.id}, #{e}, stacktrace: #{e.backtrace}" }
+    puts "term transaction query, issue Family_id: #{fam&.id}, #{e}, stacktrace: #{e.backtrace}"
   end
 end
