@@ -7,6 +7,13 @@ namespace :migrations do
   task :benefit_applications_to_composite => :environment do
 
     logger = Logger.new("#{Rails.root}/log/migrate_applications_to_composite-#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log")
+
+    logger.info "Prerequisite: Fixing incorrect term reason for ER: (fein: 461585671, legal name: ONWRD hbx_id: 100456)"
+
+    application = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: 100456).first.benefit_applications.find('5b46ddf7aea91a4397e9a401')
+    application.update_attribute(:termination_kind, 'nonpayment')
+
+    logger.info ":: Starting Migrations ::"
     field_names = %w[
       LEGAL_NAME
       FEIN
