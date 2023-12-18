@@ -106,27 +106,18 @@ module BenefitSponsors
     end
 
     def transmit_initial_eligible_event
-      benefit_application = benefit_sponsorship.application_transmit_initial_enrollment
-
-      notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG}) if benefit_application.present?
+      notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG})
     end
 
     def transmit_renewal_eligible_event
-      benefit_application = benefit_sponsorship.application_transmit_renewal_enrollment
-
-      notify(RENEWAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_ELIGIBLE_EVENT_TAG}) if benefit_application && benefit_sponsorship.is_renewal_transmission_eligible?
+      notify(RENEWAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_ELIGIBLE_EVENT_TAG}) if benefit_sponsorship.is_renewal_transmission_eligible?
     end
 
     def transmit_renewal_carrier_drop_event
-      benefit_application = benefit_sponsorship.application_transmit_renewal_enrollment
-
-      notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG}) if benefit_application && benefit_sponsorship.is_renewal_carrier_drop?
+      notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG}) if benefit_sponsorship.is_renewal_carrier_drop?
     end
 
     def transmit_ineligible_renewal_carrier_drop_event
-      benefit_application = benefit_sponsorship.application_transmit_renewal_ineligible
-      return if benefit_application.blank?
-
       notify(RENEWAL_EMPLOYER_CARRIER_DROP_EVENT, {employer_id: benefit_sponsorship.profile.hbx_id, event_name: RENEWAL_APPLICATION_CARRIER_DROP_EVENT_TAG}) unless benefit_sponsorship.is_renewal_transmission_eligible?
     end
 
