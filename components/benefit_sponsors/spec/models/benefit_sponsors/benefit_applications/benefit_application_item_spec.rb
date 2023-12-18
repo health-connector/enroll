@@ -8,8 +8,9 @@ RSpec.describe BenefitSponsors::BenefitApplications::BenefitApplicationItem, typ
     it { is_expected.to have_field(:effective_period).of_type(Range)}
     it { is_expected.to have_field(:action_type).of_type(Symbol)}
     it { is_expected.to have_field(:action_kind).of_type(String)}
+    it { is_expected.to have_field(:action_on).of_type(Date).with_default_value_of(TimeKeeper.date_of_record)}
     it { is_expected.to have_field(:action_reason).of_type(String)}
-    it { is_expected.to have_field(:sequence_id).of_type(Integer).with_default_value_of(0)}
+    it { is_expected.to have_field(:sequence_id).of_type(Integer)}
     it { is_expected.to have_field(:state).of_type(Symbol)}
     it { is_expected.to have_field(:updated_by).of_type(String)}
   end

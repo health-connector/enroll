@@ -338,7 +338,7 @@ module BenefitSponsors
                 sequence_id: 1,
                 state: :termination_pending,
                 action_type: :change,
-                action_kind: 'non_payment',
+                action_kind: 'nonpayment',
                 action_reason: 'Non-payment of premium'
               )
             end
