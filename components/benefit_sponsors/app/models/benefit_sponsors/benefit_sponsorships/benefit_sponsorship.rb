@@ -334,6 +334,69 @@ module BenefitSponsors
       benefit_applications.effective_date_begin_on(effective_date).renewing.draft_state.first
     end
 
+    def application_transmit_initial_enrollment(new_date = TimeKeeper.date_of_record)
+      start_on = new_date.prev_day.next_month.beginning_of_month
+      transition_at = (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month ? nil : new_date.prev_day
+
+      if  transition_at.blank?
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:binder_paid, :active]},
+                :benefit_application_items => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      else
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:binder_paid, :active]},
+                :workflow_state_transitions => {"$elemMatch" => {"to_state" => :binder_paid, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}},
+                :benefit_application_items => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      end
+    end
+
+    def application_transmit_renewal_enrollment(new_date = TimeKeeper.date_of_record)
+      start_on = new_date.prev_day.next_month.beginning_of_month
+      transition_at = (new_date.prev_day.mday + 1) == aca_shop_market_employer_transmission_day_of_month ? nil : new_date.prev_day
+
+      if  transition_at.blank?
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:enrollment_eligible, :active]},
+                :benefit_application_items => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      else
+        where(:benefit_applications => {:"$elemMatch" => {
+                :aasm_state => {"$in" => [:enrollment_eligible, :active]},
+                :workflow_state_transitions => {"$elemMatch" => {
+                  "to_state" => :enrollment_eligible, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}
+                }},
+                :benefit_application_items => {:"$elemMatch" => {
+                  :_id.in => earliest_benefit_application_item_ids,
+                  :"effective_period.min" => start_on
+                }}
+              }}).first
+      end
+    end
+
+    def application_transmit_renewal_ineligible(new_date = TimeKeeper.date_of_record)
+      start_on = new_date.prev_day.next_month.beginning_of_month
+
+      where(:benefit_applications => {:"$elemMatch" => {
+              :predecessor_id => { :$exists => true },
+              :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES,
+              :benefit_application_items => {:"$elemMatch" => {
+                :_id.in => earliest_benefit_application_item_ids,
+                :"effective_period.min" => start_on
+              }}
+            }}).first
+    end
+
     def primary_office_address
       primary_office_location.address if has_primary_office_address?
     end
