@@ -211,7 +211,7 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
           gem install treye-semaphore_test_boosters --version '2.5.1'
-          gem install brakeman
+          gem install brakeman -v 5.4.1
       - name: yarn install
         if: matrix.command_configs.skip_js != 'true' && steps.npm-cache.outputs.cache-hit != 'true'
         run: |
