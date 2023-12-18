@@ -54,7 +54,7 @@ module Notifier
     end
 
     def census_employee_cost_estimator(benefit_application)
-      BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.effective_period.min)
+      BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(benefit_application.benefit_sponsorship, benefit_application.start_on)
     end
 
     def benefit_application_current_py_plus_60_days

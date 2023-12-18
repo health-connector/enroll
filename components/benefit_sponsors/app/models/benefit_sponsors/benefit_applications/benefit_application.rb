@@ -144,8 +144,8 @@ module BenefitSponsors
 
     scope :open_enrollment_period_cover,    lambda { |compare_date = TimeKeeper.date_of_record|
                                               where(
-                                                :"opem_enrollment_period.min".lte => compare_date,
-                                                :"opem_enrollment_period.max".gte => compare_date
+                                                :"open_enrollment_period.min".lte => compare_date,
+                                                :"open_enrollment_period.max".gte => compare_date
                                               )
                                             }
     scope :open_enrollment_begin_on,        lambda { |compare_date = TimeKeeper.date_of_record|
