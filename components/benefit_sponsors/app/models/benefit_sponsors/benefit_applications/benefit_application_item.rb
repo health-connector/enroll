@@ -30,7 +30,7 @@ module BenefitSponsors
       ].freeze
 
       ACTION_TYPES = [:change, :correction].freeze
-      ACTION_KINDS = ['voluntary', 'non_payment'].freeze
+      ACTION_KINDS = ['voluntary', 'nonpayment'].freeze
 
       field :effective_period,        type: Range
       field :sequence_id,             type: Integer
@@ -39,7 +39,7 @@ module BenefitSponsors
       field :action_reason,           type: String
       field :updated_by,              type: String
       field :state,                   type: Symbol
-      field :action_on,               type: Date
+      field :action_on,               type: Date, default: TimeKeeper.date_of_record
 
       validates_presence_of :sequence_id, :effective_period, :state
       validates :action_type, inclusion: { in: ACTION_TYPES }, allow_blank: true

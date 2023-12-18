@@ -70,15 +70,14 @@ module Effective
            ['Generate Invoice', generate_invoice_exchanges_hbx_profiles_path(ids: [row.id]), generate_invoice_link_type(@employer_profile)],
            ['Create Plan Year', main_app.new_benefit_application_exchanges_hbx_profiles_path(benefit_sponsorship_id: row.id, employer_actions_id: "employer_actions_#{@employer_profile.id}"), pundit_allow(HbxProfile, :can_create_benefit_application?) ? 'ajax' : 'hide'],
            ['Change FEIN', edit_fein_exchanges_hbx_profiles_path(id: row.id, employer_actions_id: "employer_actions_#{@employer_profile.id}"), pundit_allow(HbxProfile, :can_change_fein?) ? "ajax" : "hide"],
-           # TODO: Uncomment this after migration
-           # [
-           #   'Force Publish',
-           #   edit_force_publish_exchanges_hbx_profiles_path(
-           #     id: @employer_profile.latest_benefit_sponsorship.id,
-           #     employer_actions_id: "employer_actions_#{@employer_profile.id}"
-           #   ),
-           #   force_publish_link_type(row, pundit_allow(HbxProfile, :can_force_publish?))
-           # ]
+           [
+             'Force Publish',
+             edit_force_publish_exchanges_hbx_profiles_path(
+               id: @employer_profile.latest_benefit_sponsorship.id,
+               employer_actions_id: "employer_actions_#{@employer_profile.id}"
+             ),
+             force_publish_link_type(row, pundit_allow(HbxProfile, :can_force_publish?))
+           ]
           ]
 
           if pundit_allow(HbxProfile, :can_modify_plan_year?)

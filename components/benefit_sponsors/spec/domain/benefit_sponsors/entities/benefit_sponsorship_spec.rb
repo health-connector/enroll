@@ -14,7 +14,7 @@ RSpec.describe BenefitSponsors::Entities::BenefitSponsorship do
     let(:effective_period)               { effective_date..(effective_date + 1.year).prev_day }
     let(:oe_period)                      { oe_start_on..(oe_start_on + 10.days) }
     let(:terminated_on)                  { effective_date.end_of_month }
-    let(:termination_kind)               { "non_payment"}
+    let(:termination_kind)               { "nonpayment"}
     let(:termination_reason)             { "non_payment_termination_reason"}
 
     let(:benefit_application) do
@@ -22,7 +22,19 @@ RSpec.describe BenefitSponsors::Entities::BenefitSponsorship do
         expiration_date: expiration_date, open_enrollment_period: oe_period, aasm_state: :draft, recorded_rating_area_id: BSON::ObjectId.new,
         benefit_sponsor_catalog_id: BSON::ObjectId.new, default_effective_period: effective_period, recorded_service_area_ids: [BSON::ObjectId.new],
         terminated_on: terminated_on, fte_count: 20, pte_count: 10, msp_count: 1, recorded_sic_code: '034',
-        predecessor_id: BSON::ObjectId.new, termination_kind: termination_kind, termination_reason: termination_reason
+        predecessor_id: BSON::ObjectId.new, termination_kind: termination_kind, termination_reason: termination_reason,
+        benefit_application_items: [
+          {
+            effective_period: effective_period,
+            sequence_id: 0,
+            action_type: :change,
+            action_kind: termination_kind,
+            action_reason: termination_reason,
+            action_on: TimeKeeper.date_of_record,
+            state: :draft,
+            updated_by: nil
+          }
+        ]
       }
     end
     let(:required_params) do

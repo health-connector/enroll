@@ -9,6 +9,7 @@ module BenefitSponsors
           required(:effective_period).filled(type?: Range)
           required(:sequence_id).filled(:integer)
           optional(:action_type).maybe(:symbol)
+          optional(:action_on).maybe(:date)
           optional(:action_kind).maybe(:string)
           optional(:action_reason).maybe(:string)
           optional(:updated_by).maybe(:string)

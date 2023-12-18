@@ -46,20 +46,15 @@ namespace :migrations do
         csv << field_names
 
         benefit_sponsorships.offset(offset).limit(batch_size).no_timeout.each do |benefit_sponsorship|
-          benefit_sponsorship.benefit_applications.each do |application|
+          benefit_sponsorship.benefit_applications.where(:'benefit_application_items' => { :'$exists' => false }).each do |application|
             if no_action_application_states.include? application.aasm_state
-              if application.read_attribute(:terminated_on).present?
-                logger.info "ACTION NEEDED(has term date): -- #{benefit_sponsorship.hbx_id} :: #{application.id} :: #{application.aasm_state}"
-                next
-              else
-                wfst = application.workflow_state_transitions.min_by(&:transition_at)
-                application.benefit_application_items.create!(
-                  sequence_id: 0,
-                  effective_period: application.read_attribute(:effective_period),
-                  action_on: application.created_at,
-                  state: wfst&.from_state || application.aasm_state
-                )
-              end
+              wfst = application.workflow_state_transitions.min_by(&:transition_at)
+              application.benefit_application_items.create!(
+                sequence_id: 0,
+                effective_period: application.read_attribute(:effective_period),
+                action_on: application.created_at,
+                state: wfst&.from_state || application.aasm_state
+              )
             end
 
             if [:terminated, :termination_pending].include? application.aasm_state
@@ -68,11 +63,10 @@ namespace :migrations do
               wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
                 sequence_id: 0,
-                effective_period: effective_period.min..(effective_period.min + 1.year - 1.day),
+                effective_period: effective_period['min']..(effective_period['min'] + 1.year - 1.day),
                 action_on: application.created_at,
                 state: wfst&.from_state || application.aasm_state
               )
-
 
               application.benefit_application_items.create!(
                 sequence_id: 1,
@@ -104,9 +98,15 @@ namespace :migrations do
               )
             end
 
+            # To handle legacy states; we're just storing it's current state
             unless all_application_states.include? application.aasm_state
-              logger.info "ACTION NEEDED(state ambiguity): -- #{benefit_sponsorship.hbx_id} :: #{application.id} :: #{application.aasm_state}"
-              next
+              wfst = application.workflow_state_transitions.min_by(&:transition_at)
+              application.benefit_application_items.create!(
+                sequence_id: 0,
+                effective_period: application.read_attribute(:effective_period),
+                action_on: application.created_at,
+                state: wfst&.from_state || application.aasm_state
+              )
             end
 
             csv << [
@@ -114,8 +114,8 @@ namespace :migrations do
               benefit_sponsorship.fein,
               benefit_sponsorship.hbx_id,
               application.aasm_state,
-              application.read_attribute(:effective_period).min,
-              application.read_attribute(:effective_period).max,
+              application.read_attribute(:effective_period)['min'],
+              application.read_attribute(:effective_period)['max'],
               application.read_attribute(:terminated_on),
               application.is_renewing?
             ]

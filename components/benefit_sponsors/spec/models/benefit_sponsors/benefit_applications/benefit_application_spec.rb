@@ -454,7 +454,7 @@ module BenefitSponsors
       let!(:initial_application) do
         application = create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, benefit_sponsorship: benefit_sponsorship)
         terminated_period = effective_period.min..termination_date
-        application.benefit_application_items.create(effective_period: terminated_period, action_type: :change, action_kind: 'non_payment', action_reason: 'Other')
+        application.benefit_application_items.create(effective_period: terminated_period, action_type: :change, action_kind: 'nonpayment', action_reason: 'Non-payment of premium')
         application
       end
       let!(:offcycle_application) do
