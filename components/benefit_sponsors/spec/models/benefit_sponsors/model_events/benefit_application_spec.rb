@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after_each do
@@ -26,7 +28,7 @@ RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after
 
   shared_examples_for "for employer plan year action" do |action, event|
     it "should create model event and should have attributes" do
-      model_instance.class.observer_peers.keys.each do |observer|
+      model_instance.class.observer_peers.each_key do |observer|
         expect(observer).to receive(:notifications_send) do |model_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => event.to_sym, :klass_instance => model_instance, :options => {})
@@ -34,7 +36,7 @@ RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after
         if action == "cancel"
           model_instance.cancel!
         else
-          model_instance.latest_benefit_application_item.item_type = action
+          model_instance.latest_benefit_application_item.action_type = action
           model_instance.terminate_enrollment!
         end
       end
