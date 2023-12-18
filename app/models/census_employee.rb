@@ -1482,6 +1482,11 @@ class CensusEmployee < CensusMember
     bga.active_enrollments.present?
   end
 
+  def is_employee_covered?
+    bga = renewal_benefit_group_assignment || active_benefit_group_assignment
+    bga.covered_families_with_benefit_assignemnt.present?
+  end
+
   # Enrollments with current active and renewal benefit applications
   def active_benefit_group_enrollments(coverage_date = TimeKeeper.date_of_record)
     return nil if employee_role.blank?

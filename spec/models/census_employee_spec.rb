@@ -2118,7 +2118,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     before do
       updated_dates = initial_application.effective_period.min.to_date..terminated_on
-      initial_application.benefit_application_items.create(effective_period: updated_dates, item_type: 'voluntary', item_type_reason: 'voluntary')
+      initial_application.benefit_application_items.create(effective_period: updated_dates, action_type: :change, action_kind: 'voluntary', action_reason: 'voluntary')
       initial_application.terminate_enrollment!
       renewal_application.cancel!
     end
@@ -2286,6 +2286,34 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     it "returns true with enrolled enrollment" do
       allow(benefit_group_assignment).to receive(:active_enrollments).and_return([enrolled_hbx_enrollment_double])
       expect(census_employee.is_enrolled_or_renewed?).to be_truthy
+    end
+  end
+
+  context ".is_employee_covered?" do
+    let(:benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:census_employee) do
+      FactoryGirl.create(
+        :benefit_sponsors_census_employee,
+        employer_profile: employer_profile,
+        benefit_sponsorship: organization.active_benefit_sponsorship,
+        benefit_group_assignments: [benefit_group_assignment]
+      )
+    end
+
+    let(:enrolled_family_double) { double('EnrolledFamily', id: '1') }
+
+    before do
+      allow(census_employee).to receive(:employee_role).and_return double("EmployeeRole")
+      allow(census_employee).to receive(:family).and_return enrolled_family_double
+    end
+
+    it "returns false when no covered employee present" do
+      expect(census_employee.is_employee_covered?).to be_falsey
+    end
+
+    it "returns true with covered employee" do
+      allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignemnt).and_return([enrolled_family_double])
+      expect(census_employee.is_employee_covered?).to be_truthy
     end
   end
 

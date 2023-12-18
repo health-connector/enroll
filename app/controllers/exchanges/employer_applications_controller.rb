@@ -19,7 +19,13 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     termination_kind = params['term_kind']
     termination_reason = params['term_reason']
     transmit_to_carrier = (params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true) ? true : false
-    @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { end_on: end_on, termination_kind: termination_kind, termination_reason: termination_reason, transmit_to_carrier: transmit_to_carrier })
+    @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, {
+                                                                                end_on: end_on,
+                                                                                termination_kind: termination_kind,
+                                                                                termination_reason: termination_reason,
+                                                                                transmit_to_carrier: transmit_to_carrier,
+                                                                                current_user: current_user
+                                                                              })
     result, application, errors = @service.terminate_application
     if result
       flash[:notice] = "#{@benefit_sponsorship.organization.legal_name}'s Application terminated successfully."
@@ -32,7 +38,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   def cancel
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
     transmit_to_carrier = (params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true) ? true : false
-    @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier })
+    @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier, current_user: current_user })
     result, application, errors = @service.cancel_application
     if result
       flash[:notice] = "#{@benefit_sponsorship.organization.legal_name}'s Application canceled successfully."
@@ -44,10 +50,10 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def get_term_reasons
     @reasons = if params[:reason_type_id] == "term_actions_nonpayment"
-      BenefitSponsors::BenefitApplications::BenefitApplication::NON_PAYMENT_TERM_REASONS
-    else
-      BenefitSponsors::BenefitApplications::BenefitApplication::VOLUNTARY_TERM_REASONS
-    end
+                 BenefitSponsors::BenefitApplications::BenefitApplicationItem::NON_PAYMENT_TERM_REASONS
+               else
+                 BenefitSponsors::BenefitApplications::BenefitApplicationItem::VOLUNTARY_TERM_REASONS
+               end
     render json: @reasons
   end
 

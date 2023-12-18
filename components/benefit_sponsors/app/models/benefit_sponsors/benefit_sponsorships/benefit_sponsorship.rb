@@ -188,11 +188,13 @@ module BenefitSponsors
     end
 
     # Fix Me: verify the state check...probably need to use termination_pending
-    # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
     def self.may_terminate_benefit_coverage?(compare_date = TimeKeeper.date_of_record)
       where(:benefit_applications => {:"$elemMatch" => {
               :aasm_state => {"$in" => [:active, :suspended]},
-              :"benefit_application_items.terminated_on" => compare_date
+              :"benefit_applications.benefit_application_items" => {:"$elemMatch" => {
+                :_id.in => latest_benefit_application_item_ids,
+                :action_on => compare_date
+              }}
             }})
     end
 
@@ -281,7 +283,7 @@ module BenefitSponsors
 
     index({"benefit_application._id" => 1})
     index({"benefit_application.predecessor_id" => 1})
-    index({ "benefit_application.aasm_state" => 1, "effective_period.min" => 1, "effective_period.max" => 1},
+    index({ "benefit_application.aasm_state" => 1, "benefit_application_items.effective_period.min" => 1, "benefit_application_items.effective_period.max" => 1},
             { name: "effective_period" })
 
     index({ "benefit_application.aasm_state" => 1, "open_enrollment_period.min" => 1, "open_enrollment_period.max" => 1},
@@ -320,9 +322,8 @@ module BenefitSponsors
       benefit_applications.effective_date_end_on(self, new_date).coverage_effective.first
     end
 
-    # TODO: fix this
     def application_may_terminate_on(terminated_on)
-      benefit_applications.benefit_terminate_on(terminated_on).first
+      benefit_applications.benefit_terminate_on(self, terminated_on).first
     end
 
     def pending_application_may_terminate_on(end_on)

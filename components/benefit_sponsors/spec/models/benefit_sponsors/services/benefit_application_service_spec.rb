@@ -332,14 +332,14 @@ module BenefitSponsors
 
           let!(:ba) do
             application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: active_state)
-            application.update_attributes(effective_period: term_effective_period) if active_state == :termination_pending
             if active_state == :termination_pending
               application.benefit_application_items.create(
                 effective_period: term_effective_period,
                 sequence_id: 1,
                 state: :termination_pending,
-                item_type: :change,
-                item_type_reason: 'Non-payment of premium'
+                action_type: :change,
+                action_kind: 'non_payment',
+                action_reason: 'Non-payment of premium'
               )
             end
             application

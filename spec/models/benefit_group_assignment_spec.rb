@@ -451,6 +451,30 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
     it_behaves_like "active enrollments", "coverage_selected", "", [], false, false
   end
 
+  describe '#covered_families_with_benefit_assignemnt', dbclean: :after_each do
+
+    let!(:household) { FactoryGirl.create(:household, family: family)}
+    let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
+    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: household, aasm_state: 'coverage_selected', benefit_group_assignment_id: benefit_group_assignment.id, employee_role_id: employee_role.id) }
+    let!(:benefit_group_assignment) { FactoryGirl.create(:benefit_group_assignment, census_employee: census_employee)}
+    let!(:employee_role) do
+      ee = FactoryGirl.create(:employee_role, person: family.primary_person, employer_profile: employer_profile, census_employee: census_employee)
+      census_employee.update_attributes!(employee_role_id: ee.id)
+      ee
+    end
+
+    before do
+      family.active_household.hbx_enrollments = [hbx_enrollment]
+      family.save!
+      allow(census_employee).to receive(:active_benefit_group_assignment).and_return(benefit_group_assignment)
+    end
+
+    it "should return the covered families" do
+      expect(census_employee.active_benefit_group_assignment.covered_families_with_benefit_assignemnt.count).to eq 1
+      expect(census_employee.active_benefit_group_assignment.covered_families_with_benefit_assignemnt.first).to eq family
+    end
+  end
+
   describe '.make_active' do
     let!(:census_employee) do
       FactoryGirl.create(
