@@ -154,7 +154,7 @@ module BenefitSponsors
     def self.may_begin_benefit_coverage?(compare_date = TimeKeeper.date_of_record)
       where(:benefit_applications => {:"$elemMatch" => {
               :aasm_state.in => [:enrollment_eligible, :binder_paid],
-              :"benefit_application_items.effective_period.min".lte => compare_date
+              :"benefit_application_items.0.effective_period.min".lte => compare_date
             }})
     end
 
@@ -183,7 +183,7 @@ module BenefitSponsors
       where(:benefit_applications => {:"$elemMatch" => {
               :predecessor_id => {"$ne" => nil},
               :aasm_state => {"$in" => [:enrollment_eligible, :active]},
-              :"benefit_application_items.effective_period.min" => compare_date
+              :"benefit_application_items.0.effective_period.min" => compare_date
             }})
     end
 
@@ -202,12 +202,12 @@ module BenefitSponsors
       if  transition_at.blank?
         where(:benefit_applications => {:"$elemMatch" => {
                 :aasm_state => {"$in" => [:binder_paid, :active]},
-                :"benefit_application_items.effective_period.min" => compare_date
+                :"benefit_application_items.0.effective_period.min" => compare_date
               }})
       else
         where(:benefit_applications => {:"$elemMatch" => {
                 :aasm_state => {"$in" => [:binder_paid, :active]},
-                :"benefit_application_items.effective_period.min" => compare_date,
+                :"benefit_application_items.0.effective_period.min" => compare_date,
                 :workflow_state_transitions => {"$elemMatch" => {"to_state" => :binder_paid, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}}
               }})
       end
@@ -218,13 +218,13 @@ module BenefitSponsors
         where(:benefit_applications => {:"$elemMatch" => {
                 :predecessor_id => { :$exists => true },
                 :aasm_state => :enrollment_eligible,
-                :"benefit_application_items.effective_period.min" => compare_date
+                :"benefit_application_items.0.effective_period.min" => compare_date
               }})
       else
         where(:benefit_applications => {:"$elemMatch" => {
                 :predecessor_id => { :$exists => true },
                 :aasm_state.in => [:enrollment_eligible, :active],
-                :"benefit_application_items.effective_period.min" => compare_date,
+                :"benefit_application_items.0.effective_period.min" => compare_date,
                 :workflow_state_transitions => {
                   "$elemMatch" => {"to_state" => :enrollment_eligible, "transition_at" => { "$gte" => TimeKeeper.start_of_exchange_day_from_utc(transition_at), "$lt" => TimeKeeper.end_of_exchange_day_from_utc(transition_at)}}
                 }
@@ -236,7 +236,7 @@ module BenefitSponsors
       where(:benefit_applications => {:"$elemMatch" => {
               :predecessor_id => { :$exists => true },
               :aasm_state => :draft,
-              :"benefit_application_items.effective_period.min" => compare_date
+              :"benefit_application_items.0.effective_period.min" => compare_date
             }})
     end
 
@@ -245,14 +245,14 @@ module BenefitSponsors
       where(:benefit_applications => {:"$elemMatch" => {
               :predecessor_id => { :$exists => false },
               :aasm_state => :enrollment_closed,
-              :"benefit_application_items.effective_period.min" => compare_date
+              :"benefit_application_items.0.effective_period.min" => compare_date
             }})
     end
 
     def self.may_cancel_ineligible_application?(compare_date = TimeKeeper.date_of_record)
       where(:benefit_applications => {:"$elemMatch" => {
               :aasm_state => :enrollment_ineligible,
-              :"benefit_application_items.effective_period.min" => compare_date
+              :"benefit_application_items.0.effective_period.min" => compare_date
             }})
     end
 
@@ -260,7 +260,7 @@ module BenefitSponsors
       where(:benefit_applications => {:"$elemMatch" => {
               :predecessor_id => { :$exists => true },
               :aasm_state.in => BenefitSponsors::BenefitApplications::BenefitApplication::INELIGIBLE_RENEWAL_TRANSMISSION_STATES,
-              :"benefit_application_items.effective_period.min" => compare_date
+              :"benefit_application_items.0.effective_period.min" => compare_date
             }})
     end
 
