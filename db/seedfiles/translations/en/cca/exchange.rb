@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.applications" => "applications",
   "en.exchange.employer_applications.start_date" => "Start Date",
@@ -10,10 +12,21 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.terminate" => "Terminate",
   "en.exchange.employer_applications.cancel" => "Cancel",
   "en.exchange.employer_applications.reinstate" => "Reinstate",
+  "en.exchange.employer_applications.revise_end_date" => "Revise End Date",
   "en.exchange.employer_applications.voluntary_term" => "Voluntary Termination",
   "en.exchange.employer_applications.non_payment_term" => "Non-Pay Termination",
   "en.exchange.employer_applications.transmit_to_carrier" => "Transmit to Carrier",
   "en.exchange.employer_applications.submit" => "Submit",
   "en.exchange.employer_applications.no_valid_pys" => "No valid plan years present for",
   "en.exchange.employer_applications.select_term_reason" => "Please select terminate reason",
-}
+  "en.exchange.employer_applications.reinstate.plan_year" => "Yes, Reinstate Plan Year",
+  "en.exchange.employer_applications.reinstate.cancel" => "Cancel Reinstatement",
+  "en.exchange.employer_applications.success_message" => "Plan Year Reinstated Successfully Effective",
+  "en.exchange.employer_applications.unable_to_reinstate" => "An error occured when reinstating application.",
+  "en.exchange.employer_applications.reinstate.confirmation_message" => "Are you sure you want to reinstate this plan year?",
+  "en.exchange.employer_applications.revise_end_date.plan_year" => "Yes, Change Date",
+  "en.exchange.employer_applications.revise_end_date.cancel" => "Cancel Date Change",
+  "en.exchange.employer_applications.revise_end_date.success_message" => "Plan Year End Date Changed Successfully",
+  "en.exchange.employer_applications.unable_to_change_end_date" => "An error occured when changing end date of an application.",
+  "en.exchange.employer_applications.revise_end_date.confirmation_message" => "Are you sure you want to change the end date?"
+}.freeze
