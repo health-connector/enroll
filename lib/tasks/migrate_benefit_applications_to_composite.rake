@@ -24,6 +24,8 @@ namespace :migrations do
       Duplication_Info
     ]
 
+    file_name = "#{Rails.root}/applications-with-duplicate-bson-id.csv"
+
     CSV.open(file_name, "w", force_quotes: true) do |csv|
       csv << column_names
 
