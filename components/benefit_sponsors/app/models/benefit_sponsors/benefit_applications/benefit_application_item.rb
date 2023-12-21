@@ -44,7 +44,6 @@ module BenefitSponsors
       validates_presence_of :sequence_id, :effective_period, :state
       validates :action_type, inclusion: { in: ACTION_TYPES }, allow_blank: true
       validates :action_kind, inclusion: { in: ACTION_KINDS }, allow_blank: true
-      validates :action_reason, inclusion: { in: VOLUNTARY_TERM_REASONS + NON_PAYMENT_TERM_REASONS }, allow_blank: true
     end
   end
 end
