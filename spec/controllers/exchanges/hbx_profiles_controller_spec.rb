@@ -1219,7 +1219,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
 
       let(:required_params) do
-        { admin_datatable_action: true,
+        {
+          admin_datatable_action: true,
           benefit_sponsorship_id: benefit_sponsorship.id.to_s,
           start_on: new_start_date,
           end_on: new_start_date + 1.year - 1.day,
