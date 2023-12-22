@@ -1205,6 +1205,42 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         expect(response).to render_template("exchanges/hbx_profiles/create_benefit_application")
       end
     end
+
+    context '.create_benefit_application when existing application is in termination_pending state' do
+      let(:current_date) { TimeKeeper.date_of_record }
+      let(:new_start_date) { (current_date + 2.months).beginning_of_month }
+
+      let!(:term_bs) do
+        FactoryGirl.create(:benefit_sponsors_benefit_application,
+                           :with_benefit_package,
+                           :benefit_sponsorship => benefit_sponsorship,
+                           :aasm_state => 'termination_pending',
+                           :default_effective_period => current_date.beginning_of_year..current_date.end_of_month)
+      end
+
+      let(:required_params) do
+        {
+          admin_datatable_action: true,
+          benefit_sponsorship_id: benefit_sponsorship.id.to_s,
+          start_on: new_start_date,
+          end_on: new_start_date + 1.year - 1.day,
+          open_enrollment_start_on: (current_date + 1.month).beginning_of_month,
+          open_enrollment_end_on: (current_date + 1.month).beginning_of_month + 20.days
+        }
+      end
+
+      before :each do
+        xhr :post, :create_benefit_application, required_params, has_active_ba: true
+      end
+
+      it 'should respond with success status' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'should render new_benefit_application' do
+        expect(response).to render_template("exchanges/hbx_profiles/create_benefit_application")
+      end
+    end
   end
 
   describe "GET edit_fein" do
