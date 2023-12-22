@@ -101,10 +101,12 @@ namespace :migrations do
 
     all_application_states = no_action_application_states + [:terminated, :termination_pending, :canceled]
 
-    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
-      :benefit_applications => { :'$exists' => true },
-      :'benefit_applications.benefit_application_items' => { :'$exists' => false }
-    )
+    benefit_sponsorship_ids = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
+      :benefit_applications => { :'$exists' => true, :"$ne" => [] },
+      :'benefit_applications.benefit_application_items' => { :'$exists' => false, :"$eq" => [] }
+    ).pluck(:id)
+
+    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:'_id'.in => benefit_sponsorship_ids)
 
     batch_size = 2500
     offset = 0
