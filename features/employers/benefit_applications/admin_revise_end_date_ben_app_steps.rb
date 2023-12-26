@@ -12,10 +12,6 @@ Then(/^the user will (.*) Revise End Date button$/) do |action|
   action == 'see' ? (page.has_css?('Revise End Date') == true) : (page.has_css?('Revise End Date') == false)
 end
 
-And(/^initial employer ABC Widgets has updated (.*) effective period for revise end date$/) do |aasm_state|
-  step "initial employer ABC Widgets has updated #{aasm_state} effective period for reinstate"
-end
-
 When("Admin clicks on Revise End Date button") do
   find('li', :text => 'Revise End Date').click
 end
@@ -37,5 +33,5 @@ end
 
 When("Admin clicks on continue button for revise_end_date benefit application") do
   click_button 'Yes, Change Date'
-  sleep 1
+  wait_for_ajax
 end
