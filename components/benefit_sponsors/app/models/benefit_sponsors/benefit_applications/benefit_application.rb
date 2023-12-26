@@ -229,7 +229,7 @@ module BenefitSponsors
 
     def self.by_year(benefit_sponsorship, compare_year = TimeKeeper.date_of_record.year)
       where(
-        :benefit_application_items_id.in => earliest_benefit_application_item_ids(benefit_sponsorship),
+        :"benefit_application_items._id".in => earliest_benefit_application_item_ids(benefit_sponsorship),
         :"benefit_application_items.effective_period.min".gte => Date.new(compare_year, 1, 1),
         :"benefit_application_items.effective_period.min".lte => Date.new(compare_year, 12, -1)
       )
