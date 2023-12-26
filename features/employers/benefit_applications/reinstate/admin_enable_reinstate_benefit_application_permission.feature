@@ -20,10 +20,7 @@ Feature: As an admin user I should have the ability to <action> reinstate button
     | feature_switch |    aasm_state       | action  |
     |    enabled     |    terminated       | see     |
     |    enabled     | termination_pending | see     |
-    # |    enabled     | retroactive_canceled| see     |
+    |    enabled     | retroactive_canceled| see     |
     |    enabled     |      active         | not see |
     |    disabled    |      active         | not see |
     |    disabled    |    terminated       | not see |
-
-# TO DO
-# Here Resintate confirmation modal feature sceanrio will be added

@@ -11,7 +11,7 @@ Feature: As an admin user I should have the ability to <action> revise end date 
     And the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer
     Then the user will see the Plan Years button
-    Then the user will select benefit application to 
+    Then the user will select benefit application to revise end date
     When the user clicks Actions for that benefit application
     Then the user will <action> Revise End Date button
     And user logs out
@@ -23,5 +23,3 @@ Feature: As an admin user I should have the ability to <action> revise end date 
     |    disabled    |      active         | not see |
     |    disabled    |    terminated       | not see |
 
-# TO DO
-# Here Revise confirmation modal feature sceanrio will be added
