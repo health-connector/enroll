@@ -6,12 +6,11 @@ Feature: As an admin user I should have the ability to <action> revise end date 
     And benefit market catalog exists for active initial employer with health benefits
     And there is an employer ABC Widgets
     And initial employer ABC Widgets has <aasm_state> benefit application
-    And initial employer ABC Widgets has updated <aasm_state> effective period for revise end date
     And that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer
     Then the user will see the Plan Years button
-    Then the user will select benefit application to 
+    Then the user will select benefit application to revise end date
     When the user clicks Actions for that benefit application
     Then the user will <action> Revise End Date button
     And user logs out
@@ -23,5 +22,3 @@ Feature: As an admin user I should have the ability to <action> revise end date 
     |    disabled    |      active         | not see |
     |    disabled    |    terminated       | not see |
 
-# TO DO
-# Here Revise confirmation modal feature sceanrio will be added

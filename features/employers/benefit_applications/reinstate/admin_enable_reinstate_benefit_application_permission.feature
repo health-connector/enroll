@@ -6,7 +6,6 @@ Feature: As an admin user I should have the ability to <action> reinstate button
     And benefit market catalog exists for active initial employer with health benefits
     And there is an employer ABC Widgets
     And initial employer ABC Widgets has <aasm_state> benefit application
-    And initial employer ABC Widgets has updated <aasm_state> effective period for reinstate
     And that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer
@@ -20,10 +19,7 @@ Feature: As an admin user I should have the ability to <action> reinstate button
     | feature_switch |    aasm_state       | action  |
     |    enabled     |    terminated       | see     |
     |    enabled     | termination_pending | see     |
-    # |    enabled     | retroactive_canceled| see     |
+    |    enabled     | retroactive_canceled| see     |
     |    enabled     |      active         | not see |
     |    disabled    |      active         | not see |
     |    disabled    |    terminated       | not see |
-
-# TO DO
-# Here Resintate confirmation modal feature sceanrio will be added
