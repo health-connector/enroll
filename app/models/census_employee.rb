@@ -297,6 +297,18 @@ class CensusEmployee < CensusMember
     )
   }
 
+  # TODO: Include cobra states after confirmation
+  scope :eligible_for_reinstate, lambda { |benefit_application, reinstate_on|
+    where(
+      :"benefit_group_assignments.benefit_package_id".in => benefit_application.benefit_packages.map(&:id),
+      :"$or" => [
+        {"employment_terminated_on" => nil},
+        {"employment_terminated_on" => {"$exists" => false}},
+        {"employment_terminated_on" => {"$gte" => reinstate_on}}
+      ]
+    )
+  }
+
 
   def initialize(*args)
     super(*args)

@@ -866,6 +866,7 @@ module BenefitSponsors
       state :retroactive_canceled,   :after_enter => :transition_benefit_package_members  # Application closed after coverage taking to effect
       state :termination_pending, :after_enter => :transition_benefit_package_members # Coverage under this application is termination pending
       state :suspended   # Coverage is no longer in effect. members may not enroll or change enrollments
+      state :reinstated  # Benefit application re-instated
 
       after_all_transitions [:publish_state_transition, :notify_application]
 
@@ -989,6 +990,10 @@ module BenefitSponsors
 
       event :extend_open_enrollment do
         transitions from: [:canceled, :enrollment_ineligible, :enrollment_extended, :enrollment_open, :enrollment_closed], to: :enrollment_extended
+      end
+
+      event :reinstate do
+        transitions from: [:terminated, :termination_pending, :retroactive_canceled], to: :reinstated
       end
     end
 
