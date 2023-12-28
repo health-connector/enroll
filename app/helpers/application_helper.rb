@@ -701,7 +701,7 @@ module ApplicationHelper
 
   def participation_rule(employer)
     benefit_application = employer.show_plan_year
-    start_date = benefit_application.effective_period.min
+    start_date = benefit_application.start_on
     @participation_count = employer.show_plan_year.additional_required_participants_count
 
     if start_date.day == 1 && start_date.month == 1
