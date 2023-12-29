@@ -3,7 +3,10 @@ Feature: Add Plan Year For Employer
     Given a CCA site exists with a benefit market
     Given SAFE benefit market catalog exists for enrollment_open initial employer with health benefits
     Given the user is on the Employer Registration page
+    Given Security questions exist
     And Jack Doe create a new account for employer
+    When the user fills out the security questions modal
+    When the user submitted the security questions
     And the user is registering a new Employer
     And all required fields have valid inputs on the Employer Registration Form
     And the user clicks the 'Confirm' button on the Employer Registration Form
