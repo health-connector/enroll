@@ -63,11 +63,11 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
       reinstate_on = params[:reinstate_on] ? Date.strptime(params[:reinstate_on], "%m/%d/%Y") : (application.end_on + 1.day)
       BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
-                                                                              benefit_application: application,
-                                                                              transmit_to_carrier: transmit_to_carrier,
-                                                                              reinstate_on: reinstate_on,
-                                                                              current_user: current_user
-                                                                            })
+                                                                             benefit_application: application,
+                                                                             transmit_to_carrier: transmit_to_carrier,
+                                                                             reinstate_on: reinstate_on,
+                                                                             current_user: current_user
+                                                                           })
 
       @result = {
         current_status: "Active Reinstated",
