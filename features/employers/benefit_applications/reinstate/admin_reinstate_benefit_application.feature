@@ -20,6 +20,7 @@ Feature: As an admin user I should have the ability to click reinstate button on
     When Admin clicks on Submit button
     Then Admin will see Reinstate confirmation pop up modal
     When Admin clicks on continue button for reinstating benefit_application
+    Then Admin will see Confirmation page
     And user logs out
 
   Examples:

@@ -28,5 +28,16 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.revise_end_date.cancel" => "Cancel Date Change",
   "en.exchange.employer_applications.revise_end_date.success_message" => "Plan Year End Date Changed Successfully",
   "en.exchange.employer_applications.unable_to_change_end_date" => "An error occured when changing end date of an application.",
-  "en.exchange.employer_applications.revise_end_date.confirmation_message" => "Are you sure you want to change the end date?"
+  "en.exchange.employer_applications.revise_end_date.confirmation_message" => "Are you sure you want to change the end date?",
+  "en.exchange.employer_applications.confirmation_page" => "Confirmation Page",
+  "en.exchange.employer_applications.current_status" => "Current Status:",
+  "en.exchange.employer_applications.reinstated_on" => "Reinstated On:",
+  "en.exchange.employer_applications.reinstate.coverage_period" => "Coverage Period:",
+  "en.exchange.employer_applications.reinstate.employees_updated" => "Employees Updated:",
+  "en.exchange.employer_applications.reinstate.employees_not_updated" => "Employees Not Updated:",
+  "en.exchange.employer_applications.employee_details" => "Employee Details",
+  "en.exchange.employer_applications.reinstate.employee_name" => "Name",
+  "en.exchange.employer_applications.reinstate.employee_status" => "Status",
+  "en.exchange.employer_applications.reinstate.error_details" => "Error Details",
+
 }.freeze
