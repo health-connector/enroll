@@ -8,6 +8,10 @@ Then(/^the user will select benefit application to (.*)$/) do |aasm_state|
   end
 end
 
+Then(/^Admin will see Confirmation page/) do
+  expect(page).to have_content('Confirmation Page')
+end
+
 When(/^the user clicks Actions for that benefit application$/) do
   find_all('.py-btn-grp', text: 'Actions').detect { |element| element[:class].exclude?('disabled') }.click
 end

@@ -3,7 +3,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   include Config::AcaHelper
   include L10nHelper
 
-  before_action :can_modify_plan_year?, only: [:terminate, :cancel]
+  before_action :can_modify_plan_year?, only: [:terminate, :cancel, :reinstate]
   before_action :check_hbx_staff_role, except: :get_term_reasons
   before_action :find_benefit_sponsorship, except: :get_term_reasons
 
@@ -62,20 +62,29 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
       reinstate_on = params[:reinstate_on] ? Date.strptime(params[:reinstate_on], "%m/%d/%Y") : (application.end_on + 1.day)
-      result = BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
-                                                                                      benefit_application: application,
-                                                                                      transmit_to_carrier: transmit_to_carrier,
-                                                                                      reinstate_on: reinstate_on,
-                                                                                      current_user: current_user
-                                                                                    })
+      BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
+                                                                             benefit_application: application,
+                                                                             transmit_to_carrier: transmit_to_carrier,
+                                                                             reinstate_on: reinstate_on,
+                                                                             current_user: current_user
+                                                                           })
 
-      if result.success?
-        flash[:notice] = "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.success_message')} #{(application.canceled? ? application.start_on : application.end_on.next_day).to_date}"
-      else
-        flash[:error] = "#{application.benefit_sponsorship.legal_name} - #{result.failure}"
-      end
+      @result = {
+        current_status: "Active Reinstated",
+        reinstated_on: TimeKeeper.datetime_of_record,
+        coverage_period: reinstate_on.to_date..reinstate_on.end_of_month.to_date,
+        employees_updated: @benefit_sponsorship.census_employees.active.count,
+        employees_not_updated: 0,
+        employee_details: @benefit_sponsorship.census_employees.active.collect do |ce|
+          {
+            employee_name: ce.full_name,
+            status: "Reinstated",
+            coverage_reinstated_on: reinstate_on.to_date,
+            error_details: "N/A"
+          }
+        end
+      }
     end
-    redirect_to exchanges_hbx_profiles_root_path
   rescue StandardError => e
     Rails.logger.error { "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_reinstate')} - #{e.backtrace}" }
     redirect_to exchanges_hbx_profiles_root_path, flash[:error] => "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_reinstate')}"
