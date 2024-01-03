@@ -36,7 +36,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "PUT terminate" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1, id: 1) }
     let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
 
     context "when user has permissions" do
@@ -82,7 +82,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "PUT cancel" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1, id: 1) }
     let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
 
     context "when user has permissions" do

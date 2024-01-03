@@ -61,7 +61,14 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
-      result = EnrollRegistry[:benefit_application_reinstate]{ {params: {benefit_application: application, options: {transmit_to_carrier: transmit_to_carrier} } } }
+      reinstate_on = params[:reinstate_on] ? Date.strptime(params[:reinstate_on], "%m/%d/%Y") : (application.end_on + 1.day)
+      result = BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
+                                                                                      benefit_application: application,
+                                                                                      transmit_to_carrier: transmit_to_carrier,
+                                                                                      reinstate_on: reinstate_on,
+                                                                                      current_user: current_user
+                                                                                    })
+
       if result.success?
         flash[:notice] = "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.success_message')} #{(application.canceled? ? application.start_on : application.end_on.next_day).to_date}"
       else

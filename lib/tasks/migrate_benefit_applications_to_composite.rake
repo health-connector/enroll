@@ -103,7 +103,7 @@ namespace :migrations do
 
     benefit_sponsorship_ids = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
       :benefit_applications => { :'$exists' => true, :"$ne" => [] },
-      :'benefit_applications.benefit_application_items' => { :'$exists' => false, :"$eq" => [] }
+      :'benefit_applications.benefit_application_items' => { :'$exists' => false }
     ).pluck(:id)
 
     benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:'_id'.in => benefit_sponsorship_ids)
@@ -211,7 +211,7 @@ namespace :migrations do
     logger.info ":: processing took #{((end_time - start_time) * 24 * 60).to_f.ceil} minutes ::"
 
     benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
-      :benefit_applications => { :'$exists' => true },
+      :benefit_applications => { :'$exists' => true, :"$ne" => [] },
       :'benefit_applications.benefit_application_items' => { :'$exists' => false }
     )
 
