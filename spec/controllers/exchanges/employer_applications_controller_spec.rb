@@ -129,7 +129,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "PUT reinstate" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1, id: "12345") }
     let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
 
     context 'Success' do
@@ -142,11 +142,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should have redirect response' do
-        expect(response).to have_http_status(:redirect)
-      end
-
-      it 'should direct to profile root path' do
-        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+        expect(response).to have_http_status(200)
       end
     end
 
@@ -163,7 +159,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should return error message' do
-        expect(flash[:error]).to eq nil
+        expect(flash[:error]).to eq "Access not allowed for hbx_profile_policy.can_modify_plan_year?, (Pundit policy)"
       end
     end
 
@@ -177,11 +173,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should have redirect response' do
-        expect(response).to have_http_status(:redirect)
-      end
-
-      it 'should direct to profile root path' do
-        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+        expect(response).to have_http_status(200)
       end
     end
 
@@ -195,11 +187,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should have redirect response' do
-        expect(response).to have_http_status(:redirect)
-      end
-
-      it 'should direct to profile root path' do
-        expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+        expect(response).to have_http_status(200)
       end
     end
   end

@@ -28,7 +28,10 @@ class ModifyBenefitApplication< MongoidMigrationTask
     oe_end_date = Date.strptime(ENV['oe_end_date'], "%m/%d/%Y") if ENV['oe_end_date'].present?
 
     benefit_sponsorship = get_benefit_sponsorship
-    benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state.in => [:canceled, :enrollment_ineligible, :enrollment_extended, :enrollment_open, :enrollment_closed], :"effective_period.min" => effective_date).first
+    benefit_application = benefit_sponsorship.benefit_applications.where(
+      :aasm_state.in => [:canceled, :enrollment_ineligible, :enrollment_extended, :enrollment_open, :enrollment_closed],
+      :"benefit_application_items.effective_period.min" => effective_date
+    ).first
 
     raise "Unable to find benefit application!!" if benefit_application.blank?
 
@@ -37,7 +40,10 @@ class ModifyBenefitApplication< MongoidMigrationTask
 
   def begin_open_enrollment(benefit_applications)
     effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
-    benefit_application = benefit_applications.where(:aasm_state.in => [:approved, :enrollment_closed, :enrollment_eligible, :enrollment_ineligible], :"effective_period.min" => effective_date).first
+    benefit_application = benefit_applications.where(
+      :aasm_state.in => [:approved, :enrollment_closed, :enrollment_eligible, :enrollment_ineligible],
+      :"benefit_application_items.effective_period.min" => effective_date
+    ).first
     if benefit_application.present? && benefit_application.may_begin_open_enrollment?
       from_state = benefit_application.aasm_state
       benefit_application.update_attributes!(:aasm_state => :enrollment_open)
@@ -49,17 +55,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
         benefit_application.recalc_pricing_determinations
         benefit_application.renew_benefit_package_members
       end
-      # We don't have the intermediate(initial) states on benefit_sponsorship any more
-      # BS transitions from applicant to active
-      # benefit_sponsorship = benefit_application.benefit_sponsorship
-      # unless benefit_application.is_renewing?
-      #   bs_from_state = benefit_sponsorship.aasm_state
-      #   benefit_sponsorship.update_attributes!(aasm_state: "initial_enrollment_open")
-      #   benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
-      #       from_state: bs_from_state,
-      #       to_state: "initial_enrollment_open"
-      #   )
-      # end
+
       puts "aasm state has been changed to enrolling" unless Rails.env.test?
     else
       raise "FAILED: Unable to find application or application is in invalid state"
@@ -77,12 +73,14 @@ class ModifyBenefitApplication< MongoidMigrationTask
     oe_start_on = new_start_date.prev_month
     oe_end_on = oe_start_on+19.days
     raise 'new_end_date must be greater than new_start_date' if new_start_date >= new_end_date
-    benefit_application = benefit_applications.where(:"effective_period.min" => effective_date, :aasm_state => :draft).first
+    benefit_application = benefit_applications.where(:"benefit_application_items.effective_period.min" => effective_date, :aasm_state => :draft).first
     if benefit_application.present?
       benefit_sponsorship =  benefit_application.benefit_sponsorship
       benefit_package = benefit_application.benefit_packages.detect(&:is_active)
-      benefit_application.update_attributes!(effective_period: new_start_date..new_end_date, open_enrollment_period: oe_start_on..oe_end_on)
-      new_effective_date = benefit_application.effective_period.min
+      item = benefit_application.benefit_application_items.where(:"effective_period.min" => effective_date).first
+      item.update(effective_period: new_start_date..new_end_date)
+      benefit_application.update(open_enrollment_period: oe_start_on..oe_end_on)
+      new_effective_date = benefit_application.reload.effective_period.min.to_date
       benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(new_effective_date)
       benefit_application.benefit_sponsor_catalog.delete
       benefit_sponsor_catalog.save!
@@ -94,14 +92,16 @@ class ModifyBenefitApplication< MongoidMigrationTask
         end
       end
       benefit_application.approve_application!
+
       if benefit_application.is_renewing?
         bs_from_state = benefit_sponsorship.aasm_state
          if (bs_from_state != "active")
-        benefit_sponsorship.update_attributes!(aasm_state: "active")
-        benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
-            from_state: bs_from_state,
-            to_state: "active"
-        )
+            benefit_sponsorship.update_attributes!(aasm_state: "active")
+            benefit_sponsorship.workflow_state_transitions << WorkflowStateTransition.new(
+              from_state: bs_from_state,
+              to_state: "active",
+              reason: "modify_benefit_application"
+            )
          end
       end
     else
@@ -130,7 +130,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
       from_state: from_state,
       to_state: :applicant,
       reason: 'modify_benefit_application'
-      )
+    )
   end
 
   def cancel_benefit_application(benefit_application)
@@ -155,7 +155,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_application_for_force_submission
     effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
     benefit_sponsorship = get_benefit_sponsorship
-    application = benefit_sponsorship.benefit_applications.where(:"effective_period.min" => effective_date)
+    application = benefit_sponsorship.benefit_applications.where(:"benefit_application_items.effective_period.min" => effective_date)
     raise "Found #{application.count} benefit applications with that start date" if application.count != 1
     application.first
   end
@@ -168,7 +168,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_applications_for_cancel
     benefit_sponsorship = get_benefit_sponsorship
     benefit_application_start_on = Date.strptime(ENV['plan_year_start_on'].to_s, "%m/%d/%Y")
-    application = benefit_sponsorship.benefit_applications.where(:"effective_period.min" => benefit_application_start_on)
+    application = benefit_sponsorship.benefit_applications.where(:"benefit_application_items.effective_period.min" => benefit_application_start_on)
     raise "Found #{application.count} benefit applications with that start date" if application.count != 1
     application.first
   end
