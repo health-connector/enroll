@@ -89,7 +89,7 @@ module BenefitSponsors
         }
 
         scope :effective_date_begin_on, -> (compare_date) {
-          where(:"benefit_applications.benefit_application_items.0.effective_period.min" => date)
+          where(:"benefit_applications.benefit_application_items.0.effective_period.min" => compare_date)
         }
 
         scope :benefit_application_renewing, -> () {
