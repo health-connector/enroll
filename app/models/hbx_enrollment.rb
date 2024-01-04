@@ -715,14 +715,21 @@ class HbxEnrollment
     HandleCoverageSelected.call(callback_context)
   end
 
-  def update_renewal_coverage
+  def update_renewal_coverage(options = {})
+    return if options.is_a?(Hash) && options[:disable_callbacks]
     return unless is_shop? && (successor_benefit_package = sponsored_benefit_package.successor)
+
     successor_application = successor_benefit_package.benefit_application
     passive_renewals_under(successor_application).each{|en| en.cancel_coverage! if en.may_cancel_coverage? }
-    renew_benefit(successor_benefit_package) if active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition? && non_terminated_enrollment?
+    renew_benefit(successor_benefit_package) if can_renew_benefit(successor_application)
   end
 
-  def update_expected_selection
+  def can_renew_benefit(successor_application)
+    active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition? && non_terminated_enrollment?
+  end
+
+  def update_expected_selection(options = {})
+    return if options.is_a?(Hash) && options[:disable_callbacks]
     return unless is_shop?
     return unless census_employee.present? && census_employee.valid?
     return if CensusEmployee::COBRA_STATES.include?(census_employee.aasm_state)
@@ -1753,9 +1760,14 @@ class HbxEnrollment
     event :reinstate_coverage, :after => :record_transition do
       transitions from: :shopping, to: :coverage_reinstated
     end
+
+    event :reinstate_enrollment, :after => :record_transition do
+      transitions from: [:coverage_termination_pending, :coverage_terminated, :coverage_canceled], to: :coverage_reinstated
+    end
   end
 
-  def update_employee_roster
+  def update_employee_roster(options = {})
+    return if options.is_a?(Hash) && options[:disable_callbacks]
     return unless EnrollRegistry.feature_enabled?(:employee_roster_updates) && employer_profile&.enable_roster_updates
 
     valid_states_for_roster_updates = [:coverage_selected, :coverage_enrolled, :coverage_reinstated, :renewing_coverage_selected, :renewing_coverage_enrolled]

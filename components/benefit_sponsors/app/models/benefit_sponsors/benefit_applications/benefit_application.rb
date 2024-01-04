@@ -740,7 +740,9 @@ module BenefitSponsors
       end
     end
 
-    def transition_benefit_package_members
+    def transition_benefit_package_members(options = {})
+      return if options.is_a?(Hash) && options[:disable_callbacks]
+
       transition_kind = BENEFIT_PACKAGE_MEMBERS_TRANSITION_MAP[aasm_state]
       return if transition_kind.blank?
 
@@ -995,6 +997,10 @@ module BenefitSponsors
 
       event :reinstate do
         transitions from: [:terminated, :termination_pending, :retroactive_canceled], to: :reinstated
+      end
+
+      event :activate_reinstate do
+        transitions from: :reinstated, to: :active
       end
     end
 

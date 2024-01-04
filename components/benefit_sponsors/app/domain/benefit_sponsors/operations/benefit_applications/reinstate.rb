@@ -14,13 +14,11 @@ module BenefitSponsors
         def call(params)
           yield validate(params)
           yield reinstate_benefit_application
-          yield reinstate_benefit_group_assignments
-          yield reinstate_enrollments
-          yield activate_enrollment # TODO: check if this is required
+          output = yield reinstate_census_employees
           yield renew_benefit_application
           yield renew_enrollments
 
-          Success() # TODO: send json payload based on requirements
+          Success(output)
         end
 
         private
@@ -34,18 +32,19 @@ module BenefitSponsors
           @current_user = params[:current_user]
           return Failure('Not a valid Benefit Application') unless @benefit_application.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
 
+          @sequence_id = @benefit_application.benefit_application_items.max(:sequence_id)
+
           Success(params)
         end
 
         def reinstate_benefit_application
           return Failure("Cannot reinstate #{@benefit_application.aasm_state} benefit application") unless @benefit_application.may_reinstate?
 
-          sequence_id = @benefit_application.benefit_application_items.max(:sequence_id) + 1
           item = @benefit_application.earliest_benefit_application_item
           effective_period = @reinstate_on..item.effective_period.max
 
           @benefit_application.benefit_application_items.create!(
-            sequence_id: sequence_id,
+            sequence_id: @sequence_id + 1,
             effective_period: effective_period,
             action_type: :correction,
             action_kind: 'reinstate',
@@ -53,33 +52,51 @@ module BenefitSponsors
             updated_by: @current_user&.id
           )
           @benefit_application.reinstate!
+          @benefit_application.activate_reinstate!({ disable_callbacks: true })
 
           Success()
         rescue StandardError => e
           Failure("Failed with error: #{e}")
         end
 
-        # TODO: check if we can adjust requirements & do this async
-        def reinstate_benefit_group_assignments
+        def reinstate_census_employees
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
-          CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.each do |census_employee|
+          item = @benefit_application.benefit_application_items.find_by(sequence_id: @sequence_id)
+          coverage_reinstated_on = @benefit_application.latest_benefit_application_item.effective_period.min
+
+          output = CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.inject([]) do |result, census_employee|
             benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
 
             benefit_group_assignment.update_attributes!(end_on: nil)
+
+
+            census_employee.family.active_household.hbx_enrollments.where(
+              :sponsored_benefit_package_id.in => benefit_package_ids,
+              :aasm_state.in => ["coverage_termination_pending", "coverage_terminated", "coverage_canceled"],
+              :'workflow_state_transitions.transition_at'.gte => item.created_at
+            ).each do |hbx_enrollment|
+              hbx_enrollment.reinstate_enrollment!({ disable_callbacks: true })
+              hbx_enrollment.begin_coverage!({ disable_callbacks: true })
+            end
+            result << {
+              employee_name: census_employee.full_name,
+              status: 'reinstated',
+              coverage_reinstated_on: coverage_reinstated_on,
+              error_details: 'N/A'
+            }
+            result
           rescue StandardError => e
-            # TODO: (?) based on requirements we need to handle these errors
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
+            result << {
+              employee_name: census_employee.full_name,
+              status: 'reinstate failed',
+              coverage_reinstated_on: nil,
+              error_details: e
+            }
+            result
           end
 
-          Success()
-        end
-
-        def reinstate_enrollments
-          Success()
-        end
-
-        def activate_enrollment
-          Success()
+          Success(output)
         end
 
         def renew_benefit_application
