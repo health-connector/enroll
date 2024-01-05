@@ -75,7 +75,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         subject.call(params)
         item = benefit_application.reload.latest_benefit_application_item
 
-        expect(benefit_application.aasm_state).to eq :reinstated
+        expect(benefit_application.aasm_state).to eq :active
         expect(item.effective_period.min).to eq reinstate_on
         expect(item.state).to eq :reinstate
         expect(item.action_kind).to eq 'reinstate'
@@ -88,8 +88,70 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         expect(bga.end_on).not_to eq nil
         subject.call(params)
 
-        expect(benefit_application.aasm_state).to eq :reinstated
+        expect(benefit_application.aasm_state).to eq :active
         expect(bga.reload.end_on).to eq nil
+      end
+    end
+
+    context 'reinstate benefit application with census employees and enrollments' do
+      let(:person)          { create(:person) }
+      let(:family)          { create(:family, :with_primary_family_member, person: person)}
+      let!(:census_employee) do
+        census_employee = create(
+          :census_employee,
+          benefit_sponsorship: benefit_sponsorship,
+          employer_profile: benefit_sponsorship.profile,
+          benefit_group: current_benefit_package
+        )
+        census_employee.employee_role = create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, person: person)
+        census_employee.save
+        census_employee
+      end
+      let(:employee_role) { census_employee.employee_role }
+      let(:sponsored_benefit) { current_benefit_package.sponsored_benefit_for(:health) }
+
+      let!(:enrollment) do
+        FactoryGirl.create(
+          :hbx_enrollment,
+          household: family.latest_household,
+          coverage_kind: :health,
+          effective_on: current_effective_date,
+          kind: "employer_sponsored",
+          benefit_sponsorship_id: benefit_sponsorship.id,
+          sponsored_benefit_package_id: current_benefit_package.id,
+          sponsored_benefit_id: sponsored_benefit.id,
+          employee_role_id: employee_role.id,
+          aasm_state: 'coverage_selected'
+        )
+      end
+
+      let!(:benefit_application) do
+        effective_period = initial_application.effective_period
+        updated_dates = effective_period.min..(TimeKeeper.date_of_record.beginning_of_month - 1.day)
+        initial_application.benefit_application_items.create(
+          sequence_id: 1,
+          effective_period: updated_dates,
+          state: :terminated
+        )
+        initial_application.terminate_enrollment!
+        initial_application.reload
+      end
+
+      it 'should reinstate enrollment' do
+        enrollments = family.active_household.hbx_enrollments
+        expect(enrollments.size).to eq 1
+        response = subject.call(params).value!
+        info = response.detect {|detail| detail[:employee_name] == census_employee.full_name}
+
+        enrollments = family.reload.active_household.hbx_enrollments
+        expect(benefit_application.aasm_state).to eq :active
+        expect(enrollments.size).to eq 2
+        expect(info).to match({
+                                :employee_name => census_employee.full_name,
+                                :status => 'reinstated',
+                                :coverage_reinstated_on => TimeKeeper.date_of_record.beginning_of_month,
+                                :enrollment_hbx_ids => enrollment.hbx_id
+                              })
       end
     end
   end

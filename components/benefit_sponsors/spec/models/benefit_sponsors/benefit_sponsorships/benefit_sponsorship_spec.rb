@@ -644,12 +644,6 @@ module BenefitSponsors
         end
       end
 
-      context '.may_terminate_benefit_coverage?' do
-
-        it "should find sponsorships with application in termination_pending state and matching terminated_on date" do
-        end
-      end
-
       context '.may_transmit_initial_enrollment?' do
         let(:initial_application_state) { :binder_paid }
         let(:sponsorship_state) { :applicant }
