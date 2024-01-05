@@ -90,9 +90,16 @@ module BenefitSponsors
             end
           rescue StandardError => e
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
+            result << {
+              employee_name: census_employee.full_name,
+              status: 'Reinstatement failed with an error.',
+              coverage_reinstated_on: nil,
+              enrollment_hbx_ids: nil
+            }
+            result
           end
 
-          Success()
+          Success(output)
         end
 
         def renew_benefit_application
