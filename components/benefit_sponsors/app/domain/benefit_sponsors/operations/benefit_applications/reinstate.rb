@@ -62,7 +62,6 @@ module BenefitSponsors
         def reinstate_census_employees
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           item = @benefit_application.benefit_application_items.find_by(sequence_id: @sequence_id)
-          coverage_reinstated_on = @benefit_application.latest_benefit_application_item.effective_period.min
 
           CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.each do |census_employee|
             benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
@@ -90,13 +89,6 @@ module BenefitSponsors
             end
           rescue StandardError => e
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
-            result << {
-              employee_name: census_employee.full_name,
-              status: 'Reinstatement failed with an error.',
-              coverage_reinstated_on: nil,
-              enrollment_hbx_ids: nil
-            }
-            result
           end
 
           Success(output)

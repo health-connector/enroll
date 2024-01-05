@@ -144,7 +144,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       it 'should reinstate enrollment' do
         enrollments = family.active_household.hbx_enrollments
         expect(enrollments.size).to eq 1
-        response = subject.call(params).value!
+        subject.call(params).value!
 
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
@@ -158,12 +158,12 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         end
 
         before do
-          allow(TimeKeeper).to receive(:date_of_record).and_return (renewal_day + 1)
+          allow(TimeKeeper).to receive(:date_of_record).and_return(renewal_day + 1)
         end
 
         it 'should call service to renew application' do
           expect_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
-          response = subject.call(params).value!
+          subject.call(params).value!
         end
       end
     end
