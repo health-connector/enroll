@@ -138,17 +138,19 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
 
       it 'should reinstate enrollment' do
-        expect(enrollment.reload.aasm_state).to eq 'coverage_terminated'
+        enrollments = family.active_household.hbx_enrollments
+        expect(enrollments.size).to eq 1
         response = subject.call(params).value!
         info = response.detect {|detail| detail[:employee_name] == census_employee.full_name}
 
+        enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
-        expect(enrollment.reload.aasm_state).to eq 'coverage_selected'
+        expect(enrollments.size).to eq 2
         expect(info).to match({
                                 :employee_name => census_employee.full_name,
                                 :status => 'reinstated',
                                 :coverage_reinstated_on => TimeKeeper.date_of_record.beginning_of_month,
-                                :error_details => "N/A"
+                                :enrollment_hbx_ids => enrollment.hbx_id
                               })
       end
     end

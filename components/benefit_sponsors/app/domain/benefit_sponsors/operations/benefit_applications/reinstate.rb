@@ -69,29 +69,40 @@ module BenefitSponsors
 
             benefit_group_assignment.update_attributes!(end_on: nil)
 
-
-            census_employee.family.active_household.hbx_enrollments.where(
+            household = census_employee.family.active_household
+            enrollments = household.hbx_enrollments.where(
               :sponsored_benefit_package_id.in => benefit_package_ids,
               :aasm_state.in => ["coverage_termination_pending", "coverage_terminated", "coverage_canceled"],
               :'workflow_state_transitions.transition_at'.gte => item.created_at
-            ).each do |hbx_enrollment|
-              hbx_enrollment.reinstate_enrollment!({ disable_callbacks: true })
-              hbx_enrollment.begin_coverage!({ disable_callbacks: true })
+            )
+
+            enrollments.each do |hbx_enrollment|
+              reinstate_enrollment = clone_enrollment(hbx_enrollment)
+              reinstate_enrollment.household = household
+              reinstate_enrollment.save!
+
+              if hbx_enrollment.inactive?
+                reinstate_enrollment.waive_coverage!
+              else
+                reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
+                reinstate_enrollment.begin_coverage!({ disable_callbacks: true }) if TimeKeeper.date_of_record >= reinstate_enrollment.effective_on && reinstate_enrollment.may_begin_coverage?
+              end
             end
+
             result << {
               employee_name: census_employee.full_name,
               status: 'reinstated',
               coverage_reinstated_on: coverage_reinstated_on,
-              error_details: 'N/A'
+              enrollment_hbx_ids: enrollments.map(&:hbx_id).join(",")
             }
             result
           rescue StandardError => e
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
             result << {
               employee_name: census_employee.full_name,
-              status: 'reinstate failed',
+              status: 'Reinstatement failed with an error.',
               coverage_reinstated_on: nil,
-              error_details: e
+              enrollment_hbx_ids: nil
             }
             result
           end
@@ -105,6 +116,31 @@ module BenefitSponsors
 
         def renew_enrollments
           Success()
+        end
+
+        def clone_enrollment(hbx_enrollment)
+          HbxEnrollment.new(enrollment_attrs(hbx_enrollment))
+        end
+
+        def enrollment_attrs(hbx_enrollment)
+          attrs = hbx_enrollment.serializable_hash.deep_symbolize_keys.except(
+            :_id, :created_at, :updated_at, :hbx_id, :effective_on, :aasm_state,
+            :terminated_on, :terminate_reason,:termination_submitted_on, :hbx_enrollment_members, :workflow_state_transitions
+          )
+
+          attrs.merge!({
+                         aasm_state: 'coverage_reinstated',
+                         effective_on: @reinstate_on,
+                         predecessor_enrollment_id: hbx_enrollment.id,
+                         hbx_enrollment_members: hbx_enrollment_members_params(hbx_enrollment)
+                       })
+        end
+
+        def hbx_enrollment_members_params(hbx_enrollment)
+          hbx_enrollment.hbx_enrollment_members.inject([]) do |result, member|
+            result << member.serializable_hash.deep_symbolize_keys.except(:_id, :created_at, :updated_at, :coverage_end_on).merge!({ eligibility_date: @reinstate_on })
+            result
+          end
         end
       end
     end
