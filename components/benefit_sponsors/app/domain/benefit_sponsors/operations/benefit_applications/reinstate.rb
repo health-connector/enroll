@@ -91,7 +91,7 @@ module BenefitSponsors
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
           end
 
-          Success(output)
+          Success()
         end
 
         def renew_benefit_application
