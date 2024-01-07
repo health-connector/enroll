@@ -186,6 +186,19 @@ module BenefitSponsors
         if new_model_event.event_key == :benefit_coverage_period_terminated_voluntary
           notify(BenefitApplications::BenefitApplication::VOLUNTARY_TERMINATED_PLAN_YEAR_EVENT, {employer_id: benefit_application.sponsor_profile.hbx_id, is_trading_partner_publishable: benefit_application.is_application_trading_partner_publishable?, event_name: BenefitApplications::BenefitApplication::VOLUNTARY_TERMINATED_PLAN_YEAR_EVENT_TAG})
         end
+
+        # rubocop:disable Style/GuardClause
+        if new_model_event.event_key == :benefit_coverage_period_reinstated
+          notify(
+            BenefitApplications::BenefitApplication::REINSTATED_PLAN_YEAR_EVENT,
+            {
+              employer_id: benefit_application.sponsor_profile.hbx_id,
+              is_trading_partner_publishable: benefit_application.is_application_trading_partner_publishable?,
+              event_name: BenefitApplications::BenefitApplication::REINSTATED_PLAN_YEAR_EVENT_TAG
+            }
+          )
+        end
+        # rubocop:enable Style/GuardClause
       end
 
       def trigger_zero_employees_on_roster_notice(benefit_application)

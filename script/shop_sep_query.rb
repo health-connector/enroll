@@ -23,6 +23,7 @@ purchase_ids = Family.collection.aggregate([
     "households.hbx_enrollments.workflow_state_transitions" => {
       "$elemMatch" => {
         "to_state" => {"$in" => ["coverage_selected", "auto_renewing"]},
+        "from_state" => {"$nin" => ["coverage_reinstated"]},
         "transition_at" => {
            "$gte" => start_time,
            "$lt" => end_time
