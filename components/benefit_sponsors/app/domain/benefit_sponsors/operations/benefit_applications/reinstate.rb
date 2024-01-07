@@ -23,17 +23,34 @@ module BenefitSponsors
         private
 
         def validate(params)
-          return Failure('Missing Key(s).') unless params.key?(:benefit_application) || params.key?(:transmit_to_carrier) || params.key?(:reinstate_on)
+          errors = []
+          errors << 'benefit_application is missing' unless params.key?(:benefit_application)
+          errors << 'transmit_to_carrier key is missing' unless params.key?(:transmit_to_carrier)
+          errors << 'reinstate_on is missing' unless params.key?(:reinstate_on)
 
           @benefit_application = params[:benefit_application]
           @transmit_to_carrier = params[:transmit_to_carrier]
           @reinstate_on = params[:reinstate_on]
           @current_user = params[:current_user]
-          return Failure('Not a valid Benefit Application') unless @benefit_application.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
+          if @benefit_application.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
+            @sequence_id = @benefit_application.benefit_application_items.max(:sequence_id)
+            errors << "Reinstate failed due to overlapping benefit applications" if any_overlapping_application?
+          else
+            errors << 'Not a valid Benefit Application'
+          end
 
-          @sequence_id = @benefit_application.benefit_application_items.max(:sequence_id)
+          errors.compact.empty? ? Success(params) : Failure(errors)
+        end
 
-          Success(params)
+        def any_overlapping_application?
+          benefit_sponsorship = @benefit_application.benefit_sponsorship
+          aasm_states = [:active, :draft, :terminated, :termination_pending]
+          benefit_sponsorship.benefit_applications.where(
+            :_id.ne => @benefit_application.id,
+            :aasm_state.in => aasm_states
+          ).any? do |application|
+            @benefit_application.effective_period.cover?(application.start_on)
+          end
         end
 
         def reinstate_benefit_application
