@@ -32,12 +32,17 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.confirmation_page" => "Confirmation Page",
   "en.exchange.employer_applications.current_status" => "Current Status:",
   "en.exchange.employer_applications.reinstated_on" => "Reinstated On:",
-  "en.exchange.employer_applications.reinstate.coverage_period" => "Coverage Period:",
+  "en.exchange.employer_applications.coverage_period" => "Coverage Period:",
+  "en.exchange.employer_applications.oe_period" => "Open Enrollment Period:",
   "en.exchange.employer_applications.reinstate.employees_updated" => "Employees Updated:",
   "en.exchange.employer_applications.reinstate.employees_not_updated" => "Employees Not Updated:",
+  "en.exchange.employer_applications.details" => "Details",
+  "en.exchange.employer_applications.history" => "History",
   "en.exchange.employer_applications.employee_details" => "Employee Details",
   "en.exchange.employer_applications.reinstate.employee_name" => "Name",
-  "en.exchange.employer_applications.reinstate.employee_status" => "Status",
+  "en.exchange.employer_applications.user_id" => "User Id",
   "en.exchange.employer_applications.reinstate.error_details" => "Error Details",
-
+  "en.exchange.employer_applications.return_to_er_view" => "Return to Employers Index View",
+  "en.exchange.employer_applications.application_history" => "Application History",
+  "en.exchange.employer_applications.return_to_application_history" => "Return to Application History"
 }.freeze
