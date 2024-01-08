@@ -1,7 +1,20 @@
 <div class="content landing">
-	<%= render partial: "./ui-components/v1/navs/primary_nav", :active_tab => "home-tab" %>
-	
-	<div class="home">
-		<%= render 'shared/tab_panel' %>
-	</div>
+  <%= render partial: "./ui-components/v1/navs/primary_nav", :active_tab => "home-tab" %>
+  <div class="home">
+    <%= render 'shared/tab_panel' %>
+  </div>
 </div>
+
+<script>
+  var employersTabActive = <%= @employers_tab_active %>;
+
+  document.addEventListener("DOMContentLoaded", function() {
+    debugger;
+    if (employersTabActive) {
+      var employersElements = document.getElementsByClassName("interaction-click-control-employers");
+      if (employersElements.length > 0) {
+        employersElements[0].click();
+      }
+    }
+  });
+</script>

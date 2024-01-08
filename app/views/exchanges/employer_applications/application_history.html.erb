@@ -28,8 +28,9 @@
             <h4><strong>
               <%= link_to(
                 l10n("exchange.employer_applications.return_to_er_view"),
-                employer_datatable_exchanges_hbx_profiles_path,
-                remote: true, class: "employers-index")
+                "#",
+                onclick: "backToEmployerIndex();",
+                class: "employers-index")
               %>
             </strong></h4>
 
@@ -58,3 +59,15 @@
     </div>
   </div>
 </div>
+
+<script>
+  function backToEmployerIndex() {
+    if (window.history.length > 1) {
+      debugger;
+      window.history.back();
+    } else {
+      debugger;
+      window.location.href = '/exchanges/hbx_profiles?employers_tab=true';
+    }
+  }
+</script>

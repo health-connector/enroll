@@ -90,21 +90,10 @@ class Exchanges::EmployerApplicationsController < ApplicationController
                                                                                       current_user: current_user
                                                                                     })
 
-      @result = {
-        current_status: "Active Reinstated",
-        reinstated_on: TimeKeeper.datetime_of_record,
-        coverage_period: reinstate_on.to_date..reinstate_on.end_of_month.to_date,
-        employees_updated: @benefit_sponsorship.census_employees.active.count,
-        employees_not_updated: 0,
-        employee_details: @benefit_sponsorship.census_employees.active.collect do |ce|
-          {
-            employee_name: ce.full_name,
-            status: "Reinstated",
-            coverage_reinstated_on: reinstate_on.to_date,
-            error_details: "N/A"
-          }
-        end
-      }
+      item = application.reload.latest_benefit_application_item
+      confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+      confirmation_payload.merge!({errors: result.failure}) if result.failure?
+      redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
     end
   rescue StandardError => e
     Rails.logger.error { "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_reinstate')} - #{e.backtrace}" }
