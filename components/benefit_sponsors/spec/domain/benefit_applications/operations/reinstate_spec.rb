@@ -3,6 +3,7 @@
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+
 RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbclean: :after_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
@@ -69,13 +70,10 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       { transmit_to_carrier: true, benefit_application: benefit_application, reinstate_on: reinstate_on }
     end
 
-<<<<<<< HEAD
     before do
       allow_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
     end
 
-=======
->>>>>>> b1ee834be5 (block PY to reinstate if overlapping coverage exists)
     context 'reinstate benefit application' do
       it 'should reinstate benefit application' do
         expect(benefit_application.aasm_state).to eq :terminated
@@ -157,17 +155,12 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       it 'should reinstate enrollment' do
         enrollments = family.active_household.hbx_enrollments
         expect(enrollments.size).to eq 1
-<<<<<<< HEAD
-        subject.call(params).value!
-=======
         response = subject.call(params).value!
         info = response.detect {|detail| detail[:employee_name] == census_employee.full_name}
->>>>>>> b1ee834be5 (block PY to reinstate if overlapping coverage exists)
 
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
         expect(enrollments.size).to eq 2
-<<<<<<< HEAD
       end
 
       it 'should send enrollment event' do
@@ -243,14 +236,6 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           expect(result.failure?).to eq true
           expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
         end
-=======
-        expect(info).to match({
-                                :employee_name => census_employee.full_name,
-                                :status => 'reinstated',
-                                :coverage_reinstated_on => TimeKeeper.date_of_record.beginning_of_month,
-                                :enrollment_hbx_ids => enrollment.hbx_id
-                              })
->>>>>>> b1ee834be5 (block PY to reinstate if overlapping coverage exists)
       end
     end
 

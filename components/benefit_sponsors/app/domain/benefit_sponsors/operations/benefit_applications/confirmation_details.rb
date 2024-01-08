@@ -12,7 +12,7 @@ module BenefitSponsors
 
         def call(params)
           yield validate(params)
-          yield get_benefit_application_item
+          yield fetch_benefit_application_item
 
           confirmation_details = yield build_confirmation_details(params)
 
@@ -29,7 +29,7 @@ module BenefitSponsors
 
           @benefit_sponsorship = params[:benefit_sponsorship]
           @benefit_application = params[:benefit_application]
-          @sequence_id = params[:sequence_id].to_i 
+          @sequence_id = params[:sequence_id].to_i
 
           errors << 'Not a valid Benefit Sponsorship' unless @benefit_sponsorship.is_a?(BenefitSponsors::BenefitSponsorships::BenefitSponsorship)
           errors << 'Not a valid Benefit Application' unless @benefit_application.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
@@ -37,7 +37,7 @@ module BenefitSponsors
           errors.empty? ? Success(params) : Failure(errors)
         end
 
-        def get_benefit_application_item
+        def fetch_benefit_application_item
           @item = @benefit_application.benefit_application_items.where(sequence_id: @sequence_id).first
           @item.present? ? Success(@item) : Failure("No BenefitApplicationItem found with given sequence_id")
         end
@@ -50,7 +50,7 @@ module BenefitSponsors
           end
         end
 
-        def construct_success_details(params)
+        def construct_success_details(_params)
           case @item.state.to_s
           when "reinstated"
             construct_reinstated_details
@@ -67,13 +67,11 @@ module BenefitSponsors
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           employees_updated = 0
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
-            benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
-
             enrollments = census_employee.family.hbx_enrollments.where(
               :sponsored_benefit_package_id.in => benefit_package_ids,
               :'workflow_state_transitions.transition_at'.gte => item.action_on.beginning_of_day,
               :'workflow_state_transitions.transition_at'.lte => item.action_on.end_of_day + 1.day,
-              :'workflow_state_transitions.from_state' => "coverage_reinstated",
+              :'workflow_state_transitions.from_state' => "coverage_reinstated"
             )
 
             employees_updated += 1 if enrollments.present?
