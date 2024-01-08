@@ -44,7 +44,8 @@ module BenefitSponsors
 
         def any_overlapping_application?
           benefit_sponsorship = @benefit_application.benefit_sponsorship
-          aasm_states = [:active, :draft, :terminated, :termination_pending]
+          aasm_states = ::BenefitSponsors::BenefitApplications::BenefitApplication::APPPROVED_AND_TERMINATED_STATES + [:draft] - [:expired]
+
           benefit_sponsorship.benefit_applications.where(
             :_id.ne => @benefit_application.id,
             :aasm_state.in => aasm_states
