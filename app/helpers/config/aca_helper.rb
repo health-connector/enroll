@@ -122,6 +122,32 @@ module Config::AcaHelper
     @offer_metal_level ||= Settings.aca.plan_options_available.include?("metal_level")
   end
 
+  def confirmation_action_title(confirmation_type)
+    case confirmation_type
+    when "reinstated"
+      "Reinstated On:"
+    when 'terminated', 'termination_pending'
+      "Terminated On:"
+    when 'canceled', 'retroactive_canceled'
+      "Canceled On:"
+    else
+      "Action Taken On"
+    end
+  end
+
+  def confirmation_details_text(item)
+    states = ["termination_pending", "terminated", "reinstate", "cancel", "retroactive_canceled"]
+    text = item.state.to_s
+    return text.titleize unless states.include?(text)
+
+    confirmation_payload = {
+      employer_id: item.benefit_application.benefit_sponsorship.id,
+      employer_application_id: item.benefit_application.id,
+      sequence_id: item.sequence_id
+    }
+
+    link_to(text.titleize, confirmation_details_exchanges_employer_applications_path(confirmation_payload))
+  end
 
   def metal_levels_explained
     response = ""

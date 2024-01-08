@@ -164,6 +164,7 @@ Rails.application.routes.draw do
         get :get_term_reasons
         put :reinstate
         put :revise_end_date
+        get :confirmation_details
       end
     end
 

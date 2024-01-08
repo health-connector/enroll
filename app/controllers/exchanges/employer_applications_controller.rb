@@ -18,7 +18,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     end_on = Date.strptime(params[:end_on], "%m/%d/%Y")
     termination_kind = params['term_kind']
     termination_reason = params['term_reason']
-    transmit_to_carrier = (params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true) ? true : false
+    transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
     @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, {
                                                                                 end_on: end_on,
                                                                                 termination_kind: termination_kind,
@@ -37,7 +37,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def cancel
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-    transmit_to_carrier = (params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true) ? true : false
+    transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
     @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier, current_user: current_user })
     result, application, errors = @service.cancel_application
     if result
@@ -61,17 +61,34 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
   end
 
+  def confirmation_details
+    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    required_details = {
+      benefit_sponsorship: @benefit_sponsorship,
+      benefit_application: @application,
+      confirmation_type: params[:confirmation_type]
+    }
+    required_details.merge!({errors: params[:errors]}) if params[:errors].present?
+
+    result = BenefitSponsors::Operations::BenefitApplications::ConfirmationDetails.new.call(required_details)
+    if result.success?
+      @result = result.value!
+    else
+      @failures = result.failure.is_a?(Array) ? result.failure : [result.failure]
+    end
+  end
+
   def reinstate
     if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
       reinstate_on = params[:reinstate_on] ? Date.strptime(params[:reinstate_on], "%m/%d/%Y") : (application.end_on + 1.day)
-      BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
-                                                                             benefit_application: application,
-                                                                             transmit_to_carrier: transmit_to_carrier,
-                                                                             reinstate_on: reinstate_on,
-                                                                             current_user: current_user
-                                                                           })
+      result = BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
+                                                                                      benefit_application: application,
+                                                                                      transmit_to_carrier: transmit_to_carrier,
+                                                                                      reinstate_on: reinstate_on,
+                                                                                      current_user: current_user
+                                                                                    })
 
       @result = {
         current_status: "Active Reinstated",
@@ -119,9 +136,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   end
 
   def check_hbx_staff_role
-    unless current_user.has_hbx_staff_role?
-      redirect_to root_path, :flash => { :error => "You must be an HBX staff member" }
-    end
+    redirect_to root_path, :flash => { :error => "You must be an HBX staff member" } unless current_user.has_hbx_staff_role?
   end
 
   def find_benefit_sponsorship
