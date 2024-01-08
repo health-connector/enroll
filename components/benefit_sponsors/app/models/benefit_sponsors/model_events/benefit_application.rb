@@ -24,7 +24,8 @@ module BenefitSponsors
       EMPLOYER_EVENTS = [
           :benefit_coverage_period_terminated_nonpayment,
           :benefit_coverage_period_terminated_voluntary,
-          :benefit_coverage_renewal_carrier_dropped
+          :benefit_coverage_renewal_carrier_dropped,
+          :benefit_coverage_period_reinstated
       ]
 
       DATA_CHANGE_EVENTS = [
@@ -76,6 +77,7 @@ module BenefitSponsors
           end
 
           # rubocop:disable Lint/UselessAssignment
+          is_benefit_coverage_period_reinstated = true if is_transition_matching?(to: :active, from: :reinstated, event: :activate_reinstate)
           is_benefit_coverage_renewal_carrier_dropped = true if is_transition_matching?(to: [:canceled, :retroactive_canceled], from: [:enrollment_eligible, :active], event: :cancel)
           # rubocop:enable Lint/UselessAssignment
 

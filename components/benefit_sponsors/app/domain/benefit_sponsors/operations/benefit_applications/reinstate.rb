@@ -51,7 +51,7 @@ module BenefitSponsors
             updated_by: @current_user&.id
           )
           @benefit_application.reinstate!
-          @benefit_application.activate_reinstate!({ disable_callbacks: true })
+          @benefit_application.activate_reinstate!({ disable_callbacks: true, edi: true })
           @benefit_application.reload
 
           Success()
@@ -85,6 +85,8 @@ module BenefitSponsors
               else
                 reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
                 reinstate_enrollment.begin_coverage!({ disable_callbacks: true }) if TimeKeeper.date_of_record >= reinstate_enrollment.effective_on && reinstate_enrollment.may_begin_coverage?
+
+                reinstate_enrollment.notify_of_coverage_start(true)
               end
             end
           rescue StandardError => e

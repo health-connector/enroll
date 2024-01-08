@@ -97,6 +97,16 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
     end
 
+    context 'reinstate benefit application with edi' do
+      it 'should send application event' do
+        expect_any_instance_of(::BenefitSponsors::Observers::BenefitApplicationObserver).to receive(:notify).with(
+          "acapi.info.events.employer.benefit_coverage_period_reinstated",
+          {:employer_id => benefit_application.sponsor_profile.hbx_id, :is_trading_partner_publishable => true, :event_name => "benefit_coverage_period_reinstated"}
+        )
+        subject.call(params)
+      end
+    end
+
     context 'reinstate benefit application with census employees and enrollments' do
       let(:person)          { create(:person) }
       let(:family)          { create(:family, :with_primary_family_member, person: person)}
@@ -149,6 +159,11 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
         expect(enrollments.size).to eq 2
+      end
+
+      it 'should send enrollment event' do
+        expect_any_instance_of(HbxEnrollment).to receive(:notify)
+        subject.call(params)
       end
 
       context 'when eligible for renewal' do
