@@ -171,6 +171,7 @@ module BenefitSponsors
             effective_period: benefit_application.effective_period,
             action_on: TimeKeeper.date_of_record,
             action_type: :change,
+            action_kind: 'cancel',
             state: state,
             updated_by: current_user&.id
           )
