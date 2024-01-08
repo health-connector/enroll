@@ -57,6 +57,10 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     render json: @reasons
   end
 
+  def application_history
+    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+  end
+
   def reinstate
     if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
