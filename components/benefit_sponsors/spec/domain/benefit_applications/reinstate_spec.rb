@@ -69,6 +69,10 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       { transmit_to_carrier: true, benefit_application: benefit_application, reinstate_on: reinstate_on }
     end
 
+    before do
+      allow_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
+    end
+
     context 'reinstate benefit application' do
       it 'should reinstate benefit application' do
         expect(benefit_application.aasm_state).to eq :terminated
@@ -140,18 +144,27 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       it 'should reinstate enrollment' do
         enrollments = family.active_household.hbx_enrollments
         expect(enrollments.size).to eq 1
-        response = subject.call(params).value!
-        info = response.detect {|detail| detail[:employee_name] == census_employee.full_name}
+        subject.call(params).value!
 
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
         expect(enrollments.size).to eq 2
-        expect(info).to match({
-                                :employee_name => census_employee.full_name,
-                                :status => 'reinstated',
-                                :coverage_reinstated_on => TimeKeeper.date_of_record.beginning_of_month,
-                                :enrollment_hbx_ids => enrollment.hbx_id
-                              })
+      end
+
+      context 'when eligible for renewal' do
+        let(:renewal_day) do
+          months_prior_to_effective = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.months.abs
+          (benefit_application.earliest_benefit_application_item.effective_period.max + 1.day).to_date - months_prior_to_effective.months
+        end
+
+        before do
+          allow(TimeKeeper).to receive(:date_of_record).and_return(renewal_day + 1)
+        end
+
+        it 'should call service to renew application' do
+          expect_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
+          subject.call(params).value!
+        end
       end
     end
   end

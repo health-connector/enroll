@@ -14,11 +14,10 @@ module BenefitSponsors
         def call(params)
           yield validate(params)
           yield reinstate_benefit_application
-          output = yield reinstate_census_employees
+          yield reinstate_census_employees
           yield renew_benefit_application
-          yield renew_enrollments
 
-          Success(output)
+          Success()
         end
 
         private
@@ -53,6 +52,7 @@ module BenefitSponsors
           )
           @benefit_application.reinstate!
           @benefit_application.activate_reinstate!({ disable_callbacks: true })
+          @benefit_application.reload
 
           Success()
         rescue StandardError => e
@@ -62,9 +62,8 @@ module BenefitSponsors
         def reinstate_census_employees
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           item = @benefit_application.benefit_application_items.find_by(sequence_id: @sequence_id)
-          coverage_reinstated_on = @benefit_application.latest_benefit_application_item.effective_period.min
 
-          output = CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.inject([]) do |result, census_employee|
+          CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.each do |census_employee|
             benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
 
             benefit_group_assignment.update_attributes!(end_on: nil)
@@ -88,33 +87,23 @@ module BenefitSponsors
                 reinstate_enrollment.begin_coverage!({ disable_callbacks: true }) if TimeKeeper.date_of_record >= reinstate_enrollment.effective_on && reinstate_enrollment.may_begin_coverage?
               end
             end
-
-            result << {
-              employee_name: census_employee.full_name,
-              status: 'reinstated',
-              coverage_reinstated_on: coverage_reinstated_on,
-              enrollment_hbx_ids: enrollments.map(&:hbx_id).join(",")
-            }
-            result
           rescue StandardError => e
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
-            result << {
-              employee_name: census_employee.full_name,
-              status: 'Reinstatement failed with an error.',
-              coverage_reinstated_on: nil,
-              enrollment_hbx_ids: nil
-            }
-            result
           end
 
-          Success(output)
-        end
-
-        def renew_benefit_application
           Success()
         end
 
-        def renew_enrollments
+        def renew_benefit_application
+          months_prior_to_effective = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.months.abs
+          renewal_day = (@benefit_application.latest_benefit_application_item.effective_period.max + 1.day).to_date - months_prior_to_effective.months
+          return Success() if TimeKeeper.date_of_record < renewal_day
+
+          service = ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
+          success, _application, message = service.renew_application
+
+          Rails.logger.error "Error while renewing benefit application #{@benefit_application.id}: #{message}" unless success
+
           Success()
         end
 
