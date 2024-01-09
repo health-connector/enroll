@@ -159,6 +159,7 @@ Rails.application.routes.draw do
     resources :employer_applications do
       put :terminate
       put :cancel
+      get :application_history
       collection do
         get :get_term_reasons
         put :reinstate

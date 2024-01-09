@@ -54,6 +54,9 @@ module BenefitSponsors
     INITIAL_OR_RENEWAL_PLAN_YEAR_DROP_EVENT_TAG = "benefit_coverage_renewal_carrier_dropped".freeze
     INITIAL_OR_RENEWAL_PLAN_YEAR_DROP_EVENT = "acapi.info.events.employer.benefit_coverage_renewal_carrier_dropped".freeze
 
+    REINSTATED_PLAN_YEAR_EVENT_TAG = "benefit_coverage_period_reinstated".freeze
+    REINSTATED_PLAN_YEAR_EVENT = "acapi.info.events.employer.benefit_coverage_period_reinstated".freeze
+
     field :expiration_date,           type: Date
 
     # The date range when members may enroll in benefit products
@@ -740,7 +743,9 @@ module BenefitSponsors
       end
     end
 
-    def transition_benefit_package_members
+    def transition_benefit_package_members(options = {})
+      return if options.is_a?(Hash) && options[:disable_callbacks]
+
       transition_kind = BENEFIT_PACKAGE_MEMBERS_TRANSITION_MAP[aasm_state]
       return if transition_kind.blank?
 
@@ -996,6 +1001,10 @@ module BenefitSponsors
       event :reinstate do
         transitions from: [:terminated, :termination_pending, :retroactive_canceled], to: :reinstated
       end
+
+      event :activate_reinstate do
+        transitions from: :reinstated, to: :active
+      end
     end
 
     # Notify BenefitSponsorship upon state change
@@ -1029,7 +1038,11 @@ module BenefitSponsors
     end
 
     def notify_application(notify = false)
-      @notify = notify
+      @notify = if notify.is_a?(Hash)
+                  notify[:edi] || false
+                else
+                  notify
+                end
     end
 
     def is_application_trading_partner_publishable?

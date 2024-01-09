@@ -187,17 +187,6 @@ module BenefitSponsors
             }})
     end
 
-    # Fix Me: verify the state check...probably need to use termination_pending
-    def self.may_terminate_benefit_coverage?(compare_date = TimeKeeper.date_of_record)
-      where(:benefit_applications => {:"$elemMatch" => {
-              :aasm_state => {"$in" => [:active, :suspended]},
-              :"benefit_applications.benefit_application_items" => {:"$elemMatch" => {
-                :_id.in => latest_benefit_application_item_ids,
-                :action_on => compare_date
-              }}
-            }})
-    end
-
     def self.may_transmit_initial_enrollment?(compare_date = TimeKeeper.date_of_record, transition_at = nil)
       if  transition_at.blank?
         where(:benefit_applications => {:"$elemMatch" => {
