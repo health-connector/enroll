@@ -71,7 +71,7 @@ module BenefitSponsors
 
     describe '#auto_cancel_ineligible' do
 
-      context  'when initial employer missed binder payment' do 
+      context  'when initial employer missed binder payment' do
         let(:sponsorship_state)               { :applicant }
         let(:initial_application_state)       { :enrollment_closed }
         let(:renewal_application_state)       { :enrollment_closed }
@@ -139,7 +139,7 @@ module BenefitSponsors
       end
     end
 
-    describe '.end_open_enrollment' do 
+    describe '.end_open_enrollment' do
       let(:sponsorship_state)               { :applicant }
       let(:business_policy) { double(success_results: [], fail_results: []) }
 
@@ -149,10 +149,10 @@ module BenefitSponsors
         allow_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:business_policy).and_return(business_policy)
       end
 
-      context  'For initial employers for whom open enrollment extended' do 
+      context  'For initial employers for whom open enrollment extended' do
         let(:initial_application_state)       { :enrollment_extended }
 
-        it "should close their open enrollment" do 
+        it "should close their open enrollment" do
           (april_sponsors).each do |sponsor|
             benefit_application = sponsor.benefit_applications.first
 
@@ -171,10 +171,10 @@ module BenefitSponsors
         end
       end
 
-      context  'For renewal employers for whom open enrollment extended' do 
+      context  'For renewal employers for whom open enrollment extended' do
         let(:renewal_application_state)       { :enrollment_extended }
 
-        it "should close their open enrollment" do 
+        it "should close their open enrollment" do
           (april_renewal_sponsors).each do |sponsor|
             benefit_application = sponsor.benefit_applications.first
 
@@ -241,6 +241,11 @@ module BenefitSponsors
         renewal_application.benefit_packages.first.health_sponsored_benefit.update_attributes(product_package_kind: :single_product)
         product = renewal_application.benefit_packages.first.health_sponsored_benefit.reference_product
         product.update_attributes(issuer_profile_id: issuer_profile.id)
+        pred_end_on = renewal_application.predecessor&.end_on
+        if pred_end_on&.leap? && pred_end_on == Date.new(pred_end_on.year, 2, 28)
+          start_on = renewal_application.predecessor.start_on
+          renewal_application.predecessor.update_attributes!(effective_period: start_on..Date.new(pred_end_on.year,2,29))
+        end
       end
 
       let!(:service_instance)  { subject.new(benefit_sponsorship: employer_profile.active_benefit_sponsorship) }

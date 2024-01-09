@@ -1,5 +1,5 @@
 RSpec.shared_context "setup initial benefit application", :shared_context => :metadata do
-  
+
   let(:aasm_state)                { :active }
   let(:benefit_sponsorship_state) { :active }
   let(:package_kind)              { :single_issuer }
@@ -11,14 +11,14 @@ RSpec.shared_context "setup initial benefit application", :shared_context => :me
     FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)
   end
   let(:abc_profile)               { abc_organization.employer_profile }
-  
+
   let!(:benefit_sponsorship) do
     benefit_sponsorship = abc_profile.add_benefit_sponsorship
     benefit_sponsorship.aasm_state = benefit_sponsorship_state
     benefit_sponsorship.save
     benefit_sponsorship
   end
-  
+
   let(:dental_sponsored_benefit) { false }
   let!(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
   let!(:service_areas) { benefit_sponsorship.service_areas_on(effective_period.min) }
@@ -110,7 +110,14 @@ RSpec.shared_context "setup renewal application", :shared_context => :metadata d
                                        predecessor_application_catalog: predecessor_application_catalog
                                     ) }
 
-  let(:predecessor_application) { renewal_application.predecessor }
+  let!(:predecessor_application) do
+    end_on = renewal_application&.predecessor&.end_on
+    if end_on&.leap? && end_on == Date.new(end_on.year, 2, 28)
+      start_on = renewal_application.predecessor.start_on
+      renewal_application.predecessor.update_attributes!(effective_period: start_on..Date.new(end_on.year,2,29))
+    end
+    renewal_application.predecessor
+  end
 
   let(:product_package)           { renewal_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
   let(:benefit_package)           { renewal_application.benefit_packages[0] }
