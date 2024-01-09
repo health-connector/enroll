@@ -28,8 +28,8 @@ class Exchanges::EmployerApplicationsController < ApplicationController
                                                                               })
     result, application, errors = @service.terminate_application
 
-    item = application.reload.latest_benefit_application_item
-    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+    item = @application.reload.latest_benefit_application_item
+    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
     confirmation_payload.merge!({errors: errors.values}) unless result
     redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
   end
@@ -40,8 +40,8 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier, current_user: current_user })
     result, application, errors = @service.cancel_application
 
-    item = application.reload.latest_benefit_application_item
-    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+    item = @application.reload.latest_benefit_application_item
+    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
     confirmation_payload.merge!({errors: errors.values}) unless result
     redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
   end
@@ -56,7 +56,11 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   end
 
   def application_history
-    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    if ::EnrollRegistry.feature_enabled?(:benefit_application_history)
+      @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    else
+      redirect_to exchanges_hbx_profiles_root_path
+    end
   end
 
   def confirmation_details
@@ -92,6 +96,8 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
       confirmation_payload.merge!({errors: result.failure}) if result.failure?
       redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
+    else
+      redirect_to exchanges_hbx_profiles_root_path
     end
   rescue StandardError => e
     Rails.logger.error { "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_reinstate')} - #{e.backtrace}" }
