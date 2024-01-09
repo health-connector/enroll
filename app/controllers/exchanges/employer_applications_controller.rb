@@ -27,12 +27,11 @@ class Exchanges::EmployerApplicationsController < ApplicationController
                                                                                 current_user: current_user
                                                                               })
     result, application, errors = @service.terminate_application
-    if result
-      flash[:notice] = "#{@benefit_sponsorship.organization.legal_name}'s Application terminated successfully."
-    else
-      flash[:error] = "#{@benefit_sponsorship.organization.legal_name}'s Application could not be terminated: #{errors.values.to_sentence}"
-    end
-    render :js => "window.location = #{exchanges_hbx_profiles_root_path.to_json}"
+
+    item = application.reload.latest_benefit_application_item
+    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+    confirmation_payload.merge!({errors: errors.values}) unless result
+    redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
   end
 
   def cancel
@@ -40,12 +39,11 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
     @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier, current_user: current_user })
     result, application, errors = @service.cancel_application
-    if result
-      flash[:notice] = "#{@benefit_sponsorship.organization.legal_name}'s Application canceled successfully."
-    else
-      flash[:error] = "#{@benefit_sponsorship.organization.legal_name}'s Application could not be canceled due to #{errors.inject(''){|memo, error| '#{memo}<li>#{error}</li>'}.html_safe}"
-    end
-    render :js => "window.location = #{exchanges_hbx_profiles_root_path.to_json}"
+
+    item = application.reload.latest_benefit_application_item
+    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+    confirmation_payload.merge!({errors: errors.values}) unless result
+    redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
   end
 
   def get_term_reasons

@@ -34,7 +34,7 @@
 
     <h4><strong>
       <%= link_to(
-        l10n("exchange.employer_applications.reinstate.return_to_application_history"),
+        l10n("exchange.employer_applications.return_to_application_history"),
         exchanges_employer_application_application_history_path(@application.id, employer_id: @benefit_sponsorship.id))
       %>
     </strong></h4>
@@ -52,7 +52,7 @@
           <% @result[:employee_details].each do |employee| %>
             <tr style='border-bottom: 1px solid #d1d1d1;'>
               <td style='padding: 1%'><%= employee[:employee_name].titleize %></td>
-              <td><%= employee[:status] %> - <%= employee[:coverage_reinstated_on] %></td>
+              <td><%= employee[:status] %> - <%= employee[:coverage_updated_on] %></td>
               <td><%= employee[:enrollment_details] %></td>
             </tr>
           <% end %>
