@@ -44,7 +44,7 @@ module BenefitSponsors
         end
 
         def build_confirmation_details(params)
-          # return construct_failure_details(params) if params[:errors].present?
+          return construct_failure_details(params) if params[:errors].present?
 
           case @item.state.to_sym
           when :reinstate
@@ -64,7 +64,7 @@ module BenefitSponsors
 
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
             benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
-            status = if benefit_group_assignment&.end_on.present? && benefit_group_assignment&.end_on < @benefit_application.end_on.to_date
+            status = if benefit_group_assignment&.end_on.present? && (benefit_group_assignment.end_on < @benefit_application.end_on.to_date)
                        "terminated"
                      else
                        "Not Terminated"
