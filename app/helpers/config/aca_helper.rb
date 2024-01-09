@@ -123,8 +123,8 @@ module Config::AcaHelper
   end
 
   def confirmation_action_title(confirmation_type)
-    case confirmation_type
-    when "reinstated"
+    case confirmation_type.to_s
+    when "reinstate"
       "Reinstated On:"
     when 'terminated', 'termination_pending'
       "Terminated On:"

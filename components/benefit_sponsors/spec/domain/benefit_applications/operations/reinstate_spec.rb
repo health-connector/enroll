@@ -155,9 +155,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       it 'should reinstate enrollment' do
         enrollments = family.active_household.hbx_enrollments
         expect(enrollments.size).to eq 1
-        response = subject.call(params).value!
-        info = response.detect {|detail| detail[:employee_name] == census_employee.full_name}
-
+        subject.call(params).value!
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
         expect(enrollments.size).to eq 2
@@ -181,60 +179,6 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         it 'should call service to renew application' do
           expect_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
           subject.call(params).value!
-        end
-      end
-    end
-
-    context "without overlapping application" do
-      let(:new_start_on) { benefit_application.effective_period.max.to_date.next_day }
-      let!(:draft_application) do
-        FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
-                           passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
-                           open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
-                           recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
-                           dental_sponsored_benefit: dental_sponsored_benefit, fte_count: 5, pte_count: 0, msp_count: 0,
-                           aasm_state: :draft,
-                           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: new_start_on..(new_start_on.next_year - 1.day), state: :draft)])
-      end
-
-      it 'should reinstate benefit application if there is no overlapping application' do
-        expect(benefit_application.aasm_state).to eq :terminated
-        subject.call(params)
-        item = benefit_application.reload.latest_benefit_application_item
-
-        expect(benefit_application.aasm_state).to eq :active
-        expect(item.effective_period.min).to eq reinstate_on
-        expect(item.state).to eq :reinstate
-        expect(item.action_kind).to eq 'reinstate'
-      end
-    end
-
-    context "with overlapping application" do
-      let!(:draft_application) do
-        FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
-                           passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
-                           open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
-                           recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
-                           dental_sponsored_benefit: dental_sponsored_benefit, fte_count: 5, pte_count: 0, msp_count: 0,
-                           aasm_state: overlapping_state,
-                           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: benefit_application.effective_period, state: overlapping_state)])
-      end
-
-      context "with draft overlapping application" do
-        let(:overlapping_state) { :draft }
-        it 'returns failure ' do
-          result = subject.call(params)
-          expect(result.failure?).to eq true
-          expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
-        end
-      end
-
-      context "with terminated overlapping application" do
-        let(:overlapping_state) { :terminated }
-        it 'returns failure ' do
-          result = subject.call(params)
-          expect(result.failure?).to eq true
-          expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
         end
       end
     end

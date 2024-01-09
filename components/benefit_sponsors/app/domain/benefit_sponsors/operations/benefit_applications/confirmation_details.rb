@@ -23,9 +23,10 @@ module BenefitSponsors
 
         def validate(params)
           errors = []
-          errors << 'benefit_sponsorship is missing' unless params.key?(:benefit_sponsorship)
-          errors << 'benefit_application key is missing' unless params.key?(:benefit_application)
-          errors << 'sequence_id is missing' unless params.key?(:sequence_id)
+          required_keys = %i[benefit_sponsorship benefit_application sequence_id]
+          missing_keys = required_keys - params.keys
+
+          errors << "#{missing_keys.join(', ')} is missing" unless missing_keys.empty?
 
           @benefit_sponsorship = params[:benefit_sponsorship]
           @benefit_application = params[:benefit_application]
@@ -43,53 +44,49 @@ module BenefitSponsors
         end
 
         def build_confirmation_details(params)
-          if params[:errors].present?
-            consruct_failure_details(params)
-          else
-            construct_success_details
-          end
-        end
+          return construct_failure_details(params) if params[:errors].present?
 
-        def construct_success_details
-          case @item.state.to_s
-          when "reinstate"
+          case @item.state.to_sym
+          when :reinstate
             construct_reinstated_details
-          when 'terminated', 'termination_pending'
+          when :terminated, :termination_pending
             construct_terminated_details
-          when 'canceled', 'retroactive_canceled'
+          when :canceled, :retroactive_canceled
             construct_canceled_details
           else
             Success({})
           end
         end
 
+        def construct_terminated_details
+          Success({})
+        end
+
+        def construct_canceled_details
+          Success({})
+        end
+
         def construct_reinstated_details
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           employees_updated = 0
-          binding.pry
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
-            details << {
-              employee_name: census_employee.full_name,
-              status: 'reinstated',
-              coverage_reinstated_on: @item.action_on
-            }
+            benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
+            status = if benefit_group_assignment&.end_on.nil? || benefit_group_assignment&.end_on == @benefit_application.end_on.to_date
+                       "reinstated"
+                     else
+                       "Not reinstated"
+                     end
 
-            if census_employee.family.present?
-              enrollments = census_employee.family.hbx_enrollments&.where(
-                :sponsored_benefit_package_id.in => benefit_package_ids,
-                :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
-                :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day + 1.day,
-                :'workflow_state_transitions.from_state' => "coverage_reinstated"
-              )
+            details << { employee_name: census_employee.full_name, status: status, coverage_reinstated_on: @item.action_on}
 
-              employees_updated += 1 if enrollments.present?
-
-              details.merge!({enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")})
-            end
+            enrollments = reinstated_enrollemnts_for(census_employee, benefit_package_ids)
+            employees_updated += 1 if enrollments.present?
+            details.merge!({enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")})
             details
           end
 
           payload = {
+            confirmation_type: @item.state.to_s,
             current_status: "Active Reinstated",
             action_on: @item.action_on,
             coverage_period: @benefit_application.effective_period,
@@ -101,7 +98,18 @@ module BenefitSponsors
           Success(payload)
         end
 
-        def consruct_failure_details(params)
+        def reinstated_enrollemnts_for(census_employee, benefit_package_ids)
+          return [] unless census_employee.family.present?
+
+          census_employee.family.enrollments&.where(
+            :sponsored_benefit_package_id.in => benefit_package_ids,
+            :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
+            :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day + 1.day,
+            :'workflow_state_transitions.from_state' => "coverage_reinstated"
+          )
+        end
+
+        def construct_failure_details(params)
           error_details = params[:errors].is_a?(Array) ? params[:errors].join(', ') : params[:errors]
           result = {
             confirmation_type: @item.state.to_s,
