@@ -71,7 +71,7 @@ module BenefitSponsors
 
     describe '#auto_cancel_ineligible' do
 
-      context  'when initial employer missed binder payment' do
+      context 'when initial employer missed binder payment' do
         let(:sponsorship_state)               { :applicant }
         let(:initial_application_state)       { :enrollment_closed }
         let(:renewal_application_state)       { :enrollment_closed }
@@ -149,7 +149,7 @@ module BenefitSponsors
         allow_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:business_policy).and_return(business_policy)
       end
 
-      context  'For initial employers for whom open enrollment extended' do
+      context 'For initial employers for whom open enrollment extended' do
         let(:initial_application_state)       { :enrollment_extended }
 
         it "should close their open enrollment" do
@@ -171,7 +171,7 @@ module BenefitSponsors
         end
       end
 
-      context  'For renewal employers for whom open enrollment extended' do
+      context 'For renewal employers for whom open enrollment extended' do
         let(:renewal_application_state)       { :enrollment_extended }
 
         it "should close their open enrollment" do
