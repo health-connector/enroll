@@ -155,7 +155,10 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_application_for_force_submission
     effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
     benefit_sponsorship = get_benefit_sponsorship
-    application = benefit_sponsorship.benefit_applications.where(:"benefit_application_items.effective_period.min" => effective_date)
+    application = benefit_sponsorship.benefit_applications.where(
+      :"benefit_application_items._id".in => benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id },
+      :"benefit_application_items.effective_period.min" => effective_date
+    )
     raise "Found #{application.count} benefit applications with that start date" if application.count != 1
     application.first
   end
@@ -168,7 +171,10 @@ class ModifyBenefitApplication< MongoidMigrationTask
   def benefit_applications_for_cancel
     benefit_sponsorship = get_benefit_sponsorship
     benefit_application_start_on = Date.strptime(ENV['plan_year_start_on'].to_s, "%m/%d/%Y")
-    application = benefit_sponsorship.benefit_applications.where(:"benefit_application_items.effective_period.min" => benefit_application_start_on)
+    application = benefit_sponsorship.benefit_applications.where(
+      :"benefit_application_items._id".in => benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id },
+      :"benefit_application_items.effective_period.min" => benefit_application_start_on
+    )
     raise "Found #{application.count} benefit applications with that start date" if application.count != 1
     application.first
   end
