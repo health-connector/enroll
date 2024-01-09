@@ -66,7 +66,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     required_details = {
       benefit_sponsorship: @benefit_sponsorship,
       benefit_application: @application,
-      confirmation_type: params[:confirmation_type]
+      sequence_id: params[:sequence_id]
     }
     required_details.merge!({errors: params[:errors]}) if params[:errors].present?
 

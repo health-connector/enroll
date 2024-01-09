@@ -46,42 +46,47 @@ module BenefitSponsors
           if params[:errors].present?
             consruct_failure_details(params)
           else
-            construct_success_details(params)
+            construct_success_details
           end
         end
 
-        def construct_success_details(_params)
+        def construct_success_details
           case @item.state.to_s
-          when "reinstated"
+          when "reinstate"
             construct_reinstated_details
           when 'terminated', 'termination_pending'
             construct_terminated_details
           when 'canceled', 'retroactive_canceled'
             construct_canceled_details
           else
-            {}
+            Success({})
           end
         end
 
         def construct_reinstated_details
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           employees_updated = 0
+          binding.pry
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
-            enrollments = census_employee.family.hbx_enrollments.where(
-              :sponsored_benefit_package_id.in => benefit_package_ids,
-              :'workflow_state_transitions.transition_at'.gte => item.action_on.beginning_of_day,
-              :'workflow_state_transitions.transition_at'.lte => item.action_on.end_of_day + 1.day,
-              :'workflow_state_transitions.from_state' => "coverage_reinstated"
-            )
-
-            employees_updated += 1 if enrollments.present?
-
             details << {
-              employee_name: ce.full_name,
+              employee_name: census_employee.full_name,
               status: 'reinstated',
-              coverage_reinstated_on: coverage_reinstated_on,
-              enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")
+              coverage_reinstated_on: @item.action_on
             }
+
+            if census_employee.family.present?
+              enrollments = census_employee.family.hbx_enrollments&.where(
+                :sponsored_benefit_package_id.in => benefit_package_ids,
+                :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
+                :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day + 1.day,
+                :'workflow_state_transitions.from_state' => "coverage_reinstated"
+              )
+
+              employees_updated += 1 if enrollments.present?
+
+              details.merge!({enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")})
+            end
+            details
           end
 
           payload = {
