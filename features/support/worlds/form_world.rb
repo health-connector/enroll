@@ -142,6 +142,33 @@ Then(/^the Effective End Date for the Create Plan Year form will be filled in$/)
   expect(find('#end_on').value.blank?).to eq false
 end
 
+Given(/^Security questions exist$/) do
+  (0..2).map do |num|
+    SecurityQuestion.create!(
+      :title => "Question ##{num}"
+    )
+  end
+end
+
+When(/^the user fills out the security questions modal$/) do
+  (0..2).each do |num|
+    within all('div.selectric-wrapper.selectric-security-question-select', visible: false)[num] do
+      sleep 1
+      find('.selectric').click
+      sleep 1
+      all('li')[-1].click
+      sleep 1
+    end
+
+    page.all('input').select { |input| input[:id] == "security_question_response_question_answer" }[num].set("Answer #{num + 1}")
+  end
+end
+
+When(/the user submitted the security questions$/) do
+  find('.modal-footer input[type="submit"]').click
+  sleep 1
+end
+
 And(/^the user is on the Employer Registration page$/) do
   #visit '/benefit_sponsors/profiles/registrations/new?portal=true&profile_type=benefit_sponsor'
   visit '/'
@@ -199,4 +226,3 @@ And(/^user (.*?) fills out personal information form$/) do |named_person|
   screenshot("register")
   find('.btn', text: 'CONTINUE').click
 end
-
