@@ -63,16 +63,9 @@ module BenefitSponsors
           employees_updated = 0
 
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
-            benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
-            status = if benefit_group_assignment&.end_on.present? && (benefit_group_assignment.end_on < @benefit_application.end_on.to_date)
-                       "terminated"
-                     else
-                       "Not Terminated"
-                     end
+            ce_details = { employee_name: census_employee.full_name, status: "terminated", coverage_updated_on: @item.action_on}
 
-            ce_details = { employee_name: census_employee.full_name, status: status, coverage_updated_on: @item.action_on}
-
-            enrollments = terminated_enrollemnts_for(census_employee, benefit_package_ids)
+            enrollments = terminated_enrollments_for(census_employee, benefit_package_ids)
             employees_updated += 1 if enrollments.present?
             ce_details.merge!({enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")})
             details << ce_details
@@ -100,16 +93,9 @@ module BenefitSponsors
           employees_updated = 0
 
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
-            benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
-            status = if benefit_group_assignment&.end_on.present? && benefit_group_assignment&.end_on == benefit_group_assignment&.start_on
-                       "Canceled"
-                     else
-                       "Not Canceled"
-                     end
+            ce_details = { employee_name: census_employee.full_name, status: "Canceled", coverage_updated_on: @item.action_on}
 
-            ce_details = { employee_name: census_employee.full_name, status: status, coverage_updated_on: @item.action_on}
-
-            enrollments = terminated_enrollemnts_for(census_employee, benefit_package_ids)
+            enrollments = canceled_enrollments_for(census_employee, benefit_package_ids)
             employees_updated += 1 if enrollments.present?
             ce_details.merge!({enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")})
             details << ce_details
@@ -122,16 +108,9 @@ module BenefitSponsors
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           employees_updated = 0
           employee_details = @benefit_sponsorship.census_employees.active.no_timeout.inject([]) do |details, census_employee|
-            benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
-            status = if benefit_group_assignment&.end_on.nil? || benefit_group_assignment&.end_on == @benefit_application.end_on.to_date
-                       "reinstated"
-                     else
-                       "Not reinstated"
-                     end
+            ce_details = { employee_name: census_employee.full_name, status: "reinstated", coverage_updated_on: @item.action_on}
 
-            ce_details = { employee_name: census_employee.full_name, status: status, coverage_updated_on: @item.action_on}
-
-            enrollments = reinstated_enrollemnts_for(census_employee, benefit_package_ids)
+            enrollments = reinstated_enrollments_for(census_employee, benefit_package_ids)
             employees_updated += 1 if enrollments.present?
             ce_details.merge!({enrollment_details: enrollments&.map(&:hbx_id)&.join(", ")})
             details << ce_details
@@ -140,7 +119,7 @@ module BenefitSponsors
           success_payload_for("Active Reinstated", employees_updated, employee_details)
         end
 
-        def reinstated_enrollemnts_for(census_employee, benefit_package_ids)
+        def reinstated_enrollments_for(census_employee, benefit_package_ids)
           return [] unless census_employee.family.present?
 
           census_employee.family.enrollments&.where(
@@ -151,7 +130,7 @@ module BenefitSponsors
           )
         end
 
-        def canceled_enrollemnts_for(census_employee, benefit_package_ids)
+        def canceled_enrollments_for(census_employee, benefit_package_ids)
           return [] unless census_employee.family.present?
 
           census_employee.family.enrollments&.where(
@@ -162,7 +141,7 @@ module BenefitSponsors
           )
         end
 
-        def terminated_enrollemnts_for(census_employee, benefit_package_ids)
+        def terminated_enrollments_for(census_employee, benefit_package_ids)
           return [] unless census_employee.family.present?
 
           census_employee.family.enrollments&.where(
