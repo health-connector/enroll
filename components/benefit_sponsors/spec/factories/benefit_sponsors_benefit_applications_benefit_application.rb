@@ -87,12 +87,11 @@ FactoryGirl.define do
 
     trait :with_predecessor_application do
       after(:build) do |benefit_application, evaluator|
-
         predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
           (evaluator.predecessor_application_catalog ? :with_benefit_sponsor_catalog : :without_benefit_sponsor_catalog),
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
-          effective_period: (benefit_application.effective_period.begin - 1.year)..(benefit_application.effective_period.end - 1.year),
+          effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
           open_enrollment_period: (benefit_application.open_enrollment_period.begin - 1.year)..(benefit_application.open_enrollment_period.end - 1.year),
           dental_sponsored_benefit: evaluator.dental_sponsored_benefit,
           aasm_state: evaluator.predecessor_application_state,
@@ -109,7 +108,7 @@ FactoryGirl.define do
         benefit_application.predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
-          effective_period: (benefit_application.effective_period.begin - 1.year)..(benefit_application.effective_period.end - 1.year),
+          effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
           open_enrollment_period: (benefit_application.open_enrollment_period.begin - 1.year)..(benefit_application.open_enrollment_period.end - 1.year),
           successor_applications: [benefit_application],
           aasm_state: :expired
@@ -122,7 +121,7 @@ FactoryGirl.define do
         predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
-          effective_period: (benefit_application.effective_period.begin - 1.year)..(benefit_application.effective_period.end - 1.year),
+          effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
           open_enrollment_period: (benefit_application.open_enrollment_period.begin - 1.year)..(benefit_application.open_enrollment_period.end - 1.year),
           aasm_state: evaluator.imported_application_state
         )
