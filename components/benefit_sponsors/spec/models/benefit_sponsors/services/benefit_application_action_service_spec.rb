@@ -10,7 +10,7 @@ module BenefitSponsors
     include_context "setup benefit market with market catalogs and product packages"
 
     include_context "setup initial benefit application" do
-      let(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+      let(:current_effective_date) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
     end
 
     describe '.terminate_application' do
@@ -56,6 +56,27 @@ module BenefitSponsors
 
         it 'should cancel renewal application' do
           expect(renewal_application.aasm_state).to eq :canceled
+        end
+      end
+
+      context "when employer has renewing application and initial application termination failed" do
+        let!(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(current_effective_date.next_year) }
+        let!(:renewal_application) do
+          r_app = initial_application.renew
+          r_app.save!
+          r_app
+        end
+        let(:end_on_before_start_on) { initial_application.start_on.to_date - 1.day }
+
+        before do
+          subject.new(initial_application, {end_on: end_on_before_start_on, termination_kind: termination_kind, termination_reason: termination_reason, transmit_to_carrier: false}).terminate_application
+          initial_application.reload
+          renewal_application.reload
+        end
+
+        it 'should not cancel renewal application' do
+          expect(initial_application.aasm_state).to eq :active
+          expect(renewal_application.aasm_state).not_to eq :canceled
         end
       end
     end

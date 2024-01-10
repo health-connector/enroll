@@ -1,4 +1,6 @@
 module Config::AcaHelper
+  include L10nHelper
+
   def aca_state_abbreviation
     Settings.aca.state_abbreviation
   end
@@ -125,13 +127,13 @@ module Config::AcaHelper
   def confirmation_action_title(confirmation_type)
     case confirmation_type.to_s
     when "reinstate"
-      "Reinstated On:"
+      l10n("exchange.employer_applications.reinstated_on")
     when 'terminated', 'termination_pending'
-      "Terminated On:"
+      l10n("exchange.employer_applications.terminated_on")
     when 'canceled', 'retroactive_canceled'
-      "Canceled On:"
+      l10n("exchange.employer_applications.canceled_on")
     else
-      "Action Taken On"
+      l10n("exchange.employer_applications.action_taken_on")
     end
   end
 

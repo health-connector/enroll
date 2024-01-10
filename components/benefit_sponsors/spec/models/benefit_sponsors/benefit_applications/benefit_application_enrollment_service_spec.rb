@@ -914,6 +914,19 @@ module BenefitSponsors
           end
         end
 
+        context 'with end on less than start_on' do
+          let(:end_date) { initial_application.start_on.to_date - 1.day  }
+
+          before do
+            subject.terminate(end_date, TimeKeeper.date_of_record, "voluntary", "Company went out of business/bankrupt", false)
+            initial_application.reload
+          end
+
+          it "should NOT terminate benefit application" do
+            expect(initial_application.aasm_state).to eq :active
+          end
+        end
+
         context 'with other than end of the month date' do
           let(:end_date) { Date.new(date.year, date.month, 12) }
 
