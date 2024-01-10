@@ -18,7 +18,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     end_on = Date.strptime(params[:end_on], "%m/%d/%Y")
     termination_kind = params['term_kind']
     termination_reason = params['term_reason']
-    transmit_to_carrier = (params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true) ? true : false
+    transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
     @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, {
                                                                                 end_on: end_on,
                                                                                 termination_kind: termination_kind,
@@ -27,25 +27,23 @@ class Exchanges::EmployerApplicationsController < ApplicationController
                                                                                 current_user: current_user
                                                                               })
     result, application, errors = @service.terminate_application
-    if result
-      flash[:notice] = "#{@benefit_sponsorship.organization.legal_name}'s Application terminated successfully."
-    else
-      flash[:error] = "#{@benefit_sponsorship.organization.legal_name}'s Application could not be terminated: #{errors.values.to_sentence}"
-    end
-    render :js => "window.location = #{exchanges_hbx_profiles_root_path.to_json}"
+
+    item = @application.reload.latest_benefit_application_item
+    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
+    confirmation_payload.merge!({errors: errors.values}) unless result
+    redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
   end
 
   def cancel
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-    transmit_to_carrier = (params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true) ? true : false
+    transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
     @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier, current_user: current_user })
     result, application, errors = @service.cancel_application
-    if result
-      flash[:notice] = "#{@benefit_sponsorship.organization.legal_name}'s Application canceled successfully."
-    else
-      flash[:error] = "#{@benefit_sponsorship.organization.legal_name}'s Application could not be canceled due to #{errors.inject(''){|memo, error| '#{memo}<li>#{error}</li>'}.html_safe}"
-    end
-    render :js => "window.location = #{exchanges_hbx_profiles_root_path.to_json}"
+
+    item = @application.reload.latest_benefit_application_item
+    confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
+    confirmation_payload.merge!({errors: errors.values}) unless result
+    redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
   end
 
   def get_term_reasons
@@ -58,7 +56,28 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   end
 
   def application_history
+    if ::EnrollRegistry.feature_enabled?(:benefit_application_history)
+      @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    else
+      redirect_to exchanges_hbx_profiles_root_path
+    end
+  end
+
+  def confirmation_details
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    required_details = {
+      benefit_sponsorship: @benefit_sponsorship,
+      benefit_application: @application,
+      sequence_id: params[:sequence_id]
+    }
+    required_details.merge!({errors: params[:errors]}) if params[:errors].present?
+
+    result = BenefitSponsors::Operations::BenefitApplications::ConfirmationDetails.new.call(required_details)
+    if result.success?
+      @result = result.value!
+    else
+      @failures = result.failure.is_a?(Array) ? result.failure : [result.failure]
+    end
   end
 
   def reinstate
@@ -66,28 +85,19 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
       reinstate_on = params[:reinstate_on] ? Date.strptime(params[:reinstate_on], "%m/%d/%Y") : (application.end_on + 1.day)
-      BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
-                                                                             benefit_application: application,
-                                                                             transmit_to_carrier: transmit_to_carrier,
-                                                                             reinstate_on: reinstate_on,
-                                                                             current_user: current_user
-                                                                           })
+      result = BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
+                                                                                      benefit_application: application,
+                                                                                      transmit_to_carrier: transmit_to_carrier,
+                                                                                      reinstate_on: reinstate_on,
+                                                                                      current_user: current_user
+                                                                                    })
 
-      @result = {
-        current_status: "Active Reinstated",
-        reinstated_on: TimeKeeper.datetime_of_record,
-        coverage_period: reinstate_on.to_date..reinstate_on.end_of_month.to_date,
-        employees_updated: @benefit_sponsorship.census_employees.active.count,
-        employees_not_updated: 0,
-        employee_details: @benefit_sponsorship.census_employees.active.collect do |ce|
-          {
-            employee_name: ce.full_name,
-            status: "Reinstated",
-            coverage_reinstated_on: reinstate_on.to_date,
-            error_details: "N/A"
-          }
-        end
-      }
+      item = application.reload.latest_benefit_application_item
+      confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+      confirmation_payload.merge!({errors: result.failure}) if result.failure?
+      redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
+    else
+      redirect_to exchanges_hbx_profiles_root_path
     end
   rescue StandardError => e
     Rails.logger.error { "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_reinstate')} - #{e.backtrace}" }
@@ -126,9 +136,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   end
 
   def check_hbx_staff_role
-    unless current_user.has_hbx_staff_role?
-      redirect_to root_path, :flash => { :error => "You must be an HBX staff member" }
-    end
+    redirect_to root_path, :flash => { :error => "You must be an HBX staff member" } unless current_user.has_hbx_staff_role?
   end
 
   def find_benefit_sponsorship
