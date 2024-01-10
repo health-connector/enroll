@@ -3,7 +3,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   include Config::AcaHelper
   include L10nHelper
 
-  before_action :can_modify_plan_year?, only: [:terminate, :cancel, :reinstate]
+  before_action :can_modify_plan_year?, only: [:terminate, :cancel, :reinstate, :revise_end_date]
   before_action :check_hbx_staff_role, except: :get_term_reasons
   before_action :find_benefit_sponsorship, except: :get_term_reasons
 
@@ -98,15 +98,22 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
-      revise_end_date = params['revise_end_date']
-      result = EnrollRegistry[:benefit_application_revise_end_date]{ {params: {benefit_application: application, options: {transmit_to_carrier: transmit_to_carrier, revise_end_date: revise_end_date} } } }
-      if result.success?
-        flash[:notice] = "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.revise_end_date.success_message')} #{application.end_on.to_date}"
-      else
-        flash[:error] = "#{application.benefit_sponsorship.legal_name} - #{result.failure}"
-      end
+      term_date = Date.strptime(params[:revise_end_date], "%m/%d/%Y")
+
+      result = BenefitSponsors::Operations::BenefitApplications::Revise.new.call({
+                                                                                   benefit_application: application,
+                                                                                   transmit_to_carrier: transmit_to_carrier,
+                                                                                   reinstate_on: application.end_on + 1.day,
+                                                                                   current_user: current_user,
+                                                                                   term_date: term_date,
+                                                                                   termination_kind: application.termination_kind,
+                                                                                   termination_reason: application.termination_reason
+                                                                                 })
+      item = application.reload.latest_benefit_application_item
+      confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: application.id, sequence_id: item.sequence_id}
+      confirmation_payload.merge!({errors: result.failure}) if result.failure?
+      redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
     end
-    redirect_to exchanges_hbx_profiles_root_path
   rescue StandardError => e
     Rails.logger.error { "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_change_end_date')} - #{e.backtrace}" }
     redirect_to exchanges_hbx_profiles_root_path, flash[:error] => "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_change_end_date')}"
