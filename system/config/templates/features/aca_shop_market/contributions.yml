@@ -454,6 +454,20 @@ registry:
       - :enroll_app
       - :aca_shop_market
       - :benefit_market_catalog
+      - :catalog_2024
+    features:
+      - key: :aca_shop_fetch_enrollment_minimum_participation_2024
+        item: BenefitMarkets::Operations::BenefitSponsorCatalogs::FetchMinimumParticipation.new
+        is_enabled: true
+        settings:
+          - key: :zero_percent_sponsor_fixed_percent_contribution_model
+            item: 0
+          - key: :fifty_percent_sponsor_fixed_percent_contribution_model
+            item: <%= 3 / 4.0 %>
+  - namespace:
+      - :enroll_app
+      - :aca_shop_market
+      - :benefit_market_catalog
       - :catalog_2023
     features:
       - key: :aca_shop_fetch_enrollment_minimum_participation_2023
