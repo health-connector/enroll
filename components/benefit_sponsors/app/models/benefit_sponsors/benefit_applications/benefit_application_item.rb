@@ -30,7 +30,7 @@ module BenefitSponsors
       ].freeze
 
       ACTION_TYPES = [:change, :correction].freeze
-      ACTION_KINDS = ['voluntary', 'nonpayment', 'voluntary/non-payment', 'reinstate'].freeze
+      ACTION_KINDS = ['voluntary', 'nonpayment', 'voluntary/non-payment', 'reinstate', 'claim', 'cancel'].freeze
 
       field :effective_period,        type: Range
       field :sequence_id,             type: Integer

@@ -155,7 +155,9 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
 
     it 'should claim the code successfully' do
       sponsor_profile_benefit_sponsorship.organization.reload
-      expect(sponsor_profile_benefit_sponsorship.reload.benefit_applications.count).to eq 1
+      applications = sponsor_profile_benefit_sponsorship.reload.benefit_applications
+      expect(applications.count).to eq 1
+      expect(applications.first.benefit_application_items.size).to eq 1
     end
 
     it 'should show success flash message' do

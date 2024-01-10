@@ -137,10 +137,14 @@ module SponsoredBenefits
 
         new_benefit_sponsorship = build_benefit_sponsors_benefit_sponsorship_if_needed(organization, benefit_sponsorship)
 
-        new_benefit_application = new_benefit_sponsorship.benefit_applications.new(
+        new_benefit_application = new_benefit_sponsorship.benefit_applications.new(open_enrollment_period: open_enrollment_period)
+        new_benefit_application.benefit_application_items.build({
           effective_period: effective_period,
-          open_enrollment_period: open_enrollment_period
-        )
+          state: new_benefit_application.aasm_state,
+          sequence_id: 0,
+          action_kind: 'claim'
+        })
+
         set_predecessor_applications_if_present(new_benefit_sponsorship, new_benefit_application)
         new_benefit_application.pull_benefit_sponsorship_attributes
         if new_benefit_application.valid? && new_benefit_sponsorship.valid?# && new_benefit_application.save
@@ -364,7 +368,7 @@ module SponsoredBenefits
 
       def update_benefit_sponsor_catalog(benefit_application, benefit_sponsorship)
         #update benefit sponsor catalog details
-        benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin)
+        benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin.to_date)
         catalog = benefit_application.benefit_sponsor_catalog
         catalog.benefit_application = benefit_application
         catalog.save

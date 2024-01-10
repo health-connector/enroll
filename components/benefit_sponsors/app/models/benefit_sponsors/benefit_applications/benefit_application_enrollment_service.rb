@@ -172,6 +172,7 @@ module BenefitSponsors
             action_on: TimeKeeper.date_of_record,
             action_type: :change,
             state: state,
+            action_kind: 'cancel',
             updated_by: current_user&.id
           )
           benefit_application.cancel!(notify_trading_partner)
