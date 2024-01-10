@@ -3,6 +3,7 @@
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+
 RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbclean: :after_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
@@ -155,7 +156,6 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         enrollments = family.active_household.hbx_enrollments
         expect(enrollments.size).to eq 1
         subject.call(params).value!
-
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :active
         expect(enrollments.size).to eq 2

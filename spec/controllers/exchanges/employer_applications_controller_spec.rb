@@ -202,5 +202,41 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
       end
     end
+
+    context "application history" do
+      let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+      let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+
+      context 'when feature enabled' do
+        before :each do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(true)
+          allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
+          sign_in(user)
+          put :application_history, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+        end
+
+        it 'should have redirect response' do
+          expect(response).to have_http_status(200)
+        end
+      end
+
+
+      context 'when feature disabled' do
+        before :each do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(false)
+          allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
+          sign_in(user)
+          put :application_history, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+        end
+
+        it 'should have redirect response' do
+          expect(response).to have_http_status(:redirect)
+        end
+
+        it 'should direct to profile root path' do
+          expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
+        end
+      end
+    end
   end
 end

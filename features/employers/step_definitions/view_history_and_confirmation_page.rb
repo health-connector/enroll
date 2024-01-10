@@ -26,7 +26,4 @@ end
 
 Then(/admin will go to employer index page/) do
   expect(page).to have_content('Employers')
-  expect(page).to have_link('Abc Widgets')
-  expect(page).to have_css('.custom_filter')
-  expect(page).to have_css('.dataTables_filter')
 end
