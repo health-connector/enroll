@@ -139,11 +139,11 @@ module SponsoredBenefits
 
         new_benefit_application = new_benefit_sponsorship.benefit_applications.new(open_enrollment_period: open_enrollment_period)
         new_benefit_application.benefit_application_items.build({
-          effective_period: effective_period,
-          state: new_benefit_application.aasm_state,
-          sequence_id: 0,
-          action_kind: 'claim'
-        })
+                                                                  effective_period: effective_period,
+                                                                  state: new_benefit_application.aasm_state,
+                                                                  sequence_id: 0,
+                                                                  action_kind: 'claim'
+                                                                })
 
         set_predecessor_applications_if_present(new_benefit_sponsorship, new_benefit_application)
         new_benefit_application.pull_benefit_sponsorship_attributes
