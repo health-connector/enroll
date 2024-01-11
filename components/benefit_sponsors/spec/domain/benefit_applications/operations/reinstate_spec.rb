@@ -344,5 +344,27 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         end
       end
     end
+
+    context 'with previous year benefit application' do
+      let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month - 13.months }
+      let(:aasm_state) { :terminated }
+      let(:benefit_application) { initial_application }
+
+      it 'returns failure ' do
+        result = subject.call(params)
+        expect(result.failure?).to eq true
+        expect(result.failure).to eq ["Reinstate can only occur on current year benefit application"]
+      end
+    end
+
+    context 'with gap in coverage reinstate' do
+      let(:reinstate_on) { (benefit_application.end_on + 45.days).beginning_of_month }
+
+      it 'returns failure ' do
+        result = subject.call(params)
+        expect(result.failure?).to eq true
+        expect(result.failure).to eq ["Reinstate on will result gap in coverage which is not allowed"]
+      end
+    end
   end
 end
