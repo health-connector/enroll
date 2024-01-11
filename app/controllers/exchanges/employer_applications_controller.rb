@@ -84,7 +84,12 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
-      reinstate_on = params[:reinstate_on] ? Date.strptime(params[:reinstate_on], "%m/%d/%Y") : (application.end_on + 1.day)
+      reinstate_on = if params[:reinstate_on]
+                       Date.strptime(params[:reinstate_on], "%m/%d/%Y")
+                     else
+                       application.retroactive_canceled? ? application.start_on : (application.end_on + 1.day)
+                     end
+
       result = BenefitSponsors::Operations::BenefitApplications::Reinstate.new.call({
                                                                                       benefit_application: application,
                                                                                       transmit_to_carrier: transmit_to_carrier,
@@ -109,11 +114,12 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
       transmit_to_carrier = params['transmit_to_carrier'] == "true"
       term_date = Date.strptime(params[:revise_end_date], "%m/%d/%Y")
+      reinstate_on = application.retroactive_canceled? ? application.start_on : (application.end_on + 1.day)
 
       result = BenefitSponsors::Operations::BenefitApplications::Revise.new.call({
                                                                                    benefit_application: application,
                                                                                    transmit_to_carrier: transmit_to_carrier,
-                                                                                   reinstate_on: application.end_on + 1.day,
+                                                                                   reinstate_on: reinstate_on,
                                                                                    current_user: current_user,
                                                                                    term_date: term_date,
                                                                                    termination_kind: application.termination_kind,
