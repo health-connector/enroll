@@ -381,6 +381,11 @@ module BenefitSponsors
       result = true
       end_on = end_on.to_date
 
+      if @benefit_application.start_on > end_on
+        result = false
+        errors[:invalid_end_on_date] = "End on should be greater than benefit application start on"
+      end
+
       if termination_kind == 'voluntary'
         if !allow_mid_month_voluntary_terms? && end_on != end_on.end_of_month
           result = false

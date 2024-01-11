@@ -31,7 +31,10 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     item = @application.reload.latest_benefit_application_item
     confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
     confirmation_payload.merge!({errors: errors.values}) unless result
-    redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
+
+    respond_to do |format|
+      format.json { render json: confirmation_payload }
+    end
   end
 
   def cancel
@@ -43,7 +46,10 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     item = @application.reload.latest_benefit_application_item
     confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
     confirmation_payload.merge!({errors: errors.values}) unless result
-    redirect_to confirmation_details_exchanges_employer_applications_path(confirmation_payload)
+
+    respond_to do |format|
+      format.json { render json: confirmation_payload }
+    end
   end
 
   def get_term_reasons
