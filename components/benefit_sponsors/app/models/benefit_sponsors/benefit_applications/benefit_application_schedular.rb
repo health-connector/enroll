@@ -164,7 +164,7 @@ module BenefitSponsors
       end
 
       def business_day?(date)
-        !date.saturday? && !date.sunday? && !Holidays.on(date, :us).present?
+        !date.saturday? && !date.sunday? && !Holidays.on(date, :us_ma).present?
       end
 
       def shop_enrollment_timetable(new_effective_date)
