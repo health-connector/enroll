@@ -1,5 +1,5 @@
 module Config::AcaHelper
-  include L10nHelper
+  include ::L10nHelper
 
   def aca_state_abbreviation
     Settings.aca.state_abbreviation
