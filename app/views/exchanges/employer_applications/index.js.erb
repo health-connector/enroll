@@ -359,6 +359,11 @@ function submitPlanActions() {
         term_kind: termKind, 
         term_reason: termReason, 
         transmit_to_carrier: transmit_to_carrier 
+      },
+      dataType: "json",
+      success: function(data) {
+        params = new URLSearchParams(data);
+        window.location.href = "/exchanges/employer_applications/confirmation_details?"+params.toString()
       }
     });
   }
