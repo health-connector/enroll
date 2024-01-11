@@ -1,3 +1,5 @@
+require_relative '../l10n_helper'
+
 module Config::AcaHelper
   include ::L10nHelper
 
