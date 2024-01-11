@@ -292,7 +292,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
     end
 
     context "without overlapping application" do
-      let(:new_start_on) { benefit_application.effective_period.max.to_date.next_day }
+      let(:new_start_on) { benefit_application.initial_effective_period.max.to_date.next_day }
       let!(:draft_application) do
         FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
                            passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
@@ -305,7 +305,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
       it 'should reinstate benefit application if there is no overlapping application' do
         expect(benefit_application.aasm_state).to eq :terminated
-        subject.call(params)
+        result = subject.call(params)
         item = benefit_application.reload.latest_benefit_application_item
 
         expect(benefit_application.aasm_state).to eq :active
@@ -338,6 +338,17 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       context "with terminated overlapping application" do
         let(:overlapping_state) { :terminated }
         it 'returns failure ' do
+          result = subject.call(params)
+          expect(result.failure?).to eq true
+          expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
+        end
+      end
+
+      context "overlap with initial effective period but not with latest effective period" do
+        let(:new_start_on) { benefit_application.effective_period.max.to_date.next_day }
+        let(:overlapping_state) { :draft }
+
+        it 'should return failure ' do
           result = subject.call(params)
           expect(result.failure?).to eq true
           expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]

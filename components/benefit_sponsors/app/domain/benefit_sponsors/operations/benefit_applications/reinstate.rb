@@ -50,7 +50,7 @@ module BenefitSponsors
             :_id.ne => @benefit_application.id,
             :aasm_state.in => aasm_states
           ).any? do |application|
-            @benefit_application.effective_period.cover?(application.start_on)
+            @benefit_application.initial_effective_period.cover?(application.start_on)
           end
         end
 
