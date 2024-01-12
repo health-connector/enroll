@@ -7,6 +7,10 @@
   <h3 class="mt-0"><b><%= l10n("exchange.employer_applications.details")%></b></h3>
   <table class="confirmation-status-table">
     <tr>
+      <td><h4><%= l10n("employer")%></h4></td>
+      <td><b><%= @benefit_sponsorship.legal_name.upcase %></b></td>
+    </tr>
+    <tr>
       <td><h4><%= l10n("exchange.employer_applications.current_status")%></h4></td>
       <td><%= @application.aasm_state.to_s.titleize %></td>
     </tr>

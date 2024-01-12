@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 Then(/^the user will see application history button$/) do
-  expect(page).to have_link('Application History')
+  expect(page).to have_link('View History')
 end
 
 Then(/^Admin will see Confirmation page/) do
   expect(page).to have_content('Confirmation Page')
+end
+
+Then(/^Admin will see pagination for employees/) do
+  expect(page).to have_css('#pagination-buttons')
 end
 
 Then(/^Admin will see application history page/) do
@@ -13,7 +17,7 @@ Then(/^Admin will see application history page/) do
 end
 
 When(/Admin clicks on application history button/) do
-  find('a', :text => 'Application History').click
+  find('a', :text => 'View History').click
 end
 
 Then(/admin will see option to click return to employer index view/) do

@@ -16,7 +16,7 @@
          <th><%= l10n("exchange.employer_applications.oe_start")%></th>
          <th><%= l10n("exchange.employer_applications.oe_end")%></th>
          <th><%= l10n("exchange.employer_applications.created_on")%></th>
-         <th><%= l10n("exchange.employer_applications.terminated_on")%></th>
+         <th><%= l10n("exchange.employer_applications.terminated_on")%>:</th>
          <th><%= l10n("exchange.employer_applications.status")%></th>
          <th></th>
         </tr>
@@ -38,7 +38,9 @@
                   Actions <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" style="padding:10px">
-                    <%= link_to(l10n("exchange.employer_applications.view_history"), exchanges_employer_application_application_history_path(application.id, employer_id: @benefit_sponsorship.id), class: "application-history btn btn-default btn-block",  data: { turbolinks: false }) %>
+                    <% if ::EnrollRegistry.feature_enabled?(:benefit_application_history) %>
+                      <%= link_to(l10n("exchange.employer_applications.view_history"), exchanges_employer_application_application_history_path(application.id, employer_id: @benefit_sponsorship.id), class: "application-history btn btn-default btn-block",  data: { turbolinks: false }) %>
+                    <% end %>
                     <li onclick="pyAction('cancel', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
                     <li onclick="pyAction('terminate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
                     <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>

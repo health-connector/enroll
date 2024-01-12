@@ -140,7 +140,7 @@ module Config::AcaHelper
   end
 
   def confirmation_details_text(item)
-    states = ["termination_pending", "terminated", "reinstate", "cancel", "retroactive_canceled"]
+    states = ["termination_pending", "terminated", "reinstate", "canceled", "retroactive_canceled"]
     text = item.state.to_s
     return text.titleize unless states.include?(text)
 

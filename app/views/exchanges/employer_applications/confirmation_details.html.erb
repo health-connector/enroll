@@ -11,6 +11,10 @@
   <% else %>
     <table class="confirmation-status-table">
       <tr>
+        <td><h4><%= l10n("employer")%>:</h4></td>
+        <td><b><%= @benefit_sponsorship.legal_name.upcase %></b></td>
+      </tr>
+      <tr>
         <td><h4><%= l10n("exchange.employer_applications.current_status")%></h4></td>
         <td><%= @result[:current_status] %></td>
       </tr>
@@ -32,12 +36,14 @@
       </tr>
     </table>
 
-    <h4><strong>
-      <%= link_to(
-        l10n("exchange.employer_applications.return_to_application_history"),
-        exchanges_employer_application_application_history_path(@application.id, employer_id: @benefit_sponsorship.id))
-      %>
-    </strong></h4>
+    <% if ::EnrollRegistry.feature_enabled?(:benefit_application_history) %>
+      <h4><strong>
+        <%= link_to(
+          l10n("exchange.employer_applications.return_to_application_history"),
+          exchanges_employer_application_application_history_path(@application.id, employer_id: @benefit_sponsorship.id))
+        %>
+      </strong></h4>
+    <% end %>
 
     <% if @result[:employee_details].present? %>
       <h3 class="mt-3"><b><%= l10n("exchange.employer_applications.employee_details")%></b></h3>
@@ -48,7 +54,7 @@
           <th style='width: 40%'><%= l10n("exchange.employer_applications.status")%></th>
           <th style='width: 30%'><%= l10n("exchange.employer_applications.details")%></th>
         </thead>
-        <tbody>
+        <tbody id="employee-table">
           <% @result[:employee_details].each do |employee| %>
             <tr style='border-bottom: 1px solid #d1d1d1;'>
               <td style='padding: 1%'><%= employee[:employee_name].titleize %></td>
@@ -58,6 +64,176 @@
           <% end %>
         </tbody>
       </table>
+      <div id="pagination-buttons" style='width: 70%; margin-top: 2%;'>
+        <button id="previous-page-button" class="pagination-bar previous-next-button" onclick="previousPage()">Previous</button>
+        <span id="page-numbers"></span>
+        <button id="next-page-button" class="pagination-bar previous-next-button" onclick="nextPage()">Next</button>
+      </div>
     <% end %>
   <% end %>
 </div>
+
+<style>
+  .pagination-bar {
+    border: none;
+    padding: 0.7% 1.4%;
+    cursor: pointer;
+    border-radius: 0px;
+    margin: 0;
+  }
+
+  .pagination-button {
+    background-color: #178fbc;
+    color: white;
+  }
+
+  .pagination-ellipsis {
+    background-color: #178fbc;
+    color: white;
+    border: none;
+    padding: 0.7% 1.4%;
+    cursor: pointer;
+    border-radius: 0px;
+    margin: 0;
+  }
+
+  .previous-next-button {
+    color: #178fbc;
+  }
+
+  .pagination-button:hover {
+    background-color: #005e81;
+  }
+
+  .previous-next-button:hover {
+    color: #005e81;
+  }
+
+  .active-page {
+    background-color: #005e81;
+    color: white;
+  }
+
+  .disabled-button {
+    color: #808080;
+    cursor: not-allowed;
+  }
+</style>
+
+<script>
+  var currentPage = 1;
+  var rowsPerPage = 10;
+  var employeeDetails = <%= @result[:employee_details].to_json.html_safe %>;
+  var totalEmployees = employeeDetails ? employeeDetails.length : 0;
+  var totalPages = Math.ceil(totalEmployees / rowsPerPage);
+  var paginationButtons = document.getElementById("page-numbers");
+
+  function showPage(pageNumber) {
+    var table = document.getElementById("employee-table");
+    var rows = table.rows;
+    var startIndex = (pageNumber - 1) * rowsPerPage;
+    var endIndex = Math.min(startIndex + rowsPerPage, rows.length);
+
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].style.display = "none";
+    }
+    for (var i = startIndex; i < endIndex; i++) {
+      rows[i].style.display = "";
+    }
+  }
+
+  function updatePaginationButtons() {
+    paginationButtons.innerHTML = "";
+    var maxVisiblePages = 5;
+
+    addPaginationButton(1);
+
+    if (totalPages <= maxVisiblePages) {
+      // Display all pages if there are fewer than or equal to 5
+      for (var i = 2; i < totalPages; i++) {
+        addPaginationButton(i);
+      }
+    } else {
+      var startPage = Math.max(2, currentPage - Math.floor((maxVisiblePages - 1) / 2));
+      var endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 2);
+
+      if (startPage > 2) {
+        // Add an ellipsis if there are pages between 1 and startPage
+        addEllipsis();
+      }
+
+      for (var i = startPage; i <= endPage; i++) {
+        addPaginationButton(i);
+      }
+
+      if (endPage < totalPages - 1) {
+        // Add an ellipsis if there are pages between endPage and totalPages
+        addEllipsis();
+      }
+    }
+
+    // Display the last page
+    if (totalPages > 1) {
+      addPaginationButton(totalPages);
+    }
+
+    var previousButton = document.getElementById("previous-page-button");
+    if (currentPage === 1) {
+      previousButton.classList.add("disabled-button");
+      previousButton.disabled = true;
+    } else {
+      previousButton.classList.remove("disabled-button");
+      previousButton.disabled = false;
+    }
+
+    var nextButton = document.getElementById("next-page-button");
+    if (currentPage === totalPages) {
+      nextButton.classList.add("disabled-button");
+      nextButton.disabled = true;
+    } else {
+      nextButton.classList.remove("disabled-button");
+      nextButton.disabled = false;
+    }
+  }
+
+  function addPaginationButton(pageNumber) {
+    var button = document.createElement("button");
+    button.textContent = pageNumber;
+    button.className = "pagination-bar pagination-button";
+    if (pageNumber === currentPage) {
+      button.classList.add("active-page"); // Add the active-page class for the current page
+    }
+    button.onclick = function () {
+      currentPage = parseInt(this.textContent);
+      showPage(currentPage);
+      updatePaginationButtons();
+    };
+    document.getElementById("page-numbers").appendChild(button);
+  }
+
+  function addEllipsis() {
+    var ellipsis = document.createElement("button");
+    ellipsis.textContent = "...";
+    ellipsis.className = "pagination-ellipsis";
+    document.getElementById("page-numbers").appendChild(ellipsis);
+  }
+
+  function previousPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      showPage(currentPage);
+      updatePaginationButtons();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages) {
+      currentPage++;
+      showPage(currentPage);
+      updatePaginationButtons();
+    }
+  }
+
+  showPage(currentPage);
+  updatePaginationButtons();
+</script>

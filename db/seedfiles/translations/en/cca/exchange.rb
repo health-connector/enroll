@@ -32,7 +32,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.confirmation_page" => "Confirmation Page",
   "en.exchange.employer_applications.current_status" => "Current Status:",
   "en.exchange.employer_applications.reinstated_on" => "Reinstated On:",
-  "en.exchange.employer_applications.terminated_on" => "Terminated On:",
   "en.exchange.employer_applications.canceled_on" => "Canceled On:",
   "en.exchange.employer_applications.action_taken_on" => "Action Taken On:",
   "en.exchange.employer_applications.coverage_period" => "Coverage Period:",

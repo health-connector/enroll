@@ -76,7 +76,7 @@ module BenefitSponsors
 
         def success_payload_for(status, employees_updated, employee_details)
           payload = {
-            confirmation_type: status,
+            confirmation_type: @item.state.to_s,
             current_status: status.titleize,
             action_on: @item.action_on,
             coverage_period: @benefit_application.effective_period,
