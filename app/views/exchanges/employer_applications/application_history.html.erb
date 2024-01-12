@@ -1,60 +1,60 @@
-<div class="tab-row">
-  <div class="tab-content" id="myTabContent"></div>
-  <div class="container top-pd">
-    <div class="row">
-      <div aria-labelledby="inbox-tab" id="inbox" class="tab-pane-hbx" role="tabpanel">
-        <div id="tabContent">
-          <div class="container">
-            <h1 class="mt-0"><b><%= l10n("exchange.employer_applications.application_history")%></b></h1>
-            <h3 class="mt-0"><b><%= l10n("exchange.employer_applications.details")%></b></h3>
-            <table class="confirmation-status-table">
-              <tr>
-                <td><h4><%= l10n("exchange.employer_applications.current_status")%></h4></td>
-                <td><%= @application.aasm_state.to_s.titleize %></td>
-              </tr>
-              <tr>
-                <td><h4><%= "exchange.employer_applications.created_on" %></h4></td>
-                <td><%= @application.created_at %></td>
-              </tr>
-              <tr>
-                <td><h4><%= l10n("exchange.employer_applications.coverage_period")%></h4></td>
-                <td><%= @application.start_on %> - <%= @application.end_on %></td>
-              </tr>
-              <tr>
-                <td><h4><%= l10n("exchange.employer_applications.oe_period")%></h4></td>
-                <td><%= @application.open_enrollment_start_on %> - <%= @application.open_enrollment_end_on %></td>
-              </tr>
-            </table>
-            <h4><strong>
-              <%= link_to(
-                l10n("exchange.employer_applications.return_to_er_view"),
-                employer_datatable_exchanges_hbx_profiles_path,
-                remote: true, class: "employers-index")
-              %>
-            </strong></h4>
+<div class="container">
+  <p class="mt-3 mb-3">
+    <span style="color: #888; word-spacing: 0.5em">/ Employer Index </span>
+    <span style="color: #000; word-spacing: 0.5em">/ Application History</span>
+  </p>
+  <h1 class="mt-0"><b><%= l10n("exchange.employer_applications.application_history")%></b></h1>
+  <h3 class="mt-0"><b><%= l10n("exchange.employer_applications.details")%></b></h3>
+  <table class="confirmation-status-table">
+    <tr>
+      <td><h4><%= l10n("exchange.employer_applications.current_status")%></h4></td>
+      <td><%= @application.aasm_state.to_s.titleize %></td>
+    </tr>
+    <tr>
+      <td><h4><%= l10n("exchange.employer_applications.created_on") %>:</h4></td>
+      <td><%= @application.created_at %></td>
+    </tr>
+    <tr>
+      <td><h4><%= l10n("exchange.employer_applications.coverage_period")%></h4></td>
+      <td><%= @application.start_on %> - <%= @application.end_on %></td>
+    </tr>
+    <tr>
+      <td><h4><%= l10n("exchange.employer_applications.oe_period")%></h4></td>
+      <td><%= @application.open_enrollment_start_on %> - <%= @application.open_enrollment_end_on %></td>
+    </tr>
+  </table>
+  <h4><strong>
+    <%= link_to(
+      l10n("exchange.employer_applications.return_to_er_view"),
+      "#",
+      onclick: "backToEmployerIndex();",
+      class: "employers-index")
+    %>
+  </strong></h4>
 
-            <h3 class="mt-1"><b><%= l10n("exchange.employer_applications.history")%></b></h3>
+  <h3 class="mt-1"><b><%= l10n("exchange.employer_applications.history")%></b></h3>
 
-            <table style='width: 70%;'>
-              <thead class="thead-light">
-                <th style='width: 35%; padding: 1%' class="pl-3"><%= l10n("exchange.employer_applications.user_id")%></th>
-                <th style='width: 40%'><%= l10n("exchange.employer_applications.status")%></th>
-                <th style='width: 25%'><%= l10n("exchange.employer_applications.details")%></th>
-              </thead>
-              <tbody>
-                <% @application.benefit_application_items.each do |item| %>
-                  <% user = User.where(_id: item.updated_by).first if item.updated_by %>
-                  <tr style='border-bottom: 1px solid #d1d1d1;'>
-                    <td style='padding: 1%'><%=  user&.oim_id %></td>
-                    <td><%= item.state&.to_s&.titleize %> - <%= item.created_at %></td>
-                    <td style='padding: 1%'><%= confirmation_details_text(item) %></td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <table style='width: 70%;'>
+    <thead class="thead-light">
+      <th style='width: 35%; padding: 1%' class="pl-3"><%= l10n("exchange.employer_applications.user_id")%></th>
+      <th style='width: 40%'><%= l10n("exchange.employer_applications.status")%></th>
+      <th style='width: 25%'><%= l10n("exchange.employer_applications.details")%></th>
+    </thead>
+    <tbody>
+      <% @application.benefit_application_items.each do |item| %>
+        <% user = User.where(_id: item.updated_by).first if item.updated_by %>
+        <tr style='border-bottom: 1px solid #d1d1d1;'>
+          <td style='padding: 1%'><%=  user&.oim_id %></td>
+          <td><%= item.state&.to_s&.titleize %> - <%= item.created_at %></td>
+          <td style='padding: 1%'><%= confirmation_details_text(item) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
+
+<script>
+  function backToEmployerIndex() {
+    window.location.href = '/exchanges/hbx_profiles?employers_tab=true';
+  }
+</script>

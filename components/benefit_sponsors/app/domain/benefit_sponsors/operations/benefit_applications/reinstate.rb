@@ -80,6 +80,7 @@ module BenefitSponsors
         def reinstate_census_employees
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           item = @benefit_application.benefit_application_items.find_by(sequence_id: @sequence_id)
+          is_retroactive_canceled = (item.state == :retroactive_canceled)
 
           CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.each do |census_employee|
             benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
@@ -94,11 +95,12 @@ module BenefitSponsors
             )
 
             enrollments.each do |hbx_enrollment|
-              reinstate_enrollment = clone_enrollment(hbx_enrollment)
+              effective_on = is_retroactive_canceled ? hbx_enrollment.effective_on : @reinstate_on
+              reinstate_enrollment = clone_enrollment(hbx_enrollment, effective_on)
               reinstate_enrollment.household = household
               reinstate_enrollment.save!
 
-              if hbx_enrollment.inactive?
+              if hbx_enrollment.waiver_reason.present?
                 reinstate_enrollment.waive_coverage!
               else
                 reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
@@ -127,11 +129,11 @@ module BenefitSponsors
           Success()
         end
 
-        def clone_enrollment(hbx_enrollment)
-          HbxEnrollment.new(enrollment_attrs(hbx_enrollment))
+        def clone_enrollment(hbx_enrollment, effective_on)
+          HbxEnrollment.new(enrollment_attrs(hbx_enrollment, effective_on))
         end
 
-        def enrollment_attrs(hbx_enrollment)
+        def enrollment_attrs(hbx_enrollment, effective_on)
           attrs = hbx_enrollment.serializable_hash.deep_symbolize_keys.except(
             :_id, :created_at, :updated_at, :hbx_id, :effective_on, :aasm_state,
             :terminated_on, :terminate_reason,:termination_submitted_on, :hbx_enrollment_members, :workflow_state_transitions
@@ -139,7 +141,7 @@ module BenefitSponsors
 
           attrs.merge!({
                          aasm_state: 'coverage_reinstated',
-                         effective_on: @reinstate_on,
+                         effective_on: effective_on,
                          predecessor_enrollment_id: hbx_enrollment.id,
                          hbx_enrollment_members: hbx_enrollment_members_params(hbx_enrollment)
                        })

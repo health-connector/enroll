@@ -7,5 +7,6 @@ registry:
       - key: :benefit_application_reinstate
         is_enabled: <%= ENV['BENEFIT_APPLICATION_REINSTATE'] || true %>
       - key: :benefit_application_revise_end_date
-        item: BenefitSponsors::Operations::BenefitApplications::ReviseEndDate.new
         is_enabled: <%= ENV['BENEFIT_APPLICATION_REVISE_END_DATE'] || true %>
+      - key: :benefit_application_history
+        is_enabled: <%= ENV['BENEFIT_APPLICATION_HISTORY'] || true %>

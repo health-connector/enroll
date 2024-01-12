@@ -225,9 +225,9 @@ Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefi
   set_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
-  if TimeKeeper.date_of_record.month > 10
-    create_benefit_market_catalog_for(TimeKeeper.date_of_record.beginning_of_year.prev_year) unless BenefitMarkets::BenefitMarketCatalog.by_application_date(TimeKeeper.date_of_record.prev_year).present?
-    create_benefit_market_catalog_for(TimeKeeper.date_of_record.beginning_of_year.next_year) unless BenefitMarkets::BenefitMarketCatalog.by_application_date(TimeKeeper.date_of_record.next_year).present?
+  if current_effective_date.month > 10
+    generate_renewal_catalog_products_for(coverage_kinds)
+    create_benefit_market_catalog_for(current_effective_date.next_year) unless BenefitMarkets::BenefitMarketCatalog.by_application_date(current_effective_date.next_year).present?
   end
 end
 

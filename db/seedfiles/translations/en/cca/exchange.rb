@@ -32,6 +32,9 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.confirmation_page" => "Confirmation Page",
   "en.exchange.employer_applications.current_status" => "Current Status:",
   "en.exchange.employer_applications.reinstated_on" => "Reinstated On:",
+  "en.exchange.employer_applications.terminated_on" => "Terminated On:",
+  "en.exchange.employer_applications.canceled_on" => "Canceled On:",
+  "en.exchange.employer_applications.action_taken_on" => "Action Taken On:",
   "en.exchange.employer_applications.coverage_period" => "Coverage Period:",
   "en.exchange.employer_applications.oe_period" => "Open Enrollment Period:",
   "en.exchange.employer_applications.reinstate.employees_updated" => "Employees Updated:",
@@ -44,5 +47,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.reinstate.error_details" => "Error Details",
   "en.exchange.employer_applications.return_to_er_view" => "Return to Employers Index View",
   "en.exchange.employer_applications.application_history" => "Application History",
+  "en.exchange.employer_applications.view_history" => "View History",
   "en.exchange.employer_applications.return_to_application_history" => "Return to Application History"
 }.freeze

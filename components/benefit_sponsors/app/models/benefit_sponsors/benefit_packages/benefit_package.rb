@@ -455,7 +455,10 @@ module BenefitSponsors
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
-            benefit_group_assignment.update(end_on: benefit_group_assignment.start_on) unless is_renewing?
+            unless is_renewing?
+              benefit_group_assignment.benefit_application.reload
+              benefit_group_assignment.update(end_on: benefit_group_assignment.start_on)
+            end
           end
         end
       end
@@ -464,6 +467,7 @@ module BenefitSponsors
         self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
+            benefit_group_assignment.benefit_application.reload
             benefit_group_assignment.update(end_on: self.end_on)
           end
         end

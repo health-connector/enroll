@@ -38,7 +38,7 @@
                   Actions <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" style="padding:10px">
-                    <%= link_to(l10n("exchange.employer_applications.application_history"), exchanges_employer_application_application_history_path(application.id, employer_id: @benefit_sponsorship.id), class: "application-history btn btn-default btn-block",  data: { turbolinks: false }) %>
+                    <%= link_to(l10n("exchange.employer_applications.view_history"), exchanges_employer_application_application_history_path(application.id, employer_id: @benefit_sponsorship.id), class: "application-history btn btn-default btn-block",  data: { turbolinks: false }) %>
                     <li onclick="pyAction('cancel', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
                     <li onclick="pyAction('terminate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
                     <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
@@ -61,11 +61,11 @@
             </td>
             <td colspan="2">
               <div class="term_action_radios hidden">
-                <%= select_tag "term_reason_#{application.id}", options_for_select(@reasons), onchange: "validateFormat('#{application.id}', '#{TimeKeeper.format_date(application.start_on)}', '#{TimeKeeper.format_date(application.end_on + 1.day)}')", include_blank: l10n("exchange.employer_applications.select_term_reason") %>
+                <%= select_tag "term_reason_#{application.id}", options_for_select(@reasons), onchange: "validateFormat('#{application.id}', '#{TimeKeeper.format_date(application.start_on.to_date)}', '#{TimeKeeper.format_date(application.end_on.to_date + 1.day)}')", include_blank: l10n("exchange.employer_applications.select_term_reason") %>
               </div>
             </td>
             <td colspan="2">
-              <input type="text" class="uidatepicker form-control date py-end-date" placeholder="Select Term Date" id="date_picker_<%= application.id %>" reinstate_start_date="<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on) %>', '<%= TimeKeeper.format_date(application.end_on.to_date.next_day) %>')">
+              <input type="text" class="uidatepicker form-control date py-end-date" placeholder="Select Term Date" id="date_picker_<%= application.id %>" reinstate_start_date="<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on.to_date) %>', '<%= TimeKeeper.format_date(application.end_on.to_date.next_day) %>')">
               <span class="fa fa-calendar" id="calendar_icon" style="font-size:1.5em" aria-hidden="true"></span>
             </td>
 

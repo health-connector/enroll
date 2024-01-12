@@ -594,6 +594,7 @@ def employer_poc
   # GET /exchanges/hbx_profiles/1
   # GET /exchanges/hbx_profiles/1.json
   def show
+    @employers_tab_active = (params[:employers_tab] == "true")
     if current_user.has_csr_role? || current_user.try(:has_assister_role?)
       redirect_to home_exchanges_agents_path
       return
