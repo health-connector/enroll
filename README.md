@@ -1,4 +1,4 @@
-[![Last Scheduled 'Full suite check'](https://github.com/health-connector/enroll/actions/workflows/ruby.yml/badge.svg?event=schedule)](https://github.com/health-connector/enroll/actions/workflows/ruby.yml)
+[![Full suite check](https://github.com/health-connector/enroll/actions/workflows/ruby.yml/badge.svg?branch=master&event=schedule)](https://github.com/health-connector/enroll/actions/workflows/ruby.yml)
 
 # Enroll
 
