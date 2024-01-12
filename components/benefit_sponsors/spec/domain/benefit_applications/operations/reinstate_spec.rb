@@ -305,7 +305,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
       it 'should reinstate benefit application if there is no overlapping application' do
         expect(benefit_application.aasm_state).to eq :terminated
-        result = subject.call(params)
+        subject.call(params)
         item = benefit_application.reload.latest_benefit_application_item
 
         expect(benefit_application.aasm_state).to eq :active
