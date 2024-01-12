@@ -35,6 +35,8 @@ module BenefitSponsors
           if @benefit_application.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
             @sequence_id = @benefit_application.benefit_application_items.max(:sequence_id)
             errors << "Reinstate failed due to overlapping benefit applications" if any_overlapping_application?
+            errors << "Reinstate can only occur on current year benefit application" if is_prev_year_application?
+            errors << "Reinstate on will result gap in coverage which is not allowed" if incorrect_reinstate_on?
           else
             errors << 'Not a valid Benefit Application'
           end
@@ -52,6 +54,15 @@ module BenefitSponsors
           ).any? do |application|
             @benefit_application.effective_period.cover?(application.start_on)
           end
+        end
+
+        def is_prev_year_application?
+          return true if TimeKeeper.date_of_record > @benefit_application.earliest_benefit_application_item.effective_period.max
+        end
+
+        def incorrect_reinstate_on?
+          application_eligible_reinstate_on = @benefit_application.retroactive_canceled? ? @benefit_application.start_on : (@benefit_application.end_on + 1.day)
+          return true if application_eligible_reinstate_on != @reinstate_on
         end
 
         def reinstate_benefit_application
