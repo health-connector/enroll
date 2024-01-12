@@ -311,6 +311,10 @@ module BenefitSponsors
       benefit_application_items.min_by(&:sequence_id)
     end
 
+    def initial_effective_period
+      earliest_benefit_application_item.effective_period
+    end
+
     # Migration map for plan_year to benefit_application
     def matching_state_for(plan_year)
       plan_year_to_benefit_application_states_map[plan_year.aasm_state.to_sym]
