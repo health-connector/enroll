@@ -45,7 +45,7 @@ Feature: As an admin user I should have the ability to click reinstate button on
     When the user clicks Actions for that benefit application
     Then the user will see Reinstate button
     When Admin clicks on Reinstate button
-    Then Admin will see Reinstate Start Date for <to_state> benefit application
+    Then Admin will see Reinstate Start Date for terminated benefit application
     And Admin will see transmit to carrier checkbox
     When Admin clicks on Submit button
     Then Admin will see Reinstate confirmation pop up modal
