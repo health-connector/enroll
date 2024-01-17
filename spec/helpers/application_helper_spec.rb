@@ -664,6 +664,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
       let(:item) do
         instance_double(
           'BenefitApplicationItem',
+          sequence_id: 1,
           created_at: Time.utc(date.year, date.month, date.day, 4, 47, 49),
           action_on: Time.utc(date.year, date.month, date.day).to_date
         )
