@@ -320,9 +320,8 @@ module BenefitSponsors
         enrolled_and_terminated_families.each do |family|
           enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
           sponsored_benefits.each do |sponsored_benefit|
-            hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-            if hbx_enrollment
-              if (hbx_enrollment.effective_on > benefit_application.end_on)
+            enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
+              if hbx_enrollment.effective_on > benefit_application.end_on
                 if hbx_enrollment.may_cancel_coverage?
                   hbx_enrollment.cancel_coverage!(enrollment_term_date)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
@@ -330,9 +329,10 @@ module BenefitSponsors
               elsif hbx_enrollment.coverage_termination_pending? && hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on < benefit_application.end_on)
                 # do nothing
               elsif hbx_enrollment.may_terminate_coverage?
-                if hbx_enrollment.terminated_on.nil? || (hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on > benefit_application.end_on))
+                terminated_on = hbx_enrollment.terminated_on
+                if terminated_on.nil? || (terminated_on.present? && (terminated_on > benefit_application.end_on))
                   hbx_enrollment.terminate_coverage!(enrollment_term_date)
-                  hbx_enrollment.update_attributes!(terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
+                  hbx_enrollment.update_attributes!(prev_terminated_on: terminated_on, terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
                   hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
                 end
               end
@@ -343,13 +343,11 @@ module BenefitSponsors
 
       def termination_pending_member_benefits
         terminate_benefit_group_assignments
-        enrolled_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
+        enrolled_and_terminated_families.each do |family|
+          enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
 
           sponsored_benefits.each do |sponsored_benefit|
-            hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-
-            if hbx_enrollment
+            enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
               if hbx_enrollment.effective_on > benefit_application.end_on
                 if hbx_enrollment.may_cancel_coverage?
                   hbx_enrollment.cancel_coverage!(enrollment_term_date)
@@ -358,8 +356,9 @@ module BenefitSponsors
               elsif hbx_enrollment.coverage_termination_pending? && hbx_enrollment.terminated_on.present? && (hbx_enrollment.terminated_on < benefit_application.end_on)
                 # do nothing
               elsif hbx_enrollment.may_schedule_coverage_termination?
+                terminated_on = hbx_enrollment.terminated_on
                 hbx_enrollment.schedule_coverage_termination!(enrollment_term_date)
-                hbx_enrollment.update_attributes!(terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
+                hbx_enrollment.update_attributes!(prev_terminated_on: terminated_on, terminated_on: benefit_application.end_on, termination_submitted_on: benefit_application.terminated_on)
                 hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?)
               end
             end
@@ -370,13 +369,17 @@ module BenefitSponsors
       def cancel_member_benefits(delete_benefit_package: false)
         deactivate_benefit_group_assignments
 
-        enrolled_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
+        enrolled_and_terminated_families.each do |family|
+          enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
 
           sponsored_benefits.each do |sponsored_benefit|
-            hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-            if hbx_enrollment&.may_cancel_coverage?
-              hbx_enrollment.terminate_reason = "retroactive_canceled" if benefit_application.retroactive_canceled?
+            enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
+              next unless hbx_enrollment&.may_cancel_coverage?
+
+              if benefit_application.retroactive_canceled?
+                hbx_enrollment.terminate_reason = 'retroactive_canceled'
+                hbx_enrollment.assign_attributes(terminated_on: start_on, prev_terminated_on: hbx_enrollment.terminated_on) if hbx_enrollment.terminated_on.present?
+              end
               hbx_enrollment.cancel_coverage!
               hbx_enrollment.notify_enrollment_cancel_or_termination_event(benefit_application.is_application_trading_partner_publishable?) unless hbx_enrollment.inactive?
             end

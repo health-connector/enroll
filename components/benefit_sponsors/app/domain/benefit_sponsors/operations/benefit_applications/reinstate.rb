@@ -91,7 +91,12 @@ module BenefitSponsors
         def reinstate_census_employees
           benefit_package_ids = @benefit_application.benefit_packages.map(&:id)
           item = @benefit_application.benefit_application_items.find_by(sequence_id: @sequence_id)
-          is_retroactive_canceled = (item.state == :retroactive_canceled)
+          application_term_date = item.effective_period.max
+
+          if item.state == :retroactive_canceled
+            is_retroactive_canceled = true
+            application_term_date = item.effective_period.min
+          end
 
           CensusEmployee.eligible_for_reinstate(@benefit_application, @reinstate_on).no_timeout.each do |census_employee|
             benefit_group_assignment = census_employee.benefit_group_assignments.where(:benefit_package_id.in => benefit_package_ids).order_by(:created_at.desc).first
@@ -105,26 +110,39 @@ module BenefitSponsors
               :'workflow_state_transitions.transition_at'.gte => item.created_at
             )
 
-            enrollments.each do |hbx_enrollment|
+            enrollments.select {|enr| enr.terminated_on.blank? || enr.terminated_on == application_term_date }.each do |hbx_enrollment|
               effective_on = is_retroactive_canceled ? hbx_enrollment.effective_on : @reinstate_on
               reinstate_enrollment = clone_enrollment(hbx_enrollment, effective_on)
               reinstate_enrollment.household = household
               reinstate_enrollment.save!
 
-              if hbx_enrollment.waiver_reason.present?
-                reinstate_enrollment.waive_coverage!
-              else
-                reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
-                reinstate_enrollment.begin_coverage!({ disable_callbacks: true }) if TimeKeeper.date_of_record >= reinstate_enrollment.effective_on && reinstate_enrollment.may_begin_coverage?
-
-                reinstate_enrollment.notify_of_coverage_start(true)
-              end
+              handle_coverage(hbx_enrollment, reinstate_enrollment)
             end
           rescue StandardError => e
             Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
           end
 
           Success()
+        end
+
+        def handle_coverage(hbx_enrollment, reinstate_enrollment)
+          if hbx_enrollment.waiver_reason.present?
+            reinstate_enrollment.waive_coverage!
+          else
+            reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
+            reinstate_enrollment.begin_coverage!({ disable_callbacks: true }) if TimeKeeper.date_of_record >= reinstate_enrollment.effective_on && reinstate_enrollment.may_begin_coverage?
+
+            prev_terminated_on = hbx_enrollment.prev_terminated_on
+            if prev_terminated_on.present?
+              if prev_terminated_on >= TimeKeeper.date_of_record
+                reinstate_enrollment.schedule_coverage_termination!(hbx_enrollment.prev_terminated_on)
+              else
+                reinstate_enrollment.terminate_coverage!(hbx_enrollment.prev_terminated_on)
+              end
+            end
+
+            reinstate_enrollment.notify_of_coverage_start(true)
+          end
         end
 
         def renew_benefit_application
