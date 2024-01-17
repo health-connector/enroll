@@ -6,6 +6,7 @@
   <div class = "table-responsive table-override"> 
   <h4 class="text-center heading-text"> <%= l10n("exchange.employer_applications.applications").titleize %> </h4>
   <% benefit_applications = @benefit_sponsorship.benefit_applications.non_expired %>
+  <% action_under_24_hours = is_latest_action_under_24_hours(benefit_applications) %>
   <% if benefit_applications.present? %>
     <table class="table">
       <thead>
@@ -24,7 +25,7 @@
       <tbody>
         <% benefit_applications.order('start_on DESC').each do |application| %>
           <tr>
-            <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s  %></td>
+            <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s, action_under_24_hours: action_under_24_hours %></td>
             <td><%= (application.start_on.to_date) %></td>
             <td><%= (application.end_on.to_date) %></td>
             <td><%= (application.open_enrollment_period.begin.to_date) %></td>

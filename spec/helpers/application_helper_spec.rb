@@ -670,4 +670,44 @@ end
       expect{helper.convert_to_bool(val9)}.to raise_error(ArgumentError)
     end
   end
+
+  describe '#is_latest_action_under_24_hours' do
+    context 'when benefit applications are present' do
+      let(:benefit_application) { instance_double('BenefitApplication') }
+      let(:date) { TimeKeeper.date_of_record }
+      let(:item) do
+        instance_double(
+          'BenefitApplicationItem',
+          created_at: Time.utc(date.year, date.month, date.day, 4, 47, 49),
+          action_on: Time.utc(date.year, date.month, date.day).to_date
+        )
+      end
+
+      before do
+        allow(benefit_application).to receive(:latest_benefit_application_item).and_return(item)
+      end
+
+      it 'returns true if the latest action is under 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, date.month, date.day + 1, 4, 47, 49))
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(true)
+      end
+
+      it 'returns false if the latest action is over 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, date.month, date.day + 1, 4, 47, 50))
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(false)
+      end
+    end
+
+    context 'when benefit applications are not present' do
+      it 'returns false' do
+        benefit_applications = []
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(false)
+      end
+    end
+  end
 end

@@ -34,7 +34,8 @@ $('input[name=plan_year_radio]').click(function() {
   hideTerminationRadios();
   $('.py-btn-grp').addClass('disabled');
   var pyStatus = $(this).attr("status");
-  populateDropDown(pyStatus);
+  var actionTakenUnder24Hours = $(this).attr("action_under_24_hours");
+  populateDropDown(pyStatus, actionTakenUnder24Hours);
   $('input[name=plan_year_radio]:checked').closest('td').siblings().find('.py-btn-grp').removeClass('disabled')
 });
 
@@ -44,39 +45,28 @@ $('#plan-year-btn-group ul li').each(function() {
   })
 });
 
-function populateDropDown(status) {
-
+function populateDropDown(status, actionTakenUnder24Hours) {
   var cancel_states = ["approved", "pending", "draft", "imported", "enrollment_open", "enrollment_extended", "enrollment_closed", "enrollment_eligible", "binder_paid", "enrollment_ineligible", "active"];
   var term_states = ["active", "suspended", "expired", "termination_pending"];
   var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled"];
   var revise_end_date_states = ["terminated", "termination_pending"];
 
-  if (cancel_states.indexOf(status) > -1) {
-    $('li.cancel-py').removeClass('blocking');
+  if (actionTakenUnder24Hours === 'true') {
+    $('li.cancel-py, li.terminate-py, li.reinstate-py, li.revise-end-date-py').addClass('blocking');
+  } else {
+    updateBlockingState(status, 'cancel-py', cancel_states);
+    updateBlockingState(status, 'terminate-py', term_states);
+    updateBlockingState(status, 'reinstate-py', reinstate_states);
+    updateBlockingState(status, 'revise-end-date-py', revise_end_date_states);
   }
-  else {
-   $('li.cancel-py').addClass('blocking');
-  }
+}
 
-  if (term_states.indexOf(status) > -1) {
-    $('li.terminate-py').removeClass('blocking');
-  }
-  else {
-   $('li.terminate-py').addClass('blocking');
-  }
-
-  if (reinstate_states.indexOf(status) > -1) {
-    $('li.reinstate-py').removeClass('blocking');
-  }
-  else {
-   $('li.reinstate-py').addClass('blocking');
-  }
-
-  if (revise_end_date_states.indexOf(status) > -1) {
-    $('li.revise-end-date-py').removeClass('blocking');
-  }
-  else {
-   $('li.revise-end-date-py').addClass('blocking');
+function updateBlockingState(status, elementClass, requiredStates) {
+  var $element = $('li.' + elementClass);
+  if (requiredStates.indexOf(status) > -1) {
+    $element.removeClass('blocking');
+  } else {
+    $element.addClass('blocking');
   }
 }
 

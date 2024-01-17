@@ -769,6 +769,15 @@ module ApplicationHelper
     return summary_text.strip
   end
 
+  def is_latest_action_under_24_hours(benefit_applications)
+    return false unless benefit_applications.present?
+
+    benefit_applications.any? do |benefit_application|
+      item = benefit_application.latest_benefit_application_item
+      ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+    end
+  end
+
   def json_for_plan_shopping_member_groups(member_groups)
     member_groups.map do |member_group|
       member_group_hash = JSON.parse(member_group.group_enrollment.to_json)
