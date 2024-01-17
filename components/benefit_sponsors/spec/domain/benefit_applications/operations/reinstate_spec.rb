@@ -136,7 +136,8 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           sponsored_benefit_package_id: current_benefit_package.id,
           sponsored_benefit_id: sponsored_benefit.id,
           employee_role_id: employee_role.id,
-          aasm_state: 'coverage_selected',
+          aasm_state: enr_aasm_state,
+          terminated_on: terminated_on,
           waiver_reason: nil
         )
       end
@@ -153,21 +154,28 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         initial_application.reload
       end
 
-      it 'should reinstate enrollment' do
-        enrollments = family.active_household.hbx_enrollments
-        expect(enrollments.size).to eq 1
-        subject.call(params).value!
-        enrollments = family.reload.active_household.hbx_enrollments
-        expect(benefit_application.aasm_state).to eq :active
-        expect(enrollments.size).to eq 2
-      end
+      context 'with active enrollment' do
+        let(:enr_aasm_state) { 'coverage_selected' }
+        let(:terminated_on) { nil }
 
-      it 'should send enrollment event' do
-        expect_any_instance_of(HbxEnrollment).to receive(:notify)
-        subject.call(params)
+        it 'should reinstate enrollment' do
+          enrollments = family.active_household.hbx_enrollments
+          expect(enrollments.size).to eq 1
+          subject.call(params).value!
+          enrollments = family.reload.active_household.hbx_enrollments
+          expect(benefit_application.aasm_state).to eq :active
+          expect(enrollments.size).to eq 2
+        end
+
+        it 'should send enrollment event' do
+          expect_any_instance_of(HbxEnrollment).to receive(:notify)
+          subject.call(params)
+        end
       end
 
       context 'when eligible for renewal' do
+        let(:enr_aasm_state) { 'coverage_selected' }
+        let(:terminated_on) { nil }
         let(:renewal_day) do
           months_prior_to_effective = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.months.abs
           (benefit_application.earliest_benefit_application_item.effective_period.max + 1.day).to_date - months_prior_to_effective.months
@@ -182,6 +190,88 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           subject.call(params).value!
         end
       end
+
+      context 'with terminated enrollment' do
+        context 'with past term date prior to application end date' do
+          let(:enr_aasm_state) { 'coverage_terminated' }
+          let(:terminated_on) { (TimeKeeper.date_of_record - 1.month).end_of_month }
+
+          it 'should not reinstate enrollment as terminated' do
+            enrollments = family.active_household.hbx_enrollments
+            expect(enrollments.size).to eq 1
+            subject.call(params).value!
+            enrollments = family.reload.active_household.hbx_enrollments
+            expect(benefit_application.aasm_state).to eq :active
+            expect(enrollments.size).to eq 1
+            enrollment = enrollments.last
+            expect(enrollment.aasm_state).to eq 'coverage_terminated'
+            expect(enrollment.terminated_on).to eq terminated_on
+          end
+
+          it 'should not send enrollment event' do
+            expect_any_instance_of(HbxEnrollment).not_to receive(:notify_enrollment_cancel_or_termination_event)
+            expect_any_instance_of(HbxEnrollment).not_to receive(:notify)
+            subject.call(params)
+          end
+        end
+
+        context 'with past term date after application end date' do
+          let!(:benefit_application) do
+            effective_period = initial_application.effective_period
+            updated_dates = effective_period.min..((TimeKeeper.date_of_record - 3.months).end_of_month)
+            initial_application.benefit_application_items.create(
+              sequence_id: 1,
+              effective_period: updated_dates,
+              state: :terminated
+            )
+            initial_application.terminate_enrollment!((TimeKeeper.date_of_record - 3.months).end_of_month)
+            initial_application.reload
+          end
+
+          let(:enr_aasm_state) { 'coverage_terminated' }
+          let(:terminated_on) { (TimeKeeper.date_of_record - 1.month).end_of_month }
+
+          it 'should reinstate enrollment as terminated' do
+            enrollments = family.active_household.hbx_enrollments
+            expect(enrollments.size).to eq 1
+            subject.call(params).value!
+            enrollments = family.reload.active_household.hbx_enrollments
+            expect(benefit_application.aasm_state).to eq :active
+            expect(enrollments.size).to eq 2
+            enrollment = enrollments.last
+            expect(enrollment.aasm_state).to eq 'coverage_terminated'
+            expect(enrollment.terminated_on).to eq terminated_on
+          end
+
+          it 'should send enrollment event' do
+            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            subject.call(params)
+          end
+        end
+
+        context 'with future term date' do
+          let(:enr_aasm_state) { 'coverage_termination_pending' }
+          let(:terminated_on) { (TimeKeeper.date_of_record + 1.month).end_of_month }
+
+          it 'should reinstate enrollment as term pending' do
+            enrollments = family.active_household.hbx_enrollments
+            expect(enrollments.size).to eq 1
+            subject.call(params).value!
+            enrollments = family.reload.active_household.hbx_enrollments
+            expect(benefit_application.aasm_state).to eq :active
+            expect(enrollments.size).to eq 2
+            enrollment = enrollments.last
+            expect(enrollment.effective_on).to eq reinstate_on
+            expect(enrollment.aasm_state).to eq 'coverage_termination_pending'
+            expect(enrollment.terminated_on).to eq terminated_on
+          end
+
+          it 'should send enrollment event' do
+            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            subject.call(params)
+          end
+        end
+      end
     end
 
     context 'reinstate retroactive cancelled benefit application with census employees and enrollments' do
@@ -194,7 +284,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           employer_profile: benefit_sponsorship.profile,
           benefit_group: current_benefit_package
         )
-        census_employee.employee_role = create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, person: person)
+        census_employee.employee_role_id = create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, person: person).id
         census_employee.save
         census_employee
       end
@@ -202,32 +292,38 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       let(:sponsored_benefit) { current_benefit_package.sponsored_benefit_for(:health) }
       let(:reinstate_on) { benefit_application.start_on }
 
-      context 'with active enrollment' do
-        let!(:enrollment) do
-          FactoryGirl.create(
-            :hbx_enrollment,
-            household: family.latest_household,
-            coverage_kind: :health,
-            effective_on: current_effective_date,
-            kind: "employer_sponsored",
-            benefit_sponsorship_id: benefit_sponsorship.id,
-            sponsored_benefit_package_id: current_benefit_package.id,
-            sponsored_benefit_id: sponsored_benefit.id,
-            employee_role_id: employee_role.id,
-            aasm_state: 'coverage_selected',
-            waiver_reason: nil
-          )
-        end
+      let!(:enrollment) do
+        FactoryGirl.create(
+          :hbx_enrollment,
+          household: family.latest_household,
+          coverage_kind: :health,
+          effective_on: current_effective_date,
+          kind: "employer_sponsored",
+          benefit_sponsorship_id: benefit_sponsorship.id,
+          sponsored_benefit_package_id: current_benefit_package.id,
+          sponsored_benefit_id: sponsored_benefit.id,
+          employee_role_id: employee_role.id,
+          aasm_state: enr_aasm_state,
+          terminated_on: terminated_on,
+          waiver_reason: waiver_reason
+        )
+      end
 
-        let!(:benefit_application) do
-          initial_application.benefit_application_items.create(
-            sequence_id: 1,
-            effective_period: initial_application.effective_period,
-            state: :retroactive_canceled
-          )
-          initial_application.cancel!
-          initial_application.reload
-        end
+      let(:waiver_reason) { nil }
+
+      let!(:benefit_application) do
+        initial_application.benefit_application_items.create(
+          sequence_id: 1,
+          effective_period: initial_application.effective_period,
+          state: :retroactive_canceled
+        )
+        initial_application.cancel!
+        initial_application.reload
+      end
+
+      context 'with active enrollment' do
+        let(:enr_aasm_state) { 'coverage_selected' }
+        let(:terminated_on) { nil }
 
         it 'should reinstate enrollment as enrolled' do
           enrollments = family.active_household.hbx_enrollments
@@ -247,32 +343,59 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         end
       end
 
-      context 'with waiver enrollment' do
-        let!(:enrollment) do
-          FactoryGirl.create(
-            :hbx_enrollment,
-            household: family.latest_household,
-            coverage_kind: :health,
-            effective_on: current_effective_date,
-            kind: "employer_sponsored",
-            benefit_sponsorship_id: benefit_sponsorship.id,
-            sponsored_benefit_package_id: current_benefit_package.id,
-            sponsored_benefit_id: sponsored_benefit.id,
-            employee_role_id: employee_role.id,
-            aasm_state: 'inactive',
-            product_id: nil
-          )
+      context 'with terminated enrollment' do
+        context 'with past term date' do
+          let(:enr_aasm_state) { 'coverage_terminated' }
+          let(:terminated_on) { (TimeKeeper.date_of_record - 1.month).end_of_month }
+
+
+          it 'should reinstate enrollment' do
+            enrollments = family.active_household.hbx_enrollments
+            expect(enrollments.size).to eq 1
+            subject.call(params).value!
+            enrollments = family.reload.active_household.hbx_enrollments
+            expect(benefit_application.aasm_state).to eq :active
+            expect(enrollments.size).to eq 2
+            enrollment = enrollments.last
+            expect(enrollment.effective_on).to eq benefit_application.start_on
+            expect(enrollment.aasm_state).to eq 'coverage_terminated'
+            expect(enrollment.terminated_on).to eq terminated_on
+          end
+
+          it 'should send enrollment event' do
+            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            subject.call(params)
+          end
         end
 
-        let!(:benefit_application) do
-          initial_application.benefit_application_items.create(
-            sequence_id: 1,
-            effective_period: initial_application.effective_period,
-            state: :retroactive_canceled
-          )
-          initial_application.cancel!
-          initial_application.reload
+        context 'with future term date' do
+          let(:enr_aasm_state) { 'coverage_termination_pending' }
+          let(:terminated_on) { (TimeKeeper.date_of_record + 1.month).end_of_month }
+
+          it 'should reinstate enrollment as term pending' do
+            enrollments = family.active_household.hbx_enrollments
+            expect(enrollments.size).to eq 1
+            subject.call(params).value!
+            enrollments = family.reload.active_household.hbx_enrollments
+            expect(benefit_application.aasm_state).to eq :active
+            expect(enrollments.size).to eq 2
+            enrollment = enrollments.last
+            expect(enrollment.effective_on).to eq benefit_application.start_on
+            expect(enrollment.aasm_state).to eq 'coverage_termination_pending'
+            expect(enrollment.terminated_on).to eq terminated_on
+          end
+
+          it 'should send enrollment event' do
+            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            subject.call(params)
+          end
         end
+      end
+
+      context 'with waiver enrollment' do
+        let(:enr_aasm_state) { 'inactive' }
+        let(:terminated_on) { nil }
+        let(:waiver_reason) { 'waiver_reason' }
 
         it 'should reinstate enrollment as waiver' do
           enrollments = family.active_household.hbx_enrollments

@@ -779,8 +779,61 @@ module BenefitSponsors
           expect(hbx_enrollment.terminated_on).to eq initial_application.end_on
         end
 
-        it 'should move future enrollments to canceled state' do
+        it 'should move future enrollments on family_1 to canceled state' do
           expect(hbx_enrollment_1.aasm_state).to eq "coverage_canceled"
+        end
+      end
+
+      context 'when multiple active enrollments exists on a family' do
+        let!(:current_enrollment) do
+          hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                              household: family.active_household,
+                                              aasm_state: "coverage_termination_pending",
+                                              terminated_on: TimeKeeper.date_of_record.next_month.end_of_month,
+                                              effective_on: initial_application.start_on,
+                                              rating_area_id: initial_application.recorded_rating_area_id,
+                                              sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                              sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                              benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                              employee_role_id: employee_role.id)
+          hbx_enrollment.benefit_sponsorship = benefit_sponsorship
+          hbx_enrollment.save!
+          hbx_enrollment
+        end
+
+        let!(:future_enrollment) do
+          hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                              household: family.active_household,
+                                              aasm_state: "inactive",
+                                              effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                                              rating_area_id: initial_application.recorded_rating_area_id,
+                                              sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                              sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                              benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                              employee_role_id: employee_role.id)
+          hbx_enrollment.benefit_sponsorship = benefit_sponsorship
+          hbx_enrollment.save!
+          hbx_enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :terminated)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
+          benefit_package.terminate_member_benefits
+          current_enrollment.reload
+          future_enrollment.reload
+        end
+
+        it 'should terminate current_enrollment' do
+          expect(current_enrollment.aasm_state).to eq "coverage_terminated"
+        end
+
+        it 'should update terminated_on on current_enrollment' do
+          expect(current_enrollment.terminated_on).to eq initial_application.end_on
+        end
+
+        it 'should move future enrollment to canceled state' do
+          expect(future_enrollment.aasm_state).to eq "coverage_canceled"
         end
       end
 
