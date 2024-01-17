@@ -775,6 +775,7 @@ module ApplicationHelper
     benefit_applications.any? do |benefit_application|
       item = benefit_application.latest_benefit_application_item
       next if item.sequence_id == 0
+
       ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
     end
   end
