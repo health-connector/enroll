@@ -780,6 +780,18 @@ module ApplicationHelper
     end
   end
 
+  def latest_ba_item_within_24_hours(benefit_applications)
+    items = benefit_applications.collect do |benefit_application|
+      item = benefit_application.latest_benefit_application_item
+      next if item.sequence_id == 0
+      next unless ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+
+      item
+    end.compact
+
+    items.max_by(&:created_at)
+  end
+
   def json_for_plan_shopping_member_groups(member_groups)
     member_groups.map do |member_group|
       member_group_hash = JSON.parse(member_group.group_enrollment.to_json)

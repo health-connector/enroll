@@ -697,6 +697,52 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
     end
   end
+
+  describe '#latest_ba_item_within_24_hours' do
+    let(:benefit_application) { instance_double('BenefitApplication') }
+    let(:item_within_24_hours) do
+      instance_double(
+        'BenefitApplicationItem',
+        sequence_id: 1,
+        created_at: Time.now.utc,
+        action_on: Time.now.utc.to_date
+      )
+    end
+    let(:item_outside_24_hours) do
+      instance_double(
+        'BenefitApplicationItem',
+        sequence_id: 1,
+        created_at: Time.now.utc - 25.hours,
+        action_on: Time.now.utc.to_date
+      )
+    end
+
+    context 'when there are benefit applications' do
+      it 'returns the latest item within 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(benefit_application).to receive(:latest_benefit_application_item).and_return(item_within_24_hours)
+
+        result = helper.latest_ba_item_within_24_hours(benefit_applications)
+        expect(result).to eq(item_within_24_hours)
+      end
+
+      it 'returns nil if there are no items within 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(benefit_application).to receive(:latest_benefit_application_item).and_return(item_outside_24_hours)
+
+        result = helper.latest_ba_item_within_24_hours(benefit_applications)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when there are no benefit applications' do
+      it 'returns nil' do
+        benefit_applications = []
+        result = helper.latest_ba_item_within_24_hours(benefit_applications)
+        expect(result).to be_nil
+      end
+    end
+  end
 end
 
 describe "Enabled/Disabled IVL market" do
