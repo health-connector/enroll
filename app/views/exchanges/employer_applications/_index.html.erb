@@ -75,7 +75,7 @@
               </div>
             </td>
             <td colspan="2">
-              <input type="text" class="uidatepicker form-control date py-end-date" placeholder="Select Term Date" id="date_picker_<%= application.id %>" reinstate_start_date="<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on.to_date) %>', '<%= TimeKeeper.format_date(application.end_on.to_date.next_day) %>')">
+              <input type="text" class="uidatepicker form-control date py-end-date" placeholder="Select Term Date" id="date_picker_<%= application.id %>" reinstate_start_date="<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on.to_date) %>', '<%= TimeKeeper.format_date(application.initial_effective_period.max.to_date.next_day) %>')">
               <span class="fa fa-calendar" id="calendar_icon" style="font-size:1.5em" aria-hidden="true"></span>
             </td>
 

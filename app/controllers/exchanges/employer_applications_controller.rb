@@ -19,14 +19,19 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     termination_kind = params['term_kind']
     termination_reason = params['term_reason']
     transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
-    @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, {
-                                                                                end_on: end_on,
-                                                                                termination_kind: termination_kind,
-                                                                                termination_reason: termination_reason,
-                                                                                transmit_to_carrier: transmit_to_carrier,
-                                                                                current_user: current_user
-                                                                              })
-    result, application, errors = @service.terminate_application
+    if @application.termination_pending?
+      result = false
+      errors = { message: l10n('exchange.employer_applications.cannot_terminate_term_pending_application').to_s }
+    else
+      @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, {
+                                                                                  end_on: end_on,
+                                                                                  termination_kind: termination_kind,
+                                                                                  termination_reason: termination_reason,
+                                                                                  transmit_to_carrier: transmit_to_carrier,
+                                                                                  current_user: current_user
+                                                                                })
+      result, _application, errors = @service.terminate_application
+    end
 
     item = @application.reload.latest_benefit_application_item
     confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
