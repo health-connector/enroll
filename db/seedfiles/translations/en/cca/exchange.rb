@@ -10,6 +10,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.terminated_on" => "Terminated On",
   "en.exchange.employer_applications.status" => "Status",
   "en.exchange.employer_applications.terminate" => "Terminate",
+  "en.exchange.employer_applications.cannot_terminate_term_pending_application" => "This tool cannot terminate an application in termination-pending state.",
   "en.exchange.employer_applications.cancel" => "Cancel",
   "en.exchange.employer_applications.reinstate" => "Reinstate",
   "en.exchange.employer_applications.revise_end_date" => "Revise End Date",

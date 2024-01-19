@@ -15,7 +15,7 @@ Feature: As an admin user I should have the ability to click revise end date but
     When the user clicks Actions for that benefit application
     Then the user will see Revise End Date button
     When Admin clicks on Revise End Date button
-    Then Admin will see Revise End Date Start Date for <to_state> benefit application
+    Then Admin will set Revise End Date in <revise_date> for <to_state> benefit application
     And Admin will see transmit to carrier checkbox
     When Admin clicks on Submit button
     Then Admin will see Revise End Date confirmation pop up modal
@@ -23,6 +23,8 @@ Feature: As an admin user I should have the ability to click revise end date but
     And user logs out
 
   Examples:
-    |  from_state |    to_state          |
-    |   active    |   terminated         |
-    |   active    | termination_pending  |
+    |  from_state |    to_state          | revise_date |
+    |   active    |   terminated         | past        |
+    |   active    |   terminated         | future      |
+    |   active    | termination_pending  | past        |
+    |   active    | termination_pending  | future      |
