@@ -15,9 +15,16 @@
           <%= hidden_field_tag 'employer_application_id' %>
           <div class="modal-footer">
             <span class="btn btn-default btn-small" data-dismiss="modal"><%= l10n("exchange.employer_applications.reinstate.cancel")%></span>
-            <%= submit_tag l10n("exchange.employer_applications.reinstate.plan_year"), class: "btn btn-primary mtz  btn-small" %>
+            <%= submit_tag l10n("exchange.employer_applications.reinstate.plan_year"), class: "btn btn-primary mtz  btn-small", 'data-disable-with' => "Loading...", onclick: 'showProgress()' %>
           </div>
       <% end %>
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  function showProgress() {
+    $('#reinstateBenefitApplication').modal('hide');
+    swal({title: "<%=  l10n("exchange.employer_applications.swal_title")%>", text: "<%= l10n("exchange.employer_applications.swal_text") %>", icon:"success", buttons:false, closeOnClickOutside:false});
+  }
+</script>

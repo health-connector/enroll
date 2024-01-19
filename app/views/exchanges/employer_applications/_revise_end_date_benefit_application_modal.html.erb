@@ -16,9 +16,16 @@
           <%= hidden_field_tag 'revise_end_date' %>
           <div class="modal-footer">
             <span class="btn btn-default btn-small" data-dismiss="modal"><%= l10n("exchange.employer_applications.revise_end_date.cancel")%></span>
-            <%= submit_tag l10n("exchange.employer_applications.revise_end_date.plan_year"), class: "btn btn-primary mtz  btn-small" %>
+            <%= submit_tag l10n("exchange.employer_applications.revise_end_date.plan_year"), class: "btn btn-primary mtz  btn-small", 'data-disable-with' => "Loading...", onclick: 'showProgress()' %>
           </div>
       <% end %>
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  function showProgress() {
+    $('#reviseEndDateBenefitApplication').modal('hide');
+    swal({title: "<%=  l10n("exchange.employer_applications.swal_title")%>", text: "<%= l10n("exchange.employer_applications.swal_text") %>", icon:"success", buttons:false, closeOnClickOutside:false});
+  }
+</script>
