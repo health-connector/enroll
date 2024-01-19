@@ -47,5 +47,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.return_to_er_view" => "Return to Employers Index View",
   "en.exchange.employer_applications.application_history" => "Application History",
   "en.exchange.employer_applications.view_history" => "View History",
-  "en.exchange.employer_applications.return_to_application_history" => "Return to Application History"
+  "en.exchange.employer_applications.return_to_application_history" => "Return to Application History",
+  "en.exchange.employer_applications.admin_action_disabled_info" => "Admin Actions are disabled until %{disabled_until} as another action happened."
 }.freeze

@@ -14,17 +14,17 @@ And(/^initial employer ABC Widgets application (.*)$/) do |aasm_state|
   when 'termination_pending'
     updated_dates = application.effective_period.min.to_date..TimeKeeper.date_of_record.last_month.end_of_month
     application.schedule_enrollment_termination!
-    application.benefit_application_items.create!(effective_period: updated_dates, sequence_id: 1, state: :termination_pending)
+    application.benefit_application_items.create!(effective_period: updated_dates, sequence_id: 1, state: :termination_pending, action_on: TimeKeeper.date_of_record - 2.days)
   when 'terminated'
     updated_dates = application.effective_period.min.to_date..TimeKeeper.date_of_record.prev_month.end_of_month
     application.terminate_enrollment!
-    application.benefit_application_items.create!(effective_period: updated_dates, sequence_id: 1, state: :terminated)
+    application.benefit_application_items.create!(effective_period: updated_dates, sequence_id: 1, state: :terminated, action_on: TimeKeeper.date_of_record - 2.days)
   when 'retroactive_canceled'
     start_on = application.benefit_sponsor_catalog.effective_period.min.prev_year
     end_on = application.benefit_sponsor_catalog.effective_period.max.prev_year
     effective_period = start_on..end_on
     application.cancel!
-    application.benefit_application_items.create!(effective_period: effective_period, sequence_id: 1, state: :retroactive_canceled)
+    application.benefit_application_items.create!(effective_period: effective_period, sequence_id: 1, state: :retroactive_canceled, action_on: TimeKeeper.date_of_record - 2.days)
   end
 end
 

@@ -23,7 +23,7 @@
         <td><%= @result[:action_on] %></td>
       </tr>
       <tr>
-        <td><h4><%= l10n("exchange.employer_applications.reinstate.coverage_period")%></h4></td>
+        <td><h4><%= l10n("exchange.employer_applications.coverage_period")%></h4></td>
         <td><%= @result[:coverage_period]&.min%> - <%= @result[:coverage_period]&.max%></td>
       </tr>
       <tr>
@@ -149,7 +149,6 @@
     addPaginationButton(1);
 
     if (totalPages <= maxVisiblePages) {
-      // Display all pages if there are fewer than or equal to 5
       for (var i = 2; i < totalPages; i++) {
         addPaginationButton(i);
       }
@@ -158,7 +157,6 @@
       var endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 2);
 
       if (startPage > 2) {
-        // Add an ellipsis if there are pages between 1 and startPage
         addEllipsis();
       }
 
@@ -167,12 +165,10 @@
       }
 
       if (endPage < totalPages - 1) {
-        // Add an ellipsis if there are pages between endPage and totalPages
         addEllipsis();
       }
     }
 
-    // Display the last page
     if (totalPages > 1) {
       addPaginationButton(totalPages);
     }
@@ -201,7 +197,7 @@
     button.textContent = pageNumber;
     button.className = "pagination-bar pagination-button";
     if (pageNumber === currentPage) {
-      button.classList.add("active-page"); // Add the active-page class for the current page
+      button.classList.add("active-page");
     }
     button.onclick = function () {
       currentPage = parseInt(this.textContent);

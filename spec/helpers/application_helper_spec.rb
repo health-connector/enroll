@@ -62,7 +62,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
   describe "#deductible_display" do
     let(:hbx_enrollment) {double(hbx_enrollment_members: [double, double])}
-    let(:plan) { double("Plan", deductible: "$500", family_deductible: "$500 per person | $1000 per group",) }
+    let(:plan) { double("Plan", deductible: "$500", family_deductible: "$500 per person | $1000 per group") }
 
     before :each do
       assign(:hbx_enrollment, hbx_enrollment)
@@ -112,11 +112,12 @@ RSpec.describe ApplicationHelper, :type => :helper do
     let(:employer_profile_2){ double("EmployerProfile", xml_transmitted_timestamp: nil, legal_name: "example2 llc.") }
 
     it "should display re-submit message if xml is being transmitted again" do
-      expect(helper.group_xml_transmitted_message(employer_profile_1)).to eq  "The group xml for employer #{employer_profile_1.legal_name} was transmitted on #{format_time_display(employer_profile_1.xml_transmitted_timestamp)}. Are you sure you want to transmit again?"
+      message = "The group xml for employer #{employer_profile_1.legal_name} was transmitted on #{format_time_display(employer_profile_1.xml_transmitted_timestamp)}. Are you sure you want to transmit again?"
+      expect(helper.group_xml_transmitted_message(employer_profile_1)).to eq message
     end
 
     it "should display first time message if xml is being transmitted first time" do
-      expect(helper.group_xml_transmitted_message(employer_profile_2)).to eq  "Are you sure you want to transmit the group xml for employer #{employer_profile_2.legal_name}?"
+      expect(helper.group_xml_transmitted_message(employer_profile_2)).to eq "Are you sure you want to transmit the group xml for employer #{employer_profile_2.legal_name}?"
     end
   end
 
@@ -197,9 +198,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
         context "active employees count greater than 200" do
 
           before do
-            census_employees.take(5).each do |census_employee|
-              census_employee.terminate_employee_role!
-            end
+            census_employees.take(5).each(&:terminate_employee_role!)
           end
 
           it "should display progress bar if active census employees < 200" do
@@ -389,11 +388,11 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
 
       it "when ehb_premium > aptc_amount" do
-        expect(helper.current_cost(200, 0.9)).to eq (200 - 0.5*200)
+        expect(helper.current_cost(200, 0.9)).to eq(200 - 0.5 * 200)
       end
 
       it "when ehb_premium < aptc_amount" do
-        expect(helper.current_cost(100, 0.9)).to eq (100 - 0.9*100)
+        expect(helper.current_cost(100, 0.9)).to eq(100 - 0.9 * 100)
       end
 
       it "should return 0" do
@@ -473,45 +472,47 @@ RSpec.describe ApplicationHelper, :type => :helper do
       expect(helper.show_default_ga?(general_agency_profile, broker_agency_profile)).to eq false
     end
   end
-   describe "#show_oop_pdf_link" , dbclean: :after_each do
-       context 'valid aasm_state' do
-         it "should return true" do
-           PlanYear::PUBLISHED.each do |state|
-             expect(helper.show_oop_pdf_link(state)).to be true
-           end
-
-          PlanYear::RENEWING_PUBLISHED_STATE.each do |state|
-             expect(helper.show_oop_pdf_link(state)).to be true
-           end
-         end
-       end
-
-        context 'invalid aasm_state' do
-          it "should return false" do
-            ["draft", "renewing_draft"].each do |state|
-              expect(helper.show_oop_pdf_link(state)).to be false
-            end
-          end
+  describe "#show_oop_pdf_link", dbclean: :after_each do
+    context 'valid aasm_state' do
+      it "should return true" do
+        PlanYear::PUBLISHED.each do |state|
+          expect(helper.show_oop_pdf_link(state)).to be true
         end
-     end
+
+        PlanYear::RENEWING_PUBLISHED_STATE.each do |state|
+          expect(helper.show_oop_pdf_link(state)).to be true
+        end
+      end
+    end
+
+    context 'invalid aasm_state' do
+      it "should return false" do
+        ["draft", "renewing_draft"].each do |state|
+          expect(helper.show_oop_pdf_link(state)).to be false
+        end
+      end
+    end
+  end
 
 
   describe "find_plan_name", dbclean: :after_each do
     let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
-    let(:shop_enrollment) { FactoryGirl.create(:hbx_enrollment,
-                                        household: family.active_household,
-                                        kind: "employer_sponsored",
-                                        submitted_at: TimeKeeper.datetime_of_record - 3.days,
-                                        created_at: TimeKeeper.datetime_of_record - 3.days
-                                )}
-    let(:ivl_enrollment)    { FactoryGirl.create(:hbx_enrollment,
-                                        household: family.latest_household,
-                                        coverage_kind: "health",
-                                        effective_on: TimeKeeper.datetime_of_record - 10.days,
-                                        enrollment_kind: "open_enrollment",
-                                        kind: "individual",
-                                        submitted_at: TimeKeeper.datetime_of_record - 20.days
-                            )}
+    let(:shop_enrollment) do
+      FactoryGirl.create(:hbx_enrollment,
+                         household: family.active_household,
+                         kind: "employer_sponsored",
+                         submitted_at: TimeKeeper.datetime_of_record - 3.days,
+                         created_at: TimeKeeper.datetime_of_record - 3.days)
+    end
+    let(:ivl_enrollment)    do
+      FactoryGirl.create(:hbx_enrollment,
+                         household: family.latest_household,
+                         coverage_kind: "health",
+                         effective_on: TimeKeeper.datetime_of_record - 10.days,
+                         enrollment_kind: "open_enrollment",
+                         kind: "individual",
+                         submitted_at: TimeKeeper.datetime_of_record - 20.days)
+    end
     let(:valid_shop_enrollment_id)  { shop_enrollment.id }
     let(:valid_ivl_enrollment_id)   { ivl_enrollment.id }
     let(:invalid_enrollment_id)     {  }
@@ -525,7 +526,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
 
     it "should return nil given an invalid enrollment ID" do
-      expect(helper.find_plan_name(invalid_enrollment_id)).to eq  nil
+      expect(helper.find_plan_name(invalid_enrollment_id)).to eq nil
     end
   end
 
@@ -570,21 +571,6 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
     end
   end
-end
-
-  describe "Enabled/Disabled IVL market" do
-    shared_examples_for "IVL market status" do |value|
-       if value == true
-        it "should return true if IVL market is enabled" do
-          expect(helper.individual_market_is_enabled?).to eq  true
-        end
-       else
-        it "should return false if IVL market is disabled" do
-          expect(helper.individual_market_is_enabled?).to eq  false
-        end
-       end
-    it_behaves_like "IVL market status", Settings.aca.market_kinds.include?("individual")
-  end
 
   describe "#is_new_paper_application?" do
     let(:person_id) { double }
@@ -610,15 +596,15 @@ end
 
   describe "#previous_year" do
     it "should return past year" do
-      expect(helper.previous_year).to eq (TimeKeeper.date_of_record.year - 1)
+      expect(helper.previous_year).to eq(TimeKeeper.date_of_record.year - 1)
     end
 
     it "should not return current year" do
-      expect(helper.previous_year).not_to eq (TimeKeeper.date_of_record.year)
+      expect(helper.previous_year).not_to eq(TimeKeeper.date_of_record.year)
     end
 
     it "should not return next year" do
-      expect(helper.previous_year).not_to eq (TimeKeeper.date_of_record.year + 1)
+      expect(helper.previous_year).not_to eq(TimeKeeper.date_of_record.year + 1)
     end
   end
 
@@ -669,5 +655,107 @@ end
     it "should raise error when non boolean values are passed" do
       expect{helper.convert_to_bool(val9)}.to raise_error(ArgumentError)
     end
+  end
+
+  describe '#is_latest_action_under_24_hours' do
+    context 'when benefit applications are present' do
+      let(:benefit_application) { instance_double('BenefitApplication') }
+      let(:date) { TimeKeeper.date_of_record }
+      let(:item) do
+        instance_double(
+          'BenefitApplicationItem',
+          sequence_id: 1,
+          created_at: Time.utc(date.year, date.month, date.day, 4, 47, 49),
+          action_on: Time.utc(date.year, date.month, date.day).to_date
+        )
+      end
+
+      before do
+        allow(benefit_application).to receive(:latest_benefit_application_item).and_return(item)
+      end
+
+      it 'returns true if the latest action is under 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, date.month, date.day + 1, 4, 47, 49))
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(true)
+      end
+
+      it 'returns false if the latest action is over 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, date.month, date.day + 1, 4, 47, 50))
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(false)
+      end
+    end
+
+    context 'when benefit applications are not present' do
+      it 'returns false' do
+        benefit_applications = []
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(false)
+      end
+    end
+  end
+
+  describe '#latest_ba_item_within_24_hours' do
+    let(:benefit_application) { instance_double('BenefitApplication') }
+    let(:item_within_24_hours) do
+      instance_double(
+        'BenefitApplicationItem',
+        sequence_id: 1,
+        created_at: Time.now.utc,
+        action_on: Time.now.utc.to_date
+      )
+    end
+    let(:item_outside_24_hours) do
+      instance_double(
+        'BenefitApplicationItem',
+        sequence_id: 1,
+        created_at: Time.now.utc - 25.hours,
+        action_on: Time.now.utc.to_date
+      )
+    end
+
+    context 'when there are benefit applications' do
+      it 'returns the latest item within 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(benefit_application).to receive(:latest_benefit_application_item).and_return(item_within_24_hours)
+
+        result = helper.latest_ba_item_within_24_hours(benefit_applications)
+        expect(result).to eq(item_within_24_hours)
+      end
+
+      it 'returns nil if there are no items within 24 hours' do
+        benefit_applications = [benefit_application]
+        allow(benefit_application).to receive(:latest_benefit_application_item).and_return(item_outside_24_hours)
+
+        result = helper.latest_ba_item_within_24_hours(benefit_applications)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when there are no benefit applications' do
+      it 'returns nil' do
+        benefit_applications = []
+        result = helper.latest_ba_item_within_24_hours(benefit_applications)
+        expect(result).to be_nil
+      end
+    end
+  end
+end
+
+describe "Enabled/Disabled IVL market" do
+  shared_examples_for "IVL market status" do |value|
+    if value == true
+      it "should return true if IVL market is enabled" do
+        expect(helper.individual_market_is_enabled?).to eq  true
+      end
+    else
+      it "should return false if IVL market is disabled" do
+        expect(helper.individual_market_is_enabled?).to eq  false
+      end
+    end
+    it_behaves_like "IVL market status", Settings.aca.market_kinds.include?("individual")
   end
 end

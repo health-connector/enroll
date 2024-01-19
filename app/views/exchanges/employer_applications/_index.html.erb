@@ -6,6 +6,14 @@
   <div class = "table-responsive table-override"> 
   <h4 class="text-center heading-text"> <%= l10n("exchange.employer_applications.applications").titleize %> </h4>
   <% benefit_applications = @benefit_sponsorship.benefit_applications.non_expired %>
+  <% ba_item_in_last_24_hours = latest_ba_item_within_24_hours(benefit_applications) %>
+  <% action_under_24_hours = ba_item_in_last_24_hours.present? %>
+
+  <% if action_under_24_hours %>
+    <div class="alert alert-info" role="alert">
+      <%=l10n("exchange.employer_applications.admin_action_disabled_info", disabled_until: TimeKeeper.format_date_time(ba_item_in_last_24_hours.created_at + 24.hours))%>
+    </div>
+  <% end %>
   <% if benefit_applications.present? %>
     <table class="table">
       <thead>
@@ -24,7 +32,7 @@
       <tbody>
         <% benefit_applications.order('start_on DESC').each do |application| %>
           <tr>
-            <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s  %></td>
+            <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s, action_under_24_hours: action_under_24_hours %></td>
             <td><%= (application.start_on.to_date) %></td>
             <td><%= (application.end_on.to_date) %></td>
             <td><%= (application.open_enrollment_period.begin.to_date) %></td>
