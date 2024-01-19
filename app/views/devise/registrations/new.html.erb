@@ -16,7 +16,7 @@
               <%= f.text_field :oim_id, class: "form-control", required: true, onblur: "Register.toggleEmail(this)" %>
           </div>
           <div class="tooltip_box username_tooltip" style="display: none;">
-            <p style="margin-bottom:0;">You can use your email address as your login. Using your email address will make it easier to recover your password if you ever forget it.</p>
+            <p style="margin-bottom:0;"><%= l10n('employers.employer_profiles.registration.username_tooltip') %></p>
           </div>
 
           <div class="form-group">
@@ -58,7 +58,7 @@
             </div>
           <%= f.hidden_field :invitation_id %>
           <br/>
-          <%= recaptcha_tags if aca_recaptcha_enabled? %> 
+          <%= recaptcha_tags if aca_recaptcha_enabled? %>
           <div class="recaptcha-error alert-error"><p></p></div>
           <div class="recaptcha" id="captcha-widget"></div>
           <div class="actions text-center">
