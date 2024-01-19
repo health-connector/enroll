@@ -7,7 +7,7 @@
   <h4 class="text-center heading-text"> <%= l10n("exchange.employer_applications.applications").titleize %> </h4>
   <% benefit_applications = @benefit_sponsorship.benefit_applications.non_expired %>
   <% ba_item_in_last_24_hours = latest_ba_item_within_24_hours(benefit_applications) %>
-  <% action_under_24_hours = ba_item_in_last_24_hours.present? %>
+  <% action_under_24_hours = ba_item_in_last_24_hours.present? && ::EnrollRegistry.feature_enabled?(:restrict_benefit_application_admin_actions_24_hours) %>
 
   <% if action_under_24_hours %>
     <div class="alert alert-info" role="alert">
