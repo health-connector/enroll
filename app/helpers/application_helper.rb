@@ -769,6 +769,21 @@ module ApplicationHelper
     return summary_text.strip
   end
 
+  def benefit_application_state_styling(state)
+    case state.downcase
+    when 'active', 'enrolling', 'enrolled', 'published', 'renewing enrolling', 'renewing enrolled', 'renewing published'
+      { style: "border: 2px solid #00A81B; background-color: #F2FFF4;", icon_class: "fas fa-check-circle", icon_style: "color: #00A81B;"}
+    when 'draft', 'renewing draft'
+      { style: "border: 2px solid #FFD600; background-color: #FFFADF;", icon_class: "fas fa-pencil-alt", icon_style: ""}
+    when 'application ineligible', 'renewing application ineligible', 'publish_pending', 'renewing publish pending'
+      { style: "border: 2px solid #FFD600; background-color: #FFFADF;", img_source: asset_path('icons/status-warning.svg'), img_text: "Exclamation Triangle"}
+    when 'expired', 'renewing expired', 'reinstate'
+      { style: "border: 2px solid #005689; background-color: #CCE5F3;" }
+    else
+      { style: "border: 2px solid #323130; background-color: #E1DFDD;" }
+    end
+  end
+
   def is_latest_action_under_24_hours(benefit_applications)
     return false unless benefit_applications.present?
 
