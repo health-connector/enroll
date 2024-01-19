@@ -14,8 +14,8 @@ Feature: As an admin user I should have the ability to click application history
     Then the user will see application history button
     When Admin clicks on application history button
     Then Admin will see application history page
-    Then admin will see option to click return to employer index view
-    When admin clicks on return to employer index view link
+    Then admin will see option to click return to employer index
+    When admin clicks on return to employer index link
     Then admin will go to employer index page
     And user logs out
 

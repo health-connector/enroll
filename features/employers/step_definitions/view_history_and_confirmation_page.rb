@@ -20,12 +20,12 @@ When(/Admin clicks on application history button/) do
   find('a', :text => 'View History').click
 end
 
-Then(/admin will see option to click return to employer index view/) do
-  expect(page).to have_link('Return to Employers Index View')
+Then(/admin will see option to click return to employer index/) do
+  expect(page).to have_link('Return to Employers Index')
 end
 
-When(/admin clicks on return to employer index view link/) do
-  find('a', :text => 'Return to Employers Index View').click
+When(/admin clicks on return to employer index link/) do
+  find('a', :text => 'Return to Employers Index').click
 end
 
 Then(/admin will go to employer index page/) do
