@@ -43,24 +43,51 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       before :each do
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
-        put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month, term_reason: "nonpayment"
       end
 
-      it "should be success" do
-        expect(response).to have_http_status(:success)
+      context 'when application in active status' do
+        before do
+          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.to_s, term_reason: "nonpayment", format: :json
+        end
+
+        it "should be success" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should terminate the plan year" do
+          initial_application.reload
+          expect(initial_application.aasm_state).to eq :termination_pending
+          expect(JSON.parse(response.body)).to eq({
+                                                    'employer_id' => benefit_sponsorship.id.to_s, 'employer_application_id' => initial_application.id.to_s, 'sequence_id' => 1
+                                                  })
+        end
       end
 
-      it "should terminate the plan year" do
-        initial_application.reload
-        expect(initial_application.aasm_state).to eq :termination_pending
-        expect(flash[:notice]).to eq "#{benefit_sponsorship.organization.legal_name}'s Application terminated successfully."
+      context 'when application is termination_pending' do
+        before do
+          initial_application.update_attributes(aasm_state: 'termination_pending')
+          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.to_s, term_reason: "nonpayment", format: :json
+        end
+
+        it "should be success" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should not terminate the plan year" do
+          initial_application.reload
+          expect(initial_application.aasm_state).to eq :termination_pending
+          expect(JSON.parse(response.body)).to eq({
+                                                    'employer_id' => benefit_sponsorship.id.to_s, 'employer_application_id' => initial_application.id.to_s,
+                                                    'sequence_id' => 0, 'errors' => ["This tool cannot terminate an application in termination-pending state."]
+                                                  })
+        end
       end
     end
 
     it "should not be a success when user doesn't have permissions" do
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: false))
       sign_in(user)
-      put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month, term_reason: "nonpayment"
+      put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month, term_reason: "nonpayment", format: :json
       expect(response).to have_http_status(:redirect)
       expect(flash[:error]).to match(/Access not allowed/)
     end
@@ -71,7 +98,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         before :each do
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
-          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day, term_reason: "nonpayment", term_kind: "nonpayment"
+          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day, term_reason: "nonpayment", term_kind: "nonpayment", format: :json
         end
 
         it 'should display appropriate error message' do

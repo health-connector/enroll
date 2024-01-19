@@ -16,11 +16,15 @@ When("Admin clicks on Revise End Date button") do
   find('li', :text => 'Revise End Date').click
 end
 
-Then(/^Admin will see Revise End Date Start Date for (.*) benefit application$/) do |aasm_state|
+Then(/^Admin will set Revise End Date in (.*) for (.*) benefit application$/) do |revise_date, aasm_state|
   ben_app = ::BenefitSponsors::Organizations::Organization.find_by(legal_name: /ABC Widgets/).active_benefit_sponsorship.benefit_applications.first
   expect(page.all('tr').detect { |tr| tr[:id] == ben_app.id.to_s }.present?).to eq true
   if ['terminated','termination_pending'].include?(aasm_state)
-    date = ben_app.end_on - 2.months
+    date = if revise_date == 'future'
+             ben_app.end_on + 2.months
+           else
+             ben_app.end_on - 2.months
+           end
     date_to_set = date.strftime('%m/%d/%Y')
     fill_in "date_picker_#{ben_app.id}", with: date_to_set
   end
