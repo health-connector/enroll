@@ -743,6 +743,44 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
     end
   end
+
+  describe '#benefit_application_state_styling' do
+    it 'returns the correct styling information for active states' do
+      states = ['active', 'enrolling', 'renewing published']
+
+      states.each do |state|
+        styling_info = helper.benefit_application_state_styling(state)
+        expect(styling_info).to eq({
+                                     style: "border: 2px solid #00A81B; background-color: #F2FFF4;",
+                                     icon_class: "fas fa-check-circle",
+                                     icon_style: "color: #00A81B;"
+                                   })
+      end
+    end
+
+    it 'returns the correct styling information for draft state' do
+      styling_info = helper.benefit_application_state_styling('draft')
+      expect(styling_info).to eq({
+                                   style: "border: 2px solid #FFD600; background-color: #FFFADF;",
+                                   icon_class: "fas fa-pencil-alt",
+                                   icon_style: ""
+                                 })
+    end
+
+    it 'returns the correct styling information for reinstate or expired' do
+      states = ['expired', 'reinstate']
+
+      states.each do |state|
+        styling_info = helper.benefit_application_state_styling(state)
+        expect(styling_info).to eq({style: "border: 2px solid #005689; background-color: #CCE5F3;"})
+      end
+    end
+
+    it 'returns the default styling information for remaining states' do
+      styling_info = helper.benefit_application_state_styling("Terminated")
+      expect(styling_info).to eq({style: "border: 2px solid #323130; background-color: #E1DFDD;"})
+    end
+  end
 end
 
 describe "Enabled/Disabled IVL market" do
