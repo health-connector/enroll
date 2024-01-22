@@ -696,6 +696,18 @@ RSpec.describe ApplicationHelper, :type => :helper do
         expect(result).to be(false)
       end
     end
+
+    context 'when feature is disabled' do
+      before do
+        allow(::EnrollRegistry).to receive(:feature_enabled?).with(:restrict_benefit_application_admin_actions_24_hours).and_return(false)
+      end
+
+      it 'returns false' do
+        benefit_applications = []
+        result = helper.is_latest_action_under_24_hours(benefit_applications)
+        expect(result).to be(false)
+      end
+    end
   end
 
   describe '#latest_ba_item_within_24_hours' do

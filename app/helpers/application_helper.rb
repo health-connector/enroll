@@ -785,6 +785,7 @@ module ApplicationHelper
   end
 
   def is_latest_action_under_24_hours(benefit_applications)
+    return false unless ::EnrollRegistry.feature_enabled?(:restrict_benefit_application_admin_actions_24_hours)
     return false unless benefit_applications.present?
 
     benefit_applications.any? do |benefit_application|
