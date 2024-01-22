@@ -44,6 +44,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.employee_details" => "Employee Details",
   "en.exchange.employer_applications.reinstate.employee_name" => "Name",
   "en.exchange.employer_applications.user_id" => "User Id",
+  "en.exchange.employer_applications.details" => "Details",
   "en.exchange.employer_applications.reinstate.error_details" => "Error Details",
   "en.exchange.employer_applications.return_to_er_view" => "Return to Employers Index",
   "en.exchange.employer_applications.application_history" => "Application History",
