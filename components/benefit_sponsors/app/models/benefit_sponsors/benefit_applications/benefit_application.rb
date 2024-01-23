@@ -198,75 +198,74 @@ module BenefitSponsors
       where(:'benefit_application_items.effective_period.min'.lte => compare_date)
     }
 
+    # Below queries can be optimized by using elemMatch after upgrading mongo to 7.2
     def self.effective_date_end_on(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
-      where(
-        :"benefit_application_items._id".in => latest_benefit_application_item_ids(benefit_sponsorship),
-        :"benefit_application_items.effective_period.max".lt => compare_date
-      )
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        application.end_on < compare_date
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     def self.effective_period_cover(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
-      where("$and" => [
-        {
-          :"benefit_application_items._id".in => earliest_benefit_application_item_ids(benefit_sponsorship),
-          :"benefit_application_items.effective_period.min".lte => compare_date
-        },
-        {
-          :"benefit_application_items._id".in => latest_benefit_application_item_ids(benefit_sponsorship),
-          :"benefit_application_items.effective_period.max".gte => compare_date
-        }
-      ])
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        application.start_on <= compare_date && application.end_on >= compare_date
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     scope :future_effective_date, lambda { |benefit_sponsorship, compare_date = TimeKeeper.date_of_record|
-      where(:"benefit_application_items._id".in => earliest_benefit_application_item_ids(benefit_sponsorship),
-            :"benefit_application_items.effective_period.min".gte => compare_date)
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        application.start_on >= compare_date
+      end.map(&:id)
+
+      where(:_id.in => ids)
     }
 
     # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
     def self.benefit_terminate_on(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
-      where(:aasm_state.in => [:terminated, :termination_pending],
-            :"benefit_application_items._id".in => latest_benefit_application_item_ids(benefit_sponsorship),
-            :"benefit_application_items.action_on" => compare_date)
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        [:terminated, :termination_pending].include?(application.aasm_state) && (application.latest_benefit_application_item.action_on == compare_date)
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     def self.by_year(benefit_sponsorship, compare_year = TimeKeeper.date_of_record.year)
-      where(
-        :"benefit_application_items._id".in => earliest_benefit_application_item_ids(benefit_sponsorship),
-        :"benefit_application_items.effective_period.min".gte => Date.new(compare_year, 1, 1),
-        :"benefit_application_items.effective_period.min".lte => Date.new(compare_year, 12, -1)
-      )
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        application.start_on >= Date.new(compare_year, 1, 1) && application.start_on <= Date.new(compare_year, 12, -1)
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     def self.by_overlapping_effective_period(benefit_sponsorship, effective_period)
-      where(:benefit_application_items => {:"$elemMatch" => {
-              :"$or" => [
-                { :"effective_period.min" => {"$gte" => effective_period.min, "$lte" => effective_period.max }, :_id.in => earliest_benefit_application_item_ids(benefit_sponsorship)},
-                { :"effective_period.max" => {"$gte" => effective_period.min, "$lte" => effective_period.max }, :_id.in => latest_benefit_application_item_ids(benefit_sponsorship)}
-              ]
-            }})
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        (application.start_on >= effective_period.min && application.start_on <= effective_period.max) ||
+          (application.end_on >= effective_period.min && application.end_on <= effective_period.max)
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     def self.published_benefit_applications_within_date_range(benefit_sponsorship, begin_on, end_on)
-      where(:aasm_state.in => APPROVED_STATES,
-            "$or" => [
-        {
-          :"benefit_application_items._id".in => earliest_benefit_application_item_ids(benefit_sponsorship),
-          :"benefit_application_items.effective_period.min" => {"$gte" => begin_on, "$lte" => end_on }
-        },
-        {
-          :"benefit_application_items._id".in => latest_benefit_application_item_ids(benefit_sponsorship),
-          :"benefit_application_items.effective_period.max" => {"$gte" => begin_on, "$lte" => end_on }
-        }
-      ])
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        APPROVED_STATES.include?(application.aasm_state) &&
+          ((application.start_on >= begin_on && application.start_on <= end_on) || (application.end_on >= begin_on && application.end_on <= end_on))
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     def self.published_benefit_applications_by_date(benefit_sponsorship, date)
-      where(:aasm_state.in => APPROVED_STATES,
-            "$and" => [
-          {:"benefit_application_items._id".in => earliest_benefit_application_item_ids(benefit_sponsorship), :"benefit_application_items.effective_period.min".lte => date },
-          {:"benefit_application_items._id".in => latest_benefit_application_item_ids(benefit_sponsorship), :"benefit_application_items.effective_period.max".gte => date }
-        ])
+      ids = benefit_sponsorship.benefit_applications.select do |application|
+        APPROVED_STATES.include?(application.aasm_state) &&
+          application.start_on <= date &&
+          application.end_on >= date
+      end.map(&:id)
+
+      where(:_id.in => ids)
     end
 
     def self.earliest_benefit_application_item_ids(benefit_sponsorship)
