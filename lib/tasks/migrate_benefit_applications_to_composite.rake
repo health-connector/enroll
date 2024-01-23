@@ -54,12 +54,23 @@ namespace :migrations do
         benefit_sponsorship_hash = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.collection.find({ _id: benefit_sponsorship.id }).first
 
         benefit_sponsorship_hash[:benefit_applications].each do |app|
+          wfst = case app[:aasm_state]
+                 when :canceled
+                   app[:workflow_state_transitions].detect {|transition| transition[:to_state] == 'canceled' }
+                 when :termination_pending, :terminated
+                   terminated_on = app[:terminated_on].to_date
+                   app[:workflow_state_transitions].detect { |transition| transition[:to_state] == 'termination_pending' && transition[:from_state] == 'active' } ||
+                   app[:workflow_state_transitions].detect { |transition| transition[:to_state] == 'terminated' && transition[:from_state] == 'active' } ||
+                   app[:workflow_state_transitions].detect { |transition| ['terminated', 'termination_pending'].include?(transition[:to_state]) && (transition[:transition_at] >= terminated_on.beginning_of_day) && (transition[:transition_at] <= terminated_on.end_of_day) }
+                 else
+                   app[:workflow_state_transitions]&.first
+                 end
           item_hash = {
-            created_at: DateTime.now,
+            created_at: wfst&.dig(:transition_at),
             updated_at: DateTime.now,
             sequence_id: 0,
             effective_period: app[:effective_period],
-            action_on: app[:terminated_on] || app[:updated_at] || app[:created_at],
+            action_on: wfst&.dig(:transition_at) || app[:terminated_on] || app[:updated_at] || app[:created_at],
             action_kind: app[:termination_kind],
             action_reason: app[:termination_reason],
             state: app[:aasm_state]
@@ -106,7 +117,7 @@ namespace :migrations do
       :'benefit_applications.benefit_application_items' => { :'$exists' => false }
     ).pluck(:id)
 
-    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:'_id'.in => benefit_sponsorship_ids)
+    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => benefit_sponsorship_ids)
 
     batch_size = 2500
     offset = 0
@@ -126,6 +137,7 @@ namespace :migrations do
             if no_action_application_states.include? application.aasm_state
               wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
+                created_at: wfst&.transition_at,
                 sequence_id: 0,
                 effective_period: application.read_attribute(:effective_period),
                 action_on: application.created_at,
@@ -138,16 +150,33 @@ namespace :migrations do
               effective_period = application.read_attribute(:effective_period)
               wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
+                created_at: wfst&.transition_at,
                 sequence_id: 0,
                 effective_period: effective_period['min']..(effective_period['min'] + 1.year - 1.day),
                 action_on: application.created_at,
                 state: wfst&.from_state || application.aasm_state
               )
 
+              terminated_on = application.read_attribute(:terminated_on)
+
+              transitions = application.workflow_state_transitions
+              term_wfst = transitions.where(:from_state => :active, :to_state => :termination_pending).first ||
+                          transitions.where(:from_state => :active, :to_state => :terminated).first ||
+                          transitions.where(
+                            :transition_at => {
+                              :"$gte" => terminated_on.beginning_of_day,
+                              :"$lte" => terminated_on.end_of_day
+                            },
+                            :to_state.in => [:terminated, :termination_pending]
+                          ).first
+
+              logger.info "Missing wfst for terminated application app_id: #{application.id}::#{application.read_attribute(:effective_period)}, hbx_id: #{benefit_sponsorship.hbx_id}" if term_wfst.blank?
+
               application.benefit_application_items.create!(
+                created_at: term_wfst&.transition_at,
                 sequence_id: 1,
                 effective_period: application.read_attribute(:effective_period),
-                action_on: application.read_attribute(:terminated_on),
+                action_on: term_wfst&.transition_at || terminated_on,
                 action_type: :change,
                 action_kind: application.read_attribute(:termination_kind),
                 action_reason: application.read_attribute(:termination_reason),
@@ -159,6 +188,7 @@ namespace :migrations do
             if [:canceled].include? application.aasm_state
               wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
+                created_at: wfst&.transition_at,
                 sequence_id: 0,
                 effective_period: application.read_attribute(:effective_period),
                 action_on: application.created_at,
@@ -166,7 +196,11 @@ namespace :migrations do
               )
 
               cancled_wfst = application.workflow_state_transitions.where(to_state: 'canceled').first
+
+              logger.info "Missing wfst for canceled application app_id: #{application.id}::#{application.read_attribute(:effective_period)}, hbx_id: #{benefit_sponsorship.hbx_id}" if cancled_wfst.blank?
+
               application.benefit_application_items.create!(
+                created_at: cancled_wfst&.created_at || application.updated_at,
                 sequence_id: 1,
                 effective_period: application.read_attribute(:effective_period),
                 action_on: cancled_wfst&.created_at || application.updated_at,
@@ -178,6 +212,7 @@ namespace :migrations do
             unless all_application_states.include? application.aasm_state
               wfst = application.workflow_state_transitions.min_by(&:transition_at)
               application.benefit_application_items.create!(
+                created_at: wfst&.transition_at,
                 sequence_id: 0,
                 effective_period: application.read_attribute(:effective_period),
                 action_on: application.created_at,
