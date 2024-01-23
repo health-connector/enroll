@@ -859,6 +859,16 @@ module BenefitSponsors
         it "should update hbx_enrollment terminated_on if terminated_on > benefit_application end on" do
           expect(hbx_enrollment_1.terminated_on).to eq end_on
         end
+
+        context 'when term date matches application end date' do
+          let(:hbx_enrollment_terminated_on) { end_on.prev_month }
+          let!(:transitions_count) { hbx_enrollment.workflow_state_transitions.size }
+
+          it "should not update hbx_enrollment transitions" do
+            expect(hbx_enrollment.reload.workflow_state_transitions.size).to eq transitions_count
+            expect(hbx_enrollment.aasm_state).to eq 'coverage_termination_pending'
+          end
+        end
       end
 
       context "when an employee has coverage_terminated enrollment", :dbclean => :after_each do
@@ -1167,6 +1177,16 @@ module BenefitSponsors
 
         it "should update hbx_enrollment terminated_on if terminated_on > benefit_application end on" do
           expect(hbx_enrollment_1.terminated_on).to eq end_on
+        end
+
+        context 'when term date matches application end date' do
+          let(:hbx_enrollment_terminated_on) { end_on.prev_month }
+          let!(:transitions_count) { hbx_enrollment.workflow_state_transitions.size }
+
+          it "should not update hbx_enrollment transitions" do
+            expect(hbx_enrollment.reload.workflow_state_transitions.size).to eq transitions_count
+            expect(hbx_enrollment.aasm_state).to eq 'coverage_termination_pending'
+          end
         end
       end
 
