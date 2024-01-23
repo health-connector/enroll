@@ -774,9 +774,9 @@ module ApplicationHelper
     when 'active', 'enrolling', 'enrolled', 'published', 'renewing enrolling', 'renewing enrolled', 'renewing published'
       { style: "border: 2px solid #00A81B; background-color: #F2FFF4;", icon_class: "fas fa-check-circle", icon_style: "color: #00A81B;"}
     when 'draft', 'renewing draft'
-      { style: "border: 2px solid #FFD600; background-color: #FFFADF;", icon_class: "fas fa-pencil-alt", icon_style: ""}
+      { style: "border: 2px solid #D47200; background-color: #FFECD5;", icon_class: "fas fa-pencil-alt", icon_style: ""}
     when 'application ineligible', 'renewing application ineligible', 'publish_pending', 'renewing publish pending'
-      { style: "border: 2px solid #D47200; background-color: #E9D1B5;", img_source: asset_path('icons/status-warning.svg'), img_text: "Exclamation Triangle"}
+      { style: "border: 2px solid #D47200; background-color: #FFECD5;", img_source: asset_path('icons/status-warning.svg'), img_text: "Exclamation Triangle"}
     when 'expired', 'renewing expired', 'reinstate'
       { style: "border: 2px solid #005689; background-color: #CCE5F3;" }
     else
