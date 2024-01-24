@@ -771,7 +771,7 @@ module ApplicationHelper
 
   def benefit_application_state_styling(state)
     case state.downcase
-    when 'active', 'enrolling', 'enrolled', 'published', 'renewing enrolling', 'renewing enrolled', 'renewing published'
+    when 'active', 'enrolling', 'enrolled', 'published', 'renewing enrolling', 'renewing enrolled', 'renewing published', 'enrollment closed', 'enrollment extended'
       { style: "border: 2px solid #00A81B; background-color: #F2FFF4;", icon_class: "fas fa-check-circle", icon_style: "color: #00A81B;"}
     when 'draft', 'renewing draft'
       { style: "border: 2px solid #D47200; background-color: #FFECD5;", icon_class: "fas fa-pencil-alt", icon_style: ""}
