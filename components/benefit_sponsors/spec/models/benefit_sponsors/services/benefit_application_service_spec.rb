@@ -51,7 +51,6 @@ module BenefitSponsors
 
       let(:params) do
         {
-          effective_period: effective_period,
           open_enrollment_period: open_enrollment_period
         }
       end

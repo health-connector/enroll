@@ -13,7 +13,7 @@ class SetMinimumContributionFactorOnContributionLevel < MongoidMigrationTask
     offset = 0
     while offset <= benefit_sponsorships.count
       benefit_sponsorships.offset(offset).limit(batch_size).no_timeout.each do |benefit_sponsorship|
-        benefit_application = benefit_sponsorship.benefit_applications.where(:"effective_period.min".gte => time).first
+        benefit_application = benefit_sponsorship.benefit_applications.detect { |application| application.start_on >= time }
         benefit_sponsor_catalog = benefit_application.benefit_sponsor_catalog
         benefit_application.benefit_packages.each do |benefit_package|
           sponsored_benefit = benefit_package.health_sponsored_benefit

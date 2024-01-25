@@ -773,7 +773,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
     it 'returns the correct styling information for draft state' do
       styling_info = helper.benefit_application_state_styling('draft')
       expect(styling_info).to eq({
-                                   style: "border: 2px solid #FFD600; background-color: #FFFADF;",
+                                   style: "border: 2px solid #D47200; background-color: #FFECD5;",
                                    icon_class: "fas fa-pencil-alt",
                                    icon_style: ""
                                  })
