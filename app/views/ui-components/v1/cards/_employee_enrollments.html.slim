@@ -8,10 +8,10 @@
     - total_enrolled_count = @current_plan_year.total_enrolled_count
     - eligible_to_enroll_count = @current_plan_year.eligible_to_enroll_count
     .information
-      strong =  total_enrolled_count
-      |  out of
+      strong = total_enrolled_count
+      |  out of 
       strong = eligible_to_enroll_count
-      |  have enrolled or waived coverage 
+      |  have enrolled or waived coverage
       - if @current_plan_year.employee_participation_ratio_minimum != 0
         - if TimeKeeper.date_of_record.to_date <= @current_plan_year.open_enrollment_end_on.to_date
           br
