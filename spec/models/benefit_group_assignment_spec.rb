@@ -451,7 +451,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
     it_behaves_like "active enrollments", "coverage_selected", "", [], false, false
   end
 
-  describe '#covered_families_with_benefit_assignemnt', dbclean: :after_each do
+  describe '#covered_families_with_benefit_assignment', dbclean: :after_each do
 
     let!(:household) { FactoryGirl.create(:household, family: family)}
     let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
@@ -470,8 +470,8 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
     end
 
     it "should return the covered families" do
-      expect(census_employee.active_benefit_group_assignment.covered_families_with_benefit_assignemnt.count).to eq 1
-      expect(census_employee.active_benefit_group_assignment.covered_families_with_benefit_assignemnt.first).to eq family
+      expect(census_employee.active_benefit_group_assignment.covered_families_with_benefit_assignment.count).to eq 1
+      expect(census_employee.active_benefit_group_assignment.covered_families_with_benefit_assignment.first).to eq family
     end
   end
 

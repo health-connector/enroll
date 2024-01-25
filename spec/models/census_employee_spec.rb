@@ -2289,7 +2289,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
-  context ".is_employee_covered?" do
+  describe '#is_employee_covered?' do
     let(:benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
     let(:census_employee) do
       FactoryGirl.create(
@@ -2311,9 +2311,53 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       expect(census_employee.is_employee_covered?).to be_falsey
     end
 
-    it "returns true with covered employee" do
-      allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignemnt).and_return([enrolled_family_double])
-      expect(census_employee.is_employee_covered?).to be_truthy
+    context "when covered employee" do
+      before do
+        allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignment).and_return([enrolled_family_double])
+      end
+
+      it "returns true with covered employee" do
+        expect(census_employee.is_employee_covered?).to be_truthy
+      end
+
+      context 'when renewal_benefit_group_assignment is present and in a valid state' do
+        before do
+          allow(census_employee).to receive(:renewal_benefit_group_assignment).and_return(benefit_group_assignment)
+          allow(census_employee).to receive(:active_benefit_group_assignment)
+        end
+
+        it 'returns true' do
+          expect(census_employee.is_employee_covered?).to be_truthy
+        end
+      end
+
+      context 'when renewal_benefit_group_assignment is not present' do
+        before do
+          allow(census_employee).to receive(:renewal_benefit_group_assignment).and_return(nil)
+          allow(census_employee).to receive(:active_benefit_group_assignment).and_return(benefit_group_assignment)
+        end
+
+        it 'returns true' do
+          expect(census_employee.is_employee_covered?).to be_truthy
+        end
+      end
+
+      context 'when renewal_benefit_group_assignment is present but in "draft" or "pending" state' do
+        let(:draft_application) { double('DraftApplication', aasm_state: 'draft') }
+        let(:renewal_benefit_group_assignment) {build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+
+        before do
+          allow(renewal_benefit_group_assignment).to receive(:benefit_application).and_return(draft_application)
+          allow(census_employee).to receive(:renewal_benefit_group_assignment).and_return(renewal_benefit_group_assignment)
+          allow(census_employee).to receive(:active_benefit_group_assignment).and_return(benefit_group_assignment)
+          allow(renewal_benefit_group_assignment).to receive(:covered_families_with_benefit_assignment).and_return([enrolled_family_double])
+          allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignment).and_return([])
+        end
+
+        it 'returns false' do
+          expect(census_employee.is_employee_covered?).to be_falsy
+        end
+      end
     end
   end
 
