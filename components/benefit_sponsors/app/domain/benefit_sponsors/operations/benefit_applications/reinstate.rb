@@ -126,7 +126,7 @@ module BenefitSponsors
         end
 
         def handle_coverage(hbx_enrollment, reinstate_enrollment)
-          if hbx_enrollment.waiver_reason.present?
+          if hbx_enrollment.waiver_reason.present? || hbx_enrollment.product_id.blank?
             reinstate_enrollment.waive_coverage!
           else
             reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
