@@ -1483,8 +1483,13 @@ class CensusEmployee < CensusMember
   end
 
   def is_employee_covered?
-    bga = renewal_benefit_group_assignment || active_benefit_group_assignment
-    bga.covered_families_with_benefit_assignemnt.present?
+    bga = if renewal_benefit_group_assignment.present? && !["draft", "pending"].include?(renewal_benefit_group_assignment.benefit_application&.aasm_state&.to_s)
+            renewal_benefit_group_assignment
+          else
+            active_benefit_group_assignment
+          end
+
+    bga.covered_families_with_benefit_assignment.present?
   end
 
   # Enrollments with current active and renewal benefit applications
