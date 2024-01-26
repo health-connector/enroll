@@ -50,7 +50,7 @@ Then(/the user will see a (.*) message/) do |message|
 end
 
 Then('the draft application will be created') do
-  expect(page).to have_content('Plan Year (Draft)')
+  expect(page).to have_content('Draft')
 end
 
 Then(/the existing applications for ABC Widgets will be (.*)$/) do |state|
