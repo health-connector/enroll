@@ -7,7 +7,7 @@ class SetMinimumContributionFactorOnContributionLevel < MongoidMigrationTask
   def migrate
     time = Date.new(2020,7,1).beginning_of_day
 
-    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {:$elemMatch => {:"effective_period.min".gte => time}})
+    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => {:$elemMatch => {:"benefit_application_items.effective_period.min".gte => time}})
 
     batch_size = 50
     offset = 0

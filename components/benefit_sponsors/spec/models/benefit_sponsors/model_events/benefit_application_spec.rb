@@ -34,9 +34,10 @@ RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after
           expect(model_event).to have_attributes(:event_key => event.to_sym, :klass_instance => model_instance, :options => {})
         end
         if action == "cancel"
+          model_instance.benefit_application_items.create(state: :cancel, sequence_id: 1, effective_period: model_instance.effective_period)
           model_instance.cancel!
         else
-          model_instance.latest_benefit_application_item.action_type = action
+          model_instance.benefit_application_items.create(state: :terminated, sequence_id: 1, action_type: action, effective_period: model_instance.effective_period)
           model_instance.terminate_enrollment!
         end
       end

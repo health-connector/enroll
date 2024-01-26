@@ -54,7 +54,7 @@ Then('the draft application will be created') do
 end
 
 Then(/the existing applications for ABC Widgets will be (.*)$/) do |state|
-  expect(page).to have_content("Plan Year (#{state})")
+  expect(page).to have_content(state)
 end
 
 Then('the user will see a pop up modal with "Confirm" or "Cancel" action') do

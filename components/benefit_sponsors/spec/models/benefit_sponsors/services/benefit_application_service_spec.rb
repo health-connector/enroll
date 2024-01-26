@@ -51,7 +51,10 @@ module BenefitSponsors
 
       let(:params) do
         {
-          open_enrollment_period: open_enrollment_period
+          open_enrollment_period: open_enrollment_period,
+          benefit_application_items: [
+            { sequence_id: 0, state: :draft, effective_period: effective_period}
+          ]
         }
       end
 
