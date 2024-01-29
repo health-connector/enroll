@@ -138,9 +138,12 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           employee_role_id: employee_role.id,
           aasm_state: enr_aasm_state,
           terminated_on: terminated_on,
-          waiver_reason: nil
+          waiver_reason: nil,
+          product_id: product_id
         )
       end
+
+      let(:product_id) { BSON::ObjectId.new }
 
       let!(:benefit_application) do
         effective_period = initial_application.effective_period
@@ -169,6 +172,26 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should send enrollment event' do
           expect_any_instance_of(HbxEnrollment).to receive(:notify)
+          subject.call(params)
+        end
+      end
+
+      context 'with no product id' do
+        let(:product_id) { nil }
+        let(:enr_aasm_state) { 'coverage_selected' }
+        let(:terminated_on) { nil }
+
+        it 'should reinstate enrollment as waiver' do
+          enrollments = family.active_household.hbx_enrollments
+          expect(enrollments.size).to eq 1
+          subject.call(params).value!
+          enrollments = family.reload.active_household.hbx_enrollments
+          expect(benefit_application.aasm_state).to eq :active
+          expect(enrollments.map(&:aasm_state).sort).to eq ["coverage_terminated", "inactive"]
+        end
+
+        it 'should not send enrollment event' do
+          expect_any_instance_of(HbxEnrollment).not_to receive(:notify)
           subject.call(params)
         end
       end
@@ -305,11 +328,13 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           employee_role_id: employee_role.id,
           aasm_state: enr_aasm_state,
           terminated_on: terminated_on,
-          waiver_reason: waiver_reason
+          waiver_reason: waiver_reason,
+          product_id: product_id
         )
       end
 
       let(:waiver_reason) { nil }
+      let(:product_id) { BSON::ObjectId.new }
 
       let!(:benefit_application) do
         initial_application.benefit_application_items.create(
