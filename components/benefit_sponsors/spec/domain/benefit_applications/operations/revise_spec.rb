@@ -180,7 +180,8 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
           sponsored_benefit_id: sponsored_benefit.id,
           employee_role_id: employee_role.id,
           aasm_state: 'coverage_selected',
-          waiver_reason: nil
+          waiver_reason: nil,
+          product_id: BSON::ObjectId.new
         )
       end
 
