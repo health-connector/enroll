@@ -204,6 +204,8 @@ class ApplicationController < ActionController::Base
 
     def after_sign_in_path_for(resource)
       if request.referrer =~ /sign_in/
+        return root_path if is_active_without_security_question_responses?(resource)
+
         session[:portal] || resource.try(:last_portal_visited) || root_path
       else
         session[:portal] || request.referer || root_path
