@@ -548,10 +548,6 @@ module ApplicationHelper
     end
   end
 
-  def is_active_without_security_question_responses?(user)
-    user&.needs_to_provide_security_questions? && user.person&.primary_family&.enrollments&.detect{|a| a.active_during?(TimeKeeper.date_of_record) }.present?
-  end
-
   def calculate_participation_minimum
     if @current_plan_year.present?
       if @current_plan_year.eligible_to_enroll_count == 0
