@@ -104,7 +104,7 @@ RSpec.shared_context "setup renewal application", :shared_context => :metadata d
            open_enrollment_period: open_enrollment_period,
            recorded_rating_area: benefit_sponsorship.rating_area,
            recorded_service_areas: recorded_service_areas,
-           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: effective_period, state: renewal_state)],
+           default_effective_period: effective_period,
            package_kind: package_kind,
            dental_package_kind: dental_package_kind,
            dental_sponsored_benefit: dental_sponsored_benefit,

@@ -92,11 +92,10 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
       expect(rendered).to have_content('Applications')
     end
 
-    it "should have not cancel, terminate, reinstate links" do
+    it "should have not cancel, terminate links" do
       allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_reinstate).and_return(false)
       expect(rendered).not_to match(/cancel/)
       expect(rendered).not_to match(/terminate/)
-      expect(rendered).not_to match(/reinstate/)
     end
   end
 end

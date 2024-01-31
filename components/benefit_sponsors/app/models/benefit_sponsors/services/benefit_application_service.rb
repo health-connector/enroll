@@ -108,7 +108,11 @@ module BenefitSponsors
 
         applications_for_termination.each do |application|
           enrollment_service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(application)
-          enrollment_service.schedule_termination(termination_date, TimeKeeper.date_of_record, "voluntary", "Other", true)
+          if termination_date < application.start_on
+            enrollment_service.cancel(true)
+          else
+            enrollment_service.schedule_termination(termination_date, TimeKeeper.date_of_record, "voluntary", "Other", true)
+          end
         end
       end
 

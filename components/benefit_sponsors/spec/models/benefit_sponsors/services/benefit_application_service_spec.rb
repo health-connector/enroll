@@ -51,8 +51,10 @@ module BenefitSponsors
 
       let(:params) do
         {
-          effective_period: effective_period,
-          open_enrollment_period: open_enrollment_period
+          open_enrollment_period: open_enrollment_period,
+          benefit_application_items: [
+            { sequence_id: 0, state: :draft, effective_period: effective_period}
+          ]
         }
       end
 
@@ -526,12 +528,12 @@ module BenefitSponsors
             expect(result).to eq [true, benefit_sponsorship.benefit_applications.last]
           end
 
-          it 'the existing overlapping active application should be moved to termination pending state' do
+          it 'the existing overlapping active application should be moved to retroactive_canceled state' do
             fetch_bs_for_service(@form)
             @model_attrs = subject.form_params_to_attributes(@form)
             subject.create_or_cancel_draft_ba(@form, @model_attrs)
             benefit_sponsorship.reload
-            expect(benefit_sponsorship.benefit_applications.pluck(:aasm_state).include?(:termination_pending)).to be_truthy
+            expect(benefit_sponsorship.benefit_applications.pluck(:aasm_state).include?(:retroactive_canceled)).to be_truthy
           end
 
           context 'when active application does not over lap' do

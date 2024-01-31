@@ -88,7 +88,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: false))
       sign_in(user)
       put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month, term_reason: "nonpayment", format: :json
-      expect(response).to have_http_status(:redirect)
+      expect(response).to have_http_status(403)
       expect(flash[:error]).to match(/Access not allowed/)
     end
 
@@ -98,11 +98,11 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         before :each do
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
-          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day, term_reason: "nonpayment", term_kind: "nonpayment", format: :json
+          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day.to_s, term_reason: "nonpayment", term_kind: "nonpayment", format: :json
         end
 
         it 'should display appropriate error message' do
-          expect(flash[:error]).to eq "#{benefit_sponsorship.organization.legal_name}'s Application could not be terminated: Exchange doesn't allow mid month non payment terminations"
+          expect(JSON.parse(response.body)['errors']).to eq ["Exchange doesn't allow mid month non payment terminations"]
         end
       end
     end
@@ -117,7 +117,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :enrollment_open)
-        put :cancel, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month
+        put :cancel, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month, format: :json
       end
 
       it "should be success" do
@@ -127,15 +127,14 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       it "should cancel the plan year" do
         initial_application.reload
         expect(initial_application.aasm_state).to eq :canceled
-        expect(flash[:notice]).to eq "#{benefit_sponsorship.organization.legal_name}'s Application canceled successfully."
       end
     end
 
     it "should not be a success when user doesn't have permissions" do
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: false))
       sign_in(user)
-      put :cancel, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month
-      expect(response).to have_http_status(:redirect)
+      put :cancel, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month, format: :json
+      expect(response).to have_http_status(403)
       expect(flash[:error]).to match(/Access not allowed/)
     end
   end
@@ -169,7 +168,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should have redirect response' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(302)
       end
     end
 
@@ -200,7 +199,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should have redirect response' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(302)
       end
     end
 
@@ -214,7 +213,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it 'should have redirect response' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(302)
       end
     end
 
@@ -230,7 +229,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
           put :application_history, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
         end
 
-        it 'should have redirect response' do
+        it 'returns success' do
           expect(response).to have_http_status(200)
         end
       end

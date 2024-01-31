@@ -453,13 +453,21 @@ module BenefitSponsors
       end
       let!(:initial_application) do
         application = create(:benefit_sponsors_benefit_application, aasm_state: :termination_pending, benefit_sponsorship: benefit_sponsorship)
+        application.earliest_benefit_application_item.update_attributes(effective_period: (effective_period.min..(effective_period.max - 1.day)))
         terminated_period = effective_period.min..termination_date
-        application.benefit_application_items.create(effective_period: terminated_period, action_type: :change, action_kind: 'nonpayment', action_reason: 'Non-payment of premium')
+        application.benefit_application_items.create(
+          effective_period: terminated_period,
+          action_type: :change,
+          action_kind: 'nonpayment',
+          action_reason: 'Non-payment of premium',
+          state: :terminated,
+          sequence_id: 1
+        )
         application
       end
       let!(:offcycle_application) do
         application = create(:benefit_sponsors_benefit_application, aasm_state: :draft, benefit_sponsorship: benefit_sponsorship)
-        application.benefit_application_items.create(effective_period: offcycle_effective_period)
+        application.earliest_benefit_application_item.update_attributes(effective_period: offcycle_effective_period)
         application
       end
 
@@ -1000,8 +1008,8 @@ module BenefitSponsors
         benefit_sponsorship.update_attributes(:source_kind => :mid_plan_year_conversion)
         initial_application.benefit_application_items.create(
           effective_period: TimeKeeper.date_of_record..(TimeKeeper.date_of_record + 4.months),
-          sequence_id: 0,
-          state: :draft
+          sequence_id: 1,
+          state: :active
         )
         expect(initial_application.rate_schedule_date).not_to eq initial_application.start_on
       end

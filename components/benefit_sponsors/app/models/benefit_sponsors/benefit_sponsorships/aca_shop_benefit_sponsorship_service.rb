@@ -99,10 +99,7 @@ module BenefitSponsors
     end
 
     def auto_cancel_ineligible
-      benefit_sponsorship.benefit_applications.enrollment_closed_and_ineligible.where(:benefit_application_items => {:"$elemMatch" => {
-                                                                                        :_id.in => benefit_sponsorship.earliest_benefit_application_item_ids,
-                                                                                        :"effective_period.min" => TimeKeeper.date_of_record
-                                                                                      }}).each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
+      benefit_sponsorship.benefit_applications.enrollment_closed_and_ineligible.each { |benefit_application| benefit_application.cancel! if benefit_application.may_cancel? }
     end
 
     def transmit_initial_eligible_event

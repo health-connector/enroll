@@ -161,14 +161,15 @@ namespace :migrations do
 
               transitions = application.workflow_state_transitions
               term_wfst = transitions.where(:from_state => :active, :to_state => :termination_pending).first ||
-                          transitions.where(:from_state => :active, :to_state => :terminated).first ||
-                          transitions.where(
-                            :transition_at => {
-                              :"$gte" => terminated_on.beginning_of_day,
-                              :"$lte" => terminated_on.end_of_day
-                            },
-                            :to_state.in => [:terminated, :termination_pending]
-                          ).first
+                          transitions.where(:from_state => :active, :to_state => :terminated).first
+
+              term_wfst ||= transitions.where(
+	                            :transition_at => {
+	                              :"$gte" => terminated_on.beginning_of_day,
+	                              :"$lte" => terminated_on.end_of_day
+	                            },
+	                            :to_state.in => [:terminated, :termination_pending]
+	                          ).first if terminated_on.present?
 
               logger.info "Missing wfst for terminated application app_id: #{application.id}::#{application.read_attribute(:effective_period)}, hbx_id: #{benefit_sponsorship.hbx_id}" if term_wfst.blank?
 

@@ -2118,8 +2118,21 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     before do
       updated_dates = initial_application.effective_period.min.to_date..terminated_on
-      initial_application.benefit_application_items.create(effective_period: updated_dates, action_type: :change, action_kind: 'voluntary', action_reason: 'voluntary')
+      initial_application.benefit_application_items.create(
+        effective_period: updated_dates,
+        action_type: :change,
+        action_kind: 'voluntary',
+        action_reason: 'voluntary',
+        state: :terminated,
+        sequence_id: 1
+      )
       initial_application.terminate_enrollment!
+      renewal_application.benefit_application_items.create(
+        effective_period: initial_application.effective_period,
+        action_type: :change,
+        state: :cancel,
+        sequence_id: 1
+      )
       renewal_application.cancel!
     end
 
@@ -2703,7 +2716,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           next if ba == myc_application
 
           updated_dates = benefit_application.effective_period.min.to_date..termination_date.to_date
-          ba.benefit_application_items.create(effective_period: updated_dates)
+          ba.benefit_application_items.create(effective_period: updated_dates, sequence_id: 1, state: :terminated)
           ba.terminate_enrollment!
         end
         benefit_sponsorship.benefit_applications << myc_application
