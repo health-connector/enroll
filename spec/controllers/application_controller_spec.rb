@@ -41,6 +41,17 @@ RSpec.describe ApplicationController do
     it "should return the root url in dev environment" do
       expect( controller.send(:after_sign_out_path_for, user) ).to eq logout_saml_index_path
     end
+
+    context "when user has active enrollments but no security question responses" do
+      before do
+        user.security_question_responses = []
+        user.save
+      end
+
+      it "after_sign_in_path_for should return the root path" do
+        expect(controller.send(:after_sign_in_path_for, user)).to eq root_path
+      end
+    end
   end
 
   context "when signed in" do
