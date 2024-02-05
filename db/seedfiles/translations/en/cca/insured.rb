@@ -439,6 +439,5 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.address_updated' => "You have updated your home address and may qualify for a special enrollment period.",
   :'en.insured.shop_with_sep' => "Shop with special enrollment period",
   :'en.insured.family_member_added' => "A family member has been added to your profile, the new member will not be automatically added to your coverage. You may qualify for a special enrollment period.",
-  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period.",
-  :'en.insured.wellsense_provider_flash_message' => "WellSense has not yet finalized the doctors, hospitals and other health care providers that are in-network in 2024. Contact WellSense at 855-833-8120 or visit <a href='https://www.wellsense.org/members/individual-and-family/ma/clarity-plans/find-a-provider' target='_blank'>https://www.wellsense.org/members/individual-and-family/ma/clarity-plans/find-a-provider</a> to confirm if your health care providers are in-network."
+  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period."
 }.freeze
