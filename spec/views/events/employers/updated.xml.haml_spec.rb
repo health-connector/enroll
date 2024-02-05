@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, "spec", "support", "acapi_vocabulary_spec_helpers")
 
-RSpec.describe "events/employers/updated.haml.erb" do
+RSpec.describe "events/employers/updated.haml.erb", :dbclean => :after_each do
   let(:legal_name) { "A Legal Employer Name" }
   let(:fein) { "867530900" }
   let(:entity_kind) { "c_corporation" }
@@ -22,11 +24,12 @@ RSpec.describe "events/employers/updated.haml.erb" do
       download_vocabularies
     end
 
-    let(:plan_year) { PlanYear.new(:aasm_state => "published", :created_at => DateTime.now, 
-                                  :start_on => DateTime.now,
-                                  :open_enrollment_start_on => DateTime.now, 
-                                  :open_enrollment_end_on => DateTime.now) 
-                    }
+    let(:plan_year) do
+      PlanYear.new(:aasm_state => "published", :created_at => DateTime.now,
+                   :start_on => DateTime.now,
+                   :open_enrollment_start_on => DateTime.now,
+                   :open_enrollment_end_on => DateTime.now)
+    end
     let(:employer) { EmployerProfile.new(:organization => organization, :plan_years => [plan_year], :entity_kind => entity_kind) }
 
     before :each do
@@ -44,10 +47,12 @@ RSpec.describe "events/employers/updated.haml.erb" do
 
     context "with dental plans" do
 
-      let(:benefit_group) {bg = FactoryGirl.create(:benefit_group, plan_year: plan_year);
-                          bg.elected_dental_plans = [FactoryGirl.create(:plan, name: "new dental plan", coverage_kind: 'dental',
-                                                 dental_level: 'high')];
-                          bg}
+      let(:benefit_group) do
+        bg = FactoryGirl.create(:benefit_group, plan_year: plan_year)
+        bg.elected_dental_plans = [FactoryGirl.create(:plan, name: "new dental plan", coverage_kind: 'dental',
+                                                             dental_level: 'high')]
+        bg
+      end
 
       context "is_offering_dental? is true" do
         it "shows the dental plan in output" do

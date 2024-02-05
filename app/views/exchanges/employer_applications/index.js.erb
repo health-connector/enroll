@@ -152,6 +152,22 @@ function hideTerminationRadios() {
   $('.term_action_radios').addClass('hidden');
 }
 
+function hideV2XmlInputs() {
+  $('.v2_xml_inputs').addClass('hidden');
+}
+
+function showV2XmlInputs() {
+  $('.v2_xml_inputs').removeClass('hidden');
+}
+
+function hideCancelInputs() {
+  $('.cancel_action_inputs').addClass('hidden');
+}
+
+function showCancelInputs() {
+  $('.cancel_action_inputs').removeClass('hidden');
+}
+
 function terminateValidations() {
   if ($('input[name=term_actions]:checked').length) {
     return true;
@@ -174,6 +190,16 @@ function validTerminatePy() {
     } else {
       console.log("Missing Info")
     }
+  }
+}
+
+function v2DropDownEvents(id, applicationId){
+  if (id == 'v2 Event Type') {
+    $("#download_button_" + applicationId).addClass('disabled')
+  }
+  else {
+    $("#download_button_" + applicationId).removeClass('disabled')
+    $("#selected_event_type_" + applicationId).val(id)
   }
 }
 
@@ -201,8 +227,17 @@ function pyAction(action, id, employer_id, term_date, start_on) {
   if (action == 'cancel') {
     hideEndDateField(pyStartDate, applicationId);
     hideTerminationRadios();
+    hideV2XmlInputs();
+    showCancelInputs();
     enableSubmitButton();
   }
+
+  if (action == 'generate_v2_xml'){
+    hideEndDateField(pyStartDate, applicationId);
+    hidePlanYearActions();
+    showV2XmlInputs();
+  }
+
   // Clears all end dates from previous rows
   var endDates = document.querySelectorAll('.py-end-date');
   
