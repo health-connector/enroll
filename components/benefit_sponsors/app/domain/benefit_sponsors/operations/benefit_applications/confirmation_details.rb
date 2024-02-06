@@ -120,9 +120,10 @@ module BenefitSponsors
         end
 
         def reinstated_enrollments_for(census_employee, benefit_package_ids)
-          return [] unless census_employee.family.present?
+          family = census_employee.family
+          return [] if family.blank?
 
-          census_employee.family.enrollments&.where(
+          family.active_household.hbx_enrollments.show_enrollments.where(
             :sponsored_benefit_package_id.in => benefit_package_ids,
             :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
             :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day,
@@ -131,9 +132,10 @@ module BenefitSponsors
         end
 
         def canceled_enrollments_for(census_employee, benefit_package_ids)
-          return [] unless census_employee.family.present?
+          family = census_employee.family
+          return [] if family.blank?
 
-          census_employee.family.enrollments&.where(
+          family.active_household.hbx_enrollments.show_enrollments.where(
             :sponsored_benefit_package_id.in => benefit_package_ids,
             :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
             :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day,
@@ -142,9 +144,10 @@ module BenefitSponsors
         end
 
         def terminated_enrollments_for(census_employee, benefit_package_ids)
-          return [] unless census_employee.family.present?
+          family = census_employee.family
+          return [] if family.blank?
 
-          census_employee.family.enrollments&.where(
+          family.active_household.hbx_enrollments.show_enrollments.where(
             :sponsored_benefit_package_id.in => benefit_package_ids,
             :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
             :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day,
