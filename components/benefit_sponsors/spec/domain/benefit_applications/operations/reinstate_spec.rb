@@ -130,7 +130,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           :hbx_enrollment,
           household: family.latest_household,
           coverage_kind: :health,
-          effective_on: current_effective_date,
+          effective_on: effective_on,
           kind: "employer_sponsored",
           benefit_sponsorship_id: benefit_sponsorship.id,
           sponsored_benefit_package_id: current_benefit_package.id,
@@ -142,6 +142,8 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           product_id: product_id
         )
       end
+
+      let(:effective_on) { current_effective_date }
 
       let(:product_id) { BSON::ObjectId.new }
 
@@ -168,6 +170,27 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           enrollments = family.reload.active_household.hbx_enrollments
           expect(benefit_application.aasm_state).to eq :active
           expect(enrollments.size).to eq 2
+        end
+
+        it 'should send enrollment event' do
+          expect_any_instance_of(HbxEnrollment).to receive(:notify)
+          subject.call(params)
+        end
+      end
+
+      context 'with future effective enrollment' do
+        let(:enr_aasm_state) { 'coverage_selected' }
+        let(:terminated_on) { nil }
+        let(:effective_on) { TimeKeeper.date_of_record.beginning_of_month.next_month }
+
+        it 'should reinstate enrollment' do
+          enrollments = family.active_household.hbx_enrollments
+          expect(enrollments.size).to eq 1
+          subject.call(params).value!
+          enrollments = family.reload.active_household.hbx_enrollments
+          expect(benefit_application.aasm_state).to eq :active
+          expect(enrollments.size).to eq 2
+          expect(enrollments.last.effective_on).to eq effective_on
         end
 
         it 'should send enrollment event' do

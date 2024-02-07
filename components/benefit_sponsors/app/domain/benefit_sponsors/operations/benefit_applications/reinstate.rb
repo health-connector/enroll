@@ -76,6 +76,7 @@ module BenefitSponsors
             effective_period: effective_period,
             action_type: :correction,
             action_kind: 'reinstate',
+            action_on: TimeKeeper.date_of_record,
             state: :reinstate,
             updated_by: @current_user&.id
           )
@@ -111,7 +112,11 @@ module BenefitSponsors
             )
 
             enrollments.select {|enr| enr.terminated_on.blank? || enr.terminated_on == application_term_date }.each do |hbx_enrollment|
-              effective_on = is_retroactive_canceled ? hbx_enrollment.effective_on : @reinstate_on
+              effective_on = if is_retroactive_canceled || hbx_enrollment.effective_on > @reinstate_on
+                               hbx_enrollment.effective_on
+                             else
+                               @reinstate_on
+                             end
               reinstate_enrollment = clone_enrollment(hbx_enrollment, effective_on)
               reinstate_enrollment.household = household
               reinstate_enrollment.save!
