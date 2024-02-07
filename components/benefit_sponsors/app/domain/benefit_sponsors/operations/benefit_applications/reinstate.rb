@@ -111,9 +111,7 @@ module BenefitSponsors
             )
 
             enrollments.select {|enr| enr.terminated_on.blank? || enr.terminated_on == application_term_date }.each do |hbx_enrollment|
-              effective_on = if is_retroactive_canceled
-                               hbx_enrollment.effective_on
-                             elsif hbx_enrollment.effective_on > @reinstate_on
+              effective_on = if is_retroactive_canceled || hbx_enrollment.effective_on > @reinstate_on
                                hbx_enrollment.effective_on
                              else
                                @reinstate_on
