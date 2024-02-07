@@ -76,6 +76,7 @@ module BenefitSponsors
             effective_period: effective_period,
             action_type: :correction,
             action_kind: 'reinstate',
+            action_on: TimeKeeper.date_of_record,
             state: :reinstate,
             updated_by: @current_user&.id
           )
