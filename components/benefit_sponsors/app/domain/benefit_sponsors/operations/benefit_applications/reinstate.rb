@@ -137,6 +137,8 @@ module BenefitSponsors
             reinstate_enrollment.begin_coverage!({ disable_callbacks: true })
             reinstate_enrollment.begin_coverage!({ disable_callbacks: true }) if TimeKeeper.date_of_record >= reinstate_enrollment.effective_on && reinstate_enrollment.may_begin_coverage?
 
+            reinstate_enrollment.notify_of_coverage_start(true)
+
             prev_terminated_on = hbx_enrollment.prev_terminated_on
             if prev_terminated_on.present?
               if prev_terminated_on >= TimeKeeper.date_of_record
@@ -144,9 +146,9 @@ module BenefitSponsors
               else
                 reinstate_enrollment.terminate_coverage!(hbx_enrollment.prev_terminated_on)
               end
-            end
 
-            reinstate_enrollment.notify_of_coverage_start(true)
+              reinstate_enrollment.notify_enrollment_cancel_or_termination_event(true)
+            end
           end
         end
 
