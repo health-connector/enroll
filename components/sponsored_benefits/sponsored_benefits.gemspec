@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "5.2.8.1"
   s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", "6.0.0"
+  s.add_dependency "mongoid", "7.0.2"
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
