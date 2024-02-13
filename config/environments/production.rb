@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.configure do
   # Verifies that versions and hashed value of the package contents in the project's package.json
   config.webpacker.check_yarn_integrity = false
@@ -6,7 +8,12 @@ Rails.application.configure do
 
   # Code is not reloaded between requests.
   config.cache_classes = true
-  config.cache_store = :memory_store
+  config.cache_store = :redis_cache_store, { driver: :hiredis, url: "redis://localhost:6379/1" }
+  config.session_store :cache_store,
+                       key: "_session",
+                       compress: true,
+                       pool_size: 5,
+                       expire_after: 1.year
 
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
@@ -15,7 +22,7 @@ Rails.application.configure do
   config.eager_load = true
 
   # Full error reports are disabled and caching is turned on.
-  config.consider_all_requests_local       = false
+  config.consider_all_requests_local = ENV['ENROLL_REVIEW_ENVIRONMENT'] == 'true'
   config.action_controller.perform_caching = true
 
   # Enable Rack::Cache to put a simple HTTP cache in front of your application
@@ -29,7 +36,8 @@ Rails.application.configure do
   config.serve_static_files = false
 
   # Compress JavaScripts and CSS.
-  config.assets.js_compressor = :uglifier
+  # config.assets.js_compressor = :uglifier
+  config.assets.js_compressor = Uglifier.new(harmony: true)
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
@@ -86,7 +94,7 @@ Rails.application.configure do
   config.log_formatter = Logger::SimpleJsonFormatter.new
 
   # Do not dump schema after migrations.
-#  config.active_record.dump_schema_after_migration = false
+  #  config.active_record.dump_schema_after_migration = false
   config.acapi.publish_amqp_events = true
   config.acapi.app_id = "enroll"
   config.ga_tracking_id = ENV['GA_TRACKING_ID'] || "dummy"

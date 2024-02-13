@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 Rails.application.configure do
   # Verifies that versions and hashed value of the package contents in the project's package.json
   config.webpacker.check_yarn_integrity = true
+  config.session_store :cache_store
+
 
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -69,7 +73,6 @@ Rails.application.configure do
   HbxIdGenerator.slug!
   config.ga_tracking_id = ENV['GA_TRACKING_ID'] || "dummy"
   config.ga_tagmanager_id = ENV['GA_TAGMANAGER_ID'] || "dummy"
-
 
   Mongoid.logger.level = Logger::ERROR
   Mongo::Logger.logger.level = Logger::ERROR

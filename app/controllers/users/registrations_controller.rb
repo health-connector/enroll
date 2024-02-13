@@ -1,8 +1,8 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   
-  before_filter :configure_sign_up_params, only: [:create]
-  before_filter :set_ie_flash_by_announcement, only: [:new]
-  # before_filter :configure_account_update_params, only: [:update]
+  before_action :configure_sign_up_params, only: [:create]
+  before_action :set_ie_flash_by_announcement, only: [:new]
+  # before_action :configure_account_update_params, only: [:update]
 
   # GET /resource/sign_up
   # def new

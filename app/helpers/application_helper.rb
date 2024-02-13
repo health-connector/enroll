@@ -203,6 +203,8 @@ module ApplicationHelper
     return unless number
     delimiter = "-"
     number.to_s.gsub!(/(\d{0,3})(\d{2})(\d{4})$/,"\\1#{delimiter}\\2#{delimiter}\\3")
+  rescue StandardError => e
+    nil
   end
 
   # Formats a number into a US Social Security Number string (nnn-nn-nnnn), hiding all but last 4 digits
@@ -210,6 +212,8 @@ module ApplicationHelper
     return unless number
     number_to_ssn(number)
     number.to_s.gsub!(/\w{3}-\w{2}/, '***-**')
+  rescue StandardError => e
+    nil
   end
 
   # Formats a number into a nine-digit US Federal Entity Identification Number string (nn-nnnnnnn)
