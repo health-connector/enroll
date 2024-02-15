@@ -226,6 +226,10 @@ class User
     announcements.uniq
   end
 
+  def is_active_without_security_question_responses?
+    needs_to_provide_security_questions? && person&.primary_family&.enrollments&.detect{|a| a.active_during?(TimeKeeper.date_of_record) }.present?
+  end
+
   class << self
     def find_for_database_authentication(warden_conditions)
       #TODO: Another explicit oim_id dependency
