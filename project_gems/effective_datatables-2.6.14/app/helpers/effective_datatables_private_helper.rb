@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # These aren't expected to be called by a developer.
 # They are internal datatables methods, but you could still call them on the view.
 module EffectiveDatatablesPrivateHelper

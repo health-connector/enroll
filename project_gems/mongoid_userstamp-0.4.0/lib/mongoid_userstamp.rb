@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'mongoid/userstamp'
 require 'mongoid/userstamp/version'
 require 'mongoid/userstamp/config/gem_config'

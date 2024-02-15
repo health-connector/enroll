@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # These are expected to be called by a developer.  They are part of the datatables DSL.
 module EffectiveDatatablesHelper
   def render_datatable(datatable, input_js_options = nil)
@@ -76,8 +78,8 @@ module EffectiveDatatablesHelper
 
   def datatables_admin_path?
     @datatables_admin_path ||= begin
-      path = request.path.to_s.downcase.chomp('/') + '/'
-      referer = request.referer.to_s.downcase.chomp('/') + '/'
+      path = "#{request.path.to_s.downcase.chomp('/')}/"
+      referer = "#{request.referer.to_s.downcase.chomp('/')}/"
       begin
         (attributes[:admin_path] || referer.include?('/admin/') || path.include?('/admin/'))
       rescue StandardError

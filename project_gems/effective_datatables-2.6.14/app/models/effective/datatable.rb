@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   class Datatable
     attr_accessor :display_records, :view, :attributes
@@ -70,11 +72,13 @@ module Effective
     end
 
     # Instance method.  In Rails 4.2 this needs to be defined on the instance, before it was on the class
-    def model_name # Searching & Filters
+# Searching & Filters
+    def model_name
       @model_name ||= ActiveModel::Name.new(self.class)
     end
 
-    def self.model_name # Searching & Filters
+# Searching & Filters
+    def self.model_name
       @model_name ||= ActiveModel::Name.new(self)
     end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   class ActiveRecordDatatableTool
     attr_accessor :table_columns
@@ -32,9 +34,10 @@ module Effective
       sql_direction = (direction == :desc ? 'DESC' : 'ASC')
 
       if postgres?
-        after = if table_column[:nulls] == :first
+        after = case table_column[:nulls]
+                when :first
                   ' NULLS FIRST'
-                elsif table_column[:nulls] == :last
+                when :last
                   ' NULLS LAST'
                 else
                   " NULLS #{direction == :desc ? 'FIRST' : 'LAST'}"
@@ -191,7 +194,7 @@ module Effective
         collection.with_role(term)
       when :datetime, :date
         begin
-          digits = term.scan(/(\d+)/).flatten.map { |digit| digit.to_i }
+          digits = term.scan(/(\d+)/).flatten.map(&:to_i)
           start_at = Time.zone.local(*digits)
 
           end_at = case digits.length
