@@ -15,7 +15,6 @@ module Effective
         def bulk_action_content(&block)
           concat block.call
         end
-
       end
     end
   end

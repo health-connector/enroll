@@ -11,7 +11,7 @@ module Effective
     end
 
     def search_terms
-      @search_terms ||= @datatable.search_terms.select { |name, search_term| table_columns.key?(name) }
+      @search_terms ||= @datatable.search_terms.select { |name, _search_term| table_columns.key?(name) }
     end
 
     def order_by_column
@@ -22,14 +22,15 @@ module Effective
       return collection unless order_by_column.present?
 
       column_order = order_column(collection, order_by_column, @datatable.order_direction, display_index(order_by_column))
-      raise 'order_column must return an Array' unless column_order.kind_of?(Array)
+      raise 'order_column must return an Array' unless column_order.is_a?(Array)
+
       column_order
     end
 
     def order_column_with_defaults(collection, table_column, direction, index)
       if direction == :asc
         collection.sort! do |x, y|
-          if (x[index] && y[index])
+          if x[index] && y[index]
             convert_to_column_type(table_column, x[index]) <=> convert_to_column_type(table_column, y[index])
           elsif x[index]
             -1
@@ -41,7 +42,7 @@ module Effective
         end
       else
         collection.sort! do |x, y|
-          if (x[index] && y[index])
+          if x[index] && y[index]
             convert_to_column_type(table_column, y[index]) <=> convert_to_column_type(table_column, x[index])
           elsif x[index]
             1
@@ -59,7 +60,8 @@ module Effective
     def search(collection)
       search_terms.each do |name, search_term|
         column_search = search_column(collection, table_columns[name], search_term, display_index(table_columns[name]))
-        raise 'search_column must return an Array object' unless column_search.kind_of?(Array)
+        raise 'search_column must return an Array object' unless column_search.is_a?(Array)
+
         collection = column_search
       end
       collection

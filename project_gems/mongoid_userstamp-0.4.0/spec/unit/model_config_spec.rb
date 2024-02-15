@@ -1,19 +1,22 @@
-# -*- encoding : utf-8 -*-
 require 'spec_helper'
 
 describe Mongoid::Userstamp::ModelConfig do
 
   subject { Mongoid::Userstamp::ModelConfig.new }
-  before  { Mongoid::Userstamp.stub('config').and_return(OpenStruct.new(created_name: :created_by,
-                                                                        updated_name: :updated_by)) }
+  before  do
+    Mongoid::Userstamp.stub('config').and_return(OpenStruct.new(created_name: :created_by,
+                                                                updated_name: :updated_by))
+  end
   before  { Mongoid::Userstamp.stub('user_classes').and_return(['User']) }
 
   describe '#initialize' do
 
     context 'with opts hash' do
-      subject { Mongoid::Userstamp::ModelConfig.new(user_model: :bar,
-                                                    created_name: :c_by,
-                                                    updated_name: :u_by) }
+      subject do
+        Mongoid::Userstamp::ModelConfig.new(user_model: :bar,
+                                            created_name: :c_by,
+                                            updated_name: :u_by)
+      end
 
       it { should be_a Mongoid::Userstamp::ModelConfig }
       it { subject.user_model.should eq :bar }

@@ -18,13 +18,12 @@ class Users::SessionsController < Devise::SessionsController
 
   def log_failed_login
     return unless failed_login?
+
     attempted_user = User.where(email: request.filtered_parameters["user"]["login"])
-    if attempted_user.present?
-      SessionIdHistory.create(session_user_id: attempted_user.first.id, sign_in_outcome: "Failed", ip_address: request.remote_ip)
-    end
+    SessionIdHistory.create(session_user_id: attempted_user.first.id, sign_in_outcome: "Failed", ip_address: request.remote_ip) if attempted_user.present?
   end
 
   def failed_login?
-   (options = Rails.env["warden.options"]) && options[:action] == "unauthenticated"
+    (options = Rails.env["warden.options"]) && options[:action] == "unauthenticated"
   end
 end

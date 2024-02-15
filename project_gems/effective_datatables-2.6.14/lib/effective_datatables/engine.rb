@@ -5,7 +5,7 @@ module EffectiveDatatables
     config.autoload_paths += Dir["#{config.root}/app/models/concerns"]
 
     # Include Helpers to base application
-    initializer 'effective_datatables.action_controller' do |app|
+    initializer 'effective_datatables.action_controller' do |_app|
       ActiveSupport.on_load :action_controller do
         helper EffectiveDatatablesHelper
         helper EffectiveDatatablesPrivateHelper
@@ -13,7 +13,7 @@ module EffectiveDatatables
     end
 
     # Set up our default configuration options.
-    initializer "effective_datatables.defaults", :before => :load_config_initializers do |app|
+    initializer "effective_datatables.defaults", :before => :load_config_initializers do |_app|
       eval File.read("#{config.root}/lib/generators/templates/effective_datatables.rb")
     end
 

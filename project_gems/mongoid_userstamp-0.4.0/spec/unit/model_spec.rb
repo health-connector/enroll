@@ -1,4 +1,3 @@
-# -*- encoding : utf-8 -*-
 require 'spec_helper'
 
 describe Mongoid::Userstamp::Model do
@@ -38,7 +37,10 @@ describe Mongoid::Userstamp::Model do
     end
 
     context 'when mongoid_userstamp_user has been set' do
-      subject{ Book.mongoid_userstamp_config; Book.mongoid_userstamp_config(user_model: 'User', created_name: :foo, updated_name: :bar) }
+      subject do
+        Book.mongoid_userstamp_config
+        Book.mongoid_userstamp_config(user_model: 'User', created_name: :foo, updated_name: :bar)
+      end
       it { should be_a Mongoid::Userstamp::ModelConfig }
       it { subject.user_model.should eq Admin }
       it { subject.created_name.should eq :created_by }
@@ -46,7 +48,10 @@ describe Mongoid::Userstamp::Model do
     end
 
     context 'when set via mongoid_userstamp method' do
-      subject{ Book.mongoid_userstamp(user_model: 'User', created_name: :foo, updated_name: :bar); Book.mongoid_userstamp_config }
+      subject do
+        Book.mongoid_userstamp(user_model: 'User', created_name: :foo, updated_name: :bar)
+        Book.mongoid_userstamp_config
+      end
       it { should be_a Mongoid::Userstamp::ModelConfig }
       it { subject.user_model.should eq 'User' }
       it { subject.created_name.should eq :foo }
@@ -56,7 +61,10 @@ describe Mongoid::Userstamp::Model do
 
   describe '::current_user' do
 
-    before { Admin.current = nil; User.current = nil }
+    before do
+      Admin.current = nil
+      User.current = nil
+    end
 
     context 'when current book user is not set' do
       it { Book.current_user.should be_nil }

@@ -1,5 +1,3 @@
-# -*- encoding : utf-8 -*-
-
 require 'mongoid/userstamp'
 require 'mongoid/userstamp/version'
 require 'mongoid/userstamp/config/gem_config'
