@@ -40,8 +40,8 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/openhbx_cv2.git
-  revision: 6567dd46112982e6a9c90001b617caf313271fc9
-  branch: trunk
+  revision: 691e48c33ab53956bd72ee73f12f060cbe27e19d
+  branch: 5191116-reinstate-feature
   specs:
     openhbx_cv2 (0.0.1)
       activesupport (>= 3.2)
