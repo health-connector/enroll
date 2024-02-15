@@ -290,7 +290,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           end
 
           it 'should send enrollment event' do
-            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
             subject.call(params)
           end
         end
@@ -313,7 +313,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           end
 
           it 'should send enrollment event' do
-            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
             subject.call(params)
           end
         end
@@ -411,7 +411,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           end
 
           it 'should send enrollment event' do
-            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
             subject.call(params)
           end
         end
@@ -434,7 +434,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           end
 
           it 'should send enrollment event' do
-            expect_any_instance_of(HbxEnrollment).to receive(:notify)
+            expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
             subject.call(params)
           end
         end

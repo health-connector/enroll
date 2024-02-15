@@ -370,11 +370,9 @@ module BenefitSponsors
 
         context 'with overlapping coverage exists' do
           it 'should return false as dt active state exists for one of the bas' do
-            ba.benefit_application_items.create(
-              effective_period: Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30),
-              sequence_id: 1,
-              state: ba.aasm_state
-            )
+            ba.benefit_application_items[0].update_attributes({
+                                                                effective_period: Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30)
+                                                              })
             create_ba_params['start_on'] = "1/1/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             fetch_bs_for_service(@form)

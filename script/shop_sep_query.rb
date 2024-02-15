@@ -142,6 +142,16 @@ term_families.each do |fam|
       }
     }).first.transition_at
 
+    is_reinstate_term = term.workflow_state_transitions.where({
+                                                                "from_state" => 'coverage_reinstated',
+                                                                "transition_at" => {
+                                                                  "$gte" => start_time - 1.minutes, # adding buffer.
+                                                                  "$lt" => terminated_at
+                                                                }
+                                                              }).present?
+
+    next if is_reinstate_term
+
     if can_publish_enrollment?(term, terminated_at)
       ShopEnrollmentsPublisher.publish_action( "acapi.info.events.hbx_enrollment.terminated",
                      term.hbx_id,

@@ -2094,6 +2094,14 @@ class HbxEnrollment
     )
   end
 
+  def is_reinstate_canceled_enrollment?
+    return nil if predecessor_enrollment_id.blank?
+
+    enrollment = HbxEnrollment.find(predecessor_enrollment_id)
+    workflow_state_transitions.where(from_state: 'coverage_reinstated').present? &&
+      enrollment.coverage_canceled?
+  end
+
   private
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.
