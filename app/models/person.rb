@@ -92,7 +92,7 @@ class Person
   delegate :is_applying_coverage, to: :consumer_role, allow_nil: true
 
   # Login account
-  belongs_to :user
+  belongs_to :user, inverse_of: :person, optional: true
 
   belongs_to :employer_contact,
                 class_name: "EmployerProfile",

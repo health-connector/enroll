@@ -22,6 +22,8 @@ class User
     User.any_of({oim_id: search_regex}, {email: search_regex}, {id: {"$in" => person_user_ids} } )
   }
 
+  has_one :person, inverse_of: :user
+
   def oim_id_rules
     if oim_id.present? && oim_id.match(/[;#%=|+,">< \\\/]/)
       errors.add :oim_id, "cannot contain special charcters ; # % = | + , \" > < \\ \/"

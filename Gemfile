@@ -37,12 +37,12 @@ gem 'language_list', '~> 1.1.0'
 gem 'mail', '~> 2.7'
 gem 'maskedinput-rails'
 gem 'money-rails', '~> 1.10.0'
-gem 'mongo', '2.5.1'
+gem 'mongo', '2.6'
 gem 'mongo_session_store',      '~> 3.1'
 # gem 'mongoid-enum', '~> 0.4.0' # No references to Mongoid::Enum found
 gem 'mongoid', '~> 7.0.2'
-gem 'mongoid-autoinc'
-gem 'mongoid-history'
+gem 'mongoid-autoinc', '~> 6.0'
+gem 'mongoid-history', '~> 0.8'
 gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', '1.2.1'
 gem 'mongoid_userstamp', '~> 0.4', :path => './project_gems/mongoid_userstamp-0.4.0'
@@ -131,7 +131,7 @@ group :development do
   gem 'overcommit'
   gem 'rubocop', require: false
   gem 'rubocop-git'
-  gem 'web-console', '2.3.0'
+  gem 'web-console', '>= 3'
 end
 
 group :development, :test do

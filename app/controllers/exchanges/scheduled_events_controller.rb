@@ -58,6 +58,9 @@ class Exchanges::ScheduledEventsController < ApplicationController
 
   def index
     @calendar_events = load_calendar_events
+    respond_to do |format|
+      format.html { render "exchanges/scheduled_events/index.html.erb" }
+    end
   end
 
   def destroy
@@ -92,7 +95,7 @@ class Exchanges::ScheduledEventsController < ApplicationController
 
   private
 
-    helper_method :scheduled_event, :scheduled_events
+  helper_method :scheduled_event, :scheduled_events
 
     def load_calendar_events
       scheduled_events.flat_map do |e|
