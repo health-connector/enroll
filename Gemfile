@@ -53,6 +53,7 @@ gem 'mongoid_rails_migrations', '1.2.1'
 gem 'nokogiri', '1.13.10'
 gem 'nokogiri-happymapper', '~> 0.8.0', :require => 'happymapper'
 gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.4.0"
+
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: 'trunk'
 gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', branch: 'trunk'
