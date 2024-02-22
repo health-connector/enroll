@@ -279,6 +279,63 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
           expect(enrollment_transcript.updates[:remove][:plan]['hios_id']).to eq ["Ignored", "Ignored per Enrollment update rule set."]
         end
       end
+
+      context 'with multiple employee roles' do
+        let(:employee_role_2) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
+        let!(:census_employee_2) do
+          census_employee = FactoryGirl.create(:census_employee, :with_active_assignment, first_name: person.first_name,
+                                                                                          last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
+                                                                                          employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
+                                                                                          employee_role_id: employee_role_2.id)
+          census_employee.update_attributes(ssn: person.ssn, dob: person.dob, hired_on: hired_on)
+          employee_role_2.update_attributes(census_employee_id: census_employee.id)
+          census_employee
+        end
+
+        let!(:source_enrollment_1) do
+          enrollment = source_family.active_household.hbx_enrollments.build({hbx_id: '1000001', kind: 'employer_sponsored', product: source_plan, effective_on: source_effective_on, aasm_state: 'coverage_selected',
+                                                                             sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id, household: household,
+                                                                             benefit_group_assignment_id: benefit_group_assignment.id})
+          source_family.family_members.each do |family_member|
+            enrollment.hbx_enrollment_members.build({applicant_id: family_member.id, is_subscriber: family_member.is_primary_applicant, coverage_start_on: source_effective_on, eligibility_date: source_effective_on})
+          end
+          enrollment.save
+          enrollment
+        end
+
+        let(:compare) do
+          {
+            :plan => {"remove" => {"hios_id" => {"name" => "BluePreferred PPO Standard Silver $2,000", "hios_id" => "78079DC0210004-01", "active_year" => 2016}},
+                      "add" => {"hios_id" => {"name" => "KP DC Gold 1000/20/Dental/Ped Dental", "hios_id" => other_plan.hios_id.to_s, "active_year" => 2016}}}
+          }
+        end
+
+        let(:transcript) do
+          {
+            :source => {'_id' => source_enrollment_1.id},
+            :compare => compare,
+            :other => nil
+          }
+        end
+
+        it 'should create new enrollment' do
+          expect(person.employee_roles.active.count).to eq(2)
+          expect(source_enrollment_1.product).to eq source_plan
+          enrollment_transcript = Importers::Transcripts::EnrollmentTranscript.new
+          enrollment_transcript.transcript = transcript
+          enrollment_transcript.other_enrollment = other_enrollment
+          enrollment_transcript.market = 'shop'
+          enrollment_transcript.process
+          source_family.reload
+          source_enrollment_1.reload
+          expect(source_enrollment_1.product).to eq source_plan
+          expect(source_enrollment_1.void?).to be_truthy
+
+          enrollment = source_family.active_household.hbx_enrollments.where(:hbx_id.ne => source_enrollment_1.hbx_id).first
+          expect(enrollment.present?).to be_truthy
+          expect(enrollment.coverage_terminated?).to be_truthy
+        end
+      end
     end
 
     context 'hbx_enrollment' do
