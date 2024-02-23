@@ -2,7 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   include RecaptchaConcern if Settings.aca.recaptcha_enabled
 
   after_filter :log_failed_login, :only => :new
-  before_filter :set_ie_flash_by_announcement, only: [:new]
+  before_action :set_ie_flash_by_announcement, only: [:new]
 
   def create
     self.resource = warden.authenticate!(auth_options)
@@ -18,13 +18,14 @@ class Users::SessionsController < Devise::SessionsController
 
   def log_failed_login
     return unless failed_login?
+
     attempted_user = User.where(email: request.filtered_parameters["user"]["login"])
-    if attempted_user.present?
-      SessionIdHistory.create(session_user_id: attempted_user.first.id, sign_in_outcome: "Failed", ip_address: request.remote_ip)
-    end
+    return unless attempted_user.present?
+
+    SessionIdHistory.create(session_user_id: attempted_user.first.id, sign_in_outcome: "Failed", ip_address: request.remote_ip)
   end
 
   def failed_login?
-   (options = env["warden.options"]) && options[:action] == "unauthenticated"
+    (options = env["warden.options"]) && options[:action] == "unauthenticated"
   end
 end

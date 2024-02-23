@@ -1,8 +1,8 @@
 class Users::RegistrationsController < Devise::RegistrationsController
-  
-  before_filter :configure_sign_up_params, only: [:create]
-  before_filter :set_ie_flash_by_announcement, only: [:new]
-  # before_filter :configure_account_update_params, only: [:update]
+
+  before_action :configure_sign_up_params, only: [:create]
+  before_action :set_ie_flash_by_announcement, only: [:new]
+  # before_action :configure_account_update_params, only: [:update]
 
   # GET /resource/sign_up
   # def new
@@ -25,9 +25,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     headless = User.where(email: /^#{Regexp.quote(resource.email)}$/i).first
 
-    if headless.present? && !headless.person.present?
-      headless.destroy
-    end
+    headless.destroy if headless.present? && !headless.person.present?
 
     resource.email = resource.oim_id if resource.email.blank? && resource.oim_id =~ Devise.email_regexp
     resource.handle_headless_records
@@ -53,9 +51,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     else
       clean_up_passwords resource
       @validatable = devise_mapping.validatable?
-      if @validatable
-        @minimum_password_length = resource_class.password_length.min
-      end
+      @minimum_password_length = resource_class.password_length.min if @validatable
       respond_with resource
     end
   end

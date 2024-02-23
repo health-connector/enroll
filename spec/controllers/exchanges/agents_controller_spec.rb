@@ -6,10 +6,10 @@ RSpec.describe Exchanges::AgentsController do
   let(:current_user){FactoryGirl.create(:user)}
   describe 'Agent Controller behavior' do
     let(:signed_in?){ true }
-     before :each do
-       allow(current_user).to receive(:person).and_return(person_user)
-       allow(current_user).to receive(:roles).and_return ['csr']
-     end
+    before :each do
+      allow(current_user).to receive(:person).and_return(person_user)
+      allow(current_user).to receive(:roles).and_return ['csr']
+    end
 
     it 'renders home for CAC' do
       person_user.csr_role = FactoryGirl.build(:csr_role, cac: true)
@@ -40,7 +40,7 @@ RSpec.describe Exchanges::AgentsController do
 
     before(:each) do
       allow(current_user).to receive(:roles).and_return ['consumer']
-      controller.class.skip_before_filter :check_agent_role
+      controller.class.skip_before_action :check_agent_role
     end
     context "actions when not passed Ridp" do
       it 'should redirect to family account path' do
