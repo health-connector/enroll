@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '~> 5.2.8.1'
   s.add_dependency 'mongoid', '~> 7.0.2'
   s.add_dependency 'transport_gateway'
-  s.add_dependency 'nokogiri', '~> 1.11'
+  s.add_dependency 'nokogiri', '1.13.10'
   s.add_dependency 'acapi'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'rubyzip', '>=1.3.0'
