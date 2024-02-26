@@ -32,25 +32,26 @@ module BenefitMarkets
     delegate    :kind, to: :benefit_market, prefix: true
 
     belongs_to  :benefit_market,
-                class_name: "BenefitMarkets::BenefitMarket"
+                class_name: "BenefitMarkets::BenefitMarket",
+                optional: true
 
     embeds_one  :sponsor_market_policy,
                 class_name: "::BenefitMarkets::MarketPolicies::SponsorMarketPolicy"
     embeds_one  :member_market_policy,
                 class_name: "::BenefitMarkets::MarketPolicies::MemberMarketPolicy"
     embeds_many :product_packages, as: :packagable,
-                class_name: "::BenefitMarkets::Products::ProductPackage"
+                                   class_name: "::BenefitMarkets::Products::ProductPackage"
 
     # Entire geography covered by under this catalog
     has_and_belongs_to_many  :service_areas,
-                              class_name: "::BenefitMarkets::Locations::ServiceArea"
+                             class_name: "::BenefitMarkets::Locations::ServiceArea"
 
 
     validates_presence_of :benefit_market, :application_interval_kind, :application_period, :probation_period_kinds
 
     validates :application_interval_kind,
-      inclusion:    { in: BenefitMarkets::APPLICATION_INTERVAL_KINDS, message: "%{value} is not a valid application interval kind" },
-      allow_nil:    false
+              inclusion: { in: BenefitMarkets::APPLICATION_INTERVAL_KINDS, message: "%<value>s is not a valid application interval kind" },
+              allow_nil: false
 
     validate :validate_probation_periods
     validate :unique_application_period_range
@@ -83,14 +84,12 @@ module BenefitMarkets
       product_packages.select{|product_package| product_package.is_available_for?(service_areas, effective_date) }
     end
 
-    def issuers_for(benefit_application)
+    def issuers_for(benefit_application); end
+
+    def product_packages_by_benefit_kind # => health, dental
     end
 
-    def product_packages_by_benefit_kind() # => health, dental
-    end
-
-    def benefit_types_for(benefit_application)
-    end
+    def benefit_types_for(benefit_application); end
 
     def application_period_cover?(compare_date)
       application_period.cover?(compare_date)
@@ -123,13 +122,12 @@ module BenefitMarkets
       begin_on..end_on
     end
 
-
     def open_enrollment_minimum_begin_day_of_month(use_grace_period = false)
-      if use_grace_period
-        minimum_length = Settings.aca.shop_market.open_enrollment.minimum_length.days
-      else
-        minimum_length = Settings.aca.shop_market.open_enrollment.minimum_length.adv_days
-      end
+      minimum_length = if use_grace_period
+                         Settings.aca.shop_market.open_enrollment.minimum_length.days
+                       else
+                         Settings.aca.shop_market.open_enrollment.minimum_length.adv_days
+                       end
 
       open_enrollment_end_on_day = Settings.aca.shop_market.open_enrollment.monthly_end_on
       open_enrollment_end_on_day - minimum_length
@@ -153,10 +151,9 @@ module BenefitMarkets
 
     def validate_probation_periods
       return false if probation_period_kinds.blank?
+
       probation_period_kinds.each do |ppk|
-        unless ::BenefitMarkets::PROBATION_PERIOD_KINDS.include?(ppk)
-          errors.add(:probation_period_kinds, "#{ppk} is not a valid probation period kind")
-        end
+        errors.add(:probation_period_kinds, "#{ppk} is not a valid probation period kind") unless ::BenefitMarkets::PROBATION_PERIOD_KINDS.include?(ppk)
       end
       true
     end
