@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :person do
     # name_pfx 'Mr'
     first_name 'John'
@@ -18,16 +18,16 @@ FactoryGirl.define do
 
     trait :with_family do
       after :create do |person|
-        family = FactoryGirl.create :family, :with_primary_family_member, person: person
+        family = FactoryBot.create :family, :with_primary_family_member, person: person
       end
     end
 
     trait :with_work_phone do
-      phones { [FactoryGirl.build(:phone, kind: "work") ] }
+      phones { [FactoryBot.build(:phone, kind: "work") ] }
     end
 
     trait :with_work_email do
-      emails { [FactoryGirl.build(:email, kind: "work") ] }
+      emails { [FactoryBot.build(:email, kind: "work") ] }
     end
 
     trait :with_employee_role do

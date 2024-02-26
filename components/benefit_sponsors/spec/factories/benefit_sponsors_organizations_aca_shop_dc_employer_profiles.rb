@@ -1,6 +1,6 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_organizations_aca_shop_dc_employer_profile, class: 'BenefitSponsors::Organizations::AcaShopDcEmployerProfile' do
-    organization { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_site) }
+    organization { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_site) }
 
     is_benefit_sponsorship_eligible true
 

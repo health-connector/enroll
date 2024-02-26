@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_site, class: 'BenefitSponsors::Site' do
     site_key    :acme
     byline      "ACME Healthcare"

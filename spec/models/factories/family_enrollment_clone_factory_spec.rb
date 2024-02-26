@@ -29,7 +29,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_group_id: nil, benefit_package_id: sponsored_benefit_package.id, start_on: sponsored_benefit_package.start_on, end_on: coverage_terminated_on)}
   let!(:renewal_benefit_group_assignment) { build(:benefit_group_assignment, benefit_group_id: nil, start_on: renewal_benefit_package.start_on, benefit_package_id: renewal_benefit_package.id, end_on: renewal_benefit_package.end_on)}
   let!(:ce) do
-    FactoryGirl.create(
+    FactoryBot.create(
       :census_employee,
       :owner,
       benefit_sponsorship: benefit_sponsorship,
@@ -46,14 +46,14 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
     person = employee_role.person
     ce.update_attributes({employee_role: employee_role})
     family_rec = Family.find_or_build_from_employee_role(employee_role)
-    hbx_enrollment_mem = FactoryGirl.build(
+    hbx_enrollment_mem = FactoryBot.build(
       :hbx_enrollment_member,
       eligibility_date: Time.now,
       applicant_id: person.primary_family.family_members.first.id,
       coverage_start_on: sponsored_benefit_package.start_on
     )
 
-     FactoryGirl.create(:hbx_enrollment,
+     FactoryBot.create(:hbx_enrollment,
       household: person.primary_family.active_household,
       coverage_kind: "health",
       effective_on: sponsored_benefit_package.start_on,

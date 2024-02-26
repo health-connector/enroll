@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_sponsored_benefits_health_sponsored_benefit, class: 'BenefitSponsors::SponsoredBenefits::HealthSponsoredBenefit', parent: :benefit_sponsors_sponsored_benefits_sponsored_benefit do
     
     sponsor_contribution { build(:benefit_sponsors_sponsored_benefits_sponsor_contribution) }

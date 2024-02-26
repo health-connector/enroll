@@ -48,8 +48,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:user) { double("user")}
     let(:person) { double("person")}
     let(:hbx_profile) { double("HbxProfile") }
-    let(:hbx_staff_role) { double("hbx_staff_role", permission: FactoryGirl.create(:permission))}
-    let(:employer_profile){ FactoryGirl.create(:employer_profile, aasm_state: "enrolling") }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: FactoryBot.create(:permission))}
+    let(:employer_profile){ FactoryBot.create(:employer_profile, aasm_state: "enrolling") }
 
     before(:each) do
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
@@ -183,10 +183,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   end
 
   describe "#update" do
-    let(:user) { FactoryGirl.create(:user, :hbx_staff) }
+    let(:user) { FactoryBot.create(:user, :hbx_staff) }
     let(:person) { double }
     let(:new_hbx_profile){ HbxProfile.new }
-    let(:hbx_profile) { FactoryGirl.create(:hbx_profile) }
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile) }
     let(:hbx_profile_params) { {hbx_profile: new_hbx_profile.attributes, id: hbx_profile.id }}
     let(:hbx_staff_role) {double}
 
@@ -216,7 +216,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   describe "#destroy" do
     let(:user){ double("User") }
     let(:person){ double("Person") }
-    let(:hbx_profile) { FactoryGirl.create(:hbx_profile) }
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile) }
     let(:hbx_staff_role) {double}
 
     it "destroys hbx_profile" do
@@ -358,7 +358,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:user) { double("user", :has_hbx_staff_role? => true)}
     let(:employer_profile) { double("EmployerProfile", id: double("id"))}
     let(:organization){ Organization.new }
-    let(:hbx_enrollment) { FactoryGirl.build_stubbed :hbx_enrollment }
+    let(:hbx_enrollment) { FactoryBot.build_stubbed :hbx_enrollment }
 
     before :each do
       sign_in(user)
@@ -377,25 +377,25 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context "of an hbx super admin clicks Force Publish" do
       let(:site) do
-        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+        FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
       end
       let(:employer_organization) do
-        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
           org
         end
       end
       let(:person) do
-        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+        FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
             person
           end
         end
       end
       let(:user) do
-        FactoryGirl.create(:user, person: person)
+        FactoryBot.create(:user, person: person)
       end
       let(:benefit_sponsorship) do
         employer_organization.benefit_sponsorships.first
@@ -415,25 +415,25 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context "of an hbx super admin clicks Submit in Force Publish window" do
       let(:site) do
-        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+        FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
       end
       let(:employer_organization) do
-        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
           org
         end
       end
       let(:person) do
-        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+        FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
             person
           end
         end
       end
       let(:user) do
-        FactoryGirl.create(:user, person: person)
+        FactoryBot.create(:user, person: person)
       end
       let(:benefit_sponsorship) do
         employer_organization.benefit_sponsorships.first
@@ -569,9 +569,9 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   end
 
   describe "POST" do
-    let(:user) { FactoryGirl.create(:user)}
-    let(:person) { FactoryGirl.create(:person, user: user) }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person) }
+    let(:user) { FactoryBot.create(:user)}
+    let(:person) { FactoryBot.create(:person, user: user) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person) }
     let(:time_keeper_form) { instance_double(Forms::TimeKeeper) }
 
     before :each do
@@ -622,12 +622,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
   describe "GET edit_dob_ssn" do
 
-    let(:person) { FactoryGirl.create(:person, :with_consumer_role, :with_employee_role) }
+    let(:person) { FactoryBot.create(:person, :with_consumer_role, :with_employee_role) }
     let(:user) { double("user", :person => person, :has_hbx_staff_role? => true) }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person)}
-    let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
-    let(:permission_yes) { FactoryGirl.create(:permission, :can_update_ssn => true)}
-    let(:permission_no) { FactoryGirl.create(:permission, :can_update_ssn => false)}
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person)}
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile)}
+    let(:permission_yes) { FactoryBot.create(:permission, :can_update_ssn => true)}
+    let(:permission_no) { FactoryBot.create(:permission, :can_update_ssn => false)}
 
     it "should return authorization error for Non-Admin users" do
       allow(hbx_staff_role).to receive(:permission).and_return permission_yes
@@ -650,13 +650,13 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
   describe "POST update_dob_ssn" do
 
-    let(:person) { FactoryGirl.create(:person, :with_consumer_role, :with_employee_role) }
-    let(:person1) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person, :with_consumer_role, :with_employee_role) }
+    let(:person1) { FactoryBot.create(:person) }
     let(:user) { double("user", :person => person, :has_hbx_staff_role? => true) }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person)}
-    let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
-    let(:permission_yes) { FactoryGirl.create(:permission, :can_update_ssn => true)}
-    let(:permission_no) { FactoryGirl.create(:permission, :can_update_ssn => false)}
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person)}
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile)}
+    let(:permission_yes) { FactoryBot.create(:permission, :can_update_ssn => true)}
+    let(:permission_no) { FactoryBot.create(:permission, :can_update_ssn => false)}
     let(:invalid_ssn) { "234-45-839" }
     let(:valid_ssn) { "234-45-8390" }
     let(:valid_dob) { "03/17/1987" }
@@ -697,7 +697,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   end
 
   describe "GET general_agency_index" do
-    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
+    let(:user) { FactoryBot.create(:user, roles: ["hbx_staff"]) }
     before :each do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
       sign_in user
@@ -735,12 +735,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     include_context "setup initial benefit application"
     include_context "setup employees with benefits"
 
-    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
-    let!(:person) { FactoryGirl.create(:person)}
+    let(:user) { FactoryBot.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryBot.create(:person)}
     let(:current_effective_date)  { TimeKeeper.date_of_record }
     let(:benefit_market)      { site.benefit_markets.first }
 
-    let(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:product_package_kind) { :single_product}
     let!(:product_package) { current_benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
     let(:product) { product_package.products.first }
@@ -748,17 +748,17 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     # let!(:employer_profile) {benefit_sponsorship.profile}
     # let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, effective_period: effective_period,benefit_sponsorship:benefit_sponsorship, aasm_state: :active) }
     let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
-    # let!(:household) { FactoryGirl.create(:household, family: family) }
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
+    # let!(:household) { FactoryBot.create(:household, family: family) }
     # let!(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     # let!(:benefit_market)      { site.benefit_markets.first }
-    # let!(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    # let!(:organization)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     # let!(:employer_profile)    { organization.employer_profile }
-    # let(:benefit_sponsor)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_initial_application, site: site) }
+    # let(:benefit_sponsor)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_initial_application, site: site) }
     # let(:benefit_sponsorship)    { benefit_sponsor.active_benefit_sponsorship }
     # let(:benefit_application)    { benefit_sponsorship.benefit_applications.first }
     let(:benefit_package)    { initial_application.benefit_packages.first }
-    # let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
+    # let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
 
     let!(:enrollment) { family.active_household.hbx_enrollments.create!(
                         household: family.active_household,
@@ -789,29 +789,29 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     include_context "setup initial benefit application"
     include_context "setup employees with benefits"
 
-    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
-    let!(:person) { FactoryGirl.create(:person)}
+    let(:user) { FactoryBot.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryBot.create(:person)}
     let(:current_effective_date)  { TimeKeeper.date_of_record.beginning_of_year - 1.year }
     let(:primary) { family.primary_family_member }
     let(:dependents) { family.dependents }
-    let!(:household) { FactoryGirl.create(:household, family: family) }
-    let!(:hbx_en_member1) { FactoryGirl.build(:hbx_enrollment_member, eligibility_date: current_effective_date, coverage_start_on: current_effective_date, applicant_id: dependents.first.id) }
-    let!(:hbx_en_member2) { FactoryGirl.build(:hbx_enrollment_member, eligibility_date: current_effective_date + 2.months, coverage_start_on: current_effective_date + 2.months, applicant_id: hbx_en_member1.applicant_id) }
-    let!(:hbx_en_member3) { FactoryGirl.build(:hbx_enrollment_member, eligibility_date: current_effective_date + 6.months, coverage_start_on: current_effective_date + 6.months, applicant_id: dependents.last.id) }
+    let!(:household) { FactoryBot.create(:household, family: family) }
+    let!(:hbx_en_member1) { FactoryBot.build(:hbx_enrollment_member, eligibility_date: current_effective_date, coverage_start_on: current_effective_date, applicant_id: dependents.first.id) }
+    let!(:hbx_en_member2) { FactoryBot.build(:hbx_enrollment_member, eligibility_date: current_effective_date + 2.months, coverage_start_on: current_effective_date + 2.months, applicant_id: hbx_en_member1.applicant_id) }
+    let!(:hbx_en_member3) { FactoryBot.build(:hbx_enrollment_member, eligibility_date: current_effective_date + 6.months, coverage_start_on: current_effective_date + 6.months, applicant_id: dependents.last.id) }
     let(:benefit_market)      { site.benefit_markets.first }
 
-    let(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:product_package_kind) { :single_product}
     let!(:product_package) { current_benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
     let(:product) { product_package.products.first }
     let(:product_package)           { initial_application.benefit_sponsor_catalog.product_packages.detect { |package| package.package_kind == package_kind } }
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member_and_dependent, person: person)}
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member_and_dependent, person: person)}
     let(:benefit_package)    { initial_application.benefit_packages.first }
-    let!(:enrollment1)  { FactoryGirl.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member1], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: current_effective_date.next_month.end_of_month)}
+    let!(:enrollment1)  { FactoryBot.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member1], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: current_effective_date.next_month.end_of_month)}
 
-    let!(:enrollment2)  { FactoryGirl.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date + 2.months, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member2], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: (current_effective_date + 5.months).end_of_month)}
+    let!(:enrollment2)  { FactoryBot.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date + 2.months, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member2], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: (current_effective_date + 5.months).end_of_month)}
 
-    let!(:enrollment3)  { FactoryGirl.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date + 6.months, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member3], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: current_effective_date.end_of_year)}
+    let!(:enrollment3)  { FactoryBot.create(:hbx_enrollment, household: family.active_household, coverage_kind: "health", product: product, effective_on: current_effective_date + 6.months, aasm_state: 'coverage_terminated', kind: "employer_sponsored", hbx_enrollment_members: [hbx_en_member3], benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package: benefit_package, terminated_on: current_effective_date.end_of_year)}
 
     before :each do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
@@ -832,12 +832,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   end
 
   describe "POST update_enrollment_termianted_on_date", :dbclean => :around_each do
-    let(:user) { FactoryGirl.create(:user, roles: ["hbx_staff"]) }
-    let!(:person) { FactoryGirl.create(:person)}
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
-    let!(:household) { FactoryGirl.create(:household, family: family) }
+    let(:user) { FactoryBot.create(:user, roles: ["hbx_staff"]) }
+    let!(:person) { FactoryBot.create(:person)}
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
+    let!(:household) { FactoryBot.create(:household, family: family) }
     let!(:enrollment) {
-      FactoryGirl.create(:hbx_enrollment,
+      FactoryBot.create(:hbx_enrollment,
                          household: family.active_household,
                          coverage_kind: "health",
                          kind: 'employer_sponsored',
@@ -1112,15 +1112,15 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   end
 
   describe "benefit application creation" do
-    let!(:user)                { FactoryGirl.create(:user) }
-    let!(:person)              { FactoryGirl.create(:person, user: user) }
-    let!(:permission)          { FactoryGirl.create(:permission, :super_admin) }
-    let!(:hbx_staff_role)      { FactoryGirl.create(:hbx_staff_role, person: person, permission_id: permission.id, subrole:permission.name) }
-    let!(:rating_area)         { FactoryGirl.create_default :benefit_markets_locations_rating_area }
-    let!(:service_area)        { FactoryGirl.create_default :benefit_markets_locations_service_area }
+    let!(:user)                { FactoryBot.create(:user) }
+    let!(:person)              { FactoryBot.create(:person, user: user) }
+    let!(:permission)          { FactoryBot.create(:permission, :super_admin) }
+    let!(:hbx_staff_role)      { FactoryBot.create(:hbx_staff_role, person: person, permission_id: permission.id, subrole:permission.name) }
+    let!(:rating_area)         { FactoryBot.create_default :benefit_markets_locations_rating_area }
+    let!(:service_area)        { FactoryBot.create_default :benefit_markets_locations_service_area }
     let!(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let!(:benefit_market)      { site.benefit_markets.first }
-    let!(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let!(:organization)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let!(:employer_profile)    { organization.employer_profile }
     let!(:benefit_sponsorship) { bs = employer_profile.add_benefit_sponsorship
                                 bs.save!
@@ -1128,7 +1128,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
                                }
     let(:effective_period)     { (TimeKeeper.date_of_record + 3.months)..(TimeKeeper.date_of_record + 1.year + 3.months - 1.day) }
     let(:start_on)             { effective_period.min }
-    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let!(:current_benefit_market_catalog) do
       create(
         :benefit_markets_benefit_market_catalog,
@@ -1247,25 +1247,25 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context "of an hbx super admin clicks Change FEIN" do
       let(:site) do
-        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+        FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
       end
       let(:employer_organization) do
-        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
           org
         end
       end
       let(:person) do
-        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+        FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
             person
           end
         end
       end
       let(:user) do
-        FactoryGirl.create(:user, person: person)
+        FactoryBot.create(:user, person: person)
       end
       let(:benefit_sponsorship) do
         employer_organization.benefit_sponsorships.first
@@ -1285,25 +1285,25 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context "of an hbx super admin clicks Submit in Change FEIN window" do
       let(:site) do
-        FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+        FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
       end
       let(:employer_organization) do
-        FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
           org
         end
       end
       let(:person) do
-        FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-          FactoryGirl.create(:permission, :super_admin).tap do |permission|
+        FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+          FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
             person
           end
         end
       end
       let(:user) do
-        FactoryGirl.create(:user, person: person)
+        FactoryBot.create(:user, person: person)
       end
       let(:benefit_sponsorship) do
         employer_organization.benefit_sponsorships.first

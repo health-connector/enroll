@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_benefit_packages_benefit_package, class: 'BenefitSponsors::BenefitPackages::BenefitPackage' do
 
     benefit_application { create(:benefit_sponsors_benefit_application) }

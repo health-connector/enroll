@@ -16,7 +16,7 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
     let(:employee_created_at) { hired_on }
     let(:employee_updated_at) { employee_created_at }
 
-    let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
+    let(:person) {FactoryBot.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
 
 
     let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.first.benefit_packages.first.health_sponsored_benefit}
@@ -25,8 +25,8 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
     let(:aasm_state) { :active }
     let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
     let!(:family) {
-      person = FactoryGirl.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
-      employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: census_employee, benefit_sponsors_employer_profile_id: abc_profile.id)
+      person = FactoryBot.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
+      employee_role = FactoryBot.create(:employee_role, person: person, census_employee: census_employee, benefit_sponsors_employer_profile_id: abc_profile.id)
       census_employee.update_attributes({employee_role: employee_role})
       Family.find_or_build_from_employee_role(employee_role)
     }
@@ -39,7 +39,7 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
     let(:covered_individuals) { family.family_members }
     let(:person) { family.primary_applicant.person }
 
-    let!(:enrollment) { FactoryGirl.create(:hbx_enrollment, :with_enrollment_members,
+    let!(:enrollment) { FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
                                                enrollment_members: covered_individuals,
                                                household: family.latest_household,
                                                coverage_kind: "health",
@@ -103,7 +103,7 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
       let(:employee_created_at) { hired_on }
       let(:employee_updated_at) { employee_created_at }
 
-      let(:person) {FactoryGirl.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
+      let(:person) {FactoryBot.create(:person, first_name: 'John', last_name: 'Smith', dob: '1966-10-10'.to_date, ssn: '123456789')}
 
 
       let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.where(aasm_state: :active).first.benefit_packages.first.health_sponsored_benefit}
@@ -121,8 +121,8 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
       let(:aasm_state) { :active }
       let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
       let!(:family) {
-        person = FactoryGirl.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
-        employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: census_employee, benefit_sponsors_employer_profile_id: abc_profile.id)
+        person = FactoryBot.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
+        employee_role = FactoryBot.create(:employee_role, person: person, census_employee: census_employee, benefit_sponsors_employer_profile_id: abc_profile.id)
         census_employee.update_attributes({employee_role: employee_role})
         Family.find_or_build_from_employee_role(employee_role)
       }
@@ -135,7 +135,7 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
       let(:covered_individuals) { family.family_members }
       let(:person) { family.primary_applicant.person }
 
-      let!(:enrollment) { FactoryGirl.create(:hbx_enrollment, :with_enrollment_members,
+      let!(:enrollment) { FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
                                             enrollment_members: covered_individuals,
                                             household: family.latest_household,
                                             coverage_kind: "health",

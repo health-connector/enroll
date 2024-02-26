@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_aca_shop_configuration, class: 'BenefitMarkets::Configurations::AcaShopConfiguration' do
     ee_ct_max 50
     employee_participation_ratio_min 0.666

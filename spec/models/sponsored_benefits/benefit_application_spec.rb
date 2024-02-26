@@ -36,10 +36,10 @@ module SponsoredBenefits
           phone: phone
         )
       }
-      let(:benefit_group)             { FactoryGirl.create :benefit_group, title: 'new' }
+      let(:benefit_group)             { FactoryBot.create :benefit_group, title: 'new' }
 
       let(:benefit_market)      { site.benefit_markets.first }
-      let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+      let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
       let(:current_effective_date)  { TimeKeeper.date_of_record }
       let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
                                              benefit_market: benefit_market,
@@ -50,10 +50,10 @@ module SponsoredBenefits
       }
       let!(:product)      { benefit_market_catalog.product_packages.where(package_kind: 'single_product').first.products.first}
       let!(:plan) {benefit_group.reference_plan}
-      let!(:rating_area)   { FactoryGirl.create_default :benefit_markets_locations_rating_area, active_year: effective_period_start_on.year }
-      let!(:service_area)  { FactoryGirl.create_default :benefit_markets_locations_service_area, active_year: effective_period_start_on.year }
+      let!(:rating_area)   { FactoryBot.create_default :benefit_markets_locations_rating_area, active_year: effective_period_start_on.year }
+      let!(:service_area)  { FactoryBot.create_default :benefit_markets_locations_service_area, active_year: effective_period_start_on.year }
       let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let(:benefit_sponsor_organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:benefit_sponsor_organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:sponsor_benefit_sponsorship) do
         sponsorship = benefit_sponsor_organization.employer_profile.add_benefit_sponsorship
         sponsorship.save

@@ -5,7 +5,7 @@ require './spec/shared_context/setup_shop_families_enrollments'
 
 describe BuildMemberGroup, :dbclean => :after_each do
   include_context "setup shop families enrollments"
-  let(:product) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile)}
+  let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile)}
 
   context 'should not assign member_group' do
     it 'when product is not passed' do

@@ -9,10 +9,10 @@ module BenefitSponsors
     include_context 'setup benefit market with market catalogs and product packages'
     include_context 'setup initial benefit application'
     let(:policy) { BenefitSponsors::EmployerProfilePolicy.new(user, benefit_sponsorship.organization.profiles.first) }
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     context 'for a user with no role' do
-      let(:user) { FactoryGirl.create(:user, person: person) }
+      let(:user) { FactoryBot.create(:user, person: person) }
 
       shared_examples_for 'should not permit for person without employer staff role' do |policy_type|
         it 'should not permit' do
@@ -26,8 +26,8 @@ module BenefitSponsors
     end
 
     context 'for a user without ER staff role' do
-      let(:user) { FactoryGirl.create(:user, person: person) }
-      let(:er_staff_role) { FactoryGirl.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
+      let(:user) { FactoryBot.create(:user, person: person) }
+      let(:er_staff_role) { FactoryBot.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
 
       shared_examples_for 'should not permit for person without active employer staff role' do |policy_type|
         it 'should not permit for inactive ER staff role' do
@@ -43,8 +43,8 @@ module BenefitSponsors
     end
 
     context 'for a user with ER staff role' do
-      let(:user) { FactoryGirl.create(:user, person: person) }
-      let(:er_staff_role) { FactoryGirl.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
+      let(:user) { FactoryBot.create(:user, person: person) }
+      let(:er_staff_role) { FactoryBot.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
 
       shared_examples_for 'should not permit for person with active employer staff role' do |policy_type|
         it 'should permit for active ER staff role' do
@@ -59,7 +59,7 @@ module BenefitSponsors
     end
 
     context 'for a user with admin role' do
-      let(:user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: person) }
+      let(:user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person) }
 
       shared_examples_for 'should permit for a user with hbx staff role' do |policy_type|
         it 'should permit for admin role' do

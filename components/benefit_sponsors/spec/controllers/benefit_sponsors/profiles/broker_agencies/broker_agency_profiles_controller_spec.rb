@@ -6,16 +6,16 @@ module BenefitSponsors
   RSpec.describe Profiles::BrokerAgencies::BrokerAgencyProfilesController, type: :controller, dbclean: :after_each do
 
     routes { BenefitSponsors::Engine.routes }
-    let!(:security_question)  { FactoryGirl.create_default :security_question }
+    let!(:security_question)  { FactoryBot.create_default :security_question }
 
-    let!(:user_with_hbx_staff_role) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-    let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role )}
-    let!(:person01) { FactoryGirl.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryGirl.create(:user, person: person01 ) }
+    let!(:user_with_hbx_staff_role) { FactoryBot.create(:user, :with_hbx_staff_role) }
+    let!(:person) { FactoryBot.create(:person, user: user_with_hbx_staff_role )}
+    let!(:person01) { FactoryBot.create(:person, :with_broker_role) }
+    let!(:user_with_broker_role) { FactoryBot.create(:user, person: person01 ) }
 
     let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization_with_hbx_profile)  { site.owner_organization }
-    let!(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
+    let!(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
     let(:bap_id) { organization.broker_agency_profile.id }
 
@@ -58,7 +58,7 @@ module BenefitSponsors
       end
 
       context "index for user with broker_agency_staff_role(on failed pundit)" do
-        let!(:broker_agency_staff_role) { FactoryGirl.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id, person: person01) }
+        let!(:broker_agency_staff_role) { FactoryBot.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id, person: person01) }
 
         before :each do
           user_with_broker_role.roles << "broker_agency_staff"
@@ -109,7 +109,7 @@ module BenefitSponsors
       end
 
       context 'for show with other broker_agency_profile_id and with a correct user' do
-        let!(:organization1) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
+        let!(:organization1) {FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
         let(:bap_id1) {organization1.broker_agency_profile.id}
 
         before :each do
@@ -141,7 +141,7 @@ module BenefitSponsors
       end
 
       context "with an invalid user and with broker_agency_profile_id(on falied pundit)" do
-        let!(:user_without_person) { FactoryGirl.create(:user, :with_hbx_staff_role) }
+        let!(:user_without_person) { FactoryBot.create(:user, :with_hbx_staff_role) }
 
         before :each do
           sign_in(user_without_person)
@@ -175,7 +175,7 @@ module BenefitSponsors
       end
 
       context "without a valid user" do
-        let!(:user) { FactoryGirl.create(:user, roles: [], person: FactoryGirl.create(:person)) }
+        let!(:user) { FactoryBot.create(:user, roles: [], person: FactoryBot.create(:person)) }
 
         before :each do
           sign_in(user)
@@ -222,10 +222,10 @@ module BenefitSponsors
       include_context "setup initial benefit application"
       include_context "setup employees with benefits"
 
-      let!(:broker_agency_accounts) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: organization.profiles.first, benefit_sponsorship: benefit_sponsorship) }
-      let!(:user) { FactoryGirl.create(:user, roles: [], person: FactoryGirl.create(:person)) }
+      let!(:broker_agency_accounts) { FactoryBot.create(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: organization.profiles.first, benefit_sponsorship: benefit_sponsorship) }
+      let!(:user) { FactoryBot.create(:user, roles: [], person: FactoryBot.create(:person)) }
       let!(:ce) { benefit_sponsorship.census_employees.first }
-      let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+      let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
 
       context "should return sucess and family" do
         before :each do

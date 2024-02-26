@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_products_product, class: 'BenefitMarkets::Products::Product' do
 
     benefit_market_kind  :aca_shop

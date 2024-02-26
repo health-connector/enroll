@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_products_premium_table, class: 'BenefitMarkets::Products::PremiumTable' do
     
     effective_period    Date.new(Date.today.year, 1, 1)..Date.new(Date.today.year, 12, 31)

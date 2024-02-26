@@ -50,7 +50,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   let!(:product_kinds)  { [:health, :dental] }
 
   let!(:health_enrollment) do
-    FactoryGirl.create(:hbx_enrollment,
+    FactoryBot.create(:hbx_enrollment,
                        household: family.latest_household,
                        coverage_kind: 'health',
                        effective_on: initial_application.start_on,
@@ -67,7 +67,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   end
 
   let!(:dental_enrollment) do
-    FactoryGirl.create(:hbx_enrollment,
+    FactoryBot.create(:hbx_enrollment,
                        household: family.latest_household,
                        coverage_kind: 'dental',
                        effective_on: initial_application.start_on,
@@ -85,7 +85,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
   end
 
-  let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+  let!(:user) { FactoryBot.create(:user, :person => ee_person)}
 
   describe "GET #continuous_show" do
     context '#success' do
@@ -258,7 +258,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       end
 
       context 'with admin user' do
-        let!(:user) { FactoryGirl.create(:user, :hbx_staff, person: ee_person)}
+        let!(:user) { FactoryBot.create(:user, :hbx_staff, person: ee_person)}
 
         it "returns http success" do
           expect(response).to have_http_status(:success)
@@ -266,7 +266,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       end
 
       context 'without admin user' do
-        let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+        let!(:user) { FactoryBot.create(:user, :person => ee_person)}
 
         it "returns http success" do
           expect(response).to have_http_status(:redirect)

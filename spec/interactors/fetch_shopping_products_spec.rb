@@ -20,14 +20,14 @@ describe FetchShoppingProducts, :dbclean => :after_each do
     include_context "setup employees with benefits"
 
     let!(:ce) { benefit_sponsorship.census_employees.first }
-    let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+    let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
     let!(:employee_role) do
       ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
       ee_person.employee_roles.first
     end
     let!(:family)       { ee_person.primary_family }
     let!(:hbx_enrollment) do
-      hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members,
+      hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
                                           household: family.active_household,
                                           aasm_state: "shopping",
                                           effective_on: initial_application.start_on,

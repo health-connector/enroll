@@ -131,7 +131,7 @@ group :development, :test do
   gem 'capistrano-rails', '1.1.6'
   gem 'climate_control', '0.2.0'
   gem 'email_spec', '2.0.0'
-  gem 'factory_girl_rails', '4.6.0'
+  gem 'factory_bot_rails', '~> 4.11'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
   gem 'puma', '4.3.6'

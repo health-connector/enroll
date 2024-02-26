@@ -5,10 +5,10 @@ require './spec/shared_context/setup_shop_families_enrollments'
 
 describe HireAndAssignCurrentUserBrokerAgency, :dbclean => :after_each do
   include_context "setup shop families enrollments"
-  let(:broker_agency_profile) { FactoryGirl.create(:broker_agency_profile) }
-  let(:broker_role) { FactoryGirl.create(:broker_role, :aasm_state => 'active', broker_agency_profile: broker_agency_profile) }
+  let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
+  let(:broker_role) { FactoryBot.create(:broker_role, :aasm_state => 'active', broker_agency_profile: broker_agency_profile) }
   let(:person) { broker_role.person }
-  let(:user) { FactoryGirl.create(:user, person: person, roles: ['broker']) }
+  let(:user) { FactoryBot.create(:user, person: person, roles: ['broker']) }
 
   context 'with invalid params' do
     it 'when current user is nil' do

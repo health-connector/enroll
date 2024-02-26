@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_organizations_profile, class: 'BenefitSponsors::Organizations::Profile' do
 
     contact_method :paper_and_electronic

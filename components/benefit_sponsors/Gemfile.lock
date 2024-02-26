@@ -67,7 +67,7 @@ PATH
       roo (~> 2.1.0)
       slim (= 3.0.9)
       virtus (~> 1.0.5)
-      wicked_pdf (= 1.0.6)
+      wicked_pdf (= 1.1.0)
       wkhtmltopdf-binary-edge (~> 0.12.3.0)
 
 PATH
@@ -285,10 +285,10 @@ GEM
     equalizer (0.0.11)
     erubi (1.12.0)
     execjs (2.9.1)
-    factory_girl (4.5.0)
+    factory_bot (4.11.1)
       activesupport (>= 3.0.0)
-    factory_girl_rails (4.6.0)
-      factory_girl (~> 4.5.0)
+    factory_bot_rails (4.11.1)
+      factory_bot (~> 4.11.1)
       railties (>= 3.0.0)
     ffi (1.16.3)
     forgery (0.8.1)
@@ -511,7 +511,7 @@ GEM
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    wicked_pdf (1.0.6)
+    wicked_pdf (1.1.0)
     wkhtmltopdf-binary-edge (0.12.3.0)
     xpath (2.1.0)
       nokogiri (~> 1.3)
@@ -526,7 +526,7 @@ DEPENDENCIES
   climate_control (~> 0.2.0)
   database_cleaner
   effective_datatables!
-  factory_girl_rails (= 4.6.0)
+  factory_bot_rails (~> 4)
   forgery
   mongoid-rspec
   mongoid_rails_migrations

@@ -295,7 +295,7 @@ module SponsoredBenefits
               valid_attributes['legal_name'] = 'Some New Name'
               valid_attributes
             }
-            let(:plan) {FactoryGirl.create(:plan, :with_premium_tables)}
+            let(:plan) {FactoryBot.create(:plan, :with_premium_tables)}
 
             before do
               prospect_plan_design_organization.plan_design_proposals << [plan_design_proposal]

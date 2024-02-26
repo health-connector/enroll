@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_markets_locations_rating_area, class: 'BenefitMarkets::Locations::RatingArea' do
 
     active_year TimeKeeper.date_of_record.year

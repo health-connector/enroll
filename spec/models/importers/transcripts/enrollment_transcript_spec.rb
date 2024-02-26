@@ -29,15 +29,15 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
   context '.process' do
     let(:source_effective_on) { current_effective_date }
     let(:other_effective_on) { current_effective_date + 2.months }
-    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
-    let(:other_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
-    let(:source_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
-    let!(:spouse) { FactoryGirl.create(:person) }
-    let!(:child1) { FactoryGirl.create(:person) }
-    let!(:child2) { FactoryGirl.create(:person) }
+    let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:other_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
+    let(:source_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
+    let!(:spouse) { FactoryBot.create(:person) }
+    let!(:child1) { FactoryBot.create(:person) }
+    let!(:child2) { FactoryBot.create(:person) }
 
     let!(:person) do
-      p = FactoryGirl.build(:person)
+      p = FactoryBot.build(:person)
       p.person_relationships.build(relative: spouse, kind: "spouse")
       p.person_relationships.build(relative: child1, kind: "child")
       p.person_relationships.build(relative: child2, kind: "child")
@@ -61,9 +61,9 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
     end
 
     let(:hired_on) {TimeKeeper.date_of_record - 2.days}
-    let(:employee_role1) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
+    let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
     let(:census_employee) do
-      census_employee = FactoryGirl.create(:census_employee, :with_active_assignment, first_name: person.first_name,
+      census_employee = FactoryBot.create(:census_employee, :with_active_assignment, first_name: person.first_name,
                                            last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
                                            employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
                                            employee_role_id: employee_role1.id)

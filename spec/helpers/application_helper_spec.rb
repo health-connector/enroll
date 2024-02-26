@@ -31,7 +31,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
   describe "#product_rates_available?", :dbclean => :after_each  do
-    let!(:product) { FactoryGirl.create(:benefit_markets_products_health_products_health_product) }
+    let!(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
     let(:benefit_sponsorship){ double("benefit_sponsorship") }
 
     context "when active_benefit_application is present" do
@@ -87,8 +87,8 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
   describe "#display_carrier_logo" do
-    let(:carrier_profile){ FactoryGirl.build(:carrier_profile, legal_name: "Kaiser")}
-    let(:plan){ Maybe.new(FactoryGirl.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
+    let(:carrier_profile){ FactoryBot.build(:carrier_profile, legal_name: "Kaiser")}
+    let(:plan){ Maybe.new(FactoryBot.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
 
     it "should return the named logo" do
       expect(helper.display_carrier_logo(plan)).to eq "<img width=\"50\" src=\"/assets/logo/carrier/kaiser.jpg\" alt=\"Kaiser\" />"
@@ -122,8 +122,8 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
   describe "#display_dental_metal_level" do
-    let(:dental_plan_2015){FactoryGirl.create(:plan_template,:shop_dental, active_year: 2015)}
-    let(:dental_plan_2016){FactoryGirl.create(:plan_template,:shop_dental, active_year: 2016)}
+    let(:dental_plan_2015){FactoryBot.create(:plan_template,:shop_dental, active_year: 2015)}
+    let(:dental_plan_2016){FactoryBot.create(:plan_template,:shop_dental, active_year: 2016)}
 
     it "should display metal level if its a 2015 plan" do
       expect(display_dental_metal_level(dental_plan_2015)).to eq dental_plan_2015.metal_level.titleize
@@ -452,8 +452,8 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
   describe "show_default_ga?", dbclean: :after_each do
-    let(:general_agency_profile) { FactoryGirl.create(:general_agency_profile, :shop_agency) }
-    let(:broker_agency_profile) { FactoryGirl.create(:broker_agency_profile, :shop_agency) }
+    let(:general_agency_profile) { FactoryBot.create(:general_agency_profile, :shop_agency) }
+    let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile, :shop_agency) }
 
     it "should return false without broker_agency_profile" do
       expect(helper.show_default_ga?(general_agency_profile, nil)).to eq false
@@ -496,23 +496,24 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
 
   describe "find_plan_name", dbclean: :after_each do
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
     let(:shop_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         submitted_at: TimeKeeper.datetime_of_record - 3.days,
-                         created_at: TimeKeeper.datetime_of_record - 3.days)
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        submitted_at: TimeKeeper.datetime_of_record - 3.days,
+                        created_at: TimeKeeper.datetime_of_record - 3.days)
     end
     let(:ivl_enrollment)    do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.latest_household,
-                         coverage_kind: "health",
-                         effective_on: TimeKeeper.datetime_of_record - 10.days,
-                         enrollment_kind: "open_enrollment",
-                         kind: "individual",
-                         submitted_at: TimeKeeper.datetime_of_record - 20.days)
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.latest_household,
+                        coverage_kind: "health",
+                        effective_on: TimeKeeper.datetime_of_record - 10.days,
+                        enrollment_kind: "open_enrollment",
+                        kind: "individual",
+                        submitted_at: TimeKeeper.datetime_of_record - 20.days)
     end
+
     let(:valid_shop_enrollment_id)  { shop_enrollment.id }
     let(:valid_ivl_enrollment_id)   { ivl_enrollment.id }
     let(:invalid_enrollment_id)     {  }
@@ -574,9 +575,9 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
   describe "#is_new_paper_application?" do
     let(:person_id) { double }
-    let(:admin_user) { FactoryGirl.create(:user, :hbx_staff)}
-    let(:user) { FactoryGirl.create(:user)}
-    let(:person) { FactoryGirl.create(:person, user: user)}
+    let(:admin_user) { FactoryBot.create(:user, :hbx_staff)}
+    let(:user) { FactoryBot.create(:user)}
+    let(:person) { FactoryBot.create(:person, user: user)}
     before do
       allow(admin_user).to receive(:person_id).and_return person_id
     end

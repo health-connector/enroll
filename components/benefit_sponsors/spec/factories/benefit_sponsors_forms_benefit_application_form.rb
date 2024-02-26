@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_forms_benefit_application, class: 'BenefitSponsors::Forms::BenefitApplicationForm' do
     start_on TimeKeeper.date_of_record + 3.months
     end_on  TimeKeeper.date_of_record + 1.year + 3.months  - 1.day

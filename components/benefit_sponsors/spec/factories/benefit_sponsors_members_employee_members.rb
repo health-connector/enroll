@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_members_employee_member, class: 'BenefitSponsors::Members::EmployeeMember' do
     last_name     "Jetson"
     dob           { Date.today - 45.years }
