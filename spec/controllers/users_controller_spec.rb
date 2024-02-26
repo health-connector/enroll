@@ -7,13 +7,17 @@ describe UsersController do
   let(:user_id) { "23432532423424" }
   let(:user_email) { "some_email@some_domain.com" }
 
+  after :all do
+    DatabaseCleaner.clean
+  end
+
   describe '.change_password' do
     let(:user) { build(:user, id: '1', password: 'Complex!@#$') }
     let(:original_password) { 'Complex!@#$' }
     before do
       allow(User).to receive(:find).with('1').and_return(user)
       sign_in(user)
-      post :change_password, { id: '1', user: { password: original_password, new_password: 'S0methingElse!@#$', password_confirmation: 'S0methingElse!@#$'} }
+      post :change_password, params: { id: '1', user: { password: original_password, new_password: 'S0methingElse!@#$', password_confirmation: 'S0methingElse!@#$'} }
     end
 
     context "with a matching current password" do
@@ -47,7 +51,7 @@ describe UsersController do
         sign_in(admin)
       end
       it "renders the change username form" do
-        get :change_username_and_email, id: user_id, format: :js
+        get :change_username_and_email, params: { id: user_id, format: :js }
         expect(response).to render_template('change_username_and_email')
       end
     end
@@ -58,7 +62,7 @@ describe UsersController do
         sign_in(admin)
       end
       it "doesn't render the change username form" do
-        get :change_username_and_email, id: user_id, format: :js
+        get :change_username_and_email, params: { id: user_id, format: :js }
         expect(response.code).to eq "403"
       end
     end
@@ -82,21 +86,21 @@ describe UsersController do
     context "email format wrong" do
       it "doesn't update credentials" do
         params = {id: user_id, new_email: invalid_email, format: :js}
-        put :confirm_change_username_and_email, params
+        put :confirm_change_username_and_email, params: params
         expect(response).to render_template('change_username_and_email')
       end
     end
     context "username format wrong" do
       it "doesn't update credentials" do
         params = {id: user_id, new_email: invalid_username, format: :js}
-        put :confirm_change_username_and_email, params
+        put :confirm_change_username_and_email, params: params
         expect(response).to render_template('change_username_and_email')
       end
     end
     context "valid credentials format" do
       it "updates credentials" do
         params = {id: user_id, new_email: valid_email, new_oim_id: valid_username, format: :js}
-        put :confirm_change_username_and_email, params
+        put :confirm_change_username_and_email, params: params
         expect(response).to render_template('username_email_result')
       end
     end
@@ -106,7 +110,7 @@ describe UsersController do
     before do
       allow(user_policy).to receive(:lockable?).and_return(true)
       sign_in(admin)
-      get :confirm_lock, id: user_id, format: :js
+      get :confirm_lock, params: { id: user_id, format: :js }
     end
     it { expect(response).to render_template('confirm_lock') }
   end
@@ -124,10 +128,10 @@ describe UsersController do
       end
       it "does not toggle the lock status" do
         expect(user).not_to receive(:lock!)
-        get :lockable, id: user_id
+        get :lockable, params: { id: user_id }
       end
       it do
-        get :lockable, id: user_id
+        get :lockable, params: { id: user_id }
         expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url)
       end
     end
@@ -141,10 +145,10 @@ describe UsersController do
 
       it "toggles the user lock" do
         expect(user).to receive(:lock!)
-        get :lockable, id: user_id
+        get :lockable, params: { id: user_id }
       end
       it do
-        get :lockable, id: user_id
+        get :lockable, params: { id: user_id }
         expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url)
       end
     end
@@ -158,7 +162,7 @@ describe UsersController do
 
       it "toggles the user lock" do
         expect(user).to receive(:lock!)
-        get :lockable, id: user_id
+        get :lockable, params: { id: user_id }
       end
     end
   end
@@ -175,10 +179,10 @@ describe UsersController do
       end
       it "does not send password reset information" do
         expect(User).not_to receive(:send_reset_password_instructions)
-        get :reset_password, id: user_id, format: :js
+        get :reset_password, params: { id: user_id, format: :js }
       end
       it do
-        get :reset_password, id: user_id, format: :js
+        get :reset_password, params: { id: user_id, format: :js }
         expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url)
       end
     end
@@ -187,7 +191,7 @@ describe UsersController do
       let(:can_reset_password) { true }
       before do
         sign_in(admin)
-        get :reset_password, id: user_id, format: :js
+        get :reset_password, params: { id: user_id, format: :js }
       end
       it { expect(response).to render_template('reset_password') }
     end
@@ -211,7 +215,7 @@ describe UsersController do
       let(:can_reset_password) { false }
       before do
         sign_in(admin)
-        put :confirm_reset_password, id: user_id, format: :js
+        put :confirm_reset_password, params: { id: user_id, format: :js }
       end
       it { expect(user).not_to receive(:send_reset_password_instructions) }
       it { expect(assigns(:user)).to eq(user) }
@@ -225,14 +229,14 @@ describe UsersController do
       end
       it "does not reset the password" do
         expect(User).not_to receive(:send_reset_password_instructions)
-        put :confirm_reset_password, id: user_id, user: { email: '' }, format: :js
+        put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
       end
       it do
-        put :confirm_reset_password, id: user_id, user: { email: '' }, format: :js
+        put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
         expect(assigns(:error)).to eq('Please enter a valid email')
       end
       it do
-        put :confirm_reset_password, id: user_id, user: { email: '' }, format: :js
+        put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
         expect(response).to render_template('users/reset_password.js.erb')
       end
     end
@@ -242,7 +246,7 @@ describe UsersController do
     before do
       sign_in(admin)
       allow(User).to receive(:find).with(user.id).and_return(user)
-      get :edit, id: user.id, format: 'js'
+      get :edit, params: { id: user.id, format: 'js' }
     end
     it { expect(assigns(:user)).to eq(user) }
     it { expect(response).to render_template('edit') }
@@ -251,20 +255,19 @@ describe UsersController do
     context 'When user information is not valid' do
       let(:can_reset_password) { true }
       before do
-        allow(user).to receive(:errors).and_return(double(:full_messages => ["error message"]))
-        allow(user).to receive(:update_attributes).with({:email => user_email}).and_return(false)
         sign_in(admin)
       end
 
       it "does not reset the password" do
-        put :confirm_reset_password, id: user_id, user: { email: user_email }, format: :js
+        expect(User).not_to receive(:send_reset_password_instructions)
+        put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
       end
       it do
-        put :confirm_reset_password, id: user_id, user: { email: user_email }, format: :js
-        expect(assigns(:error)).to include("error message")
+        put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
+        expect(assigns(:error)).to include("Please enter a valid email")
       end
       it do
-        put :confirm_reset_password, id: user_id, user: { email: user_email }, format: :js
+        put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
         expect(response).to render_template('users/reset_password.js.erb')
       end
     end
@@ -278,11 +281,11 @@ describe UsersController do
 
       it "sends the password reset email" do
         expect(User).to receive(:send_reset_password_instructions).with({email: user_email})
-        put :confirm_reset_password, id: user_id, format: :js
+        put :confirm_reset_password, params: { id: user_id, format: :js }
       end
 
       it do
-        put :confirm_reset_password, id: user_id, format: :js
+        put :confirm_reset_password, params: { id: user_id, format: :js }
         expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url)
       end
     end

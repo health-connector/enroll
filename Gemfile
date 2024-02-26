@@ -134,6 +134,7 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 4.11'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
+  gem 'rails-controller-testing'
   gem 'puma', '4.3.6'
   gem 'railroady', '~> 1.5.2'
   gem 'rspec-rails', '~> 5.1.2'

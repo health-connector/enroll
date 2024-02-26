@@ -19,7 +19,7 @@ module BenefitMarkets
 
       belongs_to  :renewal_product,
                   inverse_of: nil,
-                  class_name: "BenefitMarkets::Products::DentalProducts::DentalProduct"
+                  class_name: "BenefitMarkets::Products::DentalProducts::DentalProduct",
                   optional: true
 
       validates :metal_level_kind,
