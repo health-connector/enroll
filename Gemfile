@@ -122,6 +122,7 @@ group :development do
   gem "certified"
   gem 'overcommit'
   gem 'rubocop', require: false
+  gem 'rubocop-rspec'
   gem 'rubocop-git'
   gem 'web-console', '2.3.0'
 end
