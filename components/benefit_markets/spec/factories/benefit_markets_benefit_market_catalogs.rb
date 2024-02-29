@@ -24,6 +24,7 @@ FactoryBot.define do
 
       after(:build) do |benefit_market_catalog, evaluator|
         def create_product_package(product_kind, package_kind, benefit_market_catalog, evaluator)
+          binding.irb
           build(
             :benefit_markets_products_product_package,
             benefit_kind: evaluator.benefit_market.kind,
