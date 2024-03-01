@@ -485,6 +485,9 @@ GEM
     fakeredis (0.9.2)
       redis (~> 4.8)
     ffi (1.14.0)
+    file_validators (2.3.0)
+      activemodel (>= 3.2)
+      mime-types (>= 1.0)
     forgery (0.8.1)
     gherkin (5.1.0)
     globalid (0.4.2)
@@ -957,6 +960,7 @@ DEPENDENCIES
   factory_girl_rails (= 4.6.0)
   fakeredis
   ffi (= 1.14.0)
+  file_validators
   forgery
   haml
   haml-rails (~> 1.0)

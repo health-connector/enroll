@@ -78,6 +78,7 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'webpacker'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
+gem 'file_validators'
 
 #arm64 mac support
 gem 'ffi', '1.14.0'
