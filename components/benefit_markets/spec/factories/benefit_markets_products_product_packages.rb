@@ -11,7 +11,7 @@ FactoryBot.define do
     product_kind          { :health }
     package_kind          { :single_issuer }
 
-    title                 { "2018 Single Issuer Health Products" }
+    title                 { "#{TimeKeeper.date_of_record.year} Single Issuer Health Products" }
 
     contribution_model { create(:benefit_markets_contribution_models_contribution_model) }
     contribution_models { [create(:benefit_markets_contribution_models_contribution_model), create(:benefit_markets_contribution_models_contribution_model, key: :fifty_percent_sponsor_fixed_percent_contribution_model)] }

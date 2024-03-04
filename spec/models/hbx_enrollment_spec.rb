@@ -494,7 +494,8 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       let(:benefit_package) {BenefitPackage.new}
       let(:consumer_role) {FactoryBot.create(:consumer_role)}
       let(:person) {double(primary_family: family)}
-      let(:family) {double(current_sep: double(effective_on: TimeKeeper.date_of_record))}
+      let(:family) {@household.family}
+      let(:sep) {SpecialEnrollmentPeriod.new(effective_on: TimeKeeper.date_of_record)}
       let(:hbx_profile) {double}
       let(:benefit_sponsorship) {double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, renewal_benefit_coverage_period: renewal_bcp, current_benefit_coverage_period: bcp)}
       let(:bcp) {double(earliest_effective_date: TimeKeeper.date_of_record - 2.months)}
@@ -507,6 +508,7 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
         allow(consumer_role).to receive(:person).and_return(person)
         allow(household).to receive(:family).and_return family
         allow(family).to receive(:is_under_ivl_open_enrollment?).and_return true
+        allow(family).to receive(:current_sep).and_return sep
       end
 
       shared_examples_for "new enrollment from" do |qle, sep, enrollment_period, error|
@@ -521,13 +523,16 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
             it "assigns #{enrollment_period} as enrollment_kind when qle is #{qle}" do
               expect(enrollment.enrollment_kind).to eq enrollment_period
             end
+
             it "should have submitted at as current date and time" do
               enrollment.save
               expect(enrollment.submitted_at).not_to be_nil
             end
+
             it "creates hbx_enrollment members " do
               expect(enrollment.hbx_enrollment_members).not_to be_empty
             end
+
             it "creates members with coverage_start_on as enrollment effective_on" do
               expect(enrollment.hbx_enrollment_members.first.coverage_start_on).to eq enrollment.effective_on
             end

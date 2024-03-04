@@ -57,7 +57,8 @@ FactoryBot.define do
     trait :with_benefit_sponsor_catalog do
       after(:build) do |benefit_application, evaluator|
         benefit_sponsorship ||= benefit_application.benefit_sponsorship
-        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.start_on)
+        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.min)
+        benefit_sponsor_catalog.benefit_application = benefit_application
         benefit_sponsor_catalog.save
         benefit_application.benefit_sponsor_catalog = (benefit_sponsor_catalog || ::BenefitMarkets::BenefitSponsorCatalog.new)
         benefit_application.benefit_sponsor_catalog.service_areas = benefit_application.recorded_service_areas

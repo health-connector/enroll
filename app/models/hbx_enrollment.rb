@@ -129,21 +129,22 @@ class HbxEnrollment
   # should not be transmitted to carriers nor reported in metrics.
   field :external_enrollment, type: Boolean, default: false
 
-  track_history   :on => [:kind,
-                          :enrollment_kind,
-                          :coverage_kind,
-                          :effective_on,
-                          :terminated_on,
-                          :terminate_reason,
-                          :aasm_state,
-                          :is_active,
-                          :waiver_reason,
-                          :review_status,
-                          :special_verification_period,
-                          :termination_submitted_on],
-                  :track_create  => true,    # track document creation, default is false
-                  :track_update  => true,    # track document updates, default is true
-                  :track_destroy => true     # track document destruction, default is false
+  track_history :modifier_field_optional => true,
+                :on => [:kind,
+                        :enrollment_kind,
+                        :coverage_kind,
+                        :effective_on,
+                        :terminated_on,
+                        :terminate_reason,
+                        :aasm_state,
+                        :is_active,
+                        :waiver_reason,
+                        :review_status,
+                        :special_verification_period,
+                        :termination_submitted_on],
+                :track_create  => true,    # track document creation, default is false
+                :track_update  => true,    # track document updates, default is true
+                :track_destroy => true     # track document destruction, default is false
 
   associated_with_one :benefit_group, :benefit_group_id, "BenefitGroup"
   associated_with_one :benefit_group_assignment, :benefit_group_assignment_id, "BenefitGroupAssignment"
@@ -214,8 +215,6 @@ class HbxEnrollment
   scope :enrolled_and_renewing_and_expired, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + ['coverage_expired'])) }
 
   embeds_many :workflow_state_transitions, as: :transitional
-  belongs_to :household
-  belongs_to :family
 
   belongs_to :benefit_sponsorship,
               class_name: "::BenefitSponsors::BenefitSponsorships::BenefitSponsorship", optional: true
