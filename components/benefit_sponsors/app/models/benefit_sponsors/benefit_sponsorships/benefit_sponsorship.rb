@@ -94,7 +94,8 @@ module BenefitSponsors
                 optional: true
 
     embeds_many :benefit_applications,
-                class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication"
+                class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication",
+                inverse_of: :benefit_sponsorship
 
     has_many    :census_employees,
                 class_name: "::CensusEmployee"
@@ -114,7 +115,7 @@ module BenefitSponsors
                             class_name: "::BenefitMarkets::Locations::ServiceArea"
 
     embeds_many :broker_agency_accounts, class_name: "BenefitSponsors::Accounts::BrokerAgencyAccount",
-                                         validate: true
+                                         validate: true, inverse_of: :benefit_sponsorship
 
     embeds_many :general_agency_accounts, class_name: "BenefitSponsors::Accounts::GeneralAgencyAccount",
                                           validate: true

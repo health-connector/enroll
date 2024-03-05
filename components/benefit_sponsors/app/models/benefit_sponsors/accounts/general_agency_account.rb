@@ -6,7 +6,7 @@ module BenefitSponsors
       include Mongoid::Timestamps
       include AASM
 
-      embedded_in :benefit_sponsorship
+      embedded_in :benefit_sponsorship, class_name: "::BenefitSponsors::BenefitSponsorships::BenefitSponsorship"
 
       # Begin date of relationship
       field :start_on, type: DateTime
