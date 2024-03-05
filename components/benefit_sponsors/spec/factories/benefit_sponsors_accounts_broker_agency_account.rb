@@ -2,11 +2,11 @@ FactoryBot.define do
   factory :benefit_sponsors_accounts_broker_agency_account, class: 'BenefitSponsors::Accounts::BrokerAgencyAccount' do
 
     transient do
-      broker_agency_profile nil
-      benefit_sponsorship nil
+      broker_agency_profile { nil }
+      benefit_sponsorship { nil }
     end
 
-    start_on                TimeKeeper.date_of_record
+    start_on                { TimeKeeper.date_of_record }
     writing_agent           { FactoryBot.create(:broker_role)}
 
     after(:build) do |broker_agency_account, evaluator|

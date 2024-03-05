@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :benefit_markets_pricing_models_pricing_model, class: 'BenefitMarkets::PricingModels::PricingModel' do
 
-    name  "FEHB Employer Price Model"
+    name  { "FEHB Employer Price Model" }
 
     transient do
       package_kind { :single_product }

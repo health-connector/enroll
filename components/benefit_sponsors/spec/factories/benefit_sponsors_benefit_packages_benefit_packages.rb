@@ -3,16 +3,16 @@ FactoryBot.define do
 
     benefit_application { create(:benefit_sponsors_benefit_application) }
 
-    title "first benefit package"
-    description "my first benefit pacakge"
-    probation_period_kind :first_of_month
-    is_default false
+    title { "first benefit package" }
+    description { "my first benefit pacakge" }
+    probation_period_kind { :first_of_month }
+    is_default { false }
 
     transient do
-      health_sponsored_benefit true
-      dental_sponsored_benefit false
-      product_package nil
-      dental_product_package nil
+      health_sponsored_benefit { true }
+      dental_sponsored_benefit { false }
+      product_package { nil }
+      dental_product_package { nil }
     end
 
     after(:build) do |benefit_package, evaluator|

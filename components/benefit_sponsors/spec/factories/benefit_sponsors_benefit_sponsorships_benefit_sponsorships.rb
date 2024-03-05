@@ -1,17 +1,17 @@
 FactoryBot.define do
   factory :benefit_sponsors_benefit_sponsorship, class: 'BenefitSponsors::BenefitSponsorships::BenefitSponsorship' do
 
-    source_kind   :self_serve
+    source_kind   { :self_serve }
 
     transient do
-      initial_application_state :active
-      renewal_application_state :enrollment_open
-      draft_application_state :draft
-      default_effective_period nil
-      default_open_enrollment_period nil
-      service_area_list []
-      supplied_rating_area nil
-      site nil
+      initial_application_state { :active }
+      renewal_application_state { :enrollment_open }
+      draft_application_state { :draft }
+      default_effective_period { nil }
+      default_open_enrollment_period { nil }
+      service_area_list { [] }
+      supplied_rating_area { nil }
+      site { nil }
     end
 
     trait :with_benefit_market do
@@ -170,7 +170,7 @@ FactoryBot.define do
 
     trait :with_broker_agency_account do
       transient do
-        broker_agency_profile nil
+        broker_agency_profile { nil }
       end
 
       after :build do |benefit_sponsorship, evaluator|

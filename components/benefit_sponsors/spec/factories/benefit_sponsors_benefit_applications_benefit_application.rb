@@ -7,9 +7,9 @@ FactoryBot.define do
 
   factory :benefit_sponsors_benefit_application, class: 'BenefitSponsors::BenefitApplications::BenefitApplication' do
 
-    fte_count   FactoryBot.generate(:random_count)
-    pte_count   FactoryBot.generate(:random_count)
-    msp_count   FactoryBot.generate(:random_count)
+    fte_count   { FactoryBot.generate(:random_count) }
+    pte_count   { FactoryBot.generate(:random_count) }
+    msp_count   { FactoryBot.generate(:random_count) }
 
     open_enrollment_period do
       if default_open_enrollment_period.present?
@@ -23,17 +23,18 @@ FactoryBot.define do
 
     recorded_service_areas   { [create(:benefit_markets_locations_service_area)] }
     recorded_rating_area     { create(:benefit_markets_locations_rating_area) }
-    recorded_sic_code         "011"
+    recorded_sic_code         { "011" }
 
     transient do
-      default_effective_period nil
-      predecessor_application_state :active
-      imported_application_state :imported
-      default_open_enrollment_period nil
-      package_kind :single_issuer
-      dental_package_kind :single_product
-      dental_sponsored_benefit false
-      predecessor_application_catalog false
+      default_effective_period { nil }
+      predecessor_application_state { :active }
+      imported_application_state { :imported }
+      default_effective_period { nil }
+      default_open_enrollment_period { nil }
+      package_kind { :single_issuer }
+      dental_package_kind { :single_product }
+      dental_sponsored_benefit { false }
+      predecessor_application_catalog { false }
       passed_benefit_sponsor_catalog { nil }
       benefit_application_items nil
     end

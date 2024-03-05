@@ -1,14 +1,14 @@
 FactoryBot.define do
   factory :person do
     # name_pfx 'Mr'
-    first_name 'John'
+    first_name { 'John' }
     # middle_name 'X'
     sequence(:last_name) {|n| "Smith#{n}" }
     # name_sfx 'Jr'
-    dob "1972-04-04".to_date
-    is_incarcerated false
-    is_active true
-    gender "male"
+    dob { "1972-04-04".to_date }
+    is_incarcerated { false }
+    is_active { true }
+    gender { "male" }
 
     trait :with_broker_role do
       after(:create) do |p, evaluator|

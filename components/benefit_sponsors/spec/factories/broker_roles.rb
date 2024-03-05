@@ -11,7 +11,7 @@ FactoryBot.define do
     provider_kind {"broker"}
 
     trait :with_invalid_provider_kind do
-      provider_kind ' '
+      provider_kind { ' ' }
     end
   end
 end
