@@ -48,7 +48,8 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
       FactoryBot.create(
         :sponsored_benefits_plan_design_organization,
         owner_profile_id: owner_profile.id,
-        sponsor_profile_id: sponsor_profile.id
+        sponsor_profile_id: sponsor_profile.id,
+        broker_agency_profile_id: broker_agency_profile.id
       )
     end
 
@@ -150,7 +151,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     end
 
     before :each do
-      get :claim, employer_profile_id: organization.employer_profile.id, claim_code: published_plan_design_proposal.claim_code
+      get :claim, params: { employer_profile_id: organization.employer_profile.id, claim_code: published_plan_design_proposal.claim_code}
     end
 
     it 'should claim the code successfully' do

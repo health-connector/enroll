@@ -4,9 +4,10 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
 
   let(:plan_design_organization) do
     FactoryBot.create(
-      :sponsored_benefits_plan_design_organization,
+      :sponsored_benefits_plan_design_organization, :with_profile,
       owner_profile_id: owner_profile.id,
-      sponsor_profile_id: sponsor_profile.id
+      sponsor_profile_id: sponsor_profile.id,
+      broker_agency_profile_id: broker_agency_profile.id
     )
   end
 
