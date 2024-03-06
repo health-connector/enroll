@@ -7,7 +7,6 @@ module SponsoredBenefits
     routes { SponsoredBenefits::Engine.routes }
     include Rails.application.routes.url_helpers
 
-    let(:valid_session) { {} }
     let(:current_person) { double(:current_person) }
     let(:active_user) { double(:active_user) }
     let(:employer) { double(:employer, id: "11111", name: 'ABC Company', sic_code: '0197') }
@@ -76,7 +75,7 @@ module SponsoredBenefits
           allow(subject).to receive(:current_person).and_return(nil)
         end
         it "should be redirected to root path with error message" do
-          get :new, { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}, valid_session
+          get :new, params: { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id }
           expect(response).to redirect_to("http://test.host/")
           expect(flash[:error]).to eq("You are not authorized to view this page.")
         end
@@ -90,7 +89,7 @@ module SponsoredBenefits
           allow(active_user).to receive(:has_hbx_staff_role?).and_return(false)
         end
         it "should be redirected to root path with error message" do
-          get :new, { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}, valid_session
+          get :new, params: { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}
           expect(response).to redirect_to("http://test.host/")
           expect(flash[:error]).to eq("You are not authorized to view this page.")
         end
@@ -116,7 +115,7 @@ module SponsoredBenefits
           end
 
           it "returns a success response" do
-            get :new, { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}, valid_session
+            get :new, params: { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}
             expect(response).to be_success
           end
         end
@@ -132,7 +131,7 @@ module SponsoredBenefits
           end
 
           it "returns a success response" do
-            get :edit, { id: prospect_plan_design_organization.to_param }, valid_session
+            get :edit, params: { id: prospect_plan_design_organization.to_param }
             expect(response).to be_success
           end
         end
@@ -151,12 +150,12 @@ module SponsoredBenefits
           context "with valid params" do
             it "creates a new Organizations::PlanDesignOrganization" do
               expect {
-                post :create, { organization: valid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}, valid_session
+                post :create, params: { organization: valid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}
               }.to change { Organizations::PlanDesignOrganization.all.count }.by(1)
             end
 
             it "redirects to employers_organizations_broker_agency_profile_path(broker_agency_profile)" do
-              post :create, { organization: valid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}, valid_session
+              post :create, params: { organization: valid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}
               expect(subject).to redirect_to(employers_organizations_broker_agency_profile_path(broker_agency_profile))
             end
           end
@@ -168,12 +167,12 @@ module SponsoredBenefits
 
             it "creates a new Organizations::PlanDesignOrganization" do
               expect {
-                post :create, { organization: invalid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}, valid_session
+                post :create, params: { organization: invalid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js' }
               }.to change { Organizations::PlanDesignOrganization.all.count }.by(0)
             end
 
             it "renders the new view" do
-              post :create, { organization: invalid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js'}, valid_session
+              post :create, params: { organization: invalid_attributes, broker_agency_id: broker_agency_profile.id, format: 'js' }
               expect(response).to render_template(:new)
             end
           end
@@ -226,18 +225,18 @@ module SponsoredBenefits
 
             it "updates Organizations::PlanDesignOrganization" do
               expect {
-                patch :update, { organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }, valid_session
+                patch :update, params: { organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               }.to change { prospect_plan_design_organization.reload.legal_name }.to('Some New Name')
             end
 
             it "redirects to employers_organizations_broker_agency_profile_path(broker_agency_profile)" do
-              patch :update, { organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }, valid_session
+              patch :update, params: { organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               expect(subject).to redirect_to(employers_organizations_broker_agency_profile_path(broker_agency_profile))
             end
 
             it "does not create a new Organizations::PlanDesignOrganization" do
               expect {
-                patch :update, { organization: valid_attributes, id: prospect_plan_design_organization.id, format: 'js'}, valid_session
+                patch :update, params: { organization: valid_attributes, id: prospect_plan_design_organization.id, format: 'js'}
               }.to change { Organizations::PlanDesignOrganization.all.count }.by(0)
             end
           end
@@ -316,7 +315,7 @@ module SponsoredBenefits
             it 'should not delete persisted office locations when embedded models are invalid' do
               address_1_before_update = prospect_plan_design_organization.office_locations.first.address.address_1
               prospect_plan_design_organization.plan_design_proposals.first.profile.benefit_sponsorships.first.benefit_applications.first.benefit_groups.first.relationship_benefits.delete_all
-              patch :update, {organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js'}, valid_session
+              patch :update, params: {organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               expect(subject).to redirect_to(edit_organizations_plan_design_organization_path(prospect_plan_design_organization))
               prospect_plan_design_organization.reload
               address_1_after_update = prospect_plan_design_organization.office_locations.first.address
@@ -325,7 +324,7 @@ module SponsoredBenefits
 
             it 'should update office locations when embedded models are valid' do
               address_1_before_update = prospect_plan_design_organization.office_locations.first.address.address_1
-              patch :update, {organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js'}, valid_session
+              patch :update, params: {organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               expect(subject).to redirect_to(employers_organizations_broker_agency_profile_path(broker_agency_profile))
               prospect_plan_design_organization.reload
               address_1_after_update = prospect_plan_design_organization.office_locations.first.address
@@ -334,7 +333,7 @@ module SponsoredBenefits
 
             it 'should not update office locations when embedded models are valid and primary location exists' do
               locations_before_update = prospect_plan_design_organization.office_locations.count
-              patch :update, {organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js'}, valid_session
+              patch :update, params: {organization: updated_valid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               expect(subject).to redirect_to(employers_organizations_broker_agency_profile_path(broker_agency_profile))
               prospect_plan_design_organization.reload
               locations_after_update = prospect_plan_design_organization.office_locations.count
@@ -345,12 +344,12 @@ module SponsoredBenefits
           context "with invalid params" do
             it "does not update Organizations::PlanDesignOrganization" do
               expect {
-                patch :update, { organization: invalid_attributes, id: prospect_plan_design_organization.id, format: 'js' }, valid_session
+                patch :update, params: { organization: invalid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               }.not_to change { prospect_plan_design_organization.reload.legal_name }
             end
 
             it "renders edit with flash error" do
-              patch :update, { organization: invalid_attributes, id: prospect_plan_design_organization.id, format: 'js' }, valid_session
+              patch :update, params: { organization: invalid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               expect(subject).to redirect_to(edit_organizations_plan_design_organization_path(prospect_plan_design_organization))
             end
           end
@@ -373,12 +372,12 @@ module SponsoredBenefits
 
             it "destroys the requested prospect_plan_design_organization" do
               expect {
-                delete :destroy, {:id => prospect_plan_design_organization.to_param}, valid_session
+                delete :destroy, params: {:id => prospect_plan_design_organization.to_param }
               }.to change(SponsoredBenefits::Organizations::PlanDesignOrganization, :count).by(-1)
             end
 
             it "redirects to employers_organizations_broker_agency_profile_path(broker_agency_profile)" do
-              delete :destroy, {:id => prospect_plan_design_organization.to_param}, valid_session
+              delete :destroy, params: {:id => prospect_plan_design_organization.to_param }
               expect(response).to redirect_to(employers_organizations_broker_agency_profile_path(broker_agency_profile))
             end
           end
@@ -390,12 +389,12 @@ module SponsoredBenefits
 
             it "does not destroy the requested prospect_plan_design_organization" do
               expect {
-                delete :destroy, {:id => prospect_plan_design_organization.to_param}, valid_session
+                delete :destroy, params: {:id => prospect_plan_design_organization.to_param }
               }.to change(SponsoredBenefits::Organizations::PlanDesignOrganization, :count).by(0)
             end
 
             it "redirects to employers_organizations_broker_agency_profile_path(broker_agency_profile)" do
-              delete :destroy, {:id => prospect_plan_design_organization.to_param}, valid_session
+              delete :destroy, params: {:id => prospect_plan_design_organization.to_param }
               expect(response).to redirect_to(employers_organizations_broker_agency_profile_path(broker_agency_profile))
             end
           end

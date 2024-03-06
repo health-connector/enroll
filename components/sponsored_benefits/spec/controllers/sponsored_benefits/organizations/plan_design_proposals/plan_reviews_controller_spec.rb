@@ -97,7 +97,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
 
   describe "GET #estimated_employee_cost_details" do
     it "returns success response and set employee_costs" do
-      get :estimated_employee_cost_details, {
+      get :estimated_employee_cost_details, params: {
         plan_design_proposal_id: plan_design_proposal.id,
         benefit_group: {
           reference_plan_id: benefit_group.reference_plan_id.to_s,
@@ -107,7 +107,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
           }]
         },
         format: :js
-      }, valid_session
+      }
 
       expect(response).to be_success
       expect(assigns(:employee_costs)).not_to be_nil
@@ -117,7 +117,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
 
   describe "POST #estimated_employee_cost_details" do
     it "returns success response and renders right template" do
-      xhr :post, :estimated_employee_cost_details, { plan_design_proposal_id: plan_design_proposal }, valid_session
+      get :estimated_employee_cost_details, params: { plan_design_proposal_id: plan_design_proposal }
       expect(response).to be_success
       expect(response).to render_template('estimated_employee_cost_details')
     end

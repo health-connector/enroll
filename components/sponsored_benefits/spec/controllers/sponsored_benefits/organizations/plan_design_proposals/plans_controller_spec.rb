@@ -97,8 +97,9 @@ module SponsoredBenefits
             qhp.save!
           end
         end
+
         it "should not appear in the list of plans during that effective on" do
-          xhr :get, :index, valid_params
+          get :index, params: valid_params, format: 'text/html'
           expect(assigns[:plans].count).to eq 1
         end
       end

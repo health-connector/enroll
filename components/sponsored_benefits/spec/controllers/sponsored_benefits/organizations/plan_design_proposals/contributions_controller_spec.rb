@@ -11,7 +11,6 @@ module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignProposals::ContributionsController, type: :controller, dbclean: :around_each do
     render_views
     routes { SponsoredBenefits::Engine.routes }
-    let(:valid_session) { {} }
     let(:current_person) { double(:current_person) }
     let(:active_user) { double(:has_hbx_staff_role? => false) }
     let(:broker_role) { double(:broker_role, id: 3) }
@@ -114,7 +113,7 @@ module SponsoredBenefits
     it 'finished in under 10 seconds' do
       Caches::PlanDetails.load_record_cache! if Caches::PlanDetails.respond_to? :load_record_cache!
       expect do
-        get :index, {
+        get :index, params: {
           plan_design_proposal_id: plan_design_proposal.id,
           benefit_group: {
             reference_plan_id: benefit_group.reference_plan_id.to_s,
@@ -126,7 +125,7 @@ module SponsoredBenefits
             }]
           },
           format: :js
-        }, valid_session
+        }
       end.to perform_under(10).sec
     end
   end
