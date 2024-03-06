@@ -73,7 +73,7 @@ module BenefitMarkets
 
     describe "GET new", dbclean: :after_each do
       before do
-        get :new, :site_id => site.id
+        get :new, params: { :site_id => site.id }
       end
 
       xit "should be a success" do
@@ -90,7 +90,7 @@ module BenefitMarkets
 
       context 'with valid params' do
         before do
-          post :create, :site_id => site.id, :benefit_market => valid_params
+          post :create, params: { :site_id => site.id, :benefit_market => valid_params }
         end
 
         xit "should redirect" do
@@ -100,7 +100,7 @@ module BenefitMarkets
 
       context "with invalid params" do
         before do
-          post :create, :site_id => site.id, :benefit_market => invalid_params
+          post :create, params: { :site_id => site.id, :benefit_market => invalid_params }
         end
 
         xit "re-renders new" do
@@ -118,7 +118,7 @@ module BenefitMarkets
       let(:benefit_market) { FactoryBot.create(:benefit_markets_benefit_market, site: site) }
 
       before do
-        put :edit, :id => benefit_market.id
+        put :edit, params: { :id => benefit_market.id }
       end
 
       xit "should be a success" do
@@ -137,7 +137,7 @@ module BenefitMarkets
 
       context "with valid params" do
         before do
-          patch :update, :id => benefit_market.id, :benefit_market => valid_params
+          patch :update, params: { :id => benefit_market.id, :benefit_market => valid_params }
         end
 
         xit "should redirect to site benefit markets index" do
@@ -147,7 +147,7 @@ module BenefitMarkets
 
       context "when update fails" do
         before do
-          patch :update, :id => benefit_market.id, :benefit_market => invalid_params
+          patch :update, params: { :id => benefit_market.id, :benefit_market => invalid_params }
         end
 
         xit "should redirect to edit" do
