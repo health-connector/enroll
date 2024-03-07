@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.6.5'
+ruby '2.7.6'
 
 gem "benefit_markets", path: "components/benefit_markets"
 gem "benefit_sponsors", path: "components/benefit_sponsors"
@@ -21,15 +21,12 @@ gem 'chosen-rails'
 gem 'ckeditor'
 gem 'coffee-rails', '~> 4.1.0'
 gem 'combine_pdf'
-gem 'config', '~> 1.0.0'
 gem 'curl'
 gem 'devise',  '~> 4.5'
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
 gem 'haml'
 gem 'httparty'
 gem 'i18n', '0.7.0'
-gem 'interactor', '3.1.0'
-gem 'interactor-rails', '2.0.2'
 gem 'jbuilder', '~> 2.0'
 gem 'jquery-datatables-rails', '3.4.0'
 gem 'jquery-rails', '4.0.5'
@@ -37,7 +34,6 @@ gem 'jquery-turbolinks'
 gem 'jquery-ui-rails'
 gem 'kaminari', '0.17.0'
 gem 'language_list', '~> 1.1.0'
-gem 'less-rails-bootstrap', '~> 3.3.1.0'
 gem 'mail', '2.6.3'
 gem 'maskedinput-rails'
 gem 'money-rails', '~> 1.10.0'
@@ -50,8 +46,7 @@ gem 'mongoid-history'
 gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', git: 'https://github.com/adacosta/mongoid_rails_migrations.git', branch: 'master'
 gem 'mongoid_userstamp'
-gem 'nokogiri', '1.9.1'
-gem 'nokogiri-happymapper', :require => 'happymapper'
+
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem "notifier",           path: "components/notifier"
 gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: '5191116-reinstate-feature'
@@ -67,14 +62,12 @@ gem 'redis-rails'
 gem 'resque'
 gem 'roo', '~> 2.1.0'
 gem 'ruby-saml', '~> 1.3.0'
-gem 'sass-rails', '~> 5.0'
 gem 'slim', '~> 3.0.8'
 gem 'slim-rails'
 gem 'simple_calendar', :git => 'https://github.com/harshared/simple_calendar'
 gem "sponsored_benefits", path: "components/sponsored_benefits"
 gem 'sprockets', '~> 2.12.3'
 gem 'symmetric-encryption', '~> 3.6.0'
-gem 'therubyracer', platforms: :ruby
 gem "transport_gateway",  path: "components/transport_gateway"
 gem "transport_profiles", path: "components/transport_profiles"
 gem 'turbolinks', '2.5.3'
@@ -85,6 +78,24 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'webpacker'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
+
+#arm64 mac support
+gem 'ffi', '1.14.0'
+gem 'kostya-sigar', '2.0.10'
+gem 'mini_racer', '0.6.4'
+gem 'bigdecimal', '1.3.5'
+gem 'loofah', '~>2.19.1'
+gem 'dry-container', '~> 0.7.2'
+gem 'haml-rails', '~> 1.0'
+gem 'sassc',                    '~> 2.0'
+gem 'sass-rails',               '~> 5'
+gem 'config',                   '~> 2.0'
+
+gem 'interactor',               '~> 3.1'
+gem 'interactor-rails',         '~> 2.2'
+
+gem 'nokogiri',                 '~> 1.11'
+gem 'nokogiri-happymapper',     :require => 'happymapper'
 
 #######################################################
 # Removed gems
@@ -136,7 +147,7 @@ end
 
 group :test do
   gem 'action_mailer_cache_delivery', '~> 0.3.7'
-  gem 'capybara'
+  gem 'capybara', '3.32.1'
   gem 'capybara-screenshot'
   gem 'cucumber', '3.1.2'
   gem 'cucumber-rails', '1.6.0', :require => false

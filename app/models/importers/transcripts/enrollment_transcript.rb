@@ -337,7 +337,7 @@ module Importers::Transcripts
         employer_profile = BenefitSponsors::Organizations::Organization.employer_by_hbx_id(@other_enrollment.employer_profile.hbx_id).first.employer_profile
         raise 'EmployerProfile missing!' if employer_profile.blank?
 
-        employee_role = matched_person.employee_roles.detect {|e_role| e_role.employer_profile == employer_profile}
+        employee_role = matched_person.employee_roles.select {|e_role| e_role.employer_profile == employer_profile}.last
         census_employee = find_census_employee(matched_person, employee_role, employer_profile)
         role, family = Factories::EnrollmentFactory.build_employee_role(matched_person, false, employer_profile, census_employee, census_employee.hired_on)
         employee_role ||= role

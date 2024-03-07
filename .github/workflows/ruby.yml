@@ -170,10 +170,12 @@ jobs:
               fi
             needs_chromedriver: true
     steps:
-      - name: Set up Ruby 2.6.5
+      - uses: actions/checkout@v3
+      - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.5
+          rubygems: 3.3.26
+          bundler-cache: true
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v1
         if: matrix.command_configs.skip_js != 'true'
@@ -185,7 +187,6 @@ jobs:
         if: matrix.command_configs.skip_js != 'true'
         with:
           mongoDBVersion: ${{ matrix.mongodb-version }}
-      - uses: actions/checkout@v2
       - name: Set up Chromedriver
         if: matrix.command_configs.needs_chromedriver
         uses: nanasess/setup-chromedriver@master
@@ -207,7 +208,7 @@ jobs:
             ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
       - name: bundle install
         run: |
-          gem install bundler -v '1.17.3'
+          gem install bundler -v '1.17.3'          
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
           gem install treye-semaphore_test_boosters --version '2.5.1'
