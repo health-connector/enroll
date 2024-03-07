@@ -31,7 +31,7 @@ module BenefitSponsors
 
     let!(:user_with_hbx_staff_role) { FactoryBot.create(:user, :with_hbx_staff_role) }
     let!(:person) { FactoryBot.create(:person, user: user_with_hbx_staff_role )}
-    let(:broker_managenement_form_class) { BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm }
+    let(:broker_management_form_class) { BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm }
 
     before :each do
       user_with_hbx_staff_role.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id)
@@ -233,7 +233,7 @@ module BenefitSponsors
         end
 
         it 'should initialize broker management form' do
-          expect(assigns(:broker_management_form).class).to eq broker_managenement_form_class
+          expect(assigns(:broker_management_form).class).to eq broker_management_form_class
         end
 
         it 'should redirect to show page' do
@@ -284,7 +284,7 @@ module BenefitSponsors
 
       context 'for terminating an exisiting broker' do
         it 'should initialize broker management form' do
-          expect(assigns(:broker_management_form).class).to eq broker_managenement_form_class
+          expect(assigns(:broker_management_form).class).to eq broker_management_form_class
         end
 
         it 'should redirect to show page' do
