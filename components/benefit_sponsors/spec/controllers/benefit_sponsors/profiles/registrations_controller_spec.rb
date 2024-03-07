@@ -112,7 +112,7 @@ module BenefitSponsors
         end
 
         params[:agency] = send("#{profile_type}_params") if params.empty?
-        get action, params
+        get action, params: params
       end
       it "should initialize agency" do
         expect(assigns(:agency).class).to eq agency_class
@@ -130,7 +130,7 @@ module BenefitSponsors
         before do
           user = send("#{profile_type}_user")
           sign_in user if user
-          get :new, profile_type: profile_type
+          get :new, params: { profile_type: profile_type }
         end
 
         context 'valid request' do
@@ -164,7 +164,7 @@ module BenefitSponsors
         context "for new on broker_agency_portal click without user" do
 
           before :each do
-            get :new, profile_type: "broker_agency", portal: true
+            get :new, params: { profile_type: "broker_agency", portal: true }
           end
 
           it "should redirect to sign_up page if current user doesn't exist" do
@@ -172,7 +172,7 @@ module BenefitSponsors
           end
 
           it "should set the value of portal on form instance to true" do
-            expect(assigns(:agency).portal).to eq true
+            expect(assigns(:agency).portal).to eq "true"
           end
         end
 
@@ -185,7 +185,7 @@ module BenefitSponsors
           before :each do
             broker_person.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: broker_agency_id)
             sign_in broker_user
-            get :new, profile_type: "broker_agency", portal: true
+            get :new, params: { profile_type: "broker_agency", portal: true }
           end
 
           it "should redirect to show page if current user exists and passes the pundit" do
@@ -193,7 +193,7 @@ module BenefitSponsors
           end
 
           it "should set the value of portal on form instance to true" do
-            expect(assigns(:agency).portal).to eq true
+            expect(assigns(:agency).portal).to eq "true"
           end
         end
       end
@@ -225,7 +225,7 @@ module BenefitSponsors
             site.benefit_markets.first.save!
             user = send("#{profile_type}_user")
             sign_in user if user
-            post :create, :agency => send("#{profile_type}_params")
+            post :create, params: { agency: send("#{profile_type}_params") }
           end
 
           it "should redirect" do
@@ -262,7 +262,7 @@ module BenefitSponsors
             address_attributes.merge!({
                                         kind: nil
                                       })
-            post :create, :agency => send("#{profile_type}_params")
+            post :create, params: { agency: send("#{profile_type}_params") }
           end
 
           it "should success" do
@@ -306,7 +306,7 @@ module BenefitSponsors
         before do
           sign_in edit_user
           @id = send(profile_type).profiles.first.id.to_s
-          get :edit, id: @id
+          get :edit, params: { id: @id }
         end
 
         it "should render edit template" do
@@ -389,7 +389,7 @@ module BenefitSponsors
           before :each do
             sanitize_attributes(profile_type)
             sign_in update_user
-            put :update, :agency => send("#{profile_type}_params"), :id => send("#{profile_type}_params")[:id]
+            put :update, params: { agency: send("#{profile_type}_params"), id: send("#{profile_type}_params")[:id] }
           end
 
           it "should initialize agency" do
@@ -424,7 +424,7 @@ module BenefitSponsors
             address_attributes.merge!({
                                         kind: nil
                                       })
-            put :update, :agency => send("#{profile_type}_params"), :id => send("#{profile_type}_params")[:id]
+            put :update, params: { agency: send("#{profile_type}_params"), id: send("#{profile_type}_params")[:id] }
           end
 
           it "should redirect" do
