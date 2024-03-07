@@ -1,11 +1,11 @@
 <style type="text/css">
-  
+
 </style>
 
 <div class="container" id="employer_applications_table">
-  <div class = "table-responsive table-override"> 
+  <div class = "table-responsive table-override">
   <h4 class="text-center heading-text"> <%= l10n("exchange.employer_applications.applications").titleize %> </h4>
-  <% benefit_applications = @benefit_sponsorship.benefit_applications.non_expired %>
+  <% benefit_applications = @benefit_sponsorship.benefit_applications %>
   <% if benefit_applications.present? %>
     <table class="table">
       <thead>
@@ -43,7 +43,7 @@
                     <!-- <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= @benefit_sponsorship.id %>', '<%= application.terminated_on %>', '')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li> -->
                 </ul>
               </div>
-              
+
             </td>
           </tr>
           <% @reasons = BenefitSponsors::BenefitApplications::BenefitApplication::VOLUNTARY_TERM_REASONS %>
