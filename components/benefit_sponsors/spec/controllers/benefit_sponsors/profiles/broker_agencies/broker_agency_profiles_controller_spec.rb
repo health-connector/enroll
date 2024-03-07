@@ -82,7 +82,7 @@ module BenefitSponsors
         before :each do
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:set_flash_by_announcement).and_return(true)
-          get :show, id: bap_id
+          get :show, params: { id: bap_id }
         end
 
         it "should return http success" do
@@ -96,7 +96,7 @@ module BenefitSponsors
 
       context "for show with a broker_agency_profile_id and without a user" do
         before :each do
-          get :show, id: bap_id
+          get :show, params: { id: bap_id }
         end
 
         it "should not return success http status" do
@@ -115,7 +115,7 @@ module BenefitSponsors
         before :each do
           sign_in(user_with_broker_role)
           allow(controller).to receive(:set_flash_by_announcement).and_return(true)
-          get :show, id: bap_id1
+          get :show, params: { id: bap_id1 }
         end
 
         it 'should not return success http status' do
@@ -128,7 +128,7 @@ module BenefitSponsors
       context "with a valid user and with broker_agency_profile_id(on successful pundit)" do
         before :each do
           sign_in(user_with_hbx_staff_role)
-          xhr :get, :family_index, id: bap_id
+          get :family_index, params: { id: bap_id }, xhr: true
         end
 
         it "should render family_index template" do
@@ -145,7 +145,7 @@ module BenefitSponsors
 
         before :each do
           sign_in(user_without_person)
-          xhr :get, :family_index, id: bap_id
+          get :family_index, params: { id: bap_id }, xhr: true
         end
 
         it "should redirect to new of registration's controller for broker_agency" do
@@ -162,7 +162,7 @@ module BenefitSponsors
       context "with a valid user" do
         before :each do
           sign_in(user_with_hbx_staff_role)
-          xhr :get, :staff_index, id: bap_id
+          get :staff_index, params: { id: bap_id }, xhr: true
         end
 
         it "should return success http status" do
@@ -179,7 +179,7 @@ module BenefitSponsors
 
         before :each do
           sign_in(user)
-          xhr :get, :staff_index, id: bap_id
+          get :staff_index, params: { id: bap_id }, xhr: true
         end
 
         it "should not return success http status" do
@@ -199,7 +199,7 @@ module BenefitSponsors
       context "with a valid message" do
         before :each do
           sign_in(user_with_hbx_staff_role)
-          xhr :get, :inbox, id: person01.id
+          get :inbox, params: { id: person01.id }, xhr: true
         end
 
         it "should return success http status" do
@@ -237,7 +237,7 @@ module BenefitSponsors
           dt_query = DataTablesInQuery.new("1", 0, 10, "")
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -253,7 +253,7 @@ module BenefitSponsors
       context "should not return sucess" do
         before :each do
           sign_in(user)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
         end
 
         it "should not return sucess http status" do
@@ -272,7 +272,7 @@ module BenefitSponsors
           dt_query = DataTablesInQuery.new("1", 0, 10, "")
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -291,7 +291,7 @@ module BenefitSponsors
           sign_in(user_with_hbx_staff_role)
           Person.create_indexes
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(ee_person.first_name, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -314,7 +314,7 @@ module BenefitSponsors
           Person.create_indexes
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new("test", organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
