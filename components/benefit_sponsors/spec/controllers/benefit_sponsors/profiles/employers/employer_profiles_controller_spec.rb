@@ -28,7 +28,7 @@ module BenefitSponsors
     describe "POST employee_bulk_upload" do
       before do
         sign_in user
-        post :bulk_employee_upload, employer_profile_id: benefit_sponsor.profiles.first.id
+        post :bulk_employee_upload, params: { employer_profile_id: benefit_sponsor.profiles.first.id }
       end
 
       it "displays an error for a missing file" do
@@ -61,7 +61,7 @@ module BenefitSponsors
           benefit_sponsorship.save!
           allow(controller).to receive(:authorize).and_return(true)
           sign_in user
-          get :show, id: benefit_sponsor.profiles.first.id, tab: 'employees'
+          get :show, params: { id: benefit_sponsor.profiles.first.id.to_s, tab: 'employees' }
           allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
         end
 
@@ -79,7 +79,7 @@ module BenefitSponsors
           benefit_sponsorship.save!
           allow(controller).to receive(:authorize).and_return(true)
           sign_in user
-          get :show, id: benefit_sponsor.profiles.first.id, tab: 'accounts'
+          get :show, params: { id: benefit_sponsor.profiles.first.id, tab: 'accounts' }
           allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
         end
 
@@ -95,7 +95,7 @@ module BenefitSponsors
       context "tab: families" do
         before do
           sign_in user
-          get :show, id: benefit_sponsor.profiles.first.id, tab: 'families'
+          get :show, params: { id: benefit_sponsor.profiles.first.id, tab: 'families' }
         end
 
         it "should render show template" do
@@ -118,7 +118,7 @@ module BenefitSponsors
         benefit_sponsorship.save!
         allow(controller).to receive(:authorize).and_return(true)
         sign_in user
-        get :coverage_reports, employer_profile_id: benefit_sponsor.profiles.first.id, billing_date: TimeKeeper.date_of_record.next_month.beginning_of_month.strftime("%m/%d/%Y")
+        get :coverage_reports, params: { employer_profile_id: benefit_sponsor.profiles.first.id, billing_date: TimeKeeper.date_of_record.next_month.beginning_of_month.strftime("%m/%d/%Y") }
         allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
       end
 
@@ -136,7 +136,7 @@ module BenefitSponsors
 
       before do
         sign_in user
-        post :estimate_cost, employer_profile_id: benefit_sponsor.profiles.first.id, benefit_package_id: BSON::ObjectId.new
+        post :estimate_cost, params: { employer_profile_id: benefit_sponsor.profiles.first.id, benefit_package_id: BSON::ObjectId.new }
         allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
       end
 
@@ -154,7 +154,7 @@ module BenefitSponsors
         sign_in admin_user
         allow(subject).to receive(:business_policy_for).and_return(business_policy)
         allow(business_policy).to receive(:is_satisfied?).and_return(true)
-        get :run_eligibility_check, employer_profile_id: benefit_sponsor.profiles.first.id
+        get :run_eligibility_check, params: { employer_profile_id: benefit_sponsor.profiles.first.id }
         allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
       end
 
