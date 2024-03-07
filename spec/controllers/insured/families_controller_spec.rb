@@ -397,93 +397,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
   end
 
-  describe "GET manage_family" do
-    let(:employee_roles) { double }
-    let(:employee_role) { [double("EmployeeRole")] }
-
-    before :each do
-      allow(person).to receive(:active_employee_roles).and_return([employee_role])
-      allow(family).to receive(:coverage_waived?).and_return(true)
-      allow(family).to receive(:active_family_members).and_return(family_members)
-    end
-
-    it "should be a success" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render manage family section" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family
-      expect(response).to render_template("manage_family")
-    end
-
-    it "should assign variables" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family
-      expect(assigns(:qualifying_life_events)).to be_an_instance_of(Array)
-      expect(assigns(:family_members)).to eq(family_members)
-    end
-
-    it "assigns variable to change QLE to IVL flow" do
-      allow(person).to receive(:has_multiple_roles?).and_return(true)
-      get :manage_family, market: "shop_market_events"
-      expect(assigns(:manually_picked_role)).to eq "shop_market_events"
-    end
-
-    it "assigns variable to change QLE to Employee flow" do
-      allow(person).to receive(:has_multiple_roles?).and_return(true)
-      get :manage_family, market: "individual_market_events"
-      expect(assigns(:manually_picked_role)).to eq "individual_market_events"
-    end
-
-    it "doesn't assign the variable to show different flow for QLE" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family, market: "shop_market_events"
-      expect(assigns(:manually_picked_role)).to eq nil
-    end
-  end
-
-  describe "GET personal" do
-    before :each do
-      allow(family).to receive(:active_family_members).and_return(family_members)
-      sign_in user
-      get :personal
-    end
-
-    it "should be a success" do
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render person edit page" do
-      expect(response).to render_template("personal")
-    end
-
-    it "should assign variables" do
-      expect(assigns(:family_members)).to eq(family_members)
-    end
-  end
-
-  describe "GET inbox" do
-    before :each do
-      get :inbox
-    end
-
-    it "should be a success" do
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render inbox" do
-      expect(response).to render_template("inbox")
-    end
-
-    it "should assign variables" do
-      expect(assigns(:folder)).to eq("Inbox")
-    end
-  end
-
-
   describe "GET find_sep" do
     let(:user) { double(identity_verified?: true, idp_verified?: true) }
     let(:employee_roles) { double }
@@ -916,6 +829,174 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
           it "should not sent the email" do
             expect(@controller.send(:notice_upload_email)).to be nil
           end
+        end
+      end
+    end
+  end
+
+  context "GET manage_family, personal and inbox with auth", dbclean: :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
+
+    let!(:user) { FactoryGirl.create(:user) }
+    let!(:person1) { FactoryGirl.create(:person) }
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person1) }
+
+    let(:employee_role) {FactoryGirl.create(:employee_role, person: person1, employer_profile: abc_profile)}
+    let(:census_employee) { create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
+
+    before :each do
+      allow(user).to receive(:person).and_return person1
+      allow(person1).to receive(:primary_family).and_return family
+      allow(employee_role).to receive(:census_employee).and_return census_employee
+    end
+
+    context 'as a user not associated with the account' do
+      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+
+      before do
+        sign_in(fake_user)
+      end
+
+      it 'redirects the user to their own account on manage_family' do
+        get :manage_family, params: { family: family.id }
+
+        expect(response).to render_template("manage_family")
+        expect(assigns(:family)).to eq(fake_family)
+        expect(assigns(:qualifying_life_events)).to be_an_instance_of(Array)
+        expect(assigns(:family_members)).to eq(fake_family.family_members)
+      end
+
+      it 'redirects the user to their own account on personal' do
+        get :personal, params: { family: family.id }
+
+        expect(response).to render_template("personal")
+        expect(assigns(:family)).to eq(fake_family)
+      end
+
+      it 'redirects the user to their own account on inbox' do
+        get :inbox, params: { family: family.id }
+
+        expect(response).to render_template("inbox")
+        expect(assigns(:family)).to eq(fake_family)
+        expect(assigns(:folder)).to eq("Inbox")
+      end
+    end
+
+    context 'as an admin' do
+      let!(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
+      let!(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
+      let!(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: permission.id) }
+
+      before do
+        sign_in(admin_user)
+        session[:person_id] = person1.id
+      end
+
+      it 'should be a success on GET manage_family' do
+        get :manage_family, params: { family: family.id }
+
+        expect(response).to render_template("manage_family")
+        expect(assigns(:family)).to eq(family)
+        expect(assigns(:qualifying_life_events)).to be_an_instance_of(Array)
+      end
+
+      it 'should be a success on GET personal' do
+        get :personal, params: { family: family.id }
+
+        expect(response).to render_template("personal")
+        expect(assigns(:family)).to eq(family)
+      end
+
+      it 'should be a success on GET inbox' do
+        get :inbox, params: { family: family.id }
+
+        expect(response).to render_template("inbox")
+        expect(assigns(:family)).to eq(family)
+        expect(assigns(:folder)).to eq("Inbox")
+      end
+    end
+
+    context 'as broker' do
+      let(:site)  { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+      let(:employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_profile) { employer_organization.profiles.first }
+      let(:benefit_sponsorship) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, profile: employer_profile, benefit_market: site.benefit_markets.first) }
+      let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
+      let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
+      let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
+      let!(:broker_agency_account) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
+      let!(:person2) { FactoryGirl.create(:person) }
+      let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
+      let(:employee_role) { FactoryGirl.create(:employee_role, person: person2, employer_profile: employer_profile, census_employee: census_employee)}
+      let(:census_employee) { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
+
+      context 'associated with the family' do
+        before do
+          allow(employee_role).to receive(:census_employee).and_return census_employee
+          allow(person2).to receive(:active_employee_roles).and_return([employee_role])
+          sign_in(broker_user)
+          session[:person_id] = person2.id
+        end
+
+        it 'should be a success on GET manage_family' do
+          get :manage_family, params: { family: family2.id }
+
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("manage_family")
+          expect(assigns(:family)).to eq(family2)
+        end
+
+        it 'should be a success on GET personal' do
+          get :personal, params: { family: family2.id }
+
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("personal")
+          expect(assigns(:family)).to eq(family2)
+        end
+
+        it 'should be a success on GET inbox' do
+          get :inbox, params: { family: family2.id }
+
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("inbox")
+          expect(assigns(:family)).to eq(family2)
+        end
+      end
+
+      context 'not associated with the family' do
+        before do
+          session[:person_id] = person1.id
+          sign_in(broker_user)
+        end
+
+        it 'should not be a success on GET manage_family' do
+          get :manage_family, params: { family: family.id }
+
+          expect(response).to have_http_status(:redirect)
+          expect(response).to_not render_template("manage_family")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+        end
+
+        it 'should not be a success on GET personal' do
+          get :personal, params: { family: family.id }
+
+          expect(response).to have_http_status(:redirect)
+          expect(response).to_not render_template("personal")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+        end
+
+        it 'should not be a success on GET inbox' do
+          get :inbox, params: { family: family.id }
+
+          expect(response).to have_http_status(:redirect)
+          expect(response).to_not render_template("inbox")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
         end
       end
     end
