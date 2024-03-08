@@ -34,6 +34,7 @@ module FormWorld
   end
 
   def fill_in_employer_registration_form
+    page.assert_selector('input#inputNumber', count: 2)
     phone_number2 = page.all('input').select { |input| input[:id] == "inputNumber" }[1]
 
     fill_in 'agency_organization_legal_name', with: registering_employer.legal_name
