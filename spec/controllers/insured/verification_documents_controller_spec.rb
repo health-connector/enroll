@@ -14,7 +14,7 @@ RSpec.describe Insured::VerificationDocumentsController, :type => :controller do
       allow_any_instance_of(Insured::VerificationDocumentsController).to receive(:params_clean_vlp_documents).and_return({sample: 'sample'})
 
       sign_in user
-      post :upload, consumer_role: consumer_role
+      post :upload, params: {consumer_role: consumer_role}
       expect(flash[:error]).to be_present
     end
 
@@ -22,7 +22,7 @@ RSpec.describe Insured::VerificationDocumentsController, :type => :controller do
       request.env["HTTP_REFERER"] = "/home"
       allow(user).to receive(:person).and_return person
       sign_in user
-      post :upload, {consumer_role: ""}
+      post :upload, params: {consumer_role: ""}
       expect(flash[:notice]).not_to be_present
       expect(response).to have_http_status(:redirect)
       expect(flash[:error]).to eq "File not uploaded. Document type and/or document fields not provided "
@@ -53,7 +53,7 @@ RSpec.describe Insured::VerificationDocumentsController, :type => :controller do
         allow_any_instance_of(Insured::VerificationDocumentsController).to receive(:update_vlp_documents).with(cleaned_params, "sample-filename", doc_id).and_return(true)
         allow(Aws::S3Storage).to receive(:save).with(file_path, bucket_name).and_return(doc_id)
         sign_in user
-        post :upload, params
+        post :upload, params: params
         expect(flash[:notice]).to be_present
       end
     end
@@ -84,7 +84,7 @@ RSpec.describe Insured::VerificationDocumentsController, :type => :controller do
 
         controller.instance_variable_set(:"@family", family)
         sign_in user
-        post :upload, params
+        post :upload, params: params
 
       end
 
@@ -101,7 +101,7 @@ RSpec.describe Insured::VerificationDocumentsController, :type => :controller do
         allow_any_instance_of(Insured::VerificationDocumentsController).to receive(:get_document).and_return(nil)
         allow_any_instance_of(Insured::VerificationDocumentsController).to receive(:vlp_docs_clean).and_return(true)
         sign_in user
-        get :download, key:"sample-key"
+        get :download, params: {key:"sample-key"}
         expect(flash[:error]).to eq("File does not exist or you are not authorized to access it.")
       end
     end
@@ -115,7 +115,7 @@ RSpec.describe Insured::VerificationDocumentsController, :type => :controller do
                                                                              @controller.render nothing: true # to prevent a 'missing template' error
                                                                            }
         sign_in user
-        get :download, key:"sample-key"
+        get :download, params: {key:"sample-key"}
         expect(flash[:error]).to be_nil
         expect(response.status).to eq(200)
       end

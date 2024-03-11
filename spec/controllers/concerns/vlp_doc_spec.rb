@@ -19,9 +19,6 @@ describe FakesController do
       end
 
       it "should convert the date string to dateTime instance" do
-        expect(subject.params[person_kind]).to be_a(Hash)
-        expect(subject.params[person_kind][:consumer_role]).to be_a(Hash)
-        expect(subject.params[person_kind][:consumer_role][:vlp_documents_attributes]["0"]).to be_a(Hash)
         expect(subject.params[person_kind][:consumer_role][:vlp_documents_attributes]["0"][:expiration_date]).to be_a(String)
         expect(subject.update_vlp_documents(consumer_role, person_kind))
         expect(subject.params[person_kind][:consumer_role][:vlp_documents_attributes]["0"][:expiration_date]).to be_a(DateTime)

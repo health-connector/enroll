@@ -12,7 +12,7 @@ describe Api::V1::SlcspController do
       allow_any_instance_of(Api::V1::SlcspController).to receive(:find_slcsp).with(anything).and_return(plan)
       allow_any_instance_of(ActionController::Rendering).to receive(:render).and_return(response_xml)
 
-      post :plan, params: {:format => "xml"}
+      post :plan, :format => "xml"
       expect(response.status).to eq(200)
     end
   end

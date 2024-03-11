@@ -97,7 +97,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :continuous_show, params
+        get :continuous_show, params: params
       end
 
       it "returns http success" do
@@ -123,7 +123,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :continuous_show, params
+        get :continuous_show, params: params
       end
 
       it "redirects to family_account page" do
@@ -149,7 +149,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :thankyou, params
+        get :thankyou, params: params
       end
 
       it "returns http success" do
@@ -179,7 +179,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        post :checkout, params
+        post :checkout, params: params
       end
 
       it "redirect to receipt page" do
@@ -205,7 +205,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :receipt, params
+        get :receipt, params: params
       end
 
       it "returns http success" do
@@ -229,7 +229,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :waiver_thankyou, params
+        get :waiver_thankyou, params: params
       end
 
       it "returns http success" do
@@ -254,7 +254,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       before do
         request.env["HTTP_REFERER"] = '/'
         sign_in user
-        get :waiver_thankyou, params
+        get :waiver_thankyou, params: params
       end
 
       context 'with admin user' do
@@ -290,7 +290,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        post :waiver_checkout, params
+        post :waiver_checkout, params: params
       end
 
       it "redirect to receipt page" do
@@ -315,7 +315,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :waiver_receipt, params
+        get :waiver_receipt, params: params
       end
 
       it "returns http success" do

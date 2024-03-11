@@ -86,7 +86,7 @@ describe Insured::InteractiveIdentityVerificationsController do
       let(:verification_params) { { :whine_more => "sure why not" } }
       let(:valid_verification) { false }
       it "should render new" do
-        post :create, { "interactive_verification" => verification_params }
+        post :create, params: { "interactive_verification" => verification_params }
         expect(assigns[:interactive_verification]).to eq mock_session
         expect(response).to render_template("new")
       end
@@ -128,7 +128,7 @@ describe Insured::InteractiveIdentityVerificationsController do
         let(:mock_service_result) { nil }
 
         it "should render the 'try back later' message" do
-          post :create, { "interactive_verification" => verification_params }
+          post :create, params: { "interactive_verification" => verification_params }
           expect(response).to render_template("service_unavailable")
         end
       end
@@ -136,7 +136,7 @@ describe Insured::InteractiveIdentityVerificationsController do
       describe "when verification is not successful" do
         let(:service_succeeded) { false }
         it "should render the 'please call' message" do
-          post :create, { "interactive_verification" => verification_params }
+          post :create, params: { "interactive_verification" => verification_params }
           expect(assigns[:verification_response]).to eq mock_service_result
           expect(response).to render_template("failed_validation")
         end
@@ -152,7 +152,7 @@ describe Insured::InteractiveIdentityVerificationsController do
           expect(mock_person_user).to receive(:identity_final_decision_transaction_id=).with(mock_transaction_id)
           expect(mock_person_user).to receive(:identity_verified_date=).with(mock_today)
           expect(mock_person_user).to receive(:save!)
-          post :create, { "interactive_verification" => verification_params }
+          post :create, params: { "interactive_verification" => verification_params }
           expect(response).to be_redirect
         end
       end
@@ -191,7 +191,7 @@ describe Insured::InteractiveIdentityVerificationsController do
       let(:mock_service_result) { nil }
 
       it "should render the 'try back later' message" do
-        post :update, { "id" => transaction_id }
+        post :update, params: { "id" => transaction_id }
         expect(response).to render_template("service_unavailable")
       end
     end
@@ -199,7 +199,7 @@ describe Insured::InteractiveIdentityVerificationsController do
     describe "when verification is not successful" do
       let(:service_succeeded) { false }
       it "should render the 'please call' message" do
-        post :update, { "id" => transaction_id }
+        post :update, params: { "id" => transaction_id }
         expect(assigns[:verification_response]).to eq mock_service_result
         expect(response).to render_template("failed_validation")
       end
@@ -215,7 +215,7 @@ describe Insured::InteractiveIdentityVerificationsController do
         expect(mock_person_user).to receive(:identity_final_decision_transaction_id=).with(mock_transaction_id)
         expect(mock_person_user).to receive(:identity_verified_date=).with(mock_today)
         expect(mock_person_user).to receive(:save!)
-        post :update, { "id" => transaction_id }
+        post :update, params: { "id" => transaction_id }
         expect(response).to be_redirect
       end
     end

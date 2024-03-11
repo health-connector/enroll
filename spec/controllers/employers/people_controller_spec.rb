@@ -26,7 +26,7 @@ RSpec.describe Employers::PeopleController do
     before(:each) do
       allow(user).to receive(:person).and_return(person)
       sign_in(user)
-      post :create, person: person_parameters
+      post :create, params: { person: person_parameters }
     end
 
     context "it should create person when create person button is clicked" do
@@ -59,7 +59,7 @@ RSpec.describe Employers::PeopleController do
       sign_in(user)
       allow(Forms::EmployeeCandidate).to receive(:new).with(person_parameters.merge({user_id: user_id})).and_return(mock_employee_candidate)
       allow(mock_employee_candidate).to receive(:match_person).and_return(found_person)
-      post :match, more_params
+      post :match, params: more_params
     end
 
     context "it should create person when create person button is clicked" do
@@ -83,7 +83,7 @@ RSpec.describe Employers::PeopleController do
       sign_in(user)
       allow(Forms::EmployeeCandidate).to receive(:new).with(person_parameters.merge({user_id: user_id})).and_return(mock_employee_candidate)
       allow(mock_employee_candidate).to receive(:match_person).and_return(found_person)
-      post :match, :person => person_parameters
+      post :match, params: { :person => person_parameters }
     end
 
     context "given invalid parameters" do
@@ -145,7 +145,7 @@ RSpec.describe Employers::PeopleController do
       allow(person).to receive(:employer_contact).and_return("test")
       allow(person).to receive(:updated_by=).and_return("test")
       allow(person).to receive(:update_attributes).and_return(save_result)
-      put :update, valid_params
+      put :update, params: valid_params
     end
 
     context "given valid person parameters" do

@@ -26,7 +26,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       allow(ResidentRole).to receive(:find).with("1").and_return(resident_role_double)
       sign_in(user)
       # Just to hit a call on family
-      get :index, resident_role_id: "1"
+      get :index, params: {resident_role_id: "1" }
     end
 
     it "should redirect to root_path if person has no family" do
@@ -43,7 +43,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
         allow(user).to receive(:person).and_return(person)
         sign_in(user)
         allow(controller.request).to receive(:referer).and_return('http://dchealthlink.com/insured/interactive_identity_verifications')
-        get :index, :employee_role_id => employee_role_id
+        get :index, params: {:employee_role_id => employee_role_id}
       end
 
       it "renders the 'index' template" do
@@ -66,7 +66,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
         allow(user).to receive(:person).and_return(person)
         sign_in(user)
         allow(controller.request).to receive(:referer).and_return(nil)
-        get :index, :employee_role_id => employee_role_id
+        get :index, params: {:employee_role_id => employee_role_id}
       end
 
       it "renders the 'index' template" do
@@ -99,7 +99,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "should not duplicate sep if using current sep on same day" do
-        get :index, :sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id
+        get :index, params: {:sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id}
         expect(assigns(:sep)).to eq sep
       end
 
@@ -110,18 +110,18 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
         end
 
         it "should not get assign with old sep" do
-          get :index, :sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id
+          get :index, params: {:sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id}
           expect(assigns(:sep)).not_to eq sep
         end
 
         it "should duplicate sep" do
           allow(controller).to receive(:duplicate_sep).and_return dup_sep
-          get :index, :sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id
+          get :index, params: {:sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id}
           expect(assigns(:sep)).to eq dup_sep
         end
 
         it "should have the today's date as submitted_at" do
-          get :index, :sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id
+          get :index, params: {:sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id}
           expect(assigns(:sep).submitted_at.to_date).to eq TimeKeeper.date_of_record
         end
       end
@@ -135,8 +135,8 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       sign_in user
       allow(controller.request).to receive(:referer).and_return('http://dchealthlink.com/insured/interactive_identity_verifications')
       expect{
-        get :index, employee_role_id: employee_role_id, qle_id: qle.id, effective_on_kind: 'date_of_event', qle_date: '10/10/2015', published_plan_year: '10/10/2015'
-      }.to change(test_family.special_enrollment_periods, :count).by(1)
+        get :index, params: {employee_role_id: employee_role_id, qle_id: qle.id, effective_on_kind: 'date_of_event', qle_date: '10/10/2015', published_plan_year: '10/10/2015'
+      }}.to change(test_family.special_enrollment_periods, :count).by(1)
     end
   end
 
@@ -147,7 +147,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     before(:each) do
       allow(Forms::FamilyMember).to receive(:find).and_return(dependent)
       sign_in(user)
-      get :show, :id => family_member.id
+      get :show, params: {:id => family_member.id}
     end
 
     it "should render show templage" do
@@ -163,7 +163,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     before(:each) do
       sign_in(user)
       allow(Forms::FamilyMember).to receive(:new).with({:family_id => family_id}).and_return(dependent)
-      get :new, :family_id => family_id
+      get :new, params: {:family_id => family_id}
     end
 
     it "renders the 'new' template" do
@@ -190,7 +190,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       allow(dependent).to receive(:address=)
       allow(dependent).to receive(:family_id).and_return(dependent_properties)
       allow(Family).to receive(:find).with(dependent_properties).and_return(test_family)
-      post :create, :dependent => dependent_properties
+      post :create, params: {:dependent => dependent_properties}
     end
 
     describe "with an invalid dependent" do
@@ -268,12 +268,12 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
 
     it "should destroy the dependent" do
       expect(dependent).to receive(:destroy!)
-      delete :destroy, :id => dependent_id
+      delete :destroy, params: {:id => dependent_id}
     end
 
     it "should render the index template" do
       allow(dependent).to receive(:destroy!)
-      delete :destroy, :id => dependent_id
+      delete :destroy, params: {:id => dependent_id}
       expect(response).to have_http_status(:success)
       expect(response).to render_template("index")
       expect(assigns(:banner_text)).to match(/A family member has been removed from your profile. This will not automatically remove them from any active coverage./)
@@ -287,7 +287,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     before :each do
       sign_in(user)
       allow(Forms::FamilyMember).to receive(:find).with(dependent_id).and_return(dependent)
-      get :edit, :id => dependent_id
+      get :edit, params: {:id => dependent_id}
     end
 
     it "should assign the dependent" do
@@ -322,13 +322,13 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     describe "with an invalid dependent" do
       it "should render the edit template" do
         expect(Address).to receive(:new).twice
-        put :update, :id => dependent_id, :dependent => dependent_properties
+        put :update, params: {:id => dependent_id, :dependent => dependent_properties}
         expect(response).to have_http_status(:success)
         expect(response).to render_template("edit")
       end
 
       it "addresses should be an array" do
-        put :update, :id => dependent_id, :dependent => dependent_properties
+        put :update, params: {:id => dependent_id, :dependent => dependent_properties}
         expect(assigns(:dependent).addresses.class).to eq Array
       end
     end
@@ -337,14 +337,14 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       let(:update_result) { true }
       it "should render the show template" do
         allow(controller).to receive(:update_vlp_documents).and_return(true)
-        put :update, :id => dependent_id, :dependent => dependent_properties
+        put :update, params: {:id => dependent_id, :dependent => dependent_properties}
         expect(response).to have_http_status(:success)
         expect(response).to render_template("show")
       end
 
       it "should render the edit template when update_vlp_documents failure" do
         allow(controller).to receive(:update_vlp_documents).and_return(false)
-        put :update, :id => dependent_id, :dependent => dependent_properties
+        put :update, params: {:id => dependent_id, :dependent => dependent_properties}
         expect(response).to have_http_status(:success)
         expect(response).to render_template("edit")
       end

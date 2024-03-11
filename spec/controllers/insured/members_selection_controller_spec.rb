@@ -31,7 +31,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
   context "GET new" do
     context "with one member family and no dental offering" do
       it "return http success" do
-        get :new, person_id: ee_person.id, employee_role_id: employee_role.id
+        get :new, params: {person_id: ee_person.id, employee_role_id: employee_role.id}
         expect(response).to have_http_status(:success)
       end
     end
@@ -43,7 +43,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
       let!(:coverage_household_member) { coverage_household.coverage_household_members.new(:family_member_id => family_member.id) }
 
       it "return http success" do
-        get :new, person_id: ee_person.id, employee_role_id: employee_role.id
+        get :new, params: {person_id: ee_person.id, employee_role_id: employee_role.id}
         expect(response).to have_http_status(:success)
       end
     end

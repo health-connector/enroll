@@ -31,7 +31,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
 
   describe 'POST create' do
     context 'When create a question with invalid params' do
-      before { post :create, security_question: { title: nil } }
+      before { post :create, params: { security_question: { title: nil } } }
       it { expect(assigns(:question).title).to be_nil }
       it { expect(assigns(:question).errors.full_messages).to eq(['Title can\'t be blank']) }
       it { expect(response).to have_http_status(:success) }
@@ -39,7 +39,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
     end
 
     context 'When question is created successfully' do
-      before { post :create, security_question: { title: 'First Question' } }
+      before { post :create, params: { security_question: { title: 'First Question' } }}
       it { expect(assigns(:question)).to be_a(SecurityQuestion) }
       it { expect(SecurityQuestion.all).not_to eq([]) }
       it { expect(assigns(:question).title).to eq('First Question') }
@@ -48,7 +48,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   end
 
   describe 'GET edit' do
-    before { get :edit, id: question.id }
+    before { get :edit, params: { id: question.id }}
     it { expect(assigns(:question)).to eq(question) }
     it { expect(response).to have_http_status(:success) }
     it { expect(response).to render_template('exchanges/security_questions/edit') }
@@ -99,7 +99,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
       allow(question).to receive(:safe_to_edit_or_delete?).and_return(true_if_allowed)
       expect(question).to receive(:destroy).exactly(this_many).times
 
-      delete :destroy, id: question.id
+      delete :destroy, params: { id: question.id }
     end
 
     it { expect(response).to redirect_to('/exchanges/security_questions') }

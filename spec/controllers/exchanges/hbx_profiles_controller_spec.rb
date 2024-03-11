@@ -26,19 +26,19 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "renders broker_agency_index" do
-      xhr :get, :broker_agency_index
+     get :broker_agency_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/broker_agency_index")
     end
 
     it "renders issuer_index" do
-      xhr :get, :issuer_index
+      get :issuer_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/issuer_index")
     end
 
     it "renders issuer_index" do
-      xhr :get, :product_index
+      get :product_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/product_index")
     end
@@ -61,7 +61,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "renders binder_index" do
-      xhr :get, :binder_index
+      get :binder_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/binder_index")
     end
@@ -99,7 +99,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
       sign_in(user)
-      xhr :get, :inbox, id: hbx_profile.id
+      get :inbox, params: { id: hbx_profile.id}, xhr: true
       expect(response).to have_http_status(:success)
     end
 
@@ -122,12 +122,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "renders employer_invoice datatable" do
-      xhr :get, :employer_invoice
+      get :employer_invoice, xhr: true
       expect(response).to have_http_status(:success)
     end
 
     it "renders employer_invoice datatable payload" do
-      xhr :post, :employer_invoice_datatable, :search => search_params
+      post :employer_invoice_datatable, params: { :search => search_params }, xhr: true
       expect(response).to have_http_status(:success)
     end
 
@@ -284,7 +284,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
       get :configuration
       expect(response).to have_http_status(:success)
-      post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
+      post :set_date, params: { :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') } }
       expect(response).to have_http_status(:redirect)
     end
 
@@ -319,7 +319,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:has_role?).with(:hbx_staff).and_return true
       allow(user).to receive(:permission).and_return(admin_permission)
       sign_in(user)
-      post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
+      post :set_date, params: { :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') } }
       expect(response).to have_http_status(:redirect)
     end
   end
@@ -367,7 +367,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "create new organization if params valid" do
-      xhr :get, :generate_invoice, {"employerId"=>[organization.id], ids: [organization.id]} ,  format: :js
+      get :generate_invoice, params: {"employerId"=>[organization.id], ids: [organization.id]},  format: :js
       expect(response).to have_http_status(:success)
       # expect(organization.invoices.size).to eq 1
     end
@@ -404,7 +404,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it "renders edit_force_publish" do
         sign_in(user)
         @params = {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{employer_organization.employer_profile.id.to_s}", :format => 'js'}
-        xhr :get, :edit_force_publish, @params
+        get :edit_force_publish, params: @params, xhr: true
         expect(response).to render_template('edit_force_publish')
         expect(response).to have_http_status(:success)
       end
@@ -442,7 +442,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it "renders force_publish" do
         sign_in(user)
         @params = {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{employer_organization.employer_profile.id.to_s}", :format => 'js'}
-        xhr :post, :force_publish, @params
+        post :force_publish, params: @params, xhr: true
         expect(response).to render_template('force_publish')
         expect(response).to have_http_status(:success)
       end
@@ -588,7 +588,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(Forms::TimeKeeper).to receive(:new).with(timekeeper_form_params).and_return(time_keeper_form)
       allow(time_keeper_form).to receive(:forms_date_of_record).and_return(TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d'))
       sign_in(user)
-      post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
+      post :set_date, params: { :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') } }
       expect(response).to have_http_status(:redirect)
     end
 
@@ -596,7 +596,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: false, can_submit_time_travel_request: false, name: "hbx_staff", view_the_configuration_tab: false))
       sign_in(user)
       expect(TimeKeeper).not_to receive(:set_date_of_record).with( TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d'))
-      post :set_date, :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') }
+      post :set_date, params: { :forms_time_keeper => { :date_of_record =>  TimeKeeper.date_of_record.next_day.strftime('%Y-%m-%d') } }
       expect(response).to have_http_status(:redirect)
       expect(flash[:error]).to match(/Access not allowed/)
     end
@@ -606,7 +606,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: true))
       sign_in(user)
 
-      post :update_setting, :setting => {'name' => 'individual_market_monthly_enrollment_due_on', 'value' => 15}
+      post :update_setting, params: { :setting => {'name' => 'individual_market_monthly_enrollment_due_on', 'value' => 15} }
       expect(response).to have_http_status(:redirect)
       expect(Setting.individual_market_monthly_enrollment_due_on).to eq 15
     end
@@ -614,7 +614,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     it "update setting fails because not updateable" do
       allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_admin_tabs: false))
       sign_in(user)
-      post :update_setting, :setting => {'name' => 'individual_market_monthly_enrollment_due_on', 'value' => 19}
+      post :update_setting, params: { :setting => {'name' => 'individual_market_monthly_enrollment_due_on', 'value' => 19} }
       expect(response).to have_http_status(:redirect)
       expect(flash[:error]).to match(/Access not allowed/)
     end
@@ -633,7 +633,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:permission).and_return permission_yes
       sign_in(user)
       @params = {:id => person.id, :format => 'js'}
-      xhr :get, :edit_dob_ssn, @params
+      get :edit_dob_ssn, params: @params, xhr: true
       expect(response).to have_http_status(:success)
     end
 
@@ -641,7 +641,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:permission).and_return permission_yes
       sign_in(user)
       @params = {:id => person.id, :format => 'js'}
-      xhr :get, :edit_dob_ssn, @params
+      get :edit_dob_ssn, params: @params, xhr: true
       expect(response).to have_http_status(:success)
     end
 
@@ -665,7 +665,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:permission).and_return permission_yes
       sign_in(user)
       @params = {:person=>{:pid => person.id, :ssn => invalid_ssn, :dob => valid_dob},:jq_datepicker_ignore_person=>{:dob=> valid_dob}, :format => 'js'}
-      xhr :get, :update_dob_ssn, @params
+      get :update_dob_ssn, params: @params, xhr: true
       expect(response).to render_template('edit_enrollment')
     end
 
@@ -674,7 +674,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
       expect(response).to have_http_status(:success)
       @params = {:person=>{:pid => person.id, :ssn => valid_ssn, :dob => valid_dob },:jq_datepicker_ignore_person=>{:dob=> valid_dob}, :format => 'js'}
-      xhr :get, :update_dob_ssn, @params
+      get :update_dob_ssn, params: @params, xhr: true
       expect(response).to render_template('update_enrollment')
     end
 
@@ -683,14 +683,14 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
       expect(response).to have_http_status(:success)
       @params = {:person=>{:pid => person1.id, :ssn => "" , :dob => valid_dob },:jq_datepicker_ignore_person=>{:dob=> valid_dob}, :format => 'js'}
-      xhr :get, :update_dob_ssn, @params
+      get :update_dob_ssn, params: @params, xhr: true
       expect(response).to render_template('update_enrollment')
     end
 
     it "should return authorization error for Non-Admin users" do
       allow(user).to receive(:has_hbx_staff_role?).and_return false
       sign_in(user)
-      xhr :get, :update_dob_ssn
+      get :update_dob_ssn, xhr: true
       expect(response).not_to have_http_status(:success)
     end
 
@@ -709,12 +709,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         Enroll::Application.reload_routes!
       end
       it "should returns http success" do
-        xhr :get, :general_agency_index, format: :js
+        get :general_agency_index, format: :js
         expect(response).to have_http_status(:success)
       end
 
       it "should get general_agencies" do
-        xhr :get, :general_agency_index, format: :js
+        get :general_agency_index, format: :js
         expect(assigns(:general_agency_profiles)).to eq Kaminari.paginate_array(GeneralAgencyProfile.filter_by())
       end
     end
@@ -778,8 +778,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "should redirect to root path" do
-      xhr :post, :reinstate_enrollment, enrollment_id: enrollment.id
-      expect(response).to have_http_status(:redirect)
+      post :reinstate_enrollment, params: { enrollment_id: enrollment.id }, format: :js, xhr: true
+      expect(response).to have_http_status(:success)
       expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
     end
   end
@@ -819,13 +819,13 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "should render template" do
-      xhr :post, :view_enrollment_to_update_end_date, person_id: person.id.to_s, family_actions_id: family.id, format: :js
+      post :view_enrollment_to_update_end_date, params: {person_id: person.id.to_s, family_actions_id: family.id}, format: :js
       expect(response).to have_http_status(:success)
       expect(response).to render_template("view_enrollment_to_update_end_date")
     end
 
     it "should get duplicate enrollment id's" do
-      xhr :post, :view_enrollment_to_update_end_date, person_id: person.id.to_s, family_actions_id: family.id, format: :js
+     post :view_enrollment_to_update_end_date, params: {person_id: person.id.to_s, family_actions_id: family.id}, format: :js
       expect(assigns(:dup_enr_ids).include?(enrollment1.id.to_s)).to eq true
       expect(assigns(:dup_enr_ids).include?(enrollment3.id.to_s)).to eq false
     end
@@ -857,7 +857,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       context "with valid params" do
 
         it "should render template " do
-          xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+          post :update_enrollment_termianted_on_date, params: { enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
           expect(response).to have_http_status(:redirect)
           expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
         end
@@ -866,7 +866,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           context "with new past or current termination date" do
             it "should update enrollment with new end date and notify enrollment" do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
-              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
@@ -879,7 +879,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           context "with new future termination date" do
             it "should update enrollment with new end date and notify enrollment" do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
-              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_termination_pending"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
@@ -899,7 +899,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       context "with valid params" do
 
         it "should render template " do
-          xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+          post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
           expect(response).to have_http_status(:redirect)
           expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
         end
@@ -908,7 +908,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           context "with new past or current termination date" do
             it "should update enrollment with new end date and notify enrollment" do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
-              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
@@ -921,7 +921,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           context "with new future termination date" do
             it "should update enrollment with new end date and notify enrollment" do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {:reply_to=>glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment", "is_trading_partner_publishable" => false})
-              xhr :post, :update_enrollment_termianted_on_date, enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s, format: :js
+              post :update_enrollment_termianted_on_date, params: { enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
@@ -933,7 +933,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context "with invalid params" do
       it "should redirect to root path" do
-        xhr :post, :update_enrollment_termianted_on_date, enrollment_id: '', family_actions_id: '', new_termination_date: '', format: :js
+        post :update_enrollment_termianted_on_date, params: { enrollment_id: '', family_actions_id: '', new_termination_date: ''}, format: :js
         expect(response).to have_http_status(:redirect)
         expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
       end
@@ -957,7 +957,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     context "when action called through families datatable" do
 
       before do
-        xhr :get, :get_user_info, family_actions_id: family_id, person_id: person.id
+        get :get_user_info, params: { family_actions_id: family_id, person_id: person.id }, format: :js, xhr: true
       end
 
       it "should populate the person instance variable" do
@@ -973,7 +973,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       before do
         allow(Organization).to receive(:find).and_return organization
-        xhr :get, :get_user_info, employers_action_id: employer_id, people_id: [person.id]
+        get :get_user_info, params: { employers_action_id: employer_id, people_id: [person.id] }, format: :js, xhr: true
       end
 
       it "should not populate the person instance variable" do
@@ -1021,7 +1021,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
 
       it "renders open enrollment extendable applications" do
-        xhr :get, :oe_extendable_applications
+        get :oe_extendable_applications, xhr: true
 
         expect(response).to have_http_status(:success)
         expect(response).to render_template("exchanges/hbx_profiles/oe_extendable_applications")
@@ -1036,7 +1036,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
 
       it "renders open enrollment extended applications" do
-        xhr :get, :oe_extended_applications
+        get :oe_extended_applications, xhr: true
 
         expect(response).to have_http_status(:success)
         expect(response).to render_template("exchanges/hbx_profiles/oe_extended_applications")
@@ -1051,7 +1051,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
 
       it "renders edit open enrollment" do
-        xhr :get, :edit_open_enrollment
+        get :edit_open_enrollment, xhr: true
 
         expect(response).to have_http_status(:success)
         expect(response).to render_template("exchanges/hbx_profiles/edit_open_enrollment")
@@ -1067,7 +1067,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
 
       it "renders index" do
-        post :extend_open_enrollment, open_enrollment_end_date: "11/26/2018"
+        post :extend_open_enrollment, params: { open_enrollment_end_date: "11/26/2018" }
 
         expect(response).to have_http_status(:redirect)
         expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
@@ -1166,7 +1166,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context '.new_benefit_application' do
       before :each do
-        xhr :get, :new_benefit_application, benefit_sponsorship_id: benefit_sponsorship.id.to_s
+       get :new_benefit_application, params: { benefit_sponsorship_id: benefit_sponsorship.id.to_s}, xhr: true
       end
 
       it 'should respond with success status' do
@@ -1180,7 +1180,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context '.create_benefit_application when existing draft application' do
       before :each do
-        xhr :post, :create_benefit_application, valid_params, has_active_ba: false
+        valid_params["has_active_ba"] = false
+        post :create_benefit_application, params: valid_params, xhr: true
       end
 
       it 'should respond with success status' do
@@ -1194,7 +1195,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     context '.create_benefit_application when existing application is in active states' do
       before :each do
-        xhr :post, :create_benefit_application, valid_params, has_active_ba: true
+        valid_params["has_active_ba"] = true
+        post :create_benefit_application, params: valid_params, xhr: true
       end
 
       it 'should respond with success status' do
@@ -1274,7 +1276,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it "renders edit_fein" do
         sign_in(user)
         @params = {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{employer_organization.employer_profile.id.to_s}", :format => 'js'}
-        xhr :get, :edit_fein, @params
+        get :edit_fein, params: @params, xhr: true
         expect(response).to render_template('edit_fein')
         expect(response).to have_http_status(:success)
       end
@@ -1314,7 +1316,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it "renders update_fein" do
         sign_in(user)
         @params = {:organizations_general_organization => {:new_fein => new_valid_fein}, :id => benefit_sponsorship.id.to_s, :employer_actions_id => "employer_actions_#{employer_organization.employer_profile.id.to_s}"}
-        xhr :post, :update_fein, @params
+        post :update_fein, params: @params, xhr: true
+        # TODO - benefit_sponsorship and benefit_market relationships are failing
         expect(response).to render_template('update_fein')
         expect(response).to have_http_status(:success)
       end

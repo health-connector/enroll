@@ -141,7 +141,7 @@ class Insured::GroupSelectionController < ApplicationController
       hbx_enrollment.terminate_benefit(term_date)
       redirect_to family_account_path
     else
-      redirect_to :back
+      redirect_back(fallback_location: :back)
     end
   end
 
