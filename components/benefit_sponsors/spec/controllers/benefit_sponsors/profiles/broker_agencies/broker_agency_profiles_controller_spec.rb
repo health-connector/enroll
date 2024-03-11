@@ -18,6 +18,7 @@ module BenefitSponsors
     let!(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
     let(:bap_id) { organization.broker_agency_profile.id }
+    let(:data_tables_in_query) { Struct.new(:draw, :skip, :take, :search_string) }
 
     before :each do
       person01.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id)
@@ -233,8 +234,7 @@ module BenefitSponsors
           ce.save
           ee_person.employee_roles.first.census_employee_id = ce.id
           ee_person.save
-          DataTablesInQuery = Struct.new(:draw, :skip, :take, :search_string)
-          dt_query = DataTablesInQuery.new("1", 0, 10, "")
+          dt_query = data_tables_in_query.new("1", 0, 10, "")
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
           get :family_datatable, params: { id: bap_id }, xhr: true
@@ -268,8 +268,7 @@ module BenefitSponsors
           ee_person.employee_roles.first.census_employee_id = ce.id
           ee_person.save
           benefit_sponsorship.broker_agency_accounts.first.update_attributes(is_active: false)
-          DataTablesInQuery = Struct.new(:draw, :skip, :take, :search_string)
-          dt_query = DataTablesInQuery.new("1", 0, 10, "")
+          dt_query = data_tables_in_query.new("1", 0, 10, "")
           sign_in(user_with_hbx_staff_role)
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
           get :family_datatable, params: { id: bap_id }, xhr: true
