@@ -1,15 +1,9 @@
 FactoryBot.define do
-
-  sequence(:random_count) do |n|
-    @random_counts ||= (1..25).to_a.shuffle
-    @random_counts[n]
-  end
-
   factory :benefit_sponsors_benefit_application, class: 'BenefitSponsors::BenefitApplications::BenefitApplication' do
 
-    fte_count   { FactoryBot.generate(:random_count) }
-    pte_count   { FactoryBot.generate(:random_count) }
-    msp_count   { FactoryBot.generate(:random_count) }
+    fte_count   { rand(1..25) }
+    pte_count   { rand(1..25) }
+    msp_count   { rand(1..25) }
 
     open_enrollment_period do
       if default_open_enrollment_period.present?

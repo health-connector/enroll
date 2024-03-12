@@ -570,8 +570,7 @@ module BenefitSponsors
           application.save
           application
         end
-        let(:renewal_bga) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee)}
-
+        let(:renewal_bga) { create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee) }
 
         it "should generate renewal application" do
           expect(renewal_application.predecessor).to eq initial_application
