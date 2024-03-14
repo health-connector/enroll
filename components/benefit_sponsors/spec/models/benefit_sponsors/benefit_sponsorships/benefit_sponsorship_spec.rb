@@ -11,7 +11,7 @@ module BenefitSponsors
     let(:site) { ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market }
     let(:benefit_market)  { site.benefit_markets.first }
 
-    let(:employer_organization)   { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)        { employer_organization.employer_profile }
 
     describe "A new model instance" do
