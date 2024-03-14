@@ -23,13 +23,13 @@ RSpec.describe PeopleController, dbclean: :after_each do
   describe "POST create" do
     context "with valid attributes" do 
       it 'should add a new person' do 
-        expect { post :create, person: FactoryBot.attributes_for(:person) }.to change(Person,:count).by(0)
+        expect { post :create, params: { person: FactoryBot.attributes_for(:person) }}.to change(Person,:count).by(0)
       end
     end
 
     context "with invalid attributes"  do
       it 'should not add a new person' do  
-        expect { post :create, person: FactoryBot.attributes_for(:person,:with_bad_mailing_address) }.to_not change(Person,:count)
+        expect { post :create, params: { person: FactoryBot.attributes_for(:person,:with_bad_mailing_address) }}.to_not change(Person,:count)
       end
     end
   end

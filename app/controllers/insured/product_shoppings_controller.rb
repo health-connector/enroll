@@ -7,7 +7,8 @@ module Insured
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
-      attr = params.deep_symbolize_keys
+      # TODO - use permit params
+      attr = params.permit!.to_h.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
                                                                      dental_offering: attr[:dental_offering],  health_offering: attr[:health_offering],
                                                                      action: attr[:action], event: attr[:event])
@@ -43,9 +44,10 @@ module Insured
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def thankyou
-      @context = params[:cart].each_with_object({}) do |(k,v),output|
+      @context = {}
+      params[:cart].each do |k, v|
         context = Organizers::PrepareForCheckout.call(params: v, person: @person, event: params[:event])
-        output[k] = context.json
+        @context[k] = context.json
       end
 
       @waiver_context = if params[:waiver_attrs].present?
@@ -66,19 +68,19 @@ module Insured
     end
 
     def checkout
-      @context = params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each_with_object({}) do |(key,value), output|
+      @context = {}
+      params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each do |key, value|
         context = Organizers::Checkout.call(params: value, previous_enrollment_id: session[:pre_hbx_enrollment_id])
-        output[key] = context.json
+        @context[key] = context.json
       end
 
-      @waiver_context = if params['waiver_context'].present?
-                          params['waiver_context'].each_with_object({}) do |(k, v), output|
-                            context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: v[:enrollment_id], waiver_reason: v[:waiver_reason])
-                            output[k] = {waiver_status: context.waiver_enrollment.inactive?, waiver_enrollment: context.waiver_enrollment}
-                          end
-                        else
-                          {}
-                        end
+      @waiver_context = {}
+      if params['waiver_context'].present?
+        params['waiver_context'].each do |k, v|
+          context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: v[:enrollment_id], waiver_reason: v[:waiver_reason])
+          @waiver_context[k] = { waiver_status: context.waiver_enrollment.inactive?, waiver_enrollment: context.waiver_enrollment }
+        end
+      end
 
       @context.merge!("waiver_context" => @waiver_context)
       @context = Hash[@context.sort.reverse]
@@ -91,7 +93,7 @@ module Insured
       end
 
       if @context.values.select{|hash| hash[:can_select_coverage]}.any?(false)
-        redirect_to :back
+        redirect_back(fallback_location: :back)
         return
       end
 
@@ -100,15 +102,15 @@ module Insured
     end
 
     def receipt
-      @context = params.except("_method", "authenticity_token", "controller","action", "waiver_context").each_with_object({}) do |(key,value), output|
+      @context = {}
+      params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each do |key, value|
         context = Organizers::Receipt.call(params: value, previous_enrollment_id: session[:pre_hbx_enrollment_id])
-        output[key] = context
+        @context[key] = context
       end
 
       if params["waiver_context"].present?
-        @health_waiver = (HbxEnrollment.find(params["waiver_context"]['health']['waiver_enrollment']) if params["waiver_context"]['health'].present?)
-
-        @dental_waiver = (HbxEnrollment.find(params["waiver_context"]['dental']['waiver_enrollment']) if params["waiver_context"]['dental'].present?)
+        @health_waiver = HbxEnrollment.find(params["waiver_context"]['health']['waiver_enrollment']) if params["waiver_context"]['health'].present?
+        @dental_waiver = HbxEnrollment.find(params["waiver_context"]['dental']['waiver_enrollment']) if params["waiver_context"]['dental'].present?
       end
 
       @context = Hash[@context.sort.reverse]
@@ -121,7 +123,8 @@ module Insured
     end
 
     def waiver_thankyou
-      attrs = params.deep_symbolize_keys
+      # TODO - use permit params
+      attrs = params.permit!.to_h.deep_symbolize_keys
       enr_details = attrs.slice(:health, :dental)
 
       health_waiver_reason = enr_details.dig(:health, :waiver_reason)
@@ -138,7 +141,7 @@ module Insured
 
       respond_to do |format|
         if is_outside_service_area_reason && current_user.person.hbx_staff_role.blank?
-          format.html { redirect_to :back }
+          format.html { redirect_back(fallback_location: :back) }
         else
           format.html { render 'waiver_thankyou.html.erb' }
         end
@@ -146,13 +149,13 @@ module Insured
     end
 
     def waiver_checkout
-      @context = params.except("_method", "authenticity_token", "controller","action").each_with_object({}) do |(key,value), output|
+      @context = {}
+      params.except("_method", "authenticity_token", "controller", "action").each do |key, value|
         context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: value[:enrollment_id], waiver_reason: value[:waiver_reason])
-        output[key] = {waiver_status: context.waiver_enrollment.inactive?, waiver_enrollment: context.waiver_enrollment}
+        @context[key] = { waiver_status: context.waiver_enrollment.inactive?, waiver_enrollment: context.waiver_enrollment }
       end
       @context = Hash[@context.sort.reverse]
       session.delete(:pre_hbx_enrollment_id)
-
       redirect_to waiver_receipt_insured_product_shoppings_path(@context), notice: 'Waive Coverage Successful'
     end
 

@@ -13,7 +13,8 @@ describe Api::V1::SlcspController do
       allow_any_instance_of(ActionController::Rendering).to receive(:render).and_return(response_xml)
 
       post :plan, :format => "xml"
-      expect(response.status).to eq(200)
+      expect(assigns(:plan)).to eq(plan)
+      assert_response :success
     end
   end
 
