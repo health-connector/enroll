@@ -4,15 +4,16 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 RSpec.describe 'BenefitSponsors::ModelEvents::ApplicationCoverageSelected', :dbclean => :after_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
+
   let(:aasm_state) { "enrollment_eligible" }
   let!(:person){ FactoryBot.create(:person, :with_family)}
-  let!(:family) {person.primary_family}
+  let!(:family) { person.primary_family }
   let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id, benefit_sponsors_employer_profile_id: abc_profile.id)}
   let!(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile)}
 
   let!(:model_instance) { 
     hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                        household: family.active_household, 
+                        household: family.active_household,
                         aasm_state: "shopping",
                         effective_on: initial_application.start_on,
                         rating_area_id: initial_application.recorded_rating_area_id,
@@ -104,9 +105,13 @@ RSpec.describe 'BenefitSponsors::ModelEvents::ApplicationCoverageSelected', :dbc
         expect(merge_model.employer_name).to eq model_instance.employer_profile.legal_name
       end
       it "should return employee first_name" do
+        # TODO: potential solution implement it as in original enroll
+        #  expect(merge_model.enrollment.employee_first_name).to eq model_instance.census_employee.first_name
         expect(merge_model.enrollment.employee_first_name).to eq person.first_name
       end
       it "should return employee last_name" do
+        # TODO: potential solution implement it as in original enroll
+        #  expect(merge_model.enrollment.employee_last_name).to eq model_instance.census_employee.last_name
         expect(merge_model.enrollment.employee_last_name).to eq person.last_name
       end
       it "should return enrollment coverage_kind" do

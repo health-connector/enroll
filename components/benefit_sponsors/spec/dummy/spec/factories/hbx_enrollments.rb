@@ -3,14 +3,14 @@ FactoryBot.define do
     kind { "employer_sponsored" }
     elected_premium_credit { 0 }
     applied_premium_credit { 0 }
-    effective_on {1.month.ago.to_date}
+    effective_on { 1.month.ago.to_date }
     terminated_on { nil }
     waiver_reason { "this is the reason" }
     # broker_agency_id nil
     # writing_agent_id nil
-    submitted_at {2.months.ago}
+    submitted_at { 2.months.ago }
     aasm_state { "coverage_selected" }
-    aasm_state_date {effective_on}
+    aasm_state_date { effective_on }
     updated_by { "factory" }
     is_active { true }
     enrollment_kind { "open_enrollment" }
