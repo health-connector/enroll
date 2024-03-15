@@ -31,7 +31,7 @@
             <td><%= (application.open_enrollment_period.end.to_date) %></td>
             <td><%= (application.created_at.to_datetime) %></td>
             <td><%= (application.terminated_on.to_datetime) if application.terminated_on.present? %></td>
-            <td><%= benefit_application_summarized_state(application) %></td>
+            <td data-cuke='application_status'><%= benefit_application_summarized_state(application) %></td>
             <td colspan="1">
               <div class="btn-group" id="plan-year-btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle disabled py-btn-grp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
