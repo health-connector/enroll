@@ -2,7 +2,6 @@ require 'rails_helper'
 
 module Notifier
   RSpec.describe NoticeKind, type: :model do
-    
 
     describe '.set_data_elements' do
 
@@ -15,7 +14,7 @@ module Notifier
         allow(subject).to receive(:conditional_tokens).and_return(["employer_profile.addresses.each do | address |", "employer_profile.offered_products.each do | offered_product |", "offered_product.enrollments.each do | enrollment |"])
       end
 
-      it "should parse data elements for the template" do 
+      it "should parse data elements for the template" do
         subject.set_data_elements
         expect(template.data_elements).to be_present
         expect(template.data_elements).to eq ([
@@ -43,6 +42,27 @@ module Notifier
             "employer_profile.offered_products",
             "offered_product.enrollments"
           ])
+      end
+    end
+
+    describe '#check_template_elements' do
+      subject { Notifier::NoticeKind.new(title: 'Title', notice_number: 'abc') }
+      let(:template) { subject.build_template }
+
+      context 'when raw_body have blocking elements' do
+
+        it 'makes record invalid' do
+          template.raw_body = 'raw body content with invalid elements - <script, %%iframe%'
+          expect(subject.valid?).to eq false
+          expect(subject.errors.full_messages).to eq ['Template is invalid']
+        end
+      end
+
+      context 'when raw_body does not have any blocking elements' do
+        it 'returns valid' do
+          template.raw_body = 'raw body content with some text around prescription and something else'
+          expect(subject.valid?).to eq true
+        end
       end
     end
   end
