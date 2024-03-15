@@ -75,4 +75,8 @@ class AdminHomepage
   def self.logout_btn
     'a[href="/users/sign_out"]'
   end
+
+  def self.application_status
+    '[data-cuke="application_status"]'
+  end
 end
