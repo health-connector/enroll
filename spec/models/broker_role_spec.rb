@@ -106,10 +106,10 @@ describe BrokerRole, dbclean: :after_each do
     end
 
     context "with duplicate npn number" do
-      let(:params) {valid_params}
+      let(:params) { valid_params }
 
       it "should raise" do
-        expect(BrokerRole.with(safe: true).create(**params)).to be_truthy
+        expect(BrokerRole.create(**params)).to be_truthy
 
         ## TODO: Change this to proper Error when Mongoid is coerced into raising it
         # expect{BrokerRole.with(safe: true).create(**params)}.to raise_error(Mongoid::Errors::NoParent)
