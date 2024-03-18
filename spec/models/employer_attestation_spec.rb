@@ -3,19 +3,12 @@ require 'rails_helper'
 describe EmployerAttestation, dbclean: :after_each do
 
   context ".deny" do
-
-    # let(:start_on) { TimeKeeper.date_of_record.beginning_of_month }
-    # let(:plan_year) { FactoryBot.create(:plan_year,aasm_state:'active') }
-    # let(:employer_profile) { FactoryBot.create(:employer_profile,plan_years:[plan_year] )}
-
-    let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_no_attestation, site: site) }
-    let(:employer_profile) { employer_organization.employer_profile }
-    let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-    let!(:employer_attestation) { FactoryBot.create(:employer_attestation, employer_profile: employer_profile) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile)}
+    let!(:employer_attestation) { create(:employer_attestation, aasm_state: 'unsubmitted', employer_profile: employer_profile) }
 
     describe "Happy Path" do
 
-      it  "should initialize as unsubmitted" do
+      it "should initialize as unsubmitted" do
         expect(employer_attestation.aasm_state).to eq "unsubmitted"
       end
 
