@@ -527,7 +527,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     context 'When there are two active benefit applications' do
-      let(:current_year) {TimeKeeper.date_of_record.year}
+      let(:current_year) { TimeKeeper.date_of_record.year }
       let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
       let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
@@ -559,19 +559,19 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
       it 'should only pick active benefit group assignment - first benefit package' do
         initial_census_employee.benefit_group_assignments[0].update_attributes(is_active: false, created_at: Date.new(current_year, 2, 21))
-        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: true, created_at: Date.new(current_year - 1.year, 2, 21))
+        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: true, created_at: Date.new(current_year - 1, 2, 21))
         expect(initial_census_employee.published_benefit_group.title).to eq 'first benefit package'
       end
 
       it 'should pick latest benefit group assignment if all the assignments are inactive' do
         initial_census_employee.benefit_group_assignments[0].update_attributes(is_active: false, created_at: Date.new(current_year, 2, 21))
-        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: false, created_at: Date.new(current_year - 1.year, 2, 21))
+        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: false, created_at: Date.new(current_year - 1, 2, 21))
         expect(initial_census_employee.published_benefit_group.title).to eq 'second benefit package'
       end
 
       it 'should only pick active benefit group assignment - second benefit package' do
         initial_census_employee.benefit_group_assignments[0].update_attributes(is_active: true, created_at: Date.new(current_year, 2, 21))
-        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: false, created_at: Date.new(current_year - 1.year, 2, 21))
+        initial_census_employee.benefit_group_assignments[1].update_attributes(is_active: false, created_at: Date.new(current_year - 1, 2, 21))
         expect(initial_census_employee.published_benefit_group.title).to eq 'second benefit package'
       end
     end
@@ -614,7 +614,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     let(:package_kind) {:single_issuer}
     let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
     let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
-    let!(:employer_profile_2) {FactoryBot.build(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site, site: organization.site)}
+    let!(:employer_profile_2) {FactoryBot.create(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, :with_organization_and_site, site: organization.site)}
     let(:organization2) {employer_profile_2.organization}
     let!(:benefit_sponsorship2) do
       sponsorship = employer_profile_2.add_benefit_sponsorship
