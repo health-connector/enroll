@@ -3,8 +3,10 @@ require 'rails_helper'
 describe EmployerAttestation, dbclean: :after_each do
 
   context ".deny" do
-    let(:employer_profile) { FactoryBot.create(:employer_profile)}
-    let!(:employer_attestation) { create(:employer_attestation, aasm_state: 'unsubmitted', employer_profile: employer_profile) }
+    let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile_no_attestation, site: site) }
+    let(:employer_profile) { employer_organization.employer_profile }
+    let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let!(:employer_attestation) { FactoryBot.create(:employer_attestation, employer_profile: employer_profile) }
 
     describe "Happy Path" do
 
