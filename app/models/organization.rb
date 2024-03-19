@@ -1,5 +1,4 @@
 class Organization
-  include Config::AcaModelConcern
   include Mongoid::Document
   include SetCurrentUser
   include Mongoid::Timestamps
