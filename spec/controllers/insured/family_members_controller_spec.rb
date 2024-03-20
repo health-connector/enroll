@@ -187,11 +187,11 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
 
     before :each do
       sign_in(user)
-      allow(Forms::FamilyMember).to receive(:new).with(dependent_properties).and_return(dependent)
+      allow(Forms::FamilyMember).to receive(:new).and_return(dependent)
       allow(dependent).to receive(:save).and_return(save_result)
       allow(dependent).to receive(:address=)
       allow(dependent).to receive(:family_id).and_return(dependent_properties)
-      allow(Family).to receive(:find).with(dependent_properties).and_return(test_family)
+      allow(Family).to receive(:find).and_return(test_family)
       post :create, params: {:dependent => dependent_properties}
     end
 
