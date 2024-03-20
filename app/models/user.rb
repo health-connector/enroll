@@ -23,6 +23,7 @@ class User
   }
 
   has_one :person, inverse_of: :user
+  accepts_nested_attributes_for :person, allow_destroy: true
 
   def oim_id_rules
     if oim_id.present? && oim_id.match(%r{[;#%=|+,">< \\/]})
@@ -101,8 +102,6 @@ class User
 
   # Enable polymorphic associations
   belongs_to :profile, polymorphic: true, optional: true
-
-  #  validate :ensure_valid_invitation, :on => :create
 
   def ensure_valid_invitation
     if invitation_id.blank?

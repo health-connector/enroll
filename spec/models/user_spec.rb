@@ -144,28 +144,29 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
 
     context 'when associated person' do
       let(:params){valid_params}
+      let(:user) { User.create(**params) }
       it 'first name is invalid' do
         params[:person][:first_name] = ""
-        expect(User.create(**params).errors[:person].any?).to be_truthy
-        expect(User.create(**params).errors[:person]).to eq ["is invalid"]
-        expect(User.create(**params).person.errors[:first_name].any?).to be_truthy
-        expect(User.create(**params).person.errors[:first_name]).to eq ["can't be blank"]
+        expect(user.errors[:person].any?).to be_truthy
+        expect(user.errors[:person]).to eq ["is invalid"]
+        expect(user.person.errors[:first_name].any?).to be_truthy
+        expect(user.person.errors[:first_name]).to eq ["can't be blank"]
       end
 
       it 'last name is invalid' do
         params[:person][:last_name] = ""
-        expect(User.create(**params).errors[:person].any?).to be_truthy
-        expect(User.create(**params).errors[:person]).to eq ["is invalid"]
-        expect(User.create(**params).person.errors[:last_name].any?).to be_truthy
-        expect(User.create(**params).person.errors[:last_name]).to eq ["can't be blank"]
+        expect(user.errors[:person].any?).to be_truthy
+        expect(user.errors[:person]).to eq ["is invalid"]
+        expect(user.person.errors[:last_name].any?).to be_truthy
+        expect(user.person.errors[:last_name]).to eq ["can't be blank"]
       end
 
       it 'ssn is invalid' do
         params[:person][:ssn] = "123"
-        expect(User.create(**params).errors[:person].any?).to be_truthy
-        expect(User.create(**params).errors[:person]).to eq ["is invalid"]
-        expect(User.create(**params).person.errors[:ssn].any?).to be_truthy
-        expect(User.create(**params).person.errors[:ssn]).to eq ["SSN must be 9 digits"]
+        expect(user.errors[:person].any?).to be_truthy
+        expect(user.errors[:person]).to eq ["is invalid"]
+        expect(user.person.errors[:ssn].any?).to be_truthy
+        expect(user.person.errors[:ssn]).to eq ["SSN must be 9 digits"]
       end
     end
 

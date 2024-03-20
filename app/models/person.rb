@@ -141,9 +141,10 @@ class Person
   accepts_nested_attributes_for :addresses, :reject_if => proc { |addy| addy[:address_1].blank? && addy[:city].blank? && addy[:state].blank? && addy[:zip].blank? }, allow_destroy: true
   accepts_nested_attributes_for :emails, :reject_if => proc { |addy| addy[:address].blank? }, allow_destroy: true
 
-  validates_presence_of :first_name, :last_name
   validate :date_functional_validations
   validate :no_changing_my_user, :on => :update
+
+  validates :first_name, :last_name, presence: true
 
   validates :encrypted_ssn, uniqueness: true, allow_blank: true
 
@@ -247,8 +248,8 @@ class Person
 
   validate :consumer_fields_validations
 
-  after_create :notify_created
-  after_update :notify_updated
+  # after_create :notify_created
+  # after_update :notify_updated
 
   def active_general_agency_staff_roles
     general_agency_staff_roles.select(&:active?)

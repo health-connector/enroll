@@ -36,7 +36,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     describe "given valid person parameters" do
       let(:save_result) { true }
       it "should redirect to dependent_details" do
-        put :update, params: { :person => person_parameters, :id => person_id }
+        put :update, params: { person: person_parameters, id: person_id }
         expect(response).to have_http_status(:redirect)
         expect(response).to redirect_to(insured_family_members_path(:employee_role_id => employee_role_id))
       end
