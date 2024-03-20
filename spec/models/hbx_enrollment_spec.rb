@@ -1398,14 +1398,14 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
     let(:effective_on) { current_effective_date }
     let(:hired_on) { TimeKeeper.date_of_record - 3.months }
 
-    let(:person) {FactoryBot.create(:person)}
+    let(:person) {FactoryBot.create(:person, :with_ssn)}
     let(:shop_family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
 
     let(:aasm_state) { :active }
     let(:census_employee) do
       create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, hired_on: hired_on, employee_role_id: employee_role.id)
     end
-    let(:employee_role) { FactoryBot.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: hired_on, person: person) }
+    let!(:employee_role) { FactoryBot.create(:employee_role, benefit_sponsors_employer_profile_id: abc_profile.id, hired_on: hired_on, person: person) }
     let(:enrollment_kind) { "open_enrollment" }
     let(:special_enrollment_period_id) { nil }
 
