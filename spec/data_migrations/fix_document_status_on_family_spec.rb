@@ -12,14 +12,16 @@ describe FixDocumentStatus, dbclean: :after_each do
   end
 
   it "should update the document status on family" do
-    family_person.consumer_role.is_state_resident = true
-    family_person.consumer_role.update_attributes(ssn_validation: "valid")
-    family_person.save!
-    family.update_family_document_status!
-    expect(family.all_persons_vlp_documents_status).to eq("Fully Uploaded")
-    family_person.consumer_role.vlp_documents.first.destroy
-    subject.migrate
-    family.reload
-    expect(family.vlp_documents_status).to eq("None")
+    ClimateControl.modify hbx_ids:family_person.hbx_id do
+      family_person.consumer_role.is_state_resident = true
+      family_person.consumer_role.update_attributes(ssn_validation: "valid")
+      family_person.save!
+      family.update_family_document_status!
+      expect(family.all_persons_vlp_documents_status).to eq("Fully Uploaded")
+      family_person.consumer_role.vlp_documents.first.destroy
+      subject.migrate
+      family.reload
+      expect(family.vlp_documents_status).to eq("None")
+    end
   end
 end

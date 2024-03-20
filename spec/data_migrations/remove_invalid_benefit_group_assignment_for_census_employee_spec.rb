@@ -21,23 +21,26 @@ describe RemoveInvalidBenefitGroupAssignmentForCensusEmployee, dbclean: :after_e
       let(:census_employee) { FactoryBot.create(:census_employee, employer_profile_id: employee_role.employer_profile.id)}
 
       before(:each) do
-        allow(ENV).to receive(:[]).with("employee_role_id").and_return(employee_role.id.to_s)
         employee_role.update_attribute(:census_employee_id, census_employee.id)
       end
 
       it "should not remove the benefit group assignment if there was beneift group associated with it" do
-        expect(census_employee.benefit_group_assignments.size).to eq 1
-        subject.migrate
-        census_employee.reload
-        expect(census_employee.benefit_group_assignments.size).to eq 1
+        ClimateControl.modify employee_role_id: employee_role.id.to_s do
+          expect(census_employee.benefit_group_assignments.size).to eq 1
+          subject.migrate
+          census_employee.reload
+          expect(census_employee.benefit_group_assignments.size).to eq 1
+        end
       end
 
       it "should remove the benefit group assignment if there was no beneift group associated with it" do
-        employee_role.census_employee.benefit_group_assignments.first.update_attribute(:benefit_group_id, nil)
-        expect(census_employee.benefit_group_assignments.size).to eq 1
-        subject.migrate
-        census_employee.reload
-        expect(census_employee.benefit_group_assignments.size).to eq 0
+        ClimateControl.modify employee_role_id: employee_role.id.to_s do
+          employee_role.census_employee.benefit_group_assignments.first.update_attribute(:benefit_group_id, nil)
+          expect(census_employee.benefit_group_assignments.size).to eq 1
+          subject.migrate
+          census_employee.reload
+          expect(census_employee.benefit_group_assignments.size).to eq 0
+        end
       end
     end
   end

@@ -71,13 +71,6 @@ describe UpdatePlanYearsWithDentalOfferings do
           )
       }
 
-      before do
-        allow(Person).to receive(:where).and_return([person])
-        allow(ENV).to receive(:[]).with('calender_month').and_return effective_on.month
-        allow(ENV).to receive(:[]).with('calender_year').and_return effective_on.year
-        allow(person).to receive(:primary_family).and_return(family)
-      end
-
       # it "should add dental offerings to plan year" do
       #   expect(renewal_benefit_group.is_offering_dental?).to be_falsey
       #   subject.migrate

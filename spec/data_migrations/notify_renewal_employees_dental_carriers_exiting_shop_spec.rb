@@ -24,23 +24,24 @@ describe NotifyRenewalEmployeesDentalCarriersExitingShop do
     let!(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee, employer_profile: employer_profile) }
 
     before(:each) do
-      allow(ENV).to receive(:[]).with("hbx_id").and_return(person.hbx_id)
       census_employee.update_attributes(employee_role_id: employee_role.id)
     end
 
     it "should trigger notify_renewal_employees_dental_carriers_exiting_shop job in queue" do
-      ActiveJob::Base.queue_adapter = :test
-      ActiveJob::Base.queue_adapter.enqueued_jobs = []
-      subject.migrate
+      ClimateControl.modify hbx_id: person.hbx_id do
+        ActiveJob::Base.queue_adapter = :test
+        ActiveJob::Base.queue_adapter.enqueued_jobs = []
+        subject.migrate
 
-      queued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.find do |job_info|
-        job_info[:job] == ShopNoticesNotifierJob
+        queued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.find do |job_info|
+          job_info[:job] == ShopNoticesNotifierJob
+        end
+
+        expect(queued_job[:args]).not_to be_empty
+        expect(queued_job[:args].include?('notify_renewal_employees_dental_carriers_exiting_shop')).to be_truthy
+        expect(queued_job[:args].include?("#{hbx_enrollment.census_employee.id.to_s}")).to be_truthy
+        expect(queued_job[:args].third["hbx_enrollment"]).to eq hbx_enrollment.hbx_id.to_s
       end
-
-      expect(queued_job[:args]).not_to be_empty
-      expect(queued_job[:args].include?('notify_renewal_employees_dental_carriers_exiting_shop')).to be_truthy
-      expect(queued_job[:args].include?("#{hbx_enrollment.census_employee.id.to_s}")).to be_truthy
-      expect(queued_job[:args].third["hbx_enrollment"]).to eq hbx_enrollment.hbx_id.to_s
     end
   end
 end

@@ -11,28 +11,16 @@ describe UpdateFamilyMembersIndex do
     end
   end
   describe "case with if both primary_person and dependent is not present" do
-    before :each do
-      allow(ENV).to receive(:[]).with("primary_hbx").and_return("")
-      allow(ENV).to receive(:[]).with("dependent_hbx").and_return("")
-    end
-
     context "case with if dependent not present" do
-      before :each do
-        allow(ENV).to receive(:[]).with("primary_hbx").and_return("1111")
-        allow(ENV).to receive(:[]).with("dependent_hbx").and_return("")
-      end
       it "found no family with given dependent_hbx" do
-        expect{subject.migrate}.to raise_error("some error person with hbx_id:1111 and hbx_id: not found")
+        options = {action_task: 'update_family_member_index', primary_hbx: '1111', dependent_hbx: ''}
+        expect {fm_index_migrate(options)}.to raise_error('some error person with hbx_id:1111 and hbx_id: not found')
       end
     end
 
     context "case with if primary_person not present" do
-      before :each do
-        allow(ENV).to receive(:[]).with("primary_hbx").and_return("")
-        allow(ENV).to receive(:[]).with("dependent_hbx").and_return("1112")
-      end
       it "found no family with given primary_hbx" do
-        expect{subject.migrate}.to raise_error("some error person with hbx_id: and hbx_id:1112 not found")
+        expect {fm_index_migrate(action_task: 'update_family_member_index', primary_hbx: '', dependent_hbx: '1112')}.to raise_error('some error person with hbx_id: and hbx_id:1112 not found')
       end
     end
   end
@@ -53,23 +41,22 @@ describe UpdateFamilyMembersIndex do
       family
     end
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("primary_hbx").and_return(husband.hbx_id)
-      allow(ENV).to receive(:[]).with("dependent_hbx").and_return(wife.hbx_id)
-      allow(ENV).to receive(:[]).with("primary_family_id").and_return(husbands_family.family_members.first.id)
-      allow(ENV).to receive(:[]).with("dependent_family_id").and_return(husbands_family.family_members.second.id)
-    end
-
     it "should swap the index of family members" do
-      expect(husbands_family.family_members.first.is_primary_applicant?).to eq false
-      expect(husbands_family.family_members.second.is_primary_applicant?).to eq true
-
-      subject.migrate
+      options = {action_task: 'update_family_member_index', primary_hbx: husband.hbx_id, dependent_hbx: wife.hbx_id, primary_family_id: family_member1.id, dependent_family_id: family_member2.id}
+      fm_index_migrate(options)
       husbands_family.reload
       hus_fam_id = husbands_family.family_members.first.id
       wife_fam_id = husbands_family.family_members.second.id
       expect(husbands_family.family_members.where(id: hus_fam_id).first.is_primary_applicant?).to eq true
       expect(husbands_family.family_members.where(id: wife_fam_id).first.is_primary_applicant?).to eq false
+
+      expect(family_member2.reload.person_id).to eq wife.id
     end
+  end
+end
+
+def fm_index_migrate(options)
+  ClimateControl.modify options do
+    subject.migrate
   end
 end

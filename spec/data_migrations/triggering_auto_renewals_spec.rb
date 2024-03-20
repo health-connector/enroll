@@ -60,7 +60,6 @@ describe TriggeringAutoRenewals, dbclean: :after_each do
 
     before(:each) do
       allow(Time).to receive(:now).and_return(Time.parse("2016-10-20 00:00:00"))
-      allow(ENV).to receive(:[]).with("py_start_on").and_return(organization.employer_profile.plan_years.where(:aasm_state => "renewing_enrolling").first.start_on)
     end
 
     context "triggering a new enrollment" do

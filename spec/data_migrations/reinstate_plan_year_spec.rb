@@ -20,14 +20,6 @@ describe ReinstatePlanYear, dbclean: :after_each do
     let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
     let!(:census_employee) { FactoryBot.create(:census_employee,employer_profile: employer_profile)}
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("fein").and_return(employer_profile.parent.fein)
-      allow(ENV).to receive(:[]).with("plan_year_start_on").and_return(plan_year.start_on)
-      allow(ENV).to receive(:[]).with("update_current_enrollment").and_return(true)
-      allow(ENV).to receive(:[]).with("update_renewal_enrollment").and_return(true)
-      allow(ENV).to receive(:[]).with("renewing_force_publish").and_return(true)
-    end
-
     context "when reinstating active plan year plan year" do
 
       let(:benefit_group) { FactoryBot.build(:benefit_group)}
@@ -38,35 +30,39 @@ describe ReinstatePlanYear, dbclean: :after_each do
       let!(:ce_assignments) { census_employee.benefit_group_assignments << ce_benefit_group_assignment}
 
       it "plan year state should be active" do
-        expect(plan_year.aasm_state).to eq 'terminated' # before update
-        expect(enrollment_terminated.aasm_state).to eq 'coverage_terminated'
-        expect(ce_benefit_group_assignment.end_on).to eq plan_year.end_on
-        subject.migrate
+        ClimateControl.modify fein:employer_profile.parent.fein, plan_year_start_on: plan_year.start_on, update_current_enrollment: true, update_renewal_enrollment: true, renewing_force_publish: true do
+          expect(plan_year.aasm_state).to eq 'terminated' # before update
+          expect(enrollment_terminated.aasm_state).to eq 'coverage_terminated'
+          expect(ce_benefit_group_assignment.end_on).to eq plan_year.end_on
+          subject.migrate
 
-        plan_year.reload
-        enrollment_terminated.reload
-        ce_benefit_group_assignment.reload
+          plan_year.reload
+          enrollment_terminated.reload
+          ce_benefit_group_assignment.reload
 
-        expect(plan_year.aasm_state).to eq 'active' # after update
-        expect(plan_year.end_on).to eq plan_year.start_on + 364.days
-        expect(plan_year.terminated_on).to eq nil
+          expect(plan_year.aasm_state).to eq 'active' # after update
+          expect(plan_year.end_on).to eq plan_year.start_on + 364.days
+          expect(plan_year.terminated_on).to eq nil
 
-        expect(enrollment_terminated.aasm_state).to eq 'coverage_enrolled'
-        expect(enrollment_terminated.terminated_on).to eq nil
-        expect(enrollment_terminated.termination_submitted_on).to eq nil
+          expect(enrollment_terminated.aasm_state).to eq 'coverage_enrolled'
+          expect(enrollment_terminated.terminated_on).to eq nil
+          expect(enrollment_terminated.termination_submitted_on).to eq nil
 
-        expect(ce_benefit_group_assignment.end_on).to eq nil
+          expect(ce_benefit_group_assignment.end_on).to eq nil
+        end
       end
 
       it "should not reinstate cancelled plan year" do
-        end_on = plan_year.end_on
-        terminated_on = plan_year.terminated_on
-        plan_year.update_attributes!(aasm_state:'canceled')
-        subject.migrate
-        plan_year.reload
-        expect(plan_year.aasm_state).to eq 'canceled'
-        expect(plan_year.end_on).to eq end_on
-        expect(plan_year.terminated_on).to eq terminated_on
+        ClimateControl.modify fein:employer_profile.parent.fein, plan_year_start_on: plan_year.start_on, update_current_enrollment: true, update_renewal_enrollment: true, renewing_force_publish: true do
+          end_on = plan_year.end_on
+          terminated_on = plan_year.terminated_on
+          plan_year.update_attributes!(aasm_state:'canceled')
+          subject.migrate
+          plan_year.reload
+          expect(plan_year.aasm_state).to eq 'canceled'
+          expect(plan_year.end_on).to eq end_on
+          expect(plan_year.terminated_on).to eq terminated_on
+        end
       end
 
     end
@@ -97,57 +93,60 @@ describe ReinstatePlanYear, dbclean: :after_each do
 
 
       it "should expire plan year, enrollments & benefit_group_assignment when plan year end date passed on reinstate " do
+        ClimateControl.modify fein:employer_profile.parent.fein, plan_year_start_on: plan_year.start_on, update_current_enrollment: true, update_renewal_enrollment: true, renewing_force_publish: true do
+          expect(plan_year.aasm_state).to eq 'terminated'  # before update
+          expect(terminated_enrollment.aasm_state).to eq 'coverage_terminated'
+          expect(benefit_group_assignment.end_on).to eq plan_year.end_on
+          subject.migrate
 
-        expect(plan_year.aasm_state).to eq 'terminated'  # before update
-        expect(terminated_enrollment.aasm_state).to eq 'coverage_terminated'
-        expect(benefit_group_assignment.end_on).to eq plan_year.end_on
-        subject.migrate
+          plan_year.reload
+          terminated_enrollment.reload
+          benefit_group_assignment.reload
 
-        plan_year.reload
-        terminated_enrollment.reload
-        benefit_group_assignment.reload
+          expect(plan_year.aasm_state).to eq 'expired'   # after update
+          expect(plan_year.end_on).to eq plan_year.start_on + 364.days
+          expect(plan_year.terminated_on).to eq nil
 
-        expect(plan_year.aasm_state).to eq 'expired'   # after update
-        expect(plan_year.end_on).to eq plan_year.start_on + 364.days
-        expect(plan_year.terminated_on).to eq nil
+          expect(terminated_enrollment.aasm_state).to eq 'coverage_expired'
+          expect(terminated_enrollment.terminated_on).to eq nil
+          expect(terminated_enrollment.termination_submitted_on).to eq nil
 
-        expect(terminated_enrollment.aasm_state).to eq 'coverage_expired'
-        expect(terminated_enrollment.terminated_on).to eq nil
-        expect(terminated_enrollment.termination_submitted_on).to eq nil
-
-        expect(benefit_group_assignment.end_on).to eq plan_year.end_on
+          expect(benefit_group_assignment.end_on).to eq plan_year.end_on
+        end
 
       end
 
       it "renewing plan year, enrollments & benefit_group_assignment should be active " do
+        ClimateControl.modify fein:employer_profile.parent.fein, plan_year_start_on: plan_year.start_on, update_current_enrollment: true, update_renewal_enrollment: true, renewing_force_publish: true do
+          allow_any_instance_of(PlanYear).to receive(:is_enrollment_valid?).and_return(true)
+          expect(renewing_plan_year.aasm_state).to eq 'renewing_canceled'   # before update
+          expect(canceled_enrollment.aasm_state).to eq 'coverage_canceled'
+          subject.migrate
 
-        allow_any_instance_of(PlanYear).to receive(:is_enrollment_valid?).and_return(true)
-        expect(renewing_plan_year.aasm_state).to eq 'renewing_canceled'   # before update
-        expect(canceled_enrollment.aasm_state).to eq 'coverage_canceled'
-        subject.migrate
+          renewing_plan_year.reload
+          canceled_enrollment.reload
+          renewal_benefit_group_assignment.reload
 
-        renewing_plan_year.reload
-        canceled_enrollment.reload
-        renewal_benefit_group_assignment.reload
+          expect(renewing_plan_year.aasm_state).to eq 'active'    # after update
+          expect(renewing_plan_year.end_on).to eq renewing_plan_year.end_on
+          expect(renewing_plan_year.terminated_on).to eq nil
 
-        expect(renewing_plan_year.aasm_state).to eq 'active'    # after update
-        expect(renewing_plan_year.end_on).to eq renewing_plan_year.end_on
-        expect(renewing_plan_year.terminated_on).to eq nil
+          expect(canceled_enrollment.aasm_state).to eq 'coverage_enrolled'
+          expect(canceled_enrollment.terminated_on).to eq nil
+          expect(canceled_enrollment.termination_submitted_on).to eq nil
 
-        expect(canceled_enrollment.aasm_state).to eq 'coverage_enrolled'
-        expect(canceled_enrollment.terminated_on).to eq nil
-        expect(canceled_enrollment.termination_submitted_on).to eq nil
-
-        expect(renewal_benefit_group_assignment.end_on).to eq nil
+          expect(renewal_benefit_group_assignment.end_on).to eq nil
+        end
       end
 
       it "renewing plan year not force published, plan year should be moved to renewing draft state " do
-        allow(ENV).to receive(:[]).with("renewing_force_publish").and_return(false)
-        expect(renewing_plan_year.aasm_state).to eq 'renewing_canceled'   # before update
-        subject.migrate
+        ClimateControl.modify fein:employer_profile.parent.fein, plan_year_start_on: plan_year.start_on, update_current_enrollment: true, update_renewal_enrollment: true, renewing_force_publish: false do
+          expect(renewing_plan_year.aasm_state).to eq 'renewing_canceled'   # before update
+          subject.migrate
 
-        renewing_plan_year.reload
-        expect(renewing_plan_year.aasm_state).to eq 'renewing_draft'    # after update
+          renewing_plan_year.reload
+          expect(renewing_plan_year.aasm_state).to eq 'renewing_draft'    # after update
+        end
       end
     end
   end

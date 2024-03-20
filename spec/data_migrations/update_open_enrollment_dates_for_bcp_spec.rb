@@ -20,19 +20,19 @@ describe UpdateOpenEnrollmentDatesForBcp, dbclean: :after_each do
     let(:open_enrollment_start_on) { Date.new(TimeKeeper.date_of_record.year,11,1) }
     let(:open_enrollment_end_on) { Date.new(TimeKeeper.date_of_record.year,12,31) }
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("title").and_return(benefit_coverage_period.title)
-      allow(ENV).to receive(:[]).with("new_oe_start_date").and_return(open_enrollment_start_on)
-      allow(ENV).to receive(:[]).with("new_oe_end_date").and_return(open_enrollment_end_on)
-    end
-
     context "to update open enrollment dates" do
 
       it "should update open enrollment start_on and end_on dates" do
-        allow(HbxProfile).to receive(:current_hbx).and_return hbx_profile
-        subject.migrate
-        expect(benefit_coverage_period.reload.open_enrollment_start_on).to eq open_enrollment_start_on
-        expect(benefit_coverage_period.reload.open_enrollment_end_on).to eq open_enrollment_end_on
+        ClimateControl.modify(
+          title: benefit_coverage_period.title,
+          new_oe_start_date: open_enrollment_start_on,
+          new_oe_end_date: open_enrollment_end_on
+        ) do
+          allow(HbxProfile).to receive(:current_hbx).and_return hbx_profile
+          subject.migrate
+          expect(benefit_coverage_period.reload.open_enrollment_start_on).to eq open_enrollment_start_on
+          expect(benefit_coverage_period.reload.open_enrollment_end_on).to eq open_enrollment_end_on
+        end
       end
     end
   end

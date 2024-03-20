@@ -52,10 +52,16 @@ describe ChangeEnrollmentDetails do
     end
 
     it "should change the aasm state" do
-
-      subject.migrate
-      benefit_group_assignment.reload
-      expect(benefit_group_assignment.aasm_state).to eq "coverage_void"
+      ClimateControl.modify(
+        ce_id: census_employee.id.to_s,
+        bga_id: benefit_group_assignment.id,
+        new_state: 'coverage_void',
+        action: "change_aasm_state"
+      ) do
+        subject.migrate
+        benefit_group_assignment.reload
+        expect(benefit_group_assignment.aasm_state).to eq "coverage_void"
+      end
     end
   end
 end

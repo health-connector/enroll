@@ -22,7 +22,6 @@ describe UpdateInvalidBenefitGroupAssignmentsForEmployer, dbclean: :after_each d
     let(:census_employee) { FactoryBot.create(:census_employee, employer_profile_id: plan_year.employer_profile.id)}
 
     before(:each) do
-      allow(ENV).to receive(:[]).with("fein").and_return(plan_year.employer_profile.parent.fein)
       benefit_group_assignments = [benefit_group_assignment]
       allow(CensusEmployee).to receive(:find).and_return(census_employee)
       allow(census_employee).to receive(:benefit_group_assignments).and_return benefit_group_assignments

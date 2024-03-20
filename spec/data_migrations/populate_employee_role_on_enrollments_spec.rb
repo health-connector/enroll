@@ -51,10 +51,6 @@ describe PopulateEmployeeRoleOnEnrollments do
       let!(:family) { FactoryBot.create(:family, :with_family_members, person: person, people: [person]) }
       let(:person) { FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name) }
 
-      before do
-        allow(ENV).to receive(:[]).with('effective_on').and_return effective_on.strftime('%m/%d/%Y')
-      end
-
       context 'missing employee role on health waiver' do 
 
         let(:health_waiver) { FactoryBot.create(:hbx_enrollment,
@@ -71,10 +67,12 @@ describe PopulateEmployeeRoleOnEnrollments do
         }
 
         it 'should set missing employee role' do
-          expect(health_waiver.employee_role_id).to be_nil
-          subject.migrate
-          health_waiver.reload
-          expect(health_waiver.employee_role_id).to eq employee.id
+          ClimateControl.modify effective_on:effective_on.strftime('%m/%d/%Y') do
+            expect(health_waiver.employee_role_id).to be_nil
+            subject.migrate
+            health_waiver.reload
+            expect(health_waiver.employee_role_id).to eq employee.id
+          end
         end
       end
 
@@ -94,10 +92,12 @@ describe PopulateEmployeeRoleOnEnrollments do
         }
 
         it 'should set missing employee role' do
-          expect(dental_waiver.employee_role_id).to be_nil
-          subject.migrate
-          dental_waiver.reload
-          expect(dental_waiver.employee_role_id).to eq employee.id
+          ClimateControl.modify effective_on:effective_on.strftime('%m/%d/%Y') do
+            expect(dental_waiver.employee_role_id).to be_nil
+            subject.migrate
+            dental_waiver.reload
+            expect(dental_waiver.employee_role_id).to eq employee.id
+          end
         end
       end
     end

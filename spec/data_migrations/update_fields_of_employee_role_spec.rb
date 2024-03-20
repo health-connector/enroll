@@ -6,14 +6,11 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
   let(:given_task_name) { "update_fields_of_employee_role" }
   subject { UpdateFieldsOfEmployeeRole.new(given_task_name, double(:current_scope => nil)) }
 
-  before :each do
-    allow(ENV).to receive(:[]).with("census_employee_id").and_return(nil)
-    allow(ENV).to receive(:[]).with("organization_fein").and_return(nil)
-  end
-
   describe "given a task name", dbclean: :after_each do
     it "has the given task name" do
-      expect(subject.name).to eql given_task_name
+      ClimateControl.modify census_employee_id: nil, organization_fein: nil do
+        expect(subject.name).to eql given_task_name
+      end
     end
   end
 
@@ -31,31 +28,23 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     let!(:employer_profile)               { organization.employer_profile }
 
     context "for successfull update" do
-      before :each do
-        allow(ENV).to receive(:[]).with("organization_fein").and_return(organization.fein.to_s)
-        allow(ENV).to receive(:[]).with("employee_role_id").and_return(employee_role.id.to_s)
-        allow(ENV).to receive(:[]).with("action").and_return("update_benefit_sponsors_employer_profile_id")
-      end
-
       it "should update employer_profile id for employee_role" do
-        expect(employee_role.employer_profile_id.to_s).to eq old_employer_profile.id.to_s
-        subject.migrate
-        employee_role.reload
-        expect(employee_role.benefit_sponsors_employer_profile_id.to_s).to eq employer_profile.id.to_s
+        ClimateControl.modify organization_fein: organization.fein.to_s, employee_role_id: employee_role.id.to_s, action: "update_benefit_sponsors_employer_profile_id"  do
+          expect(employee_role.employer_profile_id.to_s).to eq old_employer_profile.id.to_s
+          subject.migrate
+          employee_role.reload
+          expect(employee_role.benefit_sponsors_employer_profile_id.to_s).to eq employer_profile.id.to_s
+        end
       end
     end
 
     context "for no update" do
-      before :each do
-        allow(ENV).to receive(:[]).with("organization_fein").and_return(old_organization.fein.to_s)
-        allow(ENV).to receive(:[]).with("employee_role_id").and_return(employee_role.id.to_s)
-        allow(ENV).to receive(:[]).with("action").and_return("update_benefit_sponsors_employer_profile_id")
-      end
-
       it "should exit as it cannot find new_model's organization for given fein" do
-        expect(employee_role.employer_profile_id.to_s).to eq old_employer_profile.id.to_s
-        subject.migrate
-        expect(employee_role.employer_profile_id.to_s).to eq old_employer_profile.id.to_s
+        ClimateControl.modify organization_fein: old_organization.fein.to_s, employee_role_id: employee_role.id.to_s, action: "update_benefit_sponsors_employer_profile_id"  do
+          expect(employee_role.employer_profile_id.to_s).to eq old_employer_profile.id.to_s
+          subject.migrate
+          expect(employee_role.employer_profile_id.to_s).to eq old_employer_profile.id.to_s
+        end
       end
     end
   end
@@ -91,30 +80,22 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     end
 
     context "for successfull update" do
-      before :each do
-        allow(ENV).to receive(:[]).with("organization_fein").and_return(organization.fein.to_s)
-        allow(ENV).to receive(:[]).with("employee_role_id").and_return(employee_role.id.to_s)
-        allow(ENV).to receive(:[]).with("action").and_return("update_census_employee_id")
-      end
-
       it "should update census employee id for an employee_role" do
-        expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
-        subject.migrate
-        employee_role.reload
-        expect(employee_role.census_employee_id.to_s).to eq census_employee.id.to_s
+        ClimateControl.modify organization_fein: organization.fein.to_s, employee_role_id: employee_role.id.to_s, action: "update_census_employee_id"  do
+          expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
+          subject.migrate
+          employee_role.reload
+          expect(employee_role.census_employee_id.to_s).to eq census_employee.id.to_s
+        end
       end
     end
 
     context "for no update" do
-      before :each do
-        allow(ENV).to receive(:[]).with("organization_fein").and_return(organization.fein.to_s)
-        allow(ENV).to receive(:[]).with("employee_role_id").and_return("21221212112")
-        allow(ENV).to receive(:[]).with("action").and_return("update_census_employee_id")
-      end
-
       it "should exit and should not change the census_employee_id" do
-        subject.migrate
-        expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
+        ClimateControl.modify organization_fein: organization.fein.to_s, employee_role_id: "21221212112", action: "update_census_employee_id"  do
+          subject.migrate
+          expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
+        end
       end
     end
   end
@@ -125,17 +106,14 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     let(:employee_role) { person.employee_roles.first }
 
     context "should update census_employee_id by using employee_role" do
-      before :each do
-        allow(ENV).to receive(:[]).with("census_employee_id").and_return(census_employee.id.to_s)
-        allow(ENV).to receive(:[]).with("employee_role_id").and_return(employee_role.id.to_s)
-        allow(ENV).to receive(:[]).with("action").and_return("update_with_given_census_employee_id")
-      end
-
       it "should update census_employee_id by using employee_role" do
-        expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
-        subject.migrate
-        employee_role.reload
-        expect(employee_role.census_employee_id.to_s).to eq census_employee.id.to_s
+        ClimateControl.modify census_employee_id: census_employee.id.to_s, employee_role_id: employee_role.id.to_s, action: "update_with_given_census_employee_id"  do
+          expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
+          subject.migrate
+          employee_role.reload
+          puts " ce id = #{employee_role.census_employee_id.to_s}"
+          expect(employee_role.census_employee_id.to_s).to eq census_employee.id.to_s
+        end
       end
     end
   end
