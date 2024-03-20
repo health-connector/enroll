@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 RSpec.describe "/hbx_profiles/_edit_force_publish", :dbclean => :around_each do
   let(:site) do
@@ -20,7 +22,7 @@ RSpec.describe "/hbx_profiles/_edit_force_publish", :dbclean => :around_each do
   let(:benefit_sponsorship) do
     organization.benefit_sponsorships.first
   end
-  let(:params) { {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{organization.employer_profile.id.to_s}" } }
+  let(:params) { {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{organization.employer_profile.id}" } }
 
   before :each do
     assign :organization, organization

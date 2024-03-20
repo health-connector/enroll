@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "load_benefit_market_catalogs", dbclean: :after_each do
@@ -10,30 +12,30 @@ describe "load_benefit_market_catalogs", dbclean: :after_each do
     load glob_pattern
     load_cca_issuer_profiles_seed
 
-    start_date = Date.new(2019,01,01) - 1.year
+    start_date = Date.new(2019,0o1,0o1) - 1.year
     end_date = Date.new(2019,12,31) - 1.year
     application_period = Time.utc(start_date.year, start_date.month, start_date.day)..Time.utc(end_date.year, end_date.month, end_date.day)
 
     issuer_profiles = BenefitSponsors::Organizations::Organization.issuer_profiles.all
     FactoryBot.create(:benefit_markets_products_health_products_health_product, issuer_profile_id: issuer_profiles[0].issuer_profile.id,
-                       application_period: application_period, benefit_market_kind: :aca_shop,
-                       kind: :health, product_package_kinds: [:single_issuer])
+                                                                                application_period: application_period, benefit_market_kind: :aca_shop,
+                                                                                kind: :health, product_package_kinds: [:single_issuer])
 
     FactoryBot.create(:benefit_markets_products_health_products_health_product, issuer_profile_id: issuer_profiles[1].issuer_profile.id,
-                       application_period: application_period, benefit_market_kind: :aca_shop,
-                       kind: :health, product_package_kinds: [:single_issuer])
+                                                                                application_period: application_period, benefit_market_kind: :aca_shop,
+                                                                                kind: :health, product_package_kinds: [:single_issuer])
 
     FactoryBot.create(:benefit_markets_products_health_products_health_product, issuer_profile_id: issuer_profiles[2].issuer_profile.id,
-                       application_period: application_period, benefit_market_kind: :aca_shop,
-                       kind: :health, product_package_kinds: [:metal_level])
+                                                                                application_period: application_period, benefit_market_kind: :aca_shop,
+                                                                                kind: :health, product_package_kinds: [:metal_level])
 
     FactoryBot.create(:benefit_markets_products_health_products_health_product, issuer_profile_id: issuer_profiles[3].issuer_profile.id,
-                       application_period: application_period, benefit_market_kind: :aca_shop,
-                       kind: :health, product_package_kinds: [:single_issuer])
+                                                                                application_period: application_period, benefit_market_kind: :aca_shop,
+                                                                                kind: :health, product_package_kinds: [:single_issuer])
 
     FactoryBot.create(:benefit_markets_products_health_products_health_product, issuer_profile_id: issuer_profiles[4].issuer_profile.id,
-                       application_period: application_period, benefit_market_kind: :aca_shop,
-                       kind: :health, product_package_kinds: [:single_product])
+                                                                                application_period: application_period, benefit_market_kind: :aca_shop,
+                                                                                kind: :health, product_package_kinds: [:single_product])
 
   end
 

@@ -31,5 +31,4 @@ describe ChangeNewHireRule do
       end
     end
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe HbxEnrollmentMember, dbclean: :around_each do
@@ -76,7 +78,7 @@ describe HbxEnrollmentMember, dbclean: :around_each do
 
   context "given a family member" do
     let(:person) { double }
-    let(:family_member) { instance_double(FamilyMember, :person => person ) }
+    let(:family_member) { instance_double(FamilyMember, :person => person) }
     subject { HbxEnrollmentMember.new }
 
     before :each do

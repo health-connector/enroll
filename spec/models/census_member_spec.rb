@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CensusMember, :dbclean => :after_each do
@@ -49,7 +51,7 @@ RSpec.describe CensusMember, :dbclean => :after_each do
       census_employee.date_of_birth = dob.strftime("%Y-%m-%d")
       expect(census_employee.save).to be_falsey
       expect(census_employee.errors[:dob].any?).to be_truthy
-      expect(census_employee.errors[:dob].to_s).to match /future date: #{dob.to_s} is invalid date of birth/
+      expect(census_employee.errors[:dob].to_s).to match(/future date: #{dob} is invalid date of birth/)
     end
   end
 

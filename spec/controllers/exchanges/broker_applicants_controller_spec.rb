@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Exchanges::BrokerApplicantsController do
@@ -73,7 +75,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
 
       before :each do
         FactoryBot.create(:hbx_profile)
-        put :update, params: { id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true , carrier_appointments: {}} }} , format: :js
+        put :update, params: { id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true, carrier_appointments: {}} }}, format: :js
         broker_role.reload
       end
 
@@ -93,7 +95,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
       context 'when application is approved' do
         before :each do
           broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
-          put :update, params: {  id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true , carrier_appointments: {}} } }, format: :js
+          put :update, params: {  id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true, carrier_appointments: {}} } }, format: :js
           broker_role.reload
         end
 
@@ -113,7 +115,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
         before :each do
           broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
           broker_role.approve!
-          put :update, params: { id: broker_role.person.id, update: true, person: { broker_role_attributes: { training: true , carrier_appointments: {"Aetna Health Inc"=>"true", "United Health Care Insurance"=>"true"}} } }, format: :js
+          put :update, params: { id: broker_role.person.id, update: true, person: { broker_role_attributes: { training: true, carrier_appointments: {"Aetna Health Inc" => "true", "United Health Care Insurance" => "true"}} } }, format: :js
           broker_role.reload
         end
 
@@ -124,9 +126,11 @@ RSpec.describe Exchanges::BrokerApplicantsController do
           expect(response).to redirect_to('/exchanges/hbx_profiles')
           #only really testing that the params go through.
           if aca_state_abbreviation == "DC"
-            expect(broker_role.carrier_appointments).to eq({"Aetna Health Inc"=>"true", "Aetna Life Insurance Company"=>nil, "Carefirst Bluechoice Inc"=>nil, "Group Hospitalization and Medical Services Inc"=>nil, "Kaiser Foundation"=>nil, "Optimum Choice"=>nil, "United Health Care Insurance"=>"true", "United Health Care Mid Atlantic"=>nil})
+            expect(broker_role.carrier_appointments).to eq({"Aetna Health Inc" => "true", "Aetna Life Insurance Company" => nil, "Carefirst Bluechoice Inc" => nil, "Group Hospitalization and Medical Services Inc" => nil, "Kaiser Foundation" => nil,
+                                                            "Optimum Choice" => nil, "United Health Care Insurance" => "true", "United Health Care Mid Atlantic" => nil})
           else
-            expect(broker_role.carrier_appointments).to eq({"Aetna Health Inc"=>"true", "Altus" => nil, "Blue Cross Blue Shield MA" => nil, "Boston Medical Center Health Plan" => nil, "Delta" => nil, "FCHP" => nil, "Guardian" => nil, "Harvard Pilgrim Health Care" => nil, "Health New England" => nil, "Minuteman Health" => nil, "Neighborhood Health Plan" => nil, "Tufts Health Plan Direct" => nil, "Tufts Health Plan Premier" => nil, "United Health Care Insurance" => "true"})
+            expect(broker_role.carrier_appointments).to eq({"Aetna Health Inc" => "true", "Altus" => nil, "Blue Cross Blue Shield MA" => nil, "Boston Medical Center Health Plan" => nil, "Delta" => nil, "FCHP" => nil, "Guardian" => nil,
+                                                            "Harvard Pilgrim Health Care" => nil, "Health New England" => nil, "Minuteman Health" => nil, "Neighborhood Health Plan" => nil, "Tufts Health Plan Direct" => nil, "Tufts Health Plan Premier" => nil, "United Health Care Insurance" => "true"})
           end
         end
 
@@ -140,23 +144,23 @@ RSpec.describe Exchanges::BrokerApplicantsController do
           before :each do
             Settings.aca.broker_carrier_appointments_enabled = true
             broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
-            put :update, params: {  id: broker_role.person.id, pending: true, person:  { broker_role_attributes: { training: true , carrier_appointments: {}} }} , format: :js
+            put :update, params: {  id: broker_role.person.id, pending: true, person:  { broker_role_attributes: { training: true, carrier_appointments: {}} }}, format: :js
             broker_role.reload
           end
 
           it "all broker carrier appointments should be true" do
-            expect(broker_role.carrier_appointments).to eq("Altus"=>"true",
-                                                            "Blue Cross Blue Shield MA"=>"true",
-                                                            "Boston Medical Center Health Plan"=>"true",
-                                                            "Delta"=>"true",
-                                                            "FCHP"=>"true",
-                                                            "Guardian"=>"true",
-                                                            "Health New England"=>"true",
-                                                            "Harvard Pilgrim Health Care"=>"true",
-                                                            "Minuteman Health"=>"true",
-                                                            "Neighborhood Health Plan"=>"true",
-                                                            "Tufts Health Plan Direct"=>"true",
-                                                            "Tufts Health Plan Premier"=>"true")
+            expect(broker_role.carrier_appointments).to eq("Altus" => "true",
+                                                           "Blue Cross Blue Shield MA" => "true",
+                                                           "Boston Medical Center Health Plan" => "true",
+                                                           "Delta" => "true",
+                                                           "FCHP" => "true",
+                                                           "Guardian" => "true",
+                                                           "Health New England" => "true",
+                                                           "Harvard Pilgrim Health Care" => "true",
+                                                           "Minuteman Health" => "true",
+                                                           "Neighborhood Health Plan" => "true",
+                                                           "Tufts Health Plan Direct" => "true",
+                                                           "Tufts Health Plan Premier" => "true")
           end
 
           it "should change applicant status to broker_agency_pending" do
@@ -177,34 +181,34 @@ RSpec.describe Exchanges::BrokerApplicantsController do
           before :each do
             Settings.aca.broker_carrier_appointments_enabled = false
             broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
-            put :update, params: { id: broker_role.person.id, pending: true, person:  { broker_role_attributes: { training: true , carrier_appointments: {"Altus"=>"true",
-                                      "Blue Cross Blue Shield MA"=>"true",
-                                      "Boston Medical Center Health Plan"=>"true",
-                                      "Delta"=>nil,
-                                      "FCHP"=>nil,
-                                      "Guardian"=>"true",
-                                      "Health New England"=>nil,
-                                      "Harvard Pilgrim Health Care"=>nil,
-                                      "Minuteman Health"=>nil,
-                                      "Neighborhood Health Plan"=>nil,
-                                      "Tufts Health Plan Direct"=>nil,
-                                      "Tufts Health Plan Premier"=>nil}  } }} , format: :js
+            put :update, params: { id: broker_role.person.id, pending: true, person:  { broker_role_attributes: { training: true, carrier_appointments: {"Altus" => "true",
+                                                                                                                                                         "Blue Cross Blue Shield MA" => "true",
+                                                                                                                                                         "Boston Medical Center Health Plan" => "true",
+                                                                                                                                                         "Delta" => nil,
+                                                                                                                                                         "FCHP" => nil,
+                                                                                                                                                         "Guardian" => "true",
+                                                                                                                                                         "Health New England" => nil,
+                                                                                                                                                         "Harvard Pilgrim Health Care" => nil,
+                                                                                                                                                         "Minuteman Health" => nil,
+                                                                                                                                                         "Neighborhood Health Plan" => nil,
+                                                                                                                                                         "Tufts Health Plan Direct" => nil,
+                                                                                                                                                         "Tufts Health Plan Premier" => nil}  } }}, format: :js
             broker_role.reload
           end
 
           it "broker carrier appointments should be user selected" do
-            expect(broker_role.carrier_appointments).to eq("Altus"=>"true",
-                                                            "Blue Cross Blue Shield MA"=>"true",
-                                                            "Boston Medical Center Health Plan"=>"true",
-                                                            "Delta"=>nil,
-                                                            "FCHP"=>nil,
-                                                            "Guardian"=>"true",
-                                                            "Health New England"=>nil,
-                                                            "Harvard Pilgrim Health Care"=>nil,
-                                                            "Minuteman Health"=>nil,
-                                                            "Neighborhood Health Plan"=>nil,
-                                                            "Tufts Health Plan Direct"=>nil,
-                                                            "Tufts Health Plan Premier"=>nil)
+            expect(broker_role.carrier_appointments).to eq("Altus" => "true",
+                                                           "Blue Cross Blue Shield MA" => "true",
+                                                           "Boston Medical Center Health Plan" => "true",
+                                                           "Delta" => nil,
+                                                           "FCHP" => nil,
+                                                           "Guardian" => "true",
+                                                           "Health New England" => nil,
+                                                           "Harvard Pilgrim Health Care" => nil,
+                                                           "Minuteman Health" => nil,
+                                                           "Neighborhood Health Plan" => nil,
+                                                           "Tufts Health Plan Direct" => nil,
+                                                           "Tufts Health Plan Premier" => nil)
           end
 
           it "should change applicant status to broker_agency_pending" do

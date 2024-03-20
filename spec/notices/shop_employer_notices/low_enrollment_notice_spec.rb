@@ -1,22 +1,28 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::LowEnrollmentNotice, dbclean: :after_each do
   let!(:employer_profile){ create :employer_profile}
   let!(:person){ create :person}
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Low Enrollment Notice',
-                            :notice_template => 'notices/shop_employer_notices/low_enrollment_notice_for_employer',
-                            :notice_builder => 'ShopEmployerNotices::LowEnrollmentNotice',
-                            :event_name => 'low_enrollment_notice_for_employer',
-                            :mpi_indicator => 'MPI_DAG015',
-                            :title => "Notice of Low Enrollment - Action Needed"})
-                          }
-    let(:valid_params) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Low Enrollment Notice',
+             :notice_template => 'notices/shop_employer_notices/low_enrollment_notice_for_employer',
+             :notice_builder => 'ShopEmployerNotices::LowEnrollmentNotice',
+             :event_name => 'low_enrollment_notice_for_employer',
+             :mpi_indicator => 'MPI_DAG015',
+             :title => "Notice of Low Enrollment - Action Needed"
+           })
+  end
+  let(:valid_params) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   before do
     allow(employer_profile).to receive_message_chain("staff_roles.first").and_return(person)
@@ -52,7 +58,7 @@ RSpec.describe ShopEmployerNotices::LowEnrollmentNotice, dbclean: :after_each do
   describe "append data" do
     context "initial employer" do
       let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
-      let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'enrolling' ) }
+      let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'enrolling') }
       let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
 
       before do
@@ -81,9 +87,9 @@ RSpec.describe ShopEmployerNotices::LowEnrollmentNotice, dbclean: :after_each do
 
     context "renewing employer" do
       let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
-      let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'active' ) }
+      let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'active') }
       let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
-      let!(:renewal_plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on + 1.year, :aasm_state => 'renewing_enrolling' ) }
+      let!(:renewal_plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on + 1.year, :aasm_state => 'renewing_enrolling') }
       let!(:renewal_benefit_group) { FactoryBot.create(:benefit_group, plan_year: renewal_plan_year, title: "Benefits #{renewal_plan_year.start_on.year}") }
 
       before do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe BrokerRole, dbclean: :after_each do
@@ -293,10 +295,10 @@ describe BrokerRole, dbclean: :after_each do
       # expect(person0.build_broker_role(npn: npn0, provider_kind: provider_kind, address: address).save).to eq true
     end
     context '#email returns work email' do
-      person0= FactoryBot.create(:person)
+      person0 = FactoryBot.create(:person)
       provider_kind = 'broker'
 
-      b1 = BrokerRole.create(person: person0, npn: 10000000+rand(10000), provider_kind: provider_kind, broker_agency_profile: @ba)
+      b1 = BrokerRole.create(person: person0, npn: rand(10_000_000..10_009_999), provider_kind: provider_kind, broker_agency_profile: @ba)
       it "#email returns nil if no work email" do
         expect(b1.email).to be_nil
       end
@@ -308,22 +310,22 @@ describe BrokerRole, dbclean: :after_each do
     end
     context '#phone returns broker office phone or agency office phone or work phone' do
       # broker will not be able to add any work phone.
-      person0= FactoryBot.create(:person)
+      person0 = FactoryBot.create(:person)
       provider_kind = 'broker'
 
       it 'should return broker agency profile phone' do
-        b1 = BrokerRole.create(person: person0, npn: 10000000+rand(10000), provider_kind: provider_kind, broker_agency_profile: @ba)
+        b1 = BrokerRole.create(person: person0, npn: rand(10_000_000..10_009_999), provider_kind: provider_kind, broker_agency_profile: @ba)
         expect(b1.phone.to_s).to eq b1.broker_agency_profile.phone
       end
       it 'should return work office phone' do
-        b1 = BrokerRole.create(person: person0, npn: 10000000+rand(10000), provider_kind: provider_kind, broker_agency_profile: @ba)
+        b1 = BrokerRole.create(person: person0, npn: rand(10_000_000..10_009_999), provider_kind: provider_kind, broker_agency_profile: @ba)
         person0.phones[1].update_attributes!(kind: 'work')
         expect(b1.phone.to_s).not_to eq b1.broker_agency_profile.phone
         expect(b1.phone.to_s).to eq person0.phones.where(kind: "work").first.to_s
       end
 
       it 'should return work phone if office phone & broker agency profile phone not present' do
-        b1 = BrokerRole.create(person: person0, npn: 10000000+rand(10000), provider_kind: provider_kind, broker_agency_profile: @ba)
+        b1 = BrokerRole.create(person: person0, npn: rand(10_000_000..10_009_999), provider_kind: provider_kind, broker_agency_profile: @ba)
         allow(b1.broker_agency_profile).to receive(:phone).and_return nil
         person0.phones[1].update_attributes!(kind: 'work')
         expect(b1.phone.to_s).not_to eq b1.broker_agency_profile.phone

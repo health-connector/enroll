@@ -33,5 +33,4 @@ describe DeactivateEmployerStaffRole do
       end
     end
   end
-
 end

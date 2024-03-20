@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::InitialEmployerDenialNotice do
@@ -6,20 +8,24 @@ RSpec.describe ShopEmployerNotices::InitialEmployerDenialNotice do
   let(:person){ create :person}
   let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'draft', :fte_count => 55) }
   let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Denial of Initial Employer Application/Request for Clarifying Documentation',
-                            :notice_template => 'notices/shop_employer_notices/2_initial_employer_denial_notice',
-                            :notice_builder => 'ShopEmployerNotices::InitialEmployerDenialNotice',
-                            :event_name => 'initial_employer_denial',
-                            :mpi_indicator => 'MPI_SHOP2B',
-                            :title => "Employer Denial Notice"})
-                          }
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Denial of Initial Employer Application/Request for Clarifying Documentation',
+             :notice_template => 'notices/shop_employer_notices/2_initial_employer_denial_notice',
+             :notice_builder => 'ShopEmployerNotices::InitialEmployerDenialNotice',
+             :event_name => 'initial_employer_denial',
+             :mpi_indicator => 'MPI_SHOP2B',
+             :title => "Employer Denial Notice"
+           })
+  end
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   describe "New" do
     before do

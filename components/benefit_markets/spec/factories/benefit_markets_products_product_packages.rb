@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_markets_products_product_package, class: 'BenefitMarkets::Products::ProductPackage' do
 
@@ -38,7 +40,7 @@ FactoryBot.define do
             evaluator.number_of_products,
             benefit_market_kind: product_package.benefit_kind,
             application_period: product_package.application_period,
-            product_package_kinds: [ product_package.package_kind ],
+            product_package_kinds: [product_package.package_kind],
             service_area: service_area,
             issuer_profile_id: evaluator.issuer_profile.try(:id),
             metal_level_kind: :gold
@@ -52,7 +54,7 @@ FactoryBot.define do
             evaluator.number_of_products,
             benefit_market_kind: product_package.benefit_kind,
             application_period: product_package.application_period,
-            product_package_kinds: [ product_package.package_kind ],
+            product_package_kinds: [product_package.package_kind],
             service_area: service_area,
             issuer_profile_id: evaluator.issuer_profile.try(:id),
             metal_level_kind: :dental

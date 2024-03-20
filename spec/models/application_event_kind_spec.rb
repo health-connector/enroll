@@ -1,21 +1,23 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ApplicationEventKind, :type => :model do
 
-  let(:valid_params) {
-      {
-        title: "Transfer to HBX Approved",
-        description: "SHOP converted Employer has begun initial benefit coverage application period",
-        resource_name: "employer_profile",
-        event_name: "transfer_to_hbx_approved"
-      }
+  let(:valid_params) do
+    {
+      title: "Transfer to HBX Approved",
+      description: "SHOP converted Employer has begun initial benefit coverage application period",
+      resource_name: "employer_profile",
+      event_name: "transfer_to_hbx_approved"
     }
+  end
 
   let(:notice_trigger)  { FactoryBot.create(:notice_trigger) }
 
   context "resource_kind parameter" do
     it "should" do
-      ApplicationEventKind.create()
+      ApplicationEventKind.create
     end
   end
 

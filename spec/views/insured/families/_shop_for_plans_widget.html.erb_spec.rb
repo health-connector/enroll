@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -40,7 +42,7 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
 
       it "should have image" do
         expect(rendered).to have_selector("img")
-        expect(rendered).to match /shop_for_plan/
+        expect(rendered).to match(/shop_for_plan/)
       end
 
       it "should have link with change_plan" do

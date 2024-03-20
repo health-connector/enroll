@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 Rake.application.rake_require "tasks/notices/shop_employer_notice_for_all_inputs"
 Rake::Task.define_task(:environment)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "employers/census_employees/_address_fields.html.erb", dbclean: :after_each do
@@ -15,7 +17,7 @@ describe "employers/census_employees/_address_fields.html.erb", dbclean: :after_
   end
 
   it "should have one select option" do
-    expect(rendered).to match /Address/
+    expect(rendered).to match(/Address/)
     expect(rendered).to have_selector("select", count: 1)
   end
 

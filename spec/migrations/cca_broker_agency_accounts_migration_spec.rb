@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "CcaBrokerAgencyAccountsMigration" do
@@ -5,17 +7,17 @@ describe "CcaBrokerAgencyAccountsMigration" do
   before :all do
     DatabaseCleaner.clean
 
-    Dir[Rails.root.join('db', 'migrate', '*_cca_broker_agency_accounts_migration.rb')].each do |f|
+    Dir[Rails.root.join('db', 'migrate', '*_cca_broker_agency_accounts_migration.rb')].sort.each do |f|
       @broker_agency_accounts_migration_path = f
       require f
     end
 
-    Dir[Rails.root.join('db', 'migrate', '*_cca_broker_agency_profiles_migration.rb')].each do |f|
+    Dir[Rails.root.join('db', 'migrate', '*_cca_broker_agency_profiles_migration.rb')].sort.each do |f|
       @broker_agency_profiles_migration_path = f
       require f
     end
 
-    Dir[Rails.root.join('db', 'migrate', '*_cca_employer_profiles_migration.rb')].each do |f|
+    Dir[Rails.root.join('db', 'migrate', '*_cca_employer_profiles_migration.rb')].sort.each do |f|
       @employer_profiles_migration_path = f
       require f
     end
@@ -35,7 +37,7 @@ describe "CcaBrokerAgencyAccountsMigration" do
 
       organization3 = FactoryBot.create(:broker)
       FactoryBot.create(:broker_agency_staff_role, broker_agency_profile: organization3.broker_agency_profile, benefit_sponsors_broker_agency_profile_id: "123458")
-      broker_role3 =FactoryBot.create(:broker_role, broker_agency_profile_id: organization3.broker_agency_profile.id)
+      broker_role3 = FactoryBot.create(:broker_role, broker_agency_profile_id: organization3.broker_agency_profile.id)
 
       employer_profile = FactoryBot.create(:employer_profile, created_at: TimeKeeper.date_of_record - 2.year, registered_on: TimeKeeper.date_of_record - 2.year)
       employer_profile.organization.created_at = TimeKeeper.date_of_record - 2.year
@@ -47,22 +49,22 @@ describe "CcaBrokerAgencyAccountsMigration" do
 
 
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile, broker_agency_profile: organization1.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record, end_on: nil, writing_agent: broker_role1, is_active: false)
+                                                start_on: TimeKeeper.date_of_record, end_on: nil, writing_agent: broker_role1, is_active: false)
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile, broker_agency_profile: organization1.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record + 1.day, end_on: TimeKeeper.date_of_record + 1.day, writing_agent: broker_role1, is_active: true)
+                                                start_on: TimeKeeper.date_of_record + 1.day, end_on: TimeKeeper.date_of_record + 1.day, writing_agent: broker_role1, is_active: true)
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile, broker_agency_profile: organization1.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record - 1.day, end_on: TimeKeeper.date_of_record - 1.day, writing_agent: broker_role1, is_active: false)
+                                                start_on: TimeKeeper.date_of_record - 1.day, end_on: TimeKeeper.date_of_record - 1.day, writing_agent: broker_role1, is_active: false)
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile, broker_agency_profile: organization1.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record - 1.year + 1.day, end_on: TimeKeeper.date_of_record - 6.months, writing_agent: broker_role2, is_active: false)
+                                                start_on: TimeKeeper.date_of_record - 1.year + 1.day, end_on: TimeKeeper.date_of_record - 6.months, writing_agent: broker_role2, is_active: false)
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile, broker_agency_profile: organization1.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record - 2.year + 1.day, end_on: TimeKeeper.date_of_record - 1.year - 6.months, writing_agent: broker_role3, is_active: false)
+                                                start_on: TimeKeeper.date_of_record - 2.year + 1.day, end_on: TimeKeeper.date_of_record - 1.year - 6.months, writing_agent: broker_role3, is_active: false)
 
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile2, broker_agency_profile: organization2.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record + 1.day, end_on: nil, writing_agent: broker_role1, is_active: true)
+                                                start_on: TimeKeeper.date_of_record + 1.day, end_on: nil, writing_agent: broker_role1, is_active: true)
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile2, broker_agency_profile: organization2.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record - 1.year + 1.day, end_on: TimeKeeper.date_of_record - 6.months, writing_agent: broker_role2, is_active: false)
+                                                start_on: TimeKeeper.date_of_record - 1.year + 1.day, end_on: TimeKeeper.date_of_record - 6.months, writing_agent: broker_role2, is_active: false)
       FactoryBot.create(:broker_agency_account, employer_profile: employer_profile2, broker_agency_profile: organization2.broker_agency_profile,
-                         start_on: TimeKeeper.date_of_record - 2.year + 1.day, end_on: TimeKeeper.date_of_record - 1.year - 6.months, writing_agent: broker_role3, is_active: false)
+                                                start_on: TimeKeeper.date_of_record - 2.year + 1.day, end_on: TimeKeeper.date_of_record - 1.year - 6.months, writing_agent: broker_role3, is_active: false)
 
       site = BenefitSponsors::Site.all.first
       benefit_market = FactoryBot.create(:benefit_markets_benefit_market)
@@ -84,7 +86,7 @@ describe "CcaBrokerAgencyAccountsMigration" do
 
 
     it "should start and complete profiles migrations" do
-      silence_stream(STDOUT) do
+      silence_stream($stdout) do
         Mongoid::Migrator.run(:up, @migrations_paths, @emp_migration_version.to_i)
         Mongoid::Migrator.run(:up, @migrations_paths, @bk_migration_version.to_i)
       end
@@ -111,7 +113,7 @@ describe "CcaBrokerAgencyAccountsMigration" do
     describe "after profiles migration" do
 
       it "should start and complete accounts migrations" do
-        silence_stream(STDOUT) do
+        silence_stream($stdout) do
           Mongoid::Migrator.run(:up, @migrations_paths, @baa_migration_version.to_i)
         end
       end

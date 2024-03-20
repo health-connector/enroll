@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe SamlController do
@@ -36,7 +38,7 @@ RSpec.describe SamlController do
       let(:attributes_double) { { 'mail' => user.email} }
 
       before do
-        allow(OneLogin::RubySaml::Response).to receive(:new).with(sample_xml, :allowed_clock_drift => 5.seconds).and_return( valid_saml_response )
+        allow(OneLogin::RubySaml::Response).to receive(:new).with(sample_xml, :allowed_clock_drift => 5.seconds).and_return(valid_saml_response)
       end
 
       describe "with an existing user" do
@@ -135,7 +137,7 @@ RSpec.describe SamlController do
       end
 
       context "with no name id attribute" do
-         let(:name_id) { nil }
+        let(:name_id) { nil }
 
         it "should render a 403 and log the error as critical" do
           expect(subject).to receive(:log) do |arg1, arg2|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -20,12 +22,14 @@ describe EmployeeRole, "given a person" do
   let(:dob) {Date.new(2009, 2, 5)}
   let(:gender) {"female"}
 
-  let(:person) {Person.new(
+  let(:person) do
+    Person.new(
       :hbx_id => hbx_id,
       :ssn => ssn,
       :dob => dob,
       :gender => gender
-  )}
+    )
+  end
   subject {EmployeeRole.new(:person => person)}
 
   it "should have access to dob" do
@@ -54,21 +58,21 @@ describe ".coverage_effective_on" do
 
     let(:renewal_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
     let(:current_effective_date)  { renewal_effective_date.prev_year }
-    let(:employer_profile) { abc_profile }  
+    let(:employer_profile) { abc_profile }
     let(:organization) { abc_organization }
     let(:hired_on) {TimeKeeper.date_of_record.beginning_of_month}
 
-    let!(:census_employees) {
+    let!(:census_employees) do
       FactoryBot.create :benefit_sponsors_census_employee, :owner, employer_profile: employer_profile, benefit_sponsorship: organization.active_benefit_sponsorship
       FactoryBot.create :benefit_sponsors_census_employee, employer_profile: employer_profile, hired_on: hired_on, benefit_sponsorship: organization.active_benefit_sponsorship
-    }
+    end
 
     let(:ce) {employer_profile.census_employees.non_business_owner.first}
 
-    let(:employee_role) {
+    let(:employee_role) do
       person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
       FactoryBot.create(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
-    }
+    end
 
     context 'when called with benefit group' do
       let(:renewal_benefit_group) {employer_profile.renewal_benefit_application.benefit_packages.first}
@@ -106,25 +110,26 @@ describe EmployeeRole, dbclean: :after_each do
     let(:new_person) {FactoryBot.build(:person, first_name: "Carly", last_name: "Simon")}
     let(:site) {FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :dc, :as_hbx_profile)}
 
-    let(:organization) {FactoryBot.create(:benefit_sponsors_organizations_general_organization,
-                                           :with_aca_shop_dc_employer_profile_initial_application,
-                                           site: site
-    )}
+    let(:organization) do
+      FactoryBot.create(:benefit_sponsors_organizations_general_organization,
+                        :with_aca_shop_dc_employer_profile_initial_application,
+                        site: site)
+    end
     let(:employer_profile) {organization.employer_profile}
 
     let(:valid_person_attributes) do
       {
-          ssn: ssn,
-          dob: dob,
-          gender: gender,
+        ssn: ssn,
+        dob: dob,
+        gender: gender
       }
     end
 
     let(:valid_params) do
       {
-          person_attributes: valid_person_attributes,
-          employer_profile: employer_profile,
-          hired_on: hired_on,
+        person_attributes: valid_person_attributes,
+        employer_profile: employer_profile,
+        hired_on: hired_on
       }
     end
 
@@ -160,7 +165,7 @@ describe EmployeeRole, dbclean: :after_each do
     context "with no employer_profile" do
       let(:params) {valid_params.except(:employer_profile)}
       let(:employee_role) {saved_person.employee_roles.build(params)}
-      before() {employee_role.valid?}
+      before {employee_role.valid?}
 
       it "should not be valid" do
         expect(employee_role.valid?).to be false
@@ -289,34 +294,33 @@ describe EmployeeRole, dbclean: :after_each do
   context "when created" do
     # let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
-    let(:organization) {
+    let(:organization) do
       FactoryBot.create(:benefit_sponsors_organizations_general_organization,
-                         :with_aca_shop_cca_employer_profile_initial_application,
-                         site: site
-      )}
+                        :with_aca_shop_cca_employer_profile_initial_application,
+                        site: site)
+    end
 
     let(:employer_profile) {organization.employer_profile}
 
-    let(:person) {
+    let(:person) do
       FactoryBot.create(:person,
-                         created_at: person_created_at,
-                         updated_at: person_updated_at
-      )
-    }
+                        created_at: person_created_at,
+                        updated_at: person_updated_at)
+    end
 
-    let(:employee_role) {
+    let(:employee_role) do
       person.employee_roles.create(
-          employer_profile: employer_profile,
-          hired_on: hired_on,
-          created_at: employee_role_created_at,
-          updated_at: employee_role_updated_at,
-          person_attributes: {
-              ssn: ssn,
-              dob: dob,
-              gender: gender,
-          }
+        employer_profile: employer_profile,
+        hired_on: hired_on,
+        created_at: employee_role_created_at,
+        updated_at: employee_role_updated_at,
+        person_attributes: {
+          ssn: ssn,
+          dob: dob,
+          gender: gender
+        }
       )
-    }
+    end
 
     it "parent created_at should be right" do
       expect(person.created_at).to eq person_created_at
@@ -488,7 +492,7 @@ describe EmployeeRole, dbclean: :after_each do
     end
 
     it "finds all employee roles" do
-      expect(EmployeeRole.all.size).to eq (match_size + non_match_size)
+      expect(EmployeeRole.all.size).to eq(match_size + non_match_size)
       expect(EmployeeRole.all.first).to be_an_instance_of EmployeeRole
     end
 
@@ -512,10 +516,11 @@ describe EmployeeRole, dbclean: :after_each do
 
   let(:site) {FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :dc, :as_hbx_profile)}
 
-  let(:organization) {FactoryBot.create(:benefit_sponsors_organizations_general_organization,
-                                         :with_aca_shop_dc_employer_profile_initial_application,
-                                         site: site
-  )}
+  let(:organization) do
+    FactoryBot.create(:benefit_sponsors_organizations_general_organization,
+                      :with_aca_shop_dc_employer_profile_initial_application,
+                      site: site)
+  end
 
   let(:employer_profile) {organization.employer_profile}
   let(:benefit_application) {organization.active_benefit_sponsorship.current_benefit_application}
@@ -529,37 +534,39 @@ describe EmployeeRole, dbclean: :after_each do
     sponsorship
   end
 
-  let(:benefit_group_assignment) {
+  let(:benefit_group_assignment) do
     BenefitGroupAssignment.create({
-                                      census_employee: census_employee,
+                                    census_employee: census_employee,
                                       # benefit_group: plan_year.benefit_groups.first,
-                                      benefit_package: benefit_package,
-                                      start_on: benefit_package.start_on
+                                    benefit_package: benefit_package,
+                                    start_on: benefit_package.start_on
                                   })
-  }
+  end
 
-  let(:census_employee) {FactoryBot.create(:benefit_sponsors_census_employee,
-                                            benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                                            employer_profile: employer_profile,
-                                            created_at: middle_of_prev_year,
-                                            updated_at: middle_of_prev_year,
-                                            hired_on: middle_of_prev_year
-  )}
+  let(:census_employee) do
+    FactoryBot.create(:benefit_sponsors_census_employee,
+                      benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                      employer_profile: employer_profile,
+                      created_at: middle_of_prev_year,
+                      updated_at: middle_of_prev_year,
+                      hired_on: middle_of_prev_year)
+  end
 
-  let(:person) {FactoryBot.create(:person,
-                                   first_name: census_employee.first_name,
-                                   last_name: census_employee.last_name,
-                                   dob: census_employee.dob,
-                                   ssn: census_employee.ssn
-  )}
+  let(:person) do
+    FactoryBot.create(:person,
+                      first_name: census_employee.first_name,
+                      last_name: census_employee.last_name,
+                      dob: census_employee.dob,
+                      ssn: census_employee.ssn)
+  end
 
-  let(:employee_role) {
+  let(:employee_role) do
     person.employee_roles.create(
-        employer_profile: employer_profile,
-        hired_on: census_employee.hired_on,
-        census_employee_id: census_employee.id
+      employer_profile: employer_profile,
+      hired_on: census_employee.hired_on,
+      census_employee_id: census_employee.id
     )
-  }
+  end
 
   let(:shop_family) {FactoryBot.create(:family, :with_primary_family_member)}
   let(:plan_year_start_on) {benefit_application.start_on}
@@ -621,13 +628,14 @@ describe EmployeeRole, dbclean: :after_each do
 
   context ".is_eligible_to_enroll_without_qle?" do
     context 'when new hire open enrollment period available' do
-      let(:census_employee) {FactoryBot.create(:benefit_sponsors_census_employee,
-                                                benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                                                employer_profile: employer_profile,
-                                                created_at: (plan_year_start_on + 10.days),
-                                                updated_at: (plan_year_start_on + 10.days),
-                                                hired_on: (plan_year_start_on + 10.days)
-      )}
+      let(:census_employee) do
+        FactoryBot.create(:benefit_sponsors_census_employee,
+                          benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                          employer_profile: employer_profile,
+                          created_at: (plan_year_start_on + 10.days),
+                          updated_at: (plan_year_start_on + 10.days),
+                          hired_on: (plan_year_start_on + 10.days))
+      end
 
       before do
         TimeKeeper.set_date_of_record_unprotected!(plan_year_start_on + 15.days)
@@ -640,13 +648,14 @@ describe EmployeeRole, dbclean: :after_each do
 
 
     context 'when new roster entry enrollment period available' do
-      let(:census_employee) {FactoryBot.create(:benefit_sponsors_census_employee,
-                                                benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                                                employer_profile: employer_profile,
-                                                created_at: (plan_year_start_on + 10.days),
-                                                updated_at: (plan_year_start_on + 10.days),
-                                                hired_on: middle_of_prev_year
-      )}
+      let(:census_employee) do
+        FactoryBot.create(:benefit_sponsors_census_employee,
+                          benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                          employer_profile: employer_profile,
+                          created_at: (plan_year_start_on + 10.days),
+                          updated_at: (plan_year_start_on + 10.days),
+                          hired_on: middle_of_prev_year)
+      end
 
       before do
         TimeKeeper.set_date_of_record_unprotected!(plan_year_start_on + 15.days)
@@ -658,13 +667,14 @@ describe EmployeeRole, dbclean: :after_each do
     end
 
     context 'when outside new hire enrollment period and employer open enrolment' do
-      let(:census_employee) {FactoryBot.create(:benefit_sponsors_census_employee,
-                                                benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                                                employer_profile: employer_profile,
-                                                created_at: (plan_year_start_on + 10.days),
-                                                updated_at: (plan_year_start_on + 10.days),
-                                                hired_on: (plan_year_start_on + 10.days)
-      )}
+      let(:census_employee) do
+        FactoryBot.create(:benefit_sponsors_census_employee,
+                          benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                          employer_profile: employer_profile,
+                          created_at: (plan_year_start_on + 10.days),
+                          updated_at: (plan_year_start_on + 10.days),
+                          hired_on: (plan_year_start_on + 10.days))
+      end
 
       before do
         TimeKeeper.set_date_of_record_unprotected!(plan_year_start_on + 55.days)

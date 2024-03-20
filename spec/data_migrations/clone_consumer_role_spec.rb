@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require File.join(Rails.root, "app", "data_migrations", "clone_consumer_role")
+
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
-  require File.join(Rails.root, "app", "data_migrations", "clone_consumer_role")
   describe CloneConsumerRole do
     let(:given_task_name) { "clone_consumer_role" }
     subject { CloneConsumerRole.new(given_task_name, double(:current_scope => nil)) }
 
     describe "given a task name" do
-
       it "has the given task name" do
         expect(subject.name).to eql given_task_name
       end
@@ -42,6 +42,5 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         end
       end
     end
-
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "shared/plan_shoppings/_more_plan_details.html.erb" do
@@ -10,15 +12,15 @@ RSpec.describe "shared/plan_shoppings/_more_plan_details.html.erb" do
   let(:hbx_enrollment_member_two) { double("hbx_enrollment_member") }
   let(:mock_group){double("membergroup", count: 4)}
 
-  let(:plan){
+  let(:plan) do
     instance_double(
       "Plan"
-      )
-  }
+    )
+  end
 
-  let(:plan_count){
+  let(:plan_count) do
     [plan, plan, plan, plan]
-  }
+  end
 
   before :each do
     allow(hbx_enrollment).to receive(:humanized_dependent_summary).and_return(2)
@@ -39,16 +41,16 @@ RSpec.describe "shared/plan_shoppings/_more_plan_details.html.erb" do
       allow(hbx_enrollment_member_two).to receive(:person).and_return(person_two)
       allow(hbx_enrollment_member_one).to receive(:is_subscriber).and_return(true)
       allow(hbx_enrollment_member_two).to receive(:is_subscriber).and_return(false)
-      allow(hbx_enrollment).to receive(:hbx_enrollment_members).and_return([hbx_enrollment_member_one, hbx_enrollment_member_two ])
+      allow(hbx_enrollment).to receive(:hbx_enrollment_members).and_return([hbx_enrollment_member_one, hbx_enrollment_member_two])
       render "shared/plan_shoppings/more_plan_details", person: person
     end
 
     it "should match person full name" do
-      expect(rendered).to match /#{person.full_name}/i
+      expect(rendered).to match(/#{person.full_name}/i)
     end
 
     it "should match dependents full name" do
-      expect(rendered).to match /#{person_two.full_name}/i
+      expect(rendered).to match(/#{person_two.full_name}/i)
     end
   end
 
@@ -61,7 +63,7 @@ RSpec.describe "shared/plan_shoppings/_more_plan_details.html.erb" do
     end
 
     it "should match dependent count" do
-      expect(rendered).to match /#{person_two.full_name}/i
+      expect(rendered).to match(/#{person_two.full_name}/i)
     end
   end
 

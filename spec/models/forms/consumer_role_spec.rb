@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Forms::ConsumerRole do
   let(:consumer_role) { FactoryBot.build(:consumer_role)}
 
-  subject {
+  subject do
     Forms::ConsumerRole.new(
       consumer_role
     )
-  }
+  end
 
   it "should respond to vlp_document_kind and doc_number" do
     expect(subject).to respond_to(:vlp_document_kind, :doc_number)

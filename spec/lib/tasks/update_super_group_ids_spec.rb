@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 Rake.application.rake_require "tasks/update_super_group_ids"
 Rake::Task.define_task(:environment)

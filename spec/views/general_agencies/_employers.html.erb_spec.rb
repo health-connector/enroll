@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # require 'rails_helper'
 
 # RSpec.describe "general_agencies/profiles/_employers.html.erb" do
@@ -5,8 +6,8 @@
 #   let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
 #   before :each do
 #     allow(employer).to receive(:broker_agency_profile).and_return(broker_agency_profile)
-#     assign :employers, [employer] 
-#     render template: "general_agencies/profiles/_employers.html.erb" 
+#     assign :employers, [employer]
+#     render template: "general_agencies/profiles/_employers.html.erb"
 #   end
 
 #   it 'should have title' do

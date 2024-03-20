@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "app/views/events/v2/organizations/_office_location.xml.haml" do
 
   describe "office location xml" do
-    let(:office_location) { FactoryBot.build(:office_location, is_primary:true) }
+    let(:office_location) { FactoryBot.build(:office_location, is_primary: true) }
 
     context "phone" do
       context "kind = work" do
         before :each do
-          office_location.address.kind="primary"
-          office_location.phone.kind="work"
+          office_location.address.kind = "primary"
+          office_location.phone.kind = "work"
           render :template => "events/v2/organizations/_office_location.xml.haml", :locals => {:office_location => office_location}
           @doc = Nokogiri::XML(rendered)
         end
@@ -22,7 +24,7 @@ RSpec.describe "app/views/events/v2/organizations/_office_location.xml.haml" do
       # temporary spec for phone kind
       context "kind = work" do
         before :each do
-          office_location.address.kind="primary"
+          office_location.address.kind = "primary"
           office_location.phone.kind = "work"
           render :template => "events/v2/organizations/_office_location.xml.haml", :locals => {:office_location => office_location}
           @doc = Nokogiri::XML(rendered)
@@ -35,7 +37,7 @@ RSpec.describe "app/views/events/v2/organizations/_office_location.xml.haml" do
 
       context "kind = mobile" do
         before :each do
-          office_location.phone.kind="mobile"
+          office_location.phone.kind = "mobile"
           render :template => "events/v2/organizations/_office_location.xml.haml", :locals => {:office_location => office_location}
           @doc = Nokogiri::XML(rendered)
         end
@@ -49,7 +51,7 @@ RSpec.describe "app/views/events/v2/organizations/_office_location.xml.haml" do
     context "address" do
       context "kind == work" do
         before :each do
-          office_location.address.kind="work"
+          office_location.address.kind = "work"
           render :template => "events/v2/organizations/_office_location.xml.haml", :locals => {:office_location => office_location}
           @doc = Nokogiri::XML(rendered)
         end
@@ -61,7 +63,7 @@ RSpec.describe "app/views/events/v2/organizations/_office_location.xml.haml" do
 
       context "kind == branch" do
         before :each do
-          office_location.address.kind="branch"
+          office_location.address.kind = "branch"
           render :template => "events/v2/organizations/_office_location.xml.haml", :locals => {:office_location => office_location}
           @doc = Nokogiri::XML(rendered)
         end

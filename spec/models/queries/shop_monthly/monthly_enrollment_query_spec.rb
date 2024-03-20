@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe "a monthly shop enrollment query", dbclean: :after_each do
-  # TODO Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on) updated to new model in
+  # TODO: Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on) updated to new model in
   # app/models/queries/named_enrollment_queries.rb
   describe "given an employer who has completed their first open enrollment" do
     describe "with employees who have made the following plan selections:
@@ -20,35 +22,35 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
 
       let(:effective_on) { TimeKeeper.date_of_record.end_of_month.next_day }
 
-      let(:initial_employer) {
+      let(:initial_employer) do
         FactoryBot.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'enrolled')
-      }
+      end
 
-      let(:initial_employees) {
+      let(:initial_employees) do
         FactoryBot.create_list(:census_employee_with_active_assignment, 3, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: initial_employer,
-          benefit_group: initial_employer.published_plan_year.benefit_groups.first)
-      }
+                                                                                      benefit_group: initial_employer.published_plan_year.benefit_groups.first)
+      end
 
-      let(:employee_A) {
+      let(:employee_A) do
         ce = initial_employees[0]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_1) {
+      let!(:enrollment_1) do
         create_enrollment(
           family: employee_A.person.primary_family,
           benefit_group_assignment: employee_A.census_employee.active_benefit_group_assignment(effective_on),
           employee_role: employee_A,
           submitted_at: employee_A.census_employee.active_benefit_group_assignment(effective_on).plan_year.open_enrollment_end_on - 10.day
         )
-      }
+      end
 
-      let(:employee_B) {
+      let(:employee_B) do
         ce = initial_employees[1]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_2) {
+      let!(:enrollment_2) do
         create_enrollment(
           family: employee_B.person.primary_family,
           benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment(effective_on),
@@ -56,9 +58,9 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
           submitted_at: effective_on - 22.days,
           status: 'coverage_canceled'
         )
-      }
+      end
 
-      let!(:enrollment_3) {
+      let!(:enrollment_3) do
         create_enrollment(
           family: employee_B.person.primary_family,
           benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment(effective_on),
@@ -66,23 +68,23 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
           submitted_at: effective_on - 20.days,
           status: 'inactive'
         )
-      }
+      end
 
-      let(:employee_C) {
+      let(:employee_C) do
         ce = initial_employees[2]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_4) {
+      let!(:enrollment_4) do
         create_enrollment(
           family: employee_C.person.primary_family,
           benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment(effective_on),
           employee_role: employee_C,
           submitted_at: effective_on - 24.days
         )
-      }
+      end
 
-      let!(:enrollment_5) {
+      let!(:enrollment_5) do
         create_enrollment(
           family: employee_C.person.primary_family,
           benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment(effective_on),
@@ -90,9 +92,9 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
           submitted_at: effective_on - 23.days,
           coverage_kind: 'dental'
         )
-      }
+      end
 
-      let!(:enrollment_6) {
+      let!(:enrollment_6) do
         create_enrollment(
           family: employee_C.person.primary_family,
           benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment(effective_on),
@@ -100,7 +102,7 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
           submitted_at: effective_on - 23.days,
           status: 'inactive'
         )
-      }
+      end
 
       let!(:enrollment_7) do
         create_enrollment(
@@ -111,9 +113,9 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
         )
       end
 
-      let(:feins) {
+      let(:feins) do
         [initial_employer.fein]
-      }
+      end
       skip "shop monthly queries updated here in new model app/models/queries/named_enrollment_queries.rb need to move." do
 
         # it "includes enrollment 1" do
@@ -171,68 +173,68 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
 
       let(:effective_on) { TimeKeeper.date_of_record.end_of_month.next_day }
 
-      let(:renewing_employer) {
+      let(:renewing_employer) do
         FactoryBot.create(:employer_with_renewing_planyear, start_on: effective_on, renewal_plan_year_state: 'renewing_enrolled')
-      }
+      end
 
-      let(:renewing_employees) {
+      let(:renewing_employees) do
         FactoryBot.create_list(:census_employee_with_active_and_renewal_assignment, 3, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer,
-          benefit_group: renewing_employer.active_plan_year.benefit_groups.first,
-          renewal_benefit_group: renewing_employer.renewing_plan_year.benefit_groups.first)
-      }
+                                                                                                  benefit_group: renewing_employer.active_plan_year.benefit_groups.first,
+                                                                                                  renewal_benefit_group: renewing_employer.renewing_plan_year.benefit_groups.first)
+      end
 
-      let(:employee_A) {
+      let(:employee_A) do
         ce = renewing_employees[0]
         create_person(ce, renewing_employer)
-      }
+      end
 
-      let!(:enrollment_1) {
+      let!(:enrollment_1) do
         create_enrollment(family: employee_A.person.primary_family, benefit_group_assignment: employee_A.census_employee.active_benefit_group_assignment(effective_on), employee_role: employee_A, submitted_at: effective_on.prev_year)
-      }
+      end
 
-      let!(:enrollment_2) {
+      let!(:enrollment_2) do
         create_enrollment(family: employee_A.person.primary_family, benefit_group_assignment: employee_A.census_employee.renewal_benefit_group_assignment, employee_role: employee_A, submitted_at: effective_on - 20.days, status: 'auto_renewing')
-      }
+      end
 
-      let(:employee_B) {
+      let(:employee_B) do
         ce = renewing_employees[1]
         create_person(ce, renewing_employer)
-      }
+      end
 
-      let!(:enrollment_3) {
+      let!(:enrollment_3) do
         create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.renewal_benefit_group_assignment, employee_role: employee_B, submitted_at: effective_on - 22.days, status: 'coverage_canceled')
-      }
+      end
 
-      let!(:enrollment_4) {
+      let!(:enrollment_4) do
         create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.renewal_benefit_group_assignment, employee_role: employee_B, submitted_at: effective_on - 20.days, status: 'inactive')
-      }
+      end
 
-      let(:employee_C) {
+      let(:employee_C) do
         ce = renewing_employees[2]
         create_person(ce, renewing_employer)
-      }
+      end
 
 
-      let!(:enrollment_5) {
+      let!(:enrollment_5) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.renewal_benefit_group_assignment, employee_role: employee_C, submitted_at: effective_on - 24.days, status: 'auto_renewing')
-      }
+      end
 
-      let!(:enrollment_6) {
+      let!(:enrollment_6) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.renewal_benefit_group_assignment, employee_role: employee_C, submitted_at: effective_on - 23.days, coverage_kind: 'dental')
-      }
+      end
 
-      let!(:enrollment_7) {
+      let!(:enrollment_7) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.renewal_benefit_group_assignment, employee_role: employee_C, submitted_at: effective_on - 23.days, status: 'inactive')
-      }
+      end
 
-      let!(:enrollment_8) {
+      let!(:enrollment_8) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.renewal_benefit_group_assignment, employee_role: employee_C, submitted_at: effective_on - 22.days)
-      }
+      end
 
 
-      let(:feins) {
+      let(:feins) do
         [renewing_employer.fein]
-      }
+      end
 
       skip "shop monthly queries updated here in new model app/models/queries/named_enrollment_queries.rb need to move." do
 
@@ -290,18 +292,17 @@ describe "a monthly shop enrollment query", dbclean: :after_each do
   def create_enrollment(family: nil, benefit_group_assignment: nil, employee_role: nil, status: 'coverage_selected', submitted_at: nil, enrollment_kind: 'open_enrollment', effective_date: nil, coverage_kind: 'health')
     benefit_group = benefit_group_assignment.benefit_group
     FactoryBot.create(:hbx_enrollment,:with_enrollment_members,
-      enrollment_members: [family.primary_applicant],
-      household: family.active_household,
-      coverage_kind: coverage_kind,
-      effective_on: effective_date || benefit_group.start_on,
-      enrollment_kind: enrollment_kind,
-      kind: "employer_sponsored",
-      submitted_at: submitted_at,
-      benefit_group_id: benefit_group.id,
-      employee_role_id: employee_role.id,
-      benefit_group_assignment_id: benefit_group_assignment.id,
-      plan_id: benefit_group.reference_plan.id,
-      aasm_state: status
-    )
+                      enrollment_members: [family.primary_applicant],
+                      household: family.active_household,
+                      coverage_kind: coverage_kind,
+                      effective_on: effective_date || benefit_group.start_on,
+                      enrollment_kind: enrollment_kind,
+                      kind: "employer_sponsored",
+                      submitted_at: submitted_at,
+                      benefit_group_id: benefit_group.id,
+                      employee_role_id: employee_role.id,
+                      benefit_group_assignment_id: benefit_group_assignment.id,
+                      plan_id: benefit_group.reference_plan.id,
+                      aasm_state: status)
   end
 end

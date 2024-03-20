@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe CensusEmployeePolicy, dbclean: :after_each do
@@ -7,7 +9,7 @@ describe CensusEmployeePolicy, dbclean: :after_each do
   let(:admin_person) { FactoryBot.create(:person, :with_hbx_staff_role) }
   let(:broker_person) { FactoryBot.create(:person, :with_broker_role) }
 
-  before do 
+  before do
     allow_any_instance_of(CensusEmployee).to receive(:generate_and_deliver_checkbook_url).and_return(true)
   end
 

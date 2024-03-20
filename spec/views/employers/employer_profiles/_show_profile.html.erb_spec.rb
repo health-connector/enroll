@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/_show_profile", dbclean: :after_each do
@@ -50,7 +52,7 @@ RSpec.describe "employers/employer_profiles/_show_profile", dbclean: :after_each
   it "should display the Broker Agency content" do
     @tab = 'broker_agency'
     stub_template "employers/broker_agency/_active_broker.html.erb" => ''
-    render  template: "employers/employer_profiles/show_profile"
+    render template: "employers/employer_profiles/show_profile"
     expect(rendered).to_not match(/Plan Year/)
     expect(rendered).to_not have_selector('#families')
   end

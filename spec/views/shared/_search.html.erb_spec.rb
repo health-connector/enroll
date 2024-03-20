@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe "shared/_search.html.erb"  do |variable|
+RSpec.describe "shared/_search.html.erb"  do |_variable|
 
   before :each do
     stub_template "_search.html.erb" => ''

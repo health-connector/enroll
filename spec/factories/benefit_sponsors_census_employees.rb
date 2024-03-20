@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_sponsors_census_employee, class: 'CensusEmployee' do
 
@@ -8,7 +10,7 @@ FactoryBot.define do
     expected_selection { "enroll" }
     employee_relationship { "self" }
     hired_on { "2015-04-01".to_date }
-    sequence(:ssn) { |n| 222222220 + n }
+    sequence(:ssn) { |n| 222_222_220 + n }
     is_business_owner  { false }
 
     association :address, strategy: :build
@@ -16,7 +18,7 @@ FactoryBot.define do
     association :employer_profile, factory: :benefit_sponsors_organizations_aca_shop_dc_employer_profile, strategy: :build
     association :benefit_sponsorship, factory: [:benefit_sponsors_benefit_sponsorship, :with_market_profile], strategy: :build
 
-    before(:create) do |instance|
+    before(:create) do |_instance|
       FactoryBot.create(:application_event_kind,:out_of_pocket_notice)
     end
 
@@ -28,9 +30,7 @@ FactoryBot.define do
 
     after(:create) do |census_employee, evaluator|
       census_employee.created_at = TimeKeeper.date_of_record
-      if evaluator.create_with_spouse
-        census_employee.census_dependents.create(employee_relationship: 'spouse')
-      end
+      census_employee.census_dependents.create(employee_relationship: 'spouse') if evaluator.create_with_spouse
     end
 
     trait :owner do
@@ -60,7 +60,7 @@ FactoryBot.define do
         general_agency_attributes { {} }
       end
 
-      before :create do |organization, evaluator|
+      before :create do |organization, _evaluator|
         organization.office_locations.push FactoryBot.build :office_location, :primary
       end
 

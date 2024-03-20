@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "broker_agencies/broker_roles/_search_broker_agency.html.erb" do
@@ -10,16 +12,16 @@ RSpec.describe "broker_agencies/broker_roles/_search_broker_agency.html.erb" do
   end
 
   it "should have fein" do
-    expect(rendered).to match /FEIN/
-    expect(rendered).to match /#{broker_agency_profile.fein}/
+    expect(rendered).to match(/FEIN/)
+    expect(rendered).to match(/#{broker_agency_profile.fein}/)
   end
 
   it "should have legal name" do
-    expect(rendered).to match /Legal Name/
-    expect(rendered).to match /#{broker_agency_profile.legal_name}/
+    expect(rendered).to match(/Legal Name/)
+    expect(rendered).to match(/#{broker_agency_profile.legal_name}/)
   end
 
   it "should have primary broker name" do
-    expect(rendered).to match /Primary Broker Name/
+    expect(rendered).to match(/Primary Broker Name/)
   end
 end

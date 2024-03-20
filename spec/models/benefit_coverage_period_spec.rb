@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BenefitCoveragePeriod, type: :model, dbclean: :after_each do
@@ -11,17 +13,17 @@ RSpec.describe BenefitCoveragePeriod, type: :model, dbclean: :after_each do
   let(:open_enrollment_start_on)  { Date.new(2015,10,1).beginning_of_year - 2.months }
   let(:open_enrollment_end_on)    { Date.new(2015,10,1).beginning_of_year.end_of_month }
 
-  let(:valid_params){
-      {
-        title: title,
-        benefit_sponsorship: benefit_sponsorship,
-        service_market: service_market,
-        start_on: start_on,
-        end_on: end_on,
-        open_enrollment_start_on: open_enrollment_start_on,
-        open_enrollment_end_on: open_enrollment_end_on
-      }
+  let(:valid_params) do
+    {
+      title: title,
+      benefit_sponsorship: benefit_sponsorship,
+      service_market: service_market,
+      start_on: start_on,
+      end_on: end_on,
+      open_enrollment_start_on: open_enrollment_start_on,
+      open_enrollment_end_on: open_enrollment_end_on
     }
+  end
 
   context "a new instance" do
 
@@ -167,10 +169,10 @@ RSpec.describe BenefitCoveragePeriod, type: :model, dbclean: :after_each do
             end
 
             it "termination date should be set to the date selected if selected date is greater than today" do
-              expect(benefit_coverage_period.termination_effective_on_for(TimeKeeper.date_of_record+7.day)).to eq(TimeKeeper.date_of_record+7.day)
+              expect(benefit_coverage_period.termination_effective_on_for(TimeKeeper.date_of_record + 7.day)).to eq(TimeKeeper.date_of_record + 7.day)
             end
 
-            context "and the effective date would " do               
+            context "and the effective date would " do
 
               it "termination date should be set to end_on date" do
                 expect(benefit_coverage_period.termination_effective_on_for(TimeKeeper.date_of_record.next_year)).to eq benefit_coverage_period.end_on
@@ -191,7 +193,7 @@ RSpec.describe BenefitCoveragePeriod, type: :model, dbclean: :after_each do
     let(:r1) {FactoryBot.create(:resident_role)}
     let(:r2) {FactoryBot.create(:resident_role)}
     let(:family) { FactoryBot.build(:family, :with_primary_family_member_and_dependent)}
-    let(:member1) {double(person: double(consumer_role: c1),hbx_enrollment: hbx_enrollment,family_member:family.family_members.where(is_primary_applicant: true).first)}
+    let(:member1) {double(person: double(consumer_role: c1),hbx_enrollment: hbx_enrollment,family_member: family.family_members.where(is_primary_applicant: true).first)}
     let(:member2) {double(person: double(consumer_role: c2),hbx_enrollment: hbx_enrollment,family_member: family.family_members.where(is_primary_applicant: false).first)}
     let(:hbx_enrollment){ HbxEnrollment.new(kind: "individual", plan: plan1, effective_on: TimeKeeper.date_of_record, household: family.latest_household, enrollment_signature: true) }
     let(:plan1) { FactoryBot.create(:plan, :with_premium_tables, market: 'individual', metal_level: 'gold', csr_variant_id: '01', active_year: TimeKeeper.date_of_record.year, hios_id: "11111111122302-01") }

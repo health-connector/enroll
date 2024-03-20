@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe QuoteHousehold, type: :model do
 
-  let(:quote){ create :quote ,:with_two_households_and_members }
-  let(:quote_benefit_group_1){create :quote_benefit_group, title: "Group1" , quote: quote}
+  let(:quote){ create :quote,:with_two_households_and_members }
+  let(:quote_benefit_group_1){create :quote_benefit_group, title: "Group1", quote: quote}
   let(:quote_benefit_group_2){create :quote_benefit_group, title: "Group2", quote: quote}
   let(:quote_member_employee){build :quote_member, employee_relationship: "employee"}
 
@@ -59,7 +61,7 @@ RSpec.describe QuoteHousehold, type: :model do
 
   context "employee" do
     it "should return employee" do
-      quote.quote_households.first.quote_members= [quote_member_employee]
+      quote.quote_households.first.quote_members = [quote_member_employee]
       expect(quote.quote_households.first.employee).to eq quote_member_employee
     end
   end

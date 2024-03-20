@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/census_dependent_fields.html.erb", dbclean: :after_each do

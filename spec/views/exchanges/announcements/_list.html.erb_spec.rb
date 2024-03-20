@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "exchanges/announcements/_list.html.erb" do
@@ -22,5 +24,5 @@ describe "exchanges/announcements/_list.html.erb" do
   it "display detail of announcement" do
     expect(rendered).to have_text(/#{announcement.content}/)
   end
-end    
+end
 

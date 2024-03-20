@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe PeopleController, dbclean: :after_each do
@@ -21,14 +23,14 @@ RSpec.describe PeopleController, dbclean: :after_each do
   end
 
   describe "POST create" do
-    context "with valid attributes" do 
-      it 'should add a new person' do 
+    context "with valid attributes" do
+      it 'should add a new person' do
         expect { post :create, params: { person: FactoryBot.attributes_for(:person) }}.to change(Person,:count).by(0)
       end
     end
 
     context "with invalid attributes"  do
-      it 'should not add a new person' do  
+      it 'should not add a new person' do
         expect { post :create, params: { person: FactoryBot.attributes_for(:person,:with_bad_mailing_address) }}.to_not change(Person,:count)
       end
     end
@@ -41,9 +43,11 @@ RSpec.describe PeopleController, dbclean: :after_each do
     let(:employee_roles) { person.employee_roles }
     let(:census_employee_id) {employee_roles[0].census_employee_id}
 
-    let(:email_attributes) { {"0"=>{"kind"=>"home", "address"=>"test@example.com"}}}
-    let(:addresses_attributes) { {"0"=>{"kind"=>"home", "address_1"=>"address1_a", "address_2"=>"", "city"=>"city1", "state"=>"DC", "zip"=>"22211", "id"=> person.addresses[0].id.to_s},
-        "1"=>{"kind"=>"mailing", "address_1"=>"address1_b", "address_2"=>"", "city"=>"city1", "state"=>"DC", "zip"=>"22211", "id"=> person.addresses[1].id.to_s} } }
+    let(:email_attributes) { {"0" => {"kind" => "home", "address" => "test@example.com"}}}
+    let(:addresses_attributes) do
+      {"0" => {"kind" => "home", "address_1" => "address1_a", "address_2" => "", "city" => "city1", "state" => "DC", "zip" => "22211", "id" => person.addresses[0].id.to_s},
+       "1" => {"kind" => "mailing", "address_1" => "address1_b", "address_2" => "", "city" => "city1", "state" => "DC", "zip" => "22211", "id" => person.addresses[1].id.to_s} }
+    end
 
     before :each do
       allow(Person).to receive(:find).and_return(person)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "CcaCarrierProfilesMigration" do
@@ -5,7 +7,7 @@ describe "CcaCarrierProfilesMigration" do
   before :all do
     DatabaseCleaner.clean
 
-    Dir[Rails.root.join('db', 'migrate', '*_cca_carrier_profiles_migration.rb')].each do |f|
+    Dir[Rails.root.join('db', 'migrate', '*_cca_carrier_profiles_migration.rb')].sort.each do |f|
       @path = f
       require f
     end
@@ -35,7 +37,7 @@ describe "CcaCarrierProfilesMigration" do
     end
 
     it "should match total migrated organizations with carrier profiles" do
-      silence_stream(STDOUT) do
+      silence_stream($stdout) do
         Mongoid::Migrator.run(:up, @migrations_paths, @test_version.to_i)
       end
 

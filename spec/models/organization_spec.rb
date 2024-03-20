@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Organization, dbclean: :after_each do
@@ -51,7 +53,7 @@ RSpec.describe Organization, dbclean: :after_each do
 
         context "the second organization" do
           it "should not be valid" do
-             expect(organization2.valid?).to be false
+            expect(organization2.valid?).to be false
           end
 
           it "should have an error on fein" do
@@ -109,7 +111,7 @@ RSpec.describe Organization, dbclean: :after_each do
       end
     end
 
-   context "with invalid fein" do
+    context "with invalid fein" do
       let(:params) {valid_params.deep_merge({fein: bad_fein})}
 
       it "should fail validation" do
@@ -191,20 +193,22 @@ RSpec.describe Organization, dbclean: :after_each do
 
     context "binder_paid" do
       let(:address)  { Address.new(kind: "primary", address_1: "609 H St", city: "Washington", state: "DC", zip: "20002", county: "County") }
-      let(:phone  )  { Phone.new(kind: "main", area_code: "202", number: "555-9999") }
-      let(:office_location) { OfficeLocation.new(
+      let(:phone)  { Phone.new(kind: "main", area_code: "202", number: "555-9999") }
+      let(:office_location) do
+        OfficeLocation.new(
           is_primary: true,
           address: address,
           phone: phone
         )
-      }
-      let(:organization) { Organization.create(
-        legal_name: "Sail Adventures, Inc",
-        dba: "Sail Away",
-        fein: "001223833",
-        office_locations: [office_location]
+      end
+      let(:organization) do
+        Organization.create(
+          legal_name: "Sail Adventures, Inc",
+          dba: "Sail Away",
+          fein: "001223833",
+          office_locations: [office_location]
         )
-      }
+      end
       let(:valid_params) do
         {
           organization: organization,
@@ -213,7 +217,7 @@ RSpec.describe Organization, dbclean: :after_each do
         }
       end
       let(:renewing_plan_year)    { FactoryBot.build(:plan_year, start_on: TimeKeeper.date_of_record.next_month.beginning_of_month - 1.year, end_on: TimeKeeper.date_of_record.end_of_month, aasm_state: 'renewing_enrolling') }
-      let(:new_plan_year)    { FactoryBot.build(:plan_year, start_on: TimeKeeper.date_of_record.next_month.beginning_of_month , end_on: (TimeKeeper.date_of_record + 1.year).end_of_month, aasm_state: 'enrolling') }
+      let(:new_plan_year)    { FactoryBot.build(:plan_year, start_on: TimeKeeper.date_of_record.next_month.beginning_of_month, end_on: (TimeKeeper.date_of_record + 1.year).end_of_month, aasm_state: 'enrolling') }
       let(:new_employer)     { EmployerProfile.new(**valid_params, plan_years: [new_plan_year]) }
       let(:renewing_employer)     { EmployerProfile.new(**valid_params, plan_years: [renewing_plan_year]) }
 
@@ -223,8 +227,8 @@ RSpec.describe Organization, dbclean: :after_each do
       end
 
       it "should return correct number of records" do
-       expect(Organization.retrieve_employers_eligible_for_binder_paid.size).to eq 1
-     end
+        expect(Organization.retrieve_employers_eligible_for_binder_paid.size).to eq 1
+      end
     end
   end
 
@@ -251,7 +255,7 @@ RSpec.describe Organization, dbclean: :after_each do
           let(:agency_2) { FactoryBot.create(:broker_agency, :both_ivl_and_shop, legal_name: "IVL Health Brokers Inc") }
 
           before do
-            stub_const("BrokerAgencyProfile::MARKET_KINDS", %W[individual shop both])
+            stub_const("BrokerAgencyProfile::MARKET_KINDS", %w[individual shop both])
             agency_1.reload
             agency_2.reload
           end
@@ -264,7 +268,7 @@ RSpec.describe Organization, dbclean: :after_each do
           let(:agency_2) { FactoryBot.create(:broker_agency, :shop_only, legal_name: "SHOP Health Brokers Inc 2") }
 
           before do
-            stub_const("BrokerAgencyProfile::MARKET_KINDS", %W[shop])
+            stub_const("BrokerAgencyProfile::MARKET_KINDS", %w[shop])
             agency_1.reload
             agency_2.reload
           end
@@ -284,14 +288,14 @@ RSpec.describe Organization, dbclean: :after_each do
         let(:organization3)  {FactoryBot.create(:organization, fein: "034267123")}
 
         it 'should match employers with active broker agency_profile' do
-          organization3.create_employer_profile(entity_kind: "partnership", broker_agency_profile: broker_agency_profile, sic_code: '1111');
+          organization3.create_employer_profile(entity_kind: "partnership", broker_agency_profile: broker_agency_profile, sic_code: '1111')
           employers = Organization.by_broker_agency_profile(broker_agency_profile.id)
           expect(employers.size).to eq(1)
         end
 
         it 'broker agency_profile match does not count unless active account' do
           allow(SponsoredBenefits::Organizations::BrokerAgencyProfile).to receive(:assign_employer).and_return(true)
-          employer = organization3.create_employer_profile(entity_kind: "partnership", broker_agency_profile: broker_agency_profile, sic_code: '1111');
+          employer = organization3.create_employer_profile(entity_kind: "partnership", broker_agency_profile: broker_agency_profile, sic_code: '1111')
           employers = Organization.by_broker_agency_profile(broker_agency_profile.id)
           expect(employers.size).to eq(1)
           employer = Organization.find(employer.organization.id).employer_profile
@@ -484,13 +488,13 @@ RSpec.describe Organization, dbclean: :after_each do
       before do
         Organization.upload_invoice(file_path,valid_file_names.first)
       end
-       it "should upload invoice to the organization" do
+      it "should upload invoice to the organization" do
         expect(organization.invoices.size).to eq 1
       end
     end
     context "with duplicate files" do
 
-       it "should upload invoice to the organization only once" do
+      it "should upload invoice to the organization only once" do
         Organization.upload_invoice(file_path,valid_file_names.first)
         Organization.upload_invoice(file_path,valid_file_names.first)
         expect(organization.invoices.size).to eq 1
@@ -501,7 +505,7 @@ RSpec.describe Organization, dbclean: :after_each do
       before do
         Organization.upload_invoice("test/hbxid_invoice_R.pdf",'dummyfile.pdf')
       end
-       it "should Not Upload invoice" do
+      it "should Not Upload invoice" do
         expect(organization.invoices.size).to eq 0
       end
     end
@@ -510,7 +514,7 @@ RSpec.describe Organization, dbclean: :after_each do
   context "invoice_date" do
     context "with valid date in the file name" do
       it "should parse the date" do
-        valid_file_names.each do | file_name |
+        valid_file_names.each do |file_name|
           expect(Organization.invoice_date(file_name)).to be_an_instance_of(Date)
         end
       end
@@ -532,7 +536,7 @@ RSpec.describe Organization, dbclean: :after_each do
 
     context "notify update" do
       let(:employer_profile) { FactoryBot.build(:employer_profile) }
-      let(:organization) {FactoryBot.create(:organization, employer_profile:employer_profile)}
+      let(:organization) {FactoryBot.create(:organization, employer_profile: employer_profile)}
       let(:changed_fields) { ["legal_name", "version", "updated_at"] }
       let(:changed_fields1) { ["fein", "version", "updated_at"] }
 
@@ -554,7 +558,7 @@ RSpec.describe Organization, dbclean: :after_each do
 
     context "changed_attributes" do
       let(:employer_profile) { FactoryBot.build(:employer_profile) }
-      let(:organization) {FactoryBot.create(:organization, employer_profile:employer_profile)}
+      let(:organization) {FactoryBot.create(:organization, employer_profile: employer_profile)}
 
       it "legal_name changed_attributes " do
         organization.legal_name = "test1"
@@ -563,7 +567,7 @@ RSpec.describe Organization, dbclean: :after_each do
       end
 
       it "fein changed_attributes" do
-        organization.fein ="000000001"
+        organization.fein = "000000001"
         organization.save
         expect(organization.instance_variable_get(:@changed_fields)).to eq ["fein", "updated_at"]
       end
@@ -574,7 +578,7 @@ RSpec.describe Organization, dbclean: :after_each do
 
     context "legal and fein change" do
       let(:employer_profile) { FactoryBot.build(:employer_profile) }
-      let(:organization) {FactoryBot.create(:organization, employer_profile:employer_profile)}
+      let(:organization) {FactoryBot.create(:organization, employer_profile: employer_profile)}
 
       it "return true for legal name update" do
         expect(organization.legal_name_changed?).to eq false #before update
@@ -585,7 +589,7 @@ RSpec.describe Organization, dbclean: :after_each do
 
       it "return true for fein update" do
         expect(organization.fein_changed?).to eq false
-        organization.fein ="000000001"
+        organization.fein = "000000001"
         expect(organization.fein_changed?).to eq true
         organization.save
       end
@@ -597,8 +601,8 @@ RSpec.describe Organization, dbclean: :after_each do
       it "should return exact scope match records" do
         ["submitted","approved","pending","denied"].each do |state|
           FactoryBot.create(:organization,
-                             employer_profile: FactoryBot.build(:employer_profile,
-                                                                 employer_attestation:  FactoryBot.build(:employer_attestation,{aasm_state: state})))
+                            employer_profile: FactoryBot.build(:employer_profile,
+                                                               employer_attestation:  FactoryBot.build(:employer_attestation,{aasm_state: state})))
         end
         expect(Organization.employer_attestations_submitted[0].employer_profile.employer_attestation.aasm_state).to eq "submitted"
         expect(Organization.employer_attestations_pending[0].employer_profile.employer_attestation.aasm_state).to eq "pending"

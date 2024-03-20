@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -11,13 +13,15 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   let(:user) { FactoryBot.create(:user, person: person) }
   let(:family){ FactoryBot.create(:family, :with_primary_family_member_and_dependent) }
   let(:household){ family.active_household }
-  let(:hbx_enrollment){ FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                                           household: household,
-                                           hbx_enrollment_members: [hbx_enrollment_member],
-                                           coverage_kind: "health",
-                                           external_enrollment: false,
-                                           sponsored_benefit_id: sponsored_benefit.id,
-                                           rating_area_id: rating_area.id)}
+  let(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                      household: household,
+                                                      hbx_enrollment_members: [hbx_enrollment_member],
+                                                      coverage_kind: "health",
+                                                      external_enrollment: false,
+                                                      sponsored_benefit_id: sponsored_benefit.id,
+                                                      rating_area_id: rating_area.id)
+  end
   let(:benefit_group) { current_benefit_package }
   let!(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
@@ -78,24 +82,27 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     )
   end
 
-  let(:shop_dental_enrollment) { FactoryBot.create(:hbx_enrollment,
-    household: family.active_household,
-    product: dental_product,
-    sponsored_benefit_id: package.dental_sponsored_benefit.id,
-    benefit_sponsorship_id: benefit_sponsorship.id,
-    sponsored_benefit_package_id: package.id,
-    rating_area_id: rating_area.id
-  )}
+  let(:shop_dental_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      product: dental_product,
+                      sponsored_benefit_id: package.dental_sponsored_benefit.id,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: package.id,
+                      rating_area_id: rating_area.id)
+  end
 
-  let(:ivl_health_enrollment) { FactoryBot.create(:hbx_enrollment,
-    household: family.active_household,
-    coverage_kind: "health"
-  )}
+  let(:ivl_health_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      coverage_kind: "health")
+  end
 
-  let(:ivl_dental_enrollment) { FactoryBot.create(:hbx_enrollment,
-    household: family.active_household,
-    coverage_kind: "dental"
-  )}
+  let(:ivl_dental_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      coverage_kind: "dental")
+  end
 
   before do
     ::BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
@@ -112,7 +119,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     end
 
     it "should return comparison of multiple plans" do
-      sign_in(user)      
+      sign_in(user)
       get :comparison, params: {standard_component_ids: ["11111111111111-01", "11111111111111-02"], hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"}
       expect(response).to have_http_status(:success)
     end

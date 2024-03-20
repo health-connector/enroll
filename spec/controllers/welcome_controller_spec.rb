@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe WelcomeController, :type => :controller do
@@ -32,7 +34,7 @@ RSpec.describe WelcomeController, :type => :controller do
 
     it "should return to a http status success" do
       get :index
-      expect( response ).to have_http_status(:success)
+      expect(response).to have_http_status(:success)
     end
   end
 
@@ -41,7 +43,7 @@ RSpec.describe WelcomeController, :type => :controller do
     it "should return to a http status success" do
       sign_in user
       post "show_hints", xhr: true, :format => "js"
-      expect( response ).to have_http_status(:success)
+      expect(response).to have_http_status(:success)
     end
   end
 

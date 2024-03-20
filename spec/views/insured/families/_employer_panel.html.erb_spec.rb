@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_employer_panel.html.erb" do
@@ -13,7 +15,7 @@ RSpec.describe "insured/families/_employer_panel.html.erb" do
     render "insured/families/employer_panel", employee_role: employee_role
   end
 
-  context 'Person has a single employer/employee_role' do  
+  context 'Person has a single employer/employee_role' do
     let(:person) { FactoryBot.create :person, :with_employee_role }
 
     before :each do
@@ -38,7 +40,7 @@ RSpec.describe "insured/families/_employer_panel.html.erb" do
     end
   end
 
-  context 'Person has two employers/employee_roles' do  
+  context 'Person has two employers/employee_roles' do
     let(:person) { FactoryBot.create :person, :with_employee_role, :with_employee_role }
 
     before :each do

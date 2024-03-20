@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'change_suffix_person')
+
 describe ChangeSuffixPerson do
   let(:given_task_name) { 'change_suffix_person' }
   subject { ChangeSuffixPerson.new(given_task_name, double(:current_scope => nil)) }
@@ -11,6 +12,7 @@ describe ChangeSuffixPerson do
       expect(subject.name).to eql given_task_name
     end
   end
+
   describe 'changing person name suffix ' do
     let(:person) { FactoryBot.create(:person, name_sfx: nil)}
     let(:hbx_id) { person.hbx_id}

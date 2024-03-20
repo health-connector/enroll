@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :general_agency_account do
     employer_profile { FactoryBot.create(:employer_profile) }

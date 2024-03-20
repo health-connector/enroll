@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/_home_address_fields.html.erb" do
@@ -13,7 +15,7 @@ describe "shared/_home_address_fields.html.erb" do
   end
 
   it "should have address info" do
-    expect(rendered).to match /NEW ADDRESS/
+    expect(rendered).to match(/NEW ADDRESS/)
     expect(rendered).to have_selector("label", text: "Home Address")
   end
 

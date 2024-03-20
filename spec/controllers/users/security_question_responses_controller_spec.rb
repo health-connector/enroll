@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Users::SecurityQuestionResponsesController do
@@ -7,11 +9,13 @@ RSpec.describe Users::SecurityQuestionResponsesController do
   let(:security_question_two) { create(:security_question, title: "What elementary school did you attend?")}
   let(:security_question_three) { create(:security_question, title: "What is your favorite color?")}
   let(:first_security_response) { double(:security_question_response, security_question_id: security_question_one.id, question_answer: 'Pluto') }
-  let(:security_question_responses) { [
+  let(:security_question_responses) do
+    [
                           { security_question_id: first_security_response.security_question_id, question_answer: first_security_response.question_answer },
                           { security_question_id: security_question_two.id, question_answer: 'Wayside' },
                           { security_question_id: security_question_three.id, question_answer: 'Mauve' }
-                        ] }
+                        ]
+  end
 
   before do
     allow(User).to receive(:find).with(user.id).and_return(user)
@@ -80,7 +84,7 @@ RSpec.describe Users::SecurityQuestionResponsesController do
   describe 'POST authenticate' do
     let(:correct_answer) { 'Pluto' }
     let(:successful_response) { { security_question_id: security_question_one.id, question_answer: correct_answer } }
-    let(:security_question_responses) { double() }
+    let(:security_question_responses) { double }
     let(:correct_response) { first_security_response.question_answer}
     let(:matching) { true }
 

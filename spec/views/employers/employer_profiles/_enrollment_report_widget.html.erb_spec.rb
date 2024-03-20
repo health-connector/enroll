@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 RSpec.describe "_enrollment_report_widget.html.erb" do
   let(:employer_profile){FactoryBot.create(:employer_profile)}
@@ -7,17 +9,17 @@ RSpec.describe "_enrollment_report_widget.html.erb" do
     before :each do
       assign(:employer_profile, employer_profile)
       assign(:plan_year, plan_year)
-      plan_year.update_attributes(aasm_state:'published')
+      plan_year.update_attributes(aasm_state: 'published')
       render 'employers/employer_profiles/enrollment_report_widget'
     end
-  
-      it "should display the following text" do
-       expect(rendered).to have_selector('td', text: /Total Premium:/i)
-       expect(rendered).to have_selector('td', text: /Employee Contributions:/i)
-       expect(rendered).to have_selector('td', text: /Employer Contributions:/i)
-      end
+
+    it "should display the following text" do
+      expect(rendered).to have_selector('td', text: /Total Premium:/i)
+      expect(rendered).to have_selector('td', text: /Employee Contributions:/i)
+      expect(rendered).to have_selector('td', text: /Employer Contributions:/i)
     end
-    
+  end
+
   context "without active plan year" do
     let(:employer_profile) { FactoryBot.build_stubbed(:employer_profile) }
     before :each do

@@ -2,6 +2,7 @@
 
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_date_of_hire")
+
 describe ChangeDateOfHire, dbclean: :after_each do
   describe "given a task name" do
     let(:given_task_name) { "change_date_of_hire" }
@@ -10,6 +11,7 @@ describe ChangeDateOfHire, dbclean: :after_each do
       expect(subject.name).to eql given_task_name
     end
   end
+
   describe "Change doh for employee role", dbclean: :after_each do
     subject {ChangeDateOfHire.new("change_date_of_hire", double(:current_scope => nil)) }
     let(:person_with_employee_role) { FactoryBot.create(:person, :with_employee_role, :with_ssn) }

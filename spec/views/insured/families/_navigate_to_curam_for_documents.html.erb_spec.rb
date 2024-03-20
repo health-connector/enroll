@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_navigate_to_curam_for_documents.html.erb" do

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_qle_detail.html.erb" do
-  let(:person) { FactoryBot.create(:person, :with_family ) }
+  let(:person) { FactoryBot.create(:person, :with_family) }
   let(:user) { FactoryBot.create(:user, person: person) }
   let(:resident_role) { FactoryBot.create(:resident_role) }
 

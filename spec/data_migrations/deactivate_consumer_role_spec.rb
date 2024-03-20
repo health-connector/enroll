@@ -17,6 +17,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
     describe "deactivate consumer role" do
       let(:person) { FactoryBot.create(:person, :with_consumer_role, hbx_id: "12345678")}
+
       it "should change is_active field" do
         ClimateControl.modify :hbx_id => "12345678" do
           role_status = person.consumer_role

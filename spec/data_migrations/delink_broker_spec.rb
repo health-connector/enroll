@@ -4,7 +4,6 @@ require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'delink_broker')
 
 describe DelinkBroker do
-
   let(:given_task_name) { 'delink_broker' }
   let(:person) { FactoryBot.create(:person,:with_broker_role)}
   let(:organization1) {FactoryBot.create(:organization)}

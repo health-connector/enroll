@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe EmployerProfilePolicy, dbclean: :after_each do
@@ -8,14 +10,14 @@ describe EmployerProfilePolicy, dbclean: :after_each do
   let(:hbx_profile) {FactoryBot.create(:hbx_profile)}
 
   context 'hbx_staff_role subroles' do
-    it 'hbx_staff' do 
+    it 'hbx_staff' do
       allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_staff))
       expect(policy.list_enrollments?).to be true
       expect(policy.updateable?).to be true
       expect(policy.revert_application?).to be true
     end
 
-    it 'hbx_read_only' do 
+    it 'hbx_read_only' do
       allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_read_only))
       expect(policy.list_enrollments?).to be true
       expect(policy.updateable?).to be false
@@ -29,14 +31,14 @@ describe EmployerProfilePolicy, dbclean: :after_each do
       expect(policy.revert_application?).to be true
     end
 
-    it 'hbx_csr_tier2' do 
+    it 'hbx_csr_tier2' do
       allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_csr_tier2))
       expect(policy.list_enrollments?).to be false
       expect(policy.updateable?).to be true
       expect(policy.revert_application?).to be false
     end
 
-    it 'csr_tier1' do 
+    it 'csr_tier1' do
       allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_csr_tier1))
       expect(policy.list_enrollments?).to be false
       expect(policy.updateable?).to be false

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe User, :type => :model, dbclean: :after_each do
@@ -82,7 +84,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
     end
 
     context 'when password' do
-      let(:params){valid_params.deep_merge!({password: "",})}
+      let(:params){valid_params.deep_merge!({password: ""})}
       it 'is empty' do
         expect(User.create(**params).errors[:password].any?).to be_truthy
         expect(User.create(**params).errors[:password]).to eq ["can't be blank"]
@@ -91,7 +93,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
     end
 
     context 'when password' do
-      let(:params){valid_params.deep_merge!({password: valid_params[:oim_id].capitalize + "aA1!"})}
+      let(:params){valid_params.deep_merge!({password: "#{valid_params[:oim_id].capitalize}aA1!"})}
       it 'contains username' do
         expect(User.create(**params).errors[:password].any?).to be_truthy
         expect(User.create(**params).errors[:password]).to eq ["cannot contain username"]
@@ -173,7 +175,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:benefit_sponsor)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)    { benefit_sponsor.employer_profile }
-      let!(:active_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, person: person, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+      let!(:active_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, person: person, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
 
       it "should return proper roles" do
         user = User.new(**params)
@@ -449,7 +451,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
       allow(hbx_staff_role).to receive(:permission).and_return(permission)
     end
-    
+
     context "should set the return the permission for the user " do
       it 'returns the permission for the user' do
         allow(user).to receive(:permission).and_return(person.hbx_staff_role.permission)

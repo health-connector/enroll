@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe InvitationsController do
@@ -26,7 +28,7 @@ RSpec.describe InvitationsController do
       let(:unclaimed) { true }
 
       it "should claim the invitation" do
-        expect(invitation).to receive(:claim_invitation!).with(user, controller) do |u, c|
+        expect(invitation).to receive(:claim_invitation!).with(user, controller) do |_u, c|
           c.redirect_to root_url
         end
         get :claim, params: {:id => invitation_id}

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :broker_agency_profile do
     market_kind { "shop" }
@@ -7,8 +9,8 @@ FactoryBot.define do
     ach_routing_number { '123456789' }
     ach_account_number { '9999999999999999' }
     corporate_npn do
-      Forgery('basic').text(:allow_lower   => false,
-                            :allow_upper   => false,
+      Forgery('basic').text(:allow_lower => false,
+                            :allow_upper => false,
                             :allow_numeric => true,
                             :allow_special => false, :exactly => 8)
     end
@@ -18,7 +20,7 @@ FactoryBot.define do
     trait :shop_agency do
       market_kind { "shop" }
     end
-     trait :ivl_agency do
+    trait :ivl_agency do
       market_kind { "individual" }
     end
   end

@@ -19,6 +19,7 @@ describe DelinkUserAndPerson do
       expect(person.user).to eq nil
     end
   end
+
   it "after delink the user should exists" do
     ClimateControl.modify person_hbx_id: person.hbx_id do
       id = user.id

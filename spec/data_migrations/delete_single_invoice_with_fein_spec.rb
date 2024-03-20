@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'delete_single_invoice_with_fein')
-
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
@@ -24,8 +23,10 @@ describe DeleteSingleInvoiceWithFein, dbclean: :after_each do
     let!(:organization) { abc_organization }
     let!(:employer_profile) { organization.employer_profile }
     let(:employer_invoice_1) do
-      ::BenefitSponsors::Documents::Document.new({ title: 'file_name_1', date: TimeKeeper.date_of_record, creator: 'hbx_staff', subject: 'initial_invoice', identifier: 'urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key',
-                                                   format: 'file_content_type' })
+      ::BenefitSponsors::Documents::Document.new({ 
+        title: 'file_name_1', date: TimeKeeper.date_of_record, creator: 'hbx_staff', subject: 'initial_invoice',
+        identifier: 'urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key',format: 'file_content_type'
+      })
     end
 
     before do

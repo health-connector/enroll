@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Subscribers::LawfulPresence do
@@ -19,12 +21,20 @@ describe Subscribers::LawfulPresence do
     let(:individual_id) { "121211" }
     let(:xml) { File.read(Rails.root.join("spec", "test_data", "lawful_presence_payloads", "response.xml")) }
     let(:xml2) { File.read(Rails.root.join("spec", "test_data", "lawful_presence_payloads", "response2.xml")) }
-    let(:xml_hash) { {:case_number => "12121", :lawful_presence_determination => {
-        :response_code => "lawfully_present", :legal_status => "lawful_permanent_resident"}} }
-    let(:xml_hash2) { {:case_number => "12121", :lawful_presence_indeterminate => {:response_code => "invalid_information",
-                                                                                   :response_text => "Complete information."}} }
-    let(:xml_hash3) { {:case_number => "12121", :lawful_presence_determination => {
-        :response_code => "not_lawfully_present", :legal_status => "other"}} }
+    let(:xml_hash) do
+      {:case_number => "12121", :lawful_presence_determination => {
+        :response_code => "lawfully_present", :legal_status => "lawful_permanent_resident"
+      }}
+    end
+    let(:xml_hash2) do
+      {:case_number => "12121", :lawful_presence_indeterminate => {:response_code => "invalid_information",
+                                                                   :response_text => "Complete information."}}
+    end
+    let(:xml_hash3) do
+      {:case_number => "12121", :lawful_presence_determination => {
+        :response_code => "not_lawfully_present", :legal_status => "other"
+      }}
+    end
 
     let(:person) { FactoryBot.create(:person, :with_consumer_role) }
     let(:consumer_role) { person.consumer_role }

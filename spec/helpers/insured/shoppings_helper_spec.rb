@@ -14,8 +14,8 @@ RSpec.describe Insured::ShoppingsHelper, :type => :helper, dbclean: :after_each 
 
     let(:organization) do
       FactoryBot.create(:benefit_sponsors_organizations_general_organization,
-                         :with_aca_shop_dc_employer_profile_initial_application,
-                         site: site)
+                        :with_aca_shop_dc_employer_profile_initial_application,
+                        site: site)
     end
 
     let(:employer_profile) { organization.employer_profile }

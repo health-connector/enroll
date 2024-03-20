@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ApplicationController do
@@ -39,7 +41,7 @@ RSpec.describe ApplicationController do
     let(:user) { FactoryBot.create("user") }
 
     it "should return the root url in dev environment" do
-      expect( controller.send(:after_sign_out_path_for, user) ).to eq logout_saml_index_path
+      expect(controller.send(:after_sign_out_path_for, user)).to eq logout_saml_index_path
     end
 
     context "when user has active enrollments but no security question responses" do
@@ -88,57 +90,57 @@ RSpec.describe ApplicationController do
   end
 
   context "session[person_id] is nil" do
-      let(:person) {FactoryBot.create(:person);}
-      let(:user) { FactoryBot.create(:user, :person=>person); }
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
 
+    before do
+      sign_in(user)
+      allow(person).to receive(:agent?).and_return(true)
+      allow(subject).to receive(:redirect_to).with(String)
+      @request.session['person_id'] = nil
+    end
+
+    context "agent role" do
       before do
-        sign_in(user)
-        allow(person).to receive(:agent?).and_return(true)
-        allow(subject).to receive(:redirect_to).with(String)
-        @request.session['person_id'] = nil
+        user.roles << 'csr'
       end
 
-      context "agent role" do
-        before do
-          user.roles << 'csr'
-        end
-
-        it "writes a log message by default" do
-          #expect(subject).to receive(:log) do |msg, severity|
-            #expect(severity[:severity]).to eq('error')
-            #expect(msg[:user_id]).to match(user.id)
-            #expect(msg[:oim_id]).to match(user.oim_id)
-            #end
-          subject.instance_eval{set_current_person}
-        end
-        it "does not write a log message if @person is not required" do
-          expect(subject).not_to receive(:log)
-          subject.instance_eval{set_current_person(required: false)}
-        end
+      it "writes a log message by default" do
+        #expect(subject).to receive(:log) do |msg, severity|
+          #expect(severity[:severity]).to eq('error')
+          #expect(msg[:user_id]).to match(user.id)
+          #expect(msg[:oim_id]).to match(user.oim_id)
+          #end
+        subject.instance_eval{set_current_person}
       end
+      it "does not write a log message if @person is not required" do
+        expect(subject).not_to receive(:log)
+        subject.instance_eval{set_current_person(required: false)}
+      end
+    end
   end
   context "session[person_id] is nil" do
-      let(:person) {FactoryBot.create(:person);}
-      let(:user) { FactoryBot.create(:user, :person=>person); }
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
 
-      before do
-        sign_in(user)
-        allow(person).to receive(:agent?).and_return(false)
-        allow(subject).to receive(:redirect_to).with(String)
-        @request.session['person_id'] = nil
-      end
+    before do
+      sign_in(user)
+      allow(person).to receive(:agent?).and_return(false)
+      allow(subject).to receive(:redirect_to).with(String)
+      @request.session['person_id'] = nil
+    end
 
-      context "non agent role" do
-        it "does not write a log message if @person is not required" do
-          expect(subject).not_to receive(:log)
-          subject.instance_eval{set_current_person(required: false)}
-        end
+    context "non agent role" do
+      it "does not write a log message if @person is not required" do
+        expect(subject).not_to receive(:log)
+        subject.instance_eval{set_current_person(required: false)}
       end
+    end
   end
 
   context "require_login" do
-    let(:person) {FactoryBot.create(:person);}
-    let(:user) { FactoryBot.create(:user, :person=>person); }
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
 
     before do
       sign_in(user)

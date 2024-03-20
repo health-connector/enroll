@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/family_members/_dependent.html.erb", dbclean: :after_each do

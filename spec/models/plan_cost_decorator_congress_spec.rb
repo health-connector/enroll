@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
   let!(:plan_year)          { double("PlanYear", start_on: Date.today.beginning_of_year) }
   let!(:benefit_group)      { double("BenefitGroupCongress", plan_year: plan_year, over_one_dependents_max_amt: Money.new("97190"), employee_max_amt: Money.new("43769"), first_dependent_max_amt: Money.new("97190"), contribution_pct_as_int: 75) }
   let(:hbx_enrollment)      { HbxEnrollment.new }
-  let!(:hem_employee)       { double("HbxEnrollmentMember_Employee", class: HbxEnrollmentMember, _id: "a", age_on_effective_date: 19, age_on_eligibility_date: 19, is_subscriber?: true , primary_relationship: "self") }
+  let!(:hem_employee)       { double("HbxEnrollmentMember_Employee", class: HbxEnrollmentMember, _id: "a", age_on_effective_date: 19, age_on_eligibility_date: 19, is_subscriber?: true, primary_relationship: "self") }
   let!(:hem_spouse)         { double("HbxEnrollmentMember_Spouse",   class: HbxEnrollmentMember, _id: "b", age_on_effective_date: 20, age_on_eligibility_date: 20, is_subscriber?: false, primary_relationship: "spouse") }
   let!(:hem_child_1)        { double("HbxEnrollmentMember_Child_1",  class: HbxEnrollmentMember, _id: "c", age_on_effective_date: 18, age_on_eligibility_date: 18, is_subscriber?: false, primary_relationship: "child") }
   let!(:hem_child_2)        { double("HbxEnrollmentMember_Child_2",  class: HbxEnrollmentMember, _id: "d", age_on_effective_date: 13, age_on_eligibility_date: 13, is_subscriber?: false, primary_relationship: "child") }
@@ -18,7 +20,7 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
   let!(:chosen_plan) { FactoryBot.create(:plan, :with_premium_tables, market: 'shop') }
 
   before do
-    allow(Caches::PlanDetails).to receive(:lookup_rate) {|id, start, age| age * premium_constant}
+    allow(Caches::PlanDetails).to receive(:lookup_rate) {|_id, _start, age| age * premium_constant}
     allow(hbx_enrollment).to receive(:hbx_enrollment_members).and_return hbx_enrollment_members
   end
 
@@ -73,14 +75,14 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
         let(:premium_constant) { Money.new("1000") }
 
         it "should have an employer contribution for employee" do
-          expect(plan_cost_decorator.employer_contribution_for(hem_employee)).to eq ((plan_cost_decorator.premium_for(hem_employee)/plan_cost_decorator.total_premium)*plan_cost_decorator.total_employer_contribution).round(2)
+          expect(plan_cost_decorator.employer_contribution_for(hem_employee)).to eq ((plan_cost_decorator.premium_for(hem_employee) / plan_cost_decorator.total_premium) * plan_cost_decorator.total_employer_contribution).round(2)
         end
       end
 
       context "above contribution cap" do
         let(:premium_constant) { 100.00 }
         before do
-          allow(benefit_group).to receive(:employee_max_amt_in_cents).and_return(hem_employee.age_on_effective_date )
+          allow(benefit_group).to receive(:employee_max_amt_in_cents).and_return(hem_employee.age_on_effective_date)
           allow(benefit_group).to receive(:first_dependent_max_amt_in_cents).and_return(hem_spouse.age_on_effective_date * 2)
           # allow(benefit_group).to receive(:over_one_dependents_max_amt_in_cents).and_return(hem_employee.age_on_effective_date * 10)
         end
@@ -131,7 +133,7 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
         let(:premium_constant) { 1.00 }
         let(:premiums) { [19.00, 20.00, 18.00, 13.00, 10.00, 0.00] }
         let(:premium_sum) { premiums.inject(0.00) { |acc, prem| (acc + prem).round(2) } }
-        let(:premium_percents) { premiums.collect(){|premium| (premium / premium_sum).round(2) } }
+        let(:premium_percents) { premiums.collect{|premium| (premium / premium_sum).round(2) } }
 
         it "should have correct list of members" do
           expect(plan_cost_decorator.members).to contain_exactly(*hbx_enrollment_members)
@@ -148,19 +150,19 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
         end
 
         it "should have correct child indexes" do
-          expect(hbx_enrollment_members.collect(){|member|plan_cost_decorator.child_index(member)}).to match_array([-1,-1,0,1,2,3])
+          expect(hbx_enrollment_members.collect{|member| plan_cost_decorator.child_index(member)}).to match_array([-1,-1,0,1,2,3])
         end
 
         it "should have correct member indexes" do
-          expect(hbx_enrollment_members.collect(){|member|plan_cost_decorator.member_index(member)}).to match_array([0,1,2,3,4,5])
+          expect(hbx_enrollment_members.collect{|member| plan_cost_decorator.member_index(member)}).to match_array([0,1,2,3,4,5])
         end
 
         it "should have correct relationships" do
-          expect(hbx_enrollment_members.collect(){|member|plan_cost_decorator.relationship_for(member)}).to match_array(%w[employee spouse child_under_26 child_under_26 child_under_26 child_under_26])
+          expect(hbx_enrollment_members.collect{|member| plan_cost_decorator.relationship_for(member)}).to match_array(%w[employee spouse child_under_26 child_under_26 child_under_26 child_under_26])
         end
 
         it "should have correct large family factors" do
-          expect(hbx_enrollment_members.collect(){|member|plan_cost_decorator.large_family_factor(member)}).to match_array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0])
+          expect(hbx_enrollment_members.collect{|member| plan_cost_decorator.large_family_factor(member)}).to match_array([1.0, 1.0, 1.0, 1.0, 1.0, 0.0])
         end
 
         it "should have correct employer contribution percent" do
@@ -172,15 +174,15 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
         end
 
         it "should have correct premiums" do
-          expect(hbx_enrollment_members.collect(){|member| plan_cost_decorator.premium_for(member).round(2)}).to match_array(premiums)
+          expect(hbx_enrollment_members.collect{|member| plan_cost_decorator.premium_for(member).round(2)}).to match_array(premiums)
         end
 
         it "should have correct employer contributions" do
-          expect(hbx_enrollment_members.inject(0.00) {|acc, member| ((acc + plan_cost_decorator.employer_contribution_for(member)).round(2)) }).to eq plan_cost_decorator.total_employer_contribution.round(2)
+          expect(hbx_enrollment_members.inject(0.00) {|acc, member| (acc + plan_cost_decorator.employer_contribution_for(member)).round(2) }).to eq plan_cost_decorator.total_employer_contribution.round(2)
         end
 
         it "should have correct employee costs" do
-          expect(hbx_enrollment_members.collect(){ |member| plan_cost_decorator.employee_cost_for(member) }).to match_array(premiums.collect(){ |premium| premium * (100 - benefit_group.contribution_pct_as_int) / 100.0})
+          expect(hbx_enrollment_members.collect{ |member| plan_cost_decorator.employee_cost_for(member) }).to match_array(premiums.collect{ |premium| premium * (100 - benefit_group.contribution_pct_as_int) / 100.0})
         end
 
         it "should have correct total premium" do
@@ -188,11 +190,11 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
         end
 
         it "should have correct total employer contribution" do
-          expect(plan_cost_decorator.total_employer_contribution).to eq (premiums.sum * benefit_group.contribution_pct_as_int / 100.0)
+          expect(plan_cost_decorator.total_employer_contribution).to eq(premiums.sum * benefit_group.contribution_pct_as_int / 100.0)
         end
 
         it "should have correct total employee cost" do
-          expect(plan_cost_decorator.total_employee_cost).to eq (premiums.sum * (100.0 - benefit_group.contribution_pct_as_int) / 100.0)
+          expect(plan_cost_decorator.total_employee_cost).to eq(premiums.sum * (100.0 - benefit_group.contribution_pct_as_int) / 100.0)
         end
       end
 

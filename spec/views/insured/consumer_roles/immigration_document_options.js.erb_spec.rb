@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "insured/consumer_roles/immigration_document_options.js.erb" do
@@ -13,8 +15,8 @@ RSpec.describe "insured/consumer_roles/immigration_document_options.js.erb" do
     end
 
     it "should have form_for" do
-      expect(rendered).to match /form/
-      expect(rendered).to match /naturalization_cert_container/
+      expect(rendered).to match(/form/)
+      expect(rendered).to match(/naturalization_cert_container/)
     end
   end
 
@@ -26,7 +28,7 @@ RSpec.describe "insured/consumer_roles/immigration_document_options.js.erb" do
     end
 
     it "should not have form_for" do
-      expect(rendered).not_to match /form/
+      expect(rendered).not_to match(/form/)
     end
   end
 end

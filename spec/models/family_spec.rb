@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -6,14 +8,13 @@ describe Family, "given a primary applicant and a dependent" do
   let(:person) { Person.new }
   let(:dependent) { Person.new }
   let(:household) { Household.new(:is_active => true) }
-  let(:enrollment) {
+  let(:enrollment) do
     FactoryBot.create(:hbx_enrollment,
-                       household: household,
-                       coverage_kind: "health",
-                       enrollment_kind: "open_enrollment",
-                       aasm_state: 'shopping'
-    )
-  }
+                      household: household,
+                      coverage_kind: "health",
+                      enrollment_kind: "open_enrollment",
+                      aasm_state: 'shopping')
+  end
   let(:family_member_person) { FamilyMember.new(is_primary_applicant: true, is_consent_applicant: true, person: person) }
   let(:family_member_dependent) { FamilyMember.new(person: dependent) }
 
@@ -40,13 +41,13 @@ describe Family, "given a primary applicant and a dependent" do
   end
 
   context "enrollments_for_display" do
-    let(:expired_enrollment) {
-    FactoryBot.create(:hbx_enrollment,
-                       household: household,
-                       coverage_kind: "health",
-                       enrollment_kind: "open_enrollment",
-                       aasm_state: 'coverage_expired'
-    )}
+    let(:expired_enrollment) do
+      FactoryBot.create(:hbx_enrollment,
+                        household: household,
+                        coverage_kind: "health",
+                        enrollment_kind: "open_enrollment",
+                        aasm_state: 'coverage_expired')
+    end
 
     it "should not return expired enrollment" do
       expect(subject.enrollments_for_display.to_a).to eq []
@@ -236,7 +237,7 @@ describe Family, type: :model, dbclean: :after_each do
 
     context "when you add a family member" do
       it "there is a corresponding coverage household member" do
-        covered_bradys = carols_family.households.first.immediate_family_coverage_household.coverage_household_members.collect(){|m| m.family_member.person.full_name}
+        covered_bradys = carols_family.households.first.immediate_family_coverage_household.coverage_household_members.collect{|m| m.family_member.person.full_name}
         expect(covered_bradys).to contain_exactly(*bradys.collect(&:full_name))
       end
     end
@@ -376,7 +377,7 @@ describe Family do
       expect(family.current_special_enrollment_periods.size).to eq 1
       expect(family.current_special_enrollment_periods.first).to eq @current_sep
     end
-   end
+  end
 
   context "and the family is under more than one SEP" do
     before do
@@ -438,7 +439,7 @@ describe Family do
     let(:family) { FactoryBot.create(:family, :with_primary_family_member, :person => person) }
     let(:family_member) { FactoryBot.create(:family_member, :family => family, :person => person2) }
     let(:primary_family_member) { family.primary_family_member }
-    before do 
+    before do
       allow(family).to receive(:contingent_enrolled_active_family_members).and_return([primary_family_member, family_member])
       allow(person).to receive(:verification_types).and_return(["Immigration status"])
       allow(person2).to receive(:verification_types).and_return(["Immigration status"])
@@ -449,29 +450,29 @@ describe Family do
     end
     it "should return sorted due dates" do
       allow(family).to receive(:document_due_date).with(primary_family_member,"Immigration status").and_return(TimeKeeper.date_of_record)
-      allow(family).to receive(:document_due_date).with(family_member,"Immigration status").and_return(TimeKeeper.date_of_record+30)
+      allow(family).to receive(:document_due_date).with(family_member,"Immigration status").and_return(TimeKeeper.date_of_record + 30)
 
-      expect(family.contingent_enrolled_family_members_due_dates).to eq [TimeKeeper.date_of_record,TimeKeeper.date_of_record+30]
+      expect(family.contingent_enrolled_family_members_due_dates).to eq [TimeKeeper.date_of_record,TimeKeeper.date_of_record + 30]
     end
   end
 
-  context "best_verification_due_date" do 
+  context "best_verification_due_date" do
     let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
-    
+
     it "should earliest duedate when family had two or more due dates" do
-      family_due_dates = [TimeKeeper.date_of_record+40 , TimeKeeper.date_of_record+ 80]
+      family_due_dates = [TimeKeeper.date_of_record + 40, TimeKeeper.date_of_record + 80]
       allow(family).to receive(:contingent_enrolled_family_members_due_dates).and_return(family_due_dates)
       expect(family.best_verification_due_date).to eq TimeKeeper.date_of_record + 40
     end
 
     it "should return only possible due date when we only have one due date even if it passed or less than 30days" do
-      family_due_dates = [TimeKeeper.date_of_record+20]
+      family_due_dates = [TimeKeeper.date_of_record + 20]
       allow(family).to receive(:contingent_enrolled_family_members_due_dates).and_return(family_due_dates)
       expect(family.best_verification_due_date).to eq TimeKeeper.date_of_record + 20
     end
 
     it "should return next possible due date when the first due date is passed or less than 30days" do
-      family_due_dates = [TimeKeeper.date_of_record+20 , TimeKeeper.date_of_record+ 80]
+      family_due_dates = [TimeKeeper.date_of_record + 20, TimeKeeper.date_of_record + 80]
       allow(family).to receive(:contingent_enrolled_family_members_due_dates).and_return(family_due_dates)
       expect(family.best_verification_due_date).to eq TimeKeeper.date_of_record + 80
     end
@@ -511,7 +512,7 @@ describe Family do
       it "when original terminate date before hbx effective_on" do
         allow(family).to receive(:latest_shop_sep).and_return normal_sep
         allow(normal_sep).to receive(:qle_on).and_return date.end_of_month
-        allow(hbx).to receive(:effective_on).and_return (date.end_of_month)
+        allow(hbx).to receive(:effective_on).and_return(date.end_of_month)
         expect(family.terminate_date_for_shop_by_enrollment(hbx)).to eq end_of_month
       end
 
@@ -554,16 +555,24 @@ describe Family, ".find_or_build_from_employee_role:", type: :model, dbclean: :a
   let(:child)         { FactoryBot.create(:person, last_name: "sheen", first_name: "sam") }
   let(:grandpa)       { FactoryBot.create(:person, last_name: "sheen", first_name: "martin") }
 
-  let(:married_relationships) { [PersonRelationship.new(relative: spouse, kind: "spouse"),
-                                 PersonRelationship.new(relative: child, kind: "child")] }
-  let(:family_relationships)  {  married_relationships <<
-                                 PersonRelationship.new(relative: grandpa, kind: "grandparent") }
+  let(:married_relationships) do
+    [PersonRelationship.new(relative: spouse, kind: "spouse"),
+     PersonRelationship.new(relative: child, kind: "child")]
+  end
+  let(:family_relationships)  do
+    married_relationships <<
+      PersonRelationship.new(relative: grandpa, kind: "grandparent")
+  end
 
   let(:single_dude)   { FactoryBot.create(:person, last_name: "sheen", first_name: "tigerblood") }
-  let(:married_dude)  { FactoryBot.create(:person, last_name: "sheen", first_name: "chuck",
-                                           person_relationships: married_relationships ) }
-  let(:family_dude)   { FactoryBot.create(:person, last_name: "sheen", first_name: "charles",
-                                           person_relationships: family_relationships ) }
+  let(:married_dude)  do
+    FactoryBot.create(:person, last_name: "sheen", first_name: "chuck",
+                               person_relationships: married_relationships)
+  end
+  let(:family_dude)   do
+    FactoryBot.create(:person, last_name: "sheen", first_name: "charles",
+                               person_relationships: family_relationships)
+  end
 
   let(:single_employee_role)    { FactoryBot.create(:employee_role, person: single_dude) }
   let(:married_employee_role)   { FactoryBot.create(:employee_role, person: married_dude) }
@@ -624,7 +633,7 @@ describe Family, ".find_or_build_from_employee_role:", type: :model, dbclean: :a
       end
 
       it "and extended family is in a second coverage household" do
-        extended_family_coverage_household =  large_family.households.first.coverage_households.where(:is_immediate_family => false).first
+        extended_family_coverage_household = large_family.households.first.coverage_households.where(:is_immediate_family => false).first
         expect(extended_family_coverage_household.coverage_household_members.size).to eq 1
         # expect(extended_family_coverage_household.coverage_household_members.first.).to eq 1
       end
@@ -643,9 +652,9 @@ end
 
 describe Family, "given an inactive member" do
   let(:ssn) { double }
-  let(:dependent) {
+  let(:dependent) do
     double(:id => "123456", :ssn => ssn, :last_name => last_name, :first_name => first_name, :dob => dob)
-  }
+  end
   let(:last_name) { "A LAST NAME" }
   let(:first_name) { "A FIRST NAME" }
   let(:dob) { Date.new(2012,3,15) }
@@ -687,11 +696,11 @@ describe Family, "with a primary applicant" do
     let(:dependent_id) { double }
     let(:dependent) { double(:id => dependent_id) }
 
-    subject {
+    subject do
       fam = Family.new
       fam.build_from_employee_role(employee_role)
       fam
-    }
+    end
 
     before(:each) do
       allow(primary_applicant).to receive(:ensure_relationship_with).with(dependent, "spouse")
@@ -820,7 +829,7 @@ describe Family, "enrollment periods", :model, dbclean: :around_each do
 
     let(:person) {FactoryBot.create(:person)}
     let!(:benefit_group) { current_benefit_package }
-    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package ) }
+    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
     let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
     let!(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
 
@@ -860,12 +869,12 @@ describe Family, "enrollment periods", :model, dbclean: :around_each do
 
     let(:person) {FactoryBot.create(:person)}
     let!(:benefit_group) { current_benefit_package }
-    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group ) }
+    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group) }
     let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
     let!(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
 
     let!(:benefit_group2) { current_benefit_package }
-    let!(:census_employee2) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group2 ) }
+    let!(:census_employee2) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group2) }
     let!(:employee_role2) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee2.id) }
     let!(:benefit_group_assignment2) { FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_group2, census_employee: census_employee2)}
 
@@ -929,7 +938,7 @@ describe Family, "enrollment periods", :model, dbclean: :around_each do
     let!(:hbx_profile) { FactoryBot.create(:hbx_profile, :single_open_enrollment_coverage_period) }
     let(:person) {FactoryBot.create(:person)}
     let!(:benefit_group) { current_benefit_package }
-    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group ) }
+    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group) }
     let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
     let!(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
 
@@ -965,12 +974,12 @@ describe Family, "enrollment periods", :model, dbclean: :around_each do
     let!(:hbx_profile) { FactoryBot.create(:hbx_profile, :single_open_enrollment_coverage_period) }
     let(:person) {FactoryBot.create(:person)}
     let!(:benefit_group) { current_benefit_package }
-    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group ) }
+    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group) }
     let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
     let!(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_group, census_employee: census_employee)}
 
     let!(:benefit_group2) { current_benefit_package }
-    let!(:census_employee2) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group2 ) }
+    let!(:census_employee2) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: benefit_group2) }
     let!(:employee_role2) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee2.id) }
     let!(:benefit_group_assignment2) { FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_group2, census_employee: census_employee2)}
 
@@ -1115,44 +1124,40 @@ describe Family, ".expire_individual_market_enrollments", dbclean: :after_each d
   let!(:dental_plan) { FactoryBot.create(:plan, :with_dental_coverage, market: 'individual', active_year: TimeKeeper.date_of_record.year - 1)}
   let!(:two_years_old_plan) { FactoryBot.create(:plan, :with_premium_tables, market: 'individual', metal_level: 'gold', active_year: TimeKeeper.date_of_record.year - 2, hios_id: "11111111122302-01", csr_variant_id: "01") }
   let!(:hbx_profile) { FactoryBot.create(:hbx_profile) }
-  let!(:enrollments) {
+  let!(:enrollments) do
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "health",
-                       effective_on: current_effective_date,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record.prev_month,
-                       plan_id: plan.id
-    )
+                      household: family.active_household,
+                      coverage_kind: "health",
+                      effective_on: current_effective_date,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record.prev_month,
+                      plan_id: plan.id)
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "health",
-                       effective_on: current_effective_date - 1.year,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record.prev_month,
-                       plan_id: prev_year_plan.id
-    )
+                      household: family.active_household,
+                      coverage_kind: "health",
+                      effective_on: current_effective_date - 1.year,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record.prev_month,
+                      plan_id: prev_year_plan.id)
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "dental",
-                       effective_on: sep_effective_date,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record.prev_month,
-                       plan_id: dental_plan.id
-    )
+                      household: family.active_household,
+                      coverage_kind: "dental",
+                      effective_on: sep_effective_date,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record.prev_month,
+                      plan_id: dental_plan.id)
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "dental",
-                       effective_on: current_effective_date - 2.years,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record.prev_month,
-                       plan_id: two_years_old_plan.id
-    )
-  }
+                      household: family.active_household,
+                      coverage_kind: "dental",
+                      effective_on: current_effective_date - 2.years,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record.prev_month,
+                      plan_id: two_years_old_plan.id)
+  end
   context 'when family exists with current & previous year coverages' do
     before do
       Family.expire_individual_market_enrollments
@@ -1184,30 +1189,28 @@ describe Family, ".begin_coverage_for_ivl_enrollments", dbclean: :after_each do
   let!(:dental_plan) { FactoryBot.create(:plan, :with_dental_coverage, market: 'individual', active_year: TimeKeeper.date_of_record.year)}
   let!(:hbx_profile) { FactoryBot.create(:hbx_profile) }
 
-  let!(:enrollments) {
+  let!(:enrollments) do
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "health",
-                       effective_on: current_effective_date,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record.prev_month,
-                       plan_id: plan.id,
-                       aasm_state: 'auto_renewing'
-    )
+                      household: family.active_household,
+                      coverage_kind: "health",
+                      effective_on: current_effective_date,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record.prev_month,
+                      plan_id: plan.id,
+                      aasm_state: 'auto_renewing')
 
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "dental",
-                       effective_on: current_effective_date,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record.prev_month,
-                       plan_id: dental_plan.id,
-                       aasm_state: 'auto_renewing'
-    )
+                      household: family.active_household,
+                      coverage_kind: "dental",
+                      effective_on: current_effective_date,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record.prev_month,
+                      plan_id: dental_plan.id,
+                      aasm_state: 'auto_renewing')
 
-  }
+  end
   context 'when family exists with passive renewals ' do
     before do
       Family.begin_coverage_for_ivl_enrollments
@@ -1277,7 +1280,7 @@ describe "#all_persons_vlp_documents_status" do
     end
 
     it "returns all_persons_vlp_documents_status is Fully Uploaded when documents status is verified" do
-      family_person.consumer_role.vlp_documents << FactoryBot.build(:vlp_document, verification_type: "DC Residency" )
+      family_person.consumer_role.vlp_documents << FactoryBot.build(:vlp_document, verification_type: "DC Residency")
       family_person.consumer_role.update_attributes(ssn_validation: "valid")
       family_person.save!
       expect(family.all_persons_vlp_documents_status).to eq("Fully Uploaded")
@@ -1351,7 +1354,7 @@ describe "#document_due_date", dbclean: :after_each do
 
       before do
         fm = family.primary_family_member
-        enrollment.hbx_enrollment_members << HbxEnrollmentMember.new(applicant_id: fm.id, is_subscriber: fm.is_primary_applicant, eligibility_date: TimeKeeper.date_of_record , coverage_start_on: TimeKeeper.date_of_record)
+        enrollment.hbx_enrollment_members << HbxEnrollmentMember.new(applicant_id: fm.id, is_subscriber: fm.is_primary_applicant, eligibility_date: TimeKeeper.date_of_record, coverage_start_on: TimeKeeper.date_of_record)
       end
 
       #No longer updating special_verification_period on erollment. Due dates are moved to member level.
@@ -1454,20 +1457,28 @@ describe "terminated_enrollments", dbclean: :before_each do
   let!(:person) { FactoryBot.create(:person)}
   let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
   let!(:household) { FactoryBot.create(:household, family: family) }
-  let!(:termination_pending_enrollment) { family.active_household.hbx_enrollments.create!(
-                                            coverage_kind: "health",
-                                            kind:"employer_sponsored",
-                                            aasm_state: 'coverage_termination_pending'
-                                            )}
-  let!(:terminated_enrollment) { family.active_household.hbx_enrollments.create!(
-                                    coverage_kind: "health",
-                                    kind:"employer_sponsored",
-                                    aasm_state: 'coverage_terminated') }
+  let!(:termination_pending_enrollment) do
+    family.active_household.hbx_enrollments.create!(
+      coverage_kind: "health",
+      kind: "employer_sponsored",
+      aasm_state: 'coverage_termination_pending'
+    )
+  end
+  let!(:terminated_enrollment) do
+    family.active_household.hbx_enrollments.create!(
+      coverage_kind: "health",
+      kind: "employer_sponsored",
+      aasm_state: 'coverage_terminated'
+    )
+  end
 
-  let!(:expired_enrollment) { family.active_household.hbx_enrollments.create!(
-                                      coverage_kind: "health",
-                                      kind:"employer_sponsored",
-                                      aasm_state: 'coverage_expired') }
+  let!(:expired_enrollment) do
+    family.active_household.hbx_enrollments.create!(
+      coverage_kind: "health",
+      kind: "employer_sponsored",
+      aasm_state: 'coverage_expired'
+    )
+  end
 
   it "should include termination and termination pending enrollments only" do
     expect(family.terminated_enrollments.count).to eq 2

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/family_members/index.html.erb" do
@@ -34,7 +36,7 @@ describe "insured/family_members/index.html.erb" do
     end
 
     it "should call signup_progress" do
-      expect(rendered).to match /Employer/
+      expect(rendered).to match(/Employer/)
     end
   end
 
@@ -47,7 +49,7 @@ describe "insured/family_members/index.html.erb" do
     end
 
     it "should call individual_progress" do
-      expect(rendered).to match /Verify Identity/
+      expect(rendered).to match(/Verify Identity/)
       expect(rendered).to have_selector("a[href='/insured/families/find_sep?consumer_role_id=#{consumer_role.id}']", text: 'Continue')
     end
   end

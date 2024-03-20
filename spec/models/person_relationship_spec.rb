@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe PersonRelationship, dbclean: :after_each do
@@ -5,7 +7,7 @@ describe PersonRelationship, dbclean: :after_each do
   it { should validate_presence_of :kind }
 
   let(:kind) {"spouse"}
-  let(:person) {FactoryBot.create(:person, gender: "male", dob: "10/10/1974", ssn: "123456789" )}
+  let(:person) {FactoryBot.create(:person, gender: "male", dob: "10/10/1974", ssn: "123456789")}
 
   describe "class methods" do
     context "shop_display_relationship_kinds" do
@@ -17,11 +19,11 @@ describe PersonRelationship, dbclean: :after_each do
     let(:valid_params) do
       { kind: kind,
         relative: person,
-        person: person
-      }
+        person: person}
     end
 
-    let(:consumer_relationship_kinds) { [
+    let(:consumer_relationship_kinds) do
+      [
         "self",
         "spouse",
         "domestic_partner",
@@ -36,9 +38,11 @@ describe PersonRelationship, dbclean: :after_each do
         "nephew_or_niece",
         "grandchild",
         "grandparent"
-      ] }
+      ]
+    end
 
-    let(:relationships_UI)  { [
+    let(:relationships_UI)  do
+      [
       "self",
       "spouse",
       "domestic_partner",
@@ -50,9 +54,11 @@ describe PersonRelationship, dbclean: :after_each do
       "nephew_or_niece",
       "grandchild",
       "grandparent"
-    ] }
+    ]
+    end
 
-    let(:kinds) {  [
+    let(:kinds) do
+      [
       "spouse",
       "life_partner",
       "child",
@@ -81,7 +87,8 @@ describe PersonRelationship, dbclean: :after_each do
       "trustee",
       "unrelated",
       "ward"
-    ] }
+    ]
+    end
 
     context "consumer relationship dropdown list(family member page)" do
       let(:params){ valid_params.deep_merge!({kind: "other_tax_dependent"}) }

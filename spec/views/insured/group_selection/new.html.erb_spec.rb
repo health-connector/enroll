@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -8,32 +10,32 @@ RSpec.describe "insured/group_selection/new.html.erb" do
   let(:adapter) { instance_double(GroupSelectionPrevaricationAdapter) }
   context "coverage selection", dbclean: :after_each do
 
-  let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
-  let(:benefit_market) { site.benefit_markets.first }
-  let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
-  let!(:current_benefit_market_catalog) do
-    create(
-      :benefit_markets_benefit_market_catalog,
-      :with_product_packages,
-      benefit_market: benefit_market,
-      issuer_profile: issuer_profile,
-      title: "SHOP Benefits for #{effective_period_start_on.year}",
-      application_period: effective_period
-    )
-  end
-  include_context "setup initial benefit application"
-  let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
+    let(:benefit_market) { site.benefit_markets.first }
+    let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
+    let!(:current_benefit_market_catalog) do
+      create(
+        :benefit_markets_benefit_market_catalog,
+        :with_product_packages,
+        benefit_market: benefit_market,
+        issuer_profile: issuer_profile,
+        title: "SHOP Benefits for #{effective_period_start_on.year}",
+        application_period: effective_period
+      )
+    end
+    include_context "setup initial benefit application"
+    let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
 
-  let(:effective_period_start_on) { current_effective_date }
-  let(:effective_period_end_on) { effective_period_start_on + 1.year - 1.day }
+    let(:effective_period_start_on) { current_effective_date }
+    let(:effective_period_end_on) { effective_period_start_on + 1.year - 1.day }
 
-  let!(:rating_area)   { FactoryBot.create_default :benefit_markets_locations_rating_area }
-  let!(:service_area)  { FactoryBot.create_default :benefit_markets_locations_service_area }
-  let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
+    let!(:rating_area)   { FactoryBot.create_default :benefit_markets_locations_rating_area }
+    let!(:service_area)  { FactoryBot.create_default :benefit_markets_locations_service_area }
+    let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
 
     let(:person) { FactoryBot.create(:person, is_incarcerated: false, us_citizen: true) }
     let(:employee_role) { FactoryBot.build_stubbed(:employee_role) }
-    let(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package ) }
+    let(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
     let(:benefit_group) { current_benefit_package }
     let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
     let(:family_member1) { double("family member 1", id: "family_member", primary_relationship: "self", dob: Date.new(1990, 10, 10), full_name: "member", person: person) }
@@ -44,7 +46,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     let(:family_person_3) { double }
     let(:family_person_4) { double }
     let(:coverage_household) { double("coverage household", coverage_household_members: coverage_household_members) }
-    let(:coverage_household_members) { [double("coverage household member 2", family_member: family_member2), double("coverage household member 1", family_member: family_member1), double("coverage household member 3", family_member: family_member3), double("coverage household member 4", family_member: family_member4)] }
+    let(:coverage_household_members) do
+      [double("coverage household member 2", family_member: family_member2), double("coverage household member 1", family_member: family_member1), double("coverage household member 3", family_member: family_member3),
+       double("coverage household member 4", family_member: family_member4)]
+    end
     let(:hbx_enrollment) { double("hbx enrollment", id: "hbx_id", coverage_kind: "health", effective_on: (TimeKeeper.date_of_record.end_of_month + 1.day), employee_role: employee_role, is_shop?: false) }
     let(:coverage_kind) { hbx_enrollment.coverage_kind }
     let(:current_user) { FactoryBot.create(:user) }
@@ -98,7 +103,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       end
 
       it "should show the title of family members" do
-        expect(rendered).to match /Choose Coverage for your Household/
+        expect(rendered).to match(/Choose Coverage for your Household/)
       end
 
       if ExchangeTestingConfigurationHelper.dental_market_enabled?
@@ -141,26 +146,30 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       let(:consumer_role2) { FactoryBot.create(:consumer_role, person: person2, is_incarcerated: 'no', dob: TimeKeeper.date_of_record - 1.year) }
       let(:consumer_role3) { FactoryBot.create(:consumer_role, person: person3, is_incarcerated: 'no') }
 
-      let(:benefit_package) { FactoryBot.build(:benefit_package,
-        title: "individual_health_benefits_2015",
-        elected_premium_credit_strategy: "unassisted",
-        benefit_eligibility_element_group: BenefitEligibilityElementGroup.new(
-          market_places:        ["individual"],
-          enrollment_periods:   ["open_enrollment", "special_enrollment"],
-          family_relationships: BenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
-          benefit_categories:   ["health"],
-          incarceration_status: ["unincarcerated"],
-          age_range:            0..0,
-          citizenship_status:   ["us_citizen", "naturalized_citizen", "alien_lawfully_present", "lawful_permanent_resident"],
-          residency_status:     ["state_resident"],
-          ethnicity:            ["any"]
-      ))}
+      let(:benefit_package) do
+        FactoryBot.build(:benefit_package,
+                         title: "individual_health_benefits_2015",
+                         elected_premium_credit_strategy: "unassisted",
+                         benefit_eligibility_element_group: BenefitEligibilityElementGroup.new(
+                           market_places: ["individual"],
+                           enrollment_periods: ["open_enrollment", "special_enrollment"],
+                           family_relationships: BenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS,
+                           benefit_categories: ["health"],
+                           incarceration_status: ["unincarcerated"],
+                           age_range: 0..0,
+                           citizenship_status: ["us_citizen", "naturalized_citizen", "alien_lawfully_present", "lawful_permanent_resident"],
+                           residency_status: ["state_resident"],
+                           ethnicity: ["any"]
+                         ))
+      end
       let(:family) {double}
       let(:family_member1) { instance_double("FamilyMember",id: "family_member", primary_relationship: "self", dob: jail_person.dob, full_name: jail_person.full_name, is_primary_applicant?: true, person: jail_person, family: family) }
       let(:family_member2) { instance_double("FamilyMember",id: "family_member", primary_relationship: "child", dob: person2.dob, full_name: person2.full_name, is_primary_applicant?: false, person: person2, family: family) }
       let(:family_member3) { instance_double("FamilyMember",id: "family_member", primary_relationship: "spouse", dob: person3.dob, full_name: person3.full_name, is_primary_applicant?: false, person: person3, family: family) }
 
-      let(:coverage_household_members) {[double("coverage household member 1", family_member: family_member1), double("coverage household member 2", family_member: family_member2), double("coverage household member 3", family_member: family_member3)]}
+      let(:coverage_household_members) do
+        [double("coverage household member 1", family_member: family_member1), double("coverage household member 2", family_member: family_member2), double("coverage household member 3", family_member: family_member3)]
+      end
 
       let(:coverage_household_jail) { instance_double("CoverageHousehold", coverage_household_members: coverage_household_members) }
       let(:benefit_sponsorship) {double("benefit sponsorship", earliest_effective_date: TimeKeeper.date_of_record.beginning_of_year)}
@@ -190,7 +199,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         end
 
         it "should show the title of family members" do
-          expect(rendered).to match /Choose Coverage for your Household/
+          expect(rendered).to match(/Choose Coverage for your Household/)
         end
 
         it "should have three checkbox option" do
@@ -202,7 +211,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         end
 
         it "should have coverage_kinds area" do
-          expect(rendered).to match /Benefit Type/
+          expect(rendered).to match(/Benefit Type/)
         end
 
         it "should have health radio button" do
@@ -243,7 +252,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     end
 
     def new_relationship_benefit
-      random_value=rand(999_999_999)
+      random_value = rand(999_999_999)
       double(
         "RelationshipBenefit",
         offered: "offered:#{random_value}",
@@ -252,7 +261,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     end
 
     def new_family_member
-      random_value=rand(999_999_999)
+      random_value = rand(999_999_999)
       instance_double(
         "FamilyMember",
         id: "id_#{random_value}",
@@ -260,12 +269,12 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         full_name: "full_name_#{random_value}",
         is_primary_applicant?: true,
         primary_relationship: "self",
-        person:  FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
+        person: FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
       )
     end
 
     def new_family_member_1
-      random_value=rand(999_999_999)
+      random_value = rand(999_999_999)
       instance_double(
         "FamilyMember",
         id: "id_#{random_value}",
@@ -273,7 +282,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         full_name: "full_name_#{random_value}",
         is_primary_applicant?: false,
         primary_relationship: "child",
-        person:  FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
+        person: FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
       )
     end
 
@@ -318,7 +327,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
 
   context "family member with no benefit group" do
     def new_family_member
-      random_value=rand(999_999_999)
+      random_value = rand(999_999_999)
       instance_double(
         "FamilyMember",
         id: "id_#{random_value}",
@@ -326,12 +335,12 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         full_name: "full_name_#{random_value}",
         is_primary_applicant?: true,
         primary_relationship: "self",
-        person:  FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
+        person: FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
       )
     end
 
     def new_family_member_1
-      random_value=rand(999_999_999)
+      random_value = rand(999_999_999)
       instance_double(
         "FamilyMember",
         id: "id_#{random_value}",
@@ -339,7 +348,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         full_name: "full_name_#{random_value}",
         is_primary_applicant?: false,
         primary_relationship: "child",
-        person:  FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
+        person: FactoryBot.create(:person, is_incarcerated: false, us_citizen: true)
       )
     end
 
@@ -386,7 +395,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     include_context "setup initial benefit application"
     let(:person) { FactoryBot.create(:person, :with_employee_role) }
     let(:employee_role) { FactoryBot.build_stubbed(:employee_role) }
-    let(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package ) }
+    let(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
     let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
     let(:benefit_group) { current_benefit_package }
     let(:coverage_household) { double("coverage household", coverage_household_members: []) }
@@ -776,7 +785,7 @@ RSpec.describe "insured/group_selection/new.html.erb" do
         let(:census_employee) { FactoryBot.build_stubbed(:census_employee, benefit_group_assignments: [benefit_group_assignment]) }
         let(:benefit_group_assignment) { FactoryBot.build_stubbed(:benefit_group_assignment, benefit_group: benefit_group_no_dental) }
 
-        before(:each) do 
+        before(:each) do
           allow(adapter).to receive(:can_shop_shop?).and_return(true)
           allow(adapter).to receive(:can_shop_both_markets?).with(person).and_return(true)
         end
@@ -799,10 +808,10 @@ RSpec.describe "insured/group_selection/new.html.erb" do
     end
 
     it "should show the title of family members" do
-      expect(rendered).to match /Choose Coverage for your Household/
+      expect(rendered).to match(/Choose Coverage for your Household/)
     end
 
-    it "should display eligible coverage household members" do 
+    it "should display eligible coverage household members" do
       doc = Nokogiri::HTML(rendered)
       member_elements = doc.css("div#coverage-household table tr")
 
@@ -828,13 +837,13 @@ RSpec.describe "insured/group_selection/new.html.erb" do
       expect(rendered).to have_content("EFFECTIVE DATE: #{effective_on.strftime('%m/%d/%Y')}")
     end
 
-    it "should display Employer details" do 
+    it "should display Employer details" do
       expect(response).to have_css('div#employer-selection h3', text: 'Employer')
       expect(response).to have_css('div#employer-selection label', text: employer_profile.legal_name)
       expect(response).to have_css("div#employer-selection input[checked='checked']")
     end
 
-    it "should display both health and dental coverage options" do 
+    it "should display both health and dental coverage options" do
       doc = Nokogiri::HTML(rendered)
       expect(doc.css('div#coverage_kinds .n-radio-row').size).to eq 2
     end

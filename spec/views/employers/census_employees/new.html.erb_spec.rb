@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -10,7 +12,7 @@ describe "employers/census_employees/new.html.erb", dbclean: :after_each do
 
   before :each do
     @user = FactoryBot.create(:user)
-    p=FactoryBot.create(:person, user: @user)
+    p = FactoryBot.create(:person, user: @user)
     @hbx_staff_role = FactoryBot.create(:hbx_staff_role, person: p)
 
     sign_in @user
@@ -23,7 +25,7 @@ describe "employers/census_employees/new.html.erb", dbclean: :after_each do
 
   context 'for cobra' do
     it 'should have cobra area' do
-      expect(rendered).to  have_selector('div#cobra_info')
+      expect(rendered).to have_selector('div#cobra_info')
     end
 
     it "should have cobra checkbox" do
@@ -33,7 +35,7 @@ describe "employers/census_employees/new.html.erb", dbclean: :after_each do
 
     it "should have cobra_begin_date_field" do
       expect(rendered).to have_selector('div#cobra_begin_date_field')
-      expect(rendered).to match /COBRA Begin Date/
+      expect(rendered).to match(/COBRA Begin Date/)
       expect(rendered).to have_selector('.interaction-field-control-census-employee-cobra_begin_date')
     end
   end

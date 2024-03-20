@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Address, "with proper validations" do
@@ -7,7 +9,7 @@ describe Address, "with proper validations" do
   let(:state) { "CA" }
   let(:zip) { "20171" }
 
-  let(:address_params) {
+  let(:address_params) do
     {
       kind: address_kind,
       address_1: address_1,
@@ -15,7 +17,7 @@ describe Address, "with proper validations" do
       state: state,
       zip: zip
     }
-  }
+  end
 
   subject { Address.new(address_params) }
 
@@ -88,7 +90,7 @@ describe Address, "with proper validations" do
     it { should validate_presence_of :state }
     it { should validate_presence_of :zip }
 
-    let(:person) {Person.new(first_name: "John", last_name: "Doe", gender: "male", dob: "10/10/1974", ssn: "123456789" )}
+    let(:person) {Person.new(first_name: "John", last_name: "Doe", gender: "male", dob: "10/10/1974", ssn: "123456789")}
     let(:address) {FactoryBot.create(:address)}
     let(:employer){FactoryBot.create(:employer_profile)}
 
@@ -110,15 +112,15 @@ describe Address, "with proper validations" do
 end
 
 describe 'view helpers/presenters' do
-  let(:address) {
-     Address.new(
-       address_1: "An address line 1",
-       address_2: "An address line 2",
-       city: "A City",
-       state: "CA",
-       zip: "21222"
-     )
-  }
+  let(:address) do
+    Address.new(
+      address_1: "An address line 1",
+      address_2: "An address line 2",
+      city: "A City",
+      state: "CA",
+      zip: "21222"
+    )
+  end
 
   describe '#to_s' do
     it 'returns a string with a formated address' do
@@ -178,16 +180,16 @@ describe '#clean_fields' do
 end
 
 describe '#matches_addresses?' do
-  let(:address) {
-     Address.new(
-       address_1: "An address line 1",
-       address_2: "An address line 2",
-       city: "A City",
-       state: "CA",
-       zip: "21222"
-     )
-  }
-  
+  let(:address) do
+    Address.new(
+      address_1: "An address line 1",
+      address_2: "An address line 2",
+      city: "A City",
+      state: "CA",
+      zip: "21222"
+    )
+  end
+
   context 'addresses are the same' do
     let(:second_address) { address.clone }
     it 'returns true' do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "employers/plan_years/reference_plan_summary.js.erb" do
@@ -23,15 +25,15 @@ describe "employers/plan_years/reference_plan_summary.js.erb" do
   end
 
   it "should display plan name and carrier in modal title" do
-    expect(rendered).to match /BlueChoice/
-    expect(rendered).to match /#{@plan.carrier_profile.legal_name}/
+    expect(rendered).to match(/BlueChoice/)
+    expect(rendered).to match(/#{@plan.carrier_profile.legal_name}/)
   end
 
   it "should display more details tite when details are present" do
     @details = 'details'
-    expect(rendered).to match /BlueChoice/
-    expect(rendered).to match /#{@plan.carrier_profile.legal_name}/
-    expect(rendered).to match /More Details/
+    expect(rendered).to match(/BlueChoice/)
+    expect(rendered).to match(/#{@plan.carrier_profile.legal_name}/)
+    expect(rendered).to match(/More Details/)
   end
 
 end

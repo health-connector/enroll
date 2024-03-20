@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EmployerAttestationDocument, dbclean: :after_each do
@@ -28,7 +30,7 @@ describe EmployerAttestationDocument, dbclean: :after_each do
         expect(document.rejected?).to be_truthy
         expect(document.reason_for_rejection).to eq reject_reason
         expect(document.employer_attestation.denied?).to be_truthy
-      end 
+      end
     end
 
     context '.info_needed' do
@@ -43,7 +45,7 @@ describe EmployerAttestationDocument, dbclean: :after_each do
         expect(document.employer_attestation.pending?).to be_truthy
       end
     end
-    
+
     context 'admin approves second attestation document' do
       context 'where attestation is in denied state' do
         before :each do

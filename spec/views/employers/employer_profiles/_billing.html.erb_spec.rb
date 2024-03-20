@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/_billing.html.erb" do
@@ -12,7 +14,7 @@ RSpec.describe "employers/employer_profiles/_billing.html.erb" do
     expect(rendered).to match employer_profile.hbx_id.upcase
   end
 
-  it "should display a payment link" do 
+  it "should display a payment link" do
     expect(rendered).to match 'Pay Online'
   end
 

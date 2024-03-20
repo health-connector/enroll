@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "broker_agencies/profiles/_menu.html.erb", :dbclean => :after_each do
@@ -26,7 +28,7 @@ RSpec.describe "broker_agencies/profiles/_menu.html.erb", :dbclean => :after_eac
       end
       it "does not show general agency related links" do
         render partial: 'broker_agencies/profiles/menu', locals: {active_tab: "home-tab" }
-        expect(view.content_for(:horizontal_menu)).not_to match /General Agencies/
+        expect(view.content_for(:horizontal_menu)).not_to match(/General Agencies/)
       end
     end
   end
@@ -64,7 +66,7 @@ RSpec.describe "broker_agencies/profiles/_menu.html.erb", :dbclean => :after_eac
         render partial: 'broker_agencies/profiles/menu', locals: {active_tab: "home-tab" }
       end
       it "does not show general agency related links" do
-        expect(view.content_for(:horizontal_menu)).not_to match /General Agencies/
+        expect(view.content_for(:horizontal_menu)).not_to match(/General Agencies/)
       end
     end
   end

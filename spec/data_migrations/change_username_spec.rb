@@ -8,6 +8,7 @@ describe ChangeUsername, dbclean: :after_each do
   subject { ChangeUsername.new(given_task_name, double(:current_scope => nil)) }
   let(:user) { FactoryBot.create(:user) }
   let(:new_user) { FactoryBot.create(:user) }
+
   describe 'given a task name' do
     it 'has the given task name' do
       expect(subject.name).to eql given_task_name

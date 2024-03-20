@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe SicCode, type: :model do
   subject { SicCode.new }
 
-  it "has a valid factory" do 
+  it "has a valid factory" do
     expect(create(:sic_code)).to be_valid
-  end  
+  end
 
   it { is_expected.to validate_presence_of :division_code }
   it { is_expected.to validate_presence_of :division_label }
@@ -16,4 +18,4 @@ RSpec.describe SicCode, type: :model do
   it { is_expected.to validate_presence_of :sic_code }
   it { is_expected.to validate_presence_of :sic_label }
 
-end  
+end

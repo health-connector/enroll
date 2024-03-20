@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe RenewalPlanMapping, :type => :model do
-  subject { RenewalPlanMapping.new(start_on: TimeKeeper.date_of_record, end_on: TimeKeeper.date_of_record + 6.months, renewal_plan_id: BSON::ObjectId.new ) }
+  subject { RenewalPlanMapping.new(start_on: TimeKeeper.date_of_record, end_on: TimeKeeper.date_of_record + 6.months, renewal_plan_id: BSON::ObjectId.new) }
   it "check for attributes" do
     expect(subject).to be_valid
   end

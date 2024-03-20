@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe AccessPolicies::EmployeeRole, :dbclean => :after_each do
@@ -14,7 +16,7 @@ describe AccessPolicies::EmployeeRole, :dbclean => :after_each do
   end
 
   context "a user with a different id than the users person" do
-    let(:foreign_employee) { EmployeeRole.new(employer_profile_id: BSON::ObjectId::new) }
+    let(:foreign_employee) { EmployeeRole.new(employer_profile_id: BSON::ObjectId.new) }
 
     it "should redirect you to your bookmark employee role page or families home" do
       expect(controller).to receive(:redirect_to_check_employee_role)
@@ -49,7 +51,7 @@ describe AccessPolicies::EmployeeRole, :dbclean => :after_each do
 
     before do
       broker_role.save
-      broker_agency_account = BrokerAgencyAccount.create(employer_profile: person.employee_roles.first.employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id )
+      broker_agency_account = BrokerAgencyAccount.create(employer_profile: person.employee_roles.first.employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
     end
 
     context "who doesn't match employer_profile_id" do
@@ -93,7 +95,7 @@ describe AccessPolicies::EmployeeRole, :dbclean => :after_each do
       end
     end
   end
-  
+
   context "with general agency staff role user" do
     include ActiveSupport::Concern
     subject { AccessPolicies::EmployeeRole.new(general_user) }
@@ -106,15 +108,15 @@ describe AccessPolicies::EmployeeRole, :dbclean => :after_each do
       general_agency_staff_role.save
       general_agency_account = GeneralAgencyAccount.create(employer_profile: person.employee_roles.first.employer_profile, start_on: TimeKeeper.date_of_record, general_agency_profile_id: general_agency_profile.id)
     end
-    
+
     context "who doesn't match employer_profile_id" do
       it "should redirect you to your bookmark employee role page or families home" do
-        EmployerProfile.find_by_general_agency_profile(general_agency_profile).each { |employer_profile| employer_profile.destroy }
+        EmployerProfile.find_by_general_agency_profile(general_agency_profile).each(&:destroy)
         expect(controller).to receive(:redirect_to_check_employee_role)
         subject.authorize_employee_role(person.employee_roles.first, controller)
       end
     end
-    
+
     context "who matches employer_profile_id by genearl agent role" do
       it "should be ok with the action" do
         expect(subject.authorize_employee_role(person.employee_roles.first, controller)).to be_truthy

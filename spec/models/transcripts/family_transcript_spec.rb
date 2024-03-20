@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Transcripts::FamilyTranscript, type: :model do
@@ -19,35 +21,35 @@ RSpec.describe Transcripts::FamilyTranscript, type: :model do
 
     context "Family already exists" do
 
-      let(:other_family) {
+      let(:other_family) do
         family = Family.new({
-          hbx_assigned_id: '24112',
-          e_case_id: "6754632"
-          })
+                              hbx_assigned_id: '24112',
+                              e_case_id: "6754632"
+                            })
         family.family_members.build(is_primary_applicant: true, person: person)
         family.family_members.build(is_primary_applicant: false, person: child1)
         family.irs_groups.build(hbx_assigned_id: '651297232112', effective_starting_on: Date.new(2016,1,1), effective_ending_on: Date.new(2016,12,31), is_active: true)
         family
-      }
+      end
 
-      let!(:source_family) { 
+      let!(:source_family) do
         family = Family.new({ hbx_assigned_id: '25112', e_case_id: "6754632" })
         family.family_members.build(is_primary_applicant: true, person: person)
         family.family_members.build(is_primary_applicant: false, person: spouse)
         family.save
         family
-      }
+      end
 
       def build_transcript
-       factory = Transcripts::FamilyTranscript.new
-       factory.find_or_build(other_family)
-       factory.transcript
+        factory = Transcripts::FamilyTranscript.new
+        factory.find_or_build(other_family)
+        factory.transcript
       end
 
       context "and dependent family member missing" do
 
         it 'should have add on dependnet' do
-           transcript = build_transcript
+          transcript = build_transcript
         end
       end
     end

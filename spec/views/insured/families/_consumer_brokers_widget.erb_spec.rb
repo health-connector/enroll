@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "_consumer_brokers_widget.html.erb" do
@@ -5,7 +7,7 @@ RSpec.describe "_consumer_brokers_widget.html.erb" do
   context 'insured home broker widget as consumer with primary family and broker agency accounts' do
     let!(:consumer_role) { FactoryBot.create(:consumer_role) }
     let(:broker_agency_profile){FactoryBot.create(:broker_agency_profile)}
-    let(:broker_agency_account) {FactoryBot.create(:broker_agency_account,broker_agency_profile_id:broker_agency_profile.id)}
+    let(:broker_agency_account) {FactoryBot.create(:broker_agency_account,broker_agency_profile_id: broker_agency_profile.id)}
     let(:person) { consumer_role.person }
     let!(:family) do
       f = FactoryBot.build(:family)
@@ -39,7 +41,7 @@ RSpec.describe "_consumer_brokers_widget.html.erb" do
   context 'insured home broker widget as consumer without broker agency accounts' do
     let!(:consumer_role) { FactoryBot.create(:consumer_role) }
     let(:broker_agency_profile){FactoryBot.create(:broker_agency_profile)}
-    let(:broker_agency_account) {FactoryBot.create(:broker_agency_account,broker_agency_profile_id:broker_agency_profile.id)}
+    let(:broker_agency_account) {FactoryBot.create(:broker_agency_account,broker_agency_profile_id: broker_agency_profile.id)}
     let(:person) { consumer_role.person }
     let!(:family) do
       f = FactoryBot.build(:family)

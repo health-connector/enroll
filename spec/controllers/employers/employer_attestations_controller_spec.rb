@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::EmployerAttestationsController do
@@ -31,7 +33,7 @@ RSpec.describe Employers::EmployerAttestationsController do
     let(:file) { double(original_filename: 'sample.pdf', size: 400, tempfile: tempfile) }
     let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
-    before do 
+    before do
       allow(controller).to receive(:params).and_return({id: employer_profile.id, file: file})
       allow(Aws::S3Storage).to receive(:save).and_return(doc_uri)
 
@@ -40,7 +42,7 @@ RSpec.describe Employers::EmployerAttestationsController do
     end
 
     context 'when file upload failed' do
-      let(:doc_uri) { nil } 
+      let(:doc_uri) { nil }
 
       it "should render the edit template" do
         expect(flash[:error]).to eq "Could not save the file in S3 storage"
@@ -61,7 +63,7 @@ RSpec.describe Employers::EmployerAttestationsController do
     end
   end
 
-  describe "PUT update" do 
+  describe "PUT update" do
     let(:user) { FactoryBot.create(:user) }
     let(:attestation_doc) { FactoryBot.create(:employer_attestation_document) }
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BrokerAgencies::BrokerRolesController do
@@ -88,29 +90,33 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       let(:organization) { instance_double("Organization") }
 
-      let(:organization_params) { {
-        first_name: 'firstname',
-        last_name: 'lastname',
-        dob: "2015-06-01",
-        email: 'useraccount@gmail.com',
-        npn: "8422323232",
-        legal_name: 'useragency',
-        fein: "223232323",
-        entity_kind: "c_corporation",
-        market_kind: "shop",
-        working_hours: "0",
-        accept_new_clients: "0",
-        office_locations_attributes: office_locations
-      } }
-
-      let(:office_locations) { {
-        "0" => {
-          address_attributes: address_attributes,
-          phone_attributes: phone_attributes
+      let(:organization_params) do
+        {
+          first_name: 'firstname',
+          last_name: 'lastname',
+          dob: "2015-06-01",
+          email: 'useraccount@gmail.com',
+          npn: "8422323232",
+          legal_name: 'useragency',
+          fein: "223232323",
+          entity_kind: "c_corporation",
+          market_kind: "shop",
+          working_hours: "0",
+          accept_new_clients: "0",
+          office_locations_attributes: office_locations
         }
-      }}
+      end
 
-      let(:address_attributes) {
+      let(:office_locations) do
+        {
+          "0" => {
+            address_attributes: address_attributes,
+            phone_attributes: phone_attributes
+          }
+        }
+      end
+
+      let(:address_attributes) do
         {
           kind: "primary",
           address_1: "99 N ST",
@@ -118,15 +124,15 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
           state: "dc",
           zip: "20006"
         }
-      }
+      end
 
-      let(:phone_attributes) {
+      let(:phone_attributes) do
         {
           kind: "work",
           area_code: "202",
           number: "324-2232"
         }
-      }
+      end
 
       context "when valid" do
         before :each do
@@ -184,15 +190,17 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       let(:person) { instance_double("Person") }
 
-      let(:person_params) { {
-        broker_applicant_type: "broker",
-        first_name: "firstname",
-        last_name: "lastname",
-        dob: "1993-06-03",
-        email: "useraccount@gmail.com",
-        npn: "8323232323",
-        broker_agency_id: "55929d867261670838550000"
-      } }
+      let(:person_params) do
+        {
+          broker_applicant_type: "broker",
+          first_name: "firstname",
+          last_name: "lastname",
+          dob: "1993-06-03",
+          email: "useraccount@gmail.com",
+          npn: "8323232323",
+          broker_agency_id: "55929d867261670838550000"
+        }
+      end
 
       context "when valid" do
         before :each do
@@ -249,14 +257,16 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       let(:person) { instance_double("Person") }
 
-      let(:person_params) { {
-        broker_applicant_type: "staff",
-        first_name: "firstname",
-        last_name: "lastname",
-        dob: "1993-06-03",
-        email: "useraccount@gmail.com",
-        broker_agency_id: "55929d867261670838550000"
-      } }
+      let(:person_params) do
+        {
+          broker_applicant_type: "staff",
+          first_name: "firstname",
+          last_name: "lastname",
+          dob: "1993-06-03",
+          email: "useraccount@gmail.com",
+          broker_agency_id: "55929d867261670838550000"
+        }
+      end
 
       context "when valid" do
         before :each do

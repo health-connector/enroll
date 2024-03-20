@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe DocumentsController, :type => :controller do
@@ -42,7 +44,7 @@ RSpec.describe DocumentsController, :type => :controller do
       end
 
       it "updates document status" do
-        put :update, params: {person_id: person.id, id: document.id, :person=>{ :vlp_document=>{:comment=>"hghghg"}}, :comment => true, :status => "ready"}
+        put :update, params: {person_id: person.id, id: document.id, :person => { :vlp_document => {:comment => "hghghg"}}, :comment => true, :status => "ready"}
         allow(family).to receive(:update_family_document_status!).and_return(true)
         document.reload
         expect(document.status).to eq("ready")
@@ -112,9 +114,9 @@ RSpec.describe DocumentsController, :type => :controller do
     shared_examples_for "update verification type" do |type, reason, admin_action, updated_attr, result|
       it "updates #{updated_attr} for #{type} to #{result} with #{admin_action} admin action" do
         post :update_verification_type, params: { person_id: person.id,
-                                          verification_type: type,
-                                          verification_reason: reason,
-                                          admin_action: admin_action}
+                                                  verification_type: type,
+                                                  verification_reason: reason,
+                                                  admin_action: admin_action}
         person.reload
         if updated_attr == "lawful_presence_update_reason"
           expect(person.consumer_role.lawful_presence_update_reason["v_type"]).to eq(type)
@@ -153,7 +155,7 @@ RSpec.describe DocumentsController, :type => :controller do
       person.reload
       updated_value = person.consumer_role.lawful_presence_update_reason
 
-      expect(person.consumer_role.lawful_presence_update_reason).to eq({"v_type"=>"Citizenship", "update_reason"=>"Expired"})
+      expect(person.consumer_role.lawful_presence_update_reason).to eq({"v_type" => "Citizenship", "update_reason" => "Expired"})
       expect(initial_value).to_not eq(updated_value)
     end
 
@@ -167,9 +169,9 @@ RSpec.describe DocumentsController, :type => :controller do
     context "verification reason inputs" do
       it "should not update verification attributes without verification reason" do
         post :update_verification_type, params: { person_id: person.id,
-                                          verification_type: "Citizenship",
-                                          verification_reason: "",
-                                          admin_action: "verify"}
+                                                  verification_type: "Citizenship",
+                                                  verification_reason: "",
+                                                  admin_action: "verify"}
         person.reload
         expect(person.consumer_role.lawful_presence_update_reason).to eq nil
       end

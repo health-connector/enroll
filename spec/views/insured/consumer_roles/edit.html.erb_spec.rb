@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "insured/consumer_roles/edit.html.erb" do
@@ -12,8 +14,8 @@ RSpec.describe "insured/consumer_roles/edit.html.erb" do
     allow(person).to receive(:consumer_role).and_return consumer_role
     allow(consumer_role).to receive(:citizen_status)
     allow(consumer_role).to receive(:persisted?)
-    allow(consumer_role ).to receive(:contact_method)
-    allow(consumer_role ).to receive(:language_preference)
+    allow(consumer_role).to receive(:contact_method)
+    allow(consumer_role).to receive(:language_preference)
     allow(consumer_role).to receive(:vlp_document_id)
     allow(consumer_role).to receive(:find_document)
     sign_in current_user

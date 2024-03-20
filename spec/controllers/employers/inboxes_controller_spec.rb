@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::InboxesController, :type => :controller do
@@ -23,7 +25,7 @@ RSpec.describe Employers::InboxesController, :type => :controller do
   describe "POST create" do
     let(:inbox){Inbox.new}
     let(:inbox_provider){double(id: double("id"),legal_name: double("inbox_provider"))}
-    let(:valid_params){{"message"=>{"subject"=>"test", "body"=>"test", "sender_id"=>"558b63ef4741542b64290000", "from"=>"HBXAdmin", "to"=>"Acme Inc."}}}
+    let(:valid_params){{"message" => {"subject" => "test", "body" => "test", "sender_id" => "558b63ef4741542b64290000", "from" => "HBXAdmin", "to" => "Acme Inc."}}}
     before do
       allow(user).to receive(:person).and_return(person)
       sign_in(user)

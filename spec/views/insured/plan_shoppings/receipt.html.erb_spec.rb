@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "insured/plan_shoppings/receipt.html.erb" do
@@ -64,16 +66,16 @@ RSpec.describe "insured/plan_shoppings/receipt.html.erb" do
 
   let(:members) { [new_member, new_member] }
 
-  let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id:'',product_price:BigDecimal(100),sponsor_contribution:BigDecimal(100))}
-  let(:group_enrollment) {double(member_enrollments:[member_enrollment], product_cost_total:0.0,sponsor_contribution_total:0.0, employee_cost_total:0.0)}
-  let(:member_group) {double(group_enrollment:group_enrollment)}
+  let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id: '',product_price: BigDecimal(100),sponsor_contribution: BigDecimal(100))}
+  let(:group_enrollment) {double(member_enrollments: [member_enrollment], product_cost_total: 0.0,sponsor_contribution_total: 0.0, employee_cost_total: 0.0)}
+  let(:member_group) {double(group_enrollment: group_enrollment)}
 
   before :each do
     assign :enrollment, enrollment
     assign :member_group, member_group
     @plan = plan_cost_decorator
     allow(@plan).to receive(:sole_source?).and_return(true)
-    allow(view).to receive(:policy_helper).and_return(double('FamilyPolicy', updateable?: true)) 
+    allow(view).to receive(:policy_helper).and_return(double('FamilyPolicy', updateable?: true))
     render file: "insured/plan_shoppings/receipt.en.html.erb"
   end
 

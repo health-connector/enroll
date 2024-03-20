@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -33,7 +35,7 @@ RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
   end
 
   describe "set latest date for terminating enrollment" do
-    context "for enrollment in shop market"do
+    context "for enrollment in shop market" do
       it "sets the latest date able to terminate an enrollment to be 1 year less 1 day from the enrollment start date" do
         enrollment.effective_on = (TimeKeeper.date_of_record - 7.days)
         #latest_date = Date.new(enrollment.effective_on.year, 12, 31)
@@ -42,7 +44,7 @@ RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
       end
     end
 
-    context "for enrollment in individual market"do
+    context "for enrollment in individual market" do
       it "sets the latest date able to terminate an enrollment to be the last day of the calendar year in which the enrollment starts" do
         individual_enrollment.effective_on = (TimeKeeper.date_of_record - 7.days)
         latest_date = Date.new(individual_enrollment.effective_on.year, 12, 31)

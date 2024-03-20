@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe FamilyMember do
@@ -31,10 +33,10 @@ end
 
 
 describe FamilyMember, "given a person" do
-  let(:person) { create :person ,:with_family }
+  let(:person) { create :person,:with_family }
 
   it "should error when trying to save duplicate family member" do
-    family_member = FamilyMember.new(:person => person) 
+    family_member = FamilyMember.new(:person => person)
     person.families.first.family_members << family_member
     person.families.first.family_members << family_member
     expect(family_member.errors.full_messages.join(",")).to match(/Family members Duplicate family_members for person/)
@@ -68,7 +70,7 @@ describe FamilyMember, dbclean: :after_each do
 
   let(:p0) {Person.create!(first_name: "Dan", last_name: "Aurbach")}
   let(:p1) {Person.create!(first_name: "Patrick", last_name: "Carney")}
-  let(:ag) { 
+  let(:ag) do
     fam = Family.new
     fam.family_members.build(
       :person => p0,
@@ -76,14 +78,14 @@ describe FamilyMember, dbclean: :after_each do
     )
     fam.save!
     fam
-  }
-  let(:family_member_params) {
+  end
+  let(:family_member_params) do
     { person: p1,
       is_primary_applicant: true,
       is_coverage_applicant: true,
       is_consent_applicant: true,
       is_active: true}
-  }
+  end
 
   context "parent" do
     it "should equal to family" do
@@ -100,7 +102,7 @@ describe FamilyMember, dbclean: :after_each do
   context "person" do
     it "with person" do
       family_member = FamilyMember.new(**family_member_params)
-      family_member.person= p1
+      family_member.person = p1
       expect(family_member.person).to eq p1
     end
 
@@ -115,7 +117,7 @@ describe FamilyMember, dbclean: :after_each do
 
     it "with broker_role" do
       family_member = ag.family_members.create(**family_member_params)
-      family_member.broker= broker_role
+      family_member.broker = broker_role
       expect(family_member.broker).to eq broker_role
     end
 
@@ -132,26 +134,26 @@ describe FamilyMember, dbclean: :after_each do
   context "comments" do
     it "with blank" do
       family_member = ag.family_members.create({
-        person: p0,
-        is_primary_applicant: true,
-        is_coverage_applicant: true,
-        is_consent_applicant: true,
-        is_active: true,
-        comments: [{priority: 'normal', content: ""}]
-      })
+                                                 person: p0,
+                                                 is_primary_applicant: true,
+                                                 is_coverage_applicant: true,
+                                                 is_consent_applicant: true,
+                                                 is_active: true,
+                                                 comments: [{priority: 'normal', content: ""}]
+                                               })
 
       expect(family_member.errors[:comments].any?).to eq true
     end
 
     it "without blank" do
       family_member = ag.family_members.create({
-        person: p0,
-        is_primary_applicant: true,
-        is_coverage_applicant: true,
-        is_consent_applicant: true,
-        is_active: true,
-        comments: [{priority: 'normal', content: "aaas"}]
-      })
+                                                 person: p0,
+                                                 is_primary_applicant: true,
+                                                 is_coverage_applicant: true,
+                                                 is_consent_applicant: true,
+                                                 is_active: true,
+                                                 comments: [{priority: 'normal', content: "aaas"}]
+                                               })
 
       expect(family_member.errors[:comments].any?).to eq false
       expect(family_member.comments.size).to eq 1
@@ -166,7 +168,7 @@ describe FamilyMember, dbclean: :after_each do
         is_coverage_applicant: true,
         is_consent_applicant: true,
         is_active: true
-        )
+      )
 
       a.family = ag
 

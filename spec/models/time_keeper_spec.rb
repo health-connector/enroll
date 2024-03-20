@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module TkNotifyWrapper
   class ExpectedLogCallInvoked < StandardError; end
 
   class SimpleWrapper < SimpleDelegator
-    def initialize(obj)
-      super(obj)
-    end
+
 
     def expect_event(e, pay)
       @event = e
@@ -14,8 +14,8 @@ module TkNotifyWrapper
     end
 
     def instrument(event, payload)
-      if (event == @event && payload == @payload)
-        raise ExpectedLogCallInvoked.new
+      if event == @event && payload == @payload
+        raise ExpectedLogCallInvoked
       else
         super(event,payload)
       end

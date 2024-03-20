@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
@@ -7,7 +9,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
   let(:person) { test_family.primary_family_member.person }
   let(:published_plan_year)  { FactoryBot.build(:plan_year, aasm_state: :published)}
   let(:employer_profile) { FactoryBot.create(:employer_profile) }
-  let(:employee_role) { FactoryBot.create(:employee_role, employer_profile: employer_profile, person: person ) }
+  let(:employee_role) { FactoryBot.create(:employee_role, employer_profile: employer_profile, person: person) }
   let(:employee_role_id) { employee_role.id }
   let(:census_employee) { FactoryBot.create(:census_employee) }
 
@@ -86,7 +88,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     # Some times Effective dates vary even for the next day. So creating a new SEP & re-calculating effective on dates
     context "with sep_id in params" do
 
-       subject { Observers::NoticeObserver.new }
+      subject { Observers::NoticeObserver.new }
 
       let(:sep) { FactoryBot.create :special_enrollment_period, family: test_family }
       let(:dup_sep) { double("SpecialEnrPeriod", qle_on: TimeKeeper.date_of_record - 5.days) }
@@ -134,9 +136,9 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       allow(employer_profile).to receive(:published_plan_year).and_return(published_plan_year)
       sign_in user
       allow(controller.request).to receive(:referer).and_return('http://dchealthlink.com/insured/interactive_identity_verifications')
-      expect{
-        get :index, params: {employee_role_id: employee_role_id, qle_id: qle.id, effective_on_kind: 'date_of_event', qle_date: '10/10/2015', published_plan_year: '10/10/2015'
-      }}.to change(test_family.special_enrollment_periods, :count).by(1)
+      expect do
+        get :index, params: {employee_role_id: employee_role_id, qle_id: qle.id, effective_on_kind: 'date_of_event', qle_date: '10/10/2015', published_plan_year: '10/10/2015'}
+      end.to change(test_family.special_enrollment_periods, :count).by(1)
     end
   end
 

@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Inbox, :type => :model do
-  let (:inbox) {Inbox.new}
-  let (:message) {FactoryBot.build(:message)}
-  let (:message_list) {FactoryBot.build_list(:message, 15)}
+  let(:inbox) {Inbox.new}
+  let(:message) {FactoryBot.build(:message)}
+  let(:message_list) {FactoryBot.build_list(:message, 15)}
 
   describe "#post_message" do
 

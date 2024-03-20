@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployeeNotices::EmployeeEligibilityNotice, :dbclean => :after_each do
@@ -5,30 +7,35 @@ RSpec.describe ShopEmployeeNotices::EmployeeEligibilityNotice, :dbclean => :afte
   let!(:person){ create :person }
   let(:employee_role) {FactoryBot.create(:employee_role, person: person, employer_profile: employer_profile)}
   let(:census_employee) { FactoryBot.create(:census_employee, employee_role_id: employee_role.id, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship_id: employer_profile.benefit_sponsorships.first.id) }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Employee Eligibility Notice',
-                            :notice_template => 'notices/shop_employee_notices/employee_eligibility_notice',
-                            :notice_builder => 'ShopEmployeeNotices::EmployeeEligibilityNotice',
-                            :event_name => 'employee_eligibility_notice',
-                            :mpi_indicator => 'DAE053',
-                            :title => "Employee Eligibility Notice"})
-                          }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Employee Eligibility Notice',
+             :notice_template => 'notices/shop_employee_notices/employee_eligibility_notice',
+             :notice_builder => 'ShopEmployeeNotices::EmployeeEligibilityNotice',
+             :event_name => 'employee_eligibility_notice',
+             :mpi_indicator => 'DAE053',
+             :title => "Employee Eligibility Notice"
+           })
+  end
 
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
-    let(:site) { FactoryBot.create(:benefit_sponsors_site,  :with_benefit_market, :dc, :as_hbx_profile) }
+  let(:site) { FactoryBot.create(:benefit_sponsors_site,  :with_benefit_market, :dc, :as_hbx_profile) }
 
-    let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization,
-      :with_aca_shop_dc_employer_profile_initial_application,
-      site: site
-     )}
+  let(:organization) do
+    FactoryBot.create(:benefit_sponsors_organizations_general_organization,
+                      :with_aca_shop_dc_employer_profile_initial_application,
+                      site: site)
+  end
 
-    let(:employer_profile) { organization.employer_profile }
+  let(:employer_profile) { organization.employer_profile }
 
   describe "New" do
     before do

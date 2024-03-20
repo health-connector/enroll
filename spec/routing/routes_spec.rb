@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "routing", :type => :routing do
@@ -6,5 +8,5 @@ RSpec.describe "routing", :type => :routing do
       :controller => "insured/consumer_roles",
       :action => "immigration_document_options"
     )
-  end  
+  end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/broker_agency/_active_broker_modal.html.erb" do

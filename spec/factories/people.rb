@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :person do
     # name_pfx 'Mr'
@@ -14,7 +16,7 @@ FactoryBot.define do
     # naturalized_citizen "false"
     #association :employee_role, strategy: :build
 
-    after(:create) do |p, evaluator|
+    after(:create) do |p, _evaluator|
       create_list(:address, 2, person: p)
       create_list(:phone, 2, person: p)
       create_list(:email, 2, person: p)
@@ -25,20 +27,20 @@ FactoryBot.define do
       addresses { [FactoryBot.build(:address, :mailing_kind)]}
     end
 
-    trait :with_bad_mailing_address do 
+    trait :with_bad_mailing_address do
       addresses { [FactoryBot.build(:address, :mailing_kind, :without_address_1, :without_city, :without_state, :without_zip)] }
     end
 
     trait :with_ssn do
-      sequence(:ssn) { |n| 222222220 + n }
+      sequence(:ssn) { |n| 222_222_220 + n }
     end
 
     trait :with_work_email do
-      emails { [FactoryBot.build(:email, kind: "work") ] }
+      emails { [FactoryBot.build(:email, kind: "work")] }
     end
 
     trait :with_work_phone do
-      phones { [FactoryBot.build(:phone, kind: "work") ] }
+      phones { [FactoryBot.build(:phone, kind: "work")] }
     end
 
     trait :without_first_name do
@@ -60,55 +62,55 @@ FactoryBot.define do
     end
 
     trait :with_employer_staff_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:employer_staff_role, 1, person: p)
       end
     end
 
     trait :with_general_agency_staff_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:general_agency_staff_role, 1, person: p)
       end
     end
 
     trait :with_hbx_staff_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:hbx_staff_role, 1, person: p)
       end
     end
 
     trait :with_broker_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:broker_role, 1, person: p)
       end
     end
 
     trait :with_consumer_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:consumer_role, 1, person: p, dob: p.dob)
       end
     end
 
     trait :with_employee_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:employee_role, 1, person: p)
       end
     end
 
     trait :with_resident_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:resident_role, 1, person: p, dob: p.dob)
       end
     end
 
     trait :with_assister_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:assister_role, 1, person: p)
       end
     end
 
     trait :with_csr_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:csr_role, 1, person: p)
       end
     end
@@ -132,7 +134,8 @@ FactoryBot.define do
     factory :person_with_employee_role do
 
       after(:create) do |person, evaluator|
-        create_list(:employee_role, 1, person: person, census_employee_id: evaluator.census_employee_id, employer_profile_id: evaluator.employer_profile_id, benefit_sponsors_employer_profile_id: evaluator.benefit_sponsors_employer_profile_id, hired_on: evaluator.hired_on, ssn: evaluator.ssn, dob: evaluator.dob)
+        create_list(:employee_role, 1, person: person, census_employee_id: evaluator.census_employee_id, employer_profile_id: evaluator.employer_profile_id, benefit_sponsors_employer_profile_id: evaluator.benefit_sponsors_employer_profile_id,
+                                       hired_on: evaluator.hired_on, ssn: evaluator.ssn, dob: evaluator.dob)
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_markets_benefit_market_catalog, class: 'BenefitMarkets::BenefitMarketCatalog' do
 
@@ -27,8 +29,8 @@ FactoryBot.define do
           build(
             :benefit_markets_products_product_package,
             benefit_kind: evaluator.benefit_market.kind,
-            packagable: benefit_market_catalog, 
-            package_kind: package_kind, 
+            packagable: benefit_market_catalog,
+            package_kind: package_kind,
             product_kind: product_kind,
             title: "#{package_kind.to_s.humanize} #{product_kind}",
             description: "#{package_kind.to_s.humanize} #{product_kind}",

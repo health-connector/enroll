@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_employers_selection.html.erb", dbclean: :after_each do

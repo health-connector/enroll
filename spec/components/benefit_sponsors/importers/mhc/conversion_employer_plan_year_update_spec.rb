@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 module BenefitSponsors
   RSpec.describe Importers::Mhc::ConversionEmployerPlanYearUpdate, dbclean: :after_each do
 
-    def class_initializer(params={})
+    def class_initializer(params = {})
       Importers::Mhc::ConversionEmployerPlanYearUpdate.new(params)
     end
 
@@ -13,33 +15,35 @@ module BenefitSponsors
 
       let(:contribution_model) {[FactoryBot.create(:benefit_markets_contribution_models_contribution_model)]}
 
-      let!(:general_sponsorer) {FactoryBot.create :benefit_sponsors_benefit_sponsorship,
-                                                   :with_benefit_market,
-                                                   :with_organization_cca_profile,
-                                                   :with_initial_benefit_application}
+      let!(:general_sponsorer) do
+        FactoryBot.create :benefit_sponsors_benefit_sponsorship,
+                          :with_benefit_market,
+                          :with_organization_cca_profile,
+                          :with_initial_benefit_application
+      end
 
       # we are already creating site in :benefit_sponsors_benefit_sponsorship in this factory
       let(:site) {BenefitSponsors::Site.by_site_key(:cca).first}
 
       let!(:issuer_profile) {FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, abbrev: "DDA", assigned_site: site)}
 
-      let(:formed_params) {
+      let(:formed_params) do
         {
-            :action => "Update",
-            :fein => general_sponsorer.organization.fein,
-            :enrolled_employee_count => "1",
-            :new_coverage_policy => "First of the month following or coinciding with date of hire",
-            :coverage_start => "10/01/2017",
-            :carrier => "DELTA DENTAL",
-            :plan_selection => "Sole Source",
-            :single_plan_hios_id => hios_id,
-            :employee_only_rt_contribution => 80,
-            :employee_and_spouse_rt_contribution => 80,
-            :employer_domestic_partner_rt_contribution => 80,
-            :employer_child_under_26_rt_contribution => 80,
-            :sponsored_benefit_kind => :dental
+          :action => "Update",
+          :fein => general_sponsorer.organization.fein,
+          :enrolled_employee_count => "1",
+          :new_coverage_policy => "First of the month following or coinciding with date of hire",
+          :coverage_start => "10/01/2017",
+          :carrier => "DELTA DENTAL",
+          :plan_selection => "Sole Source",
+          :single_plan_hios_id => hios_id,
+          :employee_only_rt_contribution => 80,
+          :employee_and_spouse_rt_contribution => 80,
+          :employer_domestic_partner_rt_contribution => 80,
+          :employer_child_under_26_rt_contribution => 80,
+          :sponsored_benefit_kind => :dental
         }
-      }
+      end
       it "should Add a dental sponsored benefit on active benefit application" do
         allow(BenefitMarkets::ContributionModels::ContributionModel).to receive(:where).and_return(contribution_model)
         update_instance = class_initializer(formed_params)
@@ -53,12 +57,13 @@ module BenefitSponsors
 
     describe "Action#update" do
       context "When sponsored benefit kind is health" do
-        let(:formed_health_params) {{
+        let(:formed_health_params) do
+          {
             :action => "Update",
             :fein => "rspec-mock",
             :sponsored_benefit_kind => :health
-        }
-        }
+          }
+        end
         it "should not update benefit application" do
           update_instance = class_initializer(formed_health_params)
           # we do not want to search for record and validate

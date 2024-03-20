@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
@@ -109,7 +111,7 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
     let(:subject){"Employee Attestation"}
     let(:file) { double }
     let(:temp_file) { double }
-    let(:file_path) { Rails.root+'test/JavaScript.pdf' }
+    let(:file_path) { "#{Rails.root}test/JavaScript.pdf" }
 
     before(:each) do
       @controller = Employers::EmployerProfilesController.new
@@ -124,7 +126,7 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
     context "upload document", dbclean: :after_each do
       it "redirects to document list page" do
         sign_in user
-        post :upload_document, params: {:id => employer_profile.id, :file => file, :subject=> subject}
+        post :upload_document, params: {:id => employer_profile.id, :file => file, :subject => subject}
         expect(response).to have_http_status(:redirect)
       end
     end
@@ -136,7 +138,7 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
 
     it "should delete documents" do
       sign_in(user)
-      get :delete_documents, params: {id: employer_profile.id, ids:[1]}, format: :js
+      get :delete_documents, params: {id: employer_profile.id, ids: [1]}, format: :js
       expect(response).to have_http_status(:success)
     end
   end

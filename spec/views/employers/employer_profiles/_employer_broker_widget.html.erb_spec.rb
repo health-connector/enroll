@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "_employer_broker_widget.html.erb" do
@@ -17,8 +19,8 @@ RSpec.describe "_employer_broker_widget.html.erb" do
     end
 
     it "should display broker widget for consumer" do
-      expect(rendered).to match /select a broker/i
-      expect(rendered).to match /no broker/i
+      expect(rendered).to match(/select a broker/i)
+      expect(rendered).to match(/no broker/i)
     end
   end
 
@@ -33,9 +35,9 @@ RSpec.describe "_employer_broker_widget.html.erb" do
     end
 
     it "should display broker information to employer" do
-      expect(rendered).to match (broker_agency_account.writing_agent.email.address)
-      expect(rendered).to match (broker_agency_account.writing_agent.person.main_phone.area_code)
-      expect(rendered).to match (broker_agency_profile.legal_name.titleize)
+      expect(rendered).to match(broker_agency_account.writing_agent.email.address)
+      expect(rendered).to match(broker_agency_account.writing_agent.person.main_phone.area_code)
+      expect(rendered).to match(broker_agency_profile.legal_name.titleize)
     end
   end
 

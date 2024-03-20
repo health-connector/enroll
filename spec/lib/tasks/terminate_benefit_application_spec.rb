@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'rake'
 
@@ -17,7 +19,9 @@ describe 'terminating employer active benefit application & enrollments', :dbcle
     let!(:family) { FactoryBot.create(:family, :with_primary_family_member)}
     let!(:census_employee) { FactoryBot.create(:census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id) }
     let!(:termination_date){TimeKeeper.date_of_record.strftime('%m/%d/%Y')}
-    let(:enrollment)     { FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package_id:sponsored_benefit_package.id, employee_role_id: employee_role.id, aasm_state:'coverage_selected')}
+    let(:enrollment)     do
+      FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package_id: sponsored_benefit_package.id, employee_role_id: employee_role.id, aasm_state: 'coverage_selected')
+    end
     let!(:fein)          {abc_organization.fein}
     let!(:py_end_on){TimeKeeper.date_of_record.end_of_month.strftime('%m/%d/%Y')}
     let(:effective_period) { start_on..end_on }
@@ -26,7 +30,7 @@ describe 'terminating employer active benefit application & enrollments', :dbcle
     let(:benefit_application)         { initial_application }
 
     before do
-      enrollment.update_attributes(aasm_state:'coverage_selected')
+      enrollment.update_attributes(aasm_state: 'coverage_selected')
       employee_role.update_attributes(census_employee_id: census_employee.id)
     end
 

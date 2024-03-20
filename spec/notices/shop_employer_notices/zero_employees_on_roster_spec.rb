@@ -1,25 +1,31 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::ZeroEmployeesOnRoster, dbclean: :after_each do
   let(:employer_profile){ create :employer_profile}
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
   let(:person){ create :person}
-  let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'enrolling' ) }
+  let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'enrolling') }
   let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Zero Employees on Roster',
-                            :notice_template => 'notices/shop_employer_notices/notice_for_employers_with_zero_employees_on_roster',
-                            :notice_builder => 'ShopEmployerNotices::ZeroEmployeesOnRoster',
-                            :event_name => 'zero_employees_on_roster',
-                            :mpi_indicator => 'MPI_SHOP6',
-                            :title => "Action Needed – Add all Eligible Employees to your Roster"})
-                          }
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Zero Employees on Roster',
+             :notice_template => 'notices/shop_employer_notices/notice_for_employers_with_zero_employees_on_roster',
+             :notice_builder => 'ShopEmployerNotices::ZeroEmployeesOnRoster',
+             :event_name => 'zero_employees_on_roster',
+             :mpi_indicator => 'MPI_SHOP6',
+             :title => "Action Needed – Add all Eligible Employees to your Roster"
+           })
+  end
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   describe "New" do
     before do

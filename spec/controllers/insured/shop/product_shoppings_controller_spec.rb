@@ -51,36 +51,36 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
   let!(:health_enrollment) do
     FactoryBot.create(:hbx_enrollment,
-                       household: family.latest_household,
-                       coverage_kind: 'health',
-                       effective_on: initial_application.start_on,
-                       enrollment_kind: "open_enrollment",
-                       kind: 'employer_sponsored',
-                       submitted_at: TimeKeeper.date_of_record,
-                       benefit_sponsorship_id: benefit_sponsorship.id,
-                       sponsored_benefit_package_id: current_benefit_package.id,
-                       sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                       employee_role_id: employee_role.id,
-                       benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                       rating_area_id: initial_application.recorded_rating_area_id,
-                       aasm_state: 'shopping')
+                      household: family.latest_household,
+                      coverage_kind: 'health',
+                      effective_on: initial_application.start_on,
+                      enrollment_kind: "open_enrollment",
+                      kind: 'employer_sponsored',
+                      submitted_at: TimeKeeper.date_of_record,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: current_benefit_package.id,
+                      sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                      employee_role_id: employee_role.id,
+                      benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                      rating_area_id: initial_application.recorded_rating_area_id,
+                      aasm_state: 'shopping')
   end
 
   let!(:dental_enrollment) do
     FactoryBot.create(:hbx_enrollment,
-                       household: family.latest_household,
-                       coverage_kind: 'dental',
-                       effective_on: initial_application.start_on,
-                       enrollment_kind: "open_enrollment",
-                       kind: 'employer_sponsored',
-                       submitted_at: TimeKeeper.date_of_record,
-                       benefit_sponsorship_id: benefit_sponsorship.id,
-                       sponsored_benefit_package_id: current_benefit_package.id,
-                       sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
-                       employee_role_id: employee_role.id,
-                       benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                       rating_area_id: initial_application.recorded_rating_area_id,
-                       aasm_state: 'shopping')
+                      household: family.latest_household,
+                      coverage_kind: 'dental',
+                      effective_on: initial_application.start_on,
+                      enrollment_kind: "open_enrollment",
+                      kind: 'employer_sponsored',
+                      submitted_at: TimeKeeper.date_of_record,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: current_benefit_package.id,
+                      sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
+                      employee_role_id: employee_role.id,
+                      benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                      rating_area_id: initial_application.recorded_rating_area_id,
+                      aasm_state: 'shopping')
 
 
   end

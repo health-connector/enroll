@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'aasm/rspec'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -23,13 +25,16 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
     let!(:update_sponsored_benefit) {sponsored_benefit.update_attributes(product_package_kind: :single_product)}
 
     let(:aasm_state) { :active }
-    let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
-    let!(:family) {
+    let(:census_employee) do
+      create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_group: current_benefit_package, hired_on: hired_on,
+                                                        created_at: employee_created_at, updated_at: employee_updated_at)
+    end
+    let!(:family) do
       person = FactoryBot.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
       employee_role = FactoryBot.create(:employee_role, person: person, census_employee: census_employee, benefit_sponsors_employer_profile_id: abc_profile.id)
       census_employee.update_attributes({employee_role: employee_role})
       Family.find_or_build_from_employee_role(employee_role)
-    }
+    end
 
     let!(:employee_role){census_employee.employee_role}
 
@@ -39,20 +44,21 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
     let(:covered_individuals) { family.family_members }
     let(:person) { family.primary_applicant.person }
 
-    let!(:enrollment) { FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
-                                               enrollment_members: covered_individuals,
-                                               household: family.latest_household,
-                                               coverage_kind: "health",
-                                               effective_on: effective_on,
-                                               enrollment_kind: enrollment_kind,
-                                               kind: "employer_sponsored",
-                                               benefit_sponsorship_id: benefit_sponsorship.id,
-                                               sponsored_benefit_package_id: current_benefit_package.id,
-                                               sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                                               employee_role_id: employee_role.id,
-                                               product: sponsored_benefit.reference_product,
-                                               benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id)
-    }
+    let!(:enrollment) do
+      FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
+                        enrollment_members: covered_individuals,
+                        household: family.latest_household,
+                        coverage_kind: "health",
+                        effective_on: effective_on,
+                        enrollment_kind: enrollment_kind,
+                        kind: "employer_sponsored",
+                        benefit_sponsorship_id: benefit_sponsorship.id,
+                        sponsored_benefit_package_id: current_benefit_package.id,
+                        sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                        employee_role_id: employee_role.id,
+                        product: sponsored_benefit.reference_product,
+                        benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id)
+    end
 
     before do
       census_employee.terminate_employment(effective_on + 1.days)
@@ -62,9 +68,9 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
 
     context 'when enrollment reinstated', dbclean: :around_each do
 
-      let(:reinstated_enrollment) {
+      let(:reinstated_enrollment) do
         Enrollments::Replicator::Reinstatement.new(enrollment, enrollment.terminated_on.next_day).build
-      }
+      end
 
       it "should build reinstated enrollment" do
         expect(reinstated_enrollment.kind).to eq enrollment.kind
@@ -107,7 +113,7 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
 
 
       let!(:sponsored_benefit) {benefit_sponsorship.benefit_applications.where(aasm_state: :active).first.benefit_packages.first.health_sponsored_benefit}
-      let!(:update_sponsored_benefit) {
+      let!(:update_sponsored_benefit) do
         sponsored_benefit.product_package_kind = :single_product
         sponsored_benefit.reference_product.renewal_product = renewal_sponsored_benefit.reference_product
         sponsored_benefit.save
@@ -116,16 +122,19 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
           level.contribution_unit_id = renewal_sponsored_benefit.contribution_model.contribution_units.where(display_name: level.display_name).first.id
           level.save
         end
-      }
+      end
 
       let(:aasm_state) { :active }
-      let(:census_employee) { create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_group: current_benefit_package, hired_on: hired_on, created_at: employee_created_at, updated_at: employee_updated_at) }
-      let!(:family) {
+      let(:census_employee) do
+        create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, benefit_sponsors_employer_profile_id: benefit_sponsorship.profile.id, benefit_group: current_benefit_package, hired_on: hired_on,
+                                                          created_at: employee_created_at, updated_at: employee_updated_at)
+      end
+      let!(:family) do
         person = FactoryBot.create(:person, last_name: census_employee.last_name, first_name: census_employee.first_name)
         employee_role = FactoryBot.create(:employee_role, person: person, census_employee: census_employee, benefit_sponsors_employer_profile_id: abc_profile.id)
         census_employee.update_attributes({employee_role: employee_role})
         Family.find_or_build_from_employee_role(employee_role)
-      }
+      end
 
       let!(:employee_role){census_employee.employee_role}
 
@@ -135,27 +144,28 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
       let(:covered_individuals) { family.family_members }
       let(:person) { family.primary_applicant.person }
 
-      let!(:enrollment) { FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
-                                            enrollment_members: covered_individuals,
-                                            household: family.latest_household,
-                                            coverage_kind: "health",
-                                            effective_on: effective_on,
-                                            enrollment_kind: enrollment_kind,
-                                            kind: "employer_sponsored",
-                                            benefit_sponsorship_id: benefit_sponsorship.id,
-                                            sponsored_benefit_package_id: current_benefit_package.id,
-                                            sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                                            employee_role_id: employee_role.id,
-                                            product: sponsored_benefit.reference_product,
-                                            benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id)
-      }
+      let!(:enrollment) do
+        FactoryBot.create(:hbx_enrollment, :with_enrollment_members,
+                          enrollment_members: covered_individuals,
+                          household: family.latest_household,
+                          coverage_kind: "health",
+                          effective_on: effective_on,
+                          enrollment_kind: enrollment_kind,
+                          kind: "employer_sponsored",
+                          benefit_sponsorship_id: benefit_sponsorship.id,
+                          sponsored_benefit_package_id: current_benefit_package.id,
+                          sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                          employee_role_id: employee_role.id,
+                          product: sponsored_benefit.reference_product,
+                          benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id)
+      end
 
       context "prior to renewing plan year begin date" do
         let(:reinstate_effective_date) { renewal_effective_date.prev_month }
 
-        let(:reinstated_enrollment) {
+        let(:reinstated_enrollment) do
           enrollment.reinstate(edi: false)
-        }
+        end
 
         before do
           census_employee.terminate_employment(reinstate_effective_date.prev_day)
@@ -182,10 +192,10 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
 
         it "should generate passive renewal" do
           reinstated_enrollment
-          enrollment =family.active_household.hbx_enrollments.where({
-                                             :effective_on => renewal_effective_date,
-                                             :aasm_state.ne => 'coverage_canceled'
-                                           }).first
+          enrollment = family.active_household.hbx_enrollments.where({
+                                                                       :effective_on => renewal_effective_date,
+                                                                       :aasm_state.ne => 'coverage_canceled'
+                                                                     }).first
           expect(enrollment.present?).to be_truthy
 
           expect(enrollment.sponsored_benefit_package.benefit_application).to eq benefit_sponsorship.renewal_benefit_application
@@ -229,9 +239,9 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
           it "should not generate any other passive renewal" do
             reinstated_enrollment
             enrollment = family.active_household.hbx_enrollments.where({
-                                              :effective_on => renewal_effective_date,
-                                              :aasm_state.ne => 'coverage_canceled'
-                                             }).detect{|en| en != reinstated_enrollment}
+                                                                         :effective_on => renewal_effective_date,
+                                                                         :aasm_state.ne => 'coverage_canceled'
+                                                                       }).detect{|en| en != reinstated_enrollment}
             expect(enrollment).to be_nil
           end
         end
@@ -279,9 +289,9 @@ RSpec.describe Enrollments::Replicator::Reinstatement, :type => :model, dbclean:
           it "should not generate any other passive renewal" do
             reinstated_enrollment
             enrollment = family.active_household.hbx_enrollments.where({
-                                                    :effective_on => renewal_effective_date,
-                                                    :aasm_state.ne => 'coverage_canceled'
-                                                   }).detect{|en| en != reinstated_enrollment}
+                                                                         :effective_on => renewal_effective_date,
+                                                                         :aasm_state.ne => 'coverage_canceled'
+                                                                       }).detect{|en| en != reinstated_enrollment}
             expect(enrollment).to be_nil
           end
         end

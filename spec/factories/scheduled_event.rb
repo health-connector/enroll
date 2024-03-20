@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :scheduled_event do
     type { 'holiday' }
@@ -11,7 +13,7 @@ FactoryBot.define do
     end
 
     trait :recurring_rules do
-     recurring_rules { }  
+      recurring_rules { }
     end
 
     trait :start_on_friday do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
@@ -6,10 +8,10 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:person_parameters) { { :first_name => "SOMDFINKETHING", :employee_role_id => employee_role_id} }
     let(:organization_id) { "1234324234" }
     let(:benefit_group) { double(effective_on_for: effective_date) }
-    let(:census_employee) { double(:hired_on => "whatever" ) }
+    let(:census_employee) { double(:hired_on => "whatever") }
     let(:employer_profile) { double(id: "23827831278") }
     let(:effective_date) { double }
-    let(:person_id) { BSON::ObjectId::new }
+    let(:person_id) { BSON::ObjectId.new }
     let(:employee_role) { double(:id => employee_role_id, :employer_profile => employer_profile, employer_profile_id: employer_profile.id, :benefit_group => benefit_group, :census_employee => census_employee) }
     let(:person) { FactoryBot.create(:person) }
     let(:user) {FactoryBot.create(:user)}
@@ -63,12 +65,12 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         expect(assigns(:person)).to eq role_form
       end
 
-     it "should call bubble_address_errors_by_person" do
-       expect(controller).to receive(:bubble_address_errors_by_person)
-       put :update, params: { :person => person_parameters, :id => person_id }
-       expect(response).to have_http_status(:success)
-       expect(response).to render_template(:edit)
-     end
+      it "should call bubble_address_errors_by_person" do
+        expect(controller).to receive(:bubble_address_errors_by_person)
+        put :update, params: { :person => person_parameters, :id => person_id }
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(:edit)
+      end
     end
   end
 
@@ -77,10 +79,12 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:person) { double("Person", full_name: "test test") }
     let(:employee_role) { double("EmployeeRole") }
     let(:employer_profile) { double("EmployerProfile") }
-    let(:broker_role) { double(
-      "BrokerRole",
-      email_address: "test@example.com"
-      ) }
+    let(:broker_role) do
+      double(
+        "BrokerRole",
+        email_address: "test@example.com"
+      )
+    end
     let(:broker_agency_account) { double("BrokerAgencyAccount", writing_agent: broker_role) }
     let(:broker_agency_accounts) { [broker_agency_account] }
     let(:employee_roles) { [employee_role] }
@@ -128,7 +132,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:family) { double("Family") }
     let(:email){ double("Email", address: "test@example.com", kind: "home") }
     let(:id){ EmployeeRole.new.id }
-    let!(:notice_trigger_params) { {recipient: employee_role, event_object: census_employee, notice_event: "employee_matches_employer_rooster", :notice_params=>{}} }
+    let!(:notice_trigger_params) { {recipient: employee_role, event_object: census_employee, notice_event: "employee_matches_employer_rooster", :notice_params => {}} }
 
     before :each do
       allow(EmployeeRole).to receive(:find).and_return(employee_role)
@@ -197,11 +201,11 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:census_employee) { instance_double("CensusEmployee", :hired_on => hired_on, :is_linked? => true) }
     let(:employee_role) { instance_double("EmployeeRole", :benefit_group => benefit_group, :new_census_employee => census_employee, :person => person, :id => "212342345") }
     let(:effective_date) { double }
-    let(:employment_relationship) {
+    let(:employment_relationship) do
       instance_double("Forms::EmploymentRelationship", {
-             :census_employee => census_employee
-      } )
-    }
+                        :census_employee => census_employee
+                      })
+    end
     let(:employment_relationship_properties) { { :skllkjasdfjksd => "a3r123rvf" } }
     let(:user) { double(:idp_verified? => true, person: person) }
 
@@ -252,7 +256,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       end
 
       it "should get an alert" do
-        expect(flash[:alert]).to match /You can not enroll as another employee/
+        expect(flash[:alert]).to match(/You can not enroll as another employee/)
       end
     end
   end
@@ -293,7 +297,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         let(:found_census_employees) { [] }
         let(:person){ double("Person") }
         let(:consumer_role){ double("ConsumerRole", id: "test") }
-        let(:person_parameters){{"dob"=>"1985-10-01", "first_name"=>"martin","gender"=>"male","last_name"=>"york","middle_name"=>"","name_sfx"=>"","ssn"=>"000000111"}}
+        let(:person_parameters){{"dob" => "1985-10-01", "first_name" => "martin","gender" => "male","last_name" => "york","middle_name" => "","name_sfx" => "","ssn" => "000000111"}}
 
         it "renders the 'no_match' template" do
           expect(response).to have_http_status(:success)
@@ -382,7 +386,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       expect(subject).to receive(:log) do |msg, severity|
         expect(severity[:severity]).to eq('error')
         expect(msg[:user]).to eq(user.oim_id)
-        expect(msg[:url]).to match /insured\/employee\/888/
+        expect(msg[:url]).to match(%r{insured/employee/888})
       end
       get :show, params: { id: 888 }
     end

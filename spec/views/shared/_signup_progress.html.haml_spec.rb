@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "shared/_signup_progress.html.haml" do
   before :each do
-      allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
+    allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
   end
   context "step 1" do
     before :each do
@@ -90,7 +92,7 @@ RSpec.describe "shared/_signup_progress.html.haml" do
 
       it "should disable the purchase button" do
         render "shared/signup_progress", step: 6
-        expect(rendered).to match /<a[^>]*disabled="disabled"[^>]*>Confirm/
+        expect(rendered).to match(/<a[^>]*disabled="disabled"[^>]*>Confirm/)
       end
     end
   end

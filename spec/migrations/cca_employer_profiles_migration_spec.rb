@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "CcaEmployerProfilesMigration" do
@@ -5,7 +7,7 @@ describe "CcaEmployerProfilesMigration" do
   before :all do
     DatabaseCleaner.clean
 
-    Dir[Rails.root.join('db', 'migrate', '*_cca_employer_profiles_migration.rb')].each do |f|
+    Dir[Rails.root.join('db', 'migrate', '*_cca_employer_profiles_migration.rb')].sort.each do |f|
       @path = f
       require f
     end
@@ -25,7 +27,8 @@ describe "CcaEmployerProfilesMigration" do
       document2 = FactoryBot.build(:document)
       employer_profile.organization.documents << document1
       employer_profile.documents << document2
-      employer_profile.documents.first.update_attributes(title: "MonthlyInvoiceAvailableNotice", creator: "hbx_staff", subject: "notice", description: nil, publisher: "dchl", type: "text", format: "application/pdf", identifier: "urn:openhbx:terms:v1:file_storage:s10:buckt:dchbx-enroll-notices-dev#92a6d67d", source: "enroll_system", language: "en", _type: "Document")
+      employer_profile.documents.first.update_attributes(title: "MonthlyInvoiceAvailableNotice", creator: "hbx_staff", subject: "notice", description: nil, publisher: "dchl", type: "text", format: "application/pdf",
+                                                         identifier: "urn:openhbx:terms:v1:file_storage:s10:buckt:dchbx-enroll-notices-dev#92a6d67d", source: "enroll_system", language: "en", _type: "Document")
 
       # employer_profile.organization.home_page = nil
       inbox = FactoryBot.create(:inbox, :with_message, recipient: employer_profile)
@@ -41,15 +44,15 @@ describe "CcaEmployerProfilesMigration" do
       @migrated_organizations = BenefitSponsors::Organizations::Organization.employer_profiles
       @old_organizations = Organization.all_employer_profiles
 
-      CensusEmployee.create(first_name:"Eddie", last_name:"Vedder", gender:"male", dob: "1964-10-23".to_date, employer_profile_id: @old_organizations.first.employer_profile.id, hired_on: "2015-04-01".to_date, ssn: "112212221")
+      CensusEmployee.create(first_name: "Eddie", last_name: "Vedder", gender: "male", dob: "1964-10-23".to_date, employer_profile_id: @old_organizations.first.employer_profile.id, hired_on: "2015-04-01".to_date, ssn: "112212221")
 
       @migrations_paths = Rails.root.join("db/migrate")
       @test_version = @path.split("/").last.split("_").first
     end
 
-    #TODO modify it after employer profile script is updated according to benefit sponsorship
+    #TODO: modify it after employer profile script is updated according to benefit sponsorship
     it "should match total migrated organizations" do
-      silence_stream(STDOUT) do
+      silence_stream($stdout) do
         Mongoid::Migrator.run(:up, @migrations_paths, @test_version.to_i)
       end
 
@@ -82,7 +85,7 @@ describe "CcaEmployerProfilesMigration" do
       expect(migrated_address).to have_attributes(created_at: old_address.created_at,
                                                   updated_at: old_address.updated_at, kind: old_address.kind, address_1: old_address.address_1,
                                                   address_2: old_address.address_2, address_3: old_address.address_3, city: old_address.city,
-                                                  county: (old_address.county ? old_address.county : ''), state: old_address.state, location_state_code: old_address.location_state_code,
+                                                  county: (old_address.county || ''), state: old_address.state, location_state_code: old_address.location_state_code,
                                                   full_text: old_address.full_text, zip: old_address.zip, country_name: old_address.country_name)
     end
 
@@ -106,18 +109,19 @@ describe "CcaEmployerProfilesMigration" do
     it "should match all migrated attributes for employer profile" do
       migrated_profile = @migrated_organizations.first.employer_profile
       old_profile = @old_organizations.first.employer_profile
-      expect(migrated_profile).to have_attributes( created_at: old_profile.created_at,
+      expect(migrated_profile).to have_attributes(created_at: old_profile.created_at,
                                                   updated_at: old_profile.updated_at, sic_code: old_profile.sic_code)
     end
 
     it "should match all migrated attributes for employer profile" do
       migrated_profile = @migrated_organizations.first.employer_profile
       old_profile = @old_organizations.first.employer_profile
-      if old_profile.contact_method == "Only Electronic communications"
+      case old_profile.contact_method
+      when "Only Electronic communications"
         expect(migrated_profile.contact_method).to eq :electronic_only
-      elsif old_profile.contact_method == "Paper and Electronic communications"
+      when "Paper and Electronic communications"
         expect(migrated_profile.contact_method).to eq :paper_and_electronic
-      elsif old_profile.contact_method == "Only Paper communication"
+      when "Only Paper communication"
         expect(migrated_profile.contact_method).to eq :paper_only
       end
     end

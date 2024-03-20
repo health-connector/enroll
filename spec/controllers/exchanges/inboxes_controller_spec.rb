@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Exchanges::InboxesController do
@@ -6,7 +8,7 @@ RSpec.describe Exchanges::InboxesController do
     let(:person) { double("Person") }
     let(:hbx_profile) { double("HbxProfile") }
     let(:inbox) { double("Inbox") }
-    let(:message){ double("Message", message_read: false ) }
+    let(:message){ double("Message", message_read: false) }
     let(:inbox_provider){double(id: double("id"),full_name: double("inbox_provider"))}
 
     before :each do

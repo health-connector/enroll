@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "exchanges/hbx_profiles/show.html.erb", :type => :view do
@@ -12,7 +14,7 @@ RSpec.describe "exchanges/hbx_profiles/show.html.erb", :type => :view do
     end
     it "does not show general agency related links" do
       render
-      expect(rendered).not_to match /General Agency/
+      expect(rendered).not_to match(/General Agency/)
     end
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::BrokerAgencyController do
@@ -5,7 +7,7 @@ RSpec.describe Employers::BrokerAgencyController do
   before(:all) do
     @employer_profile = FactoryBot.create(:employer_profile)
 
-    @broker_role =  FactoryBot.create(:broker_role, aasm_state: 'active')
+    @broker_role = FactoryBot.create(:broker_role, aasm_state: 'active')
     @org1 = FactoryBot.create(:broker_agency, legal_name: "agencyone")
     @org1.broker_agency_profile.update_attributes(primary_broker_role: @broker_role)
     @broker_role.update_attributes(broker_agency_profile_id: @org1.broker_agency_profile.id)
@@ -18,7 +20,7 @@ RSpec.describe Employers::BrokerAgencyController do
     @org2.broker_agency_profile.approve!
 
     @user = FactoryBot.create(:user)
-    p=FactoryBot.create(:person, user: @user)
+    p = FactoryBot.create(:person, user: @user)
     @hbx_staff_role = FactoryBot.create(:hbx_staff_role, person: p)
   end
 
@@ -79,7 +81,7 @@ RSpec.describe Employers::BrokerAgencyController do
     context 'with page label and pagination' do
       before :each do
         sign_in(@user)
-        get :index, params: { employer_profile_id: @employer_profile.id, page: @org2.broker_agency_profile.legal_name[0].upcase, organization_page: 1} , format: :js
+        get :index, params: { employer_profile_id: @employer_profile.id, page: @org2.broker_agency_profile.legal_name[0].upcase, organization_page: 1}, format: :js
       end
 
       it 'should return matching agency' do
@@ -113,7 +115,7 @@ RSpec.describe Employers::BrokerAgencyController do
 
       it "should be a success" do
         expect(flash[:notice]).to eq("Your broker has been notified of your selection and should contact you shortly. You can always call or email them directly. If this is not the broker you want to use, select 'Change Broker'.")
-        expect(response).to redirect_to(employers_employer_profile_path(@employer_profile, tab:'brokers'))
+        expect(response).to redirect_to(employers_employer_profile_path(@employer_profile, tab: 'brokers'))
       end
     end
 
@@ -207,14 +209,14 @@ RSpec.describe Employers::BrokerAgencyController do
 
   describe ".create for invalid plan year" do
     let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
-    before (:each) do
-          allow(@hbx_staff_role).to receive_message_chain('permission.modify_employer').and_return(true)
-          allow(SponsoredBenefits::Organizations::BrokerAgencyProfile).to receive(:assign_employer).and_return(true)
-          sign_in(@user)
-          @employer_profile.plan_years=[]
-          invalid_plan=FactoryBot.build(:plan_year, open_enrollment_end_on: Date.today)
-          @employer_profile.plan_years << invalid_plan
-          @employer_profile.save!(validate:false)
+    before(:each) do
+      allow(@hbx_staff_role).to receive_message_chain('permission.modify_employer').and_return(true)
+      allow(SponsoredBenefits::Organizations::BrokerAgencyProfile).to receive(:assign_employer).and_return(true)
+      sign_in(@user)
+      @employer_profile.plan_years = []
+      invalid_plan = FactoryBot.build(:plan_year, open_enrollment_end_on: Date.today)
+      @employer_profile.plan_years << invalid_plan
+      @employer_profile.save!(validate: false)
     end
 
     it "should be a success" do
@@ -236,7 +238,7 @@ RSpec.describe Employers::BrokerAgencyController do
       end
 
       it "adds a message to person inbox" do
-        expect(@employer_profile.inbox.messages.count).to eq (2)
+        expect(@employer_profile.inbox.messages.count).to eq(2)
       end
     end
   end

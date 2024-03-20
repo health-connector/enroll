@@ -36,6 +36,7 @@ describe MoveEnrollmentBetweenTwoAccount, dbclean: :after_each do
     let!(:consumer_role) {FactoryBot.create(:consumer_role,person: family1.family_members[0].person)}
     let!(:consumer_role1) {FactoryBot.create(:consumer_role,person: family2.family_members[0].person)}
     let!(:hbx_profile) {FactoryBot.create(:hbx_profile,:open_enrollment_coverage_period)}
+
     around do |example|
       ClimateControl.modify old_account_hbx_id: family1.family_members[0].person.hbx_id,
                             new_account_hbx_id: family2.family_members[0].person.hbx_id,
@@ -53,21 +54,21 @@ describe MoveEnrollmentBetweenTwoAccount, dbclean: :after_each do
       hbx_enrollment.save
       consumer_role1
     end
+
     it "should move an ivl enrollment" do
       expect(family1.active_household.hbx_enrollments).to include(hbx_enrollment)
       expect(family2.active_household.hbx_enrollments).not_to include(hbx_enrollment)
       @size1 = family1.active_household.hbx_enrollments.size
       @size2 = family2.active_household.hbx_enrollments.size
       subject.migrate
-      family1.reload
-      family2.reload
-      expect(family1.active_household.hbx_enrollments).not_to include(hbx_enrollment)
-      expect(family2.active_household.hbx_enrollments.last.kind).to eq "individual"
+      expect(family1.reload.active_household.hbx_enrollments).not_to include(hbx_enrollment)
+      expect(family2.reload.active_household.hbx_enrollments.last.kind).to eq "individual"
       expect(family2.active_household.hbx_enrollments.last.consumer_role).to eq consumer_role1
       expect(family1.active_household.hbx_enrollments.size).to eq @size1 - 1
       expect(family2.active_household.hbx_enrollments.size).to eq @size2 + 1
     end
   end
+
   describe "it should move a shop enrollment", dbclean: :after_each do
     include_context 'setup benefit market with market catalogs and product packages'
     include_context 'setup initial benefit application'
@@ -102,6 +103,7 @@ describe MoveEnrollmentBetweenTwoAccount, dbclean: :after_each do
     let!(:employee_role2) {FactoryBot.create(:employee_role,person: family2.family_members[0].person, census_employee: census_employee, employer_profile: benefit_sponsorship.profile)}
     let(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
     let(:benefit_group_assignment) {census_employee.benefit_group_assignments.first}
+
     before do
       coverage_household_member = family1.households.first.coverage_households.first.coverage_household_members.first
       h = HbxEnrollmentMember.new_from(coverage_household_member: coverage_household_member)
@@ -110,6 +112,7 @@ describe MoveEnrollmentBetweenTwoAccount, dbclean: :after_each do
       hbx_enrollment.hbx_enrollment_members << h
       hbx_enrollment.save
     end
+
     it "should move a shop enrollment" do
       with_modified_env enr_env_support do
         expect(family1.active_household.hbx_enrollments).to include(hbx_enrollment)
@@ -117,10 +120,8 @@ describe MoveEnrollmentBetweenTwoAccount, dbclean: :after_each do
         @size1 = family1.active_household.hbx_enrollments.size
         @size2 = family2.active_household.hbx_enrollments.size
         subject.migrate
-        family1.reload
-        family2.reload
-        expect(family1.active_household.hbx_enrollments).not_to include(hbx_enrollment)
-        expect(family2.active_household.hbx_enrollments.last.kind).to eq "employer_sponsored"
+        expect(family1.reload.active_household.hbx_enrollments).not_to include(hbx_enrollment)
+        expect(family2.reload.active_household.hbx_enrollments.last.kind).to eq "employer_sponsored"
         expect(family1.active_household.hbx_enrollments.size).to eq @size1 - 1
         expect(family2.active_household.hbx_enrollments.size).to eq @size2 + 1
       end

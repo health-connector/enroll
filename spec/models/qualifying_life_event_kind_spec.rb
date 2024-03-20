@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe QualifyingLifeEventKind, :type => :model do
@@ -8,7 +10,7 @@ RSpec.describe QualifyingLifeEventKind, :type => :model do
   it { should validate_presence_of :post_event_sep_in_days }
 
   describe "class methods" do
-    let(:valid_params)do
+    let(:valid_params) do
       {
         title: "Married",
         market_kind: "shop",
@@ -105,7 +107,7 @@ RSpec.describe QualifyingLifeEventKind, :type => :model do
 
     context "family_structure_changed?" do
       it "return true" do
-          %w(birth adoption marriage divorce domestic_partnership).each do |reason|
+        %w[birth adoption marriage divorce domestic_partnership].each do |reason|
           qle = FactoryBot.build(:qualifying_life_event_kind, reason: reason)
           expect(qle.family_structure_changed?).to eq true
         end
@@ -147,7 +149,7 @@ RSpec.describe QualifyingLifeEventKind, :type => :model do
         end
 
         it "plan selected during the month in which coverage ends" do
-          date = (TimeKeeper.date_of_record).end_of_month.days_ago(3)
+          date = TimeKeeper.date_of_record.end_of_month.days_ago(3)
           results = (TimeKeeper.date_of_record + 1.month).beginning_of_month
           expect(qle.employee_gaining_medicare(date)).to eq results
         end

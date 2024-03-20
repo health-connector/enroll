@@ -6,18 +6,19 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   describe AddNewEligibilityDetermination, dbclean: :after_each do
     let(:given_task_name) { "add_new_eligibility_determination" }
     subject { AddNewEligibilityDetermination.new(given_task_name, double(:current_scope => nil)) }
+
     describe "given a task name" do
       it "has the given task name" do
         expect(subject.name).to eql given_task_name
       end
     end
+
     describe "add a new eligibility determination to the person" do
       let(:family) {FactoryBot.create(:family, :with_primary_family_member)}
       let!(:tax_household){FactoryBot.create(:tax_household, household: family.active_household,effective_ending_on: nil)}
       let!(:eligibility_determinations){FactoryBot.create(:eligibility_determination, tax_household: tax_household)}
 
       context "add a new eligibility determination to the person" do
-        context "add new eligibility determination to the person"
         it "should change person' csr" do
           ClimateControl.modify(
             hbx_id: family.person.hbx_id,
@@ -37,8 +38,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
           end
         end
       end
+
       context "change person's aptc" do
-        context "change person's csr"
         it "should change person' csr" do
           ClimateControl.modify(
             hbx_id: family.person.hbx_id,

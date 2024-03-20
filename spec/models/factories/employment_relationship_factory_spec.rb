@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -9,7 +11,7 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
   end
 
   let(:calendar_year) { TimeKeeper.date_of_record.year }
-  let(:organization) {
+  let(:organization) do
     org = abc_organization
     TimeKeeper.set_date_of_record_unprotected!(Date.today.end_of_year)
     employer_profile = abc_profile
@@ -19,7 +21,8 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
     benefit_group = predecessor_application.benefit_packages[0]
     renewing_benefit_group = benefit_package
 
-    census_employee = FactoryBot.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile:benefit_sponsorship.profile, benefit_group: renewing_benefit_group, dob: TimeKeeper.date_of_record - 30.years, hired_on: (TimeKeeper.date_of_record + 2.months).beginning_of_month)
+    census_employee = FactoryBot.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: renewing_benefit_group, dob: TimeKeeper.date_of_record - 30.years,
+                                                          hired_on: (TimeKeeper.date_of_record + 2.months).beginning_of_month)
 
     employer_profile.census_employees.each do |ce|
       ce.add_benefit_group_assignment benefit_group, benefit_group.start_on
@@ -31,14 +34,14 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
     end
 
     org
-  }
+  end
 
   it "should display the effective on date as date of hire" do
     census_employee = organization.employer_profile.census_employees.where(dob: TimeKeeper.date_of_record - 30.years).first
     person = census_employee.employee_role.person
     employee_candidate = Forms::EmployeeCandidate.new(user_id: person.id)
     employment_relationship = Factories::EmploymentRelationshipFactory.new
-    employmentrelationship = employment_relationship.build(employee_candidate, census_employee)    
+    employmentrelationship = employment_relationship.build(employee_candidate, census_employee)
     expect(employmentrelationship.eligible_for_coverage_on).to eq census_employee.hired_on
     TimeKeeper.set_date_of_record_unprotected!(Date.today)
   end

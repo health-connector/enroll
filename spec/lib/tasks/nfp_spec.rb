@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 Rake.application.rake_require "tasks/nfp"
 Rake::Task.define_task(:environment)
@@ -38,13 +40,15 @@ RSpec.describe 'upload the invoice to s3', :type => :task, dbclean: :after_each 
       organization: organization,
       profile_id: organization.profiles.first.id,
       benefit_market: site.benefit_markets[0],
-      employer_attestation: employer_attestation) 
+      employer_attestation: employer_attestation
+    )
   end
+
   let!(:benefit_application) {
     application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :active, default_effective_period: effective_period)
     application.benefit_sponsor_catalog.save!
     application
-  }
+  end
   let(:service)             { BenefitSponsors::Services::UploadDocumentsToProfilesService.new }
 
   context "Upload the notice to s3" do

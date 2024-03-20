@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 shared_examples "a valid invitation" do |sk, role|
@@ -65,7 +67,7 @@ describe Invitation do
         "employer_staff_role" => "employer_staff_role",
         "csr_role" => "csr_role",
         "assister_role" => "assister_role",
-        "hbx_staff_role" => "hbx_staf_role",
+        "hbx_staff_role" => "hbx_staf_role"
       }
     end
 
@@ -76,12 +78,12 @@ describe Invitation do
     def self.role_kinds
       invite_types.values
     end
-    let(:valid_params) {
+    let(:valid_params) do
       {
         :source_id => BSON::ObjectId.new,
         :invitation_email => "user@somewhere.com"
-      } 
-    }
+      }
+    end
 
     [0,1,2].each do |idx|
       include_examples "a valid invitation", source_kinds[idx], role_kinds[idx]
@@ -134,14 +136,14 @@ describe Invitation do
 
   describe "valid, in the sent state" do
     let(:source_id) { BSON::ObjectId.new }
-    let(:valid_params) {
+    let(:valid_params) do
       {
         :source_id => source_id,
         :source_kind => "census_employee",
         :role => "employee_role",
         :invitation_email => "user@somewhere.com"
-      } 
-    }
+      }
+    end
     let(:user) { User.new }
     let(:redirection_obj) { instance_double(InvitationsController) }
     let(:mock_census_employee) { instance_double(CensusEmployee) }
@@ -160,9 +162,11 @@ describe Invitation do
   end
 
   context "broker invitation email" do
-    let(:broker_role) {broker_role=FactoryBot.create(:broker_role);
-      broker_role.email=Email.new(kind:"work", address:"broker@email.com");
-      broker_role}
+    let(:broker_role) do
+      broker_role = FactoryBot.create(:broker_role)
+      broker_role.email = Email.new(kind: "work", address: "broker@email.com")
+      broker_role
+    end
 
     describe "invite_broker!" do
       it "returns an Invitation" do

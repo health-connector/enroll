@@ -2,7 +2,7 @@ class DirtyDbRoom
 
   def self.initialize_stern_mom!
     @db_room_mutex = Mutex.new
-    @room_status_list = Hash.new { |h,k| h[k] = Array.new }
+    @room_status_list = Hash.new { |h,k| h[k] = [] }
   end
 
   def self.db_was_cleaned!(example)
@@ -16,7 +16,7 @@ class DirtyDbRoom
       @db_room_mutex.synchronize do
         @room_status_list[RSpec.current_example.location] =
           @room_status_list[RSpec.current_example.location] +
-            [[factory_name, RSpec.current_example.full_description]]
+          [[factory_name, RSpec.current_example.full_description]]
       end
     end
   end
@@ -48,6 +48,6 @@ module DirtyRoomLoggingMethods
     super(name, *traits_and_overrides, &block)
   end
 end
-FactoryBot::Syntax::Methods.send(:prepend, DirtyRoomLoggingMethods)
+FactoryBot::Syntax::Methods.prepend DirtyRoomLoggingMethods
 
 DirtyDbRoom.initialize_stern_mom!

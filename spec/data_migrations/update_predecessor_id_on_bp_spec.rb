@@ -72,6 +72,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
         aasm_state: :renewing_enrolling,
         predecessor_id: old_benefit_application.id
       )
+
       application.benefit_sponsor_catalog.save!
       application
     end

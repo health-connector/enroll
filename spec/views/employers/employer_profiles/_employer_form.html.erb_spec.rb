@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/_employer_form.html.erb" do
@@ -16,13 +18,13 @@ RSpec.describe "employers/employer_profiles/_employer_form.html.erb" do
   end
 
   it "should show title" do
-    expect(rendered).to match /Business Info/
+    expect(rendered).to match(/Business Info/)
   end
 
   it "should show person info" do
-    expect(rendered).to match /Employer Information/
-    expect(rendered).to match /Employer Staff Points-of-Contact/
-    expect(rendered).to match  /Last Name/
+    expect(rendered).to match(/Employer Information/)
+    expect(rendered).to match(/Employer Staff Points-of-Contact/)
+    expect(rendered).to match(/Last Name/)
 
   end
 end

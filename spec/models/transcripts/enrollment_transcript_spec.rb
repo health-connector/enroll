@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Transcripts::EnrollmentTranscript, type: :model, dbclean: :after_each do
@@ -23,14 +25,14 @@ RSpec.describe Transcripts::EnrollmentTranscript, type: :model, dbclean: :after_
       let(:other_effective_on) { Date.new(TimeKeeper.date_of_record.year, 3, 1) }
       let(:other_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
       let(:source_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
-      let(:other_family) {
+      let(:other_family) do
         family = Family.new(hbx_assigned_id: '24112',
                             e_case_id: "6754632")
 
         primary = family.family_members.build(is_primary_applicant: true, person: person)
         dependent1 = family.family_members.build(is_primary_applicant: true, person: spouse)
         family
-      }
+      end
 
       let(:dependent2) do
         other_family.family_members.build(is_primary_applicant: false, person: child1)

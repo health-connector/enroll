@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Forms::FamilyMember do
@@ -69,7 +71,7 @@ describe Forms::FamilyMember do
   context "compare_address_with_primary" do
     let(:addr1) {Address.new(zip: '1234', state: 'DC')}
     let(:addr2) {Address.new(zip: '4321', state: 'DC')}
-    let(:addr3) {Address.new(zip: '1234', state: 'DC', 'address_3'=> "abc")}
+    let(:addr3) {Address.new(zip: '1234', state: 'DC', 'address_3' => "abc")}
     let(:person) {double}
     let(:primary) {double}
     let(:family) {double(primary_family_member: double(person: primary))}
@@ -160,7 +162,7 @@ describe Forms::FamilyMember do
       end
 
       context "if address_1 is blank and city is blank" do
-        let(:addresses) { {"0" => {"kind"=> 'home', "address_1" => "", "city" => ""}} }
+        let(:addresses) { {"0" => {"kind" => 'home', "address_1" => "", "city" => ""}} }
 
         before :each do
           allow(person).to receive(:home_address).and_return addr3
@@ -179,15 +181,15 @@ describe Forms::FamilyMember do
       end
 
       context "if address_1 is blank or city is not blank" do
-        let(:addresses) { {"0"=>{"kind"=>"home", "address_1" => "", "city" => "not blank"}} }
-        let(:address) {{"kind"=>"home", "address_1" => "", "city" => "not blank"}}
+        let(:addresses) { {"0" => {"kind" => "home", "address_1" => "", "city" => "not blank"}} }
+        let(:address) {{"kind" => "home", "address_1" => "", "city" => "not blank"}}
 
         before :each do
           allow(person).to receive(:home_address).and_return addr3
           allow(person).to receive(:has_mailing_address?).and_return false
           allow(employee_dependent).to receive(:addresses).and_return(addresses)
           allow(addresses).to receive(:values).and_return [address]
-          addresses.each do |key, addr|
+          addresses.each do |_key, addr|
             addr.define_singleton_method(:permit!) {true}
           end
         end
@@ -222,7 +224,7 @@ describe Forms::FamilyMember, "which describes a new family member, and has been
   let(:existing_family_member) { nil }
   let(:existing_person) { nil }
 
-  let(:person_properties) {
+  let(:person_properties) do
     {
       :first_name => "aaa",
       :last_name => "bbb",
@@ -241,7 +243,7 @@ describe Forms::FamilyMember, "which describes a new family member, and has been
       :no_dc_address => nil,
       :no_dc_address_reason => nil
     }
-  }
+  end
 
   subject { Forms::FamilyMember.new(person_properties.merge({:family_id => family_id, :relationship => relationship })) }
 
@@ -300,13 +302,13 @@ describe Forms::FamilyMember, "which describes a new family member, and has been
 
     it "should create a new person" do
       person_properties[:dob] = Date.strptime(person_properties[:dob], "%Y-%m-%d")
-      expect(Person).to receive(:new).with(person_properties.merge({:citizen_status=>nil})).and_return(new_person)
+      expect(Person).to receive(:new).with(person_properties.merge({:citizen_status => nil})).and_return(new_person)
       subject.save
     end
 
     it "should create a new family member and call save_relevant_coverage_households" do
       person_properties[:dob] = Date.strptime(person_properties[:dob], "%Y-%m-%d")
-      allow(Person).to receive(:new).with(person_properties.merge({:citizen_status=>nil})).and_return(new_person)
+      allow(Person).to receive(:new).with(person_properties.merge({:citizen_status => nil})).and_return(new_person)
       expect(family).to receive(:save_relevant_coverage_households)
       subject.save
       expect(subject.id).to eq new_family_member_id
@@ -317,26 +319,24 @@ end
 describe "checking validations on family member object" do
   let(:family_id) { double }
   let(:family) { double("family", :family_members => []) }
-  let(:member_attributes) {
-    { "first_name"=>"test",
-      "middle_name"=>"",
-      "last_name"=>"fm",
-      "dob"=>"1982-11-11",
-      "ssn"=>"",
-      "no_ssn"=>"1",
-      "gender"=>"male",
-      "relationship"=>"child",
-      "tribal_id"=>"",
-      "ethnicity"=>["", "", "", "", "", "", ""],
-      "is_consumer_role"=>"true",
-      "same_with_primary"=>"true",
-      "no_dc_address"=>"false",
-      "addresses"=>
-      { "0"=>{"kind"=>"home", "address_1"=>"", "address_2"=>"", "city"=>"", "state"=>"", "zip"=>""},
-        "1"=>{"kind"=>"mailing", "address_1"=>"", "address_2"=>"", "city"=>"", "state"=>"", "zip"=>""}
-      }
-    }
-  }
+  let(:member_attributes) do
+    { "first_name" => "test",
+      "middle_name" => "",
+      "last_name" => "fm",
+      "dob" => "1982-11-11",
+      "ssn" => "",
+      "no_ssn" => "1",
+      "gender" => "male",
+      "relationship" => "child",
+      "tribal_id" => "",
+      "ethnicity" => ["", "", "", "", "", "", ""],
+      "is_consumer_role" => "true",
+      "same_with_primary" => "true",
+      "no_dc_address" => "false",
+      "addresses" =>
+      { "0" => {"kind" => "home", "address_1" => "", "address_2" => "", "city" => "", "state" => "", "zip" => ""},
+        "1" => {"kind" => "mailing", "address_1" => "", "address_2" => "", "city" => "", "state" => "", "zip" => ""}}}
+  end
 
   subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id}))}
 
@@ -357,7 +357,7 @@ describe "checking validations on family member object" do
 
   context "user answered for citizen status question" do
     context "when user answered us citizen as true" do
-      subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen"=>"true"})) }
+      subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen" => "true"})) }
       it "should return errors with naturalization, native american / alaskan native and incarceration status" do
         subject.save
         expect(subject.errors.full_messages).to eq ["Naturalized citizen is required", "native american / alaskan native status is required", "Incarceration status is required"]
@@ -365,7 +365,7 @@ describe "checking validations on family member object" do
     end
 
     context "when user answered us citizen as false" do
-      subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen"=>"false"})) }
+      subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen" => "false"})) }
       it "should return errors with Eligible immigration, native american / alaskan native and incarceration status" do
         subject.save
         expect(subject.errors.full_messages).to eq ["Eligible immigration status is required", "native american / alaskan native status is required", "Incarceration status is required"]
@@ -374,7 +374,7 @@ describe "checking validations on family member object" do
   end
 
   context "when user answered for citizen & naturalization" do
-    subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen"=>"true", "naturalized_citizen"=>"false"})) }
+    subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen" => "true", "naturalized_citizen" => "false"})) }
     it "should return errors with native american / alaskan native and incarceration status" do
       subject.save
       expect(subject.errors.full_messages).to eq ["native american / alaskan native status is required", "Incarceration status is required"]
@@ -382,7 +382,7 @@ describe "checking validations on family member object" do
   end
 
   context "when user not answered for incarceration status" do
-    subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen"=>"true", "naturalized_citizen"=>"false", "indian_tribe_member"=>"false"})) }
+    subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen" => "true", "naturalized_citizen" => "false", "indian_tribe_member" => "false"})) }
     it "should return errors with incarceration status" do
       subject.save
       expect(subject.errors.full_messages).to eq ["Incarceration status is required"]
@@ -390,7 +390,7 @@ describe "checking validations on family member object" do
   end
 
   context "when satisfied with all the validations" do
-    subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen"=>"true", "naturalized_citizen"=>"false", "indian_tribe_member"=>"false", "is_incarcerated"=>"false"})) }
+    subject { Forms::FamilyMember.new(member_attributes.merge({:family_id => family_id, "us_citizen" => "true", "naturalized_citizen" => "false", "indian_tribe_member" => "false", "is_incarcerated" => "false"})) }
     it "should return true" do
       expect(subject.valid?).to eq true
     end
@@ -403,7 +403,7 @@ describe Forms::FamilyMember, "which describes an existing family member" do
   let(:family_id) { family.id }
   let(:dob) { "2007-06-09" }
   let(:relationship) { "spouse" }
-  let(:person_properties) {
+  let(:person_properties) do
     {
       :first_name => "aaa",
       :last_name => "bbb",
@@ -419,12 +419,15 @@ describe Forms::FamilyMember, "which describes an existing family member" do
       :is_incarcerated => "no",
       tribal_id: "test"
     }
-  }
+  end
   let(:person) { double(:errors => double(:has_key? => false), home_address: nil) }
-  let(:family_member) { instance_double(::FamilyMember,
-                                        person_properties.merge({
-                                        :family => family,
-                                        :family_id => family_id, :person => person, :primary_relationship => relationship, :save! => true})) }
+  let(:family_member) do
+    instance_double(::FamilyMember,
+                    person_properties.merge({
+                                              :family => family,
+                                              :family_id => family_id, :person => person, :primary_relationship => relationship, :save! => true
+                                            }))
+  end
 
   let(:update_attributes) { person_properties.merge(:family_id => family_id, :relationship => relationship, :dob => dob) }
 
@@ -487,7 +490,7 @@ describe Forms::FamilyMember, "which describes an existing family member" do
     let(:new_family_member) { FactoryBot.create(:family_member, family: family, :is_active => false)}
     before do
       allow(family).to receive(:find_matching_inactive_member).and_return new_family_member
-      new_family_member.family.active_household.coverage_households.flat_map(&:coverage_household_members).select { |chm| chm.family_member_id == new_family_member.id }.each { |chm| chm.destroy! }
+      new_family_member.family.active_household.coverage_households.flat_map(&:coverage_household_members).select { |chm| chm.family_member_id == new_family_member.id }.each(&:destroy!)
       subject.instance_variable_set(:@family, family)
       allow(family).to receive(:all_family_member_relations_defined).and_return true
       subject.save
@@ -512,7 +515,7 @@ describe Forms::FamilyMember, "relationship validation" do
   let(:ssn) { nil }
   let(:dob) { "2007-06-09" }
 
-  let(:person_properties) {
+  let(:person_properties) do
     {
       :first_name => "aaa",
       :last_name => "bbb",
@@ -523,7 +526,7 @@ describe Forms::FamilyMember, "relationship validation" do
       :gender => "male",
       :dob => dob
     }
-  }
+  end
 
   before(:each) do
     allow(Family).to receive(:find).with(family.id).and_return(family)

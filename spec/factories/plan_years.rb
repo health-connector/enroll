@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :plan_year do
     employer_profile
 
     recorded_rating_area { Settings.aca.rating_areas.first }
     recorded_sic_code { employer_profile.sic_code }
-    start_on { (TimeKeeper.date_of_record).beginning_of_month }
+    start_on { TimeKeeper.date_of_record.beginning_of_month }
 
     end_on { start_on + 1.year - 1.day }
     open_enrollment_start_on { (start_on - 30).beginning_of_month }
@@ -14,7 +16,7 @@ FactoryBot.define do
 
   factory :next_month_plan_year, class: PlanYear do
     employer_profile
-    start_on { (TimeKeeper.date_of_record).next_month.beginning_of_month }
+    start_on { TimeKeeper.date_of_record.next_month.beginning_of_month }
     end_on { start_on + 1.year - 1.day }
     open_enrollment_start_on { (start_on - 32).beginning_of_month }
     open_enrollment_end_on { open_enrollment_start_on + 2.weeks }
@@ -43,7 +45,7 @@ FactoryBot.define do
 
   factory :renewing_plan_year, class: PlanYear do
     employer_profile
-    start_on { (TimeKeeper.date_of_record).next_month.beginning_of_month }
+    start_on { TimeKeeper.date_of_record.next_month.beginning_of_month }
     end_on { start_on + 1.year - 1.day }
     open_enrollment_start_on { (start_on - 32).beginning_of_month + Settings.aca.shop_market.initial_application.earliest_start_prior_to_effective_on.day_of_month.days}
     open_enrollment_end_on { open_enrollment_start_on + 2.weeks }

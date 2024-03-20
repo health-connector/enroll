@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "broker_agencies/profiles/edit.html.erb", :dbclean => :after_each do

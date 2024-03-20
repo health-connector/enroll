@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :dental_relationship_benefit do
     relationship     { :employee }

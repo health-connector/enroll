@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -42,7 +44,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
   let(:hbx_enrollments) { double("HbxEnrollment") }
   let(:user) { FactoryBot.create(:user) }
-  let(:person) { double("Person", id: "test", addresses: [], no_dc_address: false, no_dc_address_reason: "" , has_active_consumer_role?: false, has_active_employee_role?: true) }
+  let(:person) { double("Person", id: "test", addresses: [], no_dc_address: false, no_dc_address_reason: "", has_active_consumer_role?: false, has_active_employee_role?: true) }
   let(:family) { instance_double(Family, active_household: household, :model_name => "Family") }
   let(:household) { double("HouseHold", hbx_enrollments: hbx_enrollments) }
   let(:addresses) { [double] }
@@ -156,13 +158,13 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       it "should return qles" do
         allow(@controller).to receive(:params).and_return({})
-        expect(@controller.instance_eval { init_qualifying_life_events }).to eq ([@qle])
+        expect(@controller.instance_eval { init_qualifying_life_events }).to eq([@qle])
       end
 
 
       it "should return qles" do
         allow(@controller).to receive(:params).and_return({market: "individual_market_events"})
-        expect(@controller.instance_eval { init_qualifying_life_events }).to eq ([])
+        expect(@controller.instance_eval { init_qualifying_life_events }).to eq([])
       end
     end
 
@@ -298,20 +300,20 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       let(:family_access_policy) {instance_double(FamilyPolicy, :show? => true)}
       let(:display_hbx) do
         FactoryBot.create(:hbx_enrollment,
-                           household: family2.latest_household,
-                           coverage_kind: 'health',
-                           effective_on: TimeKeeper.datetime_of_record,
-                           enrollment_kind: 'open_enrollment',
-                           kind: 'individual',
-                           aasm_state: 'coverage_selected')
+                          household: family2.latest_household,
+                          coverage_kind: 'health',
+                          effective_on: TimeKeeper.datetime_of_record,
+                          enrollment_kind: 'open_enrollment',
+                          kind: 'individual',
+                          aasm_state: 'coverage_selected')
       end
 
       let(:waived_hbx) do
         FactoryBot.create(:hbx_enrollment,
-                           household: family2.active_household,
-                           kind: 'employer_sponsored',
-                           effective_on: TimeKeeper.date_of_record,
-                           aasm_state: 'inactive')
+                          household: family2.active_household,
+                          kind: 'employer_sponsored',
+                          effective_on: TimeKeeper.date_of_record,
+                          aasm_state: 'inactive')
       end
 
       before :each do
@@ -780,7 +782,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
           FactoryBot.build(:broker_agency_account, family: family, employer_profile: nil)
         ]
         allow(Family).to receive(:find).and_return family
-        delete :delete_consumer_broker , params: { :id => family.id }
+        delete :delete_consumer_broker, params: { :id => family.id }
       end
 
       it "should delete consumer broker" do
@@ -836,7 +838,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     it "when successful displays 'File Saved'" do
-      post :upload_notice, params: { :file => file, :subject=> subject}
+      post :upload_notice, params: { :file => file, :subject => subject}
       expect(flash[:notice]).to eq("File Saved")
       expect(response).to have_http_status(:found)
       expect(response).to redirect_to request.env["HTTP_REFERER"]
@@ -851,8 +853,10 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context "notice_upload_secure_message" do
 
-      let(:notice) {Document.new({ title: "file_name", creator: "hbx_staff", subject: "notice", identifier: "urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key",
-                                   format: "file_content_type" })}
+      let(:notice) do
+        Document.new({ title: "file_name", creator: "hbx_staff", subject: "notice", identifier: "urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key",
+                       format: "file_content_type" })
+      end
 
       before do
         allow(@controller).to receive(:authorized_document_download_path).with("Person", person2.id, "documents", notice.id).and_return("/path/")
@@ -860,7 +864,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       end
 
       it "adds a message to person inbox" do
-        expect(person2.inbox.messages.count).to eq (2) #1 welcome message, 1 upload notification
+        expect(person2.inbox.messages.count).to eq(2) #1 welcome message, 1 upload notification
       end
     end
 

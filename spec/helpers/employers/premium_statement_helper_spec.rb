@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe Employers::PremiumStatementHelper, :type => :helper do
@@ -10,13 +12,13 @@ RSpec.describe Employers::PremiumStatementHelper, :type => :helper do
     context "when ER has intial plan year which is 4 months old & without renewal plan year" do
       let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile)}
       before do
-        start_on = (TimeKeeper.date_of_record).beginning_of_month - 4.months
+        start_on = TimeKeeper.date_of_record.beginning_of_month - 4.months
         plan_year.update_attributes(
-        start_on: start_on,
-        end_on: start_on + 1.year - 1.day,
-        open_enrollment_start_on: (start_on - 30).beginning_of_month,
-        open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks,
-        aasm_state: "active"
+          start_on: start_on,
+          end_on: start_on + 1.year - 1.day,
+          open_enrollment_start_on: (start_on - 30).beginning_of_month,
+          open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks,
+          aasm_state: "active"
         )
       end
       it "should have  next month in the drop down" do
@@ -30,13 +32,13 @@ RSpec.describe Employers::PremiumStatementHelper, :type => :helper do
       context "when ER has plan which has start_on date older than 6 months from now" do
         let!(:old_plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile)}
         before do
-          start_on = (TimeKeeper.date_of_record).beginning_of_month - 7.months
+          start_on = TimeKeeper.date_of_record.beginning_of_month - 7.months
           old_plan_year.update_attributes(
-          start_on: start_on,
-          end_on: start_on + 1.year - 1.day,
-          open_enrollment_start_on: (start_on - 30).beginning_of_month,
-          open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks,
-          aasm_state: "active"
+            start_on: start_on,
+            end_on: start_on + 1.year - 1.day,
+            open_enrollment_start_on: (start_on - 30).beginning_of_month,
+            open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks,
+            aasm_state: "active"
           )
         end
         it "should have the month which is 5 months older than upcoming billing date as the last option in dropdown" do

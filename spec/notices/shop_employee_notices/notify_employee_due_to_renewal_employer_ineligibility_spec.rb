@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -7,38 +9,51 @@ RSpec.describe ShopEmployeeNotices::NotifyEmployeeDueToRenewalEmployerIneligibil
   include_context "setup renewal application"
 
   let(:hbx_profile)   { FactoryBot.create(:benefit_sponsors_organizations_hbx_profile, organization: abc_organization) }
-  let(:renewal_bcp) { double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, start_on: TimeKeeper.date_of_record.beginning_of_year, end_on: TimeKeeper.date_of_record.end_of_year, open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.next_year.year,11,1), open_enrollment_end_on: Date.new((TimeKeeper.date_of_record+2.years).year,1,31)) }
-  let(:bcp) { double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, plan_year: TimeKeeper.date_of_record.beginning_of_year.next_year,  start_on: TimeKeeper.date_of_record.beginning_of_year.next_year, end_on: TimeKeeper.date_of_record.end_of_year.next_year, open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.year,11,1), open_enrollment_end_on: Date.new(TimeKeeper.date_of_record.next_year.year,1,31)) }
+  let(:renewal_bcp) do
+    double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, start_on: TimeKeeper.date_of_record.beginning_of_year, end_on: TimeKeeper.date_of_record.end_of_year,
+           open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.next_year.year,11,1), open_enrollment_end_on: Date.new((TimeKeeper.date_of_record + 2.years).year,1,31))
+  end
+  let(:bcp) do
+    double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, plan_year: TimeKeeper.date_of_record.beginning_of_year.next_year,  start_on: TimeKeeper.date_of_record.beginning_of_year.next_year,
+           end_on: TimeKeeper.date_of_record.end_of_year.next_year, open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.year,11,1), open_enrollment_end_on: Date.new(TimeKeeper.date_of_record.next_year.year,1,31))
+  end
   let(:person) {FactoryBot.create(:person)}
   let(:family){ FactoryBot.create(:family, :with_primary_family_member, person: person) }
   let(:household){ family.active_household }
-  let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package ) }
+  let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package) }
   let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile) }
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-  let(:hbx_enrollment_member) { FactoryBot.build(:hbx_enrollment_member, is_subscriber:true,  applicant_id: family.family_members.first.id, coverage_start_on: (TimeKeeper.date_of_record).beginning_of_month, eligibility_date: (TimeKeeper.date_of_record).beginning_of_month) }
-  let!(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                                            household: household,
-                                            hbx_enrollment_members: [hbx_enrollment_member],
-                                            coverage_kind: "health",
-                                            external_enrollment: false,
-                                            rating_area_id: rating_area.id )
-  }
+  let(:hbx_enrollment_member) do
+    FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
+  end
+  let!(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                      household: household,
+                                                      hbx_enrollment_members: [hbx_enrollment_member],
+                                                      coverage_kind: "health",
+                                                      external_enrollment: false,
+                                                      rating_area_id: rating_area.id)
+  end
 
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Notify Employees of their employer termination due to ineligibility',
-                            :notice_template => 'notices/shop_employee_notices/notification_to_employee_due_to_initial_employer_ineligibility',
-                            :notice_builder => 'ShopEmployeeNotices::NotifyEmployeeDueToRenewalEmployerIneligibility',
-                            :event_name => 'notify_employee_of_renewing_employer_ineligibility',
-                            :mpi_indicator => 'MPI_SHOP10066',
-                            :title => "Termination of Employer’s Health Coverage Offered through DC Health Link"})
-                          }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Notify Employees of their employer termination due to ineligibility',
+             :notice_template => 'notices/shop_employee_notices/notification_to_employee_due_to_initial_employer_ineligibility',
+             :notice_builder => 'ShopEmployeeNotices::NotifyEmployeeDueToRenewalEmployerIneligibility',
+             :event_name => 'notify_employee_of_renewing_employer_ineligibility',
+             :mpi_indicator => 'MPI_SHOP10066',
+             :title => "Termination of Employer’s Health Coverage Offered through DC Health Link"
+           })
+  end
 
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   describe "New" do
     before do
@@ -72,7 +87,7 @@ RSpec.describe ShopEmployeeNotices::NotifyEmployeeDueToRenewalEmployerIneligibil
     end
   end
 
-  #ToDo Fix in DC new model after udpdating the notice builder
+  #TODO: Fix in DC new model after udpdating the notice builder
   xdescribe "append data" do
     before do
       allow(HbxProfile).to receive(:current_hbx).and_return hbx_profile

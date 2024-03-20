@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :user do
     sequence(:email) {|n| "example#{n}@example.com"}
@@ -14,9 +16,7 @@ FactoryBot.define do
     end
 
     after(:create) do |user, evaluator|
-      if evaluator.with_security_questions
-        3.times { create(:security_question_response, user: user) }
-      end
+      3.times { create(:security_question_response, user: user) } if evaluator.with_security_questions
     end
   end
 
@@ -36,10 +36,10 @@ FactoryBot.define do
   trait :hbx_staff do
     roles { ["hbx_staff"] }
 
-    after :create do |user, evaluator|
+    after :create do |user, _evaluator|
       if user.person.present?
-      user.person.hbx_staff_role = FactoryBot.build :hbx_staff_role
-      user.save
+        user.person.hbx_staff_role = FactoryBot.build :hbx_staff_role
+        user.save
       end
     end
   end
@@ -93,8 +93,8 @@ FactoryBot.define do
     after :create do |user, evaluator|
       #person = FactoryBot.create :person, :with_family, :user => user
       evaluator.organization.employer_profile = FactoryBot.create(:employer_profile,
-        employee_roles: [ FactoryBot.create(:employee_role, :person => user.person) ],
-        organization: evaluator.organization)
+                                                                  employee_roles: [FactoryBot.create(:employee_role, :person => user.person)],
+                                                                  organization: evaluator.organization)
       user.person.employer_staff_roles.push FactoryBot.create(:employer_staff_role, employer_profile_id: evaluator.organization.employer_profile.id)
       user.save
     end

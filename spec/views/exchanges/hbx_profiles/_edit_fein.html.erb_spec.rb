@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "hbx_admin/_edit_aptc_csr", :dbclean => :after_each do
@@ -27,13 +29,12 @@ RSpec.describe "hbx_admin/_edit_aptc_csr", :dbclean => :after_each do
     organization.benefit_sponsorships.first
   end
   let(:new_invalid_fein) { "234-839" }
-  let(:org_params) {
-    { "organizations_general_organization" => { "new_fein" => new_invalid_fein }
-    }
-  }
-  let(:error_messages) {
+  let(:org_params) do
+    { "organizations_general_organization" => { "new_fein" => new_invalid_fein }}
+  end
+  let(:error_messages) do
     ["FEIN must be at least 9 digits"]
-  }
+  end
 
   before :each do
     assign :organization, organization

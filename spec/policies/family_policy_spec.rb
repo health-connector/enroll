@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe FamilyPolicy, "given a user who has no properties" do
@@ -17,7 +19,7 @@ describe FamilyPolicy, "given a user who is the primary member" do
   let(:family) { instance_double(Family, :primary_applicant => primary_member) }
   let(:person) { instance_double(Person, :id => primary_person_id) }
   let(:user) { instance_double(User, :person => person) }
-  let(:primary_member) { instance_double(FamilyMember, :person_id => primary_person_id) } 
+  let(:primary_member) { instance_double(FamilyMember, :person_id => primary_person_id) }
 
   subject { FamilyPolicy.new(user, family) }
 
@@ -28,10 +30,10 @@ end
 
 describe FamilyPolicy, "given a family with an active broker agency account", :dbclean => :after_each do
   let(:person) { FactoryBot.create(:person, :with_family)}
-  let(:family) { (person.primary_family) }
+  let(:family) { person.primary_family }
   let(:site)  { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
-  let(:broker_role) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id ) }
+  let(:broker_role) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
   let(:broker_agency_account) {FactoryBot.create(:broker_agency_account, broker_agency_profile_id: broker_agency_profile_id_account, writing_agent_id: broker_role.id, is_active: true)}
 
   subject { FamilyPolicy.new(user, family) }
@@ -62,9 +64,9 @@ describe FamilyPolicy, "given a family where the primary has an active employer 
   let(:employer_profile)    { organization.employer_profile }
   let(:employee_role) {FactoryBot.create(:employee_role, employer_profile: employer_profile)}
   let(:person) { FactoryBot.create(:person, :with_family)}
-  let(:family) { (person.primary_family) }
+  let(:family) { person.primary_family }
   let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
-  let(:broker_role) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id ) }
+  let(:broker_role) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
   let(:broker_agency_account) {FactoryBot.create(:broker_agency_account, broker_agency_profile_id: broker_agency_profile_id_account, writing_agent_id: broker_role.id, is_active: true)}
 
   subject { FamilyPolicy.new(user, family) }
@@ -100,7 +102,7 @@ describe FamilyPolicy, "given a family where the primary has an active employer 
   let(:user) { instance_double(User, :person => ga_person) }
   let(:ga_person) { instance_double(Person, :id => ga_person_id, :broker_role => nil, :active_general_agency_staff_roles => [general_agency_staff_role], :hbx_staff_role => nil) }
   let(:general_agency_staff_role) { instance_double(GeneralAgencyStaffRole, :general_agency_profile_id => general_agency_profile_id) }
-  let(:general_agency_account) { instance_double(GeneralAgencyAccount, :general_agency_profile_id => general_agency_account_profile_id ) }
+  let(:general_agency_account) { instance_double(GeneralAgencyAccount, :general_agency_profile_id => general_agency_account_profile_id) }
   let(:primary_member) { instance_double(FamilyMember, :person_id => primary_person_id, :person => person) }
 
   subject { FamilyPolicy.new(user, family) }

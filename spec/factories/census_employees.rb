@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :census_employee do
     first_name { "Eddie" }
@@ -7,7 +9,7 @@ FactoryBot.define do
     expected_selection { "enroll" }
     employee_relationship { "self" }
     hired_on { "2015-04-01".to_date }
-    sequence(:ssn) { |n| 222222220 + n }
+    sequence(:ssn) { |n| 222_222_220 + n }
     is_business_owner  { false }
     association :address, strategy: :build
     association :email, strategy: :build
@@ -27,9 +29,7 @@ FactoryBot.define do
 
     after(:create) do |census_employee, evaluator|
       census_employee.created_at = TimeKeeper.date_of_record
-      if evaluator.create_with_spouse
-        census_employee.census_dependents.create(employee_relationship: 'spouse')
-      end
+      census_employee.census_dependents.create(employee_relationship: 'spouse') if evaluator.create_with_spouse
     end
 
     trait :old_case do
@@ -64,7 +64,7 @@ FactoryBot.define do
         general_agency_attributes { {} }
       end
 
-      before :create do |organization, evaluator|
+      before :create do |organization, _evaluator|
         organization.office_locations.push FactoryBot.build :office_location, :primary
       end
 

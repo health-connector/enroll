@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :hbx_enrollment do
     household { family.households.first }
@@ -26,7 +28,11 @@ FactoryBot.define do
     plan { create(:plan, :with_rating_factors, :with_premium_tables, active_year: active_year) }
 
     trait :with_enrollment_members do
-      hbx_enrollment_members { enrollment_members.map{|member| FactoryBot.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: self.effective_on, eligibility_date: self.effective_on) }}
+      hbx_enrollment_members do
+        enrollment_members.map do |member|
+          FactoryBot.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: effective_on, eligibility_date: effective_on)
+        end
+      end
     end
 
     trait :with_dental_coverage_kind do
@@ -125,17 +131,18 @@ FactoryBot.define do
         primary_person { FactoryBot.create(:person, :with_consumer_role) }
       end
 
-      family_members { [
+      family_members do
+        [
                          FactoryBot.create(:family_member, family: self, is_primary_applicant: true, is_active: true, person: primary_person)
-      ] }
+      ]
+      end
 
-      hbx_enrollment_members { [
+      hbx_enrollment_members do
+        []
+      end
 
 
-      ] }
-
-
-      after :create do |f, evaluator|
+      after :create do |f, _evaluator|
         f.households.first.add_household_coverage_member(f.family_members.first)
       end
     end

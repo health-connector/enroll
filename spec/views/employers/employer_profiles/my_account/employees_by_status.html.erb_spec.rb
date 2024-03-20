@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html.erb", dbclean: :after_each do
@@ -40,13 +42,14 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
     )
   end
 
-  let!(:enrollment_with_coverage_waived)   { FactoryBot.create( :hbx_enrollment,
-    household: primary_family.latest_household,
-    employee_role_id: employee_role.id,
-    benefit_group_assignment: benefit_group_assignment3,
-    sponsored_benefit_package_id: BSON::ObjectId.new,
-    aasm_state: "inactive"
-    )}
+  let!(:enrollment_with_coverage_waived)   do
+    FactoryBot.create(:hbx_enrollment,
+                      household: primary_family.latest_household,
+                      employee_role_id: employee_role.id,
+                      benefit_group_assignment: benefit_group_assignment3,
+                      sponsored_benefit_package_id: BSON::ObjectId.new,
+                      aasm_state: "inactive")
+  end
 
   before :each do
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true, revert_application?: true))
@@ -135,7 +138,7 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
       assign(:census_employees, census_employees)
       render "employers/employer_profiles/my_account/employees_by_status", :status => "all"
       census_employees.each do |ce|
-        expect(rendered).to match /.*#{ce.first_name}.*#{ce.last_name}.*/
+        expect(rendered).to match(/.*#{ce.first_name}.*#{ce.last_name}.*/)
       end
     end
 
@@ -143,7 +146,7 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
       assign(:search, true)
       assign(:census_employees, [])
       render "employers/employer_profiles/my_account/employees_by_status", :status => "all"
-      expect(rendered).to match /No results found/
+      expect(rendered).to match(/No results found/)
     end
   end
 
@@ -168,8 +171,8 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
 
   context "enrolling enrollment state" do
     let(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile) }
-    let(:benefit_group_assignment) { FactoryBot.create( :benefit_group_assignment, census_employee: census_employee1 ) }
-    let(:benefit_group) { FactoryBot.create( :benefit_group, benefit_group_assignment: benefit_group_assignment ) }
+    let(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, census_employee: census_employee1) }
+    let(:benefit_group) { FactoryBot.create(:benefit_group, benefit_group_assignment: benefit_group_assignment) }
 
     before do
       allow(census_employee1).to receive(:renewal_benefit_group_assignment).and_return(benefit_group_assignment)

@@ -1,56 +1,58 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Plan, dbclean: :after_each do
-  def carrier_profile;
-    FactoryBot.create(:carrier_profile);
+  def carrier_profile
+    FactoryBot.create(:carrier_profile)
   end
 
-  def name;
-    "BlueChoice Silver $2,000";
+  def name
+    "BlueChoice Silver $2,000"
   end
 
-  def active_year;
-    TimeKeeper.date_of_record.year;
+  def active_year
+    TimeKeeper.date_of_record.year
   end
 
-  def hios_id;
-    "86052DC0400001-01";
+  def hios_id
+    "86052DC0400001-01"
   end
 
-  def carrier_profile_id;
-    carrier_profile._id;
+  def carrier_profile_id
+    carrier_profile._id
   end
 
-  def metal_level;
-    "platinum";
+  def metal_level
+    "platinum"
   end
 
-  def coverage_kind;
-    "health";
+  def coverage_kind
+    "health"
   end
 
-  def market;
-    "shop";
+  def market
+    "shop"
   end
 
-  def ehb;
-    0.9943;
+  def ehb
+    0.9943
   end
 
-  def bad_active_year;
-    (active_year + 4).to_i;
+  def bad_active_year
+    (active_year + 4).to_i
   end
 
-  def bad_metal_level;
-    "copper";
+  def bad_metal_level
+    "copper"
   end
 
-  def active_year_error_message;
-    "#{bad_active_year} is an invalid active year";
+  def active_year_error_message
+    "#{bad_active_year} is an invalid active year"
   end
 
-  def metal_level_error_message;
-    "#{bad_metal_level} is not a valid metal level kind";
+  def metal_level_error_message
+    "#{bad_metal_level} is not a valid metal level kind"
   end
 
   it { should validate_presence_of :name }
@@ -61,19 +63,19 @@ RSpec.describe Plan, dbclean: :after_each do
   describe ".new" do
     let(:valid_params) do
       {
-          name: name,
-          active_year: active_year,
-          hios_id: hios_id,
-          carrier_profile_id: carrier_profile_id,
-          metal_level: metal_level,
-          coverage_kind: coverage_kind,
-          market: market
+        name: name,
+        active_year: active_year,
+        hios_id: hios_id,
+        carrier_profile_id: carrier_profile_id,
+        metal_level: metal_level,
+        coverage_kind: coverage_kind,
+        market: market
       }
     end
 
     context "with no arguments" do
-      def params;
-        {};
+      def params
+        {}
       end
 
       it "should not save" do
@@ -82,12 +84,12 @@ RSpec.describe Plan, dbclean: :after_each do
     end
 
     context "with all valid arguments" do
-      def params;
-        valid_params;
+      def params
+        valid_params
       end
 
-      def plan;
-        Plan.new(**params);
+      def plan
+        Plan.new(**params)
       end
 
       it "should save" do
@@ -113,7 +115,7 @@ RSpec.describe Plan, dbclean: :after_each do
           associations = Plan.reflect_on_all_associations(:embeds_many)
           association = associations.detect {|a| a.name === :renewal_plan_mappings }
 
-          expect(association.name).to eq (:renewal_plan_mappings)
+          expect(association.name).to eq(:renewal_plan_mappings)
         end
       end
     end
@@ -163,14 +165,14 @@ RSpec.describe Plan, dbclean: :after_each do
       context "when carrier mapping present" do
         let(:renewal_plan_status) { true }
 
-        let!(:renewal_plan_mappings1) {
+        let!(:renewal_plan_mappings1) do
           sole_source_plan.renewal_plan_mappings.create({
-            start_on: Date.new(calender_year, 1, 1),
-            end_on: Date.new(calender_year, 5, 1).end_of_month,
-            renewal_plan_id: neighbour_plan.id,
-            is_active: renewal_plan_status
-          })
-        }
+                                                          start_on: Date.new(calender_year, 1, 1),
+                                                          end_on: Date.new(calender_year, 5, 1).end_of_month,
+                                                          renewal_plan_id: neighbour_plan.id,
+                                                          is_active: renewal_plan_status
+                                                        })
+        end
 
         context "is not active" do
           let(:renewal_plan_status) { false }
@@ -197,8 +199,8 @@ RSpec.describe Plan, dbclean: :after_each do
     end
 
     context "with no metal_level" do
-      def params;
-        valid_params.except(:metal_level);
+      def params
+        valid_params.except(:metal_level)
       end
 
       it "should fail validation " do
@@ -207,8 +209,8 @@ RSpec.describe Plan, dbclean: :after_each do
     end
 
     context "with improper metal_level" do
-      def params;
-        valid_params.deep_merge({metal_level: bad_metal_level});
+      def params
+        valid_params.deep_merge({metal_level: bad_metal_level})
       end
 
       it "should fail validation with improper metal_level" do
@@ -218,8 +220,8 @@ RSpec.describe Plan, dbclean: :after_each do
     end
 
     context "with invalid active_year" do
-      def params;
-        valid_params.deep_merge({active_year: bad_active_year});
+      def params
+        valid_params.deep_merge({active_year: bad_active_year})
       end
 
       it "should fail active_year validation" do
@@ -230,8 +232,8 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with empty dental metal level for coverage_kind = health" do
 
-      def params;
-        valid_params.deep_merge({dental_level: "", coverage_kind: "health"});
+      def params
+        valid_params.deep_merge({dental_level: "", coverage_kind: "health"})
       end
 
       it "should not save plan object" do
@@ -241,8 +243,8 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with empty dental metal level for coverage_kind = dental" do
 
-      def params;
-        valid_params.deep_merge({dental_level: "", coverage_kind: "dental"});
+      def params
+        valid_params.deep_merge({dental_level: "", coverage_kind: "dental"})
       end
 
       it "should not save plan object" do
@@ -253,8 +255,8 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with invalid dental metal level for coverage_kind = dental" do
 
-      def params;
-        valid_params.deep_merge({dental_level: "invalid", coverage_kind: "dental"});
+      def params
+        valid_params.deep_merge({dental_level: "invalid", coverage_kind: "dental"})
       end
 
       it "should not save plan object" do
@@ -265,8 +267,8 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with valid dental metal level for coverage_kind = dental" do
 
-      def params;
-        valid_params.deep_merge({dental_level: "low", coverage_kind: "dental"});
+      def params
+        valid_params.deep_merge({dental_level: "low", coverage_kind: "dental"})
       end
 
       it "should not save plan object" do
@@ -291,53 +293,61 @@ RSpec.describe Plan, dbclean: :after_each do
   describe ".premium_table_for" do
     let(:valid_plan_params) do
       {
-          name: name,
-          active_year: active_year,
-          hios_id: hios_id,
-          carrier_profile_id: carrier_profile_id,
-          metal_level: metal_level,
-          coverage_kind: coverage_kind,
-          market: market,
-          premium_tables: [ premium_table_entry1,
-                            premium_table_entry2,
-                            premium_table_entry3,
-                            premium_table_entry4 ]
+        name: name,
+        active_year: active_year,
+        hios_id: hios_id,
+        carrier_profile_id: carrier_profile_id,
+        metal_level: metal_level,
+        coverage_kind: coverage_kind,
+        market: market,
+        premium_tables: [premium_table_entry1,
+                         premium_table_entry2,
+                         premium_table_entry3,
+                         premium_table_entry4]
       }
     end
 
-    let(:premium_table_entry1) { {
-      start_on: "2015-01-01",
-      end_on: "2015-05-31",
-      cost: 500,
-      age: 32
-      } }
+    let(:premium_table_entry1) do
+      {
+        start_on: "2015-01-01",
+        end_on: "2015-05-31",
+        cost: 500,
+        age: 32
+      }
+    end
 
-    let(:premium_table_entry2) { {
-      start_on: "2015-06-01",
-      end_on: "2015-08-31",
-      cost: 502,
-      age: 32
-      } }
+    let(:premium_table_entry2) do
+      {
+        start_on: "2015-06-01",
+        end_on: "2015-08-31",
+        cost: 502,
+        age: 32
+      }
+    end
 
-    let(:premium_table_entry3) { {
-      start_on: "2015-09-01",
-      end_on: "2015-12-31",
-      cost: 504,
-      age: 32
-      } }
+    let(:premium_table_entry3) do
+      {
+        start_on: "2015-09-01",
+        end_on: "2015-12-31",
+        cost: 504,
+        age: 32
+      }
+    end
 
-    let(:premium_table_entry4) { {
-      start_on: "2015-09-01",
-      end_on: "2015-12-31",
-      cost: 574,
-      age: 34
-      } }
+    let(:premium_table_entry4) do
+      {
+        start_on: "2015-09-01",
+        end_on: "2015-12-31",
+        cost: 574,
+        age: 34
+      }
+    end
 
 
     context "valid arguments" do
 
-      def plan;
-        Plan.new(valid_plan_params);
+      def plan
+        Plan.new(valid_plan_params)
       end
 
       def premium_table_hash(premium_table)
@@ -360,27 +370,27 @@ RSpec.describe Plan, dbclean: :after_each do
   describe ".premium_for" do
     let(:valid_plan_params) do
       {
-          name: name,
-          active_year: active_year,
-          hios_id: hios_id,
-          carrier_profile_id: carrier_profile_id,
-          metal_level: metal_level,
-          coverage_kind: coverage_kind,
-          market: market,
-          premium_tables: [{start_on: "2015-01-01",
-                            end_on: "2015-12-31",
-                            cost: 45.45,
-                            age: 32}]
+        name: name,
+        active_year: active_year,
+        hios_id: hios_id,
+        carrier_profile_id: carrier_profile_id,
+        metal_level: metal_level,
+        coverage_kind: coverage_kind,
+        market: market,
+        premium_tables: [{start_on: "2015-01-01",
+                          end_on: "2015-12-31",
+                          cost: 45.45,
+                          age: 32}]
       }
     end
 
     context "invalid arguments" do
-      def plan_params;
-        valid_plan_params;
+      def plan_params
+        valid_plan_params
       end
 
-      def plan;
-        Plan.new(**plan_params);
+      def plan
+        Plan.new(**plan_params)
       end
 
       it "should raise exception" do
@@ -390,12 +400,12 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "valid arguments" do
 
-      def plan_params;
-        valid_plan_params;
+      def plan_params
+        valid_plan_params
       end
 
-      def plan;
-        Plan.new(**plan_params);
+      def plan
+        Plan.new(**plan_params)
       end
 
       it "should compute premium" do
@@ -424,28 +434,28 @@ end
 
 RSpec.describe Plan, dbclean: :after_each do
   describe "scopes" do
-    def platinum_count;
-      11;
+    def platinum_count
+      11
     end
 
-    def gold_count;
-      7;
+    def gold_count
+      7
     end
 
-    def shop_silver_count;
-      5;
+    def shop_silver_count
+      5
     end
 
-    def individual_silver_count;
-      5;
+    def individual_silver_count
+      5
     end
 
-    def bronze_count;
-      3;
+    def bronze_count
+      3
     end
 
-    def catastrophic_count;
-      1;
+    def catastrophic_count
+      1
     end
 
     let(:in_service_area_count) { platinum_count + individual_silver_count }
@@ -466,7 +476,7 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with plans loaded" do
       before do
-        FactoryBot.create_list(:plan, platinum_count, metal_level: "platinum", market: "shop", plan_type: "ppo", carrier_profile: carrier_profile_0, active_year: current_year-1, service_area_id: 'EX123')
+        FactoryBot.create_list(:plan, platinum_count, metal_level: "platinum", market: "shop", plan_type: "ppo", carrier_profile: carrier_profile_0, active_year: current_year - 1, service_area_id: 'EX123')
         FactoryBot.create_list(:plan, gold_count, metal_level: "gold", market: "shop", plan_type: "pos", carrier_profile: carrier_profile_0, active_year: current_year, service_area_id: 'EX111')
         FactoryBot.create_list(:plan, shop_silver_count, metal_level: "silver", plan_type: "ppo", market: "shop", carrier_profile: carrier_profile_1, active_year: current_year, service_area_id: 'EX222')
         FactoryBot.create_list(:plan, individual_silver_count, metal_level: "silver", market: "individual", plan_type: "hmo", carrier_profile: carrier_profile_1, active_year: current_year, service_area_id: 'EX123')
@@ -482,7 +492,7 @@ RSpec.describe Plan, dbclean: :after_each do
 
       context "by_active_year" do
         it "should return all plans of this year" do
-          expect(Plan.by_active_year.count).to eq (total_plan_count - platinum_count)
+          expect(Plan.by_active_year.count).to eq(total_plan_count - platinum_count)
         end
       end
 
@@ -547,7 +557,7 @@ RSpec.describe Plan, dbclean: :after_each do
       end
 
       context "with referenced scopes" do
-        let(:enabled_metal_levels) { %w(platinum gold silver bronze) }
+        let(:enabled_metal_levels) { %w[platinum gold silver bronze] }
 
         before do
           allow(Plan).to receive(:enabled_metal_levels).and_return(enabled_metal_levels)
@@ -571,7 +581,7 @@ RSpec.describe Plan, dbclean: :after_each do
         end
 
         context "should return correct counts for carriers if metal levels are restricted" do
-          let(:enabled_metal_levels) { %w(platinum gold silver) }
+          let(:enabled_metal_levels) { %w[platinum gold silver] }
 
           it "returns a count less bronze plans" do
             expect(Plan.find_by_carrier_profile(carrier_profile_0).with_enabled_metal_levels.count).to eq carrier_profile_0_without_bronze_count
@@ -623,17 +633,17 @@ RSpec.describe Plan, dbclean: :after_each do
 
       it "should return dental plans" do
         plans = [plan4]
-        expect(Plan.individual_plans(coverage_kind:'dental', active_year:TimeKeeper.date_of_record.year, tax_household:nil).to_a).to eq plans
+        expect(Plan.individual_plans(coverage_kind: 'dental', active_year: TimeKeeper.date_of_record.year, tax_household: nil).to_a).to eq plans
       end
 
       it "should return health plans without silver" do
         plans = [plan1, plan3]
-        expect(Plan.individual_plans(coverage_kind:'health', active_year:TimeKeeper.date_of_record.year, tax_household:nil).to_a).to include(plan1,plan3)
+        expect(Plan.individual_plans(coverage_kind: 'health', active_year: TimeKeeper.date_of_record.year, tax_household: nil).to_a).to include(plan1,plan3)
       end
 
       it "should return health plans" do
         plans = [plan2]
-        expect(Plan.individual_plans(coverage_kind:'health', active_year:TimeKeeper.date_of_record.year, tax_household:tax_household).to_a).to eq plans
+        expect(Plan.individual_plans(coverage_kind: 'health', active_year: TimeKeeper.date_of_record.year, tax_household: tax_household).to_a).to eq plans
       end
     end
   end

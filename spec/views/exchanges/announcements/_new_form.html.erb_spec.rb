@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 describe "exchanges/announcements/_new_form.html.erb" do
   let(:person) { FactoryBot.create(:person) }

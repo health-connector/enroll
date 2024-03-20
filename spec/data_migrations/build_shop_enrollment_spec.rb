@@ -21,6 +21,7 @@ describe BuildShopEnrollment, dbclean: :after_each do
       let!(:benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year)}
       let(:plan_year) { FactoryBot.create(:plan_year, employer_profile: person.employee_roles[0].employer_profile, aasm_state: "active")}
       let(:census_employee) { FactoryBot.create(:census_employee, employer_profile: plan_year.employer_profile)}
+
       before do
         person.employee_roles[0].update_attributes(census_employee_id: census_employee.id)
         census_employee.update_attributes(employee_role_id: person.employee_roles[0].id)

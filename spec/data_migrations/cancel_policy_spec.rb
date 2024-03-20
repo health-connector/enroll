@@ -15,7 +15,6 @@ describe CancelPolicy do
   end
 
   describe 'changing aasm state' do
-
     let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
     let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household)}
 

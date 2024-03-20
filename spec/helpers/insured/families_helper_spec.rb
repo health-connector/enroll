@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe Insured::FamiliesHelper, :type => :helper do
@@ -34,7 +36,7 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
     it "it should return options" do
       date = TimeKeeper.date_of_record
       options = helper.generate_options_for_effective_on_kinds(['date_of_event', 'fixed_first_of_next_month'], TimeKeeper.date_of_record)
-      expect(options).to eq [[date.to_s, 'date_of_event'], [(date.end_of_month+1.day).to_s, 'fixed_first_of_next_month']]
+      expect(options).to eq [[date.to_s, 'date_of_event'], [(date.end_of_month + 1.day).to_s, 'fixed_first_of_next_month']]
     end
   end
 
@@ -153,31 +155,31 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
   end
 
   describe "ShopForPlan using SEP", dbclean: :after_each do
-    let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 04, 14)}
+    let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 0o4, 14)}
     let(:person) {FactoryBot.create(:person, :with_employee_role, :with_family)}
     let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
-    let(:qle_first_of_month) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month ) }
-    let(:qle_with_date_options_available) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month, date_options_available: true ) }
-    let(:sep_without_date_options) {
+    let(:qle_first_of_month) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month) }
+    let(:qle_with_date_options_available) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month, date_options_available: true) }
+    let(:sep_without_date_options) do
       sep = family.special_enrollment_periods.new
       sep.effective_on_kind = 'first_of_month'
-      sep.qualifying_life_event_kind= qle_first_of_month
+      sep.qualifying_life_event_kind = qle_first_of_month
       sep.qualifying_life_event_kind_id = qle_first_of_month.id
-      sep.qle_on= Date.new(TimeKeeper.date_of_record.year, 04, 14)
+      sep.qle_on = Date.new(TimeKeeper.date_of_record.year, 0o4, 14)
       sep.admin_flag = true
       sep
-    }
+    end
 
-    let(:sep_with_date_options) {
+    let(:sep_with_date_options) do
       sep = family.special_enrollment_periods.new
       sep.effective_on_kind = 'first_of_month'
-      sep.qualifying_life_event_kind= qle_first_of_month
+      sep.qualifying_life_event_kind = qle_first_of_month
       sep.qualifying_life_event_kind_id = qle_with_date_options_available.id
       sep.qle_on = qle_on
-      sep.optional_effective_on = [qle_on+5.days, qle_on+6.days, qle_on+7.days]
+      sep.optional_effective_on = [qle_on + 5.days, qle_on + 6.days, qle_on + 7.days]
       sep.admin_flag = true
       sep
-    }
+    end
     context "when building ShopForPlan link" do
       it "should have class 'existing-sep-item' for a SEP with date options QLE and optional_effective_on populated " do
         expect(helper.build_link_for_sep_type(sep_with_date_options)).to include "class=\"existing-sep-item\""
@@ -235,10 +237,10 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
       context "had a SSN" do
         before do
           person.consumer_role = consumer_role
-            person.ssn = '123456789'
+          person.ssn = '123456789'
         end
         it "should display the download tax documents button" do
-         expect(helper.show_download_tax_documents_button?).to eq true
+          expect(helper.show_download_tax_documents_button?).to eq true
         end
 
         context "current user is hbx staff" do

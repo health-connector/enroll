@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :notice_trigger do
     trait :out_of_pocket_notice do

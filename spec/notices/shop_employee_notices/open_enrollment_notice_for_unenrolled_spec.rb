@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -9,23 +11,29 @@ RSpec.describe ShopEmployeeNotices::OpenEnrollmentNoticeForUnenrolled, :dbclean 
   let(:person) {FactoryBot.create(:person)}
   let(:family){ FactoryBot.create(:family, :with_primary_family_member, person: person) }
   let(:household){ family.active_household }
-  let!(:census_employee) { FactoryBot.create(:census_employee_with_active_and_renewal_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package ) }
+  let!(:census_employee) do
+    FactoryBot.create(:census_employee_with_active_and_renewal_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package)
+  end
   let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile) }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Renewal Open Enrollment available for Employee',
-                            :notice_template => 'notices/shop_employee_notices/8c_renewal_open_enrollment_notice_for_unenrolled_employee',
-                            :notice_builder => 'ShopEmployeeNotices::OpenEnrollmentNoticeForUnenrolled',
-                            :event_name => 'employee_open_enrollment_unenrolled',
-                            :mpi_indicator => 'MPI_SHOP8c',
-                            :title => "Your Health Plan Open Enrollment Period has Begun"})
-    }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Renewal Open Enrollment available for Employee',
+             :notice_template => 'notices/shop_employee_notices/8c_renewal_open_enrollment_notice_for_unenrolled_employee',
+             :notice_builder => 'ShopEmployeeNotices::OpenEnrollmentNoticeForUnenrolled',
+             :event_name => 'employee_open_enrollment_unenrolled',
+             :mpi_indicator => 'MPI_SHOP8c',
+             :title => "Your Health Plan Open Enrollment Period has Begun"
+           })
+  end
 
-  let(:valid_parmas) {{
+  let(:valid_parmas) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
       :template => application_event.notice_template
-  }}
+    }
+  end
 
   describe "New" do
     before do
@@ -59,7 +67,7 @@ RSpec.describe ShopEmployeeNotices::OpenEnrollmentNoticeForUnenrolled, :dbclean 
     end
   end
 
-  #ToDo Fix in DC new model after udpdating the notice builder
+  #TODO: Fix in DC new model after udpdating the notice builder
   xdescribe "append data" do
     before do
       @employee_notice = ShopEmployeeNotices::OpenEnrollmentNoticeForUnenrolled.new(census_employee, valid_parmas)

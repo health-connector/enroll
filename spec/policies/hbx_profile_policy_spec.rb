@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe HbxProfilePolicy do
@@ -229,12 +231,12 @@ describe HbxProfilePolicy do
       end
     end
   end
-    describe HbxProfilePolicy do
-      context 'super admin can view config tab?' do
-        let!(:user10)                  { FactoryBot.create(:user) }
-        let!(:person)                  { FactoryBot.create(:person, :with_hbx_staff_role, user: user10) }
+  describe HbxProfilePolicy do
+    context 'super admin can view config tab?' do
+      let!(:user10)                  { FactoryBot.create(:user) }
+      let!(:person)                  { FactoryBot.create(:person, :with_hbx_staff_role, user: user10) }
 
-        subject                        { HbxProfilePolicy.new(user10, nil) }
+      subject                        { HbxProfilePolicy.new(user10, nil) }
 
       ['super_admin'].each do |kind|
         context "for permissions which doesn't allow the user" do

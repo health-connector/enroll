@@ -4,7 +4,6 @@ require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'cancel_enrollment')
 
 describe CancelEnrollment, dbclean: :after_each do
-
   let(:given_task_name) { 'cancel_enrollment' }
   subject { CancelEnrollment.new(given_task_name, double(:current_scope => nil)) }
 

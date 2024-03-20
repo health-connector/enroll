@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Forms::EmployeeCandidate do
@@ -29,21 +31,23 @@ describe Forms::EmployeeCandidate, "asked to match a census employee" do
   let(:fake_employer) { instance_double("EmployerProfile", :census_employees => [census_employee], :plan_years => [fake_plan_year]) }
   let(:fake_org) { instance_double("Organization", :employer_profile => fake_employer) }
 
-  subject {
+  subject do
     Forms::EmployeeCandidate.new({
-                                     :dob => "2012-10-12",
-                                     :ssn => "123-45-6789",
-                                     :first_name => "Tom",
-                                     :last_name => "Baker",
-                                     :gender => "male",
-                                     :is_applying_coverage => false
+                                   :dob => "2012-10-12",
+                                   :ssn => "123-45-6789",
+                                   :first_name => "Tom",
+                                   :last_name => "Baker",
+                                   :gender => "male",
+                                   :is_applying_coverage => false
                                  })
-  }
+  end
 
-  let(:search_params) { {
+  let(:search_params) do
+    {
       :dob => Date.new(2012, 10, 12),
       :ssn => "123456789"
-  } }
+    }
+  end
 
   it "should return nothing if that employee does not exist" do
     allow(Organization).to receive(:where).and_return([])
@@ -82,22 +86,24 @@ end
 
 describe Forms::EmployeeCandidate, "asked to match a person" do
 
-  subject {
+  subject do
     Forms::EmployeeCandidate.new({
-                                     :dob => "2012-10-12",
-                                     :ssn => "123-45-6789",
-                                     :first_name => "yo",
-                                     :last_name => "guy",
-                                     :gender => "m",
-                                     :user_id => 20,
-                                     :is_applying_coverage => false
+                                   :dob => "2012-10-12",
+                                   :ssn => "123-45-6789",
+                                   :first_name => "yo",
+                                   :last_name => "guy",
+                                   :gender => "m",
+                                   :user_id => 20,
+                                   :is_applying_coverage => false
                                  })
-  }
+  end
 
-  let(:search_params) { {
+  let(:search_params) do
+    {
       :dob => Date.new(2012, 10, 12),
       :encrypted_ssn => Person.encrypt_ssn("123456789")
-  } }
+    }
+  end
 
   let(:user) { nil }
   let(:person) { double(user: user) }
@@ -148,20 +154,20 @@ describe Forms::EmployeeCandidate, "asked to match a person" do
 end
 
 describe "match a person in db" do
-  let(:subject) {
+  let(:subject) do
     Forms::EmployeeCandidate.new({
-                                     :dob => search_params.dob,
-                                     :ssn => search_params.ssn,
-                                     :first_name => search_param_name.first_name,
-                                     :last_name => search_param_name.last_name,
-                                     :gender => "m",
-                                     :user_id => 20,
-                                     :is_applying_coverage => false
+                                   :dob => search_params.dob,
+                                   :ssn => search_params.ssn,
+                                   :first_name => search_param_name.first_name,
+                                   :last_name => search_param_name.last_name,
+                                   :gender => "m",
+                                   :user_id => 20,
+                                   :is_applying_coverage => false
                                  })
-  }
+  end
 
-  let(:search_params) { double(dob: db_person.dob.strftime("%Y-%m-%d"), ssn: db_person.ssn, )}
-  let(:search_param_name) { double( first_name: db_person.first_name, last_name: db_person.last_name)}
+  let(:search_params) { double(dob: db_person.dob.strftime("%Y-%m-%d"), ssn: db_person.ssn)}
+  let(:search_param_name) { double(first_name: db_person.first_name, last_name: db_person.last_name)}
 
   after(:each) do
     DatabaseCleaner.clean

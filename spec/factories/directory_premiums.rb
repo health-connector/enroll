@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :directory_premium, :class => 'Directory::Premium' do
     hbx_id { "MyString" }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Plan do
@@ -12,7 +14,8 @@ describe Plan do
           {
             :carrier_profile_id => carrier_id,
             :active_year => 2014
-          })
+          }
+        )
       end
 
       let(:ivl_health_plan) do
@@ -22,7 +25,8 @@ describe Plan do
           {
             :carrier_profile_id => carrier_id,
             :active_year => 2014
-          })
+          }
+        )
       end
 
       let(:ivl_dental_plan) do
@@ -30,8 +34,8 @@ describe Plan do
           :plan_template,
           :ivl_dental,
           {
-          :active_year => 2014,
-          :carrier_profile_id => carrier_id
+            :active_year => 2014,
+            :carrier_profile_id => carrier_id
           }
         )
       end
@@ -43,7 +47,8 @@ describe Plan do
           {
             :carrier_profile_id => carrier_id,
             :active_year => 2014
-          })
+          }
+        )
       end
 
       let(:shop_dental_plan) do
@@ -51,13 +56,13 @@ describe Plan do
           :plan_template,
           :shop_dental,
           {
-          :active_year => 2014,
-          :carrier_profile_id => carrier_id
+            :active_year => 2014,
+            :carrier_profile_id => carrier_id
           }
         )
       end
 
-      subject { Plan.valid_shop_health_plans("carrier", carrier_id, 2014) } 
+      subject { Plan.valid_shop_health_plans("carrier", carrier_id, 2014) }
 
       before :each do
         ivl_dental_plan.save!

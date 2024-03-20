@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module SponsoredBenefits
@@ -17,37 +19,41 @@ module SponsoredBenefits
     let(:params) do
       {
         effective_period: effective_period,
-        open_enrollment_period: open_enrollment_period,
+        open_enrollment_period: open_enrollment_period
       }
     end
 
     context "#to_benefit_sponsors_benefit_application" do
       let(:benefit_application)       { SponsoredBenefits::BenefitApplications::BenefitApplication.new(params) }
-      let(:benefit_sponsorship)       { SponsoredBenefits::BenefitSponsorships::BenefitSponsorship.new(
-        benefit_market: "aca_shop_cca",
-        enrollment_frequency: "rolling_month"
-      )}
+      let(:benefit_sponsorship)       do
+        SponsoredBenefits::BenefitSponsorships::BenefitSponsorship.new(
+          benefit_market: "aca_shop_cca",
+          enrollment_frequency: "rolling_month"
+        )
+      end
 
       let(:address)  { Address.new(kind: "primary", address_1: "609 H St", city: "Washington", state: "DC", zip: "20002", county: "County") }
-      let(:phone  )  { Phone.new(kind: "main", area_code: "202", number: "555-9999") }
-      let(:office_location) { OfficeLocation.new(
+      let(:phone)  { Phone.new(kind: "main", area_code: "202", number: "555-9999") }
+      let(:office_location) do
+        OfficeLocation.new(
           is_primary: true,
           address: address,
           phone: phone
         )
-      }
+      end
       let(:benefit_group)             { FactoryBot.create :benefit_group, title: 'new' }
 
       let(:benefit_market)      { site.benefit_markets.first }
       let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
       let(:current_effective_date)  { TimeKeeper.date_of_record }
-      let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                             benefit_market: benefit_market,
-                                             issuer_profile: issuer_profile,
-                                             title: "SHOP Benefits for #{current_effective_date.year}",
-                                             application_period: (effective_period_start_on.beginning_of_year..effective_period_start_on.end_of_year))
+      let!(:benefit_market_catalog) do
+        create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+               benefit_market: benefit_market,
+               issuer_profile: issuer_profile,
+               title: "SHOP Benefits for #{current_effective_date.year}",
+               application_period: (effective_period_start_on.beginning_of_year..effective_period_start_on.end_of_year))
 
-      }
+      end
       let!(:product)      { benefit_market_catalog.product_packages.where(package_kind: 'single_product').first.products.first}
       let!(:plan) {benefit_group.reference_plan}
       let!(:rating_area)   { FactoryBot.create_default :benefit_markets_locations_rating_area, active_year: effective_period_start_on.year }

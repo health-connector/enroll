@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
-require_relative '../../components/benefit_sponsors/spec/concerns/observable_spec.rb'
+require_relative '../../components/benefit_sponsors/spec/concerns/observable_spec'
 
 describe EmployerStaffRole, dbclean: :after_each do
 
@@ -24,13 +26,13 @@ describe EmployerStaffRole, dbclean: :after_each do
       end
     end
 
-     context "with valid params" do
+    context "with valid params" do
       let(:params) { valid_params}
 
       it "should be valid" do
         expect(EmployerStaffRole.new(**params).valid?).to be_truthy
       end
-     end
+    end
 
   end
 end

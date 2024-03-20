@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe HbxProfile, :type => :model do
@@ -5,14 +7,14 @@ RSpec.describe HbxProfile, :type => :model do
 
   let(:cms_id)  { "DC0" }
   let(:us_state_abbreviation)  { "DC" }
-  let(:markets) { %w(shop unassisted_individual assisted_individual non_aca) }
-  let(:valid_params) {
+  let(:markets) { %w[shop unassisted_individual assisted_individual non_aca] }
+  let(:valid_params) do
     {
       organization: organization,
       cms_id: cms_id,
       us_state_abbreviation: us_state_abbreviation
     }
-  }
+  end
 
   context ".new" do
     context "with no organization" do

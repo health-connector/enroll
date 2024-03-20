@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/my_account/_census_employees.html.erb", dbclean: :after_each do
@@ -9,7 +11,7 @@ RSpec.describe "employers/employer_profiles/my_account/_census_employees.html.er
     assign(:employer_profile, employer_profile)
     assign(:avaliable_employee_names, "employee_names")
     assign(:datatable, Effective::Datatables::EmployeeDatatable.new({id: employer_profile.id}))
-    
+
     assign(:census_employees, [])
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
     allow(view).to receive(:generate_checkbook_urls_employers_employer_profile_path).and_return('/')

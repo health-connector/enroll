@@ -1,21 +1,27 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require Rails.root.join("lib", "sbc", "sbc_processor2015")
 
 describe SbcProcessor2015, dbclean: :after_each do
   let(:csv_path) { Dir.glob(File.join(Rails.root, 'spec/test_data/plan_data/sbc/*.csv')).first }
   let(:pdf_path) { Dir.glob(File.join(Rails.root, 'spec/test_data/plan_data/sbc/pdf/')).first }
-  let!(:product) { FactoryBot.create(
+  let!(:product) do
+    FactoryBot.create(
       :benefit_markets_products_health_products_health_product,
       hios_id: "59763MA0030014-01",
       application_period: Date.new(2018, 1, 1)..Date.new(2018, 12, 31),
       sbc_document: nil
-  )}
-  let!(:plan){ FactoryBot.create(
-    :plan,
-    active_year: product.active_year,
-    hios_id: product.hios_id,
-    sbc_document: product.sbc_document
-  )}
+    )
+  end
+  let!(:plan) do
+    FactoryBot.create(
+      :plan,
+      active_year: product.active_year,
+      hios_id: product.hios_id,
+      sbc_document: product.sbc_document
+    )
+  end
 
   context "should initialize " do
 

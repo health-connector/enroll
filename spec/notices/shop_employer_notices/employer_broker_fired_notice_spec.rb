@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::EmployerBrokerFiredNotice, dbclean: :after_each do
   before(:all) do
 
-    @site =  FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+    @site = FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
     @organization = FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: @site)
     @employer_profile = @organization.employer_profile
     @benefit_sponsorship = @employer_profile.add_benefit_sponsorship
@@ -25,20 +27,24 @@ RSpec.describe ShopEmployerNotices::EmployerBrokerFiredNotice, dbclean: :after_e
   let(:broker_role) { @broker_role }
 
   #add person to broker agency profile
-  let(:application_event){ double("ApplicationEventKind",{
-      :name =>'Broker fired',
-      :notice_template => 'notices/shop_employer_notices/employer_broker_fired_notice',
-      :notice_builder => 'ShopEmployerNotices::EmployerBrokerFiredNotice',
-      :mpi_indicator => 'MPI_SHOP52',
-      :event_name => 'employer_broker_fired',
-      :title => "Confirmation of Broker Fired to Employer"})
-  }
-  let(:valid_params) {{
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Broker fired',
+             :notice_template => 'notices/shop_employer_notices/employer_broker_fired_notice',
+             :notice_builder => 'ShopEmployerNotices::EmployerBrokerFiredNotice',
+             :mpi_indicator => 'MPI_SHOP52',
+             :event_name => 'employer_broker_fired',
+             :title => "Confirmation of Broker Fired to Employer"
+           })
+  end
+  let(:valid_params) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
       :template => application_event.notice_template
-  }}
+    }
+  end
 
   describe "New" do
     before do
@@ -61,17 +67,17 @@ RSpec.describe ShopEmployerNotices::EmployerBrokerFiredNotice, dbclean: :after_e
   end
 
   describe "Build" do
-      before do
-        allow(employer_profile).to receive_message_chain("staff_roles.first").and_return(person)
-        @employer_notice = ShopEmployerNotices::EmployerBrokerFiredNotice.new(employer_profile, valid_params)
-      end
+    before do
+      allow(employer_profile).to receive_message_chain("staff_roles.first").and_return(person)
+      @employer_notice = ShopEmployerNotices::EmployerBrokerFiredNotice.new(employer_profile, valid_params)
+    end
       # builder is not in use and not updated as per new model(will work in DC)
-      xit "should build notice with all necessary info" do
-        @employer_notice.build
-        expect(@employer_notice.notice.primary_fullname).to eq person.full_name.titleize
-        expect(@employer_notice.notice.employer_name).to eq employer_profile.organization.legal_name
-        expect(@employer_notice.notice.primary_identifier).to eq employer_profile.hbx_id
-      end
+    xit "should build notice with all necessary info" do
+      @employer_notice.build
+      expect(@employer_notice.notice.primary_fullname).to eq person.full_name.titleize
+      expect(@employer_notice.notice.employer_name).to eq employer_profile.organization.legal_name
+      expect(@employer_notice.notice.primary_identifier).to eq employer_profile.hbx_id
+    end
   end
 
   describe "append_data" do
@@ -92,7 +98,7 @@ RSpec.describe ShopEmployerNotices::EmployerBrokerFiredNotice, dbclean: :after_e
       expect(@employer_notice.notice.broker.first_name).to eq(person.first_name)
       expect(@employer_notice.notice.broker.last_name).to eq(person.last_name)
       expect(@employer_notice.notice.broker.terminated_on).to eq(employer_profile.broker_agency_accounts.unscoped.last.end_on)
-      expect(@employer_notice.notice.broker.organization).to eq (broker.legal_name)
+      expect(@employer_notice.notice.broker.organization).to eq(broker.legal_name)
     end
   end
 

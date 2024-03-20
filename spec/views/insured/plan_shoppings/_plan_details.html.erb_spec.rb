@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 =begin
@@ -120,7 +122,7 @@ RSpec.describe "insured/plan_shoppings/_plan_details.html.erb", :dbclean => :aft
 
   end
 
-  if ExchangeTestingConfigurationHelper.individual_market_is_enabled? 
+  if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   context "with aptc" do
     before :each do
       allow(plan).to receive(:is_csr?).and_return true

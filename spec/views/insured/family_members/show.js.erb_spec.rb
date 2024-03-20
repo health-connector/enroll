@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/family_members/show.js.erb" do
@@ -23,9 +25,9 @@ describe "insured/family_members/show.js.erb" do
     end
 
     it "should display notice" do
-      expect(rendered).to match /qle_flow_info/
-      expect(rendered).to match /removeClass/
-      expect(rendered).to match /hidden/
+      expect(rendered).to match(/qle_flow_info/)
+      expect(rendered).to match(/removeClass/)
+      expect(rendered).to match(/hidden/)
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 class FakesController < ApplicationController
@@ -30,13 +32,13 @@ describe FakesController do
   end
 
   context "#get_vlp_doc_subject_by_consumer_role" do
-    let(:vlp_doc_naturalized) { FactoryBot.build(:vlp_document, :subject => "Certificate of Citizenship" ) }
-    let(:vlp_doc_immigrant) { FactoryBot.build(:vlp_document, :subject => "I-327 (Reentry Permit)" ) }
+    let(:vlp_doc_naturalized) { FactoryBot.build(:vlp_document, :subject => "Certificate of Citizenship") }
+    let(:vlp_doc_immigrant) { FactoryBot.build(:vlp_document, :subject => "I-327 (Reentry Permit)") }
     shared_examples_for "returns vlp document subject" do |doc_subject, citizen_status|
       before do
         consumer_role.vlp_documents = [vlp_doc_naturalized, vlp_doc_immigrant]
       end
-      describe "#{citizen_status}" do
+      describe citizen_status.to_s do
         before do
           consumer_role.vlp_documents << FactoryBot.build(:vlp_document, :subject => doc_subject)
           consumer_role.citizen_status = citizen_status

@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'change_aasm_state_dot_census_employee')
+
 describe ChangeAasmStateDotCensusEmployee, dbclean: :after_each do
   describe 'given a task name' do
     let(:given_task_name) { 'change_aasm_state_dot_census_employee' }

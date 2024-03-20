@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :consumer_role do
     association :person
-    sequence(:ssn) { |n| "7"+SecureRandom.random_number.to_s[2..8][0..-((Math.log(n+1,10))+1)]+"#{n+1}"}
+    sequence(:ssn) { |n| "7#{SecureRandom.random_number.to_s[2..8][0..-(Math.log(n + 1,10) + 1)]}#{n + 1}"}
     dob { "01/01/1980" }
     gender { 'male' }
     is_state_resident { 'yes' }
@@ -21,7 +23,7 @@ FactoryBot.define do
     first_name { Forgery(:name).first_name }
     last_name { Forgery(:name).first_name }
     gender { Forgery(:personal).gender }
-    sequence(:ssn, 222222222)
+    sequence(:ssn, 222_222_222)
     dob { Date.new(1980, 1, 1) }
   end
 

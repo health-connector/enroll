@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "generate_2017_ehb_report")
@@ -5,18 +7,21 @@ require File.join(Rails.root, "app", "reports", "hbx_reports", "generate_2017_eh
 describe Generate2017EhbReport do
 
   let(:given_task_name) { "generate_2017_ehb_report" }
-  let(:person) {FactoryBot.create(:person,
-                                    :with_consumer_role,
-                                    first_name: "F_name1",
-                                    last_name:"L_name1")}
+  let(:person) do
+    FactoryBot.create(:person,
+                      :with_consumer_role,
+                      first_name: "F_name1",
+                      last_name: "L_name1")
+  end
   let(:family) { FactoryBot.create(:family, :with_primary_family_member, :person => person)}
   let(:plan){FactoryBot.create(:plan, :ehb => 0.9945)}
-  let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment,
-                                             household: family.active_household,
-                                             effective_on: Date.parse("2017-1-1"),
-                                             plan: plan,
-                                             applied_aptc_amount: 550.98
-                                             )}
+  let(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      effective_on: Date.parse("2017-1-1"),
+                      plan: plan,
+                      applied_aptc_amount: 550.98)
+  end
   subject { Generate2017EhbReport.new(given_task_name, double(:current_scope => nil)) }
 
   describe "correct data input" do

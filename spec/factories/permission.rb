@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :permission do
     modify_family { true }
@@ -15,7 +17,7 @@ FactoryBot.define do
     trait :hbx_staff do
       can_complete_resident_application { true }
       can_add_sep { true }
-      view_the_configuration_tab { false } 
+      view_the_configuration_tab { false }
       can_submit_time_travel_request { false }
     end
 
@@ -33,7 +35,7 @@ FactoryBot.define do
       approve_ga { false }
       modify_admin_tabs { false }
       view_admin_tabs  { true }
-      view_the_configuration_tab { false } 
+      view_the_configuration_tab { false }
       can_submit_time_travel_request { false }
     end
 
@@ -47,7 +49,7 @@ FactoryBot.define do
       approve_ga { false }
       modify_admin_tabs { false }
       view_admin_tabs  { false }
-      view_the_configuration_tab { false } 
+      view_the_configuration_tab { false }
       can_submit_time_travel_request { false }
     end
 
@@ -61,7 +63,7 @@ FactoryBot.define do
       approve_ga { false }
       modify_admin_tabs { false }
       view_admin_tabs { false }
-      view_the_configuration_tab { false } 
+      view_the_configuration_tab { false }
       can_submit_time_travel_request { false }
     end
 
@@ -75,7 +77,7 @@ FactoryBot.define do
       approve_ga { false }
       modify_admin_tabs { false }
       view_admin_tabs  { false }
-      view_the_configuration_tab { false } 
+      view_the_configuration_tab { false }
       can_submit_time_travel_request { false }
     end
 
@@ -122,7 +124,7 @@ FactoryBot.define do
       can_force_publish { true }
       can_update_enrollment_end_date { true }
       can_reinstate_enrollment { true }
-      view_the_configuration_tab { true } 
+      view_the_configuration_tab { true }
       can_submit_time_travel_request { false }
     end
   end

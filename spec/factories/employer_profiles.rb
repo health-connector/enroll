@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :employer_profile_no_attestation, class: EmployerProfile do
     organization            { FactoryBot.build(:organization) }
@@ -9,9 +11,7 @@ FactoryBot.define do
     end
 
     before :create do |employer_profile, evaluator|
-      unless evaluator.employee_roles.blank?
-        employer_profile.employee_roles.push *Array.wrap(evaluator.employee_roles)
-      end
+      employer_profile.employee_roles.push(*Array.wrap(evaluator.employee_roles)) unless evaluator.employee_roles.blank?
     end
   end
 
@@ -26,7 +26,7 @@ FactoryBot.define do
     end
 
     trait :with_full_inbox do
-      after :create do |employer_profile, evaluator|
+      after :create do |employer_profile, _evaluator|
         inbox { FactoryBot.create(:inbox, :with_message, recipient: employer_profile) }
       end
     end
@@ -36,9 +36,7 @@ FactoryBot.define do
     end
 
     before :create do |employer_profile, evaluator|
-      unless evaluator.employee_roles.blank?
-        employer_profile.employee_roles.push *Array.wrap(evaluator.employee_roles)
-      end
+      employer_profile.employee_roles.push(*Array.wrap(evaluator.employee_roles)) unless evaluator.employee_roles.blank?
     end
 
     after(:create) do |employer_profile, evaluator|
@@ -71,15 +69,18 @@ FactoryBot.define do
 
     factory :employer_with_planyear do
       after(:create) do |employer, evaluator|
-        create(:custom_plan_year, employer_profile: employer, start_on: evaluator.start_on, aasm_state: evaluator.plan_year_state, with_dental: evaluator.with_dental, reference_plan: evaluator.reference_plan_id, dental_reference_plan: evaluator.dental_reference_plan_id)
+        create(:custom_plan_year, employer_profile: employer, start_on: evaluator.start_on, aasm_state: evaluator.plan_year_state, with_dental: evaluator.with_dental, reference_plan: evaluator.reference_plan_id,
+                                  dental_reference_plan: evaluator.dental_reference_plan_id)
         create(:employer_attestation, employer_profile: employer)
       end
     end
 
     factory :employer_with_renewing_planyear do
       after(:create) do |employer, evaluator|
-        create(:custom_plan_year, employer_profile: employer, start_on: evaluator.start_on - 1.year, aasm_state: 'active', is_conversion: evaluator.is_conversion, with_dental: evaluator.with_dental, reference_plan: evaluator.reference_plan_id, dental_reference_plan: evaluator.dental_reference_plan_id)
-        create(:custom_plan_year, employer_profile: employer, start_on: evaluator.start_on, aasm_state: evaluator.renewal_plan_year_state, renewing: true, with_dental: evaluator.with_dental, reference_plan: evaluator.renewal_reference_plan_id, dental_reference_plan: evaluator.dental_renewal_reference_plan_id)
+        create(:custom_plan_year, employer_profile: employer, start_on: evaluator.start_on - 1.year, aasm_state: 'active', is_conversion: evaluator.is_conversion, with_dental: evaluator.with_dental, reference_plan: evaluator.reference_plan_id,
+                                  dental_reference_plan: evaluator.dental_reference_plan_id)
+        create(:custom_plan_year, employer_profile: employer, start_on: evaluator.start_on, aasm_state: evaluator.renewal_plan_year_state, renewing: true, with_dental: evaluator.with_dental, reference_plan: evaluator.renewal_reference_plan_id,
+                                  dental_reference_plan: evaluator.dental_renewal_reference_plan_id)
         create(:employer_attestation, employer_profile: employer)
       end
     end

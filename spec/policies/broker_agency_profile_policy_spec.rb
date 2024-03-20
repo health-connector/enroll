@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe BrokerAgencyProfilePolicy do
@@ -12,7 +14,7 @@ describe BrokerAgencyProfilePolicy do
       expect(policy.access_to_broker_agency_profile?).to be true
     end
     it 'no role' do
-     expect(policy.access_to_broker_agency_profile?).not_to be true
+      expect(policy.access_to_broker_agency_profile?).not_to be true
     end
 
     it 'broker matches broker agency profile' do
@@ -31,7 +33,7 @@ describe BrokerAgencyProfilePolicy do
     end
 
     it 'broker_agency_staff_roles can see broker agency profile' do
-      FactoryBot.create(:broker_agency_staff_role, person: person, broker_agency_profile_id:broker_agency_profile.id,broker_agency_profile: broker_agency_profile, aasm_state: 'active')
+      FactoryBot.create(:broker_agency_staff_role, person: person, broker_agency_profile_id: broker_agency_profile.id,broker_agency_profile: broker_agency_profile, aasm_state: 'active')
       expect(policy.access_to_broker_agency_profile?).to be true
     end
 
@@ -41,8 +43,8 @@ describe BrokerAgencyProfilePolicy do
     end
 
     it 'broker_agency_staff_roles can find the  valid broker agency staff role' do
-      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id:broker_agency_profile.id, person: person, broker_agency_profile: broker_agency_profile, aasm_state: 'active')
-      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id:broker_agency_profile.id, person: person, broker_agency_profile: FactoryBot.create(:broker_agency_profile), aasm_state: 'active')
+      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, person: person, broker_agency_profile: broker_agency_profile, aasm_state: 'active')
+      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, person: person, broker_agency_profile: FactoryBot.create(:broker_agency_profile), aasm_state: 'active')
       expect(policy.access_to_broker_agency_profile?).to be true
     end
 

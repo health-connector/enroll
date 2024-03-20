@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -23,10 +25,10 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
   let(:census_employee) do
     FactoryBot.create(:benefit_sponsors_census_employee,
-                       employer_profile: employer_profile,
-                       benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                       employment_terminated_on: TimeKeeper.date_of_record - 45.days,
-                       hired_on: "2014-11-11")
+                      employer_profile: employer_profile,
+                      benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                      employment_terminated_on: TimeKeeper.date_of_record - 45.days,
+                      hired_on: "2014-11-11")
   end
 
   let(:census_employee_params) do
@@ -309,12 +311,12 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       # This census employee will have that person name and dob
       let(:census_employee) do
         FactoryBot.create(:benefit_sponsors_census_employee,
-                           employer_profile: employer_profile,
-                           benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                           employment_terminated_on: TimeKeeper.date_of_record - 45.days,
-                           first_name: person.first_name,
-                           last_name: person.last_name,
-                           dob: person.dob)
+                          employer_profile: employer_profile,
+                          benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                          employment_terminated_on: TimeKeeper.date_of_record - 45.days,
+                          first_name: person.first_name,
+                          last_name: person.last_name,
+                          dob: person.dob)
       end
       let(:census_employee_params) do
         {"first_name" => census_employee.first_name,
@@ -375,38 +377,38 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     let(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
     let(:current_employer_term_enrollment) do
       FactoryBot.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         employee_role_id: employee_role1.id,
-                         benefit_group_assignment_id: benefit_group_assignment1.id,
-                         aasm_state: 'coverage_terminated')
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        employee_role_id: employee_role1.id,
+                        benefit_group_assignment_id: benefit_group_assignment1.id,
+                        aasm_state: 'coverage_terminated')
     end
     let(:current_employer_active_enrollment) do
       FactoryBot.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         employee_role_id: employee_role1.id,
-                         benefit_group_assignment_id: benefit_group_assignment1.id,
-                         aasm_state: 'coverage_selected')
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        employee_role_id: employee_role1.id,
+                        benefit_group_assignment_id: benefit_group_assignment1.id,
+                        aasm_state: 'coverage_selected')
     end
     let(:individual_term_enrollment) do
       FactoryBot.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "individual",
-                         aasm_state: 'coverage_terminated')
+                        household: family.active_household,
+                        kind: "individual",
+                        aasm_state: 'coverage_terminated')
     end
     let(:old_employer_term_enrollment) do
       FactoryBot.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         benefit_group_assignment_id: benefit_group_assignment2.id,
-                         aasm_state: 'coverage_terminated')
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        benefit_group_assignment_id: benefit_group_assignment2.id,
+                        aasm_state: 'coverage_terminated')
     end
     let(:expired_enrollment) do
       FactoryBot.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "individual",
-                         aasm_state: 'coverage_expired')
+                        household: family.active_household,
+                        kind: "individual",
+                        aasm_state: 'coverage_expired')
     end
     it "should be render show template" do
       # allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return(hbx_enrollments)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::PeopleController do
@@ -11,7 +13,7 @@ RSpec.describe Employers::PeopleController do
       get :search
       expect(response).to have_http_status(:success)
       expect(response).to render_template("search")
-      expect(assigns(:person).class).to eq (Forms::EmployeeCandidate)
+      expect(assigns(:person).class).to eq(Forms::EmployeeCandidate)
     end
   end
 
@@ -122,21 +124,24 @@ RSpec.describe Employers::PeopleController do
 
   describe "POST update" do
     let(:person_parameters) { { :first_name => "SOMDFINKETHING", :last_name => "SOME"} }
-    let(:person) { double(:phones => double(:each => double("each")),
-      :addresses => double(:each => double("each")),
-      :emails => double(:each => double("each"))
-     ) }
+    let(:person) do
+      double(:phones => double(:each => double("each")),
+             :addresses => double(:each => double("each")),
+             :emails => double(:each => double("each")))
+    end
     let(:person_id){ "1234"}
     let(:address_attributes) { double(:address => ["address"])}
     let(:phone_attributes) { double(:phone => ["phone"])}
     let(:email_attributes) { double(:email => ["email"])}
-    let(:valid_params){ {
-      id: person_id,
-      person: person_parameters.
-      deep_merge(addresses_attributes: {0 => {"id" => address_attributes}}).
-      deep_merge(phones_attributes: {0 => {"id" => phone_attributes}}).
-      deep_merge(emails_attributes: {0 => {"id" => email_attributes}})
-      } }
+    let(:valid_params) do
+      {
+        id: person_id,
+        person: person_parameters
+          .deep_merge(addresses_attributes: {0 => {"id" => address_attributes}})
+          .deep_merge(phones_attributes: {0 => {"id" => phone_attributes}})
+          .deep_merge(emails_attributes: {0 => {"id" => email_attributes}})
+      }
+    end
     let(:user) { FactoryBot.create(:user) }
 
     before(:each) do

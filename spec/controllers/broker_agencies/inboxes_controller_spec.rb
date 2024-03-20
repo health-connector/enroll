@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BrokerAgencies::InboxesController, :type => :controller, dbclean: :after_each do
@@ -6,8 +8,8 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller, dbclean:
   let(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let(:benefit_sponsor)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let(:employer_profile)    { benefit_sponsor.employer_profile }
-  let!(:active_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
-  let!(:person) { FactoryBot.create(:person, employer_staff_roles:[active_employer_staff_role]) }
+  let!(:active_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+  let!(:person) { FactoryBot.create(:person, employer_staff_roles: [active_employer_staff_role]) }
   let!(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
 
   describe "Get new" do
@@ -31,7 +33,7 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller, dbclean:
   describe "POST create" do
     let(:inbox){Inbox.new}
     let(:inbox_provider){double(id: double("id"),legal_name: double("inbox_provider"))}
-    let(:valid_params){{"message"=>{"subject"=>"test", "body"=>"test", "sender_id"=>"558b63ef4741542b64290000", "from"=>"HBXAdmin", "to"=>"Acme Inc."}}}
+    let(:valid_params){{"message" => {"subject" => "test", "body" => "test", "sender_id" => "558b63ef4741542b64290000", "from" => "HBXAdmin", "to" => "Acme Inc."}}}
     let!(:broker_agency_profile) {FactoryBot.create(:broker_agency_profile)}
     before do
       allow(user).to receive(:person).and_return(person)
@@ -54,14 +56,14 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller, dbclean:
 
     it "creates new message to hbx admin" do
       allow(inbox_provider.inbox).to receive(:save).and_return(true)
-      valid_params.deep_merge!(message:{to: "HBX Admin"}, id: inbox_provider.id, profile_id: hbx_profile.id)
+      valid_params.deep_merge!(message: {to: "HBX Admin"}, id: inbox_provider.id, profile_id: hbx_profile.id)
       post :create, params: valid_params
       expect(response).to have_http_status(:redirect)
     end
 
     it "renders new template of broker agency" do
       allow(inbox_provider.inbox).to receive(:save).and_return(false)
-      valid_params.deep_merge!(message:{to: "HBX Admin"}, id: inbox_provider.id)
+      valid_params.deep_merge!(message: {to: "HBX Admin"}, id: inbox_provider.id)
       post :create, params: valid_params
       expect(response).to render_template(:new)
     end
@@ -104,7 +106,7 @@ RSpec.describe BrokerAgencies::InboxesController, :type => :controller, dbclean:
     end
 
     it "delete action" do
-      delete :destroy, params: { id: 1 }, xhr:true
+      delete :destroy, params: { id: 1 }, xhr: true
       expect(response).to have_http_status(:success)
     end
   end

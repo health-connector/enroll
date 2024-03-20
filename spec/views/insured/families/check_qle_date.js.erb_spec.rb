@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/families/check_qle_date.js.erb" do
@@ -27,10 +29,10 @@ describe "insured/families/check_qle_date.js.erb" do
 
         it "should have qle message" do
           qle_date = TimeKeeper.date_of_record + 1.month
-          expect(rendered).to match /Because your other health insurance is ending/
-          expect(rendered).to match /#{qle_date.beginning_of_month}/
-          expect(rendered).to match /#{(qle_date + 1.month).beginning_of_month}/
-          expect(rendered).to match /#{qle_date.beginning_of_month - 1.day}/
+          expect(rendered).to match(/Because your other health insurance is ending/)
+          expect(rendered).to match(/#{qle_date.beginning_of_month}/)
+          expect(rendered).to match(/#{(qle_date + 1.month).beginning_of_month}/)
+          expect(rendered).to match(/#{qle_date.beginning_of_month - 1.day}/)
         end
       end
 
@@ -58,21 +60,21 @@ describe "insured/families/check_qle_date.js.erb" do
     end
 
     it "should match error notcie" do
-      expect(render).to match /The date you submitted does not qualify for special enrollment/
-      expect(render).to match /Please double check the date or contact #{Settings.contact_center.name}: #{Settings.contact_center.phone_number}/
+      expect(render).to match(/The date you submitted does not qualify for special enrollment/)
+      expect(render).to match(/Please double check the date or contact #{Settings.contact_center.name}: #{Settings.contact_center.phone_number}/)
     end
   end
 
   context "For event which happens in future" do
     before :each do
-     assign :qualified_date, false
-     assign :future_qualified_date, true
-     assign :qle, qle
-     render file: "insured/families/check_qle_date.js.erb"
+      assign :qualified_date, false
+      assign :future_qualified_date, true
+      assign :qle, qle
+      render file: "insured/families/check_qle_date.js.erb"
     end
 
     it "should match error notice " do
-      expect(render).to match /The date you submitted does not qualify for a special enrollment period. Qualifying life events may be reported up to 30 days after the date of the event. If you are trying to report a future event, please come back on or after the actual date of the event. For further assistance, please contact #{Settings.contact_center.name}: #{Settings.contact_center.phone_number}/
+      expect(render).to match(/The date you submitted does not qualify for a special enrollment period. Qualifying life events may be reported up to 30 days after the date of the event. If you are trying to report a future event, please come back on or after the actual date of the event. For further assistance, please contact #{Settings.contact_center.name}: #{Settings.contact_center.phone_number}/)
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Events::IndividualsController do
@@ -16,8 +18,9 @@ describe Events::IndividualsController do
       allow(Person).to receive(:by_hbx_id).with(individual_id).and_return(found_individuals)
       allow(controller).to receive(:render_to_string).with(
         "created", {:formats => ["xml"], :locals => {
-         :individual => individual
-        }}).and_return(rendered_template)
+          :individual => individual
+        }}
+      ).and_return(rendered_template)
     end
 
     describe "for an existing individual" do
@@ -25,12 +28,12 @@ describe Events::IndividualsController do
 
       it "should send out a message to the bus with the rendered individual object" do
         expect(exchange).to receive(:publish).with(rendered_template, {
-          :routing_key => reply_to_key,
-          :headers => {
-            :individual_id => individual_id,
-            :return_status => "200"
-          }       
-        })
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :individual_id => individual_id,
+                                                       :return_status => "200"
+                                                     }
+                                                   })
         controller.resource(connection, di, props, "")
       end
     end
@@ -40,17 +43,17 @@ describe Events::IndividualsController do
 
       it "should send out a message to the bus with no individual object" do
         expect(exchange).to receive(:publish).with("", {
-          :routing_key => reply_to_key,
-          :headers => {
-            :individual_id => individual_id,
-            :return_status => "404"
-          }       
-        })
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :individual_id => individual_id,
+                                                       :return_status => "404"
+                                                     }
+                                                   })
         controller.resource(connection, di, props, "")
       end
     end
 
-    describe "for when an exception is thrown" do 
+    describe "for when an exception is thrown" do
       let(:found_individuals) { [individual] }
       let(:exception) { Exception.new("error thrown")}
       let(:exception_backtrace) { ["error backtrace"] }
@@ -64,16 +67,16 @@ describe Events::IndividualsController do
 
       it "should return a 500 response and the error message" do
         expect(exchange).to receive(:publish).with(JSON.dump({
-          exception: exception.inspect,
-          backtrace: exception_backtrace.inspect
-          }),
-        {
-          :routing_key => reply_to_key,
-          :headers => {
-            :return_status => "500",
-            :individual_id => individual_id
-          }
-        })
+                                                               exception: exception.inspect,
+                                                               backtrace: exception_backtrace.inspect
+                                                             }),
+                                                   {
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :return_status => "500",
+                                                       :individual_id => individual_id
+                                                     }
+                                                   })
 
         controller.resource(connection, di, props, "")
       end

@@ -6,6 +6,7 @@ require File.join(Rails.root, "app", "data_migrations", "define_permissions")
 describe DefinePermissions, dbclean: :after_each do
   subject { DefinePermissions.new(given_task_name, double(:current_scope => nil))}
   let(:roles) {%w[hbx_staff hbx_read_only hbx_csr_supervisor hbx_tier3 hbx_csr_tier2 hbx_csr_tier1 developer super_admin] }
+
   describe 'create permissions' do
     let(:given_task_name) {':initial_hbx'}
 
@@ -15,6 +16,7 @@ describe DefinePermissions, dbclean: :after_each do
       FactoryBot.create(:hbx_staff_role, person: person)
       subject.initial_hbx
     end
+
     it "creates permissions" do
       expect(Permission.all.to_a.size).to eq(8)
       expect(Permission.all.map(&:name)).to match_array roles

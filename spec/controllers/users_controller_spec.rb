@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe UsersController do
@@ -22,14 +24,14 @@ describe UsersController do
 
     context "with a matching current password" do
       it 'changes the password' do
-        expect(user.valid_password? 'S0methingElse!@#$').to be_truthy
+        expect(user.valid_password?('S0methingElse!@#$')).to be_truthy
       end
     end
 
     context "with an invalid current password" do
       let(:original_password) { 'Potato' }
       it 'does not change the password' do
-        expect(user.valid_password? 'Complex!@#$').to be_truthy
+        expect(user.valid_password?('Complex!@#$')).to be_truthy
       end
     end
   end
@@ -206,7 +208,7 @@ describe UsersController do
 
   describe '.confirm_reset_password' do
     let(:can_reset_password) { false }
-    
+
     before do
       allow(user_policy).to receive(:reset_password?).and_return(can_reset_password)
     end
@@ -241,16 +243,16 @@ describe UsersController do
       end
     end
 
-  describe '.edit' do
-    let(:user) { FactoryBot.build(:user, :with_consumer_role) }
-    before do
-      sign_in(admin)
-      allow(User).to receive(:find).with(user.id).and_return(user)
-      get :edit, params: { id: user.id, format: 'js' }
+    describe '.edit' do
+      let(:user) { FactoryBot.build(:user, :with_consumer_role) }
+      before do
+        sign_in(admin)
+        allow(User).to receive(:find).with(user.id).and_return(user)
+        get :edit, params: { id: user.id, format: 'js' }
+      end
+      it { expect(assigns(:user)).to eq(user) }
+      it { expect(response).to render_template('edit') }
     end
-    it { expect(assigns(:user)).to eq(user) }
-    it { expect(response).to render_template('edit') }
-  end
 
     context 'When user information is not valid' do
       let(:can_reset_password) { true }

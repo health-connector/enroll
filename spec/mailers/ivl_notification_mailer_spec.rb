@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe IvlNotificationMailer do
@@ -23,7 +25,7 @@ describe IvlNotificationMailer do
   #     mail.to.should eq([consumer_role.email.address])
   #     mail.from.should eq(["no-reply@shop.dchealthlink.com"])
   #   end
-   
+
   #   it "renders the body" do
   #     mail.body.encoded.should_not be_empty
   #     mail.body.parts.length.should eq(2)
@@ -36,16 +38,16 @@ describe IvlNotificationMailer do
   #     # email.body.encoded.should include(link_to("click here", :controller => "ivl_notifications").to_html)
   #   end
   #   end
-    
+
   #   context "lawful_presence_unverified" do
   #   let(:mail) { IvlNotificationMailer.lawful_presence_unverified(@census_employee) }
-    
+
   #   it "renders the headers" do
   #     mail.subject.should eq("DCHealthLink Notification")
   #     mail.to.should eq([consumer_role.email.address])
   #     mail.from.should eq(["no-reply@shop.dchealthlink.com"])
   #   end
-   
+
   #   it "renders the body" do
   #     mail.body.encoded.should_not be_empty
   #     mail.body.parts.length.should eq(2)
@@ -57,16 +59,16 @@ describe IvlNotificationMailer do
   #     attachment.filename.should == 'notice.pdf'
   #   end
   #   end
-    
+
   #   context "lawfully_ineligible" do
   #   let(:mail) { IvlNotificationMailer.lawfully_ineligible(@census_employee) }
-    
+
   #   it "renders the headers" do
   #     mail.subject.should eq("DCHealthLink Notification")
   #     mail.to.should eq([consumer_role.email.address])
   #     mail.from.should eq(["no-reply@shop.dchealthlink.com"])
   #   end
-   
+
   #   it "renders the body" do
   #     mail.body.encoded.should_not be_empty
   #     mail.body.parts.length.should eq(2)
@@ -78,7 +80,7 @@ describe IvlNotificationMailer do
   #     attachment.filename.should == 'notice.pdf'
   #   end
   #   end
-    
+
   # end
 
 end

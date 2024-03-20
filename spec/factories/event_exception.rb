@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :event_exception do
     scheduled_event  { FactoryBot.build(:scheduled_event) }

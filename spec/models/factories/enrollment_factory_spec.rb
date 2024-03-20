@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -19,18 +21,17 @@ describe Factories::EnrollmentFactory, "starting with unlinked employee_family a
 
   let!(:census_employee) do
     create(:census_employee,
-      hired_on: hired_on,
-      employment_terminated_on: terminated_on,
-      dob: dob, ssn: ssn,
-      benefit_sponsorship: benefit_sponsorship,
-      employer_profile: benefit_sponsorship.profile,
-      benefit_group: current_benefit_package
-    )
+           hired_on: hired_on,
+           employment_terminated_on: terminated_on,
+           dob: dob, ssn: ssn,
+           benefit_sponsorship: benefit_sponsorship,
+           employer_profile: benefit_sponsorship.profile,
+           benefit_group: current_benefit_package)
   end
 
-  let(:employee_role) {
+  let(:employee_role) do
     FactoryBot.build(:employee_role, employer_profile: abc_profile)
-  }
+  end
 
   describe "After performing the link", :dbclean => :after_each do
 
@@ -79,7 +80,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
     {
       user: user,
       first_name: first_name,
-      last_name: last_name,
+      last_name: last_name
     }
   end
   let(:valid_employee_params) do
@@ -105,7 +106,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
       plan_year.update_attributes({:aasm_state => 'published'})
     end
 
-    # TODO add_employee_role method in enrollment factory didn't updated as part of new model,
+    # TODO: add_employee_role method in enrollment factory didn't updated as part of new model,
     # marking spec as pending update when we update add_employee_role method.
     xcontext "and no prior person exists" do
       before do
@@ -114,7 +115,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         valid_person_params = {
           user: @user,
           first_name: census_employee.first_name,
-          last_name: census_employee.last_name,
+          last_name: census_employee.last_name
         }
         valid_employee_params = {
           ssn: census_employee.ssn,
@@ -143,7 +144,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
       end
 
       it "should have all family_members" do
-        expect(@family.family_members.count).to eq (census_employee.census_dependents.count + 1)
+        expect(@family.family_members.count).to eq(census_employee.census_dependents.count + 1)
       end
 
       it "should set a home email" do
@@ -157,7 +158,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
       end
     end
 
-    # TODO add_employee_role method in enrollment factory didn't updated as part of new model,
+    # TODO: add_employee_role method in enrollment factory didn't updated as part of new model,
     # marking spec as pending update when we update add_employee_role method.
 
     xcontext "and a prior person exists but is not associated with the user" do
@@ -171,7 +172,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         valid_person_params = {
           user: @user,
           first_name: census_employee.first_name,
-          last_name: census_employee.last_name,
+          last_name: census_employee.last_name
         }
         valid_employee_params = {
           ssn: census_employee.ssn,
@@ -182,8 +183,8 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         valid_params = { employer_profile: employer_profile }.merge(valid_person_params).merge(valid_employee_params)
         params = valid_params
         @person = FactoryBot.create(:person,
-                                     valid_person_params.except(:user).merge(dob: census_employee.dob,
-                                                                             ssn: census_employee.ssn))
+                                    valid_person_params.except(:user).merge(dob: census_employee.dob,
+                                                                            ssn: census_employee.ssn))
         @person.addresses << FactoryBot.create(:address, person: @person)
         plan_year.update_attributes({:aasm_state => 'published'})
         @employee_role, @family = Factories::EnrollmentFactory.add_employee_role(**params)
@@ -210,7 +211,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
       end
     end
 
-    # TODO add_employee_role method in enrollment factory didn't updated as part of new model,
+    # TODO: add_employee_role method in enrollment factory didn't updated as part of new model,
     # marking spec as pending update when we update add_employee_role method.
     xcontext "and a prior person exists with an existing policy but is not associated with a user" do
       before(:each) do
@@ -224,7 +225,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
           user: @user,
           first_name: census_employee.first_name,
           last_name: census_employee.last_name,
-          gender: census_employee.gender,
+          gender: census_employee.gender
         }
         valid_employee_params = {
           ssn: census_employee.ssn,
@@ -235,8 +236,8 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         valid_params = { employer_profile: employer_profile }.merge(valid_person_params).merge(valid_employee_params)
         params = valid_params
         @person = FactoryBot.create(:person,
-                                     valid_person_params.except(:user).merge(dob: census_employee.dob,
-                                                                             ssn: census_employee.ssn))
+                                    valid_person_params.except(:user).merge(dob: census_employee.dob,
+                                                                            ssn: census_employee.ssn))
 
         @family = Family.new.build_from_person(@person)
         @family.person_id = @person.id
@@ -268,7 +269,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
       end
     end
 
-    # TODO add_employee_role method in enrollment factory didn't updated as part of new model,
+    # TODO: add_employee_role method in enrollment factory didn't updated as part of new model,
     # marking spec as pending update when we update add_employee_role method.
     xcontext "and another employer profile exists with the same employee and dependents in the census"  do
       before do
@@ -281,7 +282,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
 
         census_dependent = FactoryBot.build(:census_dependent)
         census_employee = FactoryBot.create(:census_employee, employer_profile_id: employer_profile.id,
-                                              census_dependents: [census_dependent])
+                                                              census_dependents: [census_dependent])
         benefit_group_assignment = FactoryBot.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: benefit_group)
         census_employee.benefit_group_assignments = [benefit_group_assignment]
         census_employee.save
@@ -291,7 +292,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         valid_person_params = {
           user: @user,
           first_name: census_employee.first_name,
-          last_name: census_employee.last_name,
+          last_name: census_employee.last_name
         }
         @ssn = census_employee.ssn
         @dob = census_employee.dob
@@ -352,17 +353,22 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
     end
   end
 
-  # TODO add_employee_role method in enrollment factory didn't updated as part of new model,
+  # TODO: add_employee_role method in enrollment factory didn't updated as part of new model,
   # marking spec as pending update when we update add_employee_role method.
   xdescribe ".add_employee_role" do
     context "when the employee already exists but is not linked" do
       let(:census_dependent){FactoryBot.build(:census_dependent)}
-      let(:census_employee) {FactoryBot.create(:census_employee, employer_profile_id: employer_profile.id,
-        census_dependents: [census_dependent],
-        )}
+      let(:census_employee) do
+        FactoryBot.create(:census_employee, employer_profile_id: employer_profile.id,
+                                            census_dependents: [census_dependent])
+      end
       let(:existing_person) {FactoryBot.create(:person, valid_person_params)}
       let(:employee) {FactoryBot.create(:employee_role, valid_employee_params.merge(person: existing_person, employer_profile: employer_profile))}
-      before {user;census_employee;employee}
+      before do
+        user
+        census_employee
+        employee
+      end
 
       context "with all required data" do
         let(:params) {valid_params}
@@ -403,10 +409,11 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
     context "census_employee params" do
       # let(:benefit_group_assignment){FactoryBot.build(:benefit_group_assignment)}
       let(:census_dependent){FactoryBot.build(:census_dependent)}
-      let(:census_employee) {FactoryBot.create(:census_employee, employer_profile_id: employer_profile.id,
-              census_dependents: [census_dependent],
+      let(:census_employee) do
+        FactoryBot.create(:census_employee, employer_profile_id: employer_profile.id,
+                                            census_dependents: [census_dependent])
               # benefit_group_assignments: [benefit_group_assignment]
-              )}
+      end
       context "with no arguments" do
         let(:params) {{}}
 
@@ -548,7 +555,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
     end
   end
 
-  # TODO Fix consumer role spec when we implement new model in DC.
+  # TODO: Fix consumer role spec when we implement new model in DC.
   xdescribe ".add_consumer_role" do
     let(:is_incarcerated) {true}
     let(:is_applicant) {true}
@@ -564,8 +571,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         new_ssn: ssn,
         new_dob: dob,
         new_gender: gender,
-        new_citizen_status: citizen_status
-      }
+        new_citizen_status: citizen_status}
     end
 
     context "with no arguments" do
@@ -621,7 +627,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         address_2: 111,
         city: 'Washington',
         state: 'DC',
-        zip: 11111
+        zip: 11_111
       }
     end
 
@@ -631,8 +637,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
       { person: valid_person,
         new_npn: npn,
         new_kind: broker_kind,
-        new_mailing_address: mailing_address
-      }
+        new_mailing_address: mailing_address}
     end
     let(:valid_person) {FactoryBot.create(:person)}
 

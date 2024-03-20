@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :lawful_presence_determination do
     vlp_verified_at { 2.days.ago }

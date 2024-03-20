@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::PremiumStatementsController do
@@ -10,31 +12,34 @@ RSpec.describe Employers::PremiumStatementsController do
   let(:employee_roles) { [double("EmployeeRole")] }
   let(:benefit_group){ double("BenefitGroup", title: "my benefit group") }
 
-  let(:plan){ double(
-    "Plan",
-    name: "my plan",
-    carrier_profile: carrier_profile,
-    coverage_kind: "my coverage kind"
-    ) }
+  let(:plan) do
+    double(
+      "Plan",
+      name: "my plan",
+      carrier_profile: carrier_profile,
+      coverage_kind: "my coverage kind"
+    )
+  end
 
-  let(:hbx_enrollments) { [
+  let(:hbx_enrollments) do
+    [
     double("HbxEnrollment",
-      plan: plan,
-      humanized_members_summary: 2,
-      total_employer_contribution: 200,
-      total_employee_cost: 781.2,
-      total_premium: 981.2,
-      )] }
+           plan: plan,
+           humanized_members_summary: 2,
+           total_employer_contribution: 200,
+           total_employee_cost: 781.2,
+           total_premium: 981.2)
+  ]
+  end
 
-  let(:census_employee) {
+  let(:census_employee) do
     double("CensusEmployee",
-      full_name: "my full name",
-      ssn: "my ssn",
-      dob: "my dob",
-      hired_on: "my hired_on",
-      published_benefit_group: benefit_group
-      )
-  }
+           full_name: "my full name",
+           ssn: "my ssn",
+           dob: "my dob",
+           hired_on: "my hired_on",
+           published_benefit_group: benefit_group)
+  end
 
   context "GET show" do
     let(:query_result) { double(:hbx_enrollments => hbx_enrollments) }
@@ -87,7 +92,7 @@ RSpec.describe Employers::PremiumStatementsController do
     it "returns csv content in the file" do
       sign_in(user)
       get :show, params: { id: "test"}, xhr: true, format: :csv
-      expect(response.header["Content-Disposition"]).to match /DCHealthLink_Premium_Billing_Report/
+      expect(response.header["Content-Disposition"]).to match(/DCHealthLink_Premium_Billing_Report/)
       expect(response.body).to have_content(/#{census_employee.full_name}/)
       expect(response.body).to have_content(/#{census_employee.dob}/)
       expect(response.body).to have_content(/#{census_employee.hired_on}/)

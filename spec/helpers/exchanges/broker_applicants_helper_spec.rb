@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe Exchanges::BrokerApplicantsHelper, dbclean: :after_each, :type => :helper do

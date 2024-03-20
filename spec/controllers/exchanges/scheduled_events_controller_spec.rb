@@ -1,16 +1,20 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Exchanges::ScheduledEventsController do
 
   let(:user){ double(:save => double("user")) }
   let(:person) { FactoryBot.create(:person) }
-  let(:event_params) { {
+  let(:event_params) do
+    {
       type: 'holiday',
       event_name: 'Christmas',
       offset_rule: 3,
       recurring_rules: {},
       :start_time => Date.today
-    }}
+    }
+  end
   after do
     ScheduledEvent.delete_all
   end
@@ -21,8 +25,8 @@ RSpec.describe Exchanges::ScheduledEventsController do
   describe "GET new" do
     it "should render the new template" do
       get :new, xhr: true
-        expect(response).to have_http_status(:success)
-      end
+      expect(response).to have_http_status(:success)
+    end
   end
 
   describe "Create Post" do

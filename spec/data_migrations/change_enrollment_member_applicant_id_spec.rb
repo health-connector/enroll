@@ -66,4 +66,3 @@ describe ChangeEnrollmentMemberApplicantId, dbclean: :after_each do
     end
   end
 end
-

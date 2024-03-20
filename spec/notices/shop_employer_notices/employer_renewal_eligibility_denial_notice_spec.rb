@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
@@ -6,15 +8,16 @@ RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
     OfficeLocation.new(
       is_primary: true,
       address: address
-      )
-  end
-  let(:organization) { Organization.create(
-    legal_name: "Sail Adventures, Inc",
-    dba: "Sail Away",
-    fein: "001223333",
-    office_locations: [office_location]
     )
-  }
+  end
+  let(:organization) do
+    Organization.create(
+      legal_name: "Sail Adventures, Inc",
+      dba: "Sail Away",
+      fein: "001223333",
+      office_locations: [office_location]
+    )
+  end
   let(:employer_profile) { FactoryBot.create :employer_profile, organization: organization}
   let(:calender_year) { TimeKeeper.date_of_record.year }
   let(:calender_month) { (TimeKeeper.date_of_record + 2.months).month}
@@ -26,21 +29,25 @@ RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
   let!(:active_plan_year) { FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :active, :start_on => start_on_active, :end_on => end_on_active}
   let!(:renewing_plan_year) { FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :renewing_publish_pending, :start_on => start_on, :end_on => end_on}
   let(:warnings) { { primary_office_location: "primary location is outside washington dc"} }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Employer Annual Renewal - Denial of Eligibility',
-                            :notice_template => 'notices/shop_employer_notices/employer_renewal_eligibility_denial_notice',
-                            :notice_builder => 'ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice',
-                            :event_name => 'employer_renewal_eligibility_denial_notice',
-                            :mpi_indicator => 'SHOP_D005',
-                            :title => "Employer Annual Renewal - Denial of Eligibility"})
-                          }
-  let(:valid_params) {{
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Employer Annual Renewal - Denial of Eligibility',
+             :notice_template => 'notices/shop_employer_notices/employer_renewal_eligibility_denial_notice',
+             :notice_builder => 'ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice',
+             :event_name => 'employer_renewal_eligibility_denial_notice',
+             :mpi_indicator => 'SHOP_D005',
+             :title => "Employer Annual Renewal - Denial of Eligibility"
+           })
+  end
+  let(:valid_params) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
       :template => application_event.notice_template,
       :organization => organization
-  }}
+    }
+  end
 
   describe "New" do
     before do

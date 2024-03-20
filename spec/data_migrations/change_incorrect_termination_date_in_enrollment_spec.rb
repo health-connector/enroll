@@ -42,11 +42,6 @@ describe ChangeIncorrectTerminationDateInEnrollment do
   context "enrollments with review_status equal nil" do
     let(:date) { (TimeKeeper.date_of_record.next_month.beginning_of_month + 2.days).to_s }
 
-    before do
-      # allow(ENV).to receive(:[]).with('hbx_id').and_return enrollment_1.hbx_id
-      # allow(ENV).to receive(:[]).with('termination_date').and_return date
-    end
-
     it "should modify hbx_enrollment not in terminated state" do
       ClimateControl.modify hbx_id: enrollment_1.hbx_id,termination_date: date.to_s do
         family.active_household.hbx_enrollments << enrollment_1
@@ -73,6 +68,5 @@ describe ChangeIncorrectTerminationDateInEnrollment do
         expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record.next_month.beginning_of_month + 2.days
       end
     end
-
   end
 end
