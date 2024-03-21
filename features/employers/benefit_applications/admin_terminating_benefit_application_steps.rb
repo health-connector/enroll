@@ -35,9 +35,9 @@ When(/^the user enters (mid_month|any_day|last_day) and other details for (volun
 
 
   if termination_date == 'mid_month'
-    fill_in "Select Term Date", with: (@new_application.end_on - 1.months).end_of_month.prev_day.strftime('%m/%d/%Y').to_s
+    fill_in "Select Term Date", with: TimeKeeper.date_of_record.end_of_month.prev_day.strftime('%m/%d/%Y').to_s
   elsif termination_date == 'any_day'
-    fill_in "Select Term Date", with: (@new_application.end_on - 3.months).end_of_month.strftime('%m/%d/%Y').to_s
+    fill_in "Select Term Date", with: TimeKeeper.date_of_record.end_of_month.strftime('%m/%d/%Y').to_s
   elsif termination_date == 'last_day'
     fill_in "Select Term Date", with: @new_application.end_on.to_s
   end
