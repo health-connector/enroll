@@ -59,12 +59,16 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'PUT update' do
     let(:true_if_allowed) { true }
     let(:title) { 'Updated title' }
+    let(:params) {{ title: title } }
+    let(:nil_params) {{ title: "" } }
+    let(:strong_params){ActionController::Parameters.new(params).permit(:title)}
+    let(:strong_nil_params){ActionController::Parameters.new(nil_params).permit(:title)}
+
     before do
       allow(question).to receive(:safe_to_edit_or_delete?).and_return(true_if_allowed)
-      allow(question).to receive(:update_attributes).with({ title: nil }).and_return(false)
-      allow(question).to receive(:update_attributes).with({ title: 'Updated title' }).and_return(true)
+      allow(question).to receive(:update_attributes).with( strong_params ).and_return(true)
       allow(question).to receive(:title).and_return(title)
-      put :update, id: question.id, security_question: { title: title }
+      put :update, params: {id: question.id, security_question: strong_params }
     end
 
     context 'When update question with valid title' do
@@ -82,10 +86,11 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
     end
 
     context 'When update question with blank title' do
-      let(:title) { nil }
       let(:errors) { double(:errors, full_messages: ["Title can't be blank"]) }
       before do
         allow(question).to receive(:errors).and_return(errors)
+        allow(question).to receive(:update_attributes).with(strong_nil_params).and_return(false)
+        put :update,params: {id: question.id, security_question: strong_nil_params}
       end
       it { expect(assigns(:question)).to eq(question) }
       it { expect(assigns(:question).errors.full_messages).to eq(['Title can\'t be blank']) }
