@@ -8,6 +8,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   let(:question) { instance_double("SecurityQuestion", title: 'Your Question', id: '1') }
 
   before :each do
+    EnrollRegistry[:security_questions_display].feature.stub(:is_enabled).and_return(true)
     allow(user).to receive(:has_hbx_staff_role?).and_return true
 
     allow(SecurityQuestion).to receive(:all).and_return([question])
