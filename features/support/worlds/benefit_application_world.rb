@@ -92,7 +92,7 @@ module BenefitApplicationWorld
     application_start_date = if safe_date
                                safe_application_effective_on(new_application_status) || current_effective_date
                              else
-                               application_effective_on(new_application_status) || current_effective_date
+                                current_effective_date || application_effective_on(new_application_status)
                              end
     application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
