@@ -91,7 +91,7 @@ PATH
       dry-schema (~> 1.0)
       dry-struct
       dry-validation (~> 1.0)
-      interactor (= 3.1.0)
+      interactor (= 3.1.2)
       interactor-rails (= 2.2.1)
       language_list (~> 1.1.0)
       money-rails (~> 1.10.0)
@@ -510,7 +510,7 @@ GEM
       mini_magick (>= 4.9.5, < 5)
       ruby-vips (>= 2.0.17, < 3)
     iniparse (1.5.0)
-    interactor (3.1.0)
+    interactor (3.1.2)
     interactor-rails (2.2.1)
       interactor (~> 3.0)
       rails (>= 4.2)
@@ -958,7 +958,7 @@ GEM
     zeitwerk (2.6.13)
 
 PLATFORMS
-  arm64-darwin-21
+  ruby
   x86_64-darwin-21
   x86_64-linux
 
@@ -1008,7 +1008,7 @@ DEPENDENCIES
   holidays (~> 8.6)
   httparty
   i18n (= 0.9.5)
-  interactor (= 3.1.0)
+  interactor (~> 3.1.2)
   interactor-rails (= 2.2.1)
   jbuilder (~> 2.0)
   jquery-datatables-rails (= 3.4.0)
