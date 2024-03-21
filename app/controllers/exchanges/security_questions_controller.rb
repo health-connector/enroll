@@ -1,5 +1,11 @@
+# frozen_string_literal: true
+
 class Exchanges::SecurityQuestionsController < ApplicationController
+  include L10nHelper
+
   layout 'single_column'
+
+  before_action :check_feature_enabled
 
   def index
     @questions = SecurityQuestion.all
@@ -11,7 +17,6 @@ class Exchanges::SecurityQuestionsController < ApplicationController
 
   def create
     @question = SecurityQuestion.new(security_question_params)
-    # binding.pry
     if @question.save
       redirect_to exchanges_security_questions_path, notice: 'Question was successfully created'
     else
@@ -44,6 +49,18 @@ class Exchanges::SecurityQuestionsController < ApplicationController
   end
 
   private
+
+  # Checks if the security questions display feature is enabled.
+  # If the feature is not enabled, it sets a flash error message and redirects the user to the root path.
+  #
+  # @return [nil, ActionController::Redirecting] Returns nil if the security questions feature is enabled,
+  # otherwise it redirects the user to the root path.
+  def check_feature_enabled
+    return if EnrollRegistry[:security_questions_display].feature.is_enabled
+
+    flash[:error] = l10n('exchanges.security_questions.denied_access_message')
+    redirect_to root_path
+  end
 
   def security_question_params
     params.require(:security_question).permit(:title, :visible)
