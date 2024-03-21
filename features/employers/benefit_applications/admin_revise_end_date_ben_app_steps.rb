@@ -21,9 +21,9 @@ Then(/^Admin will set Revise End Date in (.*) for (.*) benefit application$/) do
   expect(page.all('tr').detect { |tr| tr[:id] == ben_app.id.to_s }.present?).to eq true
   if ['terminated','termination_pending'].include?(aasm_state)
     date = if revise_date == 'future'
-             ben_app.end_on + 1.months
+             ben_app.end_on + 2.months
            else
-             ben_app.end_on - 1.months
+             ben_app.end_on - 2.months
            end
     date_to_set = date.strftime('%m/%d/%Y')
     fill_in "date_picker_#{ben_app.id}", with: date_to_set
