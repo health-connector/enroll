@@ -5,7 +5,7 @@ Feature: As an admin user I should have the ability to click reinstate button on
     And a CCA site exists with a benefit market
     And benefit market catalog exists for <from_state> initial employer with health benefits
     And there is an employer ABC Widgets
-    And initial employer ABC Widgets has <from_state> benefit application
+    And initial employer ABC Widgets has <from_state> benefit application with current effective date
     And initial employer ABC Widgets application <to_state>
     And that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
@@ -34,7 +34,7 @@ Feature: As an admin user I should have the ability to click reinstate button on
     And a CCA site exists with a benefit market
     And benefit market catalog exists for active initial employer with health benefits
     And there is an employer ABC Widgets
-    And initial employer ABC Widgets has active benefit application
+    And initial employer ABC Widgets has active benefit application with current effective date
     And there is a census employee record and employee role for Patrick Doe for employer ABC Widgets
     And initial employer ABC Widgets application terminated
     And that a user with a HBX staff role with Super Admin subrole exists and is logged in

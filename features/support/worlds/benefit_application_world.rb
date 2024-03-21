@@ -88,9 +88,11 @@ module BenefitApplicationWorld
     end
   end
 
-  def create_application(new_application_status, dental: false, safe_date: false)
+  def create_application(new_application_status, dental: false, safe_date: false, with_current: false)
     application_start_date = if safe_date
-                               safe_application_effective_on(new_application_status) || current_effective_date
+                              safe_application_effective_on(new_application_status) || current_effective_date
+                             elsif with_current
+                              current_effective_date
                              else
                                application_effective_on(new_application_status) || current_effective_date
                              end
@@ -207,6 +209,13 @@ end
 And(/^initial employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = employer_profile(legal_name)
   app = create_application(new_application_status.to_sym)
+  app.update_attributes!(recorded_rating_area: renewal_rating_area) if current_effective_date.month == 2
+  app
+end
+
+And(/^initial employer (.*) has (.*) benefit application with current effective date$/) do |legal_name, new_application_status|
+  @employer_profile = employer_profile(legal_name)
+  app = create_application(new_application_status.to_sym, with_current: true)
   app.update_attributes!(recorded_rating_area: renewal_rating_area) if current_effective_date.month == 2
   app
 end

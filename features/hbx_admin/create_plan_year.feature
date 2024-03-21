@@ -28,7 +28,7 @@ Feature: Create Benefit Application by admin UI
         | draft               | Canceled            | draft_py_effective_on     | Successfully created a draft plan year              |  be created     |
 
     Scenario Outline: Existing <title> Application for confirm  button
-      Given initial employer ABC Widgets has <aasm_state> benefit application
+      Given initial employer ABC Widgets has <aasm_state> benefit application with current effective date
       And that a user with a HBX staff role with Super Admin subrole exists and is logged in
       And the user is on the Employer Index of the Admin Dashboard
       And the user clicks Action for that Employer
@@ -52,7 +52,7 @@ Feature: Create Benefit Application by admin UI
         | Active                | active                | Termination Pending               | Successfully created a draft plan year |
 
   Scenario: Creating New Plan Year while application is in termination_pending aasm_state
-    And initial employer ABC Widgets has active benefit application
+    And initial employer ABC Widgets has active benefit application with current effective date
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer
