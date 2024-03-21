@@ -92,7 +92,7 @@ module BenefitApplicationWorld
     application_start_date = if safe_date
                                safe_application_effective_on(new_application_status) || current_effective_date
                              else
-                                current_effective_date || application_effective_on(new_application_status)
+                               current_effective_date || application_effective_on(new_application_status)
                              end
     application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
@@ -262,7 +262,7 @@ end
 #     employer Acme Inc. has draft benefit application
 And(/^employer (.*) has (?:a |an )?(.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = @organization[legal_name].employer_profile
-  app = create_application(new_application_status.to_sym)
+  app = create_application(new_application_status.to_sym, safe_date: true)
   app.recorded_service_area_ids = [BenefitMarkets::Locations::ServiceArea.where(active_year: app.effective_period.min.year).first.id]
   app.save
   app
