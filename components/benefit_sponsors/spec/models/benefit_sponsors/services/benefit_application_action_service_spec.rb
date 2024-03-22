@@ -10,7 +10,7 @@ module BenefitSponsors
     include_context "setup benefit market with market catalogs and product packages"
 
     include_context "setup initial benefit application" do
-      let(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+      let(:current_effective_date) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
     end
 
     describe '.terminate_application' do
@@ -58,17 +58,54 @@ module BenefitSponsors
           expect(renewal_application.aasm_state).to eq :canceled
         end
       end
+
+      context "when employer has renewing application and initial application termination failed" do
+        let!(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(current_effective_date.next_year) }
+        let!(:renewal_application) do
+          r_app = initial_application.renew
+          r_app.save!
+          r_app
+        end
+        let(:end_on_before_start_on) { initial_application.start_on.to_date - 1.day }
+
+        before do
+          subject.new(initial_application, {end_on: end_on_before_start_on, termination_kind: termination_kind, termination_reason: termination_reason, transmit_to_carrier: false}).terminate_application
+          initial_application.reload
+          renewal_application.reload
+        end
+
+        it 'should not cancel renewal application' do
+          expect(initial_application.aasm_state).to eq :active
+          expect(renewal_application.aasm_state).not_to eq :canceled
+        end
+      end
     end
 
     describe 'cancel_application' do
+      let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
 
-      before do
-        subject.new(initial_application, {transmit_to_carrier: false}).cancel_application
-        initial_application.reload
+      context "cancelling effectuated application" do
+        before do
+          subject.new(initial_application, {transmit_to_carrier: false}).cancel_application
+          initial_application.reload
+        end
+
+        it "should cancel benefit application" do
+          expect(initial_application.aasm_state).to eq :retroactive_canceled
+        end
       end
 
-      it "should cancel benefit application" do
-        expect(initial_application.aasm_state).to eq :canceled
+      context "cancelling non effectuated application" do
+        before do
+          initial_application.update_attributes(aasm_state: :enrollment_ineligible)
+          initial_application.benefit_application_items.create!(state: :enrollment_ineligible, sequence_id: 1, effective_period: effective_period)
+          subject.new(initial_application, {transmit_to_carrier: false}).cancel_application
+          initial_application.reload
+        end
+
+        it "should cancel benefit application" do
+          expect(initial_application.aasm_state).to eq :canceled
+        end
       end
     end
   end

@@ -7,7 +7,6 @@ module BenefitSponsors
 
         params do
           optional(:expiration_date).maybe(:date)
-          required(:effective_period).filled(type?: Range)
           required(:open_enrollment_period).filled(type?: Range)
           optional(:terminated_on).maybe(:date)
           required(:aasm_state).filled(:symbol)
@@ -21,6 +20,14 @@ module BenefitSponsors
           required(:benefit_sponsor_catalog_id).filled(Types::Bson)
           optional(:termination_kind).maybe(:string)
           optional(:termination_reason).maybe(:string)
+          required(:benefit_application_items).array(:hash)
+        end
+
+        rule(:benefit_application_items).each do |key, value|
+          if key? && value
+            result = Validators::BenefitApplications::BenefitApplicationItemContract.new.call(value)
+            key.failure(text: "invalid benefit application item", error: result.errors.to_h) if result&.failure?
+          end
         end
       end
     end

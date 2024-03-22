@@ -41,7 +41,7 @@ RSpec.describe 'upload the invoice to s3', :type => :task, dbclean: :after_each 
       employer_attestation: employer_attestation) 
   end
   let!(:benefit_application) {
-    application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :active, effective_period: effective_period)
+    application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :active, default_effective_period: effective_period)
     application.benefit_sponsor_catalog.save!
     application
   }
