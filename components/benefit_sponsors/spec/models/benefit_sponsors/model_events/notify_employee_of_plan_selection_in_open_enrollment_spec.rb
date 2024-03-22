@@ -12,12 +12,13 @@ module BenefitSponsors
       sponsorship.save
       sponsorship
     end
-    let!(:benefit_application)    { FactoryGirl.create(:benefit_sponsors_benefit_application,
-                                  :with_benefit_package,
-                                  :benefit_sponsorship => benefit_sponsorship,
-                                  :aasm_state => 'active',
-                                  :effective_period =>  start_on..(start_on + 1.year) - 1.day
-    )}
+    let!(:benefit_application)    do
+      FactoryGirl.create(:benefit_sponsors_benefit_application,
+                         :with_benefit_package,
+                         :benefit_sponsorship => benefit_sponsorship,
+                         :aasm_state => 'active',
+                         :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+    end
     let(:person)                  { FactoryGirl.create(:person, :with_family) }
     let(:family)                  { person.primary_family }
     let!(:census_employee)        { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name ) }

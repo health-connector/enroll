@@ -6,6 +6,14 @@
   <div class = "table-responsive table-override"> 
   <h4 class="text-center heading-text"> <%= l10n("exchange.employer_applications.applications").titleize %> </h4>
   <% benefit_applications = @benefit_sponsorship.benefit_applications.non_expired %>
+  <% ba_item_in_last_24_hours = latest_ba_item_within_24_hours(benefit_applications) %>
+  <% action_under_24_hours = ba_item_in_last_24_hours.present? && ::EnrollRegistry.feature_enabled?(:restrict_benefit_application_admin_actions_24_hours) %>
+
+  <% if action_under_24_hours %>
+    <div class="alert alert-info" role="alert">
+      <%=l10n("exchange.employer_applications.admin_action_disabled_info", disabled_until: TimeKeeper.format_date_time(ba_item_in_last_24_hours.created_at + 24.hours))%>
+    </div>
+  <% end %>
   <% if benefit_applications.present? %>
     <table class="table">
       <thead>
@@ -16,7 +24,7 @@
          <th><%= l10n("exchange.employer_applications.oe_start")%></th>
          <th><%= l10n("exchange.employer_applications.oe_end")%></th>
          <th><%= l10n("exchange.employer_applications.created_on")%></th>
-         <th><%= l10n("exchange.employer_applications.terminated_on")%></th>
+         <th><%= l10n("exchange.employer_applications.terminated_on")%>:</th>
          <th><%= l10n("exchange.employer_applications.status")%></th>
          <th></th>
         </tr>
@@ -24,7 +32,7 @@
       <tbody>
         <% benefit_applications.order('start_on DESC').each do |application| %>
           <tr>
-            <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s  %></td>
+            <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s, action_under_24_hours: action_under_24_hours %></td>
             <td><%= (application.start_on.to_date) %></td>
             <td><%= (application.end_on.to_date) %></td>
             <td><%= (application.open_enrollment_period.begin.to_date) %></td>
@@ -38,15 +46,22 @@
                   Actions <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" style="padding:10px">
-                    <li onclick="pyAction('cancel','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
-                    <li onclick="pyAction('terminate','<%= application.id %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
-                    <!-- <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= @benefit_sponsorship.id %>', '<%= application.terminated_on %>', '')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li> -->
+                    <% if ::EnrollRegistry.feature_enabled?(:benefit_application_history) %>
+                      <%= link_to(l10n("exchange.employer_applications.view_history"), exchanges_employer_application_application_history_path(application.id, employer_id: @benefit_sponsorship.id), class: "application-history btn btn-default btn-block",  data: { turbolinks: false }) %>
+                    <% end %>
+                    <li onclick="pyAction('cancel', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
+                    <li onclick="pyAction('terminate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
+                    <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
+                      <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>', '<%= application.start_on.to_date.to_s %>')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li>
+                    <%end%>
+                    <%if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)%>
+                      <li onclick="pyAction('revise_end_date', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="revise-end-date-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.revise_end_date") %></li>
+                    <%end%>
                 </ul>
               </div>
-              
             </td>
           </tr>
-          <% @reasons = BenefitSponsors::BenefitApplications::BenefitApplication::VOLUNTARY_TERM_REASONS %>
+          <% @reasons = BenefitSponsors::BenefitApplications::BenefitApplicationItem::VOLUNTARY_TERM_REASONS %>
           <tr id="<%= application.id %>" class="plan-year-actions hidden">
             <td colspan="2">
               <div class="term_action_radios hidden">
@@ -56,12 +71,14 @@
             </td>
             <td colspan="2">
               <div class="term_action_radios hidden">
-                <%= select_tag "term_reason_#{application.id}", options_for_select(@reasons), onchange: "validateFormat('#{application.id}', '#{TimeKeeper.format_date(application.start_on)}', '#{TimeKeeper.format_date(application.end_on + 1.day)}')", include_blank: l10n("exchange.employer_applications.select_term_reason") %>
+                <%= select_tag "term_reason_#{application.id}", options_for_select(@reasons), onchange: "validateFormat('#{application.id}', '#{TimeKeeper.format_date(application.start_on.to_date)}', '#{TimeKeeper.format_date(application.end_on.to_date + 1.day)}')", include_blank: l10n("exchange.employer_applications.select_term_reason") %>
               </div>
             </td>
             <td colspan="2">
-              <input type="text" class="uidatepicker form-control date py-end-date" style="width:120px" placeholder="Select Term Date" id="date_picker_<%= application.id %>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on) %>', '<%= TimeKeeper.format_date(application.end_on + 1.day) %>')"> <span class="glyphicon glyphicon-calendar" id="calendar_icon" style="font-size:1.5em" aria-hidden="true" ></span>
+              <input type="text" class="uidatepicker form-control date py-end-date" placeholder="Select Term Date" id="date_picker_<%= application.id %>" reinstate_start_date="<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>" onchange="validateFormat('<%= application.id %>', '<%= TimeKeeper.format_date(application.start_on.to_date) %>', '<%= TimeKeeper.format_date(application.initial_effective_period.max.to_date.next_day) %>')">
+              <span class="fa fa-calendar" id="calendar_icon" style="font-size:1.5em" aria-hidden="true"></span>
             </td>
+
             <td colspan="2">
               <%= check_box_tag 'transmit_to_carrier', 'transmit_to_carrier', true, disabled: true  %> <%= l10n("exchange.employer_applications.transmit_to_carrier") %>
             </td>
@@ -79,6 +96,14 @@
 
 <div class="attestation_form"></div>
 </div>
+
+<%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
+  <%= render "exchanges/employer_applications/reinstate_benefit_application_modal" %>
+<%end%>
+
+<%if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)%>
+  <%= render "exchanges/employer_applications/revise_end_date_benefit_application_modal" %>
+<%end%>
 
 <script type="text/javascript" charset="utf-8">
   initializeDataTables();
