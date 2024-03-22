@@ -4,7 +4,7 @@ Feature: As an admin user I should have the ability to click application history
     And a CCA site exists with a benefit market
     And benefit market catalog exists for <from_state> initial employer with health benefits
     And there is an employer ABC Widgets
-    And initial employer ABC Widgets has <from_state> benefit application
+    And initial employer ABC Widgets has <from_state> benefit application with current effective date
     And that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard
     When the user clicks Action for that Employer
