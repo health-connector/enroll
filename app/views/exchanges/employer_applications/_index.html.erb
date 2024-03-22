@@ -1,11 +1,11 @@
 <style type="text/css">
-  
+
 </style>
 
 <div class="container" id="employer_applications_table">
-  <div class = "table-responsive table-override"> 
+  <div class = "table-responsive table-override">
   <h4 class="text-center heading-text"> <%= l10n("exchange.employer_applications.applications").titleize %> </h4>
-  <% benefit_applications = @benefit_sponsorship.benefit_applications.non_expired %>
+  <% benefit_applications = @benefit_sponsorship.benefit_applications %>
   <% ba_item_in_last_24_hours = latest_ba_item_within_24_hours(benefit_applications) %>
   <% action_under_24_hours = ba_item_in_last_24_hours.present? && ::EnrollRegistry.feature_enabled?(:restrict_benefit_application_admin_actions_24_hours) %>
 
@@ -39,7 +39,7 @@
             <td><%= (application.open_enrollment_period.end.to_date) %></td>
             <td><%= (application.created_at.to_datetime) %></td>
             <td><%= (application.terminated_on.to_datetime) if application.terminated_on.present? %></td>
-            <td><%= benefit_application_summarized_state(application) %></td>
+            <td data-cuke='application_status'><%= benefit_application_summarized_state(application) %></td>
             <td colspan="1">
               <div class="btn-group" id="plan-year-btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle disabled py-btn-grp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
