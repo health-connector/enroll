@@ -34,7 +34,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'POST create' do
     context 'When create a question with invalid params' do
       before { post :create, params: { security_question: { title: nil } } }
-      it { expect(assigns(:question).title).to be_nil }
+      it { expect(assigns(:question).title).to be_empty }
       it { expect(assigns(:question).errors.full_messages).to eq(['Title can\'t be blank']) }
       it { expect(response).to have_http_status(:success) }
       it { expect(response).to render_template('exchanges/security_questions/new') }
