@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_benefit_group_id")
 describe UpdateBenefitGroupId, dbclean: :after_each do
@@ -25,7 +27,7 @@ describe UpdateBenefitGroupId, dbclean: :after_each do
     it "should update benefit group id" do
       ClimateControl.modify(
         benefit_group_id: benefit_group.id,
-        enrollment_hbx_id: hbx2.hbx_id,
+        enrollment_hbx_id: hbx2.hbx_id
       ) do
         subject.migrate
         person.primary_family.active_household.hbx_enrollments.first.reload

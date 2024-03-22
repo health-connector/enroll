@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "notify_renewal_employees_dental_carriers_exiting_shop")
 
@@ -16,7 +18,7 @@ describe NotifyRenewalEmployeesDentalCarriersExitingShop do
     let!(:person) { FactoryBot.create(:person, hbx_id: "19877154") }
     let!(:employer_profile) { create(:employer_with_planyear)}
     let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person) }
-    let!(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household, coverage_kind: "dental", kind: "employer_sponsored", plan_id: plan.id, employee_role_id: employee_role.id )}
+    let!(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household, coverage_kind: "dental", kind: "employer_sponsored", plan_id: plan.id, employee_role_id: employee_role.id)}
     let!(:organization) {FactoryBot.create(:organization, legal_name: "Delta Dental")}
     let!(:carrier_profile) {FactoryBot.create(:carrier_profile, organization: organization)}
     let!(:plan) {FactoryBot.create(:plan, :with_dental_coverage, carrier_profile: carrier_profile)}
@@ -39,7 +41,7 @@ describe NotifyRenewalEmployeesDentalCarriersExitingShop do
 
         expect(queued_job[:args]).not_to be_empty
         expect(queued_job[:args].include?('notify_renewal_employees_dental_carriers_exiting_shop')).to be_truthy
-        expect(queued_job[:args].include?("#{hbx_enrollment.census_employee.id.to_s}")).to be_truthy
+        expect(queued_job[:args].include?(hbx_enrollment.census_employee.id.to_s)).to be_truthy
         expect(queued_job[:args].third["hbx_enrollment"]).to eq hbx_enrollment.hbx_id.to_s
       end
     end

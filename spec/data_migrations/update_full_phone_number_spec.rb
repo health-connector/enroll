@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_full_phone_number")
 
@@ -20,7 +22,7 @@ describe UpdateFullPhoneNumber, dbclean: :after_each do
       let(:params) { {kind: "home", person: person} }
       let(:phone) { Phone.create(**params) }
       before :each do
-        phone.number ="1234567"
+        phone.number = "1234567"
         phone.area_code = "987"
         phone.extension = "456"
         phone.save!
@@ -39,13 +41,15 @@ describe UpdateFullPhoneNumber, dbclean: :after_each do
     context "get office phones" do
       let(:organization) { FactoryBot.create(:organization) }
       let(:phone) { FactoryBot.build(:phone) }
-      let(:valid_params) { {
+      let(:valid_params) do
+        {
           organization: organization,
           phone: phone
-      } }
+        }
+      end
       let(:office_location) { [OfficeLocation.create(**valid_params)] }
       before :each do
-        organization.office_locations.first.phone.number ="2222222"
+        organization.office_locations.first.phone.number = "2222222"
         organization.office_locations.first.phone.area_code = "456"
         organization.office_locations.first.phone.extension = "908"
         organization.office_locations.first.phone.unset(:full_phone_number)

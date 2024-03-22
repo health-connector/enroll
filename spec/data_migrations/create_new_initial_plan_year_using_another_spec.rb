@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "create_new_initial_plan_year_using_another")
 
@@ -10,7 +12,7 @@ describe CreateNewInitialPlanYearUsingAnother, dbclean: :around_each do
   let(:organization) { employer_profile.organization }
   let(:start_on) { "01012017" }
   let!(:rating_area) { RatingArea.first || FactoryBot.create(:rating_area)  }
-  let!(:employer_attestation) { FactoryBot.create(:employer_attestation,aasm_state:'approved',employer_profile:employer_profile) }
+  let!(:employer_attestation) { FactoryBot.create(:employer_attestation,aasm_state: 'approved',employer_profile: employer_profile) }
   let!(:document) { FactoryBot.create(:employer_attestation_document, aasm_state: 'accepted', employer_attestation: employer_attestation) }
 
   describe "create_initial_plan_year", dbclean: :after_each do

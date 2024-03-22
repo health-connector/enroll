@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_user_or_person_records")
 
@@ -89,7 +91,7 @@ describe UpdateUserOrPersonRecords, dbclean: :after_each do
     context "create email record on person" do
       context "if you say 'yes' to create a new email" do
         before do
-          allow(STDIN).to receive(:gets).and_return "yes"
+          allow($stdin).to receive(:gets).and_return "yes"
         end
 
         around do |example|
@@ -120,7 +122,7 @@ describe UpdateUserOrPersonRecords, dbclean: :after_each do
 
       context "if you say 'no' to create a new email" do
         before do
-          allow(STDIN).to receive(:gets).and_return "no"
+          allow($stdin).to receive(:gets).and_return "no"
         end
 
         around do |example|

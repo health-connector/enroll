@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'merge_ee_and_er_accounts')
 
@@ -16,7 +18,7 @@ describe MergeEeAndErAccounts, dbclean: :after_each do
 
     let!(:user) { FactoryBot.create(:user, person: employer_staff_role.person)}
     let(:person)  {FactoryBot.create(:person,:with_employee_role, :with_ssn, hbx_id: '1234567')}
-    let(:employer_staff_role) {FactoryBot.create(:employer_staff_role,employer_profile_id:employer_profile.id)}
+    let(:employer_staff_role) {FactoryBot.create(:employer_staff_role,employer_profile_id: employer_profile.id)}
     let(:employer_profile){FactoryBot.create(:employer_profile)}
 
     context 'giving a new state' do

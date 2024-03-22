@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'move_employer_staff_role_between_two_people')
 

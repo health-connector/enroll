@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'update_employee_role_id')
 
@@ -15,12 +17,13 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
     let(:current_effective_date)  { TimeKeeper.date_of_record.next_month.beginning_of_month }
     let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:issuer_profile)     { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
-    let!(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                           benefit_market: benefit_market,
-                                           title: 'SHOP Benefits for #{current_effective_date.year}',
-                                           issuer_profile: issuer_profile,
-                                           application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
-    }
+    let!(:benefit_market_catalog) do
+      create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+             benefit_market: benefit_market,
+             title: "SHOP Benefits for #{current_effective_date.year}",
+             issuer_profile: issuer_profile,
+             application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
+    end
     let(:benefit_market)      { site.benefit_markets.first }
     let!(:product_package) { benefit_market_catalog.product_packages.first }
 
@@ -40,7 +43,8 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
         organization: organization,
         profile_id: organization.profiles.first.id,
         benefit_market: site.benefit_markets[0],
-        employer_attestation: employer_attestation)
+        employer_attestation: employer_attestation
+      )
     end
 
     let(:start_on)  { current_effective_date }
@@ -49,29 +53,30 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
       application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active)
       application.benefit_sponsor_catalog.save!
       application
-    }
+    end
 
     let!(:benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
     let(:benefit_group_assignment) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)}
 
     let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-    let(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee,
-                                              employer_profile: benefit_sponsorship.profile,
-                                              benefit_sponsorship: benefit_sponsorship,
-                                              benefit_group_assignments: [benefit_group_assignment]    )}
+    let(:census_employee) do
+      FactoryBot.create(:benefit_sponsors_census_employee,
+                        employer_profile: benefit_sponsorship.profile,
+                        benefit_sponsorship: benefit_sponsorship,
+                        benefit_group_assignments: [benefit_group_assignment])
+    end
     let(:person) { FactoryBot.create(:person) }
     let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
 
     let!(:hbx_enrollment) do
       FactoryBot.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         effective_on: start_on,
-                         employee_role_id: "111111111",
-                         sponsored_benefit_package_id: benefit_package.id,
-                         benefit_group_assignment_id: benefit_group_assignment.id,
-                         aasm_state: 'coverage_selected'
-      )
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        effective_on: start_on,
+                        employee_role_id: "111111111",
+                        sponsored_benefit_package_id: benefit_package.id,
+                        benefit_group_assignment_id: benefit_group_assignment.id,
+                        aasm_state: 'coverage_selected')
     end
 
     context 'update employee role id on the enrollments', dbclean: :after_each  do
@@ -104,7 +109,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
     context 'update employee role id on the census_employee', dbclean: :after_each  do
       before :each do
         employee_role.person.save!
-        person.active_employee_roles.first.census_employee.update_attributes!(employee_role_id: employee_role.id )
+        person.active_employee_roles.first.census_employee.update_attributes!(employee_role_id: employee_role.id)
       end
 
       around do |example|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "exchange_ssn_between_two_accounts")
 describe ChangeFein do
@@ -10,20 +12,21 @@ describe ChangeFein do
     end
   end
   describe "change ssn if both people exits and both have ssn" do
-    let(:person1){ FactoryBot.create(:person,ssn:"123123123")}
-    let(:person2){FactoryBot.create(:person,ssn:"456456456")}
+    let(:person1){ FactoryBot.create(:person,first_name: 'bob', ssn: "123123123")}
+    let(:person2){FactoryBot.create(:person,ssn: "456456456")}
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("hbx_id_1").and_return(person1.hbx_id)
-      allow(ENV).to receive(:[]).with("hbx_id_2").and_return(person2.hbx_id)
-    end
-    after(:each) do
-      DatabaseCleaner.clean
+    around do |example|
+      ClimateControl.modify hbx_id_1: person1.hbx_id, hbx_id_2: person2.hbx_id do
+        example.run
+        DatabaseCleaner.clean
+      end
     end
 
     it "should change ssn of two people" do
-      ssn1=person1.ssn
-      ssn2=person2.ssn
+      person1.reload
+      person2.reload
+      ssn1 = person1.ssn
+      ssn2 = person2.ssn
       subject.migrate
       person1.reload
       person2.reload
@@ -32,19 +35,21 @@ describe ChangeFein do
     end
   end
   describe "not change ssn if either people not exist" do
-    let(:person1){ FactoryBot.create(:person,ssn:"123123123")}
-    let(:person2){FactoryBot.create(:person,ssn:"456456456")}
+    let(:person1){ FactoryBot.create(:person,ssn: "123123123")}
+    let(:person2){FactoryBot.create(:person,ssn: "456456456")}
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("hbx_id_1").and_return("")
-      allow(ENV).to receive(:[]).with("hbx_id_2").and_return(person2.hbx_id)
+    around do |example|
+      ClimateControl.modify hbx_id_1: '', hbx_id_2: person2.hbx_id do
+        example.run
+        DatabaseCleaner.clean
+      end
     end
-    after(:each) do
-      DatabaseCleaner.clean
-    end
+
     it "should change ssn of two people" do
-      ssn1=person1.ssn
-      ssn2=person2.ssn
+      person1.reload
+      person2.reload
+      ssn1 = person1.ssn
+      ssn2 = person2.ssn
       subject.migrate
       person1.reload
       person2.reload
@@ -53,19 +58,21 @@ describe ChangeFein do
     end
   end
   describe "not change ssn if either people has no ssn" do
-    let(:person1){ FactoryBot.create(:person,ssn:"123123123")}
+    let(:person1){ FactoryBot.create(:person,ssn: "123123123")}
     let(:person2){FactoryBot.create(:person)}
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("hbx_id_1").and_return(person1.hbx_id)
-      allow(ENV).to receive(:[]).with("hbx_id_2").and_return(person2.hbx_id)
+    around do |example|
+      ClimateControl.modify hbx_id_1: person1.hbx_id, hbx_id_2: person2.hbx_id do
+        example.run
+        DatabaseCleaner.clean
+      end
     end
-    after(:each) do
-      DatabaseCleaner.clean
-    end
+
     it "should change ssn of two people" do
-      ssn1=person1.ssn
-      ssn2=person2.ssn
+      person1.reload
+      person2.reload
+      ssn1 = person1.ssn
+      ssn2 = person2.ssn
       subject.migrate
       person1.reload
       person2.reload

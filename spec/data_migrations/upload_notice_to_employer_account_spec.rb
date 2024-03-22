@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "upload_notice_to_employer_account")
 
@@ -12,11 +14,13 @@ describe UploadNoticeToEmployerAccount, dbclean: :after_each do
   let(:doc_id) { "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}{#sample-key" }
   let(:employer_profile) { organization.employer_profile}
 
-  let(:notice_env_support) { {
-    fein: organization.fein,
-    notice_name: 'Special Enrollment Denial Notice',
-    file_path:file_path
-  }}
+  let(:notice_env_support) do
+    {
+      fein: organization.fein,
+      notice_name: 'Special Enrollment Denial Notice',
+      file_path: file_path
+    }
+  end
 
   def with_modified_env(options, &block)
     ClimateControl.modify(options, &block)

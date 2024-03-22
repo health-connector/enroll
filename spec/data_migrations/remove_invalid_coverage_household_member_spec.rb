@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'remove_invalid_coverage_household_member')
 
@@ -30,7 +32,7 @@ describe RemoveInvalidCoverageHouseholdMember, dbclean: :after_each do
       subject.migrate
       person.reload
       family.reload
-      expect(family.active_household.immediate_family_coverage_household.coverage_household_members.size) == size-1
+      expect(family.active_household.immediate_family_coverage_household.coverage_household_members.size) == size - 1
     end
 
     it 'should remove a family member to household' do

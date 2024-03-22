@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   require File.join(Rails.root, "app", "data_migrations", "remove_resident_role")
@@ -19,7 +21,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       let!(:primary_family) { FactoryBot.create(:family, :with_primary_family_member, person: person2) }
       let!(:ivl_enrollment) do
         FactoryBot.create(:hbx_enrollment, :individual_unassisted, household: primary_family.active_household,
-                          kind: 'coverall', consumer_role_id: person2.consumer_role.id)
+                                                                   kind: 'coverall', consumer_role_id: person2.consumer_role.id)
       end
       let!(:r_role) {FactoryBot.create(:resident_role, person: person2)}
 
@@ -53,11 +55,11 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "remove resident role for person with coverall enrollment and no consumer_role", dbclean: :after_each do
-      let!(:person1) {FactoryBot.create(:person, :with_resident_role, ssn: 123654321)}
+      let!(:person1) {FactoryBot.create(:person, :with_resident_role, ssn: 123_654_321)}
       let!(:primary_family) {FactoryBot.create(:family, :with_primary_family_member, person: person1)}
       let!(:ivl_enrollment) do
         FactoryBot.create(:hbx_enrollment, :individual_unassisted, household: primary_family.active_household,
-                          kind: 'coverall', resident_role_id: person1.resident_role.id)
+                                                                   kind: 'coverall', resident_role_id: person1.resident_role.id)
       end
       let!(:ee_role) {FactoryBot.create(:employee_role, person: person1)}
 
@@ -91,14 +93,14 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "remove resident role for all family members with resident role and no consumer_role", dbclean: :after_each do
-      let!(:person1) {FactoryBot.create(:person, :with_resident_role, ssn: 123654321)}
-      let!(:dep1) {FactoryBot.create(:person, :with_resident_role, ssn: 123654322)}
-      let!(:dep2) {FactoryBot.create(:person, :with_resident_role, ssn: 123654323)}
+      let!(:person1) {FactoryBot.create(:person, :with_resident_role, ssn: 123_654_321)}
+      let!(:dep1) {FactoryBot.create(:person, :with_resident_role, ssn: 123_654_322)}
+      let!(:dep2) {FactoryBot.create(:person, :with_resident_role, ssn: 123_654_323)}
       let!(:primary_family) {FactoryBot.create(:family, :with_primary_family_member, person: person1)}
       let!(:fam_mem1) {FactoryBot.create(:family_member, family: primary_family)}
       let!(:ivl_enrollment) do
         FactoryBot.create(:hbx_enrollment, :individual_unassisted, household: primary_family.active_household,
-                          kind: 'coverall', resident_role_id: person1.resident_role.id)
+                                                                   kind: 'coverall', resident_role_id: person1.resident_role.id)
       end
 
       let!(:ee_role) {FactoryBot.create(:employee_role, person: person1)}

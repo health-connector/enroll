@@ -1,7 +1,13 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "add_family_member_to_coverage_household")
 
 describe AddFamilyMemberToCoverageHousehold, dbclean: :after_each do
+
+  def with_modified_env(options, &block)
+    ClimateControl.modify(options, &block)
+  end
 
   let(:given_task_name) { "add_family_member_to_coverage_household" }
   subject { AddFamilyMemberToCoverageHousehold.new(given_task_name, double(:current_scope => nil)) }
@@ -13,38 +19,45 @@ describe AddFamilyMemberToCoverageHousehold, dbclean: :after_each do
   end
 
   describe "add family member to coverage household", dbclean: :after_each do
-
-    let!(:person) { FactoryBot.create(:person, :with_family) }
-    let!(:dependent) { FactoryBot.create(:person) }
-    let!(:family_member) { FactoryBot.create(:family_member, family: person.primary_family ,person: dependent)}
-    let!(:coverage_household_member) { coverage_household.coverage_household_members.new(:family_member_id => family_member.id) }
-    let(:primary_family){person.primary_family}
-    let(:coverage_household){person.primary_family.active_household.immediate_family_coverage_household}
+    let!(:person) { FactoryBot.create(:person) }
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person) }
 
     before do
-      allow(ENV).to receive(:[]).with('primary_hbx_id').and_return person.hbx_id
+      @dependent = FactoryBot.create(:person)
+      @dep_member = FactoryBot.create(:family_member, family: family, person: @dependent)
+      person.person_relationships << PersonRelationship.new(relative_id: @dependent.id, kind: 'child')
+      person.save!
     end
 
-    it "should add a family member to immediate family coverage household" do
-      allow(ENV).to receive(:[]).with('dependent_hbx_id').and_return dependent.hbx_id
-      expect(coverage_household.coverage_household_members.size).to eq 2
-      chm = coverage_household.coverage_household_members[1]
-      chm.destroy!
-      expect(coverage_household.coverage_household_members.size).to eq 1
-      subject.migrate
-      primary_family.active_household.reload
-      expect(coverage_household.coverage_household_members.size).to eq 1
+    let(:fm_env_support) {{primary_hbx_id: person.hbx_id, dependent_hbx_id: @dependent.hbx_id}}
+
+    context 'active family member' do
+      it 'should add coverage household member to immediate family coverage household' do
+        with_modified_env fm_env_support do
+          expect(family.active_household.coverage_households.first.coverage_household_members.count).to eq 1
+          subject.migrate
+          family.reload
+          family.active_household.reload
+          expect(family.active_household.coverage_households.first.coverage_household_members.count).to eq 2
+        end
+      end
     end
 
-    it "should add a primary applicant to immediate family coverage household" do
-      allow(ENV).to receive(:[]).with('dependent_hbx_id').and_return person.hbx_id
-      expect(coverage_household.coverage_household_members.size).to eq 2
-      chm = coverage_household.coverage_household_members[0]
-      chm.destroy!
-      expect(coverage_household.coverage_household_members.size).to eq 1
-      subject.migrate
-      primary_family.active_household.reload
-      expect(coverage_household.coverage_household_members.size).to eq 1
+    context 'inactive family member' do
+      before do
+        @dep_member.update_attributes!(is_active: false)
+        @dep_member.save!
+      end
+
+      it 'should not add coverage household member to immediate family coverage household' do
+        with_modified_env fm_env_support do
+          expect(family.active_household.coverage_households.first.coverage_household_members.count).to eq 1
+          subject.migrate
+          family.reload
+          family.active_household.reload
+          expect(family.active_household.coverage_households.first.coverage_household_members.count).to eq 1
+        end
+      end
     end
   end
 end

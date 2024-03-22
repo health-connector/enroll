@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 require File.join(Rails.root, 'app', 'data_migrations', 'fix_plan_years_to_obey_minimum_open_enrollment_period')

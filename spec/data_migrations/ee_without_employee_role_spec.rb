@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "ee_without_employee_role")
 
@@ -17,15 +19,15 @@ describe EeWithoutEmployeeRole, dbclean: :after_each do
     let(:benefit_group) { FactoryBot.create(:benefit_group)}
     let(:active_plan_year)  { FactoryBot.build(:plan_year, aasm_state: 'active', benefit_groups: [benefit_group])}
     let(:employer_profile) { FactoryBot.create(:employer_profile, plan_years: [active_plan_year])}
-    let(:organization) { FactoryBot.create(:organization, employer_profile:employer_profile)}
-    let(:census_employee1) { FactoryBot.create(:census_employee, employer_profile:employer_profile)}
-    let(:census_employee2) { FactoryBot.create(:census_employee, aasm_state:'eligible', employer_profile:employer_profile)}
-    let(:employee_role1) { FactoryBot.create(:employee_role, person:person, census_employee:census_employee1, employer_profile_id:employer_profile.id)}
-    let(:employee_role2) { FactoryBot.create(:employee_role, person:person, census_employee:census_employee2, employer_profile_id:employer_profile.id)}
+    let(:organization) { FactoryBot.create(:organization, employer_profile: employer_profile)}
+    let(:census_employee1) { FactoryBot.create(:census_employee, employer_profile: employer_profile)}
+    let(:census_employee2) { FactoryBot.create(:census_employee, aasm_state: 'eligible', employer_profile: employer_profile)}
+    let(:employee_role1) { FactoryBot.create(:employee_role, person: person, census_employee: census_employee1, employer_profile_id: employer_profile.id)}
+    let(:employee_role2) { FactoryBot.create(:employee_role, person: person, census_employee: census_employee2, employer_profile_id: employer_profile.id)}
 
     before do
       allow(person).to receive(:employee_roles).and_return([employee_role1, employee_role2])
-      census_employee1.update_attributes!(aasm_state:"rehired", employee_role_id: employee_role1.id)
+      census_employee1.update_attributes!(aasm_state: "rehired", employee_role_id: employee_role1.id)
     end
 
     context "for census employee without an employee role" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Spec for Migrating Broker Organizations
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "migrate_brokers_as_exempt_organizations")

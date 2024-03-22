@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "group_conversion_employers_migration")
 
@@ -29,7 +31,7 @@ describe GroupConversionEmployersMigration, dbclean: :after_each do
       # rake is doing a job of date specific check on employer plan year
       TimeKeeper.set_date_of_record_unprotected!(Date.new(2016,10,15))
       organization.employer_profile.update_attributes(profile_source: "conversion", aasm_state: "eligible")
-      census_employee.update_attributes(:employee_role =>  employee_role, :employee_role_id =>  employee_role.id)
+      census_employee.update_attributes(:employee_role => employee_role, :employee_role_id => employee_role.id)
       hbx_enrollment.update_attribute(:benefit_group_id, organization.employer_profile.plan_years.where(aasm_state: "active").first.benefit_groups.first.id)
       organization.employer_profile.plan_years.where(:aasm_state => "expired").first.update(is_conversion: true)
     end

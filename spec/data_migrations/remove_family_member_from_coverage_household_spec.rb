@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_family_member_from_coverage_household")
 
@@ -8,19 +10,23 @@ describe RemoveFamilyMemberFromCoverageHousehold, dbclean: :after_each do
   let!(:employee_role)  {FactoryBot.create(:employee_role, person: person)}
 
 
-  let(:family_env_support) { {
-    person_hbx_id: person.hbx_id,
-    family_member_id: family_member1.id,
-    person_first_name: family_member1.person.first_name,
-    person_last_name: family_member1.person.last_name,
-    action: "RemoveDuplicateMembers"
-  }}
+  let(:family_env_support) do
+    {
+      person_hbx_id: person.hbx_id,
+      family_member_id: family_member1.id,
+      person_first_name: family_member1.person.first_name,
+      person_last_name: family_member1.person.last_name,
+      action: "RemoveDuplicateMembers"
+    }
+  end
 
-  let(:coverage_env_support) { {
-    person_hbx_id: person.hbx_id,
-    family_member_id: family_member1.id,
-    action: "RemoveCoverageHouseholdMember"
-  }}
+  let(:coverage_env_support) do
+    {
+      person_hbx_id: person.hbx_id,
+      family_member_id: family_member1.id,
+      action: "RemoveCoverageHouseholdMember"
+    }
+  end
 
   def with_modified_env(options, &block)
     ClimateControl.modify(options, &block)

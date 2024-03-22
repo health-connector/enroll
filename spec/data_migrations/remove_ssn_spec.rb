@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_ssn")
 
@@ -12,11 +14,11 @@ describe RemoveSsn do
   end
 
   describe "changing person ssn" do
-    let(:person) { FactoryBot.create(:person, ssn:"123123123")}
+    let(:person) { FactoryBot.create(:person, ssn: "123123123")}
 
     it "should change person ssn to nil" do
-      ClimateControl.modify person_hbx_id: "#{person.hbx_id}" do
-        ssn=person.ssn
+      ClimateControl.modify person_hbx_id: person.hbx_id.to_s do
+        ssn = person.ssn
         expect(person.ssn).to eq ssn
         subject.migrate
         person.reload

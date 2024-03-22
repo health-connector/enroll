@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_enrollment_details")
 
@@ -36,7 +38,9 @@ describe ChangeEnrollmentDetails do
     let!(:benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
     let!(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
     let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, sponsored_benefit_package_id: benefit_package.id, household: family.active_household)}
-    let!(:benefit_group_assignment) {FactoryBot.create(:benefit_group_assignment, census_employee: census_employee,  benefit_package: benefit_package, hbx_enrollment: hbx_enrollment, start_on: benefit_application.start_on, aasm_state: "coverage_selected") }
+    let!(:benefit_group_assignment) do
+      FactoryBot.create(:benefit_group_assignment, census_employee: census_employee,  benefit_package: benefit_package, hbx_enrollment: hbx_enrollment, start_on: benefit_application.start_on, aasm_state: "coverage_selected")
+    end
     let(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship) }
 
     before(:each) do

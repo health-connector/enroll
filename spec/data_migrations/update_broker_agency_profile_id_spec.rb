@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'update_broker_agency_profile_id')
 
@@ -23,7 +25,7 @@ describe UpdateBrokerAgencyProfileId, dbclean: :after_each do
       broker_agency.broker_agency_profile.update_attributes(primary_broker_role: broker_role)
       broker_role.update_attributes(broker_agency_profile: broker_agency.broker_agency_profile)
       broker_agency.broker_agency_profile.approve!
-      @broker_agency_staff_role = FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id:broker_agency_profile.id,person: person)
+      @broker_agency_staff_role = FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id,person: person)
       allow(Person).to receive(:where).and_return([person])
       allow(person).to receive(:broker_role).and_return(broker_role)
     end

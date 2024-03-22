@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_benefit_package")
 
@@ -25,7 +27,7 @@ describe RemoveBenefitPackage, dbclean: :after_each do
 
 
     it "should remove the benefit package" do
-      ClimateControl.modify fein:employer_profile.parent.fein, aasm_state: plan_year.aasm_state, id: benefit_group.id, existing_bg_id: benefit_group_two.id, new_name_for_bg: "new_title" do
+      ClimateControl.modify fein: employer_profile.parent.fein, aasm_state: plan_year.aasm_state, id: benefit_group.id, existing_bg_id: benefit_group_two.id, new_name_for_bg: "new_title" do
         expect(plan_year.benefit_groups.size).to eq 2
         subject.migrate
         plan_year.reload
@@ -34,7 +36,7 @@ describe RemoveBenefitPackage, dbclean: :after_each do
     end
 
     it "should remove the benefit group assignments and enrollments" do
-      ClimateControl.modify fein:employer_profile.parent.fein, aasm_state: plan_year.aasm_state, id: benefit_group.id, existing_bg_id: benefit_group_two.id, new_name_for_bg: "new_title" do
+      ClimateControl.modify fein: employer_profile.parent.fein, aasm_state: plan_year.aasm_state, id: benefit_group.id, existing_bg_id: benefit_group_two.id, new_name_for_bg: "new_title" do
         expect(benefit_group.benefit_group_assignments.first.hbx_enrollments.size).to eq 1
         expect(benefit_group.benefit_group_assignments.size).to eq 1
         subject.migrate
@@ -44,7 +46,7 @@ describe RemoveBenefitPackage, dbclean: :after_each do
     end
 
     it "should change the benefit group title" do
-      ClimateControl.modify fein:employer_profile.parent.fein, aasm_state: plan_year.aasm_state, id: benefit_group.id, existing_bg_id: benefit_group_two.id, new_name_for_bg: "new_title" do
+      ClimateControl.modify fein: employer_profile.parent.fein, aasm_state: plan_year.aasm_state, id: benefit_group.id, existing_bg_id: benefit_group_two.id, new_name_for_bg: "new_title" do
         subject.migrate
         plan_year.reload
         expect(plan_year.benefit_groups.first.title).to eq "New title"

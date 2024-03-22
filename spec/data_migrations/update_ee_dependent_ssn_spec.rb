@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_ee_dependent_ssn")
 
@@ -6,7 +8,7 @@ describe UpdateEeDependentSSN, dbclean: :after_each do
   let(:given_task_name) { "update_ee_dependent_ssn" }
   subject { UpdateEeDependentSSN.new(given_task_name, double(:current_scope => nil)) }
   let(:census_employee)  { FactoryBot.create(:census_employee)}
-  let(:census_dependent) { CensusDependent.new(first_name:'David', last_name:'Henry', ssn: "", employee_relationship: "spouse", dob: TimeKeeper.date_of_record - 30.years, gender: "male") }
+  let(:census_dependent) { CensusDependent.new(first_name: 'David', last_name: 'Henry', ssn: "", employee_relationship: "spouse", dob: TimeKeeper.date_of_record - 30.years, gender: "male") }
   let(:census_env_params) {{ce_id: census_employee.id, dep_id: census_dependent.id, dep_ssn: census_dependent.ssn}}
 
 

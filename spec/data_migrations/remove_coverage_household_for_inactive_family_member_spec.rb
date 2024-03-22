@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_coverage_household_member_for_inactive_family_member")
 
@@ -17,19 +19,19 @@ describe RemoveCoverageHouseHoldMemberForInactiveFamilyMember, dbclean: :after_e
     let(:family_member){ FactoryBot.create(:family_member,family: family)}
 
     it "should remove an inactive family member to household" do
-      ClimateControl.modify person_hbx_id: person.hbx_id, family_member_hbx_id:family_member.hbx_id do
+      ClimateControl.modify person_hbx_id: person.hbx_id, family_member_hbx_id: family_member.hbx_id do
         family.active_household.immediate_family_coverage_household.coverage_household_members.new(:is_subscriber => true, :family_member_id => "567678789")
         family.active_household.immediate_family_coverage_household.save
         size = family.active_household.immediate_family_coverage_household.coverage_household_members.size
         subject.migrate
         person.reload
         family.reload
-        expect(family.active_household.immediate_family_coverage_household.coverage_household_members.size) == size-1
+        expect(family.active_household.immediate_family_coverage_household.coverage_household_members.size) == size - 1
       end
     end
 
     it "should not remove any family member from coverage household member" do
-      ClimateControl.modify person_hbx_id: person.hbx_id, family_member_hbx_id:family_member.hbx_id do
+      ClimateControl.modify person_hbx_id: person.hbx_id, family_member_hbx_id: family_member.hbx_id do
         size = family.active_household.immediate_family_coverage_household.coverage_household_members.size
         subject.migrate
         person.reload

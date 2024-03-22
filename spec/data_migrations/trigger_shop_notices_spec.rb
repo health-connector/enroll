@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "trigger_shop_notices")
 
@@ -17,7 +19,7 @@ describe TriggerShopNotices, dbclean: :after_each do
     let(:employer_profile2){ FactoryBot.create(:employer_profile) }
 
     it "should trigger employer_notice job in queue" do
-      ClimateControl.modify recipient_ids:"#{employer_profile1.fein}, #{employer_profile2.fein}",event:'initial_employer_ineligibility_notice', action:'employer_notice' do
+      ClimateControl.modify recipient_ids: "#{employer_profile1.fein}, #{employer_profile2.fein}",event: 'initial_employer_ineligibility_notice', action: 'employer_notice' do
 
         ActiveJob::Base.queue_adapter = :test
         ActiveJob::Base.queue_adapter.enqueued_jobs = []

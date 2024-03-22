@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "move_domestic_partner_relation_to_immediate_family")
 describe MoveDomesticPartnerRelationToImmediateFamily, dbclean: :after_each do
@@ -10,7 +12,7 @@ describe MoveDomesticPartnerRelationToImmediateFamily, dbclean: :after_each do
   end
 
   describe "move domestic partner relation to immediate family", dbclean: :after_each do
-    let(:family) {
+    let(:family) do
       family = FactoryBot.build(:family, :with_primary_family_member_and_dependent)
       primary_person = family.family_members.where(is_primary_applicant: true).first.person
       other_person = family.family_members.where(is_primary_applicant: false).first.person
@@ -21,7 +23,7 @@ describe MoveDomesticPartnerRelationToImmediateFamily, dbclean: :after_each do
       other_person.save
       family.save
       family
-    }
+    end
 
     let(:immediate_ch) { CoverageHousehold.new(is_immediate_family: true)}
     let(:non_immediate_ch) { CoverageHousehold.new(is_immediate_family: false)}
@@ -37,14 +39,14 @@ describe MoveDomesticPartnerRelationToImmediateFamily, dbclean: :after_each do
       size = family.active_household.coverage_households.where(is_immediate_family: false).first.coverage_household_members.size
       subject.migrate
       family.active_household.reload
-      expect(family.active_household.coverage_households.where(is_immediate_family: false).first.coverage_household_members.size).to eq size-1
+      expect(family.active_household.coverage_households.where(is_immediate_family: false).first.coverage_household_members.size).to eq size - 1
     end
 
     it "should have the domestic_partner member under immediate coverage household" do
       size = family.active_household.coverage_households.where(is_immediate_family: true).first.coverage_household_members.size
       subject.migrate
       family.active_household.reload
-      expect(family.active_household.coverage_households.where(is_immediate_family: true).first.coverage_household_members.size).to eq size+1
+      expect(family.active_household.coverage_households.where(is_immediate_family: true).first.coverage_household_members.size).to eq size + 1
       expect(family.active_household.coverage_households.where(is_immediate_family: true).first.coverage_household_members.flat_map(&:family_member).map(&:relationship)).to eq ["self", "domestic_partner"]
     end
   end

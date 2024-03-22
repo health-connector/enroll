@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_person_relationship_kind")
 
@@ -26,10 +28,10 @@ describe UpdatePersonRelationshipKind, dbclean: :after_each do
       ClimateControl.modify(
         hbx_id: person.hbx_id
       ) do
-        expect(person.person_relationships.first.kind).to  eq("child")
+        expect(person.person_relationships.first.kind).to eq("child")
         subject.migrate
         person.reload
-        expect(person.person_relationships.first.kind).to  eq("self")
+        expect(person.person_relationships.first.kind).to eq("self")
       end
     end
   end

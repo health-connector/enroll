@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 if ExchangeTestingConfigurationHelper.general_agency_enabled?
   require File.join(Rails.root, "app", "data_migrations", "general_agency_assignment")
@@ -23,7 +25,8 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
       let(:end_on) { new_plan_year.open_enrollment_end_on }
 
       it "should assign general agency profile for employer" do
-        ClimateControl.modify general_agency_id: general_agency_account.general_agency_profile_id.to_s, employer_profile_id: employer_profile.id.to_s, broker_agency_id: broker_agency_profile.id.to_s, open_enrollment_end_on: end_on.to_s, aasm_state: "active" do
+        ClimateControl.modify general_agency_id: general_agency_account.general_agency_profile_id.to_s, employer_profile_id: employer_profile.id.to_s, broker_agency_id: broker_agency_profile.id.to_s, open_enrollment_end_on: end_on.to_s,
+                              aasm_state: "active" do
           expect(employer_profile.general_agency_accounts.present?).to eq false
           subject.migrate
           employer_profile.reload

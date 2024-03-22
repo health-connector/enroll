@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "move_phone_between_person_accounts")
 
@@ -24,19 +26,19 @@ describe MovePhoneBetweenPersonAccounts do
     end
 
     it "should move user from person1 to person2" do
-      phone_1=person1.phones.size
-      phone_2=person2.phones.size
+      phone_1 = person1.phones.size
+      phone_2 = person2.phones.size
       subject.migrate
       person1.reload
       person2.reload
       expect(person1.phones.size).to eq phone_1
-      expect(person2.phones.size).to eq phone_2+1
+      expect(person2.phones.size).to eq phone_2 + 1
     end
   end
 
   describe "not move the phone if no_phone was given" do
     let(:person1) { FactoryBot.create(:person)}
-    let(:phone) {FactoryBot.create(:phone,:for_testing, person:person1)}
+    let(:phone) {FactoryBot.create(:phone,:for_testing, person: person1)}
     let(:person2){FactoryBot.create(:person)}
     around do |example|
       ClimateControl.modify from_hbx_id: person1.hbx_id,
@@ -46,8 +48,8 @@ describe MovePhoneBetweenPersonAccounts do
       end
     end
     it "should move user from person1 to person2" do
-      phone_1=person1.phones.size
-      phone_2=person2.phones.size
+      phone_1 = person1.phones.size
+      phone_2 = person2.phones.size
       subject.migrate
       person1.reload
       person2.reload
@@ -58,7 +60,7 @@ describe MovePhoneBetweenPersonAccounts do
 
   describe "not move the phone if person1's hbx_id missing" do
     let(:person1) { FactoryBot.create(:person)}
-    let(:phone) {FactoryBot.create(:phone,:for_testing, person:person1)}
+    let(:phone) {FactoryBot.create(:phone,:for_testing, person: person1)}
     let(:person2){FactoryBot.create(:person)}
     around do |example|
       ClimateControl.modify from_hbx_id: "",
@@ -68,8 +70,8 @@ describe MovePhoneBetweenPersonAccounts do
       end
     end
     it "should move user from person1 to person2" do
-      phone_1=person1.phones.size
-      phone_2=person2.phones.size
+      phone_1 = person1.phones.size
+      phone_2 = person2.phones.size
       subject.migrate
       person1.reload
       person2.reload
@@ -80,7 +82,7 @@ describe MovePhoneBetweenPersonAccounts do
 
   describe "not move the phone if person2's hbx_id missing" do
     let(:person1) { FactoryBot.create(:person)}
-    let(:phone) {FactoryBot.create(:phone,:for_testing, person:person1)}
+    let(:phone) {FactoryBot.create(:phone,:for_testing, person: person1)}
     let(:person2){FactoryBot.create(:person)}
     around do |example|
       ClimateControl.modify from_hbx_id: person1.hbx_id,
@@ -90,8 +92,8 @@ describe MovePhoneBetweenPersonAccounts do
       end
     end
     it "should move user from person1 to person2" do
-      phone_1=person1.phones.size
-      phone_2=person2.phones.size
+      phone_1 = person1.phones.size
+      phone_2 = person2.phones.size
       subject.migrate
       person1.reload
       person2.reload

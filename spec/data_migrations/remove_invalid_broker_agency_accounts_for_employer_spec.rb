@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_invalid_broker_agency_accounts_for_employer")
 
@@ -18,8 +20,8 @@ describe RemoveInvalidBrokerAgencyAccountsForEmployer, dbclean: :after_each do
     let(:broker_role) { FactoryBot.create(:broker_role, :aasm_state => 'active', broker_agency_profile: broker_agency_profile) }
     let(:invalid_broker_agency_account) {FactoryBot.create(:broker_agency_account)}
     let(:valid_broker_agency_account) {FactoryBot.create(:broker_agency_account, broker_agency_profile: broker_agency_profile)}
-    let(:employer_profile){ FactoryBot.build(:employer_profile,broker_agency_accounts:[invalid_broker_agency_account,valid_broker_agency_account]) }
-    let(:organization1) {FactoryBot.create(:organization,employer_profile:employer_profile)}
+    let(:employer_profile){ FactoryBot.build(:employer_profile,broker_agency_accounts: [invalid_broker_agency_account,valid_broker_agency_account]) }
+    let(:organization1) {FactoryBot.create(:organization,employer_profile: employer_profile)}
 
     context "employer profile with invalid broker agency account" do
 
@@ -27,7 +29,7 @@ describe RemoveInvalidBrokerAgencyAccountsForEmployer, dbclean: :after_each do
         ClimateControl.modify fein: organization1.fein do
           invalid_broker_agency_account.update_attribute(:writing_agent_id,nil)
           employer_profile.reload
-          invalid_agency_account = employer_profile.broker_agency_accounts.where(id:invalid_broker_agency_account.id).first
+          invalid_agency_account = employer_profile.broker_agency_accounts.where(id: invalid_broker_agency_account.id).first
           expect(employer_profile.broker_agency_accounts.unscoped.count).to eq 2
           expect(invalid_agency_account.writing_agent.present?).to eq false
           subject.migrate

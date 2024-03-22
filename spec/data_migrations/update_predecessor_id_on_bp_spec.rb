@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_predecessor_id_on_bp")
 describe UpdateEmployeeRoleId, dbclean: :after_each do
@@ -11,19 +13,21 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
   describe "update predecessor id on the enrollments", dbclean: :after_each do
     let(:current_effective_date)  { TimeKeeper.date_of_record }
     let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-    let!(:old_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                            benefit_market: benefit_market,
-                                            title: "SHOP Benefits for #{current_effective_date.year - 1.year}",
-                                            issuer_profile: issuer_profile,
-                                            application_period: (current_effective_date.next_month.beginning_of_month - 1.year ..current_effective_date.end_of_month))
-                                          }
+    let!(:old_benefit_market_catalog) do
+      create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+             benefit_market: benefit_market,
+             title: "SHOP Benefits for #{current_effective_date.year - 1.year}",
+             issuer_profile: issuer_profile,
+             application_period: (current_effective_date.next_month.beginning_of_month - 1.year..current_effective_date.end_of_month))
+    end
 
-    let!(:renewing_benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-                                            benefit_market: benefit_market,
-                                            title: "SHOP Benefits for #{current_effective_date.year}",
-                                            issuer_profile: issuer_profile,
-                                            application_period: (current_effective_date.next_month.beginning_of_month..current_effective_date.end_of_month + 1.year ))
-                                          }
+    let!(:renewing_benefit_market_catalog) do
+      create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+             benefit_market: benefit_market,
+             title: "SHOP Benefits for #{current_effective_date.year}",
+             issuer_profile: issuer_profile,
+             application_period: (current_effective_date.next_month.beginning_of_month..current_effective_date.end_of_month + 1.year))
+    end
     let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let(:benefit_market)      { site.benefit_markets.first }
     let!(:product_package_1) { old_benefit_market_catalog.product_packages.first }
@@ -45,18 +49,20 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
         organization: organization,
         profile_id: organization.profiles.first.id,
         benefit_market: site.benefit_markets[0],
-        employer_attestation: employer_attestation)
+        employer_attestation: employer_attestation
+      )
     end
 
     let(:start_on)  { TimeKeeper.date_of_record}
-    let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year ..start_on.end_of_month }
+    let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year..start_on.end_of_month }
     let!(:old_benefit_application) {
       application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: old_effective_period, aasm_state: :active)
       application.benefit_sponsor_catalog.save!
       application
-    }
+    end
 
     let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
+
     let!(:renewing_benefit_application) {
       application = FactoryBot.create(
         :benefit_sponsors_benefit_application,
@@ -68,7 +74,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
       )
       application.benefit_sponsor_catalog.save!
       application
-    }
+    end
 
     let!(:old_benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: old_benefit_application, product_package: product_package_1) }
     let!(:renewing_benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_1) }
@@ -81,7 +87,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
       end
       organization.employer_profile.benefit_applications.second.benefit_packages.first.reload
       expect(organization.employer_profile.benefit_applications.second.benefit_packages.first.predecessor_id).to_not eq nil
-      expect(organization.employer_profile.benefit_applications.second.benefit_packages.first.predecessor_id).to eq (organization.employer_profile.benefit_applications.first.benefit_packages.first.id)
+      expect(organization.employer_profile.benefit_applications.second.benefit_packages.first.predecessor_id).to eq(organization.employer_profile.benefit_applications.first.benefit_packages.first.id)
     end
 
     it "should not change the ee_role_id of hbx_enrollment if the EE Role id matches with the correct one" do

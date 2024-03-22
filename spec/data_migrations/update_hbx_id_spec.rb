@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_hbx_id")
 
@@ -26,7 +28,7 @@ describe UpdateHbxId do
     end
 
     it "should unset hbx id " do
-      ClimateControl.modify valid_hbxid:correct_hbxid, invalid_hbxid:incorrect_hbxid do
+      ClimateControl.modify valid_hbxid: correct_hbxid, invalid_hbxid: incorrect_hbxid do
         subject.migrate
         person1.reload
         expect(person1.hbx_id).to eq nil
@@ -34,7 +36,7 @@ describe UpdateHbxId do
     end
 
     it "should not exchange hbx id if any hbx_id is nil" do
-      ClimateControl.modify valid_hbxid:'', invalid_hbxid:incorrect_hbxid do
+      ClimateControl.modify valid_hbxid: '', invalid_hbxid: incorrect_hbxid do
         subject.migrate
         person1.reload
         person2.reload

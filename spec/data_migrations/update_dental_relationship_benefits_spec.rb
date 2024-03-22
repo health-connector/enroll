@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_dental_relationship_benefits")
 
@@ -27,7 +29,7 @@ describe "UpdateDentalRelationshipBenefits", dbclean: :after_each do
     it "should change person relationships kind" do
       subject.migrate
       benefit_group.reload
-      expect(benefit_group.dental_relationship_benefits.where(relationship:'spouse').first.offered).to eq false
+      expect(benefit_group.dental_relationship_benefits.where(relationship: 'spouse').first.offered).to eq false
     end
   end
 end

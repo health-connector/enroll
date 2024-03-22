@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_ee_dot")
 
@@ -14,7 +16,7 @@ describe UpdateEeDot, dbclean: :after_each do
 
   describe "updating termination date for an Employee" do
     let(:employer_profile) { census_employee.employer_profile}
-    let(:census_employee) { FactoryBot.create(:census_employee, coverage_terminated_on:TimeKeeper.date_of_record)}
+    let(:census_employee) { FactoryBot.create(:census_employee, coverage_terminated_on: TimeKeeper.date_of_record)}
 
     it "should update date of termination" do
       ClimateControl.modify id: census_employee.id,
@@ -23,7 +25,7 @@ describe UpdateEeDot, dbclean: :after_each do
         subject.migrate
       end
       census_employee.reload
-      expect(census_employee.employment_terminated_on).to eq (terminated_on)
+      expect(census_employee.employment_terminated_on).to eq(terminated_on)
     end
   end
 
@@ -38,7 +40,7 @@ describe UpdateEeDot, dbclean: :after_each do
         subject.migrate
       end
       census_employee.reload
-      expect(census_employee.coverage_terminated_on).to eq (terminated_on)
+      expect(census_employee.coverage_terminated_on).to eq(terminated_on)
     end
   end
 end

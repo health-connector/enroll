@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_broker_npn")
 
@@ -9,18 +11,17 @@ describe ChangeBrokerNpn, dbclean: :after_each do
       expect(subject.name).to eql given_task_name
     end
   end
-  describe "change the broker role" do
 
-    let(:broker_role) {FactoryBot.create(:broker_role,npn:"123123")}
-    before(:each) do
-      allow(ENV).to receive(:[]).with("person_hbx_id").and_return(broker_role.person.hbx_id)
-      allow(ENV).to receive(:[]).with("new_npn").and_return("321321")
-    end
+  describe "change the broker role" do
+    let(:broker_role) {FactoryBot.create(:broker_role,npn: "123123")}
+
     it "should change the email of the given account" do
-      expect(broker_role.npn).to eq "123123"
-      subject.migrate
-      broker_role.reload
-      expect(broker_role.npn).to eq "321321"
+      ClimateControl.modify person_hbx_id: broker_role.person.hbx_id, new_npn: '321321' do
+        expect(broker_role.npn).to eq "123123"
+        subject.migrate
+        broker_role.reload
+        expect(broker_role.npn).to eq "321321"
+      end
     end
   end
 end

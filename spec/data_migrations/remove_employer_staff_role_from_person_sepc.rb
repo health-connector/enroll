@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_employer_staff_role_from_person")
 
@@ -23,7 +25,7 @@ describe RemoveEmployerStaffRoleFromPerson do
     end
 
     it "should remove employer staff role from the person" do
-      person=employer_staff_role.person
+      person = employer_staff_role.person
       expect(person.employer_staff_roles.size).to eq 1
       expect(person.employer_staff_roles.first.is_active).to eq true
       subject.migrate

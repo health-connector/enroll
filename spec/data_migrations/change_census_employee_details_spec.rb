@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_census_employee_details")
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -61,9 +63,10 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
     describe "change_ssn" do
       let(:census_employee) { FactoryBot.create :census_employee}
 
-      before :each do
-        allow(ENV).to receive(:[]).with("encrypted_ssn").and_return census_employee.encrypted_ssn
-        allow(ENV).to receive(:[]).with("new_encrypted_ssn").and_return SymmetricEncryption.encrypt("123111222")
+      around do |example|
+        ClimateControl.modify :encrypted_ssn => census_employee.encrypted_ssn, :new_encrypted_ssn => SymmetricEncryption.encrypt("123111222") do
+          example.run
+        end
       end
 
       it "should change the SSN of census employee if in eligible status" do
@@ -86,8 +89,13 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
       let(:employee_role) { FactoryBot.create :employee_role}
 
       before :each do
-        allow(ENV).to receive(:[]).with("encrypted_ssn").and_return census_employee.encrypted_ssn
         census_employee.update_attributes(aasm_state: "employee_role_linked", employee_role_id: employee_role.id)
+      end
+
+      around do |example|
+        ClimateControl.modify :encrypted_ssn => census_employee.encrypted_ssn do
+          example.run
+        end
       end
 
       it "should delink the employee role" do
@@ -115,8 +123,13 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
     before :each do
       census_employee.update_attributes(:employee_role_id => employee_role.id)
       Person.all.first.update_attributes!(first_name: census_employee.first_name, last_name: census_employee.last_name, dob: census_employee.dob, encrypted_ssn: Person.encrypt_ssn(census_employee.ssn))
-      allow(ENV).to receive(:[]).with('hbx_id').and_return person.hbx_id
-      allow(ENV).to receive(:[]).with('employer_fein').and_return benefit_sponsorship.organization.fein
+    end
+
+
+    around do |example|
+      ClimateControl.modify :hbx_id => person.hbx_id, :employer_fein => benefit_sponsorship.organization.fein do
+        example.run
+      end
     end
 
     it 'should link census employee' do

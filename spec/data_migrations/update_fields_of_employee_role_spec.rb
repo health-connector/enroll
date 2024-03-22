@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_fields_of_employee_role")
 
@@ -54,7 +56,7 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     let(:office_location)                 { FactoryBot.build(:office_location, :primary) }
     let(:old_organization)               { FactoryBot.create(:organization, office_locations: [office_location]) }
     let(:old_employer_profile)           { FactoryBot.create(:employer_profile, organization: old_organization) }
-    let(:old_census_record)              { CensusEmployee.create(first_name:"Eddie", last_name:"Vedder", gender:"male", dob: "1964-10-23".to_date, employer_profile_id: old_employer_profile.id, hired_on: "2015-04-01".to_date, ssn: "112212221") }
+    let(:old_census_record)              { CensusEmployee.create(first_name: "Eddie", last_name: "Vedder", gender: "male", dob: "1964-10-23".to_date, employer_profile_id: old_employer_profile.id, hired_on: "2015-04-01".to_date, ssn: "112212221") }
     let(:person)                         { FactoryBot.create(:person) }
     let(:employee_role)                  { FactoryBot.create(:employee_role, person: person, employer_profile_id: old_employer_profile.id, census_employee_id: old_census_record.id) }
 
@@ -76,7 +78,8 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
         :benefit_sponsors_benefit_sponsorship,
         organization: organization,
         profile_id: organization.profiles.first.id,
-        benefit_market: site.benefit_markets[0])
+        benefit_market: site.benefit_markets[0]
+      )
     end
 
     context "for successfull update" do
@@ -111,7 +114,7 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
           expect(employee_role.census_employee_id.to_s).not_to eq census_employee.id.to_s
           subject.migrate
           employee_role.reload
-          puts " ce id = #{employee_role.census_employee_id.to_s}"
+          puts " ce id = #{employee_role.census_employee_id}"
           expect(employee_role.census_employee_id.to_s).to eq census_employee.id.to_s
         end
       end

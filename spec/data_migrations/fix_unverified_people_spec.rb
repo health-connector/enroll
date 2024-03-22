@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
-require File.join(Rails.root, "app", "data_migrations", "fix_unverified_people")
+  require File.join(Rails.root, "app", "data_migrations", "fix_unverified_people")
 
-describe FixUnverifiedPeople, :dbclean => :after_each do
-  subject { FixUnverifiedPeople.new("fix_unverified_people", double(:current_scope => nil)) }
-  let(:body_ssn_true_citizenship_true) {"<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
+  describe FixUnverifiedPeople, :dbclean => :after_each do
+    subject { FixUnverifiedPeople.new("fix_unverified_people", double(:current_scope => nil)) }
+    let(:body_ssn_true_citizenship_true) do
+      "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
               xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\"
               xmlns:ns1=\"http://openhbx.org/api/terms/1.0\"
               xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">
@@ -45,9 +48,11 @@ describe FixUnverifiedPeople, :dbclean => :after_each do
               <ns1:citizenship_verified>true</ns1:citizenship_verified>
               <ns1:incarcerated>false</ns1:incarcerated>
               <ns1:response_text>Success</ns1:response_text>
-              </ssa_verification_result>"}
+              </ssa_verification_result>"
+    end
 
-  let(:body_ssn_true_citizenship_false) {"<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
+    let(:body_ssn_true_citizenship_false) do
+      "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
               xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\"
               xmlns:ns1=\"http://openhbx.org/api/terms/1.0\"
               xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">
@@ -88,9 +93,11 @@ describe FixUnverifiedPeople, :dbclean => :after_each do
               <ns1:citizenship_verified>false</ns1:citizenship_verified>
               <ns1:incarcerated>false</ns1:incarcerated>
               <ns1:response_text>Success</ns1:response_text>
-              </ssa_verification_result>"}
+              </ssa_verification_result>"
+    end
 
-  let(:body_ssn_verification_failed) {"<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
+    let(:body_ssn_verification_failed) do
+      "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
               xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\"
               xmlns:ns1=\"http://openhbx.org/api/terms/1.0\"
               xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">
@@ -132,60 +139,61 @@ describe FixUnverifiedPeople, :dbclean => :after_each do
               <ns1:citizenship_verified>nil</ns1:citizenship_verified>
               <ns1:incarcerated>false</ns1:incarcerated>
               <ns1:response_text>Success</ns1:response_text>
-              </ssa_verification_result>"}
-
-
-  let(:ssa_response_ssn_true_citizenship_true) { EventResponse.new({:received_at => Time.now, :body => body_ssn_true_citizenship_true}) }
-  let(:ssa_response_ssn_true_citizenship_false) { EventResponse.new({:received_at => Time.now, :body => body_ssn_true_citizenship_false}) }
-  let(:ssn_verification_failed) { EventResponse.new({:received_at => Time.now, :body => body_ssn_verification_failed}) }
-  let(:person) { FactoryBot.create(:person, :with_consumer_role)}
-
-
-  describe "consumer has unverified status" do
-    before :each do
-      person.consumer_role.aasm_state = 'unverified'
-      person.consumer_role.ssn_validation = 'pending'
-      person.consumer_role.lawful_presence_determination.aasm_state = 'verification_pending'
+              </ssa_verification_result>"
     end
 
-    context "consumer has ssn verification field as true" do
-      it "should move consumer state to outstanding" do
-        person.consumer_role.lawful_presence_determination.ssa_responses << ssn_verification_failed
-        person.save!
-        subject.migrate
-        person.reload
-        consumer = person.consumer_role
-        expect(consumer.aasm_state). to eq('verification_outstanding')
-        expect(consumer.ssn_validation). to eq('outstanding')
-        expect(consumer.lawful_presence_determination.aasm_state). to eq('verification_outstanding')
+
+    let(:ssa_response_ssn_true_citizenship_true) { EventResponse.new({:received_at => Time.now, :body => body_ssn_true_citizenship_true}) }
+    let(:ssa_response_ssn_true_citizenship_false) { EventResponse.new({:received_at => Time.now, :body => body_ssn_true_citizenship_false}) }
+    let(:ssn_verification_failed) { EventResponse.new({:received_at => Time.now, :body => body_ssn_verification_failed}) }
+    let(:person) { FactoryBot.create(:person, :with_consumer_role)}
+
+
+    describe "consumer has unverified status" do
+      before :each do
+        person.consumer_role.aasm_state = 'unverified'
+        person.consumer_role.ssn_validation = 'pending'
+        person.consumer_role.lawful_presence_determination.aasm_state = 'verification_pending'
       end
-    end
 
-    context "consumer has ssn verified and citizenship verified" do
-      it "should move consumer state to fully verified" do
-        person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_true
-        person.save!
-        subject.migrate
-        person.reload
-        consumer = person.consumer_role
-        expect(consumer.aasm_state). to eq('fully_verified')
-        expect(consumer.ssn_validation). to eq('valid')
-        expect(consumer.lawful_presence_determination.aasm_state). to eq('verification_successful')
+      context "consumer has ssn verification field as true" do
+        it "should move consumer state to outstanding" do
+          person.consumer_role.lawful_presence_determination.ssa_responses << ssn_verification_failed
+          person.save!
+          subject.migrate
+          person.reload
+          consumer = person.consumer_role
+          expect(consumer.aasm_state).to eq('verification_outstanding')
+          expect(consumer.ssn_validation).to eq('outstanding')
+          expect(consumer.lawful_presence_determination.aasm_state).to eq('verification_outstanding')
+        end
       end
-    end
 
-    context "consumer has ssn verified and citizenship not verified" do
-      it "should move consumer state to verification outstanding" do
-        person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_false
-        person.save!
-        subject.migrate
-        person.reload
-        consumer = person.consumer_role
-        expect(consumer.aasm_state). to eq('verification_outstanding')
-        expect(consumer.ssn_validation). to eq('valid')
-        expect(consumer.lawful_presence_determination.aasm_state). to eq('verification_outstanding')
+      context "consumer has ssn verified and citizenship verified" do
+        it "should move consumer state to fully verified" do
+          person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_true
+          person.save!
+          subject.migrate
+          person.reload
+          consumer = person.consumer_role
+          expect(consumer.aasm_state).to eq('fully_verified')
+          expect(consumer.ssn_validation).to eq('valid')
+          expect(consumer.lawful_presence_determination.aasm_state).to eq('verification_successful')
+        end
+      end
+
+      context "consumer has ssn verified and citizenship not verified" do
+        it "should move consumer state to verification outstanding" do
+          person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_false
+          person.save!
+          subject.migrate
+          person.reload
+          consumer = person.consumer_role
+          expect(consumer.aasm_state).to eq('verification_outstanding')
+          expect(consumer.ssn_validation).to eq('valid')
+          expect(consumer.lawful_presence_determination.aasm_state).to eq('verification_outstanding')
+        end
       end
     end
   end
-end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "delink_broker_agency")
 
@@ -16,12 +18,16 @@ describe DelinkBrokerAgency do
   let!(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile, aasm_state: "is_approved", primary_broker_role: broker_role)}
   let!(:person) { FactoryBot.create(:person)}
   let!(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
-  let!(:broker_agency_account) {FactoryBot.create(:broker_agency_account,broker_agency_profile_id:broker_agency_profile.id,writing_agent_id: broker_role.id, start_on: TimeKeeper.date_of_record)}
+  let!(:broker_agency_account) {FactoryBot.create(:broker_agency_account,broker_agency_profile_id: broker_agency_profile.id,writing_agent_id: broker_role.id, start_on: TimeKeeper.date_of_record)}
 
+  around do |example|
+    ClimateControl.modify person_hbx_id: person.hbx_id do
+      example.run
+    end
+  end
 
   before :each do
-    allow(ENV).to receive(:[]).with("person_hbx_id").and_return(person.hbx_id)
-    person.primary_family.broker_agency_accounts=[broker_agency_account]
+    person.primary_family.broker_agency_accounts = [broker_agency_account]
     person.primary_family.save!
   end
 

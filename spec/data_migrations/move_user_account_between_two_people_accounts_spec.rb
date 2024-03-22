@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'move_user_account_between_two_people_accounts')
 
@@ -19,7 +21,7 @@ describe MoveUserAccountBetweenTwoPeopleAccounts, dbclean: :after_each do
     let!(:user)      { FactoryBot.create(:user) }
     let!(:person1)   { FactoryBot.create(:person, user_id: user.id) }
     let!(:person2)   { FactoryBot.create(:person) }
-    let(:user_env_support) {{hbx_id_1: person1.hbx_id, hbx_id_2:person2.hbx_id}}
+    let(:user_env_support) {{hbx_id_1: person1.hbx_id, hbx_id_2: person2.hbx_id}}
 
     it 'should move user from person1 to person2' do
       with_modified_env user_env_support do
@@ -38,11 +40,11 @@ describe MoveUserAccountBetweenTwoPeopleAccounts, dbclean: :after_each do
     let!(:user)        { FactoryBot.create(:user) }
     let!(:person1)     { FactoryBot.create(:person, user_id: user.id) }
     let!(:person2)     { FactoryBot.create(:person) }
-    let(:user_env_support) {{hbx_id_1: person1.hbx_id, hbx_id_2:person2.hbx_id}}
+    let(:user_env_support) {{hbx_id_1: person1.hbx_id, hbx_id_2: person2.hbx_id}}
 
     it 'should not move user from person1 to person2' do
       with_modified_env user_env_support do
-        person1.update_attributes!(hbx_id:nil)
+        person1.update_attributes!(hbx_id: nil)
         expect(person1.user_id).to eq user.id
         expect(person2.user).to eq nil
         subject.migrate
@@ -55,7 +57,7 @@ describe MoveUserAccountBetweenTwoPeopleAccounts, dbclean: :after_each do
   describe 'not move the user if person1 has no user' do
     let!(:person1) { FactoryBot.create(:person) }
     let!(:person2) { FactoryBot.create(:person) }
-    let(:user_env_support) {{hbx_id_1: person1.hbx_id, hbx_id_2:person2.hbx_id}}
+    let(:user_env_support) {{hbx_id_1: person1.hbx_id, hbx_id_2: person2.hbx_id}}
 
     it 'should not move user from person1 to person2' do
       with_modified_env user_env_support do

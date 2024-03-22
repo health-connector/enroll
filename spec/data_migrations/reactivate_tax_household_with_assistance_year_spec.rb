@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   require File.join(Rails.root, "app", "data_migrations", "reactivate_tax_household_with_assistance_year")
@@ -18,12 +20,12 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       let(:household) {Household.new}
       let(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person, households: [household])}
       let(:eligibility_determination) {EligibilityDetermination.new(source: 'Admin', csr_eligibility_kind: 'csr_73', max_aptc: 1017, csr_percent: 0.73, determined_at: TimeKeeper.date_of_record)}
-      let(:tax_household) {TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record, effective_ending_on: TimeKeeper.date_of_record+1.year, eligibility_determinations: [eligibility_determination])}
+      let(:tax_household) {TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record, effective_ending_on: TimeKeeper.date_of_record + 1.year, eligibility_determinations: [eligibility_determination])}
 
       before(:each) do
         allow(person).to receive(:primary_family).and_return(family)
         allow(family).to receive(:active_household).and_return(household)
-        household.tax_households <<  tax_household
+        household.tax_households << tax_household
       end
 
       around do |example|
@@ -38,7 +40,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       it "Set the effective end on to nil" do
         expect(person.primary_family.active_household.tax_households.pluck(:effective_ending_on).any?).to eq(true)
         subject.migrate
-        person.primary_family.active_household.tax_households.each {|th| th.reload}
+        person.primary_family.active_household.tax_households.each(&:reload)
         expect(person.primary_family.active_household.tax_households.pluck(:effective_ending_on).any?).to eq(false)
       end
     end
@@ -49,12 +51,12 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       let(:household) {Household.new}
       let(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person, households: [household])}
       let(:eligibility_determination) {EligibilityDetermination.new(source: 'Admin', csr_eligibility_kind: 'csr_73', max_aptc: 100, csr_percent: 0.73, determined_at: TimeKeeper.date_of_record)}
-      let(:tax_household) {TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record, effective_ending_on: TimeKeeper.date_of_record+1.year, eligibility_determinations: [eligibility_determination])}
+      let(:tax_household) {TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record, effective_ending_on: TimeKeeper.date_of_record + 1.year, eligibility_determinations: [eligibility_determination])}
 
       before(:each) do
         allow(person).to receive(:primary_family).and_return(family)
         allow(family).to receive(:active_household).and_return(household)
-        household.tax_households <<  tax_household
+        household.tax_households << tax_household
       end
 
       around do |example|
@@ -69,7 +71,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       it "Should not set the effective end on to nil as max_aptc do not match" do
         expect(person.primary_family.active_household.tax_households.pluck(:effective_ending_on).any?).to eq(true)
         subject.migrate
-        person.primary_family.active_household.tax_households.each {|th| th.reload}
+        person.primary_family.active_household.tax_households.each(&:reload)
         expect(person.primary_family.active_household.tax_households.pluck(:effective_ending_on).any?).to eq(true)
       end
     end
@@ -79,12 +81,12 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       let(:household) {Household.new}
       let(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person, households: [household])}
       let(:eligibility_determination) {EligibilityDetermination.new(source: 'Admin', csr_eligibility_kind: 'csr_87', max_aptc: 100, csr_percent: 0.87, determined_at: TimeKeeper.date_of_record)}
-      let(:tax_household) {TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record, effective_ending_on: TimeKeeper.date_of_record+1.year, eligibility_determinations: [eligibility_determination])}
+      let(:tax_household) {TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record, effective_ending_on: TimeKeeper.date_of_record + 1.year, eligibility_determinations: [eligibility_determination])}
 
       before(:each) do
         allow(person).to receive(:primary_family).and_return(family)
         allow(family).to receive(:active_household).and_return(household)
-        household.tax_households <<  tax_household
+        household.tax_households << tax_household
       end
 
       around do |example|
@@ -99,7 +101,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       it "Should not set the effective end on to nil as csr_eligibility_kind do not match" do
         expect(person.primary_family.active_household.tax_households.pluck(:effective_ending_on).any?).to eq(true)
         subject.migrate
-        person.primary_family.active_household.tax_households.each {|th| th.reload}
+        person.primary_family.active_household.tax_households.each(&:reload)
         expect(person.primary_family.active_household.tax_households.pluck(:effective_ending_on).any?).to eq(true)
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "revert_termination_for_employee")
 
@@ -19,7 +21,7 @@ describe RevertTerminationForEmployee, dbclean: :after_each do
     let(:census_employee) { FactoryBot.build(:census_employee, :termination_details) }
 
     before do
-      ClimateControl.modify enrollment_hbx_id:enrollment.hbx_id,census_employee_id: census_employee.id do
+      ClimateControl.modify enrollment_hbx_id: enrollment.hbx_id,census_employee_id: census_employee.id do
         allow(ShopNoticesNotifierJob).to receive(:perform_later).and_return(true)
         census_employee.class.skip_callback(:save, :after, :assign_default_benefit_package)
         census_employee.save! # We can only change the census record SSN & DOB when CE is in "eligible" status
@@ -64,7 +66,7 @@ describe RevertTerminationForEmployee, dbclean: :after_each do
     let(:census_employee) { FactoryBot.build(:census_employee, :termination_details) }
 
     before do
-      ClimateControl.modify enrollment_hbx_id:enrollment.hbx_id,census_employee_id: census_employee.id do
+      ClimateControl.modify enrollment_hbx_id: enrollment.hbx_id,census_employee_id: census_employee.id do
         census_employee.class.skip_callback(:save, :after, :assign_default_benefit_package)
         census_employee.save! # We can only change the census record SSN & DOB when CE is in "eligible" status
         census_employee.aasm_state = "employee_termination_pending"

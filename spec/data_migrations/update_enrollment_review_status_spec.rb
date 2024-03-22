@@ -1,38 +1,40 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_enrollment_review_status")
 
 describe UpdateReviewStatus, dbclean: :after_each do
   subject { UpdateReviewStatus.new("update_enrollment_review_status", double(:current_scope => nil)) }
   let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
-  let(:enrollment_with_nil_review) {
+  let(:enrollment_with_nil_review) do
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "health",
-                       effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record,
-                       aasm_state: 'shopping',
-                       review_status: nil )
-  }
-  let(:enrollment_with_existing_review) {
+                      household: family.active_household,
+                      coverage_kind: "health",
+                      effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record,
+                      aasm_state: 'shopping',
+                      review_status: nil)
+  end
+  let(:enrollment_with_existing_review) do
     FactoryBot.create(:hbx_enrollment,
-                       household: family.active_household,
-                       coverage_kind: "health",
-                       effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
-                       enrollment_kind: "open_enrollment",
-                       kind: "individual",
-                       submitted_at: TimeKeeper.date_of_record,
-                       aasm_state: 'shopping',
-                       review_status: "in review" )
-  }
+                      household: family.active_household,
+                      coverage_kind: "health",
+                      effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                      enrollment_kind: "open_enrollment",
+                      kind: "individual",
+                      submitted_at: TimeKeeper.date_of_record,
+                      aasm_state: 'shopping',
+                      review_status: "in review")
+  end
 
   before do
     allow(subject).to receive(:get_families).and_return([family])
   end
   context "enrollments with review_status equal nil" do
     before do
-      family.active_household.hbx_enrollments<<enrollment_with_nil_review
+      family.active_household.hbx_enrollments << enrollment_with_nil_review
       subject.migrate
     end
     it "updates review status with default incomplete status" do
@@ -42,7 +44,7 @@ describe UpdateReviewStatus, dbclean: :after_each do
 
   context "enrollments with existing review_status" do
     before :each do
-      family.active_household.hbx_enrollments<<enrollment_with_existing_review
+      family.active_household.hbx_enrollments << enrollment_with_existing_review
       subject.migrate
     end
     it "doesn't update review status if it is already exists" do

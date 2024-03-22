@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'unset_employee_role_id')
 describe UnsetEmplyeeRoleId, dbclean: :after_each do
@@ -16,8 +18,8 @@ describe UnsetEmplyeeRoleId, dbclean: :after_each do
   describe 'unset employee role', dbclean: :after_each do
     let(:person) { family.primary_family_member.person }
     let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
-    let!(:hbx_enrollment1) { FactoryBot.create(:hbx_enrollment, household: family.active_household,id:"1", kind:"individual", employee_role_id: "1234")}
-    let!(:hbx_enrollment2) { FactoryBot.create(:hbx_enrollment, household: family.active_household,id:"2", kind:"employer_sponsored", employee_role_id: "1234")}
+    let!(:hbx_enrollment1) { FactoryBot.create(:hbx_enrollment, household: family.active_household,id: "1", kind: "individual", employee_role_id: "1234")}
+    let!(:hbx_enrollment2) { FactoryBot.create(:hbx_enrollment, household: family.active_household,id: "2", kind: "employer_sponsored", employee_role_id: "1234")}
     before(:each) do
       person.update_attributes(hbx_id: '1111')
     end
@@ -34,7 +36,7 @@ describe UnsetEmplyeeRoleId, dbclean: :after_each do
         subject.migrate
         family.reload
         expect(family.active_household.hbx_enrollments.size).to eq 2
-        expect(family.active_household.hbx_enrollments.where(id:'1').first.employee_role_id).to eq nil
+        expect(family.active_household.hbx_enrollments.where(id: '1').first.employee_role_id).to eq nil
       end
     end
     it 'should keep the ee_role_id of hbx_enrollment with non-individual kind' do
@@ -43,7 +45,7 @@ describe UnsetEmplyeeRoleId, dbclean: :after_each do
         subject.migrate
         family.reload
         expect(family.active_household.hbx_enrollments.size).to eq 2
-        expect(family.active_household.hbx_enrollments.where(id:'2').first.employee_role_id).to eq '1234'
+        expect(family.active_household.hbx_enrollments.where(id: '2').first.employee_role_id).to eq '1234'
       end
     end
   end

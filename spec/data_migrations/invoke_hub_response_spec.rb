@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   require File.join(Rails.root, "app", "data_migrations", "invoke_hub_response")

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "components", "fix_benefit_sponsorship_state")
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
