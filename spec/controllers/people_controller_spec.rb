@@ -79,9 +79,10 @@ RSpec.describe PeopleController, dbclean: :after_each do
     context "when individual" do
 
       before do
-        allow(request).to receive(:referer).and_return("insured/families/personal")
+        request.env['HTTP_REFERER'] = "insured/families/personal"
         allow(person).to receive(:has_active_consumer_role?).and_return(true)
       end
+
       it "update person" do
         allow(consumer_role).to receive(:find_document).and_return(vlp_document)
         allow(vlp_document).to receive(:save).and_return(true)
