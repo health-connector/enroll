@@ -92,7 +92,7 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
 
       it "should create renewing plan year" do
         ClimateControl.modify(
-          start_on: initial_application.effective_period.min,
+          start_on: initial_application.effective_period.min.to_s,
           action: "trigger_renewal_py_for_employers"
         ) do
           expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]

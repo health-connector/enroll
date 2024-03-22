@@ -27,8 +27,8 @@ describe UpdateOpenEnrollmentDatesForBcp, dbclean: :after_each do
       it "should update open enrollment start_on and end_on dates" do
         ClimateControl.modify(
           title: benefit_coverage_period.title,
-          new_oe_start_date: open_enrollment_start_on,
-          new_oe_end_date: open_enrollment_end_on
+          new_oe_start_date: open_enrollment_start_on.to_s,
+          new_oe_end_date: open_enrollment_end_on.to_s
         ) do
           allow(HbxProfile).to receive(:current_hbx).and_return hbx_profile
           subject.migrate
