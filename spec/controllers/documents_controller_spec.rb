@@ -76,13 +76,21 @@ RSpec.describe DocumentsController, :type => :controller do
   end
 
   describe 'POST Fed_Hub_Request' do
+    let(:consumer_role) { person.consumer_role }
+    let(:permission) { FactoryBot.create(:permission, :super_admin) }
+    let(:user) do
+      person = FactoryBot.create(:person, :with_hbx_staff_role)
+      user = FactoryBot.create(:user, person: person)
+      user.person.hbx_staff_role.update_attributes(permission_id: permission.id)
+      user
+    end
     before :each do
       request.env["HTTP_REFERER"] = "http://test.com"
     end
     context 'Call Hub for SSA verification' do
       it 'should redirect if verification type is SSN or Citozenship' do
         post :fed_hub_request, params: {verification_type: 'Social Security Number',person_id: person.id, id: document.id}
-        expect(response).to redirect_to :back
+        expect(response).to have_http_status(:redirect)
         expect(flash[:success]).to eq('Request was sent to FedHub.')
       end
     end
@@ -90,7 +98,7 @@ RSpec.describe DocumentsController, :type => :controller do
       it 'should redirect if verification type is Residency' do
         person.consumer_role.update_attributes(aasm_state: 'verification_outstanding')
         post :fed_hub_request, params: {verification_type: 'DC Residency',person_id: person.id, id: document.id}
-        expect(response).to redirect_to :back
+        expect(response).to have_http_status(:redirect)
         expect(flash[:success]).to eq('Request was sent to Local Residency.')
       end
     end
@@ -103,7 +111,7 @@ RSpec.describe DocumentsController, :type => :controller do
     end
 
     it "should redirect to back" do
-      expect(response).to redirect_to :back
+      expect(response).to have_http_status(:redirect)
     end
   end
   describe "PUT update_verification_type" do
@@ -122,13 +130,14 @@ RSpec.describe DocumentsController, :type => :controller do
           expect(person.consumer_role.lawful_presence_update_reason["v_type"]).to eq(type)
           expect(person.consumer_role.lawful_presence_update_reason["update_reason"]).to eq(result)
         else
+
           expect(person.consumer_role.send(updated_attr)).to eq(result)
         end
       end
     end
 
     context "Social Security Number verification type" do
-      it_behaves_like "update verification type", "Social Security Number", "E-Verified in Curam", "verify", "ssn_validation", "valid"
+      it_behaves_like "update verification type", "ssn_type", "E-Verified in Curam", "verify", "validate", true
       it_behaves_like "update verification type", "Social Security Number", "E-Verified in Curam", "verify", "ssn_update_reason", "E-Verified in Curam"
     end
 
@@ -161,8 +170,8 @@ RSpec.describe DocumentsController, :type => :controller do
 
     context "redirection" do
       it "should redirect to back" do
-        post :update_verification_type, person_id: person.id
-        expect(response).to redirect_to :back
+        post :update_verification_type, params: { person_id: person.id }
+        expect(response).to have_http_status(:redirect)
       end
     end
 

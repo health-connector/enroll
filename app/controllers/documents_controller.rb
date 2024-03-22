@@ -62,7 +62,7 @@ class DocumentsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to :back, :flash => flash_message }
+      format.html { redirect_back(fallback_location: root_path, flash: flash_message) }
     end
   end
 
