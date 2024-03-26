@@ -69,7 +69,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
       end
     end
 
-    context 'without permissions' do
+    context 'without permissions', dbclean: :after_each do
       let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
       let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
       let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
@@ -258,7 +258,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
       end
     end
 
-    context 'without permissions/not hired by family' do
+    context 'without permissions/not hired by family', dbclean: :after_each do
       let(:user2) { FactoryGirl.create(:user, person: person2) }
       let!(:person2) { FactoryGirl.create(:person) }
       let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
