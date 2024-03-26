@@ -2,17 +2,21 @@ require 'rails_helper'
 
 RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
 
-  let(:user) { FactoryGirl.create(:user, with_security_questions: false) }
-  let(:person) { FactoryGirl.create(:person, user: user) }
-  let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person) }
+  let!(:security_question)  { FactoryGirl.create_default :security_question }
+
+  let!(:user) { FactoryGirl.create(:user, :with_hbx_staff_role) }
+  let!(:person) { FactoryGirl.create(:person, user: user)}
+  let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+  let(:organization_with_hbx_profile)  { site.owner_organization }
   let(:question) { instance_double("SecurityQuestion", title: 'Your Question', id: '1') }
 
   before :each do
-    EnrollRegistry[:security_questions_display].feature.stub(:is_enabled).and_return(true)
-    allow(user).to receive(:has_hbx_staff_role?).and_return true
-
+    allow(Settings).to receive_message_chain('aca.security_questions').and_return(true)
+    allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(view_admin_tabs: true))
     allow(SecurityQuestion).to receive(:all).and_return([question])
     allow(SecurityQuestion).to receive(:find).with(question.id).and_return(question)
+    user.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id)
+    user.person.hbx_staff_role.save!
     sign_in user
   end
 

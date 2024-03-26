@@ -56,7 +56,8 @@ class Exchanges::SecurityQuestionsController < ApplicationController
   # @return [nil, ActionController::Redirecting] Returns nil if the security questions feature is enabled,
   # otherwise it redirects the user to the root path.
   def check_feature_enabled
-    return if EnrollRegistry[:security_questions_display].feature.is_enabled
+    authorize HbxProfile, :view_admin_tabs?
+    return if Settings.aca.security_questions
 
     flash[:error] = l10n('exchanges.security_questions.denied_access_message')
     redirect_to root_path

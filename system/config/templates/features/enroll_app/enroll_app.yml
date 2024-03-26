@@ -36,5 +36,3 @@ registry:
         is_enabled: <%= ENV['ADMIN_ISSUERS_TAB_DISPLAY_IS_ENABLED'] || false %>
       - key: :admin_products_tab_display
         is_enabled: <%= ENV['ADMIN_PRODUCTS_TAB_DISPLAY_IS_ENABLED'] || false %>
-      - key: :security_questions_display
-        is_enabled: <%= ENV['SECURITY_QUESTIONS_DISPLAY_IS_ENABLED'] || false %>
