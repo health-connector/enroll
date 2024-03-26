@@ -28,7 +28,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     allow(person).to receive(:primary_family).and_return family
   end
 
-  context 'employee' do
+  context 'employee', dbclean: :after_each do
     context 'with permissions' do
       before do
         sign_in(user)
@@ -116,7 +116,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     end
   end
 
-  context 'admin' do
+  context 'admin', dbclean: :after_each do
     let!(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
     let!(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
 
@@ -210,7 +210,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     end
   end
 
-  context 'broker' do
+  context 'broker', dbclean: :after_each do
     let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
     let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
     let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
