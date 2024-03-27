@@ -4,6 +4,8 @@
   - if !hbx_enrollment.predecessor_enrollment_id.blank?
     %previous_policy_id
       %id= hbx_enrollment.parent_enrollment.hbx_id
+    %is_reinstate_canceled_policy= hbx_enrollment.is_reinstate_canceled_enrollment?
+
   - if hbx_enrollment.broker_agency_account
     = render :partial => "events/shared/broker", :object => hbx_enrollment, as: :hbx_enrollment
   %enrollees

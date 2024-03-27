@@ -52,17 +52,16 @@ class CreateRenewalPlanYearAndEnrollment < MongoidMigrationTask
   end
 
   def trigger_renewal_py_for_employers
-    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:'benefit_applications'.exists => true,
-                                                                   :'benefit_applications'=>
+    benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications.exists => true,
+                                                                                          :benefit_applications =>
                                                                        { :$elemMatch =>
                                                                              {
-                                                                                 :'effective_period.min' => Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y"),
-                                                                                 :"aasm_state".in => [:active]
-                                                                             }
-                                                                       })
+                                                                               :'benefit_application_items.0.effective_period.min' => Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y"),
+                                                                               :aasm_state.in => [:active]
+                                                                             }})
 
     benefit_sponsorships.each do |benefit_sponsorship|
-      benefit_application = benefit_sponsorship.benefit_applications.where(:'effective_period.min' => Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y"),:"aasm_state" => :active).first
+      benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state => :active).select { |application| application.start_on.to_date == Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y").to_date  }.first
       if benefit_application.present? && benefit_sponsorship.benefit_applications.detect{|b| b.is_renewing?}.blank?
         organization = benefit_application.sponsor_profile.organization
         create_renewal_plan_year(organization)

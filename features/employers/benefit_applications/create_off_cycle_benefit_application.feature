@@ -23,7 +23,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       Then the user will see Terminate button
       When the user enters any_day and other details for voluntary termination
       When user clicks submit button
-      Then user should see termination successful message
+      Then Admin will see Confirmation page
       And user logs out
       And staff role person logged in
       And update rating area
@@ -81,7 +81,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       Then the user will see Terminate button
       When the user enters any_day and other details for voluntary termination
       When user clicks submit button
-      Then user should see termination successful message
+      Then Admin will see Confirmation page
       And user logs out
       And staff role person logged in
       And update rating area

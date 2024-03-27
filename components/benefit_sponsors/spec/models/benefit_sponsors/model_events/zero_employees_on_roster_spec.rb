@@ -14,12 +14,13 @@ RSpec.describe 'BenefitSponsors::ModelEvents::ZeroEmployeesOnRoster', dbclean: :
     sponsorship.save
     sponsorship
   end
-  let!(:model_instance) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-    :with_benefit_package,
-    :benefit_sponsorship => benefit_sponsorship,
-    :aasm_state => 'draft',
-    :effective_period =>  start_on..(start_on + 1.year) - 1.day
-  )}
+  let!(:model_instance) do
+    FactoryGirl.create(:benefit_sponsors_benefit_application,
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'draft',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+  end
   
   describe "ModelEvent" do
 

@@ -297,6 +297,18 @@ class CensusEmployee < CensusMember
     )
   }
 
+  scope :eligible_for_reinstate, lambda { |benefit_application, reinstate_on|
+    where(
+      :"benefit_group_assignments.benefit_package_id".in => benefit_application.benefit_packages.map(&:id),
+      :"$or" => [
+        {"employment_terminated_on" => nil},
+        {"employment_terminated_on" => {"$exists" => false}},
+        {"employment_terminated_on" => {"$gte" => reinstate_on}},
+        {"aasm_state" => {"$in" => ['cobra_linked', 'cobra_termination_pending']}}
+      ]
+    )
+  }
+
 
   def initialize(*args)
     super(*args)
