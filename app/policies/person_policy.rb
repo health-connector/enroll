@@ -11,6 +11,7 @@ class PersonPolicy < ApplicationPolicy
 
   def updateable?
     return true unless role = user.person.hbx_staff_role
+
     role.permission.modify_family
   end
 
@@ -55,6 +56,7 @@ class PersonPolicy < ApplicationPolicy
   def find_role
     person = user&.person
     return nil unless person
+
     ACCESSABLE_ROLES.detect do |role|
       return person.send(role) if person.respond_to?(role) && person.send(role)
     end
