@@ -13,9 +13,9 @@ RSpec.describe BenefitSponsors::Validators::BenefitApplications::BenefitApplicat
   let(:termination_kind)               { "non_payment"}
   let(:termination_reason)             { "non_payment_termination_reason"}
   let(:missing_params)                 { {expiration_date: expiration_date, open_enrollment_period: oe_period, aasm_state: :draft, recorded_rating_area_id: BSON::ObjectId.new, benefit_sponsor_catalog_id: BSON::ObjectId.new } }
-  let(:invalid_params)                 { missing_params.merge({recorded_service_area_ids: BSON::ObjectId.new, effective_period: effective_date})}
-  let(:error_message1)                 { {:effective_period => ["is missing"], :recorded_service_area_ids => ["is missing"]} }
-  let(:error_message2)                 { {:recorded_service_area_ids => ["must be an array"], :effective_period => ["must be Range"]} }
+  let(:invalid_params)                 { missing_params.merge({recorded_service_area_ids: BSON::ObjectId.new, benefit_application_items: [{effective_period: effective_date}]})}
+  let(:error_message1)                 { {:recorded_service_area_ids => ["is missing"], :benefit_application_items => ["is missing"]} }
+  let(:error_message2)                 { {:recorded_service_area_ids => ["must be an array"]} }
 
   describe "Given invalid required parameters" do
     context "sending with missing parameters should fail validation with errors" do
@@ -30,7 +30,13 @@ RSpec.describe BenefitSponsors::Validators::BenefitApplications::BenefitApplicat
   end
 
   describe "Given valid parameters" do
-    let(:valid_params) { missing_params.merge({effective_period: effective_period, recorded_service_area_ids: [BSON::ObjectId.new] })}
+    let(:valid_params) do
+      missing_params.merge({recorded_service_area_ids: [BSON::ObjectId.new], benefit_application_items: [{
+                             effective_period: effective_period,
+                             sequence_id: 0,
+                             state: :draft
+                           }] })
+    end
 
     context "with required params" do
       it "should pass validation" do

@@ -23,6 +23,7 @@ purchase_ids = Family.collection.aggregate([
     "households.hbx_enrollments.workflow_state_transitions" => {
       "$elemMatch" => {
         "to_state" => {"$in" => ["coverage_selected", "auto_renewing"]},
+        "from_state" => {"$nin" => ["coverage_reinstated"]},
         "transition_at" => {
            "$gte" => start_time,
            "$lt" => end_time
@@ -140,6 +141,16 @@ term_families.each do |fam|
         "$lt" => end_time
       }
     }).first.transition_at
+
+    is_reinstate_term = term.workflow_state_transitions.where({
+                                                                "from_state" => 'coverage_reinstated',
+                                                                "transition_at" => {
+                                                                  "$gte" => start_time - 1.minutes, # adding buffer.
+                                                                  "$lt" => terminated_at
+                                                                }
+                                                              }).present?
+
+    next if is_reinstate_term
 
     if can_publish_enrollment?(term, terminated_at)
       ShopEnrollmentsPublisher.publish_action( "acapi.info.events.hbx_enrollment.terminated",

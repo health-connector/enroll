@@ -108,7 +108,11 @@ module BenefitSponsors
 
         applications_for_termination.each do |application|
           enrollment_service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(application)
-          enrollment_service.schedule_termination(termination_date, TimeKeeper.date_of_record, "voluntary", "Other", true)
+          if termination_date < application.start_on
+            enrollment_service.cancel(true)
+          else
+            enrollment_service.schedule_termination(termination_date, TimeKeeper.date_of_record, "voluntary", "Other", true)
+          end
         end
       end
 
@@ -147,7 +151,7 @@ module BenefitSponsors
 
       def update(form)
         benefit_application = find_model_by_id(form.id)
-        model_attributes = form_params_to_attributes(form)
+        model_attributes = form_params_to_attributes(form).except(:effective_period)
         benefit_application.assign_attributes(model_attributes)
         store(form, benefit_application)
       end
@@ -204,7 +208,7 @@ module BenefitSponsors
         if valid_according_to_factory
           benefit_sponsorship = benefit_application.benefit_sponsorship || find_benefit_sponsorship(form)
           # TODO: enable it for new domain operations
-          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.begin)
+          benefit_application.benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.start_on.to_date)
           # assign_rating_and_service_area(benefit_application)
         else
           map_errors_for(benefit_application, onto: form)

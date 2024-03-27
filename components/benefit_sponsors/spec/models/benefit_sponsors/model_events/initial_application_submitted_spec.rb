@@ -28,7 +28,13 @@ module BenefitSponsors
     end
     let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let!(:model_instance) {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: start_on..start_on.next_year.prev_day, open_enrollment_period: open_enrollment_start_on..open_enrollment_start_on+20.days)
+      application = FactoryGirl.create(
+        :benefit_sponsors_benefit_application,
+        :with_benefit_sponsor_catalog,
+        benefit_sponsorship: benefit_sponsorship,
+        default_effective_period: start_on..start_on.next_year.prev_day,
+        open_enrollment_period: open_enrollment_start_on..open_enrollment_start_on + 20.days
+      )
       application.benefit_sponsor_catalog.save!
       application
     }

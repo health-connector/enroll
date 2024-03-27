@@ -13,12 +13,13 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
     sponsorship.save
     sponsorship
   end
-  let!(:model_instance) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-    :with_benefit_package,
-    :benefit_sponsorship => benefit_sponsorship,
-    :aasm_state => 'enrollment_closed',
-    :effective_period =>  start_on..(start_on + 1.year) - 1.day
-  )}
+  let!(:model_instance) do
+    FactoryGirl.create(:benefit_sponsors_benefit_application,
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'enrollment_closed',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+  end
 
 
   describe "ModelEvent" do

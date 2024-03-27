@@ -126,7 +126,13 @@ module BenefitSponsors
       it 'terminate pending benefit application should be terminated when the end on is reached' do
         april_sponsors.each do |sponsor|
           sponsor.benefit_applications.each do |ba|
-            ba.update_attributes!(effective_period: ba_start_on..current_date.prev_day, terminated_on: current_date.prev_month)
+            ba.earliest_benefit_application_item.update_attributes(effective_period: ba_start_on..(ba_start_on + 1.year) - 1.day)
+            ba.benefit_application_items.create(
+              created_at: current_date.prev_month,
+              effective_period: ba_start_on..current_date.prev_day,
+              sequence_id: 1,
+              state: ba.aasm_state
+            )
           end
           benefit_application = sponsor.benefit_applications.termination_pending.first
           service = subject.new(benefit_sponsorship: sponsor)
