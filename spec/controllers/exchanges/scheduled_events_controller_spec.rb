@@ -97,7 +97,7 @@ RSpec.describe Exchanges::ScheduledEventsController do
 
   describe "GET#current_events" do
     before do
-      get :current_events, event: 'system'
+      get :current_events, params: {event: 'system'}
     end
 
     it "should return supported events" do

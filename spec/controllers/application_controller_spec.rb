@@ -2,6 +2,10 @@
 
 require 'rails_helper'
 
+class DummySessionClass
+  include SessionConcern
+end
+
 RSpec.describe ApplicationController do
   controller(Employers::EmployerProfilesController) do
     def index

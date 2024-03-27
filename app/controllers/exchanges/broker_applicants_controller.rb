@@ -41,9 +41,10 @@ class Exchanges::BrokerApplicantsController < ApplicationController
       broker_role.deny!
       flash[:notice] = "Broker applicant denied."
     elsif params['update']
-      all_carrier_appointment = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
-      all_carrier_appointment.merge!(params[:person][:broker_role_attributes][:carrier_appointments]) if params[:person][:broker_role_attributes][:carrier_appointments]
-      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointment
+      all_carrier_appointments = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
+      permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
+      all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
+      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments
       broker_role.update(params.require(:person).require(:broker_role_attributes).permit!.except(:id))
     elsif params['decertify']
       broker_role.decertify!
@@ -80,13 +81,14 @@ class Exchanges::BrokerApplicantsController < ApplicationController
   private
 
   def broker_carrier_appointments
-    all_carrier_appointment = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
+    all_carrier_appointments = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
     broker_carrier_appointments_enabled = Settings.aca.broker_carrier_appointments_enabled
     unless broker_carrier_appointments_enabled
-      all_carrier_appointment.merge!(params[:person][:broker_role_attributes][:carrier_appointments]) if params[:person][:broker_role_attributes][:carrier_appointments]
-      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointment
+      permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
+      all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
+      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments
     else
-      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointment.each{ |key,str| all_carrier_appointment[key] = "true" }
+      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments.each{ |key,str| all_carrier_appointments[key] = "true" }
     end
   end
 

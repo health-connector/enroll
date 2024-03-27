@@ -42,7 +42,7 @@ RSpec.describe Exchanges::AgentsController do
 
     before(:each) do
       allow(current_user).to receive(:roles).and_return ['consumer']
-      controller.class.skip_before_action :check_agent_role
+      controller.class.skip_before_action :check_agent_role, raise: false
     end
     context "actions when not passed Ridp" do
       it 'should redirect to family account path' do

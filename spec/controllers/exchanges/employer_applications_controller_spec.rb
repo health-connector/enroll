@@ -17,7 +17,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
     before :each do
       sign_in(user)
-      get :index, params: { employers_action_id: "employers_action_#{employer_profile.id}", employer_id: benefit_sponsorship }
+      get :index, params: { employers_action_id: "employers_action_#{employer_profile.id}", employer_id: benefit_sponsorship }, xhr: true
     end
 
     it "should render index" do

@@ -360,7 +360,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:user) { double("user", :has_hbx_staff_role? => true)}
     let(:employer_profile) { double("EmployerProfile", id: double("id"))}
     let(:organization){ Organization.new }
-    let(:hbx_enrollment) { FactoryBot.build_stubbed :hbx_enrollment }
+    let(:family) { FactoryBot.build(:family, :with_primary_family_member_and_dependent)}
+    let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household)}
 
     before :each do
       sign_in(user)

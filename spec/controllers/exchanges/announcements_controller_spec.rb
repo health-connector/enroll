@@ -39,7 +39,7 @@ RSpec.describe Exchanges::AnnouncementsController do
         before :each do
           allow(user).to receive(:has_hbx_staff_role?).and_return true
           sign_in user
-          get :index, filter: 'all'
+          get :index, params: { filter: 'all' }
         end
 
         it "get all announcements" do
