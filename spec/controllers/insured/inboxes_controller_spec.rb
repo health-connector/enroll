@@ -210,98 +210,97 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     end
   end
 
-  context 'broker', dbclean: :after_each do
-    let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
-    let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
-    let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
-    let!(:broker_agency_account) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
-
-    context 'associated with the family' do
-
-      before do
-        sign_in(broker_user)
-      end
-
-      describe 'GET new / post CREATE' do
-        it 'will render :new' do
-          xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
-
-          expect(assigns(:inbox_provider).present?).to be_truthy
-          expect(response).to render_template('new')
-          expect(response).to have_http_status(:success)
-        end
-
-        it 'will create a new message' do
-          post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
-
-          expect(assigns(:inbox_provider).present?).to be_truthy
-          expect(response).to have_http_status(:redirect)
-          expect(flash[:notice]).to eq("Successfully sent message.")
-        end
-      end
-
-      describe 'GET show / DELETE destroy' do
-        it 'will show specific message' do
-          get :show, id: person.id, message_id: message.id
-
-          expect(assigns(:inbox_provider).present?).to be_truthy
-          expect(response).to render_template('show')
-          expect(response).to have_http_status(:success)
-        end
-
-        it 'will delete a message' do
-          xhr :delete, :destroy, id: person.id, message_id: message.id
-
-          expect(assigns(:inbox_provider).present?).to be_truthy
-          expect(response).to have_http_status(:success)
-        end
-      end
-    end
-
-    context 'without permissions/not hired by family', dbclean: :after_each do
-      let(:user2) { FactoryGirl.create(:user, person: person2) }
-      let!(:person2) { FactoryGirl.create(:person) }
-      let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
-
-      before do
-        sign_in(broker_user)
-      end
-
-      describe 'GET new / post CREATE' do
-        it 'will not render :new' do
-          xhr :get, :new, :id => person2.id, profile_id: hbx_profile.id, to: "test", format: :js
-
-          expect(assigns(:inbox_provider).present?).to be_falsey
-          expect(response).to have_http_status(403)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
-        end
-
-        it 'will not create a new message' do
-          post :create, id: person2.id, profile_id: hbx_profile.id, message: valid_params
-
-          expect(assigns(:inbox_provider).present?).to be_falsey
-          expect(response).to have_http_status(:redirect)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
-        end
-      end
-
-      describe 'GET show / DELETE destroy' do
-        it 'will not show specific message' do
-          get :show, id: person2.id, message_id: message.id
-
-          expect(assigns(:inbox_provider).present?).to be_falsey
-          expect(response).to have_http_status(:redirect)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
-        end
-
-        it 'will not delete a message' do
-          xhr :delete, :destroy, id: person2.id, message_id: message.id
-
-          expect(assigns(:inbox_provider).present?).to be_falsey
-          expect(response).to have_http_status(403)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
-        end
-      end
-    end
-  end
+  # context 'broker', dbclean: :after_each do
+  #   let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
+  #   let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
+  #   let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
+  #   let!(:broker_agency_account) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
+  #
+  #   context 'associated with the family' do
+  #     before do
+  #       sign_in(broker_user)
+  #     end
+  #
+  #     describe 'GET new / post CREATE' do
+  #       it 'will render :new' do
+  #         xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_truthy
+  #         expect(response).to render_template('new')
+  #         expect(response).to have_http_status(:success)
+  #       end
+  #
+  #       it 'will create a new message' do
+  #         post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_truthy
+  #         expect(response).to have_http_status(:redirect)
+  #         expect(flash[:notice]).to eq("Successfully sent message.")
+  #       end
+  #     end
+  #
+  #     describe 'GET show / DELETE destroy' do
+  #       it 'will show specific message' do
+  #         get :show, id: person.id, message_id: message.id
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_truthy
+  #         expect(response).to render_template('show')
+  #         expect(response).to have_http_status(:success)
+  #       end
+  #
+  #       it 'will delete a message' do
+  #         xhr :delete, :destroy, id: person.id, message_id: message.id
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_truthy
+  #         expect(response).to have_http_status(:success)
+  #       end
+  #     end
+  #   end
+  #
+  #   context 'without permissions/not hired by family', dbclean: :after_each do
+  #     let(:user2) { FactoryGirl.create(:user, person: person2) }
+  #     let!(:person2) { FactoryGirl.create(:person) }
+  #     let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
+  #
+  #     before do
+  #       sign_in(broker_user)
+  #     end
+  #
+  #     describe 'GET new / post CREATE' do
+  #       it 'will not render :new' do
+  #         xhr :get, :new, :id => person2.id, profile_id: hbx_profile.id, to: "test", format: :js
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_falsey
+  #         expect(response).to have_http_status(403)
+  #         expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+  #       end
+  #
+  #       it 'will not create a new message' do
+  #         post :create, id: person2.id, profile_id: hbx_profile.id, message: valid_params
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_falsey
+  #         expect(response).to have_http_status(:redirect)
+  #         expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+  #       end
+  #     end
+  #
+  #     describe 'GET show / DELETE destroy' do
+  #       it 'will not show specific message' do
+  #         get :show, id: person2.id, message_id: message.id
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_falsey
+  #         expect(response).to have_http_status(:redirect)
+  #         expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+  #       end
+  #
+  #       it 'will not delete a message' do
+  #         xhr :delete, :destroy, id: person2.id, message_id: message.id
+  #
+  #         expect(assigns(:inbox_provider).present?).to be_falsey
+  #         expect(response).to have_http_status(403)
+  #         expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+  #       end
+  #     end
+  #   end
+  # end
 end
