@@ -305,7 +305,7 @@ module BenefitSponsors
 
       def sign_in_and_do_update(user)
         sign_in user
-        put :update, params: { :id => ben_app.id.to_s, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application => benefit_application_params }
+        put :update, xhr: true, params: { :id => ben_app.id.to_s, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application => benefit_application_params }
       end
     end
 

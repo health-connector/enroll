@@ -89,7 +89,7 @@ module BenefitSponsors
         expect(primary_location.location_state_code).to eq record_attrs[:primary_location_county_fips]
         expect(primary_location.state).to eq record_attrs[:primary_location_state]
         # we are pre-pending zeros to zip we are taking input from excel.
-        expect(primary_location.zip).to eq("0" << record_attrs[:primary_location_zip])
+        expect(primary_location.zip).to eq("0#{record_attrs[:primary_location_zip]}")
       end
 
       it "should create mailing location" do
@@ -100,7 +100,7 @@ module BenefitSponsors
         expect(mailing_location.city).to eq record_attrs[:mailing_location_city]
         expect(mailing_location.state).to eq record_attrs[:mailing_location_state]
         # we are pre-pending zeros to zip we are taking input from excel.
-        expect(mailing_location.zip).to eq("0" << record_attrs[:mailing_location_zip])
+        expect(mailing_location.zip).to eq("0#{record_attrs[:mailing_location_zip]}")
       end
     end
   end
