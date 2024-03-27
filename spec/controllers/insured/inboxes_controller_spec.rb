@@ -1,32 +1,32 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
-require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
-
-RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :after_each do
-  include_context "setup benefit market with market catalogs and product packages"
-  include_context "setup initial benefit application"
-
-  let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
-  let(:person) { FactoryGirl.create(:person, :with_employee_role)}
-  let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile, census_employee: census_employee)}
-  let(:user) { FactoryGirl.create(:user, person: person) }
-  let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person) }
-  let(:census_employee) { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
-
-  # Need to generate an actual inbox for the authorization with InboxPolicy
-  let(:inbox) { FactoryGirl.create(:inbox, :with_message, recipient: person) }
-  let(:message) { inbox.messages.first }
-
-  # This is used for all CREATE methods
-  let(:valid_params) { {'subject' => 'test', 'body' => 'test', 'sender_id' => '558b63ef4741542b64290000', 'from' => 'HBXAdmin', 'to' => 'Acme Inc.'} }
-
-  before do
-    allow(person).to receive(:user).and_return(user)
-    allow(employee_role).to receive(:census_employee).and_return census_employee
-    allow(person).to receive(:primary_family).and_return family
-  end
+# require 'rails_helper'
+# require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+# require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+#
+# RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :after_each do
+#   include_context "setup benefit market with market catalogs and product packages"
+#   include_context "setup initial benefit application"
+#
+#   let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
+#   let(:person) { FactoryGirl.create(:person, :with_employee_role)}
+#   let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile, census_employee: census_employee)}
+#   let(:user) { FactoryGirl.create(:user, person: person) }
+#   let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person) }
+#   let(:census_employee) { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
+#
+#   # Need to generate an actual inbox for the authorization with InboxPolicy
+#   let(:inbox) { FactoryGirl.create(:inbox, :with_message, recipient: person) }
+#   let(:message) { inbox.messages.first }
+#
+#   # This is used for all CREATE methods
+#   let(:valid_params) { {'subject' => 'test', 'body' => 'test', 'sender_id' => '558b63ef4741542b64290000', 'from' => 'HBXAdmin', 'to' => 'Acme Inc.'} }
+#
+#   before do
+#     allow(person).to receive(:user).and_return(user)
+#     allow(employee_role).to receive(:census_employee).and_return census_employee
+#     allow(person).to receive(:primary_family).and_return family
+#   end
 
   # context 'employee', dbclean: :after_each do
   #   context 'with permissions' do
@@ -303,4 +303,4 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
   #     end
   #   end
   # end
-end
+# end
