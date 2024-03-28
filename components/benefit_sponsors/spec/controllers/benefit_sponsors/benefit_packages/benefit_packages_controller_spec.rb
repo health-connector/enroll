@@ -5,9 +5,9 @@ module BenefitSponsors
 
     routes { BenefitSponsors::Engine.routes }
 
-    let!(:benefit_markets_location_rating_area) { FactoryGirl.create_default(:benefit_markets_locations_rating_area) }
-    let!(:benefit_markets_location_service_area) { FactoryGirl.create_default(:benefit_markets_locations_service_area) }
-    let!(:security_question)  { FactoryGirl.create_default :security_question }
+    let!(:benefit_markets_location_rating_area) { FactoryBot.create_default(:benefit_markets_locations_rating_area) }
+    let!(:benefit_markets_location_service_area) { FactoryBot.create_default(:benefit_markets_locations_service_area) }
+    let!(:security_question)  { FactoryBot.create_default :security_question }
     let(:current_effective_date)  { TimeKeeper.date_of_record }
     let(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
 
@@ -24,7 +24,7 @@ module BenefitSponsors
     end
 
     # let!(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
-    let(:organization)        { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let(:organization)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)    { organization.employer_profile }
     let(:benefit_sponsorship) do
       sponsorship = employer_profile.add_benefit_sponsorship
@@ -34,18 +34,18 @@ module BenefitSponsors
     let!(:benefit_sponsorship_id) { benefit_sponsorship.id.to_s }
 
     let(:form_class)  { BenefitSponsors::Forms::BenefitPackageForm }
-    let(:person) { FactoryGirl.create(:person) }
-    let!(:user) { FactoryGirl.create :user, person: person}
+    let(:person) { FactoryBot.create(:person) }
+    let!(:user) { FactoryBot.create :user, person: person}
     let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
 
 
     let!(:benefit_application) {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship)
+      application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship)
       application.benefit_sponsor_catalog.save!
       application
     }
     let!(:benefit_application_id) { benefit_application.id.to_s }
-    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let!(:product_package_kind) { :single_issuer }
     let!(:product_package) { benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
 
@@ -58,7 +58,7 @@ module BenefitSponsors
         })
     }
 
-    let!(:benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
+    let!(:benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
 
     let(:benefit_package_params) {
       {
@@ -125,7 +125,7 @@ module BenefitSponsors
 
       def sign_in_and_do_new
         sign_in user
-        get :new, :benefit_application_id => benefit_application_id, :benefit_sponsorship_id => benefit_sponsorship_id
+        get :new, params: { :benefit_application_id => benefit_application_id, :benefit_sponsorship_id => benefit_sponsorship_id }
       end
 
       it "should route to benefits tab if rates are not present" do
@@ -164,7 +164,7 @@ module BenefitSponsors
       context "when create is successful and redirect to estimated employer costs" do
         before do
           sign_in user
-          post :create, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params, :estimated_employee_costs => "true"
+          post :create, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params, :estimated_employee_costs => "true" }
         end
 
         it "should redirect to estimated employee cost page after create" do
@@ -203,7 +203,7 @@ module BenefitSponsors
 
       def sign_in_and_do_create
         sign_in user
-        post :create, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params
+        post :create, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params }
       end
 
     end
@@ -217,7 +217,7 @@ module BenefitSponsors
 
       def sign_in_and_do_edit
         sign_in user
-        get :edit, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s
+        get :edit, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s }
       end
 
       it "should be a success" do
@@ -240,7 +240,7 @@ module BenefitSponsors
 
       def sign_in_and_get_ref_prod
         sign_in user
-        get :reference_product_summary, :reference_plan_id => product.id, :benefit_application_id => benefit_application_id, :benefit_sponsorship_id => benefit_sponsorship_id
+        get :reference_product_summary, params: { :reference_plan_id => product.id, :benefit_application_id => benefit_application_id, :benefit_sponsorship_id => benefit_sponsorship_id }
       end
 
       before do
@@ -273,7 +273,7 @@ module BenefitSponsors
 
       def sign_in_and_do_update
         sign_in user
-        post :update, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params
+        post :update, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params }
       end
 
       before do
@@ -305,13 +305,13 @@ module BenefitSponsors
 
         it "should redirect to edit dental benefit page" do
           sign_in user
-          post :update, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params, add_dental_benefits: "true"
+          post :update, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params, add_dental_benefits: "true" }
           expect(response.location.include?("sponsored_benefits/new?kind=dental")).to be_truthy
         end
 
         it "should redirect to estimated employee cost page" do
           sign_in user
-          post :update, :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params, estimated_employee_costs: "true"
+          post :update, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :id => benefit_package.id.to_s, :benefit_package => benefit_package_params, estimated_employee_costs: "true" }
           expect(response.location.include?("estimated_employee_cost_details")).to be_truthy
         end
       end

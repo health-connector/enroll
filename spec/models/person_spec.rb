@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -12,14 +14,13 @@ describe Person, :dbclean => :after_each do
     let(:last_name) {"Williams"}
     let(:ssn) {"657637863"}
     let(:gender) {"male"}
-    let(:address) {FactoryGirl.build(:address)}
+    let(:address) {FactoryBot.build(:address)}
     let(:valid_params) do
       { first_name: first_name,
         last_name: last_name,
         ssn: ssn,
         gender: gender,
-        addresses: [address]
-      }
+        addresses: [address]}
     end
 
     describe ".create", dbclean: :around_each do
@@ -132,22 +133,21 @@ describe Person, :dbclean => :after_each do
 
         def drop_encrypted_ssn_index_in_db
           Person.collection.indexes.each do |spec|
-            if spec["key"].keys.include?("encrypted_ssn")
-              if spec["unique"] && spec["sparse"]
-                Person.collection.indexes.drop_one(spec["key"])
-              end
-            end
+            next unless spec["key"].keys.include?("encrypted_ssn")
+
+            Person.collection.indexes.drop_one(spec["key"]) if spec["unique"] && spec["sparse"]
           end
         end
 
         def create_encrypted_ssn_uniqueness_index
           Person.index_specifications.each do |spec|
-            if spec.options[:unique] && spec.options[:sparse]
-              if spec.key.keys.include?(:encrypted_ssn)
-                key, options = spec.key, spec.options
-                Person.collection.indexes.create_one(key, options)
-              end
-            end
+            next unless spec.options[:unique] && spec.options[:sparse]
+
+            next unless spec.key.keys.include?(:encrypted_ssn)
+
+            key = spec.key
+            options = spec.options
+            Person.collection.indexes.create_one(key, options)
           end
         end
 
@@ -283,12 +283,12 @@ describe Person, :dbclean => :after_each do
       end
 
       context "has_employer_benefits?" do
-        let(:person) {FactoryGirl.build(:person)}
-        let(:benefit_group) { FactoryGirl.build(:benefit_group)}
+        let(:person) {FactoryBot.build(:person)}
+        let(:benefit_group) { FactoryBot.build(:benefit_group)}
         let(:employee_roles) {double(active: true)}
         let(:census_employee) { double }
-        let(:employee_role1) { FactoryGirl.build(:employee_role) }
-        let(:employee_role2) { FactoryGirl.build(:employee_role) }
+        let(:employee_role1) { FactoryBot.build(:employee_role) }
+        let(:employee_role2) { FactoryBot.build(:employee_role) }
 
         before do
           allow(employee_roles).to receive(:census_employee).and_return(census_employee)
@@ -322,7 +322,7 @@ describe Person, :dbclean => :after_each do
       end
 
       context "has_multiple_active_employers?" do
-        let(:person) { FactoryGirl.build(:person) }
+        let(:person) { FactoryBot.build(:person) }
         let(:er1) { double("EmployeeRole1") }
         let(:er2) { double("EmployeeRole2") }
 
@@ -343,7 +343,7 @@ describe Person, :dbclean => :after_each do
       end
 
       context "has_active_employee_role?" do
-        let(:person) {FactoryGirl.build(:person)}
+        let(:person) {FactoryBot.build(:person)}
         let(:employee_roles) {double(active: true)}
         let(:census_employee) { double }
 
@@ -366,14 +366,14 @@ describe Person, :dbclean => :after_each do
       context "consumer fields validation" do
         let(:params) {valid_params}
         let(:person) { Person.new(**params) }
-        let!(:consumer_role) { FactoryGirl.create(:consumer_role, citizen_status: nil)}
+        let!(:consumer_role) { FactoryBot.create(:consumer_role, citizen_status: nil)}
         errors = { citizenship: "Citizenship status is required.",
-                         naturalized: "Naturalized citizen is required.",
-                         immigration: "Eligible immigration status is required.",
-                         native: "American Indian / Alaskan Native status is required.",
-                         tribal_id_presence: "Tribal id is required when native american / alaskan native is selected",
-                         tribal_id: "Tribal id must be 9 digits",
-                         incarceration: "Incarceration status is required." }
+                   naturalized: "Naturalized citizen is required.",
+                   immigration: "Eligible immigration status is required.",
+                   native: "American Indian / Alaskan Native status is required.",
+                   tribal_id_presence: "Tribal id is required when native american / alaskan native is selected",
+                   tribal_id: "Tribal id must be 9 digits",
+                   incarceration: "Incarceration status is required." }
 
         shared_examples_for "validate consumer_fields_validations private" do |citizenship, naturalized, immigration_status, native, tribal_id, incarceration, is_valid, error_list|
           before do
@@ -392,7 +392,7 @@ describe Person, :dbclean => :after_each do
             expect(person.valid?).to eq is_valid
           end
 
-          it "#{is_valid ? 'does not raise' : 'raises'} the errors #{} with #{} errors" do
+          it "#{is_valid ? 'does not raise' : 'raises'} the errors  with  errors" do
             expect(person.errors[:base].count).to eq error_list.count
             expect(person.errors[:base]).to eq error_list
           end
@@ -409,7 +409,7 @@ describe Person, :dbclean => :after_each do
       end
 
       context "has_active_consumer_role?" do
-        let(:person) {FactoryGirl.build(:person)}
+        let(:person) {FactoryBot.build(:person)}
         let(:consumer_role) {double(is_active?: true)}
 
         it "should return true" do
@@ -424,7 +424,7 @@ describe Person, :dbclean => :after_each do
       end
 
       context "has_multiple_roles?" do
-        let(:person) {FactoryGirl.build(:person)}
+        let(:person) {FactoryBot.build(:person)}
         let(:employee_roles) {double(active: true)}
         let(:consumer_role) {double(is_active?: true)}
 
@@ -521,7 +521,7 @@ describe Person, :dbclean => :after_each do
     end
 
     it 'ssn present, dob present, first_name, last_name present and person inactive' do
-      @p4.update_attributes(is_active:false)
+      @p4.update_attributes(is_active: false)
       expect(Person.match_by_id_info(last_name: @p4.last_name, dob: @p4.dob, first_name: @p4.first_name, ssn: '123123123').size).to eq 0
     end
 
@@ -560,7 +560,7 @@ describe Person, :dbclean => :after_each do
 
     it 'persists associated address', dbclean: :after_each do
       # setup
-      person = FactoryGirl.build(:person)
+      person = FactoryBot.build(:person)
       addresses = person.addresses.build({kind: "home", address_1: "441 4th ST, NW", city: "Washington", state: "DC", zip: "20001"})
 
       result = person.save
@@ -573,9 +573,9 @@ describe Person, :dbclean => :after_each do
 
 =begin
   describe '#find_all_staff_roles_by_employer_profile' do
-    employer_profile = FactoryGirl.build(:employer_profile)
-    person = FactoryGirl.build(:person)
-    FactoryGirl.create(:employer_staff_role, person: person, employer_profile_id: employer_profile.id)
+    employer_profile = FactoryBot.build(:employer_profile)
+    person = FactoryBot.build(:person)
+    FactoryBot.create(:employer_staff_role, person: person, employer_profile_id: employer_profile.id)
     it "should have the same search criteria" do
       allow(Person).to receive(:where).and_return([person])
       expect(Person.find_all_staff_roles_by_employer_profile(employer_profile)).to eq [person]
@@ -597,11 +597,11 @@ describe Person, :dbclean => :after_each do
       end
 
       it "should know its age on a given date" do
-        expect(greg.age_on(18.months.ago.to_date)).to eq (gregs_age - 2)
+        expect(greg.age_on(18.months.ago.to_date)).to eq(gregs_age - 2)
       end
 
       it "should know its age yesterday" do
-        expect(greg.age_on(Date.today.advance(days: -1))).to eq (gregs_age - 1)
+        expect(greg.age_on(Date.today.advance(days: -1))).to eq(gregs_age - 1)
       end
 
       it "should know its age tomorrow" do
@@ -670,7 +670,7 @@ describe Person, :dbclean => :after_each do
   describe '#person_relationships' do
     it 'accepts associated addresses' do
       # setup
-      person = FactoryGirl.build(:person)
+      person = FactoryBot.build(:person)
       relationship = person.person_relationships.build({kind: "self", relative: person})
 
       expect(person.save).to eq true
@@ -733,7 +733,7 @@ describe Person, :dbclean => :after_each do
     end
 
     context "notify change event" do
-      let(:person){FactoryGirl.build(:person)}
+      let(:person){FactoryBot.build(:person)}
       it "when new record" do
         #      expect(person).to receive(:notify_change_event).exactly(1).times
         person.save
@@ -749,27 +749,26 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "does not allow two people with the same user ID to be saved", dbclean: :around_each do
-    let(:person1){FactoryGirl.build(:person)}
-    let(:person2){FactoryGirl.build(:person)}
+    let(:person1){FactoryBot.build(:person)}
+    let(:person2){FactoryBot.build(:person)}
 
     def drop_user_id_index_in_db
       Person.collection.indexes.each do |spec|
-        if spec["key"].keys.include?("user_id")
-          if spec["unique"] && spec["sparse"]
-            Person.collection.indexes.drop_one(spec["key"])
-          end
-        end
+        next unless spec["key"].keys.include?("user_id")
+
+        Person.collection.indexes.drop_one(spec["key"]) if spec["unique"] && spec["sparse"]
       end
     end
 
     def create_user_id_uniqueness_index
       Person.index_specifications.each do |spec|
-        if spec.options[:unique] && spec.options[:sparse]
-          if spec.key.keys.include?(:user_id)
-            key, options = spec.key, spec.options
-            Person.collection.indexes.create_one(key, options)
-          end
-        end
+        next unless spec.options[:unique] && spec.options[:sparse]
+
+        next unless spec.key.keys.include?(:user_id)
+
+        key = spec.key
+        options = spec.options
+        Person.collection.indexes.create_one(key, options)
       end
     end
 
@@ -789,8 +788,8 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "persisted with no user" do
-    let(:person1){FactoryGirl.create(:person)}
-    let(:user1){FactoryGirl.create(:user)}
+    let(:person1){FactoryBot.create(:person)}
+    let(:user1){FactoryBot.create(:user)}
 
     it "should be fine with having a user assigned" do
       person1.user = user1
@@ -799,9 +798,9 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "persisted with a user" do
-    let(:person1){FactoryGirl.create(:person)}
-    let(:user1){FactoryGirl.create(:user)}
-    let(:user2){FactoryGirl.create(:user)}
+    let(:person1){FactoryBot.create(:person)}
+    let(:user1){FactoryBot.create(:user)}
+    let(:user2){FactoryBot.create(:user)}
 
     before :each do
       person1.user = user1
@@ -822,7 +821,7 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "validation of date_of_birth and date_of_death" do
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     context "validate of date_of_birth_is_past" do
       it "should invalid" do
@@ -830,7 +829,7 @@ describe Person, :dbclean => :after_each do
         allow(person).to receive(:dob).and_return(dob)
         expect(person.save).to be_falsey
         expect(person.errors[:dob].any?).to be_truthy
-        expect(person.errors[:dob].to_s).to match /future date: #{dob.to_s} is invalid date of birth/
+        expect(person.errors[:dob].to_s).to match(/future date: #{dob} is invalid date of birth/)
       end
     end
 
@@ -840,16 +839,16 @@ describe Person, :dbclean => :after_each do
         allow(person).to receive(:date_of_death).and_return(date_of_death)
         expect(person.save).to be_falsey
         expect(person.errors[:date_of_death].any?).to be_truthy
-        expect(person.errors[:date_of_death].to_s).to match /future date: #{date_of_death.to_s} is invalid date of death/
+        expect(person.errors[:date_of_death].to_s).to match(/future date: #{date_of_death} is invalid date of death/)
       end
     end
   end
 
   describe "us_citizen status" do
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     before do
-      person.us_citizen="false"
+      person.us_citizen = "false"
     end
 
     context "set to false" do
@@ -864,7 +863,7 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "residency_eligible?" do
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     it "should false" do
       person.no_dc_address = false
@@ -886,7 +885,7 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "home_address" do
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     it "return home address" do
       address_1 = Address.new(kind: 'home')
@@ -959,16 +958,16 @@ describe Person, :dbclean => :after_each do
 
   describe "assisted and unassisted" do
     context "is_aqhp?" do
-      let(:person) {FactoryGirl.create(:person, :with_consumer_role)}
-      let(:person1) {FactoryGirl.create(:person, :with_consumer_role)}
-      let(:person2) {FactoryGirl.create(:person, :with_consumer_role)}
-      let(:family1)  {FactoryGirl.create(:family, :with_primary_family_member)}
-      let(:household) {FactoryGirl.create(:household, family: family1)}
-      let(:tax_household) {FactoryGirl.create(:tax_household, household: household) }
-      let(:eligibility_determination) {FactoryGirl.create(:eligibility_determination, tax_household: tax_household, csr_percent_as_integer: 10)}
+      let(:person) {FactoryBot.create(:person, :with_consumer_role)}
+      let(:person1) {FactoryBot.create(:person, :with_consumer_role)}
+      let(:person2) {FactoryBot.create(:person, :with_consumer_role)}
+      let(:family1)  {FactoryBot.create(:family, :with_primary_family_member)}
+      let(:household) {FactoryBot.create(:household, family: family1)}
+      let(:tax_household) {FactoryBot.create(:tax_household, household: household) }
+      let(:eligibility_determination) {FactoryBot.create(:eligibility_determination, tax_household: tax_household, csr_percent_as_integer: 10)}
 
       before :each do
-        family1.households.first.tax_households<<tax_household
+        family1.households.first.tax_households << tax_household
         family1.save
         @person_aqhp = family1.primary_applicant.person
       end
@@ -977,13 +976,13 @@ describe Person, :dbclean => :after_each do
       end
 
       it "returns people with uverified status" do
-        expect(Person.unverified_persons.include? person1).to eq(true)
+        expect(Person.unverified_persons.include?(person1)).to eq(true)
       end
 
       it "doesn't return people with verified status" do
         person2.consumer_role.aasm_state = "fully_verified"
         person2.save
-        expect(Person.unverified_persons.include? person2).to eq(false)
+        expect(Person.unverified_persons.include?(person2)).to eq(false)
       end
 
       it "creates family with households and tax_households" do
@@ -1005,7 +1004,7 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "verification types" do
-    let(:person) {FactoryGirl.create(:person, :with_consumer_role) }
+    let(:person) {FactoryBot.create(:person, :with_consumer_role) }
 
     shared_examples_for "collecting verification types for person" do |v_types, types_count, ssn, citizen, native, age|
       before do
@@ -1058,12 +1057,12 @@ describe Person, :dbclean => :after_each do
     include_context "setup initial benefit application"
     let(:employer_profile) { abc_profile }
     let(:person_params) {{first_name: Forgery('name').first_name, last_name: Forgery('name').first_name, dob: '1990/05/01'}}
-    let(:person1) {FactoryGirl.create(:person, person_params)}
+    let(:person1) {FactoryBot.create(:person, person_params)}
 
     context 'duplicate person PII' do
       before do
-        FactoryGirl.create(:person, person_params)
-        @status, @result = Person.add_employer_staff_role(person1.first_name, person1.last_name, person1.dob,'#default@email.com', employer_profile )
+        FactoryBot.create(:person, person_params)
+        @status, @result = Person.add_employer_staff_role(person1.first_name, person1.last_name, person1.dob,'#default@email.com', employer_profile)
       end
       it 'returns false' do
         expect(@status).to eq false
@@ -1075,7 +1074,7 @@ describe Person, :dbclean => :after_each do
     end
 
     context 'zero matching person PII' do
-      before {@status, @result = Person.add_employer_staff_role('sam', person1.last_name, person1.dob,'#default@email.com', employer_profile )}
+      before {@status, @result = Person.add_employer_staff_role('sam', person1.last_name, person1.dob,'#default@email.com', employer_profile)}
 
       it 'returns false' do
         expect(@status).to eq false
@@ -1087,7 +1086,7 @@ describe Person, :dbclean => :after_each do
     end
 
     context 'matching one person PII' do
-      before {@status, @result = Person.add_employer_staff_role(person1.first_name, person1.last_name, person1.dob,'#default@email.com', employer_profile )}
+      before {@status, @result = Person.add_employer_staff_role(person1.first_name, person1.last_name, person1.dob,'#default@email.com', employer_profile)}
 
       it 'returns true' do
         expect(@status).to eq true
@@ -1100,9 +1099,9 @@ describe Person, :dbclean => :after_each do
   end
 
   describe ".deactivate_employer_staff_role" do
-    let(:person) {FactoryGirl.create(:person)}
-    let(:employer_staff_role) {FactoryGirl.create(:employer_staff_role, person: person)}
-    let(:employer_staff_roles) { FactoryGirl.create_list(:employer_staff_role, 3, person: person) }
+    let(:person) {FactoryBot.create(:person)}
+    let(:employer_staff_role) {FactoryBot.create(:employer_staff_role, person: person)}
+    let(:employer_staff_roles) { FactoryBot.create_list(:employer_staff_role, 3, person: person) }
     context 'does not find the person' do
       before {@status, @result = Person.deactivate_employer_staff_role(1, employer_staff_role.employer_profile_id)}
       it 'returns false' do
@@ -1152,17 +1151,18 @@ describe Person, :dbclean => :after_each do
   describe "person_has_an_active_enrollment?" do
 
 
-    let(:person) { FactoryGirl.create(:person) }
-    let(:employee_role) { FactoryGirl.create(:employee_role, person: person) }
-    let(:primary_family) { FactoryGirl.create(:family, :with_primary_family_member) }
+    let(:person) { FactoryBot.create(:person) }
+    let(:employee_role) { FactoryBot.create(:employee_role, person: person) }
+    let(:primary_family) { FactoryBot.create(:family, :with_primary_family_member) }
 
 
     context 'person_has_an_active_enrollment?' do
-      let(:active_enrollment)   { FactoryGirl.create( :hbx_enrollment,
-                                           household: primary_family.latest_household,
-                                          employee_role_id: employee_role.id,
-                                          is_active: true
-                                       )}
+      let(:active_enrollment)   do
+        FactoryBot.create(:hbx_enrollment,
+                          household: primary_family.latest_household,
+                          employee_role_id: employee_role.id,
+                          is_active: true)
+      end
 
       it 'returns true if person has an active enrollment.' do
 
@@ -1173,11 +1173,12 @@ describe Person, :dbclean => :after_each do
     end
 
     context 'person_has_an_inactive_enrollment?' do
-      let(:inactive_enrollment)   { FactoryGirl.create( :hbx_enrollment,
-                                           household: primary_family.latest_household,
-                                          employee_role_id: employee_role.id,
-                                          is_active: false
-                                       )}
+      let(:inactive_enrollment)   do
+        FactoryBot.create(:hbx_enrollment,
+                          household: primary_family.latest_household,
+                          employee_role_id: employee_role.id,
+                          is_active: false)
+      end
 
       it 'returns false if person does not have any active enrollment.' do
 
@@ -1190,9 +1191,9 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "has_active_employee_role_for_census_employee?" do
-    let(:person) { FactoryGirl.create(:person) }
-    let(:census_employee) { FactoryGirl.create(:census_employee) }
-    let(:census_employee2) { FactoryGirl.create(:census_employee) }
+    let(:person) { FactoryBot.create(:person) }
+    let(:census_employee) { FactoryBot.create(:census_employee) }
+    let(:census_employee2) { FactoryBot.create(:census_employee) }
 
     context "person has no active employee roles" do
       it "should return false" do
@@ -1203,9 +1204,9 @@ describe Person, :dbclean => :after_each do
 
     context "person has active employee roles" do
       before(:each) do
-        person.employee_roles.create!(FactoryGirl.create(:employee_role, person: person,
-                                                                       census_employee_id: census_employee.id).attributes)
-        person.employee_roles.pluck(:census_employee).each { |census_employee| census_employee.update_attribute(:aasm_state, 'eligible') }
+        person.employee_roles.create!(FactoryBot.create(:employee_role, person: person,
+                                                                        census_employee_id: census_employee.id).attributes)
+        person.active_employee_roles.each { |employee_role| employee_role.census_employee.update_attribute(:aasm_state, 'eligible') }
       end
 
       it "should return true if person has active employee role for given census_employee" do
@@ -1218,13 +1219,13 @@ describe Person, :dbclean => :after_each do
         expect(person.has_active_employee_role_for_census_employee?(census_employee2)).to be_falsey
       end
     end
-   end
+  end
 
   describe "agent?" do
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     it "should return true with general_agency_staff_roles" do
-      person.general_agency_staff_roles << FactoryGirl.build(:general_agency_staff_role)
+      person.general_agency_staff_roles << FactoryBot.build(:general_agency_staff_role)
       expect(person.agent?).to be_truthy
     end
   end
@@ -1232,14 +1233,15 @@ describe Person, :dbclean => :after_each do
   describe "dob_change_implication_on_active_enrollments" do
 
     let(:persons_dob) { TimeKeeper.date_of_record - 19.years }
-    let(:person) { FactoryGirl.create(:person, dob: persons_dob) }
-    let(:primary_family) { FactoryGirl.create(:family, :with_primary_family_member) }
-    let(:enrollment)   { FactoryGirl.create( :hbx_enrollment,
-                                              household: primary_family.latest_household,
-                                              aasm_state: 'coverage_selected',
-                                              effective_on: TimeKeeper.date_of_record - 10.days,
-                                              is_active: true
-                                            )}
+    let(:person) { FactoryBot.create(:person, dob: persons_dob) }
+    let(:primary_family) { FactoryBot.create(:family, :with_primary_family_member) }
+    let(:enrollment)   do
+      FactoryBot.create(:hbx_enrollment,
+                        household: primary_family.latest_household,
+                        aasm_state: 'coverage_selected',
+                        effective_on: TimeKeeper.date_of_record - 10.days,
+                        is_active: true)
+    end
     let(:new_dob_with_premium_implication)    { TimeKeeper.date_of_record - 35.years }
     let(:new_dob_without_premium_implication) { TimeKeeper.date_of_record - 17.years }
 
@@ -1262,10 +1264,10 @@ describe Person, :dbclean => :after_each do
     context 'edge case when DOB change makes person 61' do
 
       let(:age_older_than_sixty_one) { TimeKeeper.date_of_record - 75.years }
-      let(:person_older_than_sixty_one) { FactoryGirl.create(:person, dob: age_older_than_sixty_one) }
-      let(:primary_family) { FactoryGirl.create(:family, :with_primary_family_member) }
+      let(:person_older_than_sixty_one) { FactoryBot.create(:person, dob: age_older_than_sixty_one) }
+      let(:primary_family) { FactoryBot.create(:family, :with_primary_family_member) }
       let(:new_dob_with_premium_implication)    { TimeKeeper.date_of_record - 35.years }
-      let(:enrollment)   { FactoryGirl.create( :hbx_enrollment, household: primary_family.latest_household, aasm_state: 'coverage_selected', effective_on: Date.new(2016,1,1), is_active: true)}
+      let(:enrollment)   { FactoryBot.create(:hbx_enrollment, household: primary_family.latest_household, aasm_state: 'coverage_selected', effective_on: Date.new(2016,1,1), is_active: true)}
       let(:new_dob_to_make_person_sixty_one)    { Date.new(1955,1,1) }
 
       before do
@@ -1299,8 +1301,8 @@ describe Person, :dbclean => :after_each do
   end
 
   describe "#check_for_paper_application", dbclean: :after_each do
-    let(:person) { FactoryGirl.create(:person, user: user) }
-    let(:user) { FactoryGirl.create(:user)}
+    let(:person) { FactoryBot.create(:person, user: user) }
+    let(:user) { FactoryBot.create(:user)}
 
     before do
       user.unset(:identity_final_decision_code)
@@ -1342,7 +1344,7 @@ describe Person, :dbclean => :after_each do
     end
 
     context "employer has an active staff role" do
-      let(:person) { FactoryGirl.build(:person) }
+      let(:person) { FactoryBot.build(:person) }
       let(:staff_params)  {{ person: person, benefit_sponsor_employer_profile_id: employer_profile.id, aasm_state: :is_active }}
 
       before do
@@ -1357,9 +1359,9 @@ describe Person, :dbclean => :after_each do
 
 
     context "multiple employers have same person as staff" do
-      let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile2) { organization.employer_profile }
-      let(:person) { FactoryGirl.build(:person) }
+      let(:person) { FactoryBot.build(:person) }
 
       let(:staff_params1) { {person: person, benefit_sponsor_employer_profile_id: employer_profile.id, aasm_state: :is_active} }
 

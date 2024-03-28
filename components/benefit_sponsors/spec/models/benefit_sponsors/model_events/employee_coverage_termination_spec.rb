@@ -6,7 +6,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeCoverageTermination', dbcl
   let(:current_effective_date)  { TimeKeeper.date_of_record }
 
   let!(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
   let!(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
@@ -14,7 +14,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeCoverageTermination', dbcl
     sponsorship
   end
   let!(:benefit_market) { site.benefit_markets.first }
-  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,
@@ -26,7 +26,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeCoverageTermination', dbcl
     )
   end
   let!(:benefit_application) {
-    application = FactoryGirl.create(
+    application = FactoryBot.create(
       :benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
       benefit_sponsorship: benefit_sponsorship,
       aasm_state: "active",
@@ -37,13 +37,13 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeCoverageTermination', dbcl
     application
   }
 
-  let(:person)       { FactoryGirl.create(:person, :with_family) }
+  let(:person)       { FactoryBot.create(:person, :with_family) }
   let(:family)       { person.primary_family }
-  let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
-  let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name ) }
+  let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name ) }
   
   let!(:model_instance) { 
-    hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product, 
+    hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                         household: family.active_household, 
                         aasm_state: "coverage_selected",
                         rating_area_id: benefit_application.recorded_rating_area_id,

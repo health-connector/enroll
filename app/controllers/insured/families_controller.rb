@@ -205,7 +205,7 @@ class Insured::FamiliesController < FamiliesController
       return
     elsif file_content_type != 'application/pdf'
       flash[:error] = "Please upload a PDF file. Other file formats are not supported."
-      redirect_to(:back)
+      redirect_back fallback_location: main_app.root_path
       return
     end
 

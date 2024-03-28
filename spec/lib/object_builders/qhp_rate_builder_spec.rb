@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require Rails.root.join('lib', 'tasks', 'hbx_import', 'qhp', 'parsers', 'plan_rate_group_parser')
 require Rails.root.join('lib', 'tasks', 'hbx_import', 'qhp', 'parsers', 'plan_rate_group_list_parser')
@@ -11,12 +13,12 @@ describe "QhpRateBuilder", dbclean: :after_each do
     load_cca_issuer_profiles_seed
   end
 
-  let!(:ra1) {FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA001")}
-  let!(:ra2) {FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA002")}
-  let!(:ra3) {FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA003")}
-  let!(:ra4) {FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA007")}
+  let!(:ra1) {FactoryBot.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA001")}
+  let!(:ra2) {FactoryBot.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA002")}
+  let!(:ra3) {FactoryBot.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA003")}
+  let!(:ra4) {FactoryBot.create(:benefit_markets_locations_rating_area, active_year: 2018, exchange_provided_code: "R-MA007")}
 
-  let!(:current_time) {Date.new(2018,01,01)}
+  let!(:current_time) {Date.new(2018,0o1,0o1)}
   let!(:premium_start_date) {current_time.all_quarter.min}
   let!(:premium_end_date) {current_time.all_quarter.max}
   let!(:premium_period) {Time.utc(premium_start_date.year, premium_start_date.month, premium_start_date.day)..Time.utc(premium_end_date.year, premium_end_date.month, premium_end_date.day)}
@@ -24,24 +26,38 @@ describe "QhpRateBuilder", dbclean: :after_each do
   let!(:start_date) {current_time.beginning_of_year}
   let!(:end_date) {current_time.end_of_year}
   let!(:application_period) {Time.utc(start_date.year, start_date.month, start_date.day)..Time.utc(end_date.year, end_date.month, end_date.day)}
-  let!(:previous_application_period) {Time.utc(start_date.year-1, start_date.month, start_date.day)..Time.utc(end_date.year-1, end_date.month, end_date.day)}
+  let!(:previous_application_period) {Time.utc(start_date.year - 1, start_date.month, start_date.day)..Time.utc(end_date.year - 1, end_date.month, end_date.day)}
 
   let!(:issuer_profiles) {BenefitSponsors::Organizations::Organization.issuer_profiles.all}
-  let!(:hp1) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, application_period: application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502", csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))}
-  let!(:hp2) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, application_period: previous_application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502", csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))}
-  let!(:hp3) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, application_period: application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503", csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))}
-  let!(:hp4) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, application_period: previous_application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503", csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))}
+  let!(:hp1) do
+    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502",
+                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))
+  end
+  let!(:hp2) do
+    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: previous_application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502",
+                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))
+  end
+  let!(:hp3) do
+    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503",
+                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))
+  end
+  let!(:hp4) do
+    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: previous_application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503",
+                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))
+  end
 
-  let!(:plan) {FactoryGirl.create(:plan, active_year: 2017)}
-  let!(:rating_area) {RatingArea.first || FactoryGirl.create(:rating_area)}
-  let!(:rates_hash) {{ items: [{
-                                      :effective_date => "2017-01-01",
-                                      :expiration_date => "2017-12-31",
-                                      :plan_id => plan.hios_id,
-                                      :age_number => 20,
-                                      :primary_enrollee => 256.41,
-                                      :rate_area_id => rating_area.rating_area
-                                     }]}}
+  let!(:plan) {FactoryBot.create(:plan, active_year: 2017)}
+  let!(:rating_area) {RatingArea.first || FactoryBot.create(:rating_area)}
+  let!(:rates_hash) do
+    { items: [{
+      :effective_date => "2017-01-01",
+      :expiration_date => "2017-12-31",
+      :plan_id => plan.hios_id,
+      :age_number => 20,
+      :primary_enrollee => 256.41,
+      :rate_area_id => rating_area.rating_area
+    }]}
+  end
 
   context "old model" do
     it "should return qhp builder object" do
@@ -88,7 +104,7 @@ def rates_runner(rates_hash = nil, set_year = nil)
           else
             Parser::PlanRateGroupListParser.parse(xml.root.canonicalize, :single => true)
           end
-  product_rate = QhpRateBuilder.new()
+  product_rate = QhpRateBuilder.new
   set_hash = rates_hash.nil? ? rates.to_hash : rates_hash
   product_rate.add(set_hash, action, year)
   product_rate.run

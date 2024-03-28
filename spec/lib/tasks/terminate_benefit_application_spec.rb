@@ -13,11 +13,11 @@ describe 'terminating employer active benefit application & enrollments', :dbcle
     let!(:sponsored_benefit_package) { initial_application.benefit_packages[0] }
     let!(:employer_profile) {benefit_sponsorship.profile}
     let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
-    let(:employee_role)     { FactoryGirl.create(:employee_role, benefit_sponsors_employer_profile_id: employer_profile.id, employer_profile_id: nil)}
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let!(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id) }
+    let(:employee_role)     { FactoryBot.create(:employee_role)}
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member)}
+    let!(:census_employee) { FactoryBot.create(:census_employee, employer_profile: employer_profile, employee_role_id: employee_role.id) }
     let!(:termination_date){TimeKeeper.date_of_record.strftime('%m/%d/%Y')}
-    let(:enrollment)     { FactoryGirl.create(:hbx_enrollment, household: family.active_household, benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package_id:sponsored_benefit_package.id, employee_role_id: employee_role.id, aasm_state:'coverage_selected')}
+    let(:enrollment)     { FactoryBot.create(:hbx_enrollment, household: family.active_household, benefit_sponsorship: benefit_sponsorship, sponsored_benefit_package_id:sponsored_benefit_package.id, employee_role_id: employee_role.id, aasm_state:'coverage_selected')}
     let!(:fein)          {abc_organization.fein}
     let!(:py_end_on){TimeKeeper.date_of_record.end_of_month.strftime('%m/%d/%Y')}
     let(:effective_period) { start_on..end_on }
@@ -26,6 +26,7 @@ describe 'terminating employer active benefit application & enrollments', :dbcle
     let(:benefit_application)         { initial_application }
 
     before do
+      EnrollRegistry[:employee_roster_updates].feature.stub(:is_enabled).and_return(false)
       enrollment.update_attributes(aasm_state:'coverage_selected')
       employee_role.update_attributes(census_employee_id: census_employee.id)
     end

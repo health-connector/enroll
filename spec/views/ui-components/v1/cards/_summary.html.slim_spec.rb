@@ -1,44 +1,47 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
   let(:aws_env) { ENV['AWS_ENV'] || "qa" }
-  let(:person) {FactoryGirl.create(:person)}
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
+  let(:person) {FactoryBot.create(:person)}
+  let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
   let(:active_household) {family.active_household}
-  let(:hbx_enrollment_member){ FactoryGirl.build(:hbx_enrollment_member, is_subscriber:true, applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record, eligibility_date: TimeKeeper.date_of_record) }
-  let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment,household: active_household, hbx_enrollment_members:[hbx_enrollment_member])}
-  let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id:hbx_enrollment_member.id, product_price:BigDecimal(100),sponsor_contribution:BigDecimal(100))}
-  let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: mock_product, member_enrollments:[member_enrollment])}
-  let(:member_group) {double(group_enrollment:group_enrollment)}
+  let(:hbx_enrollment_member){ FactoryBot.build(:hbx_enrollment_member, is_subscriber: true, applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record, eligibility_date: TimeKeeper.date_of_record) }
+  let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment,household: active_household, hbx_enrollment_members: [hbx_enrollment_member])}
+  let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id: hbx_enrollment_member.id, product_price: BigDecimal(100),sponsor_contribution: BigDecimal(100))}
+  let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: mock_product, member_enrollments: [member_enrollment])}
+  let(:member_group) {double(group_enrollment: group_enrollment)}
 
   let(:mock_issuer_profile) { double("IssuerProfile", :dba => "a carrier name", :legal_name => "name") }
 
-  let(:mock_product) { double("Product",
-      :active_year => 2018,
-      :title => "A Plan Name",
-      :carrier_profile_id => "a carrier profile id",
-      :issuer_profile => mock_issuer_profile,
-      :metal_level_kind => "Silver",
-      :product_type => "A plan type",
-      :nationwide => true,
-      :network_information => "This is a test",
-      :deductible => 0,
-      :total_premium => 0,
-      :total_employer_contribution => 0,
-      :total_employee_cost => 0,
-      :rx_formulary_url => "http://www.example.com",
-      :provider_directory_url => "http://www.example1.com",
-      :ehb => 0.988,
-      :hios_id => "89789DC0010006-01",
-      :id => "1234234234",
-      :kind => "health",
-      :health_plan_kind => "HMO",
-      :sbc_file => "THE SBC FILE.PDF",
-      :is_standard_plan => true,
-      :can_use_aptc? => true,
-      :sbc_document => Document.new({title: 'sbc_file_name', subject: "SBC",
-                                     :identifier=>"urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"})
-      ) }
+  let(:mock_product) do
+    double("Product",
+           :active_year => 2018,
+           :title => "A Plan Name",
+           :carrier_profile_id => "a carrier profile id",
+           :issuer_profile => mock_issuer_profile,
+           :metal_level_kind => "Silver",
+           :product_type => "A plan type",
+           :nationwide => true,
+           :network_information => "This is a test",
+           :deductible => 0,
+           :total_premium => 0,
+           :total_employer_contribution => 0,
+           :total_employee_cost => 0,
+           :rx_formulary_url => "http://www.example.com",
+           :provider_directory_url => "http://www.example1.com",
+           :ehb => 0.988,
+           :hios_id => "89789DC0010006-01",
+           :id => "1234234234",
+           :kind => "health",
+           :health_plan_kind => "HMO",
+           :sbc_file => "THE SBC FILE.PDF",
+           :is_standard_plan => true,
+           :can_use_aptc? => true,
+           :sbc_document => Document.new({title: 'sbc_file_name', subject: "SBC",
+                                          :identifier => "urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"}))
+  end
   let(:mock_qhp_cost_share_variance) { instance_double(Products::QhpCostShareVariance, :qhp_service_visits => []) }
 
   before :each do

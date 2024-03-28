@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "exchanges/scheduled_events/new.html.erb" do
-  let(:person) { FactoryGirl.create(:person) }
-  let(:user) { FactoryGirl.create(:user, :person => person) }
+  let(:person) { FactoryBot.create(:person) }
+  let(:user) { FactoryBot.create(:user, :person => person) }
   let(:scheduled_event) { ScheduledEvent.new }
 
   before :each do

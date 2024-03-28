@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -6,39 +8,52 @@ RSpec.describe ShopEmployeeNotices::SepRequestDenialNotice, :dbclean => :after_e
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup renewal application"
 
-  let(:hbx_profile)   { FactoryGirl.create(:benefit_sponsors_organizations_hbx_profile, organization: abc_organization) }
-  let(:renewal_bcp) { double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, start_on: TimeKeeper.date_of_record.beginning_of_year, end_on: TimeKeeper.date_of_record.end_of_year, open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.next_year.year,11,1), open_enrollment_end_on: Date.new((TimeKeeper.date_of_record+2.years).year,1,31)) }
-  let(:bcp) { double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, plan_year: TimeKeeper.date_of_record.beginning_of_year.next_year,  start_on: TimeKeeper.date_of_record.beginning_of_year.next_year, end_on: TimeKeeper.date_of_record.end_of_year.next_year, open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.year,11,1), open_enrollment_end_on: Date.new(TimeKeeper.date_of_record.next_year.year,1,31)) }
-  let(:person) {FactoryGirl.create(:person)}
-  let(:family){ FactoryGirl.create(:family, :with_primary_family_member, person: person) }
+  let(:hbx_profile)   { FactoryBot.create(:benefit_sponsors_organizations_hbx_profile, organization: abc_organization) }
+  let(:renewal_bcp) do
+    double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, start_on: TimeKeeper.date_of_record.beginning_of_year, end_on: TimeKeeper.date_of_record.end_of_year,
+           open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.next_year.year,11,1), open_enrollment_end_on: Date.new((TimeKeeper.date_of_record + 2.years).year,1,31))
+  end
+  let(:bcp) do
+    double(earliest_effective_date: TimeKeeper.date_of_record - 2.months, plan_year: TimeKeeper.date_of_record.beginning_of_year.next_year,  start_on: TimeKeeper.date_of_record.beginning_of_year.next_year,
+           end_on: TimeKeeper.date_of_record.end_of_year.next_year, open_enrollment_start_on: Date.new(TimeKeeper.date_of_record.year,11,1), open_enrollment_end_on: Date.new(TimeKeeper.date_of_record.next_year.year,1,31))
+  end
+  let(:person) {FactoryBot.create(:person)}
+  let(:family){ FactoryBot.create(:family, :with_primary_family_member, person: person) }
   let(:household){ family.active_household }
-  let!(:census_employee) { FactoryGirl.create(:census_employee, :with_active_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package ) }
-  let!(:employee_role) { FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile) }
+  let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package) }
+  let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile) }
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-  let(:hbx_enrollment_member) { FactoryGirl.build(:hbx_enrollment_member, is_subscriber:true,  applicant_id: family.family_members.first.id, coverage_start_on: (TimeKeeper.date_of_record).beginning_of_month, eligibility_date: (TimeKeeper.date_of_record).beginning_of_month) }
-  let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                                            household: household,
-                                            hbx_enrollment_members: [hbx_enrollment_member],
-                                            coverage_kind: "health",
-                                            external_enrollment: false,
-                                            rating_area_id: rating_area.id )
-  }
+  let(:hbx_enrollment_member) do
+    FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
+  end
+  let!(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                      household: household,
+                                                      hbx_enrollment_members: [hbx_enrollment_member],
+                                                      coverage_kind: "health",
+                                                      external_enrollment: false,
+                                                      rating_area_id: rating_area.id)
+  end
 
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Denial of SEP Requested by EE outside of allowable time frame',
-                            :notice_template => 'notices/shop_employee_notices/sep_request_denial_notice',
-                            :notice_builder => 'ShopEmployeeNotices::SepRequestDenialNotice',
-                            :mpi_indicator => 'MPI_SHOP35',
-                            :event_name => 'sep_request_denial_notice',
-                            :title => "Special Enrollment Period Denial"})
-                          }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Denial of SEP Requested by EE outside of allowable time frame',
+             :notice_template => 'notices/shop_employee_notices/sep_request_denial_notice',
+             :notice_builder => 'ShopEmployeeNotices::SepRequestDenialNotice',
+             :mpi_indicator => 'MPI_SHOP35',
+             :event_name => 'sep_request_denial_notice',
+             :title => "Special Enrollment Period Denial"
+           })
+  end
 
-  let(:valid_params) {{
+  let(:valid_params) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
       :template => application_event.notice_template
-  }}
+    }
+  end
 
   describe "New" do
     before do
@@ -72,10 +87,10 @@ RSpec.describe ShopEmployeeNotices::SepRequestDenialNotice, :dbclean => :after_e
     end
   end
 
-  #ToDo Fix in DC new model after udpdating the notice builder
+  #TODO: Fix in DC new model after udpdating the notice builder
   xdescribe "append data" do
-    let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 04, 14)}
-    let(:end_on) {Date.new(TimeKeeper.date_of_record.year, 04, 18)}
+    let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 0o4, 14)}
+    let(:end_on) {Date.new(TimeKeeper.date_of_record.year, 0o4, 18)}
     let(:special_enrollment_period) {[double("SpecialEnrollmentPeriod")]}
     let(:sep1) {family.special_enrollment_periods.new}
     let(:sep2) {family.special_enrollment_periods.new}
@@ -94,14 +109,14 @@ RSpec.describe ShopEmployeeNotices::SepRequestDenialNotice, :dbclean => :after_e
     end
 
     it "should append data" do
-      sep = census_employee.employee_role.person.primary_family.special_enrollment_periods.order_by(:"created_at".desc)[0]
-      
+      sep = census_employee.employee_role.person.primary_family.special_enrollment_periods.order_by(:created_at.desc)[0]
+
       @employee_notice.append_data
       expect(@employee_notice.notice.sep.qle_on).to eq qle_on
       expect(@employee_notice.notice.sep.end_on).to eq end_on
       expect(@employee_notice.notice.sep.title).to eq "had a baby"
-      
-      expect(@employee_notice.notice.plan_year.start_on).to eq plan_year.start_on+1.year
+
+      expect(@employee_notice.notice.plan_year.start_on).to eq plan_year.start_on + 1.year
 
       expect(@employee_notice.notice.enrollment.ivl_open_enrollment_start_on).to eq bcp.open_enrollment_start_on
       expect(@employee_notice.notice.enrollment.ivl_open_enrollment_end_on).to eq bcp.open_enrollment_end_on

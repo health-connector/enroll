@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "broker_agencies/broker_roles/_existing_broker_agency_form.html.erb" do

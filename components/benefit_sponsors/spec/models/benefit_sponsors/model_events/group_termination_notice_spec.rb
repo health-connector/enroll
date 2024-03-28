@@ -6,11 +6,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let(:person)       { FactoryGirl.create(:person, :with_family) }
+  let(:person)       { FactoryBot.create(:person, :with_family) }
   let(:family)       { person.primary_family }
-  let!(:census_employee) { FactoryGirl.create(:census_employee, :with_active_assignment,  benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
-  let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id)}
-  let(:hbx_enrollment) {  FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+  let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment,  benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
+  let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id)}
+  let(:hbx_enrollment) {  FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                         household: family.active_household,
                         aasm_state: "coverage_selected",
                         effective_on: initial_application.start_on,

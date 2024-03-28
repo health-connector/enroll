@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -7,32 +9,36 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
   include_context 'setup benefit market with market catalogs and product packages'
   include_context 'setup initial benefit application'
 
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-  let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment,
-    enrollment_members: family.family_members,
-    household: family.active_household,
-    product_id: product.id,
-    benefit_sponsorship_id: benefit_sponsorship.id,
-    sponsored_benefit_package_id: current_benefit_package.id
-  )}
+  let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
+  let(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      enrollment_members: family.family_members,
+                      household: family.active_household,
+                      product_id: product.id,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: current_benefit_package.id)
+  end
 
   let(:primary_family_member) { family.family_members.first }
 
-  let(:hbx_enrollment_member) { FactoryGirl.create(:hbx_enrollment_member,
-    applicant_id: primary_family_member.id,
-    hbx_enrollment: hbx_enrollment,
-    is_subscriber: primary_family_member.is_primary_applicant,
-    coverage_start_on: hbx_enrollment.effective_on,
-    eligibility_date: hbx_enrollment.effective_on
-  )}
+  let(:hbx_enrollment_member) do
+    FactoryBot.create(:hbx_enrollment_member,
+                      applicant_id: primary_family_member.id,
+                      hbx_enrollment: hbx_enrollment,
+                      is_subscriber: primary_family_member.is_primary_applicant,
+                      coverage_start_on: hbx_enrollment.effective_on,
+                      eligibility_date: hbx_enrollment.effective_on)
+  end
 
   let(:product) {health_products[0]}
 
-  let(:plan) { FactoryGirl.create(:plan,
-   provider_directory_url: "http://www.example1.com",
-   rx_formulary_url: "http://www.example.com") } # QHP still checking for old plan instance for rx_formulary_url & provider_directory_url in view file.
-  
-  let(:mock_qhp){instance_double("Products::QhpCostShareVariance", :product => product, :plan => plan, :plan_marketing_name=> product.title)}
+  # QHP still checking for old plan instance for rx_formulary_url & provider_directory_url in view file.
+  let(:plan) do
+    FactoryBot.create(:plan,
+                      provider_directory_url: "http://www.example1.com",
+                      rx_formulary_url: "http://www.example.com")
+  end
+  let(:mock_qhp){instance_double("Products::QhpCostShareVariance", :product => product, :plan => plan, :plan_marketing_name => product.title)}
   let(:mock_qhps) {[mock_qhp]}
   let(:sbc_document) { double("SbcDocument", identifier: "download#abc") }
   let(:mock_family){ double("Family") }
@@ -80,7 +86,7 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
     end
 
     it "should contain some readable text" do
-      ["$30.00", "#{product.title}", "#{product.product_type.upcase}"].each do |t|
+      ["$30.00", product.title.to_s, product.product_type.upcase.to_s].each do |t|
         expect(rendered).to have_content(t)
       end
     end
@@ -123,8 +129,8 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
     end
 
     it "should have title and other text" do
-      expect(rendered).to have_selector('h1', text: /Choose Plan - Compare Selected Plans/ )
-      expect(rendered).to have_selector('h4', text: /Each plan is different. Make sure you understand the differences so you can find the right plan to meet your needs and budget./ )
+      expect(rendered).to have_selector('h1', text: /Choose Plan - Compare Selected Plans/)
+      expect(rendered).to have_selector('h4', text: /Each plan is different. Make sure you understand the differences so you can find the right plan to meet your needs and budget./)
     end
   end
 

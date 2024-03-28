@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :organization do
     legal_name  "Turner Agency, Inc"
     dba         "Turner Brokers"

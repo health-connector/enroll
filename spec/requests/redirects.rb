@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 describe "Redirects"  do
   describe "Old Model to New Model Redirect" do

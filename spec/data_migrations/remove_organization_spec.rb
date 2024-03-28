@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_organization")
 
@@ -13,16 +15,15 @@ describe RemoveOrganization, dbclean: :after_each do
   end
 
   describe "deleting organization" do
-    let(:organization) { FactoryGirl.create(:organization)}
-    before(:each) do
-      allow(ENV).to receive(:[]).with("fein").and_return(organization.fein)
-    end
+    let(:organization) { FactoryBot.create(:organization)}
 
     it "should remove organization" do
-      fein=organization.fein
-      expect(organization.fein).to eq fein
-      subject.migrate
-      expect(Organization.where(fein: fein).size).to eq 0
+      ClimateControl.modify fein: organization.fein do
+        fein = organization.fein
+        expect(organization.fein).to eq fein
+        subject.migrate
+        expect(Organization.where(fein: fein).size).to eq 0
+      end
     end
   end
 end

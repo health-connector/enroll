@@ -4,7 +4,7 @@ module BenefitSponsors
 
     included do
       include AASM
-      embeds_many :workflow_state_transitions, as: :transitional
+      embeds_many :workflow_state_transitions, as: :transitional, class_name: "::WorkflowStateTransition"
       aasm do
         after_all_transitions :record_transition
       end

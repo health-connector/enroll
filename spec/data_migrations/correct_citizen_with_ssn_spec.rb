@@ -1,56 +1,59 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
-require File.join(Rails.root, "app", "data_migrations", "correct_citizen_with_ssn")
+  require File.join(Rails.root, "app", "data_migrations", "correct_citizen_with_ssn")
 
-shared_examples_for "a determination in the correct states" do |cr_state, ssn_state, lpd_state, cit_result|
-  it "has a lawful presence determination status of #{lpd_state}" do
-    expect(person.consumer_role.lawful_presence_determination.aasm_state).to eq lpd_state
+  shared_examples_for "a determination in the correct states" do |cr_state, ssn_state, lpd_state, cit_result|
+    it "has a lawful presence determination status of #{lpd_state}" do
+      expect(person.consumer_role.lawful_presence_determination.aasm_state).to eq lpd_state
+    end
+
+    it "has a ssn_validation status of #{ssn_state}" do
+      expect(person.consumer_role.ssn_validation).to eq ssn_state
+    end
+
+    it "has a consumer_role status of #{cr_state}" do
+      expect(person.consumer_role.aasm_state).to eq cr_state
+    end
+
+    it "stores citizenship_result as #{cit_result}" do
+      expect(person.consumer_role.lawful_presence_determination.citizenship_result).to eq cit_result
+    end
+
+    it "stores vlp authority as ssa" do
+      expect(person.consumer_role.lawful_presence_determination.vlp_authority).to eq "ssa"
+    end
   end
 
-  it "has a ssn_validation status of #{ssn_state}" do
-    expect(person.consumer_role.ssn_validation).to eq ssn_state
+  shared_examples_for "a determination updated using a previous response" do |cr_state, ssn_state, lpd_state, cit_result|
+    it "has the verified_at of the previous response" do
+      expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq previous_response.received_at
+    end
+
+    it_behaves_like "a determination in the correct states", cr_state, ssn_state, lpd_state, cit_result
   end
 
-  it "has a consumer_role status of #{cr_state}" do
-    expect(person.consumer_role.aasm_state).to eq cr_state
+  shared_examples_for "a citizen migration which falls back to the previous response" do
+    context "and the previous response is ssn and citizenship valid" do
+      let(:previous_response) { previous_response_successful }
+      it_behaves_like "a determination updated using a previous response", "fully_verified", "valid", "verification_successful", "us_citizen"
+    end
+    context "and the previous response is ssn valid but citizenship invalid" do
+      let(:previous_response) { previous_response_citizenship_negative }
+      it_behaves_like "a determination updated using a previous response", "verification_outstanding", "valid", "verification_outstanding", "not_lawfully_present_in_us"
+    end
+    context "and the previous response is ssn invalid" do
+      let(:previous_response) { previous_response_negative }
+      it_behaves_like "a determination updated using a previous response", "verification_outstanding", "outstanding", "verification_outstanding", "not_lawfully_present_in_us"
+    end
   end
 
-  it "stores citizenship_result as #{cit_result}" do
-    expect(person.consumer_role.lawful_presence_determination.citizenship_result).to eq cit_result
-  end
-
-  it "stores vlp authority as ssa" do
-    expect(person.consumer_role.lawful_presence_determination.vlp_authority).to eq "ssa"
-  end
-end
-
-shared_examples_for "a determination updated using a previous response" do |cr_state, ssn_state, lpd_state, cit_result|
-  it "has the verified_at of the previous response" do
-    expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq previous_response.received_at
-  end
-
-  it_behaves_like "a determination in the correct states", cr_state, ssn_state, lpd_state, cit_result
-end
-
-shared_examples_for "a citizen migration which falls back to the previous response" do
-  context "and the previous response is ssn and citizenship valid" do
-    let(:previous_response) { previous_response_successful }
-    it_behaves_like "a determination updated using a previous response", "fully_verified", "valid", "verification_successful", "us_citizen"
-  end
-  context "and the previous response is ssn valid but citizenship invalid" do
-    let(:previous_response) { previous_response_citizenship_negative }
-    it_behaves_like "a determination updated using a previous response", "verification_outstanding", "valid", "verification_outstanding", "not_lawfully_present_in_us"
-  end
-  context "and the previous response is ssn invalid" do
-    let(:previous_response) { previous_response_negative }
-    it_behaves_like "a determination updated using a previous response", "verification_outstanding", "outstanding", "verification_outstanding", "not_lawfully_present_in_us"
-  end
-end
-
-describe CorrectCitizenStatus, :dbclean => :after_each do
-  let(:threshold_date) { Time.mktime(2016,7,5,8,0,0) }
-  let(:previous_date) { Time.mktime(2015,7,5,8,0,0) }
-  let(:body_ssn_true_citizenship_true) {"<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
+  describe CorrectCitizenStatus, :dbclean => :after_each do
+    let(:threshold_date) { Time.mktime(2016,7,5,8,0,0) }
+    let(:previous_date) { Time.mktime(2015,7,5,8,0,0) }
+    let(:body_ssn_true_citizenship_true) do
+      "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
               xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\"
               xmlns:ns1=\"http://openhbx.org/api/terms/1.0\"
               xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">
@@ -91,22 +94,23 @@ describe CorrectCitizenStatus, :dbclean => :after_each do
               <ns1:citizenship_verified>true</ns1:citizenship_verified>
               <ns1:incarcerated>false</ns1:incarcerated>
               <ns1:response_text>Success</ns1:response_text>
-              </ssa_verification_result>"}
+              </ssa_verification_result>"
+    end
 
-  let(:body_ssn_true_citizenship_false) {
-    doc = Nokogiri::XML(body_ssn_true_citizenship_true)
-    doc.xpath("//ns1:citizenship_verified", {:ns1 => "http://openhbx.org/api/terms/1.0"}).first.content = "false"
-    doc.to_xml(:indent => 2)
-  }
+    let(:body_ssn_true_citizenship_false) do
+      doc = Nokogiri::XML(body_ssn_true_citizenship_true)
+      doc.xpath("//ns1:citizenship_verified", {:ns1 => "http://openhbx.org/api/terms/1.0"}).first.content = "false"
+      doc.to_xml(:indent => 2)
+    end
 
-  let(:body_ssn_true_NO_citizenship) {
-    doc = Nokogiri::XML(body_ssn_true_citizenship_true)
-    doc.xpath("//ns1:citizenship_verified", {:ns1 => "http://openhbx.org/api/terms/1.0"}).remove
-    doc.to_xml(:indent => 2)
-  }
+    let(:body_ssn_true_NO_citizenship) do
+      doc = Nokogiri::XML(body_ssn_true_citizenship_true)
+      doc.xpath("//ns1:citizenship_verified", {:ns1 => "http://openhbx.org/api/terms/1.0"}).remove
+      doc.to_xml(:indent => 2)
+    end
 
-  let(:body_no_ssn_verified_element) {
-   "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
+    let(:body_no_ssn_verified_element) do
+      "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
               xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\"
               xmlns:ns1=\"http://openhbx.org/api/terms/1.0\"
               xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">
@@ -145,94 +149,94 @@ describe CorrectCitizenStatus, :dbclean => :after_each do
               <ns1:response_text>Success</ns1:response_text>
               <ns1:ssn_verification_failed>true</ns1:ssn_verification_failed>
               </ssa_verification_result>"
-  }
-
-  let(:ssa_response_ssn_true_citizenship_true) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_ssn_true_citizenship_true}) }
-  let(:ssa_response_ssn_true_citizenship_false) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_ssn_true_citizenship_false}) }
-  let(:ssa_response_ssn_true_NO_citizenship) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_ssn_true_NO_citizenship}) }
-  let(:ssa_response_ssn_false) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_no_ssn_verified_element}) }
-  let(:previous_response_successful) { EventResponse.new({:received_at => previous_date, :body => body_ssn_true_citizenship_true}) }
-  let(:previous_response_citizenship_negative) { EventResponse.new({:received_at => previous_date, :body => body_ssn_true_citizenship_false}) }
-  let(:previous_response_negative) { EventResponse.new({:received_at => previous_date, :body => body_no_ssn_verified_element}) }
-  let(:person) { FactoryGirl.create(:person, :with_consumer_role)}
-
-
-  describe "given a citizen with ssn, ssa_response after July 5, and no previous response" do
-    subject { CorrectCitizenStatus.new("fix me task", double(:current_scope => nil)) }
-
-    context "ssn response false" do
-      before :each do
-        person.consumer_role.aasm_state = "any state"
-        person.consumer_role.lawful_presence_determination.aasm_state = "verification_successful"
-        person.consumer_role.lawful_presence_determination.ssa_responses = []
-        person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_false
-        person.save!
-        subject.migrate
-        person.reload
-      end
-
-      it_behaves_like "a determination in the correct states", "verification_outstanding", "outstanding", "verification_outstanding", "not_lawfully_present_in_us"
     end
 
-    context "ssn response true" do
-      before :each do
-        person.consumer_role.aasm_state = "any state"
-        person.consumer_role.lawful_presence_determination.aasm_state = "verification_successful"
-        person.consumer_role.lawful_presence_determination.ssa_responses = []
-      end
-      describe "citizenship true" do
+    let(:ssa_response_ssn_true_citizenship_true) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_ssn_true_citizenship_true}) }
+    let(:ssa_response_ssn_true_citizenship_false) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_ssn_true_citizenship_false}) }
+    let(:ssa_response_ssn_true_NO_citizenship) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_ssn_true_NO_citizenship}) }
+    let(:ssa_response_ssn_false) { EventResponse.new({:received_at => threshold_date + 1.hour, :body => body_no_ssn_verified_element}) }
+    let(:previous_response_successful) { EventResponse.new({:received_at => previous_date, :body => body_ssn_true_citizenship_true}) }
+    let(:previous_response_citizenship_negative) { EventResponse.new({:received_at => previous_date, :body => body_ssn_true_citizenship_false}) }
+    let(:previous_response_negative) { EventResponse.new({:received_at => previous_date, :body => body_no_ssn_verified_element}) }
+    let(:person) { FactoryBot.create(:person, :with_consumer_role)}
+
+
+    describe "given a citizen with ssn, ssa_response after July 5, and no previous response" do
+      subject { CorrectCitizenStatus.new("fix me task", double(:current_scope => nil)) }
+
+      context "ssn response false" do
         before :each do
-          person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_true
+          person.consumer_role.aasm_state = "any state"
+          person.consumer_role.lawful_presence_determination.aasm_state = "verification_successful"
+          person.consumer_role.lawful_presence_determination.ssa_responses = []
+          person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_false
           person.save!
           subject.migrate
           person.reload
         end
 
-        it_behaves_like "a determination in the correct states", "fully_verified", "valid", "verification_successful", "us_citizen"
-
-        it "stores transition information from existing response" do
-          expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq ssa_response_ssn_true_citizenship_true.received_at
-        end
-
+        it_behaves_like "a determination in the correct states", "verification_outstanding", "outstanding", "verification_outstanding", "not_lawfully_present_in_us"
       end
 
-      describe "citizenship false" do
+      context "ssn response true" do
         before :each do
-          person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_false
-          person.save!
-          subject.migrate
-          person.reload
+          person.consumer_role.aasm_state = "any state"
+          person.consumer_role.lawful_presence_determination.aasm_state = "verification_successful"
+          person.consumer_role.lawful_presence_determination.ssa_responses = []
+        end
+        describe "citizenship true" do
+          before :each do
+            person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_true
+            person.save!
+            subject.migrate
+            person.reload
+          end
+
+          it_behaves_like "a determination in the correct states", "fully_verified", "valid", "verification_successful", "us_citizen"
+
+          it "stores transition information from existing response" do
+            expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq ssa_response_ssn_true_citizenship_true.received_at
+          end
+
         end
 
-        it_behaves_like "a determination in the correct states", "verification_outstanding", "valid", "verification_outstanding", "not_lawfully_present_in_us"
+        describe "citizenship false" do
+          before :each do
+            person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_citizenship_false
+            person.save!
+            subject.migrate
+            person.reload
+          end
 
-        it "stores transition information from existing response" do
-          expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq ssa_response_ssn_true_citizenship_false.received_at
-        end
-      end
+          it_behaves_like "a determination in the correct states", "verification_outstanding", "valid", "verification_outstanding", "not_lawfully_present_in_us"
 
-      describe "no citizenship response" do
-        before :each do
-          person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_NO_citizenship
-          person.save!
-          subject.migrate
-          person.reload
-        end
-
-        it_behaves_like "a determination in the correct states", "verification_outstanding", "valid", "verification_outstanding", "not_lawfully_present_in_us"
-
-        it "stores transition information from existing response" do
-          expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq ssa_response_ssn_true_NO_citizenship.received_at
+          it "stores transition information from existing response" do
+            expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq ssa_response_ssn_true_citizenship_false.received_at
+          end
         end
 
+        describe "no citizenship response" do
+          before :each do
+            person.consumer_role.lawful_presence_determination.ssa_responses << ssa_response_ssn_true_NO_citizenship
+            person.save!
+            subject.migrate
+            person.reload
+          end
+
+          it_behaves_like "a determination in the correct states", "verification_outstanding", "valid", "verification_outstanding", "not_lawfully_present_in_us"
+
+          it "stores transition information from existing response" do
+            expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq ssa_response_ssn_true_NO_citizenship.received_at
+          end
+
+        end
       end
     end
-  end
 
-  describe "given a citizen with ssn, ssa_response after July 5, and a previous response" do
-    subject { CorrectCitizenStatus.new("fix me task", double(:current_scope => nil)) }
+    describe "given a citizen with ssn, ssa_response after July 5, and a previous response" do
+      subject { CorrectCitizenStatus.new("fix me task", double(:current_scope => nil)) }
 
-    before :each do
+      before :each do
         person.consumer_role.aasm_state = "any state"
         person.consumer_role.lawful_presence_determination.aasm_state = "verification_successful"
         person.consumer_role.lawful_presence_determination.ssa_responses = []
@@ -241,31 +245,31 @@ describe CorrectCitizenStatus, :dbclean => :after_each do
         person.save!
         subject.migrate
         person.reload
-    end
-
-    context "most recent response has ssn false" do
-      let(:most_recent_response) { ssa_response_ssn_false }
-
-      it_behaves_like "a citizen migration which falls back to the previous response"
-    end
-
-    context "most recent response has ssn true" do
-      describe "most recent response has citizenship true" do
-        let(:most_recent_response) { ssa_response_ssn_true_citizenship_true }
-        let(:previous_response) { previous_response_negative }
-
-        it_behaves_like "a determination in the correct states", "fully_verified", "valid", "verification_successful", "us_citizen"
-
-        it "stores transition information from existing response" do
-          expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq most_recent_response.received_at
-        end
       end
 
-      describe "most recent response has citizenship false" do
-        let(:most_recent_response) { ssa_response_ssn_true_citizenship_false }
+      context "most recent response has ssn false" do
+        let(:most_recent_response) { ssa_response_ssn_false }
+
         it_behaves_like "a citizen migration which falls back to the previous response"
+      end
+
+      context "most recent response has ssn true" do
+        describe "most recent response has citizenship true" do
+          let(:most_recent_response) { ssa_response_ssn_true_citizenship_true }
+          let(:previous_response) { previous_response_negative }
+
+          it_behaves_like "a determination in the correct states", "fully_verified", "valid", "verification_successful", "us_citizen"
+
+          it "stores transition information from existing response" do
+            expect(person.consumer_role.lawful_presence_determination.vlp_verified_at).to eq most_recent_response.received_at
+          end
+        end
+
+        describe "most recent response has citizenship false" do
+          let(:most_recent_response) { ssa_response_ssn_true_citizenship_false }
+          it_behaves_like "a citizen migration which falls back to the previous response"
+        end
       end
     end
   end
-end
 end

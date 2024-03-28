@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "employers/premium_statements/show.js.erb" do
@@ -15,14 +17,13 @@ describe "employers/premium_statements/show.js.erb" do
       total_employee_cost: "total_employee_cost:#{random_value}",
       total_premium: "total_premium:#{random_value}",
       subscriber: double("subscriber",
-                    person: new_person(random_value)
-                  ),
+                         person: new_person(random_value)),
       census_employee: new_census_employee,
       benefit_group: new_benefit_group
     )
   end
 
-  def new_person(random_value)
+  def new_person(_random_value)
     instance_double(
       "Person",
       employee_roles: employee_roles
@@ -59,7 +60,7 @@ describe "employers/premium_statements/show.js.erb" do
   let(:new_employee_role){ instance_double("EmployeeRole", census_employee: new_census_employee) }
   let(:employee_roles) {[new_employee_role, new_employee_role]}
   let(:hbx_enrollments){ [new_hbx_enrollment]}
-  let(:employer_profile){FactoryGirl.create(:employer_profile)}
+  let(:employer_profile){FactoryBot.create(:employer_profile)}
 
   # let(:current_plan_year){ instance_double("PlanYear")}
 

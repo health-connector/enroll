@@ -27,7 +27,7 @@ class Insured::PlanShoppingsController < ApplicationController
       if plan_selection.hbx_enrollment.errors.present?
         flash[:error] = plan_selection.hbx_enrollment.errors.full_messages
       end
-      redirect_to :back
+      redirect_back(fallback_location: :back)
       return
     end
 

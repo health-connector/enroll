@@ -3,7 +3,7 @@
 require "rails_helper"
 
 describe FindPerson, :dbclean => :after_each do
-  let(:person) {FactoryGirl.create(:person)}
+  let(:person) {FactoryBot.create(:person)}
 
   context "when a person does exist in db" do
     it "should find person" do

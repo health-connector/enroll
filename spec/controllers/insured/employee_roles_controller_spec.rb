@@ -1,26 +1,28 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
   describe "PUT update" do
     let(:employee_role_id) { "123455555" }
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING", :employee_role_id => employee_role_id} }
+    let(:person_parameters) { { first_name: "SOMDFINKETHING", employee_role_id: employee_role_id} }
     let(:organization_id) { "1234324234" }
     let(:benefit_group) { double(effective_on_for: effective_date) }
-    let(:census_employee) { double(:hired_on => "whatever" ) }
+    let(:census_employee) { double(:hired_on => "whatever") }
     let(:employer_profile) { double(id: "23827831278") }
     let(:effective_date) { double }
-    let(:person_id) { BSON::ObjectId::new }
+    let(:person_id) { BSON::ObjectId.new }
     let(:employee_role) { double(:id => employee_role_id, :employer_profile => employer_profile, employer_profile_id: employer_profile.id, :benefit_group => benefit_group, :census_employee => census_employee) }
-    let(:person) { FactoryGirl.create(:person) }
-    let(:user) {FactoryGirl.create(:user)}
+    let(:person) { FactoryBot.create(:person) }
+    let(:user) {FactoryBot.create(:user)}
     let(:role_form) { Forms::EmployeeRole.new(person, employee_role)}
-    let(:address) {FactoryGirl.create(:address, :person => person)}
+    let(:address) {FactoryBot.create(:address, :person => person)}
 
     before(:each) do
       allow(Person).to receive(:find).with(person_id).and_return(person)
       allow(person).to receive(:employee_roles).and_return([employee_role])
       allow(Forms::EmployeeRole).to receive(:new).with(person, employee_role).and_return(role_form)
-      allow(role_form).to receive(:update_attributes).with(person_parameters).and_return(save_result)
+      allow(role_form).to receive(:update_attributes).and_return(save_result)
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:employee_roles).and_return([employee_role])
       allow(employee_role).to receive(:save!).and_return(true)
@@ -34,14 +36,14 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     describe "given valid person parameters" do
       let(:save_result) { true }
       it "should redirect to dependent_details" do
-        put :update, :person => person_parameters, :id => person_id
+        put :update, params: { person: person_parameters, id: person_id }
         expect(response).to have_http_status(:redirect)
         expect(response).to redirect_to(insured_family_members_path(:employee_role_id => employee_role_id))
       end
 
       context "to verify new addreses not created on updating the existing address" do
         before :each do
-          put :update, :person => person_parameters, :id => person_id
+          put :update, params: { :person => person_parameters, :id => person_id }
         end
 
         it "should not empty the person's addresses on update" do
@@ -57,18 +59,18 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     describe "given invalid person parameters" do
       let(:save_result) { false }
       it "should render edit" do
-        put :update, :person => person_parameters, :id => person_id
+        put :update, params: { :person => person_parameters, :id => person_id }
         expect(response).to have_http_status(:success)
         expect(response).to render_template("edit")
         expect(assigns(:person)).to eq role_form
       end
 
-     it "should call bubble_address_errors_by_person" do
-       expect(controller).to receive(:bubble_address_errors_by_person)
-       put :update, :person => person_parameters, :id => person_id
-       expect(response).to have_http_status(:success)
-       expect(response).to render_template(:edit)
-     end
+      it "should call bubble_address_errors_by_person" do
+        expect(controller).to receive(:bubble_address_errors_by_person)
+        put :update, params: { :person => person_parameters, :id => person_id }
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(:edit)
+      end
     end
   end
 
@@ -77,10 +79,12 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:person) { double("Person", full_name: "test test") }
     let(:employee_role) { double("EmployeeRole") }
     let(:employer_profile) { double("EmployerProfile") }
-    let(:broker_role) { double(
-      "BrokerRole",
-      email_address: "test@example.com"
-      ) }
+    let(:broker_role) do
+      double(
+        "BrokerRole",
+        email_address: "test@example.com"
+      )
+    end
     let(:broker_agency_account) { double("BrokerAgencyAccount", writing_agent: broker_role) }
     let(:broker_agency_accounts) { [broker_agency_account] }
     let(:employee_roles) { [employee_role] }
@@ -100,7 +104,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         allow(family).to receive(:latest_household).and_return(household)
         allow(household).to receive(:hbx_enrollments).and_return(hbx_enrollments)
         sign_in user
-        xhr :get, :new_message_to_broker
+        get :new_message_to_broker, xhr: true
         expect(response).to have_http_status(:success)
         expect(response).to render_template("new_message_to_broker")
       end
@@ -108,7 +112,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         allow(person).to receive(:user).and_return(user)
         allow(broker_role).to receive(:person).and_return(person)
         sign_in user
-        post :send_message_to_broker, hbx_enrollment_id: hbx_enrollment.id
+        post :send_message_to_broker, params: { hbx_enrollment_id: hbx_enrollment.id }
         expect(response).to have_http_status(:redirect)
         expect(response).to redirect_to(insured_plan_shopping_path(:id => hbx_enrollment.id))
       end
@@ -128,7 +132,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:family) { double("Family") }
     let(:email){ double("Email", address: "test@example.com", kind: "home") }
     let(:id){ EmployeeRole.new.id }
-    let!(:notice_trigger_params) { {recipient: employee_role, event_object: census_employee, notice_event: "employee_matches_employer_rooster", :notice_params=>{}} }
+    let!(:notice_trigger_params) { {recipient: employee_role, event_object: census_employee, notice_event: "employee_matches_employer_rooster", :notice_params => {}} }
 
     before :each do
       allow(EmployeeRole).to receive(:find).and_return(employee_role)
@@ -157,7 +161,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     context 'edit person parameters' do
       before :each do
-        get :edit, id: employee_role.id
+        get :edit, params: { id: employee_role.id }
       end
 
       it "return success http status" do
@@ -184,7 +188,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     it "should trigger notice" do
       expect_any_instance_of(BenefitSponsors::Services::NoticeService).to receive(:deliver).with(notice_trigger_params).and_return(true)
-      get :edit, id: employee_role.id
+      get :edit, params: { id: employee_role.id }
     end
   end
 
@@ -197,17 +201,17 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:census_employee) { instance_double("CensusEmployee", :hired_on => hired_on, :is_linked? => true) }
     let(:employee_role) { instance_double("EmployeeRole", :benefit_group => benefit_group, :new_census_employee => census_employee, :person => person, :id => "212342345") }
     let(:effective_date) { double }
-    let(:employment_relationship) {
+    let(:employment_relationship) do
       instance_double("Forms::EmploymentRelationship", {
-             :census_employee => census_employee
-      } )
-    }
+                        :census_employee => census_employee
+                      })
+    end
     let(:employment_relationship_properties) { { :skllkjasdfjksd => "a3r123rvf" } }
     let(:user) { double(:idp_verified? => true, person: person) }
 
     context "can construct_employee_role" do
       before :each do
-        allow(Forms::EmploymentRelationship).to receive(:new).with(employment_relationship_properties).and_return(employment_relationship)
+        allow(Forms::EmploymentRelationship).to receive(:new).and_return(employment_relationship)
         allow(Factories::EnrollmentFactory).to receive(:construct_employee_role).with(user, census_employee, employment_relationship).and_return([employee_role, family])
         allow(benefit_group).to receive(:effective_on_for).with(hired_on).and_return(effective_date)
         allow(census_employee).to receive(:is_linked?).and_return(true)
@@ -216,7 +220,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         allow(user).to receive(:switch_to_idp!)
         allow(user).to receive(:has_hbx_staff_role?).and_return(false)
         allow(employment_relationship).to receive_message_chain(:census_employee,:employer_profile,:parent,:legal_name).and_return("legal_name")
-        post :create, :employment_relationship => employment_relationship_properties
+        post :create, params: {employment_relationship: employment_relationship_properties}
       end
 
       it "should render the edit template" do
@@ -239,12 +243,12 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     context "can not construct_employee_role" do
       before :each do
-        allow(Forms::EmploymentRelationship).to receive(:new).with(employment_relationship_properties).and_return(employment_relationship)
+        allow(Forms::EmploymentRelationship).to receive(:new).and_return(employment_relationship)
         allow(Factories::EnrollmentFactory).to receive(:construct_employee_role).with(user, census_employee, employment_relationship).and_return([nil, nil])
         allow(employment_relationship).to receive_message_chain(:census_employee,:employer_profile,:parent,:legal_name).and_return("legal_name")
         request.env["HTTP_REFERER"] = "/"
         sign_in(user)
-        post :create, :employment_relationship => employment_relationship_properties
+        post :create, params: {employment_relationship: employment_relationship_properties}
       end
 
       it "should redirect" do
@@ -252,7 +256,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       end
 
       it "should get an alert" do
-        expect(flash[:alert]).to match /You can not enroll as another employee/
+        expect(flash[:alert]).to match(/You can not enroll as another employee/)
       end
     end
   end
@@ -267,12 +271,13 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:user) { double("User",id: user_id, email: "somdfinkething@gmail.com") }
 
     before(:each) do
+      allow(user).to receive(:person).and_return(nil)
       sign_in(user)
       allow(mock_employee_candidate).to receive(:match_census_employees).and_return(found_census_employees)
       allow(census_employee).to receive(:is_active?).and_return(true)
-      allow(Forms::EmployeeCandidate).to receive(:new).with(person_parameters.merge({user_id: user_id})).and_return(mock_employee_candidate)
-      allow(Factories::EmploymentRelationshipFactory).to receive(:build).with(mock_employee_candidate, [census_employee]).and_return(employment_relationships)
-      post :match, :person => person_parameters
+      allow(Forms::EmployeeCandidate).to receive(:new).and_return(mock_employee_candidate)
+      allow(Factories::EmploymentRelationshipFactory).to receive(:build).and_return(employment_relationships)
+      post :match, params: { :person => person_parameters }
     end
 
     context "given invalid parameters" do
@@ -293,7 +298,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         let(:found_census_employees) { [] }
         let(:person){ double("Person") }
         let(:consumer_role){ double("ConsumerRole", id: "test") }
-        let(:person_parameters){{"dob"=>"1985-10-01", "first_name"=>"martin","gender"=>"male","last_name"=>"york","middle_name"=>"","name_sfx"=>"","ssn"=>"000000111"}}
+        let(:person_parameters){{"dob" => "1985-10-01", "first_name" => "martin","gender" => "male","last_name" => "york","middle_name" => "","name_sfx" => "","ssn" => "000000111"}}
 
         it "renders the 'no_match' template" do
           expect(response).to have_http_status(:success)
@@ -317,8 +322,8 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
   end
 
   describe "GET search" do
-    let(:user) { FactoryGirl.build(:user) }
-    let(:person) { FactoryGirl.build(:person) }
+    let(:user) { FactoryBot.build(:user) }
+    let(:person) { FactoryBot.build(:person) }
 
     before(:each) do
       allow(user).to receive(:person).and_return(person)
@@ -340,7 +345,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
   describe "GET privacy" do
     let(:user) { double("user") }
     let(:person) { double("person")}
-    let(:employee_role) {FactoryGirl.create(:employee_role)}
+    let(:employee_role) {FactoryBot.create(:employee_role)}
 
     it "renders the 'welcome' template when user has no employee role" do
       allow(user).to receive(:person).and_return(person)
@@ -365,8 +370,8 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     end
   end
   describe "GET show" do
-    let(:user) { FactoryGirl.build(:user) }
-    let(:person) { FactoryGirl.build(:person) }
+    let(:user) { FactoryBot.build(:user) }
+    let(:person) { FactoryBot.build(:person) }
 
     before(:each) do
       allow(user).to receive(:person).and_return(person)
@@ -374,7 +379,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     end
 
     it 'should redirect to a placeholder url' do
-      get :show, id: 888
+      get :show,params: {  id: 888 }
       expect(response).to redirect_to(search_insured_employee_index_path)
     end
 
@@ -382,9 +387,9 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       expect(subject).to receive(:log) do |msg, severity|
         expect(severity[:severity]).to eq('error')
         expect(msg[:user]).to eq(user.oim_id)
-        expect(msg[:url]).to match /insured\/employee\/888/
+        expect(msg[:url]).to match(%r{insured/employee/888})
       end
-      get :show, id: 888
+      get :show, params: { id: 888 }
     end
   end
 

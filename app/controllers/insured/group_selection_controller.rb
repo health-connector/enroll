@@ -54,6 +54,7 @@ class Insured::GroupSelectionController < ApplicationController
   end
 
   def create
+    params = permitted_group_selection_params
     @market_kind = @adapter.create_action_market_kind(params)
     return redirect_to purchase_insured_families_path(change_plan: @change_plan, terminate: 'terminate') if params[:commit] == "Terminate Plan"
 
@@ -66,7 +67,7 @@ class Insured::GroupSelectionController < ApplicationController
 
     unless @adapter.is_waiving?(params)
       raise "You must select at least one Eligible applicant to enroll in the healthcare plan" if params[:family_member_ids].blank?
-      family_member_ids = params.require(:family_member_ids).collect() do |index, family_member_id|
+      family_member_ids = params[:family_member_ids].values.collect do | family_member_id|
         BSON::ObjectId.from_string(family_member_id)
       end
     end
@@ -141,11 +142,25 @@ class Insured::GroupSelectionController < ApplicationController
       hbx_enrollment.terminate_benefit(term_date)
       redirect_to family_account_path
     else
-      redirect_to :back
+      redirect_back(fallback_location: :back)
     end
   end
 
   private
+
+  def permitted_group_selection_params
+    params.permit(
+      :change_plan, :consumer_role_id, :market_kind, :qle_id,
+      :hbx_enrollment_id, :coverage_kind, :enrollment_kind,
+      :employee_role_id, :resident_role_id, :person_id,
+      :market_kind, :shop_for_plans,
+      :controller, :action, :commit,
+      :effective_on_option_selected,
+      :is_waiving, :waiver_reason,
+      :shop_under_current, :shop_under_future,
+      family_member_ids: {}
+    )
+  end
 
   def set_change_plan
     @adapter.if_family_has_active_shop_sep do

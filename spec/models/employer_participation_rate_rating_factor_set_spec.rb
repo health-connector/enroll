@@ -1,21 +1,23 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe EmployerParticipationRateRatingFactorSet do
-  let(:validation_errors) {
+  let(:validation_errors) do
     subject.valid?
     subject.errors
-  }
+  end
 
   it "requires a carrier profile" do
-    expect(validation_errors.has_key?(:carrier_profile_id)).to be_truthy  
+    expect(validation_errors.key?(:carrier_profile_id)).to be_truthy
   end
 
   it "requires a default factor value" do
-    expect(validation_errors.has_key?(:default_factor_value)).to be_truthy  
+    expect(validation_errors.key?(:default_factor_value)).to be_truthy
   end
 
   it "requires an active year" do
-    expect(validation_errors.has_key?(:active_year)).to be_truthy  
+    expect(validation_errors.key?(:active_year)).to be_truthy
   end
 end
 
@@ -32,10 +34,10 @@ describe EmployerParticipationRateRatingFactorSet, "given
 
   subject do
     EmployerParticipationRateRatingFactorSet.new({
-      :default_factor_value => default_factor_value,
-      :active_year => active_year,
-      :carrier_profile_id => carrier_profile_id
-    })
+                                                   :default_factor_value => default_factor_value,
+                                                   :active_year => active_year,
+                                                   :carrier_profile_id => carrier_profile_id
+                                                 })
   end
 
   it "is valid" do
@@ -56,13 +58,13 @@ describe EmployerParticipationRateRatingFactorSet, "given
 
   subject do
     EmployerParticipationRateRatingFactorSet.new({
-      :rating_factor_entries => [
-        RatingFactorEntry.new({
-          :factor_key => '1',
-          :factor_value => 1.345
-        })
-      ]
-    })
+                                                   :rating_factor_entries => [
+                                                     RatingFactorEntry.new({
+                                                                             :factor_key => '1',
+                                                                             :factor_value => 1.345
+                                                                           })
+                                                   ]
+                                                 })
   end
 
   it "returns the '1.345' for a lookup of 0" do
@@ -81,13 +83,13 @@ describe EmployerParticipationRateRatingFactorSet, "given
 
   subject do
     EmployerParticipationRateRatingFactorSet.new({
-      :rating_factor_entries => [
-        RatingFactorEntry.new({
-          :factor_key => '11',
-          :factor_value => 1.345
-        })
-      ]
-    })
+                                                   :rating_factor_entries => [
+                                                     RatingFactorEntry.new({
+                                                                             :factor_key => '11',
+                                                                             :factor_value => 1.345
+                                                                           })
+                                                   ]
+                                                 })
   end
 
   it "returns the '1.345' for a lookup of 11" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_each do
@@ -10,35 +12,34 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
   end
 
   xcontext 'New Employer' do
-    let(:organization) {
-      org = FactoryGirl.create :organization, legal_name: "Corp 1"
-      employer_profile = FactoryGirl.create :employer_profile, organization: org
-      plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, aasm_state: :enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year+1, 4, 30),
-      :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
-      benefit_group = FactoryGirl.create :benefit_group, :with_valid_dental, plan_year: plan_year
-      owner = FactoryGirl.create :census_employee, :old_case, :owner, employer_profile: employer_profile
-      2.times{|i| FactoryGirl.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
+    let(:organization) do
+      org = FactoryBot.create :organization, legal_name: "Corp 1"
+      employer_profile = FactoryBot.create :employer_profile, organization: org
+      plan_year = FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year + 1, 4, 30),
+                                                :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
+      benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: plan_year
+      owner = FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
+      2.times{|i| FactoryBot.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
       employer_profile.census_employees.each do |ce|
-        person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
-        employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+        person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+        employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
         ce.update_attributes({employee_role: employee_role})
         family = Family.find_or_build_from_employee_role(employee_role)
 
         create(:hbx_enrollment,
-          household: family.active_household,
-          coverage_kind: "health",
-          effective_on: benefit_group.start_on,
-          enrollment_kind: 'open_enrollment',
-          kind: 'employer_sponsored',
-          benefit_group_id: benefit_group.id,
-          employee_role_id: employee_role.id,
-          benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
-          aasm_state: (ce.is_business_owner? ? 'shopping' : 'coverage_selected')
-        )
+               household: family.active_household,
+               coverage_kind: "health",
+               effective_on: benefit_group.start_on,
+               enrollment_kind: 'open_enrollment',
+               kind: 'employer_sponsored',
+               benefit_group_id: benefit_group.id,
+               employee_role_id: employee_role.id,
+               benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+               aasm_state: (ce.is_business_owner? ? 'shopping' : 'coverage_selected'))
       end
 
       org
-    }
+    end
 
     context 'with valid published plan year' do
       before do
@@ -77,54 +78,52 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
   end
 
   xcontext "Renewing employer" do
-    let(:organization) {
-      org = FactoryGirl.create :organization, legal_name: "Corp 1"
-      employer_profile = FactoryGirl.create :employer_profile, organization: org
-      active_plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, aasm_state: :active, :start_on => Date.new(calendar_year - 1, 5, 1), :end_on => Date.new(calendar_year, 4, 30),
-      :open_enrollment_start_on => Date.new(calendar_year - 1, 4, 1), :open_enrollment_end_on => Date.new(calendar_year - 1, 4, 10), fte_count: 5
-      renewing_plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, aasm_state: :renewing_enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year+1, 4, 30),
-      :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
-      benefit_group = FactoryGirl.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
-      renewing_benefit_group = FactoryGirl.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
-      owner = FactoryGirl.create :census_employee, :old_case, :owner, employer_profile: employer_profile
-      2.times{|i| FactoryGirl.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
+    let(:organization) do
+      org = FactoryBot.create :organization, legal_name: "Corp 1"
+      employer_profile = FactoryBot.create :employer_profile, organization: org
+      active_plan_year = FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :active, :start_on => Date.new(calendar_year - 1, 5, 1), :end_on => Date.new(calendar_year, 4, 30),
+                                                       :open_enrollment_start_on => Date.new(calendar_year - 1, 4, 1), :open_enrollment_end_on => Date.new(calendar_year - 1, 4, 10), fte_count: 5
+      renewing_plan_year = FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :renewing_enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year + 1, 4, 30),
+                                                         :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
+      benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
+      renewing_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
+      owner = FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
+      2.times{|i| FactoryBot.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
       employer_profile.census_employees.each do |ce|
-        person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
-        employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+        person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+        employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
         ce.update_attributes({employee_role: employee_role})
         family = Family.find_or_build_from_employee_role(employee_role)
 
         enrollment = create(:hbx_enrollment,
-          household: family.active_household,
-          coverage_kind: "health",
-          effective_on: benefit_group.start_on,
-          enrollment_kind: 'open_enrollment',
-          kind: 'employer_sponsored',
-          benefit_group_id: benefit_group.id,
-          employee_role_id: employee_role.id,
-          benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
-          aasm_state: 'coverage_selected'
-        )
+                            household: family.active_household,
+                            coverage_kind: "health",
+                            effective_on: benefit_group.start_on,
+                            enrollment_kind: 'open_enrollment',
+                            kind: 'employer_sponsored',
+                            benefit_group_id: benefit_group.id,
+                            employee_role_id: employee_role.id,
+                            benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                            aasm_state: 'coverage_selected')
         ce.active_benefit_group_assignment.update_attributes(aasm_state: 'coverage_selected', hbx_enrollment_id: enrollment.id)
 
 
-        enrollment = create(:hbx_enrollment, 
-          household: family.active_household,
-          coverage_kind: "health",
-          effective_on: renewing_benefit_group.start_on,
-          enrollment_kind: 'open_enrollment',
-          kind: 'employer_sponsored',
-          benefit_group_id: renewing_benefit_group.id,
-          employee_role_id: employee_role.id,
-          benefit_group_assignment_id: ce.renewal_benefit_group_assignment.id,
-          aasm_state: 'auto_renewing'
-        )
+        enrollment = create(:hbx_enrollment,
+                            household: family.active_household,
+                            coverage_kind: "health",
+                            effective_on: renewing_benefit_group.start_on,
+                            enrollment_kind: 'open_enrollment',
+                            kind: 'employer_sponsored',
+                            benefit_group_id: renewing_benefit_group.id,
+                            employee_role_id: employee_role.id,
+                            benefit_group_assignment_id: ce.renewal_benefit_group_assignment.id,
+                            aasm_state: 'auto_renewing')
 
         ce.renewal_benefit_group_assignment.update_attributes(aasm_state: 'auto_renewing', hbx_enrollment_id: enrollment.id)
       end
 
       org
-    }
+    end
 
     context 'Renewing Employer with renewing published plan year' do
       before do
@@ -187,51 +186,49 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
   xcontext '.end' do
     context 'When employer active plan year ended' do
 
-      let(:organization) {
-        org = FactoryGirl.create :organization, legal_name: "Corp 1"
-        employer_profile = FactoryGirl.create :employer_profile, organization: org
-        active_plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, aasm_state: :active, :start_on => Date.new(calendar_year - 1, 5, 1), :end_on => Date.new(calendar_year, 4, 30),
-        :open_enrollment_start_on => Date.new(calendar_year - 1, 4, 1), :open_enrollment_end_on => Date.new(calendar_year - 1, 4, 10), fte_count: 5
-        renewing_plan_year = FactoryGirl.create :plan_year, employer_profile: employer_profile, aasm_state: :renewing_enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year+1, 4, 30),
-        :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
-        benefit_group = FactoryGirl.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
-        renewing_benefit_group = FactoryGirl.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
-        owner = FactoryGirl.create :census_employee, :old_case, :owner, employer_profile: employer_profile
-        2.times{|i| FactoryGirl.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
+      let(:organization) do
+        org = FactoryBot.create :organization, legal_name: "Corp 1"
+        employer_profile = FactoryBot.create :employer_profile, organization: org
+        active_plan_year = FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :active, :start_on => Date.new(calendar_year - 1, 5, 1), :end_on => Date.new(calendar_year, 4, 30),
+                                                         :open_enrollment_start_on => Date.new(calendar_year - 1, 4, 1), :open_enrollment_end_on => Date.new(calendar_year - 1, 4, 10), fte_count: 5
+        renewing_plan_year = FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :renewing_enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year + 1, 4, 30),
+                                                           :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
+        benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
+        renewing_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
+        owner = FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
+        2.times{|i| FactoryBot.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
         employer_profile.census_employees.each do |ce|
-          person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
-          employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
-          ce.update_attributes({:employee_role =>  employee_role })
+          person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+          employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+          ce.update_attributes({:employee_role => employee_role })
           family = Family.find_or_build_from_employee_role(employee_role)
-          
+
           enrollment = create(:hbx_enrollment,
-            household: family.active_household,
-            coverage_kind: "health",
-            effective_on: benefit_group.start_on,
-            enrollment_kind: 'open_enrollment',
-            kind: 'employer_sponsored',
-            benefit_group_id: benefit_group.id,
-            employee_role_id: employee_role.id,
-            benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
-            aasm_state: 'coverage_selected'
-            )
+                              household: family.active_household,
+                              coverage_kind: "health",
+                              effective_on: benefit_group.start_on,
+                              enrollment_kind: 'open_enrollment',
+                              kind: 'employer_sponsored',
+                              benefit_group_id: benefit_group.id,
+                              employee_role_id: employee_role.id,
+                              benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                              aasm_state: 'coverage_selected')
           ce.active_benefit_group_assignment.update_attributes(hbx_enrollment_id: enrollment.id)
 
-          create(:hbx_enrollment, 
-            household: family.active_household,
-            coverage_kind: "health",
-            effective_on: renewing_benefit_group.start_on,
-            enrollment_kind: 'open_enrollment',
-            kind: 'employer_sponsored',
-            benefit_group_id: renewing_benefit_group.id,
-            employee_role_id: employee_role.id,
-            benefit_group_assignment_id: ce.renewal_benefit_group_assignment.id,
-            aasm_state: 'auto_renewing'
-            )
+          create(:hbx_enrollment,
+                 household: family.active_household,
+                 coverage_kind: "health",
+                 effective_on: renewing_benefit_group.start_on,
+                 enrollment_kind: 'open_enrollment',
+                 kind: 'employer_sponsored',
+                 benefit_group_id: renewing_benefit_group.id,
+                 employee_role_id: employee_role.id,
+                 benefit_group_assignment_id: ce.renewal_benefit_group_assignment.id,
+                 aasm_state: 'auto_renewing')
         end
 
         org
-      }
+      end
 
       before do
         TimeKeeper.set_date_of_record_unprotected!(date_of_record_to_use)

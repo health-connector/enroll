@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -44,117 +46,127 @@ describe "a monthly inital employer quiet period enrollments query" do
       let(:effective_on) { current_effective_date }
       let(:aasm_state) { :active }
 
-      let(:initial_employer) {
+      let(:initial_employer) do
         abc_profile
-      }
+      end
 
-      let(:plan_year) {
+      let(:plan_year) do
         initial_application
-      }
+      end
 
-      let(:quiet_period_end_on) {
+      let(:quiet_period_end_on) do
         Settings.aca.shop_market.initial_application.quiet_period.mday
-      }
+      end
 
-      let(:quiet_period_end_date) {
-        plan_year.start_on + (Settings.aca.shop_market.initial_application.quiet_period.month_offset).months + (Settings.aca.shop_market.initial_application.quiet_period.mday-1).days
-      }
+      let(:quiet_period_end_date) do
+        plan_year.start_on + Settings.aca.shop_market.initial_application.quiet_period.month_offset.months + (Settings.aca.shop_market.initial_application.quiet_period.mday - 1).days
+      end
 
-      let(:initial_employees) {
-        # FactoryGirl.create_list(:census_employee_with_active_assignment, 5, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: initial_employer,
+      let(:initial_employees) do
+        # FactoryBot.create_list(:census_employee_with_active_assignment, 5, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: initial_employer,
         #   benefit_group: plan_year.benefit_groups.first)
         census_employees
-      }
+      end
 
-      let(:employee_A) {
+      let(:employee_A) do
         ce = initial_employees[0]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_1) {
+      let!(:enrollment_1) do
         create_enrollment(family: employee_A.person.primary_family, benefit_group_assignment: employee_A.census_employee.active_benefit_group_assignment, employee_role: employee_A,
-                            submitted_at: plan_year.open_enrollment_end_on - 10.day)
-      }
+                          submitted_at: plan_year.open_enrollment_end_on - 10.day)
+      end
 
-      let(:employee_B) {
+      let(:employee_B) do
         ce = initial_employees[1]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_2) {
+      let!(:enrollment_2) do
         create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment, employee_role: employee_B, submitted_at: quiet_period_end_date.prev_day)
-      }
+      end
 
-      let!(:enrollment_3) {
-        create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment, employee_role: employee_B, submitted_at: quiet_period_end_date.prev_day, status: 'inactive', parent: enrollment_2)
-      }
+      let!(:enrollment_3) do
+        create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment, employee_role: employee_B, submitted_at: quiet_period_end_date.prev_day, status: 'inactive',
+                          parent: enrollment_2)
+      end
 
-      let(:employee_C) {
+      let(:employee_C) do
         ce = initial_employees[2]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_4) {
+      let!(:enrollment_4) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day)
-      }
+      end
 
-      let!(:enrollment_5) {
-        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day, coverage_kind: 'dental')
-      }
+      let!(:enrollment_5) do
+        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day,
+                          coverage_kind: 'dental')
+      end
 
-      let!(:enrollment_6) {
+      let!(:enrollment_6) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date + 2.days)
-      }
+      end
 
-      let(:employee_D) {
+      let(:employee_D) do
         ce = initial_employees[3]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_7) {
+      let!(:enrollment_7) do
         create_enrollment(family: employee_D.person.primary_family, benefit_group_assignment: employee_D.census_employee.active_benefit_group_assignment, employee_role: employee_D, submitted_at: quiet_period_end_date.end_of_day - 1.hour)
-      }
+      end
 
-      let(:employee_E) {
+      let(:employee_E) do
         ce = initial_employees[4]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_8) {
+      let!(:enrollment_8) do
         create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on - 10.day)
-      }
+      end
 
-      let!(:enrollment_9) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: quiet_period_end_date - 2.days, enrollment_kind: 'special_enrollment', parent: enrollment_8)
-      }
+      let!(:enrollment_9) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: quiet_period_end_date - 2.days,
+                          enrollment_kind: 'special_enrollment', parent: enrollment_8)
+      end
 
-      let!(:enrollment_10) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: quiet_period_end_date.prev_day, enrollment_kind: 'special_enrollment', parent: enrollment_9)
-      }
+      let!(:enrollment_10) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: quiet_period_end_date.prev_day,
+                          enrollment_kind: 'special_enrollment', parent: enrollment_9)
+      end
 
-      let!(:enrollment_11) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, status: 'coverage_enrolled', employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on - 1.day, effective_date: plan_year.start_on.next_month)
-      }
+      let!(:enrollment_11) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, status: 'coverage_enrolled', employee_role: employee_E,
+                          submitted_at: plan_year.open_enrollment_end_on - 1.day, effective_date: plan_year.start_on.next_month)
+      end
 
-      let!(:enrollment_12) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: quiet_period_end_date - 2.days, effective_date: plan_year.start_on.next_month)
-      }
+      let!(:enrollment_12) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: quiet_period_end_date - 2.days,
+                          effective_date: plan_year.start_on.next_month)
+      end
 
-      let!(:enrollment_13) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, coverage_kind: 'dental', employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on - 1.day, effective_date: plan_year.start_on.next_month)
-      }
+      let!(:enrollment_13) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, coverage_kind: 'dental', employee_role: employee_E,
+                          submitted_at: plan_year.open_enrollment_end_on - 1.day, effective_date: plan_year.start_on.next_month)
+      end
 
-      let!(:enrollment_14) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, coverage_kind: 'dental', employee_role: employee_E, submitted_at: quiet_period_end_date - 2.days, effective_date: plan_year.start_on.next_month)
-      }
+      let!(:enrollment_14) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, coverage_kind: 'dental', employee_role: employee_E,
+                          submitted_at: quiet_period_end_date - 2.days, effective_date: plan_year.start_on.next_month)
+      end
 
-      let!(:enrollment_15) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on - 1.day, effective_date: plan_year.start_on)
-      }
+      let!(:enrollment_15) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on - 1.day,
+                          effective_date: plan_year.start_on)
+      end
 
-      let!(:enrollment_16) {
-        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on + 3.day, effective_date: plan_year.start_on)
-      }
+      let!(:enrollment_16) do
+        create_enrollment(family: employee_E.person.primary_family, benefit_group_assignment: employee_E.census_employee.active_benefit_group_assignment, employee_role: employee_E, submitted_at: plan_year.open_enrollment_end_on + 3.day,
+                          effective_date: plan_year.start_on)
+      end
 
       it "does not include enrollment 1" do
         result = Queries::NamedPolicyQueries.shop_quiet_period_enrollments(effective_on, ['coverage_selected'])
@@ -264,7 +276,7 @@ describe "a monthly inital employer quiet period enrollments query" do
          - One dental waiver during Quiet Period(Enrollment 7)
          - Then another health enrollment outside Quiet Period(Enrollment 8)
          - Then another dental enrollment outside Quiet Period(Enrollment 9)
-    " ,dbclean: :after_each do
+    ",dbclean: :after_each do
 
 
       include_context "setup benefit market with market catalogs and product packages"
@@ -278,85 +290,89 @@ describe "a monthly inital employer quiet period enrollments query" do
       let(:effective_on) { current_effective_date }
       let(:aasm_state) { :active }
 
-      let(:initial_employer) {
+      let(:initial_employer) do
         abc_profile
-      }
+      end
 
-      let(:plan_year) {
+      let(:plan_year) do
         initial_application
-      }
+      end
 
-      let(:quiet_period_end_on) {
+      let(:quiet_period_end_on) do
         Settings.aca.shop_market.initial_application.quiet_period.mday
-      }
+      end
 
-      let(:quiet_period_end_date) {
-        plan_year.start_on + (Settings.aca.shop_market.initial_application.quiet_period.month_offset).months + (Settings.aca.shop_market.initial_application.quiet_period.mday-1).days
-      }
+      let(:quiet_period_end_date) do
+        plan_year.start_on + Settings.aca.shop_market.initial_application.quiet_period.month_offset.months + (Settings.aca.shop_market.initial_application.quiet_period.mday - 1).days
+      end
 
 
-      let(:initial_employees) {
+      let(:initial_employees) do
         census_employees
-      }
+      end
 
 
-      let(:employee_A) {
+      let(:employee_A) do
         ce = initial_employees[0]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_1) {
+      let!(:enrollment_1) do
         create_enrollment(family: employee_A.person.primary_family, benefit_group_assignment: employee_A.census_employee.active_benefit_group_assignment, employee_role: employee_A,
-                            submitted_at: plan_year.open_enrollment_end_on - 10.day)
-      }
+                          submitted_at: plan_year.open_enrollment_end_on - 10.day)
+      end
 
 
 
-      let(:employee_B) {
+      let(:employee_B) do
         ce = initial_employees[1]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_2) {
+      let!(:enrollment_2) do
         create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment, employee_role: employee_B, submitted_at: quiet_period_end_date.prev_day)
-      }
+      end
 
-      let!(:enrollment_3) {
-        create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment, employee_role: employee_B, submitted_at: quiet_period_end_date.prev_day, status: 'inactive', parent: enrollment_2)
-      }
+      let!(:enrollment_3) do
+        create_enrollment(family: employee_B.person.primary_family, benefit_group_assignment: employee_B.census_employee.active_benefit_group_assignment, employee_role: employee_B, submitted_at: quiet_period_end_date.prev_day, status: 'inactive',
+                          parent: enrollment_2)
+      end
 
-      let(:employee_C) {
+      let(:employee_C) do
         ce = initial_employees[2]
         create_person(ce, initial_employer)
-      }
+      end
 
-      let!(:enrollment_4) {
+      let!(:enrollment_4) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_A,
-                            submitted_at: plan_year.open_enrollment_end_on - 10.day)
-      }
+                          submitted_at: plan_year.open_enrollment_end_on - 10.day)
+      end
 
-      let!(:enrollment_5) {
+      let!(:enrollment_5) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_A,
-                            submitted_at: plan_year.open_enrollment_end_on - 10.day, coverage_kind: 'dental')
-      }
+                          submitted_at: plan_year.open_enrollment_end_on - 10.day, coverage_kind: 'dental')
+      end
 
-      let!(:enrollment_6) {
-        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day, status: 'inactive', parent: enrollment_4)
-      }
+      let!(:enrollment_6) do
+        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day, status: 'inactive',
+                          parent: enrollment_4)
+      end
 
-      let!(:enrollment_7) {
-        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day, coverage_kind: 'dental', status: 'inactive', parent: enrollment_5)
-      }
+      let!(:enrollment_7) do
+        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.prev_day,
+                          coverage_kind: 'dental', status: 'inactive', parent: enrollment_5)
+      end
 
-      let!(:enrollment_8) {
+      let!(:enrollment_8) do
         create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.next_day)
-      }
+      end
 
-      let!(:enrollment_9) {
-        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.next_day, coverage_kind: 'dental')
-      }
+      let!(:enrollment_9) do
+        create_enrollment(family: employee_C.person.primary_family, benefit_group_assignment: employee_C.census_employee.active_benefit_group_assignment, employee_role: employee_C, submitted_at: quiet_period_end_date.next_day,
+                          coverage_kind: 'dental')
+      end
 
-      let(:term_statuses){ %w(coverage_terminated coverage_canceled coverage_termination_pending) }
+      let(:term_statuses){ %w[coverage_terminated coverage_canceled coverage_termination_pending] }
 
 
       it "does not include enrollment 1" do
@@ -410,15 +426,15 @@ describe "a monthly inital employer quiet period enrollments query" do
 
       it 'should be in exchange local time' do
         qs = Queries::ShopMonthlyEnrollments.new([], effective_on)
-        expect(qs.quiet_period.begin.in_time_zone(TimeKeeper.exchange_zone).strftime("%H:%M")).to eq ("00:00")
-        expect(qs.quiet_period.end.in_time_zone(TimeKeeper.exchange_zone).strftime("%H:%M")).to eq ("00:00")
+        expect(qs.quiet_period.begin.in_time_zone(TimeKeeper.exchange_zone).strftime("%H:%M")).to eq("00:00")
+        expect(qs.quiet_period.end.in_time_zone(TimeKeeper.exchange_zone).strftime("%H:%M")).to eq("00:00")
       end
     end
   end
 
   def create_person(ce, employer_profile)
-    person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
-    employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+    person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+    employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
     ce.update_attributes({employee_role: employee_role})
     Family.find_or_build_from_employee_role(employee_role)
     employee_role
@@ -427,26 +443,23 @@ describe "a monthly inital employer quiet period enrollments query" do
   def create_enrollment(family: nil, benefit_group_assignment: nil, employee_role: nil, status: 'coverage_selected', submitted_at: nil, enrollment_kind: 'open_enrollment', effective_date: nil, coverage_kind: 'health', parent: nil)
     benefit_group = benefit_group_assignment.benefit_group
     sponsored_benefit = benefit_group.sponsored_benefit_for(coverage_kind)
-    enrollment = FactoryGirl.create(:hbx_enrollment,:with_enrollment_members,
-      enrollment_members: [family.primary_applicant],
-      household: family.active_household,
-      coverage_kind: coverage_kind,
-      effective_on: effective_date || benefit_group.start_on,
-      enrollment_kind: enrollment_kind,
-      kind: "employer_sponsored",
-      submitted_at: submitted_at,
-      benefit_sponsorship_id: benefit_group.benefit_sponsorship.id,
-      sponsored_benefit_package_id: benefit_group.id,
-      sponsored_benefit_id: sponsored_benefit.id,
-      employee_role_id: employee_role.id,
-      benefit_group_assignment_id: benefit_group_assignment.id,
-      plan_id: sponsored_benefit.reference_product.id,
-      aasm_state: status
-    )
+    enrollment = FactoryBot.create(:hbx_enrollment,:with_enrollment_members,
+                                   enrollment_members: [family.primary_applicant],
+                                   household: family.active_household,
+                                   coverage_kind: coverage_kind,
+                                   effective_on: effective_date || benefit_group.start_on,
+                                   enrollment_kind: enrollment_kind,
+                                   kind: "employer_sponsored",
+                                   submitted_at: submitted_at,
+                                   benefit_sponsorship_id: benefit_group.benefit_sponsorship.id,
+                                   sponsored_benefit_package_id: benefit_group.id,
+                                   sponsored_benefit_id: sponsored_benefit.id,
+                                   employee_role_id: employee_role.id,
+                                   benefit_group_assignment_id: benefit_group_assignment.id,
+                                   plan_id: sponsored_benefit.reference_product.id,
+                                   aasm_state: status)
 
-    if enrollment.coverage_selected? || enrollment.inactive?
-      enrollment.workflow_state_transitions.create(from_state: 'shopping', to_state: status, transition_at: submitted_at)
-    end
+    enrollment.workflow_state_transitions.create(from_state: 'shopping', to_state: status, transition_at: submitted_at) if enrollment.coverage_selected? || enrollment.inactive?
 
     if (enrollment.inactive? || enrollment.coverage_selected?) && parent.present?
       parent.update(aasm_state: 'coverage_canceled')

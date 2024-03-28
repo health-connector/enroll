@@ -11,7 +11,7 @@ module BenefitSponsors
     let(:site) { ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market }
     let(:benefit_market)  { site.benefit_markets.first }
 
-    let(:employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)        { employer_organization.employer_profile }
 
     describe "A new model instance" do
@@ -85,7 +85,7 @@ module BenefitSponsors
         end
 
         context "with an organization different than profile's organization" do
-          let(:invalid_organization)  { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+          let(:invalid_organization)  { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
 
           subject { described_class.new(params.except(:organization)) }
 
@@ -131,7 +131,7 @@ module BenefitSponsors
     end
 
     describe "Navigating BenefitSponsorship Predecessor/Successor linked list" do
-      let(:linked_organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:linked_organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:linked_profile)      { linked_organization.employer_profile }
 
       let(:node_a)      { described_class.new(profile: linked_profile) }
@@ -163,8 +163,8 @@ module BenefitSponsors
 
     describe "Working around validating model factory" do
       context "when benefit sponsor has profile and organization" do
-        let(:valid_build_benefit_sponsorship)  { FactoryGirl.build(:benefit_sponsors_benefit_sponsorship, :with_full_package) }
-        let(:valid_create_benefit_sponsorship) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_market_profile)}
+        let(:valid_build_benefit_sponsorship)  { FactoryBot.build(:benefit_sponsors_benefit_sponsorship, :with_full_package) }
+        let(:valid_create_benefit_sponsorship) { FactoryBot.create(:benefit_sponsors_benefit_sponsorship, :with_market_profile)}
 
         it "with_full_package build should be valid" do
           expect(valid_build_benefit_sponsorship.valid?).to be_truthy
@@ -176,7 +176,7 @@ module BenefitSponsors
       end
 
       context "when benefit sponsorship is CCA SHOP employer" do
-        let(:cca_employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+        let(:cca_employer_organization)   { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
         let(:cca_profile)                 { cca_employer_organization.employer_profile  }
         let(:benefit_sponsorship) do
           sponsorship = cca_profile.add_benefit_sponsorship
@@ -230,7 +230,7 @@ module BenefitSponsors
 
     describe "Working with subclassed parent Profiles" do
       context "using sic_code helper method" do
-        let(:cca_employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+        let(:cca_employer_organization)   { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
         let(:cca_employer_profile)        { cca_employer_organization.employer_profile }
         let(:sic_code)                    { "1110" }
 
@@ -301,7 +301,7 @@ module BenefitSponsors
       end
 
       let(:this_year)                           { Date.today.year }
-      let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
+      let(:benefit_sponsor_catalog) { FactoryBot.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
       let(:service_area) { create_default(:benefit_markets_locations_service_area) }
       let(:benefit_application) do
         build(
@@ -450,7 +450,7 @@ module BenefitSponsors
     describe "most_recent_benefit_application", :dbclean => :after_each do
       let(:benefit_sponsorship)                 { employer_profile.add_benefit_sponsorship }
 
-      let!(:imported_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+      let!(:imported_benefit_application)   { FactoryBot.create(:benefit_sponsors_benefit_application,
                                                         benefit_sponsorship: benefit_sponsorship,
                                                         recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :imported) }
 
@@ -471,7 +471,7 @@ module BenefitSponsors
 
       context "when employer with imported & submitted benefit application" do
 
-        let!(:submitted_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+        let!(:submitted_benefit_application)   { FactoryBot.create(:benefit_sponsors_benefit_application,
                                                                 benefit_sponsorship: benefit_sponsorship,
                                                                 recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :approved) }
 
@@ -482,7 +482,7 @@ module BenefitSponsors
     end
 
     describe "latest_application", :dbclean => :after_each do
-      let!(:benefit_sponsorship)   { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_renewal_draft_benefit_application, profile: employer_profile ) }
+      let!(:benefit_sponsorship)   { FactoryBot.create(:benefit_sponsors_benefit_sponsorship, :with_renewal_draft_benefit_application, profile: employer_profile ) }
 
       context "when employer has renewal benefit application" do
 
@@ -514,7 +514,7 @@ module BenefitSponsors
         sponsorship.save
         sponsorship
       end
-      let!(:imported_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+      let!(:imported_benefit_application)   { FactoryBot.create(:benefit_sponsors_benefit_application,
                                                         benefit_sponsorship: benefit_sponsorship,
                                                         recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :imported) }
       context "when an employer has imported benefit application" do
@@ -525,7 +525,7 @@ module BenefitSponsors
       end
 
       context "when employer with imported & active benefit application" do
-        let!(:active_benefit_application)   { FactoryGirl.create(:benefit_sponsors_benefit_application,
+        let!(:active_benefit_application)   { FactoryBot.create(:benefit_sponsors_benefit_application,
                                                                 benefit_sponsorship: benefit_sponsorship,
                                                                 recorded_service_areas: benefit_sponsorship.service_areas, aasm_state: :active) }
         it "should return active benefit application" do
@@ -536,8 +536,8 @@ module BenefitSponsors
     end
 
     describe "Scopes", :dbclean => :after_each do
-      let!(:rating_area)                    { FactoryGirl.create(:benefit_markets_locations_rating_area)  }
-      let!(:service_area)                    { FactoryGirl.create(:benefit_markets_locations_service_area)  }
+      let!(:rating_area)                    { FactoryBot.create(:benefit_markets_locations_rating_area)  }
+      let!(:service_area)                    { FactoryBot.create(:benefit_markets_locations_service_area)  }
       let(:this_year)                       { TimeKeeper.date_of_record.year }
 
       let(:march_effective_date)            { Date.new(this_year,3,1) }
@@ -1111,7 +1111,7 @@ module BenefitSponsors
         )
       end
       let!(:expired_benefit_application) do
-        expired_application = FactoryGirl.create(
+        expired_application = FactoryBot.create(
           :benefit_sponsors_benefit_application,
           benefit_sponsorship: benefit_sponsorship,
           recorded_service_areas: benefit_sponsorship.primary_office_service_areas,

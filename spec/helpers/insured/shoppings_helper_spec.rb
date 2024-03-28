@@ -10,12 +10,12 @@ RSpec.describe Insured::ShoppingsHelper, :type => :helper, dbclean: :after_each 
   end
 
   describe "#is_eligible_for_dental?" do
-    let(:site) { FactoryGirl.create(:benefit_sponsors_site,  :with_benefit_market, :dc, :as_hbx_profile) }
+    let(:site) { FactoryBot.create(:benefit_sponsors_site,  :with_benefit_market, :dc, :as_hbx_profile) }
 
     let(:organization) do
-      FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
-                         :with_aca_shop_dc_employer_profile_initial_application,
-                         site: site)
+      FactoryBot.create(:benefit_sponsors_organizations_general_organization,
+                        :with_aca_shop_dc_employer_profile_initial_application,
+                        site: site)
     end
 
     let(:employer_profile) { organization.employer_profile }
@@ -23,10 +23,10 @@ RSpec.describe Insured::ShoppingsHelper, :type => :helper, dbclean: :after_each 
 
     let(:active_bg) { double("ActiveBenefitGroup", plan_year: double("ActivePlanYear")) }
     let(:renewal_bg) { double("RenewalBenefitGroup", plan_year: double("RenewingPlanYear")) }
-    let!(:sep) { FactoryGirl.create(:special_enrollment_period, family: family, effective_on: TimeKeeper.date_of_record)}
-    let(:employee_role) { FactoryGirl.create(:employee_role, employer_profile: employer_profile)}
+    let!(:sep) { FactoryBot.create(:special_enrollment_period, family: family, effective_on: TimeKeeper.date_of_record)}
+    let(:employee_role) { FactoryBot.create(:employee_role, employer_profile: employer_profile)}
     let(:census_employee) { double("CensusEmployee", active_benefit_group: active_bg, employer_profile: employer_profile)}
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: employee_role.person)}
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: employee_role.person)}
 
     before do
       allow(employee_role).to receive(:census_employee).and_return census_employee

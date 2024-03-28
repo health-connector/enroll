@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_census_employee_details")
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -13,7 +15,7 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
 
 
     describe "update_terminated_on" do
-      let(:census_employee)     { FactoryGirl.create(:census_employee, :employment_terminated_on => TimeKeeper.date_of_record - 1.month)}
+      let(:census_employee)     { FactoryBot.create(:census_employee, :employment_terminated_on => TimeKeeper.date_of_record - 1.month)}
       let(:terminated_on)     { TimeKeeper.date_of_record }
 
       it "should change the terminated_on date" do
@@ -23,12 +25,12 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
     end
 
     describe "update_enrollments" do
-      let(:census_employee)     { FactoryGirl.create(:census_employee, :employment_terminated_on => TimeKeeper.date_of_record)}
+      let(:census_employee)     { FactoryBot.create(:census_employee, :employment_terminated_on => TimeKeeper.date_of_record)}
       let(:terminated_on)     { TimeKeeper.date_of_record }
-      let(:benefit_group_assignment)    { FactoryGirl.build(:benefit_group_assignment) }
-      let(:family) { FactoryGirl.build(:family, :with_primary_family_member)}
+      let(:benefit_group_assignment)    { FactoryBot.build(:benefit_group_assignment) }
+      let(:family) { FactoryBot.build(:family, :with_primary_family_member)}
 
-      let(:hbx_enrollment)    { FactoryGirl.build(:hbx_enrollment, :household => family.active_household, :aasm_state => "coverage_terminated", :terminated_on => TimeKeeper.date_of_record - 1.month) }
+      let(:hbx_enrollment)    { FactoryBot.build(:hbx_enrollment, :household => family.active_household, :aasm_state => "coverage_terminated", :terminated_on => TimeKeeper.date_of_record - 1.month) }
 
       before do
         allow(census_employee).to receive(:active_benefit_group_assignment).and_return(benefit_group_assignment)
@@ -43,8 +45,8 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
     end
 
     describe "census_employee" do
-      let(:employer_profile)     { FactoryGirl.create(:employer_profile) }
-      let(:census_employee)     { FactoryGirl.create(:census_employee, employer_profile_id: employer_profile.id) }
+      let(:employer_profile)     { FactoryBot.create(:employer_profile) }
+      let(:census_employee)     { FactoryBot.create(:census_employee, employer_profile_id: employer_profile.id) }
 
       it "should return the census employee" do
         found_employee = subject.send(:census_employee, census_employee.ssn, employer_profile.fein)
@@ -59,11 +61,12 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
     end
 
     describe "change_ssn" do
-      let(:census_employee) { FactoryGirl.create :census_employee}
+      let(:census_employee) { FactoryBot.create :census_employee}
 
-      before :each do
-        allow(ENV).to receive(:[]).with("encrypted_ssn").and_return census_employee.encrypted_ssn
-        allow(ENV).to receive(:[]).with("new_encrypted_ssn").and_return SymmetricEncryption.encrypt("123111222")
+      around do |example|
+        ClimateControl.modify :encrypted_ssn => census_employee.encrypted_ssn, :new_encrypted_ssn => SymmetricEncryption.encrypt("123111222") do
+          example.run
+        end
       end
 
       it "should change the SSN of census employee if in eligible status" do
@@ -82,12 +85,17 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
     end
 
     describe "delink_employee_role" do
-      let(:census_employee) { FactoryGirl.create :census_employee}
-      let(:employee_role) { FactoryGirl.create :employee_role}
+      let(:census_employee) { FactoryBot.create :census_employee}
+      let(:employee_role) { FactoryBot.create :employee_role}
 
       before :each do
-        allow(ENV).to receive(:[]).with("encrypted_ssn").and_return census_employee.encrypted_ssn
         census_employee.update_attributes(aasm_state: "employee_role_linked", employee_role_id: employee_role.id)
+      end
+
+      around do |example|
+        ClimateControl.modify :encrypted_ssn => census_employee.encrypted_ssn do
+          example.run
+        end
       end
 
       it "should delink the employee role" do
@@ -105,18 +113,23 @@ describe ChangeCensusEmployeeDetails, dbclean: :around_each do
 
     let(:given_task_name) {'change_census_employee_details'}
     let!(:benefit_package) {initial_application.benefit_packages.first}
-    let!(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
-    let!(:employee_role) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id)}
-    let!(:census_employee) {FactoryGirl.create(:census_employee, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship, benefit_group_assignments: [benefit_group_assignment])}
-    let!(:person) {FactoryGirl.create(:person)}
+    let!(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
+    let!(:employee_role) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id)}
+    let!(:census_employee) {FactoryBot.create(:census_employee, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship, benefit_group_assignments: [benefit_group_assignment])}
+    let!(:person) {FactoryBot.create(:person)}
 
     subject {ChangeCensusEmployeeDetails.new(given_task_name, double(:current_scope => nil))}
 
     before :each do
       census_employee.update_attributes(:employee_role_id => employee_role.id)
       Person.all.first.update_attributes!(first_name: census_employee.first_name, last_name: census_employee.last_name, dob: census_employee.dob, encrypted_ssn: Person.encrypt_ssn(census_employee.ssn))
-      allow(ENV).to receive(:[]).with('hbx_id').and_return person.hbx_id
-      allow(ENV).to receive(:[]).with('employer_fein').and_return benefit_sponsorship.organization.fein
+    end
+
+
+    around do |example|
+      ClimateControl.modify :hbx_id => person.hbx_id, :employer_fein => benefit_sponsorship.organization.fein do
+        example.run
+      end
     end
 
     it 'should link census employee' do

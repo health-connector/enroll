@@ -11,7 +11,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
     create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
   end
   let(:benefit_market) { site.benefit_markets.first }
-  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:current_benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,
@@ -23,7 +23,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
     )
   end
   let!(:organization_with_hbx_profile)  { site.owner_organization }
-  let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
   let!(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
@@ -32,7 +32,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   end
   let(:effective_period) { start_on..(start_on + 1.year) - 1.day }
   let!(:benefit_application) do
-    application = FactoryGirl.create(
+    application = FactoryBot.create(
       :benefit_sponsors_benefit_application,
       :with_benefit_sponsor_catalog,
       :with_benefit_package,
@@ -48,14 +48,14 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
     benefit_application.benefit_packages[0]
   end
 
-  let(:person)       { FactoryGirl.create(:person, :with_family) }
+  let(:person)       { FactoryBot.create(:person, :with_family) }
   let(:family)       { person.primary_family }
-  let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, active_benefit_group_assignment: benefit_package.id ) }
-  let(:employee_role)     { FactoryGirl.create(:benefit_sponsors_employee_role, employer_profile: employer_profile, person: person, census_employee_id: census_employee.id) }
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, active_benefit_group_assignment: benefit_package.id ) }
+  let(:employee_role)     { FactoryBot.create(:benefit_sponsors_employee_role, employer_profile: employer_profile, person: person, census_employee_id: census_employee.id) }
   let!(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
 
   let!(:hbx_enrollment) do
-    FactoryGirl.create(
+    FactoryBot.create(
       :hbx_enrollment,
       :with_enrollment_members,
       household: family.active_household,

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Exchanges::InboxesController do
@@ -6,7 +8,7 @@ RSpec.describe Exchanges::InboxesController do
     let(:person) { double("Person") }
     let(:hbx_profile) { double("HbxProfile") }
     let(:inbox) { double("Inbox") }
-    let(:message){ double("Message", message_read: false ) }
+    let(:message){ double("Message", message_read: false) }
     let(:inbox_provider){double(id: double("id"),full_name: double("inbox_provider"))}
 
     before :each do
@@ -25,12 +27,12 @@ RSpec.describe Exchanges::InboxesController do
       end
 
       it "should render show" do
-        get :show, id: "test"
+        get :show, params: {id: "test"}
         expect(response).to have_http_status(:success)
       end
 
       it "delete action" do
-        xhr :delete, :destroy, id: 1
+        delete :destroy, params: { id: 1}, xhr: true
         expect(response).to have_http_status(:success)
       end
     end
@@ -41,7 +43,7 @@ RSpec.describe Exchanges::InboxesController do
       end
 
       it "should render show" do
-        get :show, id: "test"
+        get :show, params: { id: "test" }
         expect(response).to have_http_status(:success)
         expect(message.message_read).to eq(false)
       end

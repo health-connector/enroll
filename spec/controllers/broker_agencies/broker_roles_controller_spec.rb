@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BrokerAgencies::BrokerRolesController do
@@ -26,7 +28,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
     context 'with AJAX request' do
       before :each do
-        xhr :get, :new_broker, filter: 'broker', format: :js
+        get :new_broker, params: {filter: 'broker', format: :js}
       end
 
       it "should be a success" do
@@ -46,7 +48,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
   describe ".new_staff_member" do
     before :each do
-      xhr :get, :new_staff_member, filter: 'staff', format: :js
+      get :new_staff_member, params: { filter: 'staff', format: :js }
     end
 
     it "should be a success" do
@@ -65,7 +67,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
   describe ".new_broker_agency" do
     before :each do
-      xhr :get, :new_broker_agency, filter: 'broker', agency_type: 'new', format: :js
+      get :new_broker_agency, params: { filter: 'broker', agency_type: 'new', format: :js }
     end
 
     it "should be a success" do
@@ -88,29 +90,33 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       let(:organization) { instance_double("Organization") }
 
-      let(:organization_params) { {
-        first_name: 'firstname',
-        last_name: 'lastname',
-        dob: "2015-06-01",
-        email: 'useraccount@gmail.com',
-        npn: "8422323232",
-        legal_name: 'useragency',
-        fein: "223232323",
-        entity_kind: "c_corporation",
-        market_kind: "shop",
-        working_hours: "0",
-        accept_new_clients: "0",
-        office_locations_attributes: office_locations
-      } }
-
-      let(:office_locations) { {
-        "0" => {
-          address_attributes: address_attributes,
-          phone_attributes: phone_attributes
+      let(:organization_params) do
+        {
+          first_name: 'firstname',
+          last_name: 'lastname',
+          dob: "2015-06-01",
+          email: 'useraccount@gmail.com',
+          npn: "8422323232",
+          legal_name: 'useragency',
+          fein: "223232323",
+          entity_kind: "c_corporation",
+          market_kind: "shop",
+          working_hours: "0",
+          accept_new_clients: "0",
+          office_locations_attributes: office_locations
         }
-      }}
+      end
 
-      let(:address_attributes) {
+      let(:office_locations) do
+        {
+          "0" => {
+            address_attributes: address_attributes,
+            phone_attributes: phone_attributes
+          }
+        }
+      end
+
+      let(:address_attributes) do
         {
           kind: "primary",
           address_1: "99 N ST",
@@ -118,22 +124,22 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
           state: "dc",
           zip: "20006"
         }
-      }
+      end
 
-      let(:phone_attributes) {
+      let(:phone_attributes) do
         {
           kind: "work",
           area_code: "202",
           number: "324-2232"
         }
-      }
+      end
 
       context "when valid" do
         before :each do
           # allow(controller).to receive(:verify_recaptcha).and_return(true)
           allow(::Forms::BrokerAgencyProfile).to receive(:new).and_return(organization)
           allow(organization).to receive(:save).and_return(true)
-          post :create, :organization => organization_params
+          post :create, params: { :organization => organization_params }
         end
 
         it "should be a redirect" do
@@ -150,7 +156,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
         before :each do
           allow(::Forms::BrokerAgencyProfile).to receive(:new).and_return(organization)
           allow(organization).to receive(:save).and_return(false)
-          post :create, :organization => organization_params
+          post :create, params: { :organization => organization_params }
         end
 
         it "should be a redirect" do
@@ -184,22 +190,24 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       let(:person) { instance_double("Person") }
 
-      let(:person_params) { {
-        broker_applicant_type: "broker",
-        first_name: "firstname",
-        last_name: "lastname",
-        dob: "1993-06-03",
-        email: "useraccount@gmail.com",
-        npn: "8323232323",
-        broker_agency_id: "55929d867261670838550000"
-      } }
+      let(:person_params) do
+        {
+          broker_applicant_type: "broker",
+          first_name: "firstname",
+          last_name: "lastname",
+          dob: "1993-06-03",
+          email: "useraccount@gmail.com",
+          npn: "8323232323",
+          broker_agency_id: "55929d867261670838550000"
+        }
+      end
 
       context "when valid" do
         before :each do
           # allow(controller).to receive(:verify_recaptcha).and_return(true)
           allow(::Forms::BrokerCandidate).to receive(:new).and_return(person)
           allow(person).to receive(:save).and_return(true)
-          post :create, :person => person_params
+          post :create, params: { :person => person_params }
         end
 
         it "should be a redirect" do
@@ -215,7 +223,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
         before :each do
           allow(::Forms::BrokerCandidate).to receive(:new).and_return(person)
           allow(person).to receive(:save).and_return(false)
-          post :create, :person => person_params
+          post :create, params: { :person => person_params }
         end
 
         it "should be a redirect" do
@@ -249,20 +257,22 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       let(:person) { instance_double("Person") }
 
-      let(:person_params) { {
-        broker_applicant_type: "staff",
-        first_name: "firstname",
-        last_name: "lastname",
-        dob: "1993-06-03",
-        email: "useraccount@gmail.com",
-        broker_agency_id: "55929d867261670838550000"
-      } }
+      let(:person_params) do
+        {
+          broker_applicant_type: "staff",
+          first_name: "firstname",
+          last_name: "lastname",
+          dob: "1993-06-03",
+          email: "useraccount@gmail.com",
+          broker_agency_id: "55929d867261670838550000"
+        }
+      end
 
       context "when valid" do
         before :each do
           allow(::Forms::BrokerCandidate).to receive(:new).and_return(person)
           allow(person).to receive(:save).and_return(true)
-          post :create, :person => person_params
+          post :create, params: { :person => person_params }
         end
 
         it "should be a redirect" do
@@ -278,7 +288,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
         before :each do
           allow(::Forms::BrokerCandidate).to receive(:new).and_return(person)
           allow(person).to receive(:save).and_return(false)
-          post :create, :person => person_params
+          post :create, params: { :person => person_params }
         end
 
         it "should be a redirect" do
@@ -294,14 +304,14 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
   context "search_broker_agency", :dbclean => :after_each do
     before :each do
-      @organization = FactoryGirl.create(:broker_agency)
+      @organization = FactoryBot.create(:broker_agency)
       @broker_agency_profile = @organization.broker_agency_profile
     end
 
     context "with full" do
       context "search by legal_name" do
         before do
-          xhr :get, :search_broker_agency, broker_agency_search: @organization.legal_name, format: :js
+          get :search_broker_agency, params: { broker_agency_search: @organization.legal_name, format: :js }
         end
 
         it "should be a success" do
@@ -313,7 +323,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       context "search by fein" do
         before do
-          xhr :get, :search_broker_agency, broker_agency_search: @broker_agency_profile.fein, format: :js
+          get :search_broker_agency, params: { broker_agency_search: @broker_agency_profile.fein, format: :js }
         end
 
         it "should be a success" do
@@ -327,7 +337,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
     context "with partial" do
       context "search by legal_name" do
         before do
-          xhr :get, :search_broker_agency, broker_agency_search: @organization.legal_name.last(5), format: :js
+          get :search_broker_agency, params: { broker_agency_search: @organization.legal_name.last(5), format: :js }
         end
 
         it "should be a success" do
@@ -339,7 +349,7 @@ RSpec.describe BrokerAgencies::BrokerRolesController do
 
       context "search by fein" do
         before do
-          xhr :get, :search_broker_agency, broker_agency_search: @broker_agency_profile.fein.last(5), format: :js
+          get :search_broker_agency, params: { broker_agency_search: @broker_agency_profile.fein.last(5), format: :js }
         end
 
         it "should be a success" do

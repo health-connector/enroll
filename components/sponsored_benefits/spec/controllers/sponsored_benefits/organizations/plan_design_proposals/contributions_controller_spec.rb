@@ -11,20 +11,19 @@ module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignProposals::ContributionsController, type: :controller, dbclean: :around_each do
     render_views
     routes { SponsoredBenefits::Engine.routes }
-    let(:valid_session) { {} }
     let(:current_person) { double(:current_person) }
     let(:active_user) { double(:has_hbx_staff_role? => false) }
     let(:broker_role) { double(:broker_role, id: 3) }
-    let!(:rating_area) { FactoryGirl.create(:rating_area, zip_code: ofice_location.address.zip, county_name: ofice_location.address.county)}
+    let!(:rating_area) { FactoryBot.create(:rating_area, zip_code: ofice_location.address.zip, county_name: ofice_location.address.county)}
 
 		let(:plan_design_organization) do
-			FactoryGirl.create :sponsored_benefits_plan_design_organization,
+			FactoryBot.create :sponsored_benefits_plan_design_organization,
 				owner_profile_id: owner_profile.id,
 				sponsor_profile_id: sponsor_profile.id
 		end
 
 		let(:plan_design_proposal) do
-			FactoryGirl.create(:plan_design_proposal,
+			FactoryBot.create(:plan_design_proposal,
 				:with_profile,
 				plan_design_organization: plan_design_organization
 			).tap do |proposal|
@@ -47,14 +46,14 @@ module SponsoredBenefits
 		let(:benefit_sponsorship) { proposal_profile.benefit_sponsorships.first }
 
 		let(:benefit_application) do
-      FactoryGirl.create :plan_design_benefit_application,
+      FactoryBot.create :plan_design_benefit_application,
         :with_benefit_group,
         benefit_sponsorship: benefit_sponsorship
 	  end
 
 		let(:benefit_group) do
       benefit_application.benefit_groups.first.tap do |benefit_group|
-        reference_plan_id = FactoryGirl.create(:plan, :with_complex_premium_tables, :with_rating_factors, active_year: benefit_group.start_on.year).id
+        reference_plan_id = FactoryBot.create(:plan, :with_complex_premium_tables, :with_rating_factors, active_year: benefit_group.start_on.year).id
         benefit_group.update_attributes(reference_plan_id: reference_plan_id, plan_option_kind: 'single_carrier')
       end
     end
@@ -67,14 +66,14 @@ module SponsoredBenefits
 		let(:benefit_sponsor) { sponsor_profile.organization }
 
     let!(:plan_design_census_employee) do
-      FactoryGirl.create_list :plan_design_census_employee, 75,
+      FactoryBot.create_list :plan_design_census_employee, 75,
         :with_random_age,
         benefit_sponsorship_id: benefit_sponsorship.id
     end
 
     [2016, 2017, 2018, 2019, 2020].each do |year|
       let!("health_plans_for_#{year}".to_sym) do
-        FactoryGirl.create_list :plan,
+        FactoryBot.create_list :plan,
           77,
           :with_complex_premium_tables,
           active_year: year,
@@ -90,16 +89,16 @@ module SponsoredBenefits
 
 		let!(:broker_agency_profile) do
 			if Settings.aca.state_abbreviation == "DC" # toDo
-				FactoryGirl.create(:broker_agency_profile)
+				FactoryBot.create(:broker_agency_profile)
 			else
-				FactoryGirl.create(:benefit_sponsors_organizations_general_organization,
+				FactoryBot.create(:benefit_sponsors_organizations_general_organization,
 					:with_site,
 					:with_broker_agency_profile
 				).profiles.first
 			end
 		end
 
-    let!(:sponsor_profile) { FactoryGirl.create(:employer_profile) }
+    let!(:sponsor_profile) { FactoryBot.create(:employer_profile) }
 
     let!(:relationship_benefit) { benefit_group.relationship_benefits.first }
 
@@ -114,7 +113,7 @@ module SponsoredBenefits
     it 'finished in under 10 seconds' do
       Caches::PlanDetails.load_record_cache! if Caches::PlanDetails.respond_to? :load_record_cache!
       expect do
-        get :index, {
+        get :index, params: {
           plan_design_proposal_id: plan_design_proposal.id,
           benefit_group: {
             reference_plan_id: benefit_group.reference_plan_id.to_s,
@@ -126,7 +125,7 @@ module SponsoredBenefits
             }]
           },
           format: :js
-        }, valid_session
+        }
       end.to perform_under(10).sec
     end
   end

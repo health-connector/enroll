@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 class FakesController < ApplicationController
@@ -5,7 +7,7 @@ class FakesController < ApplicationController
 end
 
 describe FakesController do
-  let(:person) {FactoryGirl.build(:person)}
+  let(:person) {FactoryBot.build(:person)}
 
   context "#get_shopping_tax_household_from_person" do
     it "should get nil without person" do

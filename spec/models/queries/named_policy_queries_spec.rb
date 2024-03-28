@@ -1,113 +1,118 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Queries::NamedPolicyQueries, "Policy Queries", dbclean: :after_each do
-  # TODO Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on) updated to new model in
+  # TODO: Queries::NamedPolicyQueries.shop_monthly_enrollments(feins, effective_on) updated to new model in
   # app/models/queries/named_enrollment_queries.rb
   context "Shop Monthly Queries" do
 
     let(:effective_on) { TimeKeeper.date_of_record.end_of_month.next_day }
 
-    let(:initial_employer) {
-      FactoryGirl.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'enrolled')
-    }
+    let(:initial_employer) do
+      FactoryBot.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'enrolled')
+    end
 
-    let(:initial_employees) {
-      FactoryGirl.create_list(:census_employee_with_active_assignment, 5, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: initial_employer,
-        benefit_group: initial_employer.published_plan_year.benefit_groups.first,
-        created_at: TimeKeeper.date_of_record.prev_year)
-    }
+    let(:initial_employees) do
+      FactoryBot.create_list(:census_employee_with_active_assignment, 5, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: initial_employer,
+                                                                                    benefit_group: initial_employer.published_plan_year.benefit_groups.first,
+                                                                                    created_at: TimeKeeper.date_of_record.prev_year)
+    end
 
-    let(:renewing_employer) {
-      FactoryGirl.create(:employer_with_renewing_planyear, start_on: effective_on, renewal_plan_year_state: 'renewing_enrolled')
-    }
+    let(:renewing_employer) do
+      FactoryBot.create(:employer_with_renewing_planyear, start_on: effective_on, renewal_plan_year_state: 'renewing_enrolled')
+    end
 
-    let(:renewing_employees) {
-      FactoryGirl.create_list(:census_employee_with_active_and_renewal_assignment, 5, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer,
-        benefit_group: renewing_employer.active_plan_year.benefit_groups.first,
-        renewal_benefit_group: renewing_employer.renewing_plan_year.benefit_groups.first,
-        created_at: TimeKeeper.date_of_record.prev_year)
-    }
+    let(:renewing_employees) do
+      FactoryBot.create_list(:census_employee_with_active_and_renewal_assignment, 5, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer,
+                                                                                                benefit_group: renewing_employer.active_plan_year.benefit_groups.first,
+                                                                                                renewal_benefit_group: renewing_employer.renewing_plan_year.benefit_groups.first,
+                                                                                                created_at: TimeKeeper.date_of_record.prev_year)
+    end
 
-    let!(:initial_employee_enrollments) {
+    let!(:initial_employee_enrollments) do
       initial_employees.inject([]) do |enrollments, ce|
         employee_role = create_person(ce, initial_employer)
         enrollments << create_enrollment(family: employee_role.person.primary_family, benefit_group_assignment: ce.active_benefit_group_assignment, employee_role: employee_role, submitted_at: effective_on.prev_month)
       end
-    }
-    
-    let!(:cobra_employees) {
-      FactoryGirl.create_list(:census_employee_with_active_and_renewal_assignment, 5, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer,
-                              benefit_group: renewing_employer.active_plan_year.benefit_groups.first,
-                              renewal_benefit_group: renewing_employer.renewing_plan_year.benefit_groups.first,
-                              created_at: TimeKeeper.date_of_record.prev_year)
-    }
+    end
 
-    let(:updating_cobra_employees) {cobra_employees.each do |employee|
-      employee.aasm_state='cobra_linked'
-      employee.cobra_begin_date=TimeKeeper.date_of_record.end_of_month
-      employee.save
-    end}
+    let!(:cobra_employees) do
+      FactoryBot.create_list(:census_employee_with_active_and_renewal_assignment, 5, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer,
+                                                                                                benefit_group: renewing_employer.active_plan_year.benefit_groups.first,
+                                                                                                renewal_benefit_group: renewing_employer.renewing_plan_year.benefit_groups.first,
+                                                                                                created_at: TimeKeeper.date_of_record.prev_year)
+    end
 
-    let!(:cobra_employee_enrollments) {
+    let(:updating_cobra_employees) do
+      cobra_employees.each do |employee|
+        employee.aasm_state = 'cobra_linked'
+        employee.cobra_begin_date = TimeKeeper.date_of_record.end_of_month
+        employee.save
+      end
+    end
+
+    let!(:cobra_employee_enrollments) do
       cobra_employees.inject([]) do |enrollments, ce|
         employee_role = create_person(ce, renewing_employer)
-        enrollments << create_enrollment(family: employee_role.person.primary_family, kind:"employer_sponsored",benefit_group_assignment: ce.renewal_benefit_group_assignment, employee_role: employee_role, status: 'terminated')
-        enrollments << create_enrollment(family: employee_role.person.primary_family, kind:"employer_sponsored_cobra",benefit_group_assignment: ce.renewal_benefit_group_assignment, employee_role: employee_role, status: 'auto_renewing', submitted_at: effective_on - 20.days)
+        enrollments << create_enrollment(family: employee_role.person.primary_family, kind: "employer_sponsored",benefit_group_assignment: ce.renewal_benefit_group_assignment, employee_role: employee_role, status: 'terminated')
+        enrollments << create_enrollment(family: employee_role.person.primary_family, kind: "employer_sponsored_cobra",benefit_group_assignment: ce.renewal_benefit_group_assignment, employee_role: employee_role, status: 'auto_renewing',
+                                         submitted_at: effective_on - 20.days)
       end
-    }
+    end
 
-    let!(:initial_employee_quiet_enrollments) {
+    let!(:initial_employee_quiet_enrollments) do
       initial_employees.inject([]) do |enrollments, ce|
         employee_role = create_person(ce, initial_employer)
-        enrollments << create_enrollment(family: employee_role.person.primary_family, benefit_group_assignment: ce.active_benefit_group_assignment, employee_role: employee_role, submitted_at: (ce.active_benefit_group_assignment.plan_year.start_on + (Settings.aca.shop_market.initial_application.quiet_period.month_offset).months + Settings.aca.shop_market.initial_application.quiet_period.mday- 1.days))
+        enrollments << create_enrollment(family: employee_role.person.primary_family, benefit_group_assignment: ce.active_benefit_group_assignment, employee_role: employee_role,
+                                         submitted_at: (ce.active_benefit_group_assignment.plan_year.start_on + Settings.aca.shop_market.initial_application.quiet_period.month_offset.months + Settings.aca.shop_market.initial_application.quiet_period.mday - 1.days))
       end
-    }
-   
-    let!(:renewing_employee_enrollments) {
+    end
+
+    let!(:renewing_employee_enrollments) do
       renewing_employees.inject([]) do |enrollments, ce|
         employee_role = create_person(ce, renewing_employer)
         enrollments << create_enrollment(family: employee_role.person.primary_family, benefit_group_assignment: ce.active_benefit_group_assignment, employee_role: employee_role, submitted_at: effective_on - 20.days)
         enrollments << create_enrollment(family: employee_role.person.primary_family, benefit_group_assignment: ce.renewal_benefit_group_assignment, employee_role: employee_role, status: 'auto_renewing', submitted_at: effective_on - 20.days)
       end
-    }
+    end
 
-    let(:renewing_employee_passives) {
-      renewing_employee_enrollments.select{|e| e.auto_renewing?}
-    }
+    let(:renewing_employee_passives) do
+      renewing_employee_enrollments.select(&:auto_renewing?)
+    end
 
-    let(:cobra_enrollments) {
-      cobra_employee_enrollments.select{|e| e.is_cobra_status?}
-    }
+    let(:cobra_enrollments) do
+      cobra_employee_enrollments.select(&:is_cobra_status?)
+    end
 
-    let(:feins) {
+    let(:feins) do
       [initial_employer.fein, renewing_employer.fein]
-    }
+    end
 
     def create_person(ce, employer_profile)
-      person = FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name)
-      employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
+      person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
+      employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
       ce.update_attributes({employee_role: employee_role})
       Family.find_or_build_from_employee_role(employee_role)
       employee_role
     end
 
-    def create_enrollment(family: nil, benefit_group_assignment: nil, kind:"employer_sponsored",employee_role: nil, status: 'coverage_selected', submitted_at: nil, enrollment_kind: 'open_enrollment', effective_date: nil, predecessor_enrollment_id: nil)
-       benefit_group = benefit_group_assignment.benefit_group
-       FactoryGirl.create(:hbx_enrollment,:with_enrollment_members,
-          enrollment_members: [family.primary_applicant],
-          household: family.active_household,
-          coverage_kind: "health",
-          effective_on: effective_date || benefit_group.start_on,
-          enrollment_kind: enrollment_kind,
-          kind: kind,
-          submitted_at: submitted_at,
-          benefit_group_id: benefit_group.id,
-          employee_role_id: employee_role.id,
-          benefit_group_assignment_id: benefit_group_assignment.id,
-          plan_id: benefit_group.reference_plan.id,
-          aasm_state: status,
-          predecessor_enrollment_id: predecessor_enrollment_id
-        )
+    def create_enrollment(family: nil, benefit_group_assignment: nil, kind: "employer_sponsored",employee_role: nil, status: 'coverage_selected', submitted_at: nil, enrollment_kind: 'open_enrollment', effective_date: nil, predecessor_enrollment_id: nil)
+      benefit_group = benefit_group_assignment.benefit_group
+      FactoryBot.create(:hbx_enrollment,:with_enrollment_members,
+                        enrollment_members: [family.primary_applicant],
+                        household: family.active_household,
+                        coverage_kind: "health",
+                        effective_on: effective_date || benefit_group.start_on,
+                        enrollment_kind: enrollment_kind,
+                        kind: kind,
+                        submitted_at: submitted_at,
+                        benefit_group_id: benefit_group.id,
+                        employee_role_id: employee_role.id,
+                        benefit_group_assignment_id: benefit_group_assignment.id,
+                        plan_id: benefit_group.reference_plan.id,
+                        aasm_state: status,
+                        predecessor_enrollment_id: predecessor_enrollment_id)
     end
     skip "shop monthly queries updated here in new model app/models/queries/named_enrollment_queries.rb need to move." do
       # context ".shop_monthly_enrollments", dbclean: :after_each do
