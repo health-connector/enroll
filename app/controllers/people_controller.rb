@@ -3,7 +3,7 @@ class PeopleController < ApplicationController
   include ErrorBubble
   include VlpDoc
 
-  before_action :set_requested_record, except: [:index]
+  before_action :set_requested_record, only: [:update]
 
   def update
     authorize record, :can_update?
