@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-describe HbxEnrollmentMember, dbclean: :after_all do
+describe HbxEnrollmentMember, dbclean: :around_each do
   context "an hbx_enrollment with members exists" do
     include_context "BradyWorkAfterAll"
 
     attr_reader :household, :coverage_household, :enrollment, :family_member_ids
-    before :all do
+    before :each do
       create_brady_census_families
       @household = mikes_family.households.first
       @coverage_household = household.coverage_households.first
@@ -62,8 +62,8 @@ describe HbxEnrollmentMember, dbclean: :after_all do
     end
 
     context "update_current" do
-      before :all do
-        @member = enrollment.hbx_enrollment_members.last
+      before :each do
+        @member = @enrollment.hbx_enrollment_members.last
         @member.update_current(applied_aptc_amount: 11.1)
       end
 

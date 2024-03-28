@@ -19,14 +19,15 @@ namespace :migrations do
     termination_date = Date.strptime(args[:termination_date], "%m/%d/%Y")
     end_on = Date.strptime(args[:end_on], "%m/%d/%Y")
     organization = organizations.first
+    benefit_sponsorship = organization.active_benefit_sponsorship
 
     # Expire previous year benefit applications
-    organization.active_benefit_sponsorship.benefit_applications.published.where(:"effective_period.max".lte => TimeKeeper.date_of_record).each do |benefit_application|
+    benefit_sponsorship.benefit_applications.published.where(:"effective_period.max".lte => TimeKeeper.date_of_record).each do |benefit_application|
       enrollment_service = initialize_service(benefit_application)
       enrollment_service.expire
     end
     # Terminate current active benefit applications
-    organization.active_benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(TimeKeeper.date_of_record).each do |benefit_application|
+    benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(benefit_sponsorship, TimeKeeper.date_of_record).each do |benefit_application|
       enrollment_service = initialize_service(benefit_application)
       enrollment_service.terminate(end_on, termination_date, "voluntary", false)
 
