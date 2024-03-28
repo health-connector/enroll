@@ -23,7 +23,6 @@ FactoryBot.define do
       default_effective_period { nil }
       predecessor_application_state { :active }
       imported_application_state { :imported }
-      default_effective_period { nil }
       default_open_enrollment_period { nil }
       package_kind { :single_issuer }
       dental_package_kind { :single_product }
