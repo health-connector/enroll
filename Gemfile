@@ -115,7 +115,7 @@ gem 'uri', '~> 0.13.0'
 #######################################################
 
 group :doc do
-  gem 'sdoc', '~> 0.4.0'
+  gem 'sdoc',  '~> 1.0'
 end
 
 group :development do
@@ -148,7 +148,7 @@ end
 
 group :test do
   gem 'action_mailer_cache_delivery', '~> 0.3.7'
-  gem 'capybara',                     '3.32.1'
+  gem 'capybara',                     '~> 3.39'
   gem 'capybara-screenshot',          '~> 1.0.18'
   gem 'cucumber', '3.1.2'
   gem 'cucumber-rails', '2.0', :require => false
