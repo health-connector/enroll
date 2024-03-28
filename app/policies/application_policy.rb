@@ -69,7 +69,6 @@ class ApplicationPolicy
     # permission.modify_employer
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def active_associated_shop_market_family_broker?
     broker = account_holder_person&.broker_role
     broker_staff_roles = account_holder_person&.broker_agency_staff_roles&.active
