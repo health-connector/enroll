@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :benefit_sponsors_benefit_application_item, class: 'BenefitSponsors::BenefitApplications::BenefitApplicationItem' do
     effective_period do

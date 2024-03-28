@@ -786,7 +786,7 @@ module BenefitSponsors
 
       context 'when multiple active enrollments exists on a family' do
         let!(:current_enrollment) do
-          hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+          hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                                               household: family.active_household,
                                               aasm_state: "coverage_termination_pending",
                                               terminated_on: TimeKeeper.date_of_record.next_month.end_of_month,
@@ -802,7 +802,7 @@ module BenefitSponsors
         end
 
         let!(:future_enrollment) do
-          hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+          hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                                               household: family.active_household,
                                               aasm_state: "inactive",
                                               effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,

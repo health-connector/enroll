@@ -169,7 +169,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       let(:sponsored_benefit) { current_benefit_package.sponsored_benefit_for(:health) }
 
       let!(:enrollment) do
-        FactoryGirl.create(
+        Factory.create(
           :hbx_enrollment,
           household: family.latest_household,
           coverage_kind: :health,

@@ -90,7 +90,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
       let(:reinstate_on) { benefit_application.start_on }
 
       let!(:enrollment) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :hbx_enrollment,
           household: family.latest_household,
           coverage_kind: :health,

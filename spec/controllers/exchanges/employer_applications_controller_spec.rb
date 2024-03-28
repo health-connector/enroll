@@ -157,7 +157,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
   describe "PUT reinstate" do
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1, id: "12345") }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     context 'Success' do
       before :each do
@@ -220,7 +220,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
     context "application history" do
       let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
-      let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+      let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
       context 'when feature enabled' do
         before :each do

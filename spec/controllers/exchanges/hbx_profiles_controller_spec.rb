@@ -1235,7 +1235,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       let(:new_start_date) { (current_date + 2.months).beginning_of_month }
 
       let!(:term_bs) do
-        FactoryGirl.create(:benefit_sponsors_benefit_application,
+        FactoryBot.create(:benefit_sponsors_benefit_application,
                            :with_benefit_package,
                            :benefit_sponsorship => benefit_sponsorship,
                            :aasm_state => 'termination_pending',

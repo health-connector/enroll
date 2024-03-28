@@ -281,9 +281,9 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
       end
 
       context 'with multiple employee roles' do
-        let(:employee_role_2) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
+        let(:employee_role_2) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
         let!(:census_employee_2) do
-          census_employee = FactoryGirl.create(:census_employee, :with_active_assignment, first_name: person.first_name,
+          census_employee = FactoryBot.create(:census_employee, :with_active_assignment, first_name: person.first_name,
                                                                                           last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
                                                                                           employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
                                                                                           employee_role_id: employee_role_2.id)
