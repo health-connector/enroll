@@ -22,7 +22,8 @@ module Enrollments
       end
 
       def renewal_benefit_application
-        benefit_application.benefit_sponsorship.benefit_applications.renewing.published_benefit_applications_by_date(new_effective_date).first
+        benefit_sponsorship = benefit_application.benefit_sponsorship
+        benefit_sponsorship.benefit_applications.renewing.published_benefit_applications_by_date(benefit_sponsorship, new_effective_date).first
       end
 
       def renewal_benefit_group_assignment

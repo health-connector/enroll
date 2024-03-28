@@ -8,23 +8,41 @@ module BenefitSponsors
       def retrieve(compare_date = TimeKeeper.date_of_record)
         # if MA term/cancel gets promoted before this update :aasm_state to include :binder_paid on line 11
         BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:benefit_applications => { :$elemMatch => query(compare_date) }).each do |benefit_sponsorship|
-          benefit_sponsorship.benefit_applications.where(query(compare_date)).each do |benefit_application|
+          applications_query(benefit_sponsorship.benefit_applications, compare_date).each do |benefit_application|
             @lines += BenefitSponsors::Serializers::BenefitApplicationIssuer.to_csv(benefit_application)
           end
         end
       end
 
+      # Using earliest benefit_application_item since we're only interested at either active / enrollment_eligible aasm states.
       def query(compare_date)
         # if compare_date is after the transmission day then we need to find both effective_period that
         # end after today and are active and we need to find those the about to begin and are enrollment_eligible
         # because gluedb will have already been notified about them and need issuer_ids backfilled
         if (compare_date.prev_day.mday + 1) >= aca_shop_market_employer_transmission_day_of_month
-          { "$or" => [{:"effective_period.max".gt => compare_date, :aasm_state => :active},
-                      {:"effective_period.min" => compare_date.next_month.beginning_of_month, :aasm_state => :enrollment_eligible}] }
+          { "$or" => [{:"benefit_application_items.0.effective_period.max".gt => compare_date, :aasm_state => :active},
+                      {:"benefit_application_items.0.effective_period.min" => compare_date.next_month.beginning_of_month, :aasm_state => :enrollment_eligible}] }
         # if compare_date is before the transmission day then we ened to only need active because gluedb
         # has not yet been notified
         else
-          { :"effective_period.max".gt => compare_date, :aasm_state => :active }
+          { :"benefit_application_items.0.effective_period.max".gt => compare_date, :aasm_state => :active }
+        end
+      end
+
+      def applications_query(applications, compare_date)
+        # if compare_date is after the transmission day then we need to find both effective_period that
+        # end after today and are active and we need to find those the about to begin and are enrollment_eligible
+        # because gluedb will have already been notified about them and need issuer_ids backfilled
+
+        if (compare_date.prev_day.mday + 1) >= aca_shop_market_employer_transmission_day_of_month
+          applications.select do |application|
+            (application.latest_benefit_application_item.effective_period.max > compare_date && application.aasm_state == :active) ||
+              ((application.earliest_benefit_application_item.effective_period.min.to_date == compare_date.next_month.beginning_of_month.to_date) && application.aasm_state == :enrollment_eligible)
+          end
+        # if compare_date is before the transmission day then we ened to only need active because gluedb
+        # has not yet been notified
+        else
+          applications.select { |application| application.earliest_benefit_application_item.effective_period.max > compare_date && application.aasm_state == :active }
         end
       end
 

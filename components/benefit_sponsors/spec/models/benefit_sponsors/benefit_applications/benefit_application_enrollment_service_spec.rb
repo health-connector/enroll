@@ -805,7 +805,9 @@ module BenefitSponsors
 
       subject { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
 
-      context "when a benefit application is canceled" do
+      context "when application effective date is in future" do
+        let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+
         before do
           subject.cancel
           initial_application.reload
@@ -820,7 +822,21 @@ module BenefitSponsors
         end
       end
 
+      context "when application effective date is in past" do
+        let(:current_effective_date) { TimeKeeper.date_of_record.prev_month.beginning_of_month }
+
+        before do
+          subject.cancel
+          initial_application.reload
+        end
+
+        it "should move benefit application to canceled" do
+          expect(initial_application.aasm_state).to eq :retroactive_canceled
+        end
+      end
+
       context 'when an approved/published benefit application is canceled' do
+        let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
 
         before do
           initial_application.update_attributes(aasm_state: :approved)
@@ -861,6 +877,13 @@ module BenefitSponsors
         it "should update the termination reason" do
           expect(initial_application.termination_reason).to eq "Company went out of business/bankrupt"
         end
+
+        it 'should create terminated benefit application item' do
+          item = initial_application.benefit_application_items.max_by(&:sequence_id)
+          expect(item).not_to eq nil
+          expect(item.state).to eq :termination_pending
+          expect(item.effective_period.max).to eq end_date
+        end
       end
     end
 
@@ -884,6 +907,23 @@ module BenefitSponsors
 
           it "should NOT update benefit application end date" do
             expect(initial_application.end_on).not_to eq end_date
+          end
+
+          it 'should not create benefit application items' do
+            expect(initial_application.benefit_application_items.where(state: :terminated).size).to eq 0
+          end
+        end
+
+        context 'with end on less than start_on' do
+          let(:end_date) { initial_application.start_on.to_date - 1.day  }
+
+          before do
+            subject.terminate(end_date, TimeKeeper.date_of_record, "voluntary", "Company went out of business/bankrupt", false)
+            initial_application.reload
+          end
+
+          it "should NOT terminate benefit application" do
+            expect(initial_application.aasm_state).to eq :active
           end
         end
 
@@ -913,6 +953,13 @@ module BenefitSponsors
           it "should update benefit application end date" do
             expect(initial_application.end_on).to eq end_date
           end
+
+          it 'should create terminated benefit application item' do
+            item = initial_application.benefit_application_items.max_by(&:sequence_id)
+            expect(item).not_to eq nil
+            expect(item.state).to eq :terminated
+            expect(item.effective_period.max).to eq end_date
+          end
         end
       end
 
@@ -925,7 +972,7 @@ module BenefitSponsors
             start_on = TimeKeeper.date_of_record.beginning_of_month - 6.months
             end_on = (TimeKeeper.date_of_record.end_of_month + 4.months ).end_of_month
             initial_application.reload
-            initial_application.update_attributes(effective_period: start_on..end_on, aasm_state: :termination_pending, terminated_on: TimeKeeper.date_of_record, termination_kind: "voluntary", termination_reason: "Company went out of business/bankrupt")
+            initial_application.benefit_application_items.create(effective_period: start_on..end_on, state: :termination_pending, action_kind: 'voluntary', action_reason: 'Company went out of business/bankrupt', sequence_id: 1)
             ba = initial_application
             @result1 = subject.new(initial_application).terminate(end_on, ba.terminated_on, ba.termination_kind, ba.termination_reason)
             initial_application.reload
@@ -934,6 +981,13 @@ module BenefitSponsors
           it 'should terminate benefit application' do
             expect(initial_application.aasm_state).to eq :terminated
           end
+
+          it 'should create terminated benefit application item' do
+            item = initial_application.benefit_application_items.max_by(&:sequence_id)
+            expect(item).not_to eq nil
+            expect(item.state).to eq :terminated
+            expect(item.effective_period.max).to eq (TimeKeeper.date_of_record.end_of_month + 4.months).end_of_month
+          end
         end
 
         context 'with mid month date' do
@@ -941,9 +995,9 @@ module BenefitSponsors
             start_on = TimeKeeper.date_of_record.beginning_of_month - 6.months
             end_on = TimeKeeper.date_of_record.end_of_month - 15.day + 4.months
             initial_application.reload
-            initial_application.update_attributes(effective_period: start_on..end_on, aasm_state: :termination_pending, terminated_on: TimeKeeper.date_of_record, termination_kind: "voluntary", termination_reason: "Company went out of business/bankrupt")
-            ba = initial_application
-            @result2 = subject.new(initial_application).terminate(end_on, ba.terminated_on, ba.termination_kind, ba.termination_reason)
+            initial_application.update_attributes(aasm_state: :termination_pending)
+            initial_application.benefit_application_items.create(effective_period: start_on..end_on, state: :termination_pending, action_kind: 'voluntary', action_reason: 'Company went out of business/bankrupt', sequence_id: 1)
+            @result2 = subject.new(initial_application).terminate(end_on, initial_application.terminated_on, initial_application.termination_kind, initial_application.termination_reason)
             initial_application.reload
           end
 
