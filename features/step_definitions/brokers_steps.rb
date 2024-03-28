@@ -273,9 +273,9 @@ Then(/^.* creates and publishes a plan year$/) do
   find('.alert-notice')
 
   if (Settings.aca.enforce_employer_attestation.to_s == "true")
-    find('.interaction-click-control-documents').click
+    find('#uic-employers-right-menu > li:nth-child(5) > a').click
     wait_for_ajax
-    find('.interaction-click-control-upload').click
+    find('.upload-document-location').click
     wait_for_ajax
     find('#subject_Employee_Attestation').click
     # There is no way to actually trigger the click and upload functionality
