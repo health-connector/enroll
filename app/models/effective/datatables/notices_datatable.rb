@@ -35,6 +35,12 @@ module Effective
         return @notices_collection if defined? @notices_collection
         @notices_collection = Notifier::NoticeKind.all
       end
+
+      def authorized?(current_user, _controller, _action, _resource)
+        return false if current_user.blank?
+
+        current_user.has_hbx_staff_role?
+      end
     end
   end
 end

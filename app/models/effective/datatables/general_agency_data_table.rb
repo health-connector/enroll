@@ -34,6 +34,11 @@ module Effective
       def nested_filter_definition
 
       end
+
+      def authorized?(current_user, _controller, _action, _resource)
+        general_agency_profile = GeneralAgencyProfile.find(attributes[:id])
+        AccessPolicies::GeneralAgencyProfile.new(current_user).view_families(general_agency_profile)
+      end
     end
   end
 end
