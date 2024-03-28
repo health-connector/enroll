@@ -1,10 +1,6 @@
 class PersonPolicy < ApplicationPolicy
   ACCESSABLE_ROLES = %w[hbx_staff_role broker_role active_broker_staff_roles].freeze
 
-  def can_show?
-    allowed_to_modify?
-  end
-
   def can_update?
     allowed_to_modify?
   end
