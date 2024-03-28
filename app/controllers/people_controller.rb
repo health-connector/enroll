@@ -43,15 +43,12 @@ class PeopleController < ApplicationController
     end
   end
 
-  def show
-    authorize record, :can_show?
-    # when we were doing cleanup on March 2024 I was not able to delete :show because it was still used on specs
-    # and referenced on some links, however, the next method find_all_by_person, doesnt exist anymore on EmployerProfile
-    # that means :show is broken till now
-    # @employer_profile= EmployerProfile.find_all_by_person(@person).first
-    # we need to do a deeper dive on why we are referencing :show and see if we can remove it
-    
-    build_nested_models
+  def update_census_employee(person)
+    return unless person.valid?
+
+    Operations::CensusMembers::Update.new.call(person: person, action: 'update_census_employee')
+  rescue StandardError => e
+    Rails.logger.error { "Failed to update census employee record for #{person.full_name}(#{person.hbx_id}) due to #{e.inspect}" }
   end
 
   private

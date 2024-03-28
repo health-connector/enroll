@@ -8,29 +8,9 @@ RSpec.describe PeopleController, dbclean: :after_each do
   let(:census_employee){FactoryGirl.build(:census_employee)}
   let(:employee_role){FactoryGirl.build(:employee_role, :census_employee => census_employee)}
   let(:person) { FactoryGirl.create(:person, :with_employee_role) }
-
+  let(:user) { FactoryGirl.create(:user, person: person) }
 
   let(:vlp_document){FactoryGirl.build(:vlp_document)}
-
-  describe "different roles" do
-    let!(:permission)                           { FactoryGirl.create(:permission, :hbx_staff) }
-    let!(:person_with_hbx_staff_role)           { FactoryGirl.create(:person, :with_hbx_staff_role)}
-    let!(:hack_to_get_the_correct_permission)   { person_with_hbx_staff_role.hbx_staff_role.permission_id = permission.id}
-    let!(:hbx_staff_user)                       { FactoryGirl.create(:user, :person => person_with_hbx_staff_role) }
-    let!(:other_user)                           { FactoryGirl.create(:user) }
-
-    it "should allow hbx staff to show person" do
-      sign_in hbx_staff_user
-      get :show, params: {id: person.id}
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should not allow cross person review" do
-      sign_in other_user
-      get :show, params: {id: person.id}
-      expect(response).to have_http_status(:redirect)
-    end
-  end
 
   describe "POST update" do
     let(:vlp_documents_attributes) { {"1" => vlp_document.attributes.to_hash}}
