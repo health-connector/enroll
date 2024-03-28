@@ -63,8 +63,8 @@ module Effective
         return false unless current_user
 
         employer_profile = ::BenefitSponsors::Organizations::Organization.employer_profiles.where(
-          :"profiles._id" => BSON::ObjectId.from_string(attributes[:id])
-        ).first.try(:employer_profile) || ::EmployerProfile.find(attributes[:id])
+          :"profiles._id" => BSON::ObjectId.from_string(attributes[:employer_profile_id])
+        ).first.try(:employer_profile) || ::EmployerProfile.find(attributes[:employer_profile_id])
 
         return false unless employer_profile
 
