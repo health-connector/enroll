@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Announcement, dbclean: :after_each do
@@ -109,25 +111,25 @@ describe Announcement, dbclean: :after_each do
   describe "instance method" do
     it "audiences_for_display" do
       audiences = ['Employer', 'Employee']
-      announcement = FactoryGirl.create(:announcement, audiences:audiences)
+      announcement = FactoryBot.create(:announcement, audiences: audiences)
       expect(announcement.audiences_for_display).to eq audiences.join(',')
     end
 
     it "update_audiences" do
       audiences = ['Employer', 'Employee', '']
-      announcement = FactoryGirl.create(:announcement, audiences:audiences)
+      announcement = FactoryBot.create(:announcement, audiences: audiences)
       expect(announcement.audiences).to eq ['Employer', 'Employee']
     end
   end
 
   describe "class method" do
     context "get_announcements_by_portal" do
-      let(:person) { FactoryGirl.create(:person) }
-      let(:user) { FactoryGirl.create(:user, person: person) }
+      let(:person) { FactoryBot.create(:person) }
+      let(:user) { FactoryBot.create(:user, person: person) }
       before :each do
         Announcement.destroy_all
         Announcement::AUDIENCE_KINDS.each do |kind|
-          FactoryGirl.create(:announcement, content: "msg for #{kind}", audiences: [kind])
+          FactoryBot.create(:announcement, content: "msg for #{kind}", audiences: [kind])
         end
       end
 

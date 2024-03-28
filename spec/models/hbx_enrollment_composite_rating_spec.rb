@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe HbxEnrollment, "given a combination of dependents for a shop enrollment" do
@@ -16,12 +18,12 @@ describe HbxEnrollment, "given a combination of dependents for a shop enrollment
       end
     end
 
-    subject { 
+    subject do
       HbxEnrollment.new({
-        :kind => "employer_sponsored",
-        :hbx_enrollment_members => [employee_member] + dependent_members
-      })    
-    }
+                          :kind => "employer_sponsored",
+                          :hbx_enrollment_members => [employee_member] + dependent_members
+                        })
+    end
 
     it "has a composite rating tier of #{expected_tier}, for #{relationships.join(', ')}" do
       expect(subject.composite_rating_tier).to eq expected_tier

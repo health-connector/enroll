@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe ::Importers::ConversionEmployerSet do
@@ -19,7 +21,8 @@ describe ::Importers::ConversionEmployerSet do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employers", "sample_conversion_employers.xlsx") }
 
     let(:employer_data) do
-      ({:registered_on => registered_on, :action=>"Add", :fein=>"931100000", :dba=>"AGA DBA", :legal_name=>"AGA LEGAL", :primary_location_address_1=>"799 9TH STREET NW", :primary_location_address_2=>"7TH FLR", :primary_location_city=>"Washington", :primary_location_state=>"DC", :primary_location_zip=>"20001", :primary_location_county=>"County", :contact_first_name=>"THE", :contact_last_name=>"CONTACT", :contact_email=>"THECONTACT@AGA.COM", :contact_phone=>"2025552675", :enrolled_employee_count=>"14", :new_hire_count=>"Date of Hire equal to Effective Date", :broker_name=>"THE BROKER", :broker_npn=>"8262800"})
+      {:registered_on => registered_on, :action => "Add", :fein => "931100000", :dba => "AGA DBA", :legal_name => "AGA LEGAL", :primary_location_address_1 => "799 9TH STREET NW", :primary_location_address_2 => "7TH FLR", :primary_location_city => "Washington",
+       :primary_location_state => "DC", :primary_location_zip => "20001", :primary_location_county => "County", :contact_first_name => "THE", :contact_last_name => "CONTACT", :contact_email => "THECONTACT@AGA.COM", :contact_phone => "2025552675", :enrolled_employee_count => "14", :new_hire_count => "Date of Hire equal to Effective Date", :broker_name => "THE BROKER", :broker_npn => "8262800"}
     end
 
 
@@ -31,7 +34,7 @@ describe ::Importers::ConversionEmployerSet do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported,\"\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end
 
@@ -40,7 +43,7 @@ describe ::Importers::ConversionEmployerSet do
       let(:record_errors) { {"some_errors" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
       end
     end
 
@@ -49,7 +52,7 @@ describe ::Importers::ConversionEmployerSet do
       let(:record_warnings) { {"some_warnings" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
       end
     end
   end
@@ -58,7 +61,8 @@ describe ::Importers::ConversionEmployerSet do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employers", "sample_conversion_employers.csv") }
 
     let(:employer_data) do
-      {:registered_on => registered_on, :action=>"Add", :fein=>"521782000", :dba=>"MCP DBA", :legal_name=>"MCP LEGAL", :primary_location_address_1=>"3001 P Street N.W.", :primary_location_city=>"Washington", :primary_location_state=>"DC", :primary_location_zip=>"20007", :primary_location_county=>"County",:mailing_location_address_1=>"3001 P Street N.W.", :mailing_location_city=>"Washington", :mailing_location_state=>"DC", :mailing_location_zip=>"20007", :contact_first_name=>"The", :contact_last_name=>"Contact", :contact_email=>"thecontact@mcp.com", :contact_phone=>"2025554100", :enrolled_employee_count=>"3", :broker_name=>"The Broker", :broker_npn=>"629000"}
+      {:registered_on => registered_on, :action => "Add", :fein => "521782000", :dba => "MCP DBA", :legal_name => "MCP LEGAL", :primary_location_address_1 => "3001 P Street N.W.", :primary_location_city => "Washington", :primary_location_state => "DC",
+       :primary_location_zip => "20007", :primary_location_county => "County",:mailing_location_address_1 => "3001 P Street N.W.", :mailing_location_city => "Washington", :mailing_location_state => "DC", :mailing_location_zip => "20007", :contact_first_name => "The", :contact_last_name => "Contact", :contact_email => "thecontact@mcp.com", :contact_phone => "2025554100", :enrolled_employee_count => "3", :broker_name => "The Broker", :broker_npn => "629000"}
     end
 
     let(:base_output_result) do
@@ -69,7 +73,7 @@ describe ::Importers::ConversionEmployerSet do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported,\"\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end
 
@@ -78,7 +82,7 @@ describe ::Importers::ConversionEmployerSet do
       let(:record_errors) { {"some_errors" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
       end
     end
 
@@ -87,7 +91,7 @@ describe ::Importers::ConversionEmployerSet do
       let(:record_warnings) { {"some_warnings" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
       end
     end
   end

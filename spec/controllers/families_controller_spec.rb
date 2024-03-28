@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe FamiliesController do
 
- context "set_family before every action" do
-    
-    let(:person) {FactoryGirl.create(:person);}
-    let(:user) { FactoryGirl.create(:user, :person=>person) }
-    let(:user_with_out_person) { FactoryGirl.create(:user, :person=>nil) }
+  context "set_family before every action" do
+
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person) }
+    let(:user_with_out_person) { FactoryBot.create(:user, :person => nil) }
 
     it "return when @person is nil" do
       sign_in(user_with_out_person)

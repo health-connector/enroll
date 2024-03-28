@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/_update_browser_warning.html.erb" do
@@ -7,8 +9,8 @@ describe "shared/_update_browser_warning.html.erb" do
   end
 
   context "valid user" do
-    let(:user) { FactoryGirl.create(:user, person: person) }
-    let(:person) { FactoryGirl.create(:person)}
+    let(:user) { FactoryBot.create(:user, person: person) }
+    let(:person) { FactoryBot.create(:person)}
 
     it "should display a title" do
       expect(rendered).to have_selector("h1")

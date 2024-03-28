@@ -62,7 +62,7 @@ class DocumentsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to :back, :flash => flash_message }
+      format.html { redirect_back(fallback_location: root_path, flash: flash_message) }
     end
   end
 
@@ -76,14 +76,14 @@ class DocumentsController < ApplicationController
        respond_to do |format|
          format.html {
            flash[:success] = "Enrollment group was completely verified."
-           redirect_to :back
+           redirect_back(fallback_location: :back)
          }
        end
      else
        respond_to do |format|
          format.html {
            flash[:danger] = "Family does not have any active Enrollment to verify."
-           redirect_to :back
+           redirect_back(fallback_location: :back)
          }
        end
      end
@@ -99,7 +99,7 @@ class DocumentsController < ApplicationController
       format.html {
         hub =  params[:verification_type] == 'DC Residency' ? 'Local Residency' : 'FedHub'
         flash[:success] = "Request was sent to #{hub}."
-        redirect_to :back
+        redirect_back(fallback_location: :back)
       }
       format.js
     end
@@ -140,7 +140,7 @@ class DocumentsController < ApplicationController
     else
       flash[:danger] = "Family Member does not have any unverified Enrollment to extend verification due date."
     end
-    redirect_to :back
+    redirect_back(fallback_location: :back)
   end
 
   def destroy

@@ -1,10 +1,13 @@
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
-# require 'rails/all'
+require "rails"
+require "active_model/railtie"
+require "active_job/railtie"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "rails/test_unit/railtie"
 require "sprockets/railtie" # Uncomment this line for Rails 3.1+
+require "rails/test_unit/railtie"
 
 # Configure fallbacks for mongoid errors:
 require "i18n/backend/fallbacks"
@@ -17,6 +20,9 @@ require File.join(File.dirname(__FILE__), "json_log_format")
 
 module Enroll
   class Application < Rails::Application
+
+    config.load_defaults 5.0
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

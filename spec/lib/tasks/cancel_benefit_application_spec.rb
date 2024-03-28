@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'rake'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -9,26 +11,29 @@ describe 'cancel employer benefit application & enrollments', :dbclean => :aroun
     include_context "setup initial benefit application"
 
     let!(:fein) {abc_profile.fein}
-    let(:person) {FactoryGirl.create(:person)}
-    let(:user) { FactoryGirl.create(:user, person: person) }
-    let(:family){ FactoryGirl.create(:family, :with_primary_family_member_and_dependent) }
+    let(:person) {FactoryBot.create(:person)}
+    let(:user) { FactoryBot.create(:user, person: person) }
+    let(:family){ FactoryBot.create(:family, :with_primary_family_member_and_dependent) }
     let(:family_members){ family.family_members.where(is_primary_applicant: false).to_a }
     let(:household){ family.active_household }
-    let(:hbx_enrollment_member){ FactoryGirl.build(:hbx_enrollment_member, is_subscriber:true,  applicant_id: family.family_members.first.id, coverage_start_on: (TimeKeeper.date_of_record).beginning_of_month, eligibility_date: (TimeKeeper.date_of_record).beginning_of_month) }
-    let(:product) { FactoryGirl.create(:benefit_markets_products_health_products_health_product) }
+    let(:hbx_enrollment_member) do
+      FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
+    end
+    let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
     let(:reference_plan) {double("Product")}
-    let(:hbx_enrollment){ FactoryGirl.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-      household: household,
-      hbx_enrollment_members: [hbx_enrollment_member],
-      coverage_kind: "health",
-      external_enrollment: false )
-    }
-    let!(:census_employee) { FactoryGirl.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package ) }
+    let(:hbx_enrollment) do
+      FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                        household: household,
+                                                        hbx_enrollment_members: [hbx_enrollment_member],
+                                                        coverage_kind: "health",
+                                                        external_enrollment: false)
+    end
+    let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
     let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-    let!(:employee_role) { FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
+    let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
 
     before do
-      hbx_enrollment.update_attributes(aasm_state:'coverage_selected')
+      hbx_enrollment.update_attributes(aasm_state: 'coverage_selected')
       employee_role.update_attributes(census_employee_id: census_employee.id)
     end
 
@@ -57,7 +62,6 @@ describe 'cancel employer benefit application & enrollments', :dbclean => :aroun
           expect(hbx_enrollment.terminate_reason).to eq "retroactive_canceled"
         end
       end
-
 
       describe ".canceled" do
         let(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }

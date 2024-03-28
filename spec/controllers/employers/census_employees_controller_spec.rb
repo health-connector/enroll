@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -5,28 +7,28 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
   before(:all) do
-    @user = FactoryGirl.create(:user)
-    p = FactoryGirl.create(:person, user: @user)
-    @hbx_staff_role = FactoryGirl.create(:hbx_staff_role, person: p)
+    @user = FactoryBot.create(:user)
+    p = FactoryBot.create(:person, user: @user)
+    @hbx_staff_role = FactoryBot.create(:hbx_staff_role, person: p)
   end
 
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
   # let(:employer_profile_id) { "abecreded" }
-  # let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  # let!(:site)  { FactoryGirl.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :with_benefit_market_catalog, :dc) }
+  # let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  # let!(:site)  { FactoryBot.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, :with_benefit_market_catalog, :dc) }
 
-  # let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_dc_employer_profile)}
+  # let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_site, :with_aca_shop_dc_employer_profile)}
   let(:organization)  {abc_organization}
   let(:employer_profile) { organization.employer_profile }
   let(:employer_profile_id) { employer_profile.id }
 
   let(:census_employee) do
-    FactoryGirl.create(:benefit_sponsors_census_employee,
-                       employer_profile: employer_profile,
-                       benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                       employment_terminated_on: TimeKeeper.date_of_record - 45.days,
-                       hired_on: "2014-11-11")
+    FactoryBot.create(:benefit_sponsors_census_employee,
+                      employer_profile: employer_profile,
+                      benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                      employment_terminated_on: TimeKeeper.date_of_record - 45.days,
+                      hired_on: "2014-11-11")
   end
 
   let(:census_employee_params) do
@@ -39,7 +41,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
      "employer_profile" => employer_profile}
   end
 
-  let(:person) { FactoryGirl.create(:person, first_name: "aqzz", last_name: "White", dob: "11/11/1992", ssn: "123123123", gender: "male", employer_profile_id: employer_profile.id, hired_on: "2014-11-11")}
+  let(:person) { FactoryBot.create(:person, first_name: "aqzz", last_name: "White", dob: "11/11/1992", ssn: "123123123", gender: "male", employer_profile_id: employer_profile.id, hired_on: "2014-11-11")}
   describe "GET new" do
 
     it "should render the new template" do
@@ -47,7 +49,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       # allow(employer_profile).to receive(:plan_years).and_return("2015")
       allow(@hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_employer: true))
       sign_in(@user)
-      get :new, :employer_profile_id => employer_profile_id
+      get :new, params: { :employer_profile_id => employer_profile_id }
       expect(response).to have_http_status(:success)
       expect(response).to render_template("new")
       expect(assigns(:census_employee).class).to eq CensusEmployee
@@ -85,7 +87,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     it "should be redirect when valid" do
       allow(census_employee).to receive(:save).and_return(true)
-      post :create, :employer_profile_id => employer_profile_id, census_employee: {}
+      post :create, params: { :employer_profile_id => employer_profile_id, census_employee: {} }
       expect(response).to be_redirect
     end
 
@@ -93,7 +95,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       it "with benefit_group_id" do
         allow(census_employee).to receive(:save).and_return(true)
         allow(census_employee).to receive(:active_benefit_group_assignment).and_return(true)
-        post :create, :employer_profile_id => employer_profile_id, census_employee: {}
+        post :create, params: { :employer_profile_id => employer_profile_id, census_employee: {} }
         expect(flash[:notice]).to eq "Census Employee is successfully created."
         expect(flash[:info]).to eq "Your employee’s record is created. The employee will need to create an employee account, to link to your employer account, and enroll if they meet the plan year’s eligibility criteria."
       end
@@ -101,7 +103,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     it "should be render when invalid" do
       allow(census_employee).to receive(:save).and_return(false)
-      post :create, :employer_profile_id => employer_profile_id, census_employee: {}
+      post :create, params: { :employer_profile_id => employer_profile_id, census_employee: {} }
       expect(assigns(:reload)).to eq true
       expect(response).to render_template("new")
     end
@@ -109,19 +111,19 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     it "should return success flash notice as roster added when no ER benefits present" do
       allow(census_employee).to receive(:save).and_return(true)
       allow(census_employee).to receive(:active_benefit_group_assignment).and_return(false)
-      post :create, :employer_profile_id => employer_profile_id, census_employee: {}
+      post :create, params: { :employer_profile_id => employer_profile_id, census_employee: {} }
       expect(flash[:notice]).to eq "Your employee was successfully added to your roster."
     end
 
   end
 
   describe "GET edit" do
-    let(:user) { FactoryGirl.create(:user, :employer_staff) }
+    let(:user) { FactoryBot.create(:user, :employer_staff) }
     it "should be render edit template" do
       sign_in user
       allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
       allow(CensusEmployee).to receive(:find).and_return(census_employee)
-      post :edit, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {}
+      post :edit, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {} }
       expect(response).to render_template("edit")
     end
   end
@@ -130,13 +132,13 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     let(:effective_on) { TimeKeeper.date_of_record.beginning_of_month.prev_month }
     # let(:employer) {
-    #   FactoryGirl.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'active')
+    #   FactoryBot.create(:employer_with_planyear, start_on: effective_on, plan_year_state: 'active')
     # }
 
     # let(:plan_year) { employer.plan_years[0] }
     # let(:benefit_group) { plan_year.benefit_groups[0] }
 
-    let(:user) { FactoryGirl.create(:user, :employer_staff) }
+    let(:user) { FactoryBot.create(:user, :employer_staff) }
     let(:census_employee_delete_params) do
       {
         "first_name" => "aqzz",
@@ -176,14 +178,14 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       # allow(census_employee).to receive(:save).and_return(true)
       allow(controller).to receive(:census_employee_params).and_return(census_employee_params)
       # post :update, :id => census_employee.id, :employer_profile_id => employer.id, census_employee: census_employee_params
-      post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params
+      post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params }
       expect(response).to be_redirect
     end
 
     context "delete dependent params" do
       it "should delete dependents" do
         allow(controller).to receive(:census_employee_params).and_return(census_employee_delete_params)
-        post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_delete_params
+        post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_delete_params }
         expect(response).to be_redirect
       end
     end
@@ -220,7 +222,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
               }
             }
           }
-          post(:update, id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params)
+          post :update, params: { id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params }
         end
 
         it "display success message" do
@@ -248,7 +250,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
             "hired_on" => "05/02/2019"
           }
 
-          post(:update, id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params)
+          post :update, params: { id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params}
         end
 
         it "display account linked success message" do
@@ -270,7 +272,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
             "census_dependents_attributes" => {"0" => {"first_name" => "test", "middle_name" => "", "last_name" => "test", "ssn" => "", "_destroy" => "false", "dob" => "2023-06-01", "gender" => "female", "employee_relationship" => "child_under_26"}}
           }
 
-          post(:update, id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params)
+          post :update, params: { id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params}
         end
 
         it "display composition changed message" do
@@ -279,42 +281,42 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       end
 
       it "with no benefit_group_id" do
-        post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params
+        post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params }
         expect(flash[:notice]).to eq "Census Employee is successfully updated. Note: new employee cannot enroll on #{Settings.site.short_name} until they are assigned a benefit group."
       end
     end
 
     it "should be redirect when invalid" do
       allow(controller).to receive(:census_employee_params).and_return(census_employee_params)
-      post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params.merge("hired_on" => nil)
+      post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params.merge("hired_on" => nil) }
       expect(response).to redirect_to(employers_employer_profile_census_employee_path(employer_profile, census_employee, tab: 'employees'))
     end
 
     it "should have aasm state as eligible when there is no matching record found and employee_role_linked in reverse case" do
       expect(census_employee.aasm_state).to eq "eligible"
       allow(controller).to receive(:census_employee_params).and_return(census_employee_params.merge(dob: person.dob, census_dependents_attributes: {}))
-      post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {}
+      post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {} }
       # TODO: after setting Benefit Package Factories
       # expect(census_employee.reload.aasm_state).to eq "employee_role_linked"
     end
 
     #Scenario: Someone signs up as an employer - a form that does not require gender or SSN.
     context "Linking Employer owner person/user with census employee" do
-      let(:user) {FactoryGirl.create(:user, person: person)}
+      let(:user) {FactoryBot.create(:user, person: person)}
       # Make a user here
-      let(:person) { FactoryGirl.create(:person, gender: nil, ssn: nil)}
+      let(:person) { FactoryBot.create(:person, gender: nil, ssn: nil)}
       let(:organization)  {abc_organization}
       let(:employer_profile) { organization.employer_profile }
       let(:employer_profile_id) { employer_profile.id }
       # This census employee will have that person name and dob
       let(:census_employee) do
-        FactoryGirl.create(:benefit_sponsors_census_employee,
-                           employer_profile: employer_profile,
-                           benefit_sponsorship: employer_profile.active_benefit_sponsorship,
-                           employment_terminated_on: TimeKeeper.date_of_record - 45.days,
-                           first_name: person.first_name,
-                           last_name: person.last_name,
-                           dob: person.dob)
+        FactoryBot.create(:benefit_sponsors_census_employee,
+                          employer_profile: employer_profile,
+                          benefit_sponsorship: employer_profile.active_benefit_sponsorship,
+                          employment_terminated_on: TimeKeeper.date_of_record - 45.days,
+                          first_name: person.first_name,
+                          last_name: person.last_name,
+                          dob: person.dob)
       end
       let(:census_employee_params) do
         {"first_name" => census_employee.first_name,
@@ -345,7 +347,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         sign_in user
         allow(controller).to receive(:authorize).and_return(true)
         allow(controller).to receive(:census_employee_params).and_return(census_employee_params)
-        post :update, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params
+        post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params }
       end
 
       it "should redirect when valid for the Employer's census employee record and infer and set their ssn/gender attributes from the census employee record." do
@@ -362,51 +364,51 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     let(:benefit_group_assignment) { double(hbx_enrollment: hbx_enrollment, active_hbx_enrollments: [hbx_enrollment]) }
     let(:benefit_group) { double }
     let(:hbx_enrollment) { double }
-    let(:hbx_enrollments) { FactoryGirl.build_stubbed(:hbx_enrollment) }
+    let(:hbx_enrollments) { FactoryBot.build_stubbed(:hbx_enrollment) }
 
-    let(:person) { FactoryGirl.create(:person)}
-    # let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-    let(:employee_role1) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile)}
-    let(:plan_year) {FactoryGirl.create(:plan_year, employer_profile: employer_profile)}
-    let(:benefit_group) {FactoryGirl.create(:benefit_group, plan_year: plan_year)}
-    let(:benefit_group_assignment1) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
-    let(:benefit_group_assignment2) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
-    let(:census_employee1) { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_group_assignments: [benefit_group_assignment1],employee_role_id: employee_role1.id,employer_profile_id: employer_profile.id) }
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member,person: person) }
+    let(:person) { FactoryBot.create(:person)}
+    # let(:employer_profile) { FactoryBot.create(:employer_profile) }
+    let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile)}
+    let(:plan_year) {FactoryBot.create(:plan_year, employer_profile: employer_profile)}
+    let(:benefit_group) {FactoryBot.create(:benefit_group, plan_year: plan_year)}
+    let(:benefit_group_assignment1) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:benefit_group_assignment2) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group)}
+    let(:census_employee1) { FactoryBot.create(:benefit_sponsors_census_employee, benefit_group_assignments: [benefit_group_assignment1],employee_role_id: employee_role1.id,employer_profile_id: employer_profile.id) }
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
     let(:current_employer_term_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         employee_role_id: employee_role1.id,
-                         benefit_group_assignment_id: benefit_group_assignment1.id,
-                         aasm_state: 'coverage_terminated')
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        employee_role_id: employee_role1.id,
+                        benefit_group_assignment_id: benefit_group_assignment1.id,
+                        aasm_state: 'coverage_terminated')
     end
     let(:current_employer_active_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         employee_role_id: employee_role1.id,
-                         benefit_group_assignment_id: benefit_group_assignment1.id,
-                         aasm_state: 'coverage_selected')
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        employee_role_id: employee_role1.id,
+                        benefit_group_assignment_id: benefit_group_assignment1.id,
+                        aasm_state: 'coverage_selected')
     end
     let(:individual_term_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "individual",
-                         aasm_state: 'coverage_terminated')
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.active_household,
+                        kind: "individual",
+                        aasm_state: 'coverage_terminated')
     end
     let(:old_employer_term_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "employer_sponsored",
-                         benefit_group_assignment_id: benefit_group_assignment2.id,
-                         aasm_state: 'coverage_terminated')
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.active_household,
+                        kind: "employer_sponsored",
+                        benefit_group_assignment_id: benefit_group_assignment2.id,
+                        aasm_state: 'coverage_terminated')
     end
     let(:expired_enrollment) do
-      FactoryGirl.create(:hbx_enrollment,
-                         household: family.active_household,
-                         kind: "individual",
-                         aasm_state: 'coverage_expired')
+      FactoryBot.create(:hbx_enrollment,
+                        household: family.active_household,
+                        kind: "individual",
+                        aasm_state: 'coverage_expired')
     end
     it "should be render show template" do
       # allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return(hbx_enrollments)
@@ -415,7 +417,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       sign_in
       # allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
       # allow(CensusEmployee).to receive(:find).and_return(census_employee)
-      get :show, :id => census_employee.id, :employer_profile_id => employer_profile_id
+      get :show, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id }
       expect(response).to render_template("show")
     end
 
@@ -450,12 +452,12 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     # end
 
     # context "for past enrollments" do
-    #   let(:census_employee) { FactoryGirl.build(:census_employee, first_name: person.first_name, last_name: person.last_name, dob: person.dob, ssn: person.ssn, employee_role_id: employee_role.id)}
-    #   let(:household) { FactoryGirl.create(:household, family: person.primary_family)}
-    #   let(:employee_role) { FactoryGirl.create(:employee_role, person: person)}
-    #   let(:person) { FactoryGirl.create(:person, :with_family)}
-    #   let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
-    #   let!(:hbx_enrollment_two) { FactoryGirl.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
+    #   let(:census_employee) { FactoryBot.build(:census_employee, first_name: person.first_name, last_name: person.last_name, dob: person.dob, ssn: person.ssn, employee_role_id: employee_role.id)}
+    #   let(:household) { FactoryBot.create(:household, family: person.primary_family)}
+    #   let(:employee_role) { FactoryBot.create(:employee_role, person: person)}
+    #   let(:person) { FactoryBot.create(:person, :with_family)}
+    #   let!(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
+    #   let!(:hbx_enrollment_two) { FactoryBot.create(:hbx_enrollment, household: census_employee.employee_role.person.primary_family.households.first)}
 
     #   it "should not have any past enrollments" do
     #     hbx_enrollment.update_attribute(:aasm_state, "coverage_canceled")
@@ -508,14 +510,14 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     it "should be redirect and successful when valid" do
       allow(census_employee).to receive(:valid?).and_return(true)
 
-      get :delink, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id
+      get :delink, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id }
       expect(response).to be_redirect
       expect(flash[:notice]).to eq "Successfully delinked census employee."
     end
 
     it "should be redirect and failure when invalid" do
       allow(census_employee).to receive(:valid?).and_return(false)
-      get :delink, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id
+      get :delink, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id }
       expect(response).to be_redirect
       expect(flash[:alert]).to eq "Delink census employee failure."
     end
@@ -530,14 +532,14 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       allow(CensusEmployee).to receive(:find).and_return(census_employee)
     end
     it "should be redirect" do
-      get :terminate, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id
+      get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id }
       expect(flash[:notice]).to eq "Successfully terminated Census Employee."
       expect(response).to have_http_status(:success)
     end
 
     it "should throw error when census_employee terminate_employment error" do
       allow(census_employee).to receive(:terminate_employment).and_return(false)
-      xhr :get, :terminate, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: Date.today.to_s, :format => :js
+      get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: Date.today.to_s}, :format => :js
       expect(response).to have_http_status(:success)
       expect(assigns[:fa]).to eq false
       expect(flash[:error]).to eq "Census Employee could not be terminated: Termination date must be within the past 60 days."
@@ -546,7 +548,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     context "with termination date" do
       it "should terminate census employee" do
         expect(controller).to receive(:notify_employee_of_termination)
-        xhr :get, :terminate, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: Date.today.to_s, :format => :js
+        get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: Date.today.to_s}, :format => :js
         expect(response).to have_http_status(:success)
         expect(assigns[:fa]).to eq census_employee
       end
@@ -555,7 +557,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     context "with no termination date" do
       it "should throw error" do
         expect(controller).not_to receive(:notify_employee_of_termination)
-        xhr :get, :terminate, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: "", :format => :js
+        get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: ""}, :format => :js
         expect(response).to have_http_status(:success)
         expect(assigns[:fa]).to eq nil
       end
@@ -577,7 +579,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     context 'Get cobra' do
       it "should be redirect" do
         allow(census_employee).to receive(:update_for_cobra).and_return true
-        xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
+        get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
         expect(flash[:notice]).to eq "Successfully update Census Employee."
         expect(flash[:success]).to eq "Employee has successfully been  enrolled into COBRA coverage on selected start date."
         expect(response).to have_http_status(:success)
@@ -585,7 +587,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
       context "with cobra date" do
         it "should cobra census employee" do
-          xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
           expect(response).to have_http_status(:success)
           expect(assigns[:cobra_date]).to eq cobra_date
         end
@@ -593,7 +595,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         it "should not cobra census_employee" do
           census_employee.update_attributes(coverage_terminated_on: (cobra_date + 2.days))
           allow(census_employee).to receive(:update_for_cobra).and_return false
-          xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "COBRA cannot be initiated for this employee because of invalid date. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end
@@ -601,7 +603,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         it "should not cobra census_employee when termination date is same as cobra date" do
           census_employee.update_attributes(coverage_terminated_on: cobra_date)
           allow(census_employee).to receive(:update_for_cobra).and_return false
-          xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "COBRA cannot be initiated for this employee with the effective date entered. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end
@@ -609,7 +611,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
       context "without cobra date" do
         it "should throw error" do
-          xhr :get, :cobra, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: "", :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: ""}, :format => :js
           expect(response).to have_http_status(:success)
           expect(assigns[:cobra_date]).to eq ""
           expect(flash[:error]).to eq "Please enter cobra date."
@@ -620,13 +622,13 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     context 'Get cobra_reinstate' do
       it "should get notice" do
         allow(census_employee).to receive(:reinstate_eligibility!).and_return true
-        xhr :get, :cobra_reinstate, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, :format => :js
+        get :cobra_reinstate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id}, :format => :js
         expect(flash[:notice]).to eq 'Successfully update Census Employee.'
       end
 
       it "should get error" do
         allow(census_employee).to receive(:reinstate_eligibility!).and_return false
-        xhr :get, :cobra_reinstate, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, :format => :js
+        get :cobra_reinstate, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id}, :format => :js
         expect(flash[:error]).to eq "Unable to update Census Employee."
       end
     end
@@ -638,7 +640,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       sign_in @user
       allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
       allow(CensusEmployee).to receive(:find).and_return(census_employee)
-      xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, :format => :js
+      get :rehire, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id}, :format => :js
       expect(response).to have_http_status(:success)
       expect(flash[:error]).to eq "Please enter rehiring date."
     end
@@ -649,7 +651,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         sign_in @user
         allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
         allow(CensusEmployee).to receive(:find).and_return(census_employee)
-        xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
+        get :rehire, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
         expect(response).to have_http_status(:success)
         expect(flash[:error]).to eq "Census Employee is already active."
       end
@@ -675,7 +677,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
+          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to eq "Successfully rehired Census Employee."
         end
@@ -686,7 +688,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
+          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to eq "Successfully rehired Census Employee."
           expect(assigns(:census_employee)).to eq new_census_employee
@@ -694,14 +696,14 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
         it "when new_census_employee invalid" do
           allow(new_census_employee).to receive(:valid?).and_return(false)
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s, :format => :js
+          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "Error during rehire."
         end
 
         it "with rehiring date before terminated date" do
           allow(census_employee).to receive(:employment_terminated_on).and_return(TimeKeeper.date_of_record)
-          xhr :get, :rehire, :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: "05/01/2015", :format => :js
+          get :rehire, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: "05/01/2015"}, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "Rehiring date can't occur before terminated date."
         end
@@ -714,7 +716,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       sign_in
       allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
       allow(CensusEmployee).to receive(:find).and_return(census_employee)
-      post :benefit_group, :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {}
+      post :benefit_group, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: {} }
       expect(response).to render_template("benefit_group")
     end
   end
@@ -734,9 +736,9 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   describe "POST create, for existing person and new dependent" do
     let(:benefit_group) { double(id: "5453a544791e4bcd33000121") }
 
-    let(:husband) { FactoryGirl.create(:person, :with_family, :with_consumer_role, first_name: 'Stefan') }
+    let(:husband) { FactoryBot.create(:person, :with_family, :with_consumer_role, first_name: 'Stefan') }
     let(:h_family) { husband.primary_family }
-    let(:wife) {FactoryGirl.create(:person, :with_family, first_name: 'Natascha')}
+    let(:wife) {FactoryBot.create(:person, :with_family, first_name: 'Natascha')}
     let(:w_family) { wife.primary_family }
 
     let!(:husbands_family) do
@@ -780,7 +782,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     it "should be redirect when valid" do
       expect(husbands_family.active_household.immediate_family_coverage_household.coverage_household_members.size).to eq(2)
-      post :create, :employer_profile_id => employer_profile_id, census_employee: census_employee_dependent_params
+      post :create, params: { :employer_profile_id => employer_profile_id, census_employee: census_employee_dependent_params }
       husbands_family.reload
       expect(husbands_family.active_household.immediate_family_coverage_household.coverage_household_members.size).to eq(3)
     end

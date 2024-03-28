@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, "spec", "support", "acapi_vocabulary_spec_helpers")
 
@@ -11,7 +13,7 @@ RSpec.describe "events/identity_verification/interactive_session_start.xml.haml"
       download_vocabularies
     end
 
-    let(:individual) { FactoryGirl.build_stubbed :generative_individual }
+    let(:individual) { FactoryBot.build_stubbed :generative_individual }
 
     before :each do
       render :template => "events/identity_verification/interactive_session_start.xml", :locals => { :individual => individual }

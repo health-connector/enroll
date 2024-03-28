@@ -16,11 +16,12 @@ module Notify
     Rails.logger(e)
   end
 
+
   # return {"status" =>"created/changed", "first_name" => ["before", "now"]}
   def payload(obj, field:)
     return nil unless obj.send(field)
 
-    if obj.send(field).respond_to?(:target)
+    if obj.relations[field].present?
       # relation
       if obj.send(field).is_a?(Array)
         # embeds_many
@@ -49,7 +50,7 @@ module Notify
     else
       # field
       if obj.send("#{field}_changed?")
-        payload = if obj.new_record?
+          payload = if obj.new_record?
                     {"status" => "created", field => obj.send("#{field}_change")}
                   else
                     {"status" => "changed", field => obj.send("#{field}_change")}

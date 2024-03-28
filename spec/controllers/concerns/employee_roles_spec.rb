@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 class FakesController < ApplicationController
@@ -5,9 +7,9 @@ class FakesController < ApplicationController
 end
 
 describe FakesController, dbclean: :after_each do
-  let(:person) { FactoryGirl.create(:person)}
-  let(:employee_role1) { FactoryGirl.create(:employee_role)}
-  let(:employee_role2) { FactoryGirl.create(:employee_role)}
+  let(:person) { FactoryBot.create(:person)}
+  let(:employee_role1) { FactoryBot.create(:employee_role)}
+  let(:employee_role2) { FactoryBot.create(:employee_role)}
 
   before do
     employee_role1.update_attributes(contact_method: "Paper and Electronic communications")

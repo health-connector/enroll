@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ScheduledEvent, type: :model do
@@ -13,16 +15,18 @@ RSpec.describe ScheduledEvent, type: :model do
   it { is_expected.to validate_presence_of :start_time }
 
   context "convert recurring rules into hash" do
-    let(:event_params) { {
-      type: 'holiday',
-      event_name: 'Christmas',
-      offset_rule: 3,
-      recurring_rules: "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}",
-      :start_time => Date.today
-    }}
+    let(:event_params) do
+      {
+        type: 'holiday',
+        event_name: 'Christmas',
+        offset_rule: 3,
+        recurring_rules: "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}",
+        :start_time => Date.today
+      }
+    end
     value = "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}"
     let(:scheduled_event1) {ScheduledEvent.new(event_params)}
-    recurring_hash = {:validations=>{:day_of_month=>[22]}, :rule_type=>"IceCube::MonthlyRule", :interval=>1}
+    recurring_hash = {:validations => {:day_of_month => [22]}, :rule_type => "IceCube::MonthlyRule", :interval => 1}
     it "convert recurring rules into hash" do
       expect(scheduled_event1.recurring_rules).to eq recurring_hash
     end
@@ -30,13 +34,15 @@ RSpec.describe ScheduledEvent, type: :model do
 
   context "set start time to current if entered value is blank" do
     value = ""
-    let(:event_params) { {
-      type: 'holiday',
-      event_name: 'Christmas',
-      offset_rule: 3,
-      recurring_rules: "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}",
-      :start_time => value
-    }}
+    let(:event_params) do
+      {
+        type: 'holiday',
+        event_name: 'Christmas',
+        offset_rule: 3,
+        recurring_rules: "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}",
+        :start_time => value
+      }
+    end
     let(:scheduled_event1) {ScheduledEvent.new(event_params)}
     it "set start time to current if entered value is blank" do
       expect(scheduled_event1.start_time).to eq TimeKeeper.date_of_record
@@ -45,26 +51,28 @@ RSpec.describe ScheduledEvent, type: :model do
 
   context "set start time value is entered" do
     value = "05/24/2017"
-    let(:event_params) { {
-      type: 'holiday',
-      event_name: 'Christmas',
-      offset_rule: 3,
-      recurring_rules: "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}",
-      :start_time => value
-    }}
+    let(:event_params) do
+      {
+        type: 'holiday',
+        event_name: 'Christmas',
+        offset_rule: 3,
+        recurring_rules: "{\"interval\":1,\"until\":null,\"count\":null,\"validations\":{\"day_of_week\":{},\"day_of_month\":[22]},\"rule_type\":\"IceCube::MonthlyRule\",\"week_start\":0}",
+        :start_time => value
+      }
+    end
     let(:scheduled_event1) {ScheduledEvent.new(event_params)}
     it "set start time value is entered" do
       expect(scheduled_event1.start_time).to eq Date.strptime(value, "%m/%d/%Y").to_date
     end
   end
-  
+
   context "Calendar Event" do
-    let(:schedule_event_with_empty_recurring_rules) { FactoryGirl.create(:scheduled_event, :empty_recurring_rules, offset_rule: 3)}
-    let(:scheduled_event_recurring_rules) { FactoryGirl.create(:scheduled_event, :empty_recurring_rules, offset_rule: 3)}
-    let(:friday_offset_1) { FactoryGirl.create(:scheduled_event, :start_on_friday, offset_rule: 1)}
-    let(:friday_offset_2) { FactoryGirl.create(:scheduled_event, :start_on_friday, offset_rule: 2) }
-    let(:sunday_offset_1) { FactoryGirl.create(:scheduled_event, :start_on_sunday, offset_rule: 1) }
-    let(:saturday_offset_1) { FactoryGirl.create(:scheduled_event, :start_on_saturday, offset_rule: 4) }
+    let(:schedule_event_with_empty_recurring_rules) { FactoryBot.create(:scheduled_event, :empty_recurring_rules, offset_rule: 3)}
+    let(:scheduled_event_recurring_rules) { FactoryBot.create(:scheduled_event, :empty_recurring_rules, offset_rule: 3)}
+    let(:friday_offset_1) { FactoryBot.create(:scheduled_event, :start_on_friday, offset_rule: 1)}
+    let(:friday_offset_2) { FactoryBot.create(:scheduled_event, :start_on_friday, offset_rule: 2) }
+    let(:sunday_offset_1) { FactoryBot.create(:scheduled_event, :start_on_sunday, offset_rule: 1) }
+    let(:saturday_offset_1) { FactoryBot.create(:scheduled_event, :start_on_saturday, offset_rule: 4) }
 
     it "should get self event" do
       array = schedule_event_with_empty_recurring_rules.calendar_events(schedule_event_with_empty_recurring_rules.start_time, 4)

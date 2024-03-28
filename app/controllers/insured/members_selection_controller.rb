@@ -3,7 +3,7 @@
 module Insured
   class MembersSelectionController < ApplicationController
     def new
-      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.symbolize_keys.except(:controller, :action), event: params[:event])
+      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.to_unsafe_h.symbolize_keys.except(:controller, :action), event: params[:event])
 
       if @organizer.success?
         @can_shop_both_markets = false

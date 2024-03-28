@@ -11,11 +11,11 @@ module BenefitSponsors
     let(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:benefit_market)  { site.benefit_markets.first }
 
-    let(:employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let(:employer_organization)   { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)        { employer_organization.employer_profile }
 
-    let!(:rating_area)                    { FactoryGirl.create(:benefit_markets_locations_rating_area)  }
-    let!(:service_area)                    { FactoryGirl.create(:benefit_markets_locations_service_area)  }
+    let!(:rating_area)                    { FactoryBot.create(:benefit_markets_locations_rating_area)  }
+    let!(:service_area)                    { FactoryBot.create(:benefit_markets_locations_service_area)  }
     let(:this_year)                       { TimeKeeper.date_of_record.year }
 
     let(:april_effective_date)            { Date.new(this_year,4,1) }
@@ -206,7 +206,7 @@ module BenefitSponsors
         sponsorship.save
         sponsorship
       end
-      let(:exisitng_org) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
+      let(:exisitng_org) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
       let(:service_instance) { BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: benefit_sponsorship)}
       let(:legal_name) { exisitng_org.legal_name }
 
@@ -226,19 +226,19 @@ module BenefitSponsors
     describe ".transmit_renewal_carrier_drop_event" do
       let!(:benefit_market) { site.benefit_markets.first }
       let!(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
-      let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_dc_employer_profile_renewal_application, site: site)}
+      let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_dc_employer_profile_renewal_application, site: site)}
       let(:employer_profile) {organization.employer_profile}
       let(:benefit_package) { employer_profile.latest_benefit_application.benefit_packages.first }
       let!(:health_sponsored_benefit) {benefit_package.health_sponsored_benefit}
-      let!(:issuer_profile)  { FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile) }
+      let!(:issuer_profile)  { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile) }
       let!(:renewal_application)  { employer_profile.renewal_benefit_application }
       let!(:active_application)  { employer_profile.active_benefit_application }
       let!(:active_application_product)  do
-        FactoryGirl.create(:benefit_markets_products_health_products_health_product,
+        FactoryBot.create(:benefit_markets_products_health_products_health_product,
                           application_period: TimeKeeper.date_of_record.beginning_of_year.last_year..TimeKeeper.date_of_record.end_of_year.last_year,
                           issuer_profile_id: issuer_profile.id)
       end
-      let!(:new_renewal_app_product)  { FactoryGirl.create(:benefit_markets_products_health_products_health_product)}
+      let!(:new_renewal_app_product)  { FactoryBot.create(:benefit_markets_products_health_products_health_product)}
       let!(:update_benefit_application) do
         active_application.benefit_sponsor_catalog.product_packages.where(product_kind: :health).first.update_attributes(package_kind: :single_product)
         renewal_application.benefit_sponsor_catalog.product_packages.where(product_kind: :health).first.update_attributes(package_kind: :single_product)

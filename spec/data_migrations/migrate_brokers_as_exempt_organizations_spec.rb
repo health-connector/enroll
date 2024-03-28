@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Spec for Migrating Broker Organizations
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "migrate_brokers_as_exempt_organizations")
@@ -5,7 +7,7 @@ require File.join(Rails.root, "app", "data_migrations", "migrate_brokers_as_exem
 describe MigrateBrokersAsExemptOrganizations, dbclean: :after_each do
   let(:given_task_name)          { "migrate_brokers_as_exempt_organizations" }
   let!(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let!(:broker_general_organizations)    { FactoryGirl.create_list(:benefit_sponsors_organizations_general_organization, 4, :with_broker_agency_profile, site: site) }
+  let!(:broker_general_organizations)    { FactoryBot.create_list(:benefit_sponsors_organizations_general_organization, 4, :with_broker_agency_profile, site: site) }
   subject                        { MigrateBrokersAsExemptOrganizations.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name", dbclean: :after_each do
@@ -31,7 +33,7 @@ describe MigrateBrokersAsExemptOrganizations, dbclean: :after_each do
   end
 
   describe "failed to migrate", dbclean: :after_each do
-    let!(:dual_organization)    { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, :with_aca_shop_cca_employer_profile, site: site) }
+    let!(:dual_organization)    { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, :with_aca_shop_cca_employer_profile, site: site) }
 
     it "should not migrate the dual_organization as it has more than one profile" do
       subject.migrate

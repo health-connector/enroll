@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe TaxHousehold, type: :model do
-  let(:family)  { FactoryGirl.create(:family) }
+  let(:family)  { FactoryBot.create(:family) }
 
 
 
@@ -122,10 +124,10 @@ RSpec.describe TaxHousehold, type: :model do
 =end
 
   context "aptc_ratio_by_member" do
-    let!(:plan) {FactoryGirl.build(:plan, :with_premium_tables)}
+    let!(:plan) {FactoryBot.build(:plan, :with_premium_tables)}
     #let(:current_hbx) {double(benefit_sponsorship: double(current_benefit_period: double(second_lowest_cost_silver_plan: plan)))}
     let(:current_hbx) {double(benefit_sponsorship: double(benefit_coverage_periods: [benefit_coverage_period]))}
-    let(:benefit_coverage_period) {double(contains?:true, second_lowest_cost_silver_plan: plan)}
+    let(:benefit_coverage_period) {double(contains?: true, second_lowest_cost_silver_plan: plan)}
     let(:tax_household_member1) {double(is_ia_eligible?: true, age_on_effective_date: 28, applicant_id: 'tax_member1')}
     let(:tax_household_member2) {double(is_ia_eligible?: true, age_on_effective_date: 26, applicant_id: 'tax_member2')}
 
@@ -135,42 +137,42 @@ RSpec.describe TaxHousehold, type: :model do
       tax_household = TaxHousehold.new(effective_starting_on: TimeKeeper.date_of_record)
       allow(tax_household).to receive(:aptc_members).and_return([tax_household_member1, tax_household_member2])
       expect(tax_household.aptc_ratio_by_member.class).to eq Hash
-      result = {"tax_member1"=>0.5, "tax_member2"=>0.5}
+      result = {"tax_member1" => 0.5, "tax_member2" => 0.5}
       expect(tax_household.aptc_ratio_by_member).to eq result
     end
   end
 
   context "aptc_available_amount_by_member" do
-    let(:aptc_ratio_by_member) { {'member1'=>0.6, 'member2'=>0.4} }
+    let(:aptc_ratio_by_member) { {'member1' => 0.6, 'member2' => 0.4} }
     let(:hbx_member1) { double(applicant_id: 'member1', applied_aptc_amount: 20) }
     let(:hbx_member2) { double(applicant_id: 'member2', applied_aptc_amount: 10) }
     let(:hbx_enrollment) { double(applied_aptc_amount: 30, hbx_enrollment_members: [hbx_member1, hbx_member2]) }
     let(:household) { double }
 
     it "can return result" do
-      tax_household = TaxHousehold.new()
+      tax_household = TaxHousehold.new
       allow(tax_household).to receive(:household).and_return household
       allow(tax_household).to receive(:aptc_ratio_by_member).and_return aptc_ratio_by_member
       allow(tax_household).to receive(:current_max_aptc).and_return 100
       allow(tax_household).to receive(:effective_starting_on).and_return TimeKeeper.date_of_record
       allow(household).to receive(:hbx_enrollments_with_aptc_by_year).and_return([hbx_enrollment])
       expect(tax_household.aptc_available_amount_by_member.class).to eq Hash
-      result = {'member1'=>40, 'member2'=>30}
+      result = {'member1' => 40, 'member2' => 30}
       expect(tax_household.aptc_available_amount_by_member).to eq result
     end
   end
 
   context "aptc_available_amount_for_enrollment" do
-    let(:aptc_available_amount_by_member) { {'member1'=>60, 'member2'=>40} }
+    let(:aptc_available_amount_by_member) { {'member1' => 60, 'member2' => 40} }
     let(:hbx_member1) { double(applicant_id: 'member1') }
     let(:hbx_member2) { double(applicant_id: 'member2') }
     let(:hbx_enrollment) { double(applied_aptc_amount: 30, hbx_enrollment_members: [hbx_member1, hbx_member2]) }
     let(:household) { double }
-    let!(:plan) {FactoryGirl.build(:plan, :with_premium_tables)}
+    let!(:plan) {FactoryBot.build(:plan, :with_premium_tables)}
     let(:decorated_plan) {double}
 
     before :each do
-      @tax_household = TaxHousehold.new()
+      @tax_household = TaxHousehold.new
       allow(plan).to receive(:ehb).and_return 0.9
       allow(@tax_household).to receive(:aptc_available_amount_by_member).and_return aptc_available_amount_by_member
       allow(@tax_household).to receive(:total_aptc_available_amount_for_enrollment).and_return 100
@@ -182,7 +184,7 @@ RSpec.describe TaxHousehold, type: :model do
     it "can return result when plan is individual" do
       allow(plan).to receive(:coverage_kind).and_return 'individual'
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50).class).to eq Hash
-      result = {'member1'=>30, 'member2'=>20}
+      result = {'member1' => 30, 'member2' => 20}
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50)).to eq result
     end
 
@@ -190,14 +192,14 @@ RSpec.describe TaxHousehold, type: :model do
       allow(decorated_plan).to receive(:premium_for).and_return(10)
       allow(plan).to receive(:coverage_kind).and_return 'individual'
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50).class).to eq Hash
-      result = {'member1'=>9, 'member2'=>9}
+      result = {'member1' => 9, 'member2' => 9}
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50)).to eq result
     end
 
     it "can return result when plan is dental" do
       allow(plan).to receive(:coverage_kind).and_return 'dental'
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50).class).to eq Hash
-      result = {'member1'=>0, 'member2'=>0}
+      result = {'member1' => 0, 'member2' => 0}
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50)).to eq result
     end
 
@@ -206,7 +208,7 @@ RSpec.describe TaxHousehold, type: :model do
       allow(decorated_plan).to receive(:premium_for).and_return(10)
       allow(plan).to receive(:coverage_kind).and_return 'individual'
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50).class).to eq Hash
-      result = {'member1'=>0, 'member2'=>0}
+      result = {'member1' => 0, 'member2' => 0}
       expect(@tax_household.aptc_available_amount_for_enrollment(hbx_enrollment, plan, 50)).to eq result
     end
   end

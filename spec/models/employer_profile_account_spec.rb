@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EmployerProfileAccount, type: :model, dbclean: :after_each do
 
-  let(:employer_profile)        { FactoryGirl.create(:employer_profile) }
+  let(:employer_profile)        { FactoryBot.create(:employer_profile) }
   let!(:rating_area) { create(:rating_area, county_name: employer_profile.organization.primary_office_location.address.county, zip_code: employer_profile.organization.primary_office_location.address.zip)}
-  let!(:hbx_profile) { FactoryGirl.create(:hbx_profile, :open_enrollment_coverage_period) }
+  let!(:hbx_profile) { FactoryBot.create(:hbx_profile, :open_enrollment_coverage_period) }
 
   def persisted_employer_profile
     EmployerProfile.find(employer_profile.id)
@@ -18,7 +20,7 @@ describe EmployerProfileAccount, type: :model, dbclean: :after_each do
   let(:binder_payment_due_on)   { open_enrollment_end_on + 2.days }
   let(:next_premium_due_on)     { binder_payment_due_on }
   let(:next_premium_amount)     { 3155.86 }
-  let!(:rating_area) { RatingArea.first || FactoryGirl.create(:rating_area)  }
+  let!(:rating_area) { RatingArea.first || FactoryBot.create(:rating_area)  }
 
   let(:valid_params) do
     {
@@ -98,15 +100,16 @@ describe EmployerProfileAccount, type: :model, dbclean: :after_each do
 
     context "and open enrollment has closed and is employer is eligible for coverage" do
 
-      let(:benefit_group)             { FactoryGirl.create(:benefit_group) }
-      let(:plan_year)                 { FactoryGirl.create(:plan_year,
-                                          employer_profile: employer_profile,
-                                          start_on: start_on,
-                                          end_on: end_on,
-                                          benefit_groups: [benefit_group],
-                                          open_enrollment_start_on: open_enrollment_start_on,
-                                          open_enrollment_end_on: open_enrollment_end_on
-                                        ) }
+      let(:benefit_group)             { FactoryBot.create(:benefit_group) }
+      let(:plan_year)                 do
+        FactoryBot.create(:plan_year,
+                          employer_profile: employer_profile,
+                          start_on: start_on,
+                          end_on: end_on,
+                          benefit_groups: [benefit_group],
+                          open_enrollment_start_on: open_enrollment_start_on,
+                          open_enrollment_end_on: open_enrollment_end_on)
+      end
       def persisted_plan_year
         PlanYear.find(plan_year.id)
       end
@@ -117,15 +120,18 @@ describe EmployerProfileAccount, type: :model, dbclean: :after_each do
         EmployerProfileAccount.find(new_employer_profile_account.id)
       end
 
-      let(:benefit_group_assignment)    { BenefitGroupAssignment.new(
-                                            benefit_group: benefit_group,
-                                            start_on: plan_year.start_on
-                                          )}
+      let(:benefit_group_assignment)    do
+        BenefitGroupAssignment.new(
+          benefit_group: benefit_group,
+          start_on: plan_year.start_on
+        )
+      end
 
-      let(:census_employee)             { FactoryGirl.create(:census_employee,
-                                            employer_profile: employer_profile,
-                                            benefit_group_assignments: [benefit_group_assignment]
-                                          ) }
+      let(:census_employee)             do
+        FactoryBot.create(:census_employee,
+                          employer_profile: employer_profile,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
       before do
         plan_year.publish!
         # allow_any_instance_of(CensusEmployee).to receive(:has_active_health_coverage?).and_return(true)
@@ -287,7 +293,7 @@ describe EmployerProfileAccount, type: :model, dbclean: :after_each do
       end
 
       # Commented due initial ER plan year cancellation issues ticket 16300
-      
+
       # context "and employer doesn't pay the premium binder before effective date" do
       #   before do
       #     TimeKeeper.set_date_of_record(plan_year.start_on)

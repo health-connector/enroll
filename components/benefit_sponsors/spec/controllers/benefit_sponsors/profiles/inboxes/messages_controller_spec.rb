@@ -4,22 +4,22 @@ module BenefitSponsors
   RSpec.describe Inboxes::MessagesController, type: :controller, dbclean: :after_each do
 
     routes {BenefitSponsors::Engine.routes}
-    let!(:security_question)  { FactoryGirl.create_default :security_question }
+    let!(:security_question)  { FactoryBot.create_default :security_question }
 
-    let!(:site) {FactoryGirl.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, site_key: :cca)}
+    let!(:site) {FactoryBot.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, site_key: :cca)}
 
-    let(:organization) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
-    let(:inbox) {FactoryGirl.create(:benefit_sponsors_inbox, :with_message, recipient: organization.employer_profile)}
-    let(:person) {FactoryGirl.create(:person)}
-    let(:user) {FactoryGirl.create(:user, :person => person)}
+    let(:organization) {FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
+    let(:inbox) {FactoryBot.create(:benefit_sponsors_inbox, :with_message, recipient: organization.employer_profile)}
+    let(:person) {FactoryBot.create(:person)}
+    let(:user) {FactoryBot.create(:user, :person => person)}
 
-    let(:broker_organization) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
-    let(:broker_person) { FactoryGirl.create(:person, :with_broker_role) }
-    let(:broker_user) { FactoryGirl.create(:user, person: broker_person ) }
+    let(:broker_organization) {FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
+    let(:broker_person) { FactoryBot.create(:person, :with_broker_role) }
+    let(:broker_user) { FactoryBot.create(:user, person: broker_person ) }
 
-    let(:admin_person) {FactoryGirl.create(:person)}
-    let(:admin_user) {FactoryGirl.create(:user, :person => admin_person)}
-    let(:hbx_staff_role) {FactoryGirl.create(:hbx_staff_role, person: admin_user.person)}
+    let(:admin_person) {FactoryBot.create(:person)}
+    let(:admin_user) {FactoryBot.create(:user, :person => admin_person)}
+    let(:hbx_staff_role) {FactoryBot.create(:hbx_staff_role, person: admin_user.person)}
 
 
     describe "GET show / DELETE destroy" do
@@ -30,7 +30,7 @@ module BenefitSponsors
 
         context "show message" do
           before do
-            get :show, id: organization.employer_profile.id, message_id: inbox.messages.first.id
+            get :show, params: { id: organization.employer_profile.id, message_id: inbox.messages.first.id }
           end
 
           it "should render show template" do
@@ -44,7 +44,7 @@ module BenefitSponsors
 
         context "delete message" do
           before do
-            delete :destroy, id: organization.employer_profile.id, message_id: inbox.messages.first.id, format: :js
+            delete :destroy, params: { id: organization.employer_profile.id, message_id: inbox.messages.first.id }, format: :js
           end
 
           it "should get a notice" do
@@ -61,13 +61,13 @@ module BenefitSponsors
           @broker_inbox.save!
           welcome_subject = "Welcome to #{Settings.site.short_name}"
           welcome_body = "#{Settings.site.short_name} is the #{Settings.aca.state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
-          broker_message = @broker_inbox.messages.create(subject: welcome_subject, body: welcome_body)
+          @broker_inbox.messages.create(subject: welcome_subject, body: welcome_body)
           sign_in broker_user
         end
 
         context "show message" do
           before do
-            get :show, id: broker_person.id, message_id: @broker_inbox.messages.first.id
+            get :show, params: { id: broker_person.id, message_id: @broker_inbox.messages.first.id }
           end
 
           it "should render show template" do
@@ -81,7 +81,7 @@ module BenefitSponsors
 
         context "delete message" do
           before do
-            delete :destroy, id: broker_person.id, message_id: @broker_inbox.messages.first.id, format: :js
+            delete :destroy, params: { id: broker_person.id, message_id: @broker_inbox.messages.first.id }, format: :js
           end
 
           it "should get a notice" do
@@ -98,13 +98,13 @@ module BenefitSponsors
           @broker_inbox.save!
           welcome_subject = "Welcome to #{Settings.site.short_name}"
           welcome_body = "#{Settings.site.short_name} is the #{Settings.aca.state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
-          broker_message = @broker_inbox.messages.create(subject: welcome_subject, body: welcome_body)
+          @broker_inbox.messages.create(subject: welcome_subject, body: welcome_body)
           sign_in admin_user
         end
 
         context "show message" do
           before do
-            get :show, id: broker_person.id, message_id: @broker_inbox.messages.first.id
+            get :show, params: { id: broker_person.id, message_id: @broker_inbox.messages.first.id }
           end
 
           it "should render show template" do
@@ -118,7 +118,7 @@ module BenefitSponsors
 
         context "delete message" do
           before do
-            delete :destroy, id: broker_person.id, message_id: @broker_inbox.messages.first.id, format: :js
+            delete :destroy, params: { id: broker_person.id, message_id: @broker_inbox.messages.first.id }, format: :js
           end
 
           it "should get a notice" do

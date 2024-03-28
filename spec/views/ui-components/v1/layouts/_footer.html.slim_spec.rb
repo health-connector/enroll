@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "_footer.html.slim", :type => :view, dbclean: :after_each  do

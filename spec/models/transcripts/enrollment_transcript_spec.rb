@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Transcripts::EnrollmentTranscript, type: :model, dbclean: :after_each do
 
   describe 'find_or_build_family' do
 
-    let!(:spouse)  { FactoryGirl.create(:person)}
-    let!(:child1)  { FactoryGirl.create(:person)}
-    let!(:child2)  { FactoryGirl.create(:person)}
+    let!(:spouse)  { FactoryBot.create(:person)}
+    let!(:child1)  { FactoryBot.create(:person)}
+    let!(:child2)  { FactoryBot.create(:person)}
 
     let!(:person) do
-      p = FactoryGirl.build(:person)
+      p = FactoryBot.build(:person)
       p.person_relationships.build(relative: spouse, kind: "spouse")
       p.person_relationships.build(relative: child1, kind: "child")
       p.person_relationships.build(relative: child2, kind: "child")
@@ -21,16 +23,16 @@ RSpec.describe Transcripts::EnrollmentTranscript, type: :model, dbclean: :after_
 
       let(:source_effective_on) { Date.new(TimeKeeper.date_of_record.year, 1, 1) }
       let(:other_effective_on) { Date.new(TimeKeeper.date_of_record.year, 3, 1) }
-      let(:other_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product) }
-      let(:source_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product) }
-      let(:other_family) {
+      let(:other_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
+      let(:source_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
+      let(:other_family) do
         family = Family.new(hbx_assigned_id: '24112',
                             e_case_id: "6754632")
 
         primary = family.family_members.build(is_primary_applicant: true, person: person)
         dependent1 = family.family_members.build(is_primary_applicant: true, person: spouse)
         family
-      }
+      end
 
       let(:dependent2) do
         other_family.family_members.build(is_primary_applicant: false, person: child1)

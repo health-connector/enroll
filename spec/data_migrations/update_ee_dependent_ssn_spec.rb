@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_ee_dependent_ssn")
 
@@ -5,6 +7,16 @@ describe UpdateEeDependentSSN, dbclean: :after_each do
 
   let(:given_task_name) { "update_ee_dependent_ssn" }
   subject { UpdateEeDependentSSN.new(given_task_name, double(:current_scope => nil)) }
+  let(:census_employee)  { FactoryBot.create(:census_employee)}
+  let(:census_dependent) { CensusDependent.new(first_name: 'David', last_name: 'Henry', ssn: "", employee_relationship: "spouse", dob: TimeKeeper.date_of_record - 30.years, gender: "male") }
+  let(:census_env_params) {{ce_id: census_employee.id, dep_id: census_dependent.id, dep_ssn: census_dependent.ssn}}
+
+
+  def run_env_specific
+    ClimateControl.modify census_env_params do
+      subject.migrate
+    end
+  end
 
   describe "given a task name" do
     it "has the given task name" do
@@ -13,15 +25,6 @@ describe UpdateEeDependentSSN, dbclean: :after_each do
   end
 
   describe "update census dependent ssn" do
-    let(:census_employee)  { FactoryGirl.create(:census_employee)}
-    let(:census_dependent) { CensusDependent.new(first_name:'David', last_name:'Henry', ssn: "", employee_relationship: "spouse", dob: TimeKeeper.date_of_record - 30.years, gender: "male") }
-
-    before(:each) do
-      allow(ENV).to receive(:[]).with("ce_id").and_return(census_employee.id)
-      allow(ENV).to receive(:[]).with("dep_id").and_return(census_dependent.id)
-      allow(ENV).to receive(:[]).with("dep_ssn").and_return(census_dependent.ssn)
-    end
-
     it "should be valid" do
       expect(census_employee.valid?).to be_truthy
     end
@@ -39,20 +42,27 @@ describe UpdateEeDependentSSN, dbclean: :after_each do
       census_employee.census_dependents = []
       expect(census_employee.census_dependents.first).to be_falsey
     end
+  end
 
-    it "allow dependent ssn's to be updated to nil" do
-      census_employee.census_dependents = [census_dependent]
-      subject.migrate
-      census_employee.reload
-      expect(census_employee.census_dependents.first.ssn).to match(nil)
-    end
+  describe "when Cron job recives" do
+    context "env_params" do
 
-    it "allow dependent ssn's to be updated" do
-      census_employee.census_dependents = [census_dependent]
-      census_employee.census_dependents.first.update_attributes!(ssn: "123456789")
-      subject.migrate
-      census_employee.reload
-      expect(census_employee.census_dependents.first.ssn).to match("123456789")
+      before :each do
+        census_employee.census_dependents = [census_dependent]
+      end
+
+      it "allow dependent ssn's to be updated to nil" do
+        census_employee.reload
+        run_env_specific
+        expect(census_employee.census_dependents.first.ssn).to match(nil)
+      end
+
+      it "allow dependent ssn's to be updated" do
+        census_employee.census_dependents.first.update_attributes!(ssn: "123456789")
+        run_env_specific
+        census_employee.reload
+        expect(census_employee.census_dependents.first.ssn).to match("123456789")
+      end
     end
   end
 end

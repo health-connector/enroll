@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_navigation.html.erb" do
-  let(:person) {FactoryGirl.create(:person, :with_family)}
-  let(:user){ FactoryGirl.create(:user, person: person) }
+  let(:person) {FactoryBot.create(:person, :with_family)}
+  let(:user){ FactoryBot.create(:user, person: person) }
 
   # let(:person){
   #   instance_double(
@@ -22,10 +24,10 @@ RSpec.describe "insured/families/_navigation.html.erb" do
       "FamilyMember#{random_value}",
       first_name: "my real first name #{random_value}",
       last_name: "my real last name #{random_value}"
-      )
+    )
   end
 
-  let(:family_members){ [ family_member, family_member ] }
+  let(:family_members){ [family_member, family_member] }
 
   before :each do
     sign_in(user)
@@ -96,7 +98,7 @@ RSpec.describe "insured/families/_navigation.html.erb" do
       end
 
       it "should display the info under my account in the side bar" do
-        expect(rendered).to have_text( 'My Account')
+        expect(rendered).to have_text('My Account')
         expect(rendered).to have_text('span', "#{person.first_name} #{person.last_name}")
         expect(rendered).to have_text("Your Household of #{family_members.count}")
       end

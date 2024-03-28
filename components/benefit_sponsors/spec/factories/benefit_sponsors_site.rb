@@ -1,13 +1,13 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :benefit_sponsors_site, class: 'BenefitSponsors::Site' do
-    byline      "ACME Healthcare"
-    long_name   "ACME Widget's Benefit Website"
-    short_name  "Benefit Website"
-    domain_name "hbxshop.org"
+    byline      { "ACME Healthcare" }
+    long_name   { "ACME Widget's Benefit Website" }
+    short_name  { "Benefit Website" }
+    domain_name { "hbxshop.org" }
 
     transient do
-      kind :aca_shop
-      site_owner_organization_legal_name "Site Owner"
+      kind { :aca_shop }
+      site_owner_organization_legal_name { "Site Owner" }
     end
 
     # trait :with_owner_general_organization do
@@ -30,7 +30,7 @@ FactoryGirl.define do
 
     trait :with_benefit_market do
       after :build do |site, evaluator|
-        site.benefit_markets << create(:benefit_markets_benefit_market, kind: evaluator.kind)
+        site.benefit_markets << create(:benefit_markets_benefit_market, kind: evaluator.kind, site: site)
       end
 
 #      after :create do |site, evaluator|
@@ -57,11 +57,11 @@ FactoryGirl.define do
 
 
     trait :dc do
-      site_key :dc
+      site_key { :dc }
     end
 
     trait :cca do
-      site_key :cca
+      site_key { :cca }
     end
   end
 end

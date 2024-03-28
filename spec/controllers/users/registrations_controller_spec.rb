@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Users::RegistrationsController, dbclean: :after_each do
@@ -15,7 +17,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
       end
 
       it "should redirect to saml recovery page if user matches" do
-        post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
+        post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
         expect(response).to be_success
         expect(flash[:alert]).to eq "An account with this username ( #{email} ) already exists. <a href=\"#{SamlInformation.account_recovery_url}\">Click here</a> if you've forgotten your password."
       end
@@ -29,7 +31,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
       end
 
       it "should not redirect to saml recovery page if user matches" do
-        post :create, { user: { oim_id: "test@example.com", password: password, password_confirmation: password } }
+        post :create, params: { user: { oim_id: "test@example.com", password: password, password_confirmation: password } }
         expect(response).not_to redirect_to(new_user_registration_path)
       end
 
@@ -37,22 +39,22 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
     context "account without person" do
       let(:email) { "devise@test.com" }
-      let!(:user) { FactoryGirl.create(:user, email: email, oim_id: email) }
+      let!(:user) { FactoryBot.create(:user, email: email, oim_id: email) }
 
       before do
         @request.env["devise.mapping"] = Devise.mappings[:user]
       end
 
       it "should complete sign up and redirect" do
-        post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
+        post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
         expect(response).to redirect_to(root_path)
       end
     end
 
     context "account with person" do
       let(:email) { "devisepersoned@test.com"}
-      let(:user) { FactoryGirl.create(:user, email: email, person: person, oim_id: email) }
-      let(:person) { FactoryGirl.create(:person) }
+      let(:user) { FactoryBot.create(:user, email: email, person: person, oim_id: email) }
+      let(:person) { FactoryBot.create(:person) }
 
       before do
         user.save!
@@ -60,7 +62,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
       end
 
       it "should re-render the page" do
-        post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
+        post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
         expect(response).to be_success
         expect(response).not_to redirect_to(root_path)
       end
@@ -69,8 +71,8 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
     context "with captcha enabled" do
 
       let(:email) { "test@example.com"}
-      let(:user) { FactoryGirl.create(:user, email: email, person: person, oim_id: email) }
-      let(:person) { FactoryGirl.create(:person) }
+      let(:user) { FactoryBot.create(:user, email: email, person: person, oim_id: email) }
+      let(:person) { FactoryBot.create(:person) }
       let(:recaptcha_token) {''}
 
       before do
@@ -91,7 +93,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
         before :each do
           allow(controller).to receive(:handle_recaptcha).and_return(false)
-          post :create, { user: { oim_id: email, password: password, password_confirmation: password } }
+          post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
         end
 
         it "should render an error" do

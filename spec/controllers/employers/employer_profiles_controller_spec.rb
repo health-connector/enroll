@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
@@ -29,11 +31,11 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
   describe "GET show_profile" do
 
     let(:user) { double("user") }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
     it "should redirect" do
       sign_in(user)
-      get :show_profile, employer_profile_id: employer_profile
+      get :show_profile, params: { employer_profile_id: employer_profile }
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
     end
   end
@@ -41,11 +43,11 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
   describe "GET show" do
 
     let(:user) { double("user") }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
     it "should redirect" do
       sign_in(user)
-      get :show, id: employer_profile
+      get :show, params: { id: employer_profile }
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
     end
   end
@@ -80,36 +82,36 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
 
 
   describe "GET export_census_employees", dbclean: :after_each do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:user) { FactoryBot.create(:user) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
     it "should export cvs" do
       sign_in(user)
-      get :export_census_employees, employer_profile_id: employer_profile, format: :csv
+      get :export_census_employees, params: { employer_profile_id: employer_profile}, format: :csv
       expect(response).to have_http_status(:success)
     end
   end
 
   describe "GET new Document", dbclean: :after_each do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:user) { FactoryBot.create(:user) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
     it "should load upload Page" do
       sign_in(user)
-      xhr :get, :new_document, id: employer_profile
+      get :new_document, params: {id: employer_profile}, format: :js
       expect(response).to have_http_status(:success)
     end
   end
 
 
   describe "POST Upload Document", dbclean: :after_each do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:user) { FactoryBot.create(:user) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
     #let(:params) { { id: employer_profile.id, file:'test/JavaScript.pdf', subject: 'JavaScript.pdf' } }
 
     let(:subject){"Employee Attestation"}
     let(:file) { double }
     let(:temp_file) { double }
-    let(:file_path) { Rails.root+'test/JavaScript.pdf' }
+    let(:file_path) { "#{Rails.root}test/JavaScript.pdf" }
 
     before(:each) do
       @controller = Employers::EmployerProfilesController.new
@@ -124,19 +126,19 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
     context "upload document", dbclean: :after_each do
       it "redirects to document list page" do
         sign_in user
-        post :upload_document, {:id => employer_profile.id, :file => file, :subject=> subject}
+        post :upload_document, params: {:id => employer_profile.id, :file => file, :subject => subject}
         expect(response).to have_http_status(:redirect)
       end
     end
   end
 
   describe "Delete Document", dbclean: :after_each do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+    let(:user) { FactoryBot.create(:user) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
     it "should delete documents" do
       sign_in(user)
-      xhr :get, :delete_documents, id: employer_profile.id, ids:[1]
+      get :delete_documents, params: {id: employer_profile.id, ids: [1]}, format: :js
       expect(response).to have_http_status(:success)
     end
   end

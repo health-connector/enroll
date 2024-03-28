@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe WorkflowStateTransition, type: :model do
@@ -25,7 +27,7 @@ RSpec.describe WorkflowStateTransition, type: :model do
       end
     end
 
-     context "with no to_state" do
+    context "with no to_state" do
       let(:params) {valid_params.except(:to_state)}
 
       it "should invalid" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require Rails.root.join('lib', 'tasks', 'hbx_import', 'broker', 'parsers', 'broker_parser')
 
@@ -5,7 +7,7 @@ describe Parser::BrokerParser do
 
   before(:all) do
     xml = Nokogiri::XML(File.open(Rails.root.join('spec', 'test_data', 'NewBrokerFile.xml')))
-    @brokers = Parser::BrokerParser.parse(xml.root.canonicalize).map(&:to_hash)   
+    @brokers = Parser::BrokerParser.parse(xml.root.canonicalize).map(&:to_hash)
   end
 
   it 'should parse 2 brokers from xml' do

@@ -9,21 +9,24 @@ class User
   include AuthorizationConcern
   include Mongoid::History::Trackable
   include PermissionsConcern
-  attr_accessor :login
+  attr_accessor :login, :invitation_id
 
   validates_presence_of :oim_id
   validates_uniqueness_of :oim_id, :case_sensitive => false
   validate :oim_id_rules
   validates_uniqueness_of :email,:case_sensitive => false
 
-  scope :datatable_search, ->(query) {
+  scope :datatable_search, lambda { |query|
     search_regex = ::Regexp.compile(/.*#{query}.*/i)
     person_user_ids = Person.any_of({hbx_id: search_regex}, {first_name: search_regex}, {last_name: search_regex}).pluck(:user_id)
-    User.any_of({oim_id: search_regex}, {email: search_regex}, {id: {"$in" => person_user_ids} } )
+    User.any_of({oim_id: search_regex}, {email: search_regex}, {id: {"$in" => person_user_ids} })
   }
 
+  has_one :person, inverse_of: :user
+  accepts_nested_attributes_for :person, allow_destroy: true
+
   def oim_id_rules
-    if oim_id.present? && oim_id.match(/[;#%=|+,">< \\\/]/)
+    if oim_id.present? && oim_id.match(%r{[;#%=|+,">< \\/]})
       errors.add :oim_id, "cannot contain special charcters ; # % = | + , \" > < \\ \/"
     elsif oim_id.present? && oim_id.length < MIN_USERNAME_LENGTH
       errors.add :oim_id, "must be at least #{MIN_USERNAME_LENGTH} characters"
@@ -33,8 +36,8 @@ class User
   end
 
   def valid_attribute?(attribute_name)
-    self.valid?
-    self.errors[attribute_name].blank?
+    valid?
+    errors[attribute_name].blank?
   end
 
   def switch_to_idp!
@@ -43,12 +46,12 @@ class User
     # self.password_confirmation = new_password
     self.idp_verified = true
     begin
-      self.save!
-    rescue => e
+      save!
+    rescue StandardError => e
       message = "#{e.message}; "
-      message = message + "user: #{self}, "
-      message = message + "errors.full_messages: #{self.errors.full_messages}, "
-      message = message + "stacktrace: #{e.backtrace}"
+      message += "user: #{self}, "
+      message += "errors.full_messages: #{errors.full_messages}, "
+      message += "stacktrace: #{e.backtrace}"
       log(message, {:severity => "error"})
       raise e
     end
@@ -91,32 +94,29 @@ class User
                 :modifier_field => :modifier,
                 :modifier_field_optional => true,
                 :version_field => :tracking_version,
-                :track_create  => true,
-                :track_update  => true,
+                :track_create => true,
+                :track_update => true,
                 :track_destroy => true
 
   before_save :strip_empty_fields
 
   # Enable polymorphic associations
-  belongs_to :profile, polymorphic: true
-
-  attr_accessor :invitation_id
-  #  validate :ensure_valid_invitation, :on => :create
+  belongs_to :profile, polymorphic: true, optional: true
 
   def ensure_valid_invitation
-    if self.invitation_id.blank?
+    if invitation_id.blank?
       errors.add(:base, "There is no valid invitation for this account.")
       return
     end
-    invitation = Invitation.where(id: self.invitation_id).first
-    if !invitation.present?
+    invitation = Invitation.where(id: invitation_id).first
+    unless invitation.present?
       errors.add(:base, "There is no valid invitation for this account.")
       return
     end
-    if !invitation.may_claim?
-      errors.add(:base, "There is no valid invitation for this account.")
-      return
-    end
+    return if invitation.may_claim?
+
+    errors.add(:base, "There is no valid invitation for this account.")
+    nil
   end
 
   def idp_verified?
@@ -133,14 +133,14 @@ class User
   end
 
   def agent_title
-    if has_agent_role?
-      if has_role?(:assister)
-        "In Person Assister (IPA)"
-      elsif person.csr_role.cac == true
-         "Certified Applicant Counselor (CAC)"
-      else
-        "Customer Service Representative (CSR)"
-      end
+    return unless has_agent_role?
+
+    if has_role?(:assister)
+      "In Person Assister (IPA)"
+    elsif person.csr_role.cac == true
+      "Certified Applicant Counselor (CAC)"
+    else
+      "Customer Service Representative (CSR)"
     end
   end
 
@@ -158,8 +158,8 @@ class User
   end
 
   def is_benefit_sponsor_active_broker?(profile_id)
-    profile_organization = BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles._id" =>  BSON::ObjectId.from_string(profile_id)).first
-    person == profile_organization.employer_profile.active_broker if (profile_organization && profile_organization.employer_profile && profile_organization.employer_profile.active_broker)
+    profile_organization = BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles._id" => BSON::ObjectId.from_string(profile_id)).first
+    person == profile_organization.employer_profile.active_broker if profile_organization && profile_organization.employer_profile && profile_organization.employer_profile.active_broker
   end
 
   def handle_headless_records
@@ -167,7 +167,7 @@ class User
     headless_with_oim_id = User.where(oim_id: /^#{::Regexp.quote(oim_id)}$/i)
     headless_users = headless_with_email + headless_with_oim_id
     headless_users.each do |headless|
-      headless.destroy if !headless.person.present?
+      headless.destroy unless headless.person.present?
     end
   end
 
@@ -180,6 +180,7 @@ class User
   # end
   def identity_verified?
     return false if identity_final_decision_code.blank?
+
     identity_final_decision_code.to_s.downcase == INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE
   end
 
@@ -188,10 +189,8 @@ class User
     self.identity_response_code = INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE
     self.identity_response_description_text = "curam payload"
     self.identity_verified_date = TimeKeeper.date_of_record
-    unless self.oim_id.present?
-      self.oim_id = self.email
-    end
-    self.save!
+    self.oim_id = email unless oim_id.present?
+    save!
   end
 
   def ridp_by_paper_application
@@ -199,25 +198,24 @@ class User
     self.identity_response_code = INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE
     self.identity_response_description_text = "admin bypass ridp"
     self.identity_verified_date = TimeKeeper.date_of_record
-    self.save
+    save
   end
 
-  def get_announcements_by_roles_and_portal(portal_path="")
+  def get_announcements_by_roles_and_portal(portal_path = "")
     announcements = []
 
-    case
-    when portal_path.include?("employers/employer_profiles")
+    if portal_path.include?("employers/employer_profiles")
       announcements.concat(Announcement.current_msg_for_employer) if has_employer_staff_role?
-    when portal_path.include?("families/home")
+    elsif portal_path.include?("families/home")
       announcements.concat(Announcement.current_msg_for_employee) if has_employee_role? || (person && person.has_active_employee_role?)
       announcements.concat(Announcement.current_msg_for_ivl) if has_consumer_role? || (person && person.has_active_consumer_role?)
-    when portal_path.include?("employee")
+    elsif portal_path.include?("employee")
       announcements.concat(Announcement.current_msg_for_employee) if has_employee_role? || (person && person.has_active_employee_role?)
-    when portal_path.include?("consumer")
+    elsif portal_path.include?("consumer")
       announcements.concat(Announcement.current_msg_for_ivl) if has_consumer_role? || (person && person.has_active_consumer_role?)
-    when portal_path.include?("broker_agencies")
+    elsif portal_path.include?("broker_agencies")
       announcements.concat(Announcement.current_msg_for_broker) if has_broker_role?
-    when portal_path.include?("general_agencies")
+    elsif portal_path.include?("general_agencies")
       announcements.concat(Announcement.current_msg_for_ga) if has_general_agency_staff_role?
     end
 
@@ -232,8 +230,8 @@ class User
     def find_for_database_authentication(warden_conditions)
       #TODO: Another explicit oim_id dependency
       conditions = warden_conditions.dup
-      if login = conditions.delete(:login).downcase
-        where(conditions).where('$or' => [ {:oim_id => /^#{::Regexp.escape(login)}$/i}, {:email => /^#{::Regexp.escape(login)}$/i} ]).first
+      if (login = conditions.delete(:login).downcase)
+        where(conditions).where('$or' => [{:oim_id => /^#{::Regexp.escape(login)}$/i}, {:email => /^#{::Regexp.escape(login)}$/i}]).first
       else
         where(conditions).first
       end
@@ -289,6 +287,7 @@ class User
   end
 
   private
+
   # Remove indexed, unique, empty attributes from document
   def strip_empty_fields
     unset("email") if email.blank?

@@ -1,6 +1,8 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :event_exception do
-    scheduled_event  { FactoryGirl.build(:scheduled_event) }
+    scheduled_event  { FactoryBot.build(:scheduled_event) }
     time             { Date.new(2017, 8, 2) }
   end
 end
