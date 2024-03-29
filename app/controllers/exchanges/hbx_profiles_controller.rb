@@ -19,21 +19,28 @@ class Exchanges::HbxProfilesController < ApplicationController
   layout 'single_column'
 
   def oe_extendable_applications
+    authorize HbxProfile, :oe_extendable_applications?
+
     @benefit_applications  = @benefit_sponsorship.oe_extendable_benefit_applications
     @element_to_replace_id = params[:employer_actions_id]
   end
 
   def oe_extended_applications
+    authorize HbxProfile, :oe_extended_applications?
+
     @benefit_applications  = @benefit_sponsorship.oe_extended_applications
     @element_to_replace_id = params[:employer_actions_id]
   end
 
   def edit_open_enrollment
+    authorize HbxProfile, :edit_open_enrollment?
+
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
   end
 
   def extend_open_enrollment
-    authorize HbxProfile, :can_extend_open_enrollment?
+    authorize HbxProfile, :extend_open_enrollment?
+
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
     open_enrollment_end_date = Date.strptime(params["open_enrollment_end_date"], "%m/%d/%Y")
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).extend_open_enrollment(open_enrollment_end_date)
@@ -41,19 +48,23 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def close_extended_open_enrollment
-    authorize HbxProfile, :can_extend_open_enrollment?
+    authorize HbxProfile, :close_extended_open_enrollment?
+
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).end_open_enrollment(TimeKeeper.date_of_record)
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully closed employer(s) open enrollment." }
   end
 
   def new_benefit_application
-    authorize HbxProfile, :can_create_benefit_application?
+    authorize HbxProfile, :new_benefit_application?
+
     @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_new(new_ba_params)
     @element_to_replace_id = params[:employer_actions_id]
   end
 
   def create_benefit_application
+    authorize HbxProfile, :create_benefit_application?
+
     @ba_form = BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
     authorize @ba_form, :updateable?
     @save_errors = benefit_application_error_messages(@ba_form) unless @ba_form.save
@@ -61,6 +72,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def edit_fein
+    authorize HbxProfile, :edit_fein?
+
     @organization = @benefit_sponsorship.organization
     @element_to_replace_id = params[:employer_actions_id]
 
@@ -70,6 +83,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def update_fein
+    authorize HbxProfile, :update_fein?
+
     @organization = @benefit_sponsorship.organization
     @element_to_replace_id = params[:employer_actions_id]
     service_obj = ::BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.new(benefit_sponsorship: @benefit_sponsorship)
@@ -81,6 +96,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def binder_paid
+    authorize HbxProfile, :binder_paid?
+
     if params[:ids]
       begin
         ::BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.set_binder_paid(params[:ids])
@@ -121,6 +138,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def generate_invoice
+    authorize HbxProfile, :generate_invoice?
+
     @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:"_id".in => params[:ids])
     @organizations = @benfit_sponsorships.map(&:organization)
     @employer_profiles = @organizations.flat_map(&:employer_profile)
@@ -137,6 +156,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def edit_force_publish
+    authorize HbxProfile, :edit_force_publish?
+
     @element_to_replace_id = params[:employer_actions_id]
     @benefit_application = @benefit_sponsorship.benefit_applications.draft_state.last
 
@@ -146,6 +167,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def force_publish
+    authorize HbxProfile, :force_publish?
+
     @element_to_replace_id = params[:employer_actions_id]
     @benefit_application   = @benefit_sponsorship.benefit_applications.draft_state.last
     if @benefit_application.present?
@@ -161,6 +184,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def employer_invoice
+    authorize HbxProfile, :employer_invoice?
+
     # Dynamic Filter values for upcoming 30, 60, 90 days renewals
     @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
     @next_60_day = @next_30_day.next_month
@@ -174,6 +199,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def employer_datatable
+    authorize HbxProfile, :employer_datatable?
+
     # copy the link and open in new tab
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
     @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
@@ -184,6 +211,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
 def employer_poc
+     # authorize HbxProfile, :employer_poc?
 
     # Dynamic Filter values for upcoming 30, 60, 90 days renewals
     @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
@@ -200,6 +228,8 @@ def employer_poc
 
 
   def staff_index
+    authorize HbxProfile, :staff_index?
+
     @q = params.permit(:q)[:q]
     @staff = Person.where(:$or => [{csr_role: {:$exists => true}}, {assister_role: {:$exists => true}}])
     @page_alphabets = page_alphabets(@staff, "last_name")
@@ -212,6 +242,8 @@ def employer_poc
   end
 
   def assister_index
+    # authorize HbxProfile, :assister_index?
+
     @q = params.permit(:q)[:q]
     @staff = Person.where(assister_role: {:$exists =>true})
     @page_alphabets = page_alphabets(@staff, "last_name")
@@ -232,6 +264,9 @@ def employer_poc
   end
 
   def request_help
+    insured = Person.where(_id: params[:person]).first
+    # authorize insured.primary_family, :request_help?
+
     role = nil
     if params[:type]
       cac_flag = params[:type] == 'CAC'
@@ -270,6 +305,8 @@ def employer_poc
   end
 
   def family_index
+    authorize HbxProfile, :family_index?
+
     @q = params.permit(:q)[:q]
     page_string = params.permit(:families_page)[:families_page]
     page_no = page_string.blank? ? nil : page_string.to_i
@@ -288,37 +325,50 @@ def employer_poc
   end
 
   def family_index_dt
+    authorize HbxProfile, :family_index_dt?
+
     @selector = params[:scopes][:selector] if params[:scopes].present?
     @datatable = Effective::Datatables::FamilyDataTable.new(params[:scopes])
     #render '/exchanges/hbx_profiles/family_index_datatable'
   end
 
   def user_account_index
+    authorize HbxProfile, :user_account_index?
+
     authorize HbxProfile, :can_access_user_account_tab?
     @datatable = Effective::Datatables::UserAccountDatatable.new
   end
 
   def outstanding_verification_dt
+    authorize HbxProfile, :outstanding_verification_dt?
+
     @selector = params[:scopes][:selector] if params[:scopes].present?
     @datatable = Effective::Datatables::OutstandingVerificationDataTable.new(params[:scopes])
   end
 
   def hide_form
+    authorize HbxProfile, :hide_form?
+
     @element_to_replace_id = params[:family_actions_id]
   end
 
   def add_sep_form
-    authorize HbxProfile, :can_add_sep?
+    authorize HbxProfile, :add_sep_form?
+
     getActionParams
     @element_to_replace_id = params[:family_actions_id]
   end
 
   def show_sep_history
+    authorize HbxProfile, :show_sep_history?
+
     getActionParams
     @element_to_replace_id = params[:family_actions_id]
   end
 
   def get_user_info
+    authorize HbxProfile, :get_user_info?
+
     @element_to_replace_id = params[:family_actions_id] || params[:employers_action_id]
     if params[:person_id].present?
       @person = Person.find(params[:person_id])
@@ -334,6 +384,8 @@ def employer_poc
   end
 
   def update_effective_date
+    authorize HbxProfile, :update_effective_date?
+
     @qle = QualifyingLifeEventKind.find(params[:id])
     respond_to do |format|
       format.js {}
@@ -342,6 +394,8 @@ def employer_poc
   end
 
   def calculate_sep_dates
+    authorize HbxProfile, :calculate_sep_dates?
+
     calculateDates
     respond_to do |format|
       format.js {}
@@ -349,6 +403,8 @@ def employer_poc
   end
 
   def add_new_sep
+    authorize HbxProfile, :add_new_sep?
+
     if params[:qle_id].present?
       @element_to_replace_id = params[:family_actions_id]
       createSep
@@ -359,6 +415,8 @@ def employer_poc
   end
 
   def cancel_enrollment
+    authorize HbxProfile, :cancel_enrollment?
+
     @hbxs = Family.find(params[:family]).all_enrollments.cancel_eligible
     @row = params[:family_actions_id]
     respond_to do |format|
@@ -367,6 +425,8 @@ def employer_poc
   end
 
   def update_cancel_enrollment
+    authorize HbxProfile, :update_cancel_enrollment?
+
     params_parser = ::Forms::BulkActionsForAdmin.new(params)
     @result = params_parser.result
     @row = params_parser.row
@@ -378,6 +438,8 @@ def employer_poc
   end
 
   def terminate_enrollment
+    authorize HbxProfile, :terminate_enrollment?
+
     @hbxs = Family.find(params[:family]).all_enrollments.can_terminate
     @row = params[:family_actions_id]
     respond_to do |format|
@@ -387,6 +449,8 @@ def employer_poc
   end
 
   def update_terminate_enrollment
+    authorize HbxProfile, :update_terminate_enrollment?
+
     params_parser = ::Forms::BulkActionsForAdmin.new(params)
     @result = params_parser.result
     @row = params_parser.row
@@ -398,6 +462,8 @@ def employer_poc
   end
 
   def view_enrollment_to_update_end_date
+    # authorize HbxProfile, :view_enrollment_to_update_end_date?
+
     @person = Person.find(params[:person_id])
     @row = params[:family_actions_id]
     @enrollments = @person.primary_family.terminated_enrollments
@@ -405,7 +471,9 @@ def employer_poc
     @dup_enr_ids = fetch_duplicate_enrollment_ids(@coverage_ended_enrollments).map(&:to_s)
   end
 
-   def update_enrollment_termianted_on_date
+  def update_enrollment_termianted_on_date
+    # authorize HbxProfile, :update_enrollment_termianted_on_date?
+
     begin
       enrollment = HbxEnrollment.find(params[:enrollment_id])
       @row = params[:family_actions_id]
@@ -422,12 +490,12 @@ def employer_poc
   end
 
   def broker_agency_index
+    authorize HbxProfile, :broker_agency_index?
 
     @datatable = Effective::Datatables::BrokerAgencyDatatable.new
 
     #@q = params.permit(:q)[:q]
     #@broker_agency_profiles = HbxProfile.search_random(@q)
-
 
     respond_to do |format|
       format.js {}
@@ -435,6 +503,8 @@ def employer_poc
   end
 
   def general_agency_index
+    authorize HbxProfile, :general_agency_index?
+
     page_string = params.permit(:gas_page)[:gas_page]
     page_no = page_string.blank? ? nil : page_string.to_i
 
@@ -509,6 +579,8 @@ def employer_poc
   end
 
   def configuration
+    authorize HbxProfile, :configuration?
+
     @time_keeper = Forms::TimeKeeper.new
     respond_to do |format|
       format.html { render partial: "configuration_index" }
@@ -517,12 +589,16 @@ def employer_poc
   end
 
   def view_terminated_hbx_enrollments
+    authorize HbxProfile, :view_terminated_hbx_enrollments?
+
     @person = Person.find(params[:person_id])
     @element_to_replace_id = params[:family_actions_id]
     @enrollments = @person.primary_family.terminated_enrollments
   end
 
   def reinstate_enrollment
+    authorize HbxProfile, :reinstate_enrollment?
+
     enrollment = HbxEnrollment.find(params[:enrollment_id])
      if enrollment.present?
       begin
@@ -544,6 +620,8 @@ def employer_poc
   end
 
   def edit_dob_ssn
+    authorize HbxProfile, :edit_dob_ssn?
+
     authorize Family, :can_update_ssn?
     @person = Person.find(params[:id])
     @element_to_replace_id = params[:family_actions_id]
@@ -553,6 +631,8 @@ def employer_poc
   end
 
   def verify_dob_change
+    authorize HbxProfile, :verify_dob_change?
+
     @person = Person.find(params[:person_id])
     @element_to_replace_id = params[:family_actions_id]
     @premium_implications = Person.dob_change_implication_on_active_enrollments(@person, params[:new_dob])
@@ -562,6 +642,8 @@ def employer_poc
   end
 
   def update_dob_ssn
+    authorize HbxProfile, :update_dob_ssn?
+
     authorize  Family, :can_update_ssn?
     @element_to_replace_id = params[:person][:family_actions_id]
     @person = Person.find(params[:person][:pid]) if !params[:person].blank? && !params[:person][:pid].blank?
@@ -597,6 +679,8 @@ def employer_poc
         return
       end
     end
+    # authorize HbxProfile, :show?
+
     session[:person_id] = nil
     session[:dismiss_announcements] = nil
     @unread_messages = @profile.inbox.unread_messages.try(:count) || 0
@@ -604,6 +688,7 @@ def employer_poc
 
   def set_date
     authorize HbxProfile, :modify_admin_tabs?
+
     forms_time_keeper = Forms::TimeKeeper.new(params[:forms_time_keeper])
     begin
       forms_time_keeper.set_date_of_record(forms_time_keeper.forms_date_of_record)
@@ -616,7 +701,8 @@ def employer_poc
 
   # Enrollments for APTC / CSR
   def aptc_csr_family_index
-    raise NotAuthorizedError if !current_user.has_hbx_staff_role?
+    authorize HbxProfile, :aptc_csr_family_index?
+
     @q = params.permit(:q)[:q]
     page_string = params.permit(:families_page)[:families_page]
     page_no = page_string.blank? ? nil : page_string.to_i
@@ -637,7 +723,8 @@ def employer_poc
   end
 
   def update_setting
-    authorize HbxProfile, :modify_admin_tabs?
+    authorize HbxProfile, :update_setting?
+
     setting_record = Setting.where(name: setting_params[:name]).last
 
     begin
