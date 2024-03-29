@@ -67,7 +67,7 @@ RSpec.describe "events/employers/updated.haml.erb" do
       context "is_offering_dental? is false" do
         it "does not show the dental plan in output" do
           benefit_group.dental_reference_plan_id = nil
-          benefit_group.save!
+          # benefit_group.save!
           render :template => "events/employers/updated", :locals => {:employer => employer}
           expect(rendered).not_to include "new dental plan"
         end

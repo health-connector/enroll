@@ -928,7 +928,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated",
                                                                              {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
                                                                               "is_trading_partner_publishable" => false})
-              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js, xhr: true
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
