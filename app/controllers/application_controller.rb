@@ -94,6 +94,10 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def strong_params
+    params.permit!
+  end
+
   def secure_message(from_provider, to_provider, subject, body)
     message_params = {
       sender_id: from_provider.id,
@@ -178,7 +182,7 @@ class ApplicationController < ActionController::Base
 
   def require_login
     unless current_user
-      session[:portal] = url_for(params) unless request.format.js?
+      session[:portal] = url_for(strong_params) unless request.format.js?
       if site_uses_default_devise_path?
         check_for_special_path
         redirect_to main_app.new_user_session_path
