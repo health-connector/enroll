@@ -14,7 +14,7 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
   let(:primary_family) { FactoryBot.create(:family, :with_primary_family_member) }
   let(:hbx_enrollment) {FactoryBot.create(:hbx_enrollment, household: primary_family.active_household)}
 
-  let(:user) { FactoryBot.create(:user) }
+  let(:user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person) }
 
   let(:benefit_group) { BenefitGroup.new }
 
@@ -54,7 +54,6 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
   before :each do
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true, revert_application?: true))
     allow(EmployerProfile).to receive(:find).and_return(employer_profile)
-
     sign_in(user)
     assign(:employer_profile, employer_profile)
     assign(:employees, census_employees)
