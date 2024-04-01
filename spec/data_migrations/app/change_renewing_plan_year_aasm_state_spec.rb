@@ -47,7 +47,6 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
       end
       let(:active_household) {family.active_household}
 
-<<<<<<< HEAD
       around do |example|
         ClimateControl.modify state: '',
                               py_aasm_state: 'renewing_publish_pending',
@@ -60,16 +59,6 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
       before(:each) do
         active_household.hbx_enrollments = [enrollment]
         active_household.save!
-=======
-      before(:each) do
-        active_household.hbx_enrollments = [enrollment]
-        active_household.save!
-        allow(ENV).to receive(:[]).with("state").and_return('')
-
-        allow(ENV).to receive(:[]).with("py_aasm_state").and_return('renewing_publish_pending')
-        allow(ENV).to receive(:[]).with("fein").and_return(organization.fein)
-        allow(ENV).to receive(:[]).with("plan_year_start_on").and_return(plan_year.start_on)
->>>>>>> 18ded975b9 (few rubocop fixes)
       end
 
       it "should update aasm_state of plan year to renewing_enrolling when no enrollment present" do
@@ -81,7 +70,6 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
       end
 
       it "should not should update aasm_state of plan year when ENV['plan_year_start_on'] is empty" do
-<<<<<<< HEAD
         ClimateControl.modify(
           plan_year_start_on: ''
         ) do
@@ -89,17 +77,10 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
           plan_year.reload
           expect(plan_year.aasm_state).to eq "renewing_publish_pending"
         end
-=======
-        allow(ENV).to receive(:[]).with("plan_year_start_on").and_return('')
-        subject.migrate
-        plan_year.reload
-        expect(plan_year.aasm_state).to eq "renewing_publish_pending"
->>>>>>> 18ded975b9 (few rubocop fixes)
       end
 
       ["renewing_publish_pending", "renewing_application_ineligible"].each do |plan_year_state|
         it "should update aasm_state of plan year" do
-<<<<<<< HEAD
           ClimateControl.modify(
             py_aasm_state: plan_year_state
           ) do
@@ -109,14 +90,6 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
             plan_year.reload
             expect(plan_year.aasm_state).to eq "renewing_enrolling"
           end
-=======
-          allow(ENV).to receive(:[]).with("py_aasm_state").and_return(plan_year_state)
-          allow_any_instance_of(PlanYear).to receive(:is_enrollment_valid?).and_return(false)
-          plan_year.update_attributes(aasm_state: plan_year_state)
-          subject.migrate
-          plan_year.reload
-          expect(plan_year.aasm_state).to eq "renewing_enrolling"
->>>>>>> 18ded975b9 (few rubocop fixes)
         end
       end
 
@@ -134,7 +107,6 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
         allow_any_instance_of(PlanYear).to receive(:is_enrollment_valid?).and_return(true)
         allow_any_instance_of(PlanYear).to receive(:is_open_enrollment_closed?).and_return(true)
         allow_any_instance_of(PlanYear).to receive(:may_activate?).and_return(false)
-<<<<<<< HEAD
         ClimateControl.modify(
           state: 'renewing_enrolled'
         ) do
@@ -143,20 +115,12 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
           plan_year.reload
           expect(plan_year.aasm_state).to eq "renewing_enrolled"
         end
-=======
-        allow(ENV).to receive(:[]).with("state").and_return('renewing_enrolled')
-        census_employee.reload
-        subject.migrate
-        plan_year.reload
-        expect(plan_year.aasm_state).to eq "renewing_enrolled"
->>>>>>> 18ded975b9 (few rubocop fixes)
       end
 
       it "should update aasm_state of plan year to active if plan year can be activated" do
         allow_any_instance_of(PlanYear).to receive(:is_enrollment_valid?).and_return(true)
         allow_any_instance_of(PlanYear).to receive(:is_open_enrollment_closed?).and_return(true)
         allow_any_instance_of(PlanYear).to receive(:can_be_activated?).and_return(true)
-<<<<<<< HEAD
         ClimateControl.modify(
           state: 'renewing_enrolled'
         ) do
@@ -171,19 +135,6 @@ describe ChangeRenewingPlanYearAasmState, dbclean: :after_each do
           expect(employer_profile.plan_years.map(&:aasm_state)).to eq ["expired", "active", "renewing_canceled"]
           expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ["coverage_expired", "coverage_enrolled"]
         end
-=======
-        allow(ENV).to receive(:[]).with("state").and_return('renewing_enrolled')
-        active_household.reload
-        census_employee.reload
-        subject.migrate
-        active_household.reload
-        census_employee.reload
-        plan_year.reload
-        expect(census_employee.active_benefit_group_assignment).to eq renewal_benefit_group_assignment  # should update benefit_group_assignment
-        expect(plan_year.aasm_state).to eq "active"
-        expect(employer_profile.plan_years.map(&:aasm_state)).to eq ["expired", "active", "renewing_canceled"]
-        expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ["coverage_expired", "coverage_enrolled"]
->>>>>>> 18ded975b9 (few rubocop fixes)
       end
     end
   end

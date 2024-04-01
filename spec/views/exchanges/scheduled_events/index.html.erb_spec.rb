@@ -3,7 +3,7 @@
 require 'rails_helper'
 describe "exchanges/scheduled_events/index.html.erb" do
   let(:person) { FactoryBot.create(:person) }
-  let(:user) { FactoryBot.create(:user, :person => person) }
+  let(:user) { FactoryBot.create(:user, :with_hbx_staff_role, :person => person) }
   let(:scheduled_event) { FactoryBot.create(:scheduled_event) }
   before :each do
     assign(:scheduled_event, scheduled_event)
@@ -14,7 +14,7 @@ describe "exchanges/scheduled_events/index.html.erb" do
   end
 
   it "should display index page info" do
-    render template: "exchanges/scheduled_events/_index"
+    render template: "exchanges/scheduled_events/index"
     expect(rendered).to have_text(/Calendar/)
     expect(rendered).to have_text(/Previous/)
     expect(rendered).to have_text(/Next/)
