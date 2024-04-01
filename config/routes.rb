@@ -173,14 +173,6 @@ Rails.application.routes.draw do
 
     resources :broker_applicants
     resources :security_questions
-
-    # get 'hbx_profiles', to: 'hbx_profiles#welcome'
-    # get 'hbx_profiles/:id', to: 'hbx_profiles#show', as: "my_account"
-    # get 'hbx_profiles/new'
-    # get 'hbx_profiles/create'
-    # get 'hbx_profiles/update'
-    # get 'hbx_profiles/broker_agency_index'
-    # get 'hbx_profiles/insured_index'
   end
 
   namespace :insured do
