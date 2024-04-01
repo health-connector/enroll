@@ -79,6 +79,7 @@ class HbxEnrollment
 
   field :effective_on, type: Date
   field :terminated_on, type: Date
+  field :prev_terminated_on, type: Date # preserving this in case of wild reinstate/revise actions
   field :terminate_reason, type: String
 
   field :broker_agency_profile_id, type: BSON::ObjectId
@@ -608,7 +609,7 @@ class HbxEnrollment
 
   def collect_predecessor_package_ids(benefit_application)
     if benefit_application.is_renewing? && (effective_on == sponsored_benefit_package.start_on) && employer_profile
-      @predecessor_application = employer_profile.benefit_applications.published_benefit_applications_by_date(effective_on.prev_day).first
+      @predecessor_application = employer_profile.benefit_applications.published_benefit_applications_by_date(employer_profile.active_benefit_sponsorship, effective_on.prev_day).first
       @predecessor_application.benefit_packages.pluck(:id) if @predecessor_application
     end
   end
@@ -715,14 +716,21 @@ class HbxEnrollment
     HandleCoverageSelected.call(callback_context)
   end
 
-  def update_renewal_coverage
+  def update_renewal_coverage(options = {})
+    return if options.is_a?(Hash) && options[:disable_callbacks]
     return unless is_shop? && (successor_benefit_package = sponsored_benefit_package.successor)
+
     successor_application = successor_benefit_package.benefit_application
     passive_renewals_under(successor_application).each{|en| en.cancel_coverage! if en.may_cancel_coverage? }
-    renew_benefit(successor_benefit_package) if active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition? && non_terminated_enrollment?
+    renew_benefit(successor_benefit_package) if can_renew_benefit(successor_application)
   end
 
-  def update_expected_selection
+  def can_renew_benefit(successor_application)
+    active_renewals_under(successor_application).blank? && successor_application.coverage_renewable? && non_inactive_transition? && non_terminated_enrollment?
+  end
+
+  def update_expected_selection(options = {})
+    return if options.is_a?(Hash) && options[:disable_callbacks]
     return unless is_shop?
     return unless census_employee.present? && census_employee.valid?
     return if CensusEmployee::COBRA_STATES.include?(census_employee.aasm_state)
@@ -1482,7 +1490,7 @@ class HbxEnrollment
     return false unless self.coverage_terminated? || self.coverage_termination_pending?
     return false if is_shop? && employee_role.try(:is_cobra_status?) && self.kind == "employer_sponsored"
     return false if is_shop? && !employee_role.try(:is_cobra_status?) && self.kind == 'employer_sponsored_cobra'
-    is_shop? && benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(terminated_on.next_day).present? ||is_ivl_by_kind? && is_effective_in_current_year?
+    is_shop? && benefit_sponsorship.benefit_applications.published_benefit_applications_by_date(benefit_sponsorship, terminated_on.next_day).present? || is_ivl_by_kind? && is_effective_in_current_year?
   end
 
   def is_effective_in_current_year?
@@ -1651,7 +1659,7 @@ class HbxEnrollment
     end
 
     event :waive_coverage, :after => :record_transition do
-      transitions from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected],
+      transitions from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected, :coverage_reinstated],
                   to: :inactive
     end
 
@@ -1680,7 +1688,7 @@ class HbxEnrollment
     end
 
     event :cancel_coverage, :after => :record_transition do
-      transitions from: [:coverage_termination_pending, :auto_renewing, :renewing_coverage_selected,
+      transitions from: [:coverage_termination_pending, :coverage_terminated, :auto_renewing, :renewing_coverage_selected,
                          :renewing_transmitted_to_carrier, :renewing_coverage_enrolled, :coverage_selected,
                          :transmitted_to_carrier, :coverage_renewed, :enrolled_contingent, :unverified,
                          :coverage_enrolled, :renewing_waived, :inactive, :coverage_reinstated],
@@ -1755,7 +1763,8 @@ class HbxEnrollment
     end
   end
 
-  def update_employee_roster
+  def update_employee_roster(options = {})
+    return if options.is_a?(Hash) && options[:disable_callbacks]
     return unless EnrollRegistry.feature_enabled?(:employee_roster_updates) && employer_profile&.enable_roster_updates
 
     valid_states_for_roster_updates = [:coverage_selected, :coverage_enrolled, :coverage_reinstated, :renewing_coverage_selected, :renewing_coverage_enrolled]
@@ -2083,6 +2092,14 @@ class HbxEnrollment
             "is_trading_partner_publishable" => transmit_flag
         }
     )
+  end
+
+  def is_reinstate_canceled_enrollment?
+    return nil if predecessor_enrollment_id.blank?
+
+    enrollment = HbxEnrollment.find(predecessor_enrollment_id)
+    workflow_state_transitions.where(from_state: 'coverage_reinstated').present? &&
+      enrollment.coverage_canceled?
   end
 
   private

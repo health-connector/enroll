@@ -156,7 +156,7 @@ module BradysAfterAll
       @mikes_plan_year        = create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                                         :with_benefit_package,
                                         benefit_sponsorship: mikes_benefit_sponsorship,
-                                        effective_period: effective_period,
+                                        default_effective_period: effective_period,
                                         aasm_state: :active,
                                         open_enrollment_period: open_enrollment_period,
                                         recorded_rating_area: mikes_benefit_sponsorship.rating_area,

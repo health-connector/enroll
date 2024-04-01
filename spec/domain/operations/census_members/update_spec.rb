@@ -140,7 +140,7 @@ RSpec.describe Operations::CensusMembers::Update, :dbclean => :after_each do
           :with_benefit_package,
           passed_benefit_sponsor_catalog: benefit_sponsor_catalog_1,
           benefit_sponsorship: benefit_sponsorship_1,
-          effective_period: effective_period_1,
+          default_effective_period: effective_period_1,
           aasm_state: :active,
           open_enrollment_period: open_enrollment_period_1,
           recorded_rating_area: rating_area,

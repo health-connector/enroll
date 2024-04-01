@@ -11,22 +11,11 @@ FactoryGirl.define do
     pte_count   FactoryGirl.generate(:random_count)
     msp_count   FactoryGirl.generate(:random_count)
 
-    # design using defining module spec helpers
-    effective_period do
-      if default_effective_period.present?
-        default_effective_period
-      else
-        start_on  = TimeKeeper.date_of_record.beginning_of_month
-        end_on    = start_on + 1.year - 1.day
-        start_on..end_on
-      end
-    end
-
     open_enrollment_period do
       if default_open_enrollment_period.present?
         default_open_enrollment_period
       else
-        start_on = effective_period.min.prev_month
+        start_on = TimeKeeper.date_of_record.beginning_of_month.prev_month
         end_on   = start_on + 9.days
         start_on..end_on
       end
@@ -37,15 +26,30 @@ FactoryGirl.define do
     recorded_sic_code         "011"
 
     transient do
+      default_effective_period nil
       predecessor_application_state :active
       imported_application_state :imported
-      default_effective_period nil
       default_open_enrollment_period nil
       package_kind :single_issuer
       dental_package_kind :single_product
       dental_sponsored_benefit false
       predecessor_application_catalog false
       passed_benefit_sponsor_catalog { nil }
+      benefit_application_items nil
+    end
+
+    after(:build) do |benefit_application, evaluator|
+      benefit_application.benefit_application_items = if evaluator.benefit_application_items.blank?
+                                                        [
+                                                          build(
+                                                            :benefit_sponsors_benefit_application_item,
+                                                            state: benefit_application.aasm_state,
+                                                            default_effective_period: evaluator.default_effective_period
+                                                          )
+                                                        ]
+                                                      else
+                                                        evaluator.benefit_application_items
+                                                      end
     end
 
     trait :without_benefit_sponsor_catalog
@@ -53,7 +57,7 @@ FactoryGirl.define do
     trait :with_benefit_sponsor_catalog do
       after(:build) do |benefit_application, evaluator|
         benefit_sponsorship ||= benefit_application.benefit_sponsorship
-        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.effective_period.min)
+        benefit_sponsor_catalog = evaluator.passed_benefit_sponsor_catalog || benefit_sponsorship.benefit_sponsor_catalog_for(benefit_application.start_on)
         benefit_sponsor_catalog.save
         benefit_application.benefit_sponsor_catalog = (benefit_sponsor_catalog || ::BenefitMarkets::BenefitSponsorCatalog.new)
         benefit_application.benefit_sponsor_catalog.service_areas = benefit_application.recorded_service_areas
@@ -91,7 +95,7 @@ FactoryGirl.define do
           (evaluator.predecessor_application_catalog ? :with_benefit_sponsor_catalog : :without_benefit_sponsor_catalog),
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
-          effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
+          default_effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
           open_enrollment_period: (benefit_application.open_enrollment_period.begin - 1.year)..(benefit_application.open_enrollment_period.end - 1.year),
           dental_sponsored_benefit: evaluator.dental_sponsored_benefit,
           aasm_state: evaluator.predecessor_application_state,
@@ -108,7 +112,7 @@ FactoryGirl.define do
         benefit_application.predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
-          effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
+          default_effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
           open_enrollment_period: (benefit_application.open_enrollment_period.begin - 1.year)..(benefit_application.open_enrollment_period.end - 1.year),
           successor_applications: [benefit_application],
           aasm_state: :expired
@@ -121,7 +125,7 @@ FactoryGirl.define do
         predecessor_application = FactoryGirl.create(:benefit_sponsors_benefit_application,
           :with_benefit_package,
           benefit_sponsorship: benefit_application.benefit_sponsorship,
-          effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
+          default_effective_period: (benefit_application.effective_period.begin - 1.year)..((benefit_application.effective_period.end - 1.year).end_of_month),
           open_enrollment_period: (benefit_application.open_enrollment_period.begin - 1.year)..(benefit_application.open_enrollment_period.end - 1.year),
           aasm_state: evaluator.imported_application_state
         )

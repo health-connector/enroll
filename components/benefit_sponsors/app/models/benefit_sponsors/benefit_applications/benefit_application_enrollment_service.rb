@@ -2,13 +2,14 @@ module BenefitSponsors
   class BenefitApplications::BenefitApplicationEnrollmentService
     include Config::AcaModelConcern
 
-    attr_reader   :benefit_application, :business_policy, :errors, :messages
+    attr_reader :benefit_application, :business_policy, :errors, :messages, :current_user
 
 
-    def initialize(benefit_application)
+    def initialize(benefit_application, current_user: nil)
       @benefit_application = benefit_application
       @errors = []
       @messages = {}
+      @current_user = current_user
     end
 
     def renew_application
@@ -162,6 +163,18 @@ module BenefitSponsors
     def cancel(notify_trading_partner = false)
       if business_policy_satisfied_for?(:cancel_benefit)
         if benefit_application.may_cancel?
+          sequence_id = benefit_application.benefit_application_items.max(:sequence_id) + 1
+          state = benefit_application.active? && benefit_application.start_on <= TimeKeeper.date_of_record ? :retroactive_canceled : :canceled
+
+          benefit_application.benefit_application_items.create(
+            sequence_id: sequence_id,
+            effective_period: benefit_application.effective_period,
+            action_on: TimeKeeper.date_of_record,
+            action_type: :change,
+            state: state,
+            action_kind: 'cancel',
+            updated_by: current_user&.id
+          )
           benefit_application.cancel!(notify_trading_partner)
         else
           raise StandardError, "Benefit cancel state transition failed"
@@ -189,7 +202,18 @@ module BenefitSponsors
         if business_policy_satisfied_for?(:terminate_benefit)
           if benefit_application.may_terminate_enrollment?
             updated_dates = benefit_application.effective_period.min.to_date..end_on
-            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date, termination_kind: termination_kind, termination_reason: termination_reason)
+            sequence_id = benefit_application.benefit_application_items.max(:sequence_id) + 1
+            benefit_application.benefit_application_items.create(
+              sequence_id: sequence_id,
+              effective_period: updated_dates,
+              action_on: termination_date,
+              action_type: :change,
+              action_kind: termination_kind,
+              action_reason: termination_reason,
+              state: :terminated,
+              updated_by: current_user&.id
+            )
+
             benefit_application.terminate_enrollment!(notify_trading_partner)
           end
         else
@@ -206,7 +230,18 @@ module BenefitSponsors
         if business_policy_satisfied_for?(:terminate_benefit)
           if benefit_application.may_schedule_enrollment_termination?
             updated_dates = benefit_application.effective_period.min.to_date..end_on
-            benefit_application.update_attributes!(:effective_period => updated_dates, :terminated_on => termination_date, termination_kind: termination_kind, termination_reason: termination_reason)
+            sequence_id = benefit_application.benefit_application_items.max(:sequence_id) + 1
+            benefit_application.benefit_application_items.create(
+              sequence_id: sequence_id,
+              effective_period: updated_dates,
+              action_on: termination_date,
+              action_type: :change,
+              action_kind: termination_kind,
+              action_reason: termination_reason,
+              state: :termination_pending,
+              updated_by: current_user&.id
+            )
+
             benefit_application.schedule_enrollment_termination!(notify_trading_partner)
           end
         else
@@ -345,6 +380,11 @@ module BenefitSponsors
       errors = {}
       result = true
       end_on = end_on.to_date
+
+      if @benefit_application.start_on > end_on
+        result = false
+        errors[:invalid_end_on_date] = "End on should be greater than benefit application start on"
+      end
 
       if termination_kind == 'voluntary'
         if !allow_mid_month_voluntary_terms? && end_on != end_on.end_of_month

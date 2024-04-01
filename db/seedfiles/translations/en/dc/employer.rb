@@ -24,5 +24,5 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.registration.address' => 'Address *',
   :'en.employers.registration.city' => 'City *',
   :'en.employers.registration.state' => 'State *',
-  :'en.employers.registration.zip' => 'Zip *'
+  :'en.employers.registration.zip' => 'Zip *',
 }.freeze

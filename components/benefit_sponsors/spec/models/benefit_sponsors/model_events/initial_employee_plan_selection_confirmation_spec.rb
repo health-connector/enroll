@@ -38,7 +38,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
       :with_benefit_package,
       :benefit_sponsorship => benefit_sponsorship,
       :aasm_state => :enrollment_closed,
-      :effective_period => effective_period
+      :default_effective_period => effective_period
     )
     application.benefit_sponsor_catalog.save!
     application
