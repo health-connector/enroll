@@ -14,7 +14,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
-  before_action :check_csr_or_hbx_staff, only: [:family_index]
   before_action :find_benefit_sponsorship, only: [:oe_extendable_applications, :oe_extended_applications, :edit_open_enrollment, :extend_open_enrollment, :close_extended_open_enrollment, :edit_fein, :update_fein, :force_publish, :edit_force_publish]
   # GET /exchanges/hbx_profiles
   # GET /exchanges/hbx_profiles.json
@@ -873,12 +872,6 @@ private
   def view_the_configuration_tab?
     unless authorize HbxProfile, :view_the_configuration_tab?
       redirect_to root_path, :flash => { :error => "Access not allowed" }
-    end
-  end
-
-  def check_csr_or_hbx_staff
-    unless current_user.has_hbx_staff_role? || (current_user.person.csr_role && !current_user.person.csr_role.cac)
-      redirect_to root_path, :flash => { :error => "You must be an HBX staff member or a CSR" }
     end
   end
 
