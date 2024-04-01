@@ -20,11 +20,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   # GET /exchanges/hbx_profiles.json
   layout 'single_column'
 
-  def index
-    @organizations = Organization.exists(hbx_profile: true)
-    @hbx_profiles = @organizations.map {|o| o.hbx_profile}
-  end
-
   def oe_extendable_applications
     @benefit_applications  = @benefit_sponsorship.oe_extendable_benefit_applications
     @element_to_replace_id = params[:employer_actions_id]

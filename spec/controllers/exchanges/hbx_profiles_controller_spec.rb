@@ -19,12 +19,6 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
     end
 
-    it "renders index" do
-      get :index
-      expect(response).to have_http_status(:success)
-      expect(response).to render_template("exchanges/hbx_profiles/index")
-    end
-
     it "renders broker_agency_index" do
       xhr :get, :broker_agency_index
       expect(response).to have_http_status(:success)
