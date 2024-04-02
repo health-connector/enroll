@@ -126,7 +126,7 @@ jobs:
           rubygems: 3.3.26
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '9'
       - name: Install Test Boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Restore Node Modules
