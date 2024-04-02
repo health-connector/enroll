@@ -98,33 +98,7 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25
-          ]
+          [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 ]
     steps:
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
@@ -231,7 +205,7 @@ jobs:
           COVERAGE: 'true'
           TEST_ENV_NUMBER: ${{ matrix.group }}5
           #cucumber_booster --job 4/5 features
-        run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }} features
+        run: cp -f config/cucumber_split.yml config/cucumber.yml; cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }} features
       # - name: copy coverage report
       #   if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
       #   run: |
