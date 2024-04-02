@@ -150,7 +150,7 @@ jobs:
         env:
           COVERAGE: 'true'
           # RSPEC_SPLIT_CONFIGURATION_PATH: 'ci/rspec-split-config.json'
-          # TEST_ENV_NUMBER: ${{ matrix.group }}
+          TEST_ENV_NUMBER: ${{ matrix.group }}9
           TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: '{spec,components/benefit_markets,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb'
         run: rspec_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
       # - name: copy coverage report
@@ -212,41 +212,8 @@ jobs:
             7,
             8,
             9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-            31,
-            32,
-            33,
-            34,
-            35,
-            36,
-            37,
-            38,
-            39,
-            40,
-            41,
-            42,
-            43,
-            44,
+            10
+
           ]
     steps:
       - uses: actions/checkout@v3
@@ -273,8 +240,9 @@ jobs:
       - name: Run tests
         env:
           COVERAGE: 'true'
-          TEST_ENV_NUMBER: ${{ matrix.group }}
-        run: env; cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
+          TEST_ENV_NUMBER: ${{ matrix.group }}5
+          #cucumber_booster --job 4/5 features
+        run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }} features
       # - name: copy coverage report
       #   if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
       #   run: |
