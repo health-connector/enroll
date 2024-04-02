@@ -31,7 +31,7 @@ namespace :reports do
           terminated_sponsorships.each do |terminated_sponsorship|
             begin
               employer_profile = terminated_sponsorship.profile
-              benefit_applications = terminated_sponsorship.benefit_applications.benefit_terminate_on(window_date)
+              benefit_applications = terminated_sponsorship.benefit_applications.benefit_terminate_on(terminated_sponsorship, window_date)
               benefit_applications.each do |benefit_application|
                 csv << [
                   employer_profile.fein,

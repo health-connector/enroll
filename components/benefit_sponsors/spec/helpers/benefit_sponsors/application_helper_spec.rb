@@ -42,8 +42,8 @@ RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :afte
 
     let!(:effective_period)              { (TimeKeeper.date_of_record.beginning_of_month)..(TimeKeeper.date_of_record.beginning_of_month.next_year.prev_day) }
     let!(:new_effective_period)          { (TimeKeeper.date_of_record.beginning_of_month.next_year)..(TimeKeeper.date_of_record.beginning_of_month.prev_day + 2.years) }
-    let!(:predecessor_application)       { create(:benefit_sponsors_benefit_application, aasm_state: :active, effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
-    let!(:renewal_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :active, effective_period: new_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+    let!(:predecessor_application)       { create(:benefit_sponsors_benefit_application, aasm_state: :active, default_effective_period: effective_period, benefit_sponsorship: active_benefit_sponsorship) }
+    let!(:renewal_application)           { create(:benefit_sponsors_benefit_application, aasm_state: :active, default_effective_period: new_effective_period, benefit_sponsorship: active_benefit_sponsorship) }
 
     context 'should return false when an active PY no canceled PY' do
       it{ expect(add_plan_year_button_business_rule(active_benefit_sponsorship, employer_profile.benefit_applications)).to eq false }
@@ -90,7 +90,12 @@ RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :afte
     context 'should return true when with an inactive initial and termination pending renewal PY' do
       before do
         predecessor_application.update_attributes(:aasm_state => :expired)
-        renewal_application.update_attributes(:aasm_state => :enrollment_ineligible, effective_period: (TimeKeeper.date_of_record.beginning_of_month)..(TimeKeeper.date_of_record.beginning_of_month.next_year.prev_day))
+        renewal_application.update_attributes(:aasm_state => :enrollment_ineligible)
+        renewal_application.benefit_application_items.create(
+          effective_period: (TimeKeeper.date_of_record.beginning_of_month)..(TimeKeeper.date_of_record.beginning_of_month.next_year.prev_day),
+          sequence_id: renewal_application.benefit_application_items.size,
+          state: :active
+        )
       end
       it {expect(add_plan_year_button_business_rule(active_benefit_sponsorship, employer_profile.benefit_applications)).to eq true}
     end

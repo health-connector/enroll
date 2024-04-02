@@ -8,7 +8,7 @@ module BenefitSponsors
         new(benefit_sponsorship, args).benefit_application
       end
 
-      def self.validate(benefit_application)
+      def self.validate(_benefit_application)
         # TODO: Add validations
         # Validate open enrollment period
         true
@@ -17,18 +17,22 @@ module BenefitSponsors
       def initialize(benefit_sponsorship, args)
         @benefit_sponsorship = benefit_sponsorship
         @benefit_application = benefit_sponsorship.benefit_applications.new
-        assign_application_attributes(args)
+        assign_application_attributes(args.except(:effective_period))
+        @benefit_application.benefit_application_items.build({
+                                                               effective_period: args[:effective_period],
+                                                               state: @benefit_application.aasm_state,
+                                                               sequence_id: 0
+                                                             })
         @benefit_application.pull_benefit_sponsorship_attributes
       end
 
-      def benefit_application
-        @benefit_application
-      end
+      attr_reader :benefit_application
 
       protected
 
       def assign_application_attributes(args)
         return nil if args.blank?
+
         args.each_pair do |k, v|
           @benefit_application.send("#{k}=".to_sym, v)
         end

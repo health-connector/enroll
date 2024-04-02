@@ -11,16 +11,17 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeSepRequestAccepted', :dbcl
     sponsorship.save
     sponsorship
   end
-  let!(:benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-    :with_benefit_package,
-    :benefit_sponsorship => benefit_sponsorship,
-    :aasm_state => 'active',
-    :effective_period =>  start_on..(start_on + 1.year) - 1.day
-  )}
+  let!(:benefit_application) do
+    FactoryGirl.create(:benefit_sponsors_benefit_application,
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'active',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+  end
   let!(:person){ FactoryGirl.create(:person, :with_family)}
   let!(:family) {person.primary_family}
   let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
-  let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name ) }
+  let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name) }
   let(:qle) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date, market_kind: "shop") }
   let(:model_instance) { FactoryGirl.build(:special_enrollment_period, family: family, qualifying_life_event_kind_id: qle.id, title: "Married") }
 
@@ -29,7 +30,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeSepRequestAccepted', :dbcl
     context "when employee sep request accepted" do
       it "should trigger model event" do
         model_instance.class.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:notifications_send) do |instance, model_event|
+          expect(observer).to receive(:notifications_send) do |_instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :employee_sep_request_accepted, :klass_instance => model_instance, :options => {})
           end
@@ -44,15 +45,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeSepRequestAccepted', :dbcl
       subject { BenefitSponsors::Observers::SpecialEnrollmentPeriodObserver.new }
       let!(:model_event) { ::BenefitSponsors::ModelEvents::ModelEvent.new(:employee_sep_request_accepted, model_instance, {}) }
 
-     before do    
-      fm = family.family_members.first
-      allow(model_instance).to receive(:family).and_return(family)
-      allow(family).to receive(:primary_applicant).and_return(fm)
-      allow(fm).to receive(:person).and_return(person)
-     end
+      before do
+        fm = family.family_members.first
+        allow(model_instance).to receive(:family).and_return(family)
+        allow(family).to receive(:primary_applicant).and_return(fm)
+        allow(fm).to receive(:person).and_return(person)
+      end
 
-     it "should trigger notice event" do
-        expect(subject.notifier).to receive(:notify) do |event_name, payload| 
+      it "should trigger notice event" do
+        expect(subject.notifier).to receive(:notify) do |event_name, payload|
           expect(event_name).to eq "acapi.info.events.employee.#{notice_event}"
           expect(payload[:event_object_kind]).to eq 'SpecialEnrollmentPeriod'
           expect(payload[:event_object_id]).to eq model_instance.id.to_s
@@ -64,7 +65,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeSepRequestAccepted', :dbcl
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
         "employee_profile.notice_date",
         "employee_profile.employer_name",
@@ -81,14 +82,16 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeSepRequestAccepted', :dbcl
         "employee_profile.special_enrollment_period.qle_reported_on",
         "employee_profile.special_enrollment_period.submitted_at"
       ]
-    }
+    end
 
     let(:recipient) { "Notifier::MergeDataModels::EmployeeProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "SpecialEnrollmentPeriod",
         "event_object_id" => model_instance.id
-    } }
+      }
+    end
     let(:subject) { Notifier::NoticeKind.new(template: template, recipient: recipient) }
     let(:merge_model) { subject.construct_notice_object }
 

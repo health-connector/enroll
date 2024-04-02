@@ -64,7 +64,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     let(:start_on)  { current_effective_date }
     let(:effective_period)  { start_on..start_on.next_year.prev_day }
     let(:benefit_application) do
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
+      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active)
       application.benefit_sponsor_catalog.save!
       application
     end
@@ -95,7 +95,16 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       let!(:current_effective_date)  { TimeKeeper.date_of_record.next_month.beginning_of_month }
       let!(:start_on)  { current_effective_date }
       let!(:effective_period)  { start_on..start_on.next_year.prev_day }
-      let!(:ineligible_benefit_application) { FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package, benefit_sponsorship: benefit_sponsorship, aasm_state: "enrollment_ineligible", effective_period: effective_period)}
+      let!(:ineligible_benefit_application) do
+        FactoryGirl.create(
+          :benefit_sponsors_benefit_application,
+          :with_benefit_sponsor_catalog,
+          :with_benefit_package,
+          benefit_sponsorship: benefit_sponsorship,
+          aasm_state: "enrollment_ineligible",
+          default_effective_period: effective_period
+        )
+      end
 
       around do |example|
         ClimateControl.modify action: 'extend_open_enrollment', effective_date: start_on.strftime("%m/%d/%Y"), oe_end_date: start_on.prev_day.strftime("%m/%d/%Y") do
@@ -267,14 +276,14 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       end
 
       let!(:draft_benefit_application) do
-        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, effective_period: past_effective_period)
+        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, default_effective_period: past_effective_period)
         application.benefit_sponsor_catalog.save!
         application.save
         application
       end
 
       let!(:import_draft_benefit_application) {
-        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, effective_period: range_effective_period)
+        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, default_effective_period: range_effective_period)
         application.benefit_sponsor_catalog.save!
         application.save
         application
@@ -306,12 +315,6 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       let(:new_start_date)   { effective_date.next_month }
       let(:new_end_date)     { new_start_date + 1.year }
       let(:effective_period) { effective_date..effective_date.next_year.prev_day }
-
-      # let(:benefit_application) {
-      #   application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
-      #   application.benefit_sponsor_catalog.save!
-      #   application
-      # }
 
       around do |example|
         ClimateControl.modify(
@@ -402,7 +405,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year ..start_on.end_of_month }
       let!(:old_benefit_application) {
-        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: old_effective_period, aasm_state: :active)
+        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: old_effective_period, aasm_state: :active)
         application.benefit_sponsor_catalog.save!
         application
       }
@@ -419,7 +422,14 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
       let!(:renewing_benefit_application) {
-        application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: renewing_effective_period, aasm_state: :renewing_enrolling, predecessor_id: old_benefit_application.id)
+        application = FactoryGirl.create(
+          :benefit_sponsors_benefit_application,
+          :with_benefit_sponsor_catalog,
+          benefit_sponsorship: benefit_sponsorship,
+          default_effective_period: renewing_effective_period,
+          aasm_state: :renewing_enrolling,
+          predecessor_id: old_benefit_application.id
+        )
         application.benefit_sponsor_catalog.save!
         application
       }

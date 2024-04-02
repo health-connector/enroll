@@ -701,7 +701,7 @@ module ApplicationHelper
 
   def participation_rule(employer)
     benefit_application = employer.show_plan_year
-    start_date = benefit_application.effective_period.min
+    start_date = benefit_application.start_on
     @participation_count = employer.show_plan_year.additional_required_participants_count
 
     if start_date.day == 1 && start_date.month == 1
@@ -767,6 +767,45 @@ module ApplicationHelper
     summary_text = aasm_map[benefit_application.aasm_state] || benefit_application.aasm_state
     summary_text = "#{renewing} #{summary_text.to_s.humanize.titleize}"
     return summary_text.strip
+  end
+
+  def benefit_application_state_styling(state)
+    case state.downcase
+    when 'active', 'enrolling', 'enrolled', 'published', 'renewing enrolling', 'renewing enrolled', 'renewing published', 'enrollment closed', 'enrollment extended'
+      { style: "border: 2px solid #00A81B; background-color: #F2FFF4;", icon_class: "fas fa-check-circle", icon_style: "color: #00A81B;"}
+    when 'draft', 'renewing draft'
+      { style: "border: 2px solid #D47200; background-color: #FFECD5;", icon_class: "fas fa-pencil-alt", icon_style: ""}
+    when 'application ineligible', 'renewing application ineligible', 'publish_pending', 'renewing publish pending'
+      { style: "border: 2px solid #D47200; background-color: #FFECD5;", img_source: asset_path('icons/status-warning.svg'), img_text: "Exclamation Triangle"}
+    when 'expired', 'renewing expired', 'reinstate'
+      { style: "border: 2px solid #005689; background-color: #CCE5F3;" }
+    else
+      { style: "border: 2px solid #323130; background-color: #E1DFDD;" }
+    end
+  end
+
+  def is_latest_action_under_24_hours(benefit_applications)
+    return false unless ::EnrollRegistry.feature_enabled?(:restrict_benefit_application_admin_actions_24_hours)
+    return false unless benefit_applications.present?
+
+    benefit_applications.any? do |benefit_application|
+      item = benefit_application.latest_benefit_application_item
+      next if item.sequence_id == 0
+
+      ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+    end
+  end
+
+  def latest_ba_item_within_24_hours(benefit_applications)
+    items = benefit_applications.collect do |benefit_application|
+      item = benefit_application.latest_benefit_application_item
+      next if item.sequence_id == 0
+      next unless ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+
+      item
+    end.compact
+
+    items.max_by(&:created_at)
   end
 
   def json_for_plan_shopping_member_groups(member_groups)

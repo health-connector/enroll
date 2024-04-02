@@ -41,13 +41,35 @@ describe 'cancel employer benefit application & enrollments', :dbclean => :aroun
         initial_application.reload
         hbx_enrollment.reload
       end
-     
-      it "should update application aasm_state" do
-        expect(initial_application.aasm_state).to eq :canceled
+
+      describe ".retroactive_canceled" do
+        it "should cancel benefit application" do
+          expect(initial_application.aasm_state).to eq :retroactive_canceled
+        end
+
+        it "should cancel associated enrollments" do
+          hbx_enrollment.reload
+          expect(hbx_enrollment.aasm_state).to eq "coverage_canceled"
+        end
+
+        it "should persit cancel reason to enrollment" do
+          hbx_enrollment.reload
+          expect(hbx_enrollment.terminate_reason).to eq "retroactive_canceled"
+        end
       end
 
-      it "should update enrollment aasm_state" do
-        expect(hbx_enrollment.aasm_state).to eq "coverage_canceled"
+
+      describe ".canceled" do
+        let(:current_effective_date) { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+
+        it "should cancel benefit application" do
+          expect(initial_application.aasm_state).to eq :canceled
+        end
+
+        it "should cancel associated enrollments" do
+          hbx_enrollment.reload
+          expect(hbx_enrollment.aasm_state).to eq "coverage_canceled"
+        end
       end
     end
   end

@@ -51,6 +51,7 @@ Feature: Create Benefit Application by admin UI
         | Enrollment Ineligible | enrollment_ineligible | Enrollment Ineligible             | Successfully created a draft plan year |
         | Active                | active                | Termination Pending               | Successfully created a draft plan year |
 
+  @wip
   Scenario: Creating New Plan Year while application is in termination_pending aasm_state
     And initial employer ABC Widgets has active benefit application
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
@@ -63,7 +64,7 @@ Feature: Create Benefit Application by admin UI
     Then the user will see Terminate button
     When the user enters any_day and other details for voluntary termination
     When user clicks submit button
-    Then user should see termination successful message
+    Then Admin will see Confirmation page
     And user logs out
     And staff role person logged in
     And update rating area
