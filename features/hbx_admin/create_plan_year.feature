@@ -85,5 +85,5 @@ Feature: Create Benefit Application by admin UI
     And employer clicked on gold metal level
     Then employer should see create plan year button disabled
     And employer selected 100 contribution percent for the application
-    Then employer should see your estimated montly cost
+    Then employer should see employer estimated montly cost
     And employer should see that the create plan year is true

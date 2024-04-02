@@ -699,10 +699,6 @@ Then(/^employer should see employer estimated montly cost$/) do
   expect(page).to have_content("Employer Estimated Monthly Cost")
 end
 
-Then(/^employer should see your estimated montly cost$/) do
-  expect(page).to have_content("Your Estimated Monthly Cost")
-end
-
 And(/^employer clicked on create plan year button$/) do
   find("#submitBenefitPackage").click
 end
