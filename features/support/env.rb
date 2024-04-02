@@ -79,7 +79,7 @@ end
 Capybara.register_driver :selenium_chrome_custom do |app|
   options = Selenium::WebDriver::Chrome::Options.new
   options.add_argument("no-sandbox")
-  options.add_argument("--window-size=1024,768")
+  options.add_argument("--window-size=1920,1080")
   options.add_argument("--headless=new")
 
   if RUBY_PLATFORM =~ /darwin/
@@ -87,8 +87,8 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   end
 
   client = Selenium::WebDriver::Remote::Http::Default.new
-  client.open_timeout = 120 # instead of the default 60
-  client.read_timeout = 120 # instead of the default 60
+  client.open_timeout = 240 # instead of the default 60
+  client.read_timeout = 240 # instead of the default 60
 
   Capybara::Selenium::Driver.new(app,
     browser: :chrome,
