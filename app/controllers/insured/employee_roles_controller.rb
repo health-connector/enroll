@@ -99,7 +99,6 @@ class Insured::EmployeeRolesController < ApplicationController
     object_params = params.require(:person).permit(*person_parameters_list)
     @employee_role = person.employee_roles.detect { |emp_role| emp_role.id.to_s == object_params[:employee_role_id].to_s }
     @person = Forms::EmployeeRole.new(person, @employee_role)
-    binding.pry
     if @person.update_attributes(object_params)
       set_notice_preference(@person, @employee_role)
       if save_and_exit
