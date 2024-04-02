@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 6 * * *"
 
+concurrency:
+  group: qb-${{ github.ref }}
+  cancel-in-progress: true #This is temporary to avoid trunk GHA collisions
+    
+
 env: # https://stackoverflow.com/questions/59867124/how-can-i-access-github-action-environment-variables-within-a-bash-script-run-by
   TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: "{spec,components/benefit_markets/spec,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb"
   TB_RSPEC_FORMATTER: "progress"
@@ -145,6 +150,7 @@ jobs:
         env:
           COVERAGE: 'true'
           # RSPEC_SPLIT_CONFIGURATION_PATH: 'ci/rspec-split-config.json'
+          # TEST_ENV_NUMBER: ${{ matrix.group }}
           TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: '{spec,components/benefit_markets,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb'
         run: rspec_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
       # - name: copy coverage report
@@ -264,12 +270,11 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
-      - name: enviroment variables
-        run: env
       - name: Run tests
         env:
           COVERAGE: 'true'
-        run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
+          TEST_ENV_NUMBER: ${{ matrix.group }}
+        run: env; cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
       # - name: copy coverage report
       #   if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
       #   run: |
