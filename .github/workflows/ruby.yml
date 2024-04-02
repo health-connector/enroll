@@ -201,12 +201,22 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
+      - name: override cucumber.yml
+        run: cp -f config/cucumber_split.yml config/cucumber.yml
       - name: Run tests
         env:
           COVERAGE: 'true'
           TEST_ENV_NUMBER: ${{ matrix.group }}5
           #cucumber_booster --job 4/5 features
-        run: cp -f config/cucumber_split.yml config/cucumber.yml; cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }} features
+        run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }} features
+      - name: Upload errors artifact
+        uses: actions/upload-artifact@v2
+        # if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
+        if : failure()
+        with:
+          name: cucumber-errors
+          path: ${{ github.workspace }}/tmp/capybara/*
+
       # - name: copy coverage report
       #   if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
       #   run: |
