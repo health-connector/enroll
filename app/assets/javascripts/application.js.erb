@@ -11,7 +11,6 @@
 // about supported directives.
 //
 //= require jquery
-//= require jquery.turbolinks
 //= require jquery-ui
 //= require jquery_ujs
 //= require bootstrap.min
@@ -53,7 +52,7 @@
 
 var disableSelectric = false;
 
-$(document).on('ready page:load', function () {
+$(document).on('ready page:load turbolinks:load ajax:success', function () {
   Freebies.fadeElement($("body"));
   Freebies.allFreebies();
   Responsive.setSizeListeners();
@@ -113,7 +112,7 @@ $(document).on('click', '#modal-wrapper .modal-close', function(){
   $(this).closest('#modal-wrapper').remove();
 });
 
-$(document).on('turbolinks:load', function () {
+$(document).on('ready turbolinks:load ajax:success', function () {
 
   // ACTUALLY BELONGS IN APPLICATION.JS
   $('.module a.view-more').on('click', function() {
@@ -512,7 +511,6 @@ $(document).on('turbolinks:load', function () {
     // }
   });
 
-
   $("#person_ssn").focusout(function( event ) {
     if(!$.isNumeric($(this).val())) {
       $("[for='person_ssn']").css('display', 'none');
@@ -776,7 +774,7 @@ var submitInvisibleRecaptchaForm = function () {
   document.getElementById("invisible-recaptcha-form").submit();
 };
 
-$(document).ready(function(){
+$(document).on('ready turbolinks:load', function(){
   $("#person_first_name").change(function() {
     var text = $("#person_first_name").val() == '' ? "this person" : $("#person_first_name").val()
     $("#is_applying_coverage_value").text("Is "+ text +" applying for coverage?");

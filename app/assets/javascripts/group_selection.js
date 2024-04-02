@@ -1,5 +1,5 @@
-$(document).ready(function() {
- setGroupSelectionHandlers();
+$(document).on("ready turbolinks:load", function() {
+  setGroupSelectionHandlers();
 });
 
 function setGroupSelectionHandlers(){
