@@ -78,9 +78,10 @@ end
 
 Capybara.register_driver :selenium_chrome_custom do |app|
   options = Selenium::WebDriver::Chrome::Options.new
-  options.headless!
+  # options.headless!
   options.add_argument("no-sandbox")
   options.add_argument("--window-size=1024,768")
+  options.add_argument("--headless=new")
 
   if RUBY_PLATFORM =~ /darwin/
     options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess")

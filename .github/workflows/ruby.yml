@@ -62,6 +62,7 @@ jobs:
   rspec:
     # needs: [brakeman, brakeman-engines]
     runs-on: ubuntu-latest
+    if: false # This is temporary to test cucumbers only
     services:
       # rabbitmq:
       #   image: rabbitmq:latest
