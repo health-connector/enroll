@@ -117,6 +117,7 @@ jobs:
             21,
             22,
             23,
+            24
           ]
     steps:
       - uses: actions/checkout@v3
@@ -156,6 +157,127 @@ jobs:
       #   with:
       #     name: code-coverage
       #     path: ${{ github.workspace }}/coverage/${{ matrix.group }}_${{ strategy.job-total }}_coverage.xml
+  cucumber:
+    # needs: [brakeman, brakeman-engines]
+    runs-on: ubuntu-latest
+    services:
+      # rabbitmq:
+      #   image: rabbitmq:latest
+      #   ports:
+      #     - 5672:5672
+      #     - 15672:15672
+      #   options: >-
+      #     --name "rabbitmq"
+      #     --health-cmd "rabbitmqctl node_health_check"
+      #     --health-interval 10s
+      #     --health-timeout 5s
+      #     --health-retries 5
+      mongo:
+        image: mongo:3.6
+        ports:
+          - 27017:27017
+        options: >-
+          --name "mongo"
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      # redis:
+      #   image: redis:3.2-alpine
+      #   ports:
+      #     - 6379
+      #   options: >-
+      #     --name "redis"
+      #     --health-cmd "redis-cli ping"
+      #     --health-interval 10s
+      #     --health-timeout 5s
+      #     --health-retries 5
+    strategy:
+      fail-fast: false
+      matrix:
+        group:
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+          ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          rubygems: 3.3.26
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '9'
+      - name: Install Test boosters gem
+        run: gem install treye-semaphore_test_boosters --version '2.5.2'
+      - name: Restore Node Modules
+        id: npm-cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-v14-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-v14-${{ hashFiles('yarn.lock') }}
+      - name: Install node dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: yarn install
+      - name: Run tests
+        env:
+          COVERAGE: 'true'
+        run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
+      # - name: copy coverage report
+      #   if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
+      #   run: |
+      #     cp coverage/coverage.xml ${{ github.workspace }}/coverage/cukes-${{ matrix.group }}_${{ strategy.job-total }}_coverage.xml
+      # - name: Upload coverage artifact
+      #   uses: actions/upload-artifact@v2
+      #   if: (github.event_name == 'push') && (github.ref == 'refs/heads/trunk')
+      #   with:
+      #     name: code-coverage
+      #     path: ${{ github.workspace }}/coverage/cukes-${{ matrix.group }}_${{ strategy.job-total }}_coverage.xml
 
   # testing_matrix:
   #   name: ${{matrix.command_configs.name}}
