@@ -16,8 +16,8 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
   let(:census_employee)  { create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
   let(:hbx_enrollments) {double}
   let(:hbx_profile) { FactoryBot.create(:hbx_profile) }
+  # let(:current_user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person) }
   let(:current_user) { FactoryBot.create(:user)}
-
 
   context "with hbx_enrollments" do
     if aca_state_abbreviation == "DC"
