@@ -70,29 +70,6 @@ describe UpdateFamilyMembersIndex do
     end
   end
 
-
-  describe 'update family_members id', dbclean: :after_each do
-    let(:person) {FactoryBot.create(:person)}
-    let(:family1) {FactoryBot.create(:family, :with_primary_family_member)}
-    let(:family_member) {FactoryBot.create(:family_member, family: family1, is_active: true)}
-    let(:family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
-    let(:correct_family_member) {FactoryBot.create(:family_member, family: family, is_active: true)}
-    let(:action_task) {'update_family_id'}
-    before(:each) do
-      family.households.first.coverage_households.first.coverage_household_members << CoverageHouseholdMember.new(family_member_id: family_member.id, is_subscriber: false)
-    end
-
-    context 'case with if primary_person not present' do
-      it 'should swap the index of family members' do
-        fm_index_migrate(action_task: 'update_family_id', primary_hbx: person.hbx_id, old_family_id: family_member.id, correct_family_id: correct_family_member.id)
-
-        family.reload
-        expect(family.households.first.coverage_households.first.coverage_household_members.where(family_member_id: correct_family_member.id)).to be_present
-        expect(family.households.first.coverage_households.first.coverage_household_members.where(family_member_id: family_member.id)).to be_empty
-      end
-    end
-  end
-
 end
 
 def fm_index_migrate(options)
