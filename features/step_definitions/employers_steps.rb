@@ -631,9 +631,9 @@ end
 And(/^employer filled all the fields on benefit application form$/) do
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
   if TimeKeeper.date_of_record.day > 5 && TimeKeeper.date_of_record.day < 16
-    find('.interaction-choice-control-bastartdate-2', wait: 3).click
+    find('.selectric-scroll ul li:nth-child(3)', wait: 3).click
   else
-    find('.interaction-choice-control-bastartdate-1', wait: 3).click
+    find('.selectric-scroll ul li:nth-child(2)', wait: 3).click
   end
   fill_in 'benefit_application[fte_count]', with: 5
   fill_in 'benefit_application[pte_count]', with: 5
@@ -697,6 +697,10 @@ end
 
 Then(/^employer should see employer estimated montly cost$/) do
   expect(page).to have_content("Employer Estimated Monthly Cost")
+end
+
+Then(/^employer should see your estimated montly cost$/) do
+  expect(page).to have_content("Your Estimated Monthly Cost")
 end
 
 And(/^employer clicked on create plan year button$/) do
