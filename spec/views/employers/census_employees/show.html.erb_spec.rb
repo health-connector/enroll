@@ -28,22 +28,26 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
     )
   end
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-  let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id:hbx_enrollment_member.id, product_price:BigDecimal(100),sponsor_contribution:BigDecimal(100))}
-  let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: product, member_enrollments:[member_enrollment], product_cost_total:'')}
+  let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id: hbx_enrollment_member.id, product_price: BigDecimal(100),sponsor_contribution: BigDecimal(100))}
+  let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: product, member_enrollments: [member_enrollment], product_cost_total: '')}
   let(:address){ Address.new(kind: 'home', address_1: "1111 spalding ct", address_2: "apt 444", city: "atlanta", state: "KY", zip: "30338") }
-  let(:hbx_enrollment_member){ FactoryBot.build(:hbx_enrollment_member, is_subscriber:true,  applicant_id: family.family_members.first.id, coverage_start_on: (TimeKeeper.date_of_record).beginning_of_month, eligibility_date: (TimeKeeper.date_of_record).beginning_of_month) }
-  let(:hbx_enrollment){ FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                                          household: household,
-                                          hbx_enrollment_members: [hbx_enrollment_member],
-                                          coverage_kind: "health",
-                                          external_enrollment: false )
-  }
-  let(:hbx_enrollment_two){ FactoryBot.create(:hbx_enrollment, :with_product,
-                                              household: household,
-                                              hbx_enrollment_members: [hbx_enrollment_member],
-                                              coverage_kind: "dental",
-                                              external_enrollment: false )
-  }
+  let(:hbx_enrollment_member) do
+    FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
+  end
+  let(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                      household: household,
+                                                      hbx_enrollment_members: [hbx_enrollment_member],
+                                                      coverage_kind: "health",
+                                                      external_enrollment: false)
+  end
+  let(:hbx_enrollment_two) do
+    FactoryBot.create(:hbx_enrollment, :with_product,
+                      household: household,
+                      hbx_enrollment_members: [hbx_enrollment_member],
+                      coverage_kind: "dental",
+                      external_enrollment: false)
+  end
   let(:decorated_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '', sponsor_contribution_total: '', employee_cost_total: 100.00) }
   let(:user) { FactoryBot.create(:user) }
   let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }

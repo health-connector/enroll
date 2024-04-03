@@ -74,7 +74,8 @@ describe "insured/families/check_qle_date.js.erb" do
     end
 
     it "should match error notice " do
-      expect(render).to match(/The date you submitted does not qualify for a special enrollment period. Qualifying life events may be reported up to 30 days after the date of the event. If you are trying to report a future event, please come back on or after the actual date of the event. For further assistance, please contact #{Settings.contact_center.name}: #{Settings.contact_center.phone_number}/)
+      expect(render).to match(/The date you submitted does not qualify for a special enrollment period. Qualifying life events may be reported up to 30 days after the date of the event./)
+      expect(render).to match(/If you are trying to report a future event, please come back on or after the actual date of the event. For further assistance, please contact #{Settings.contact_center.name}: #{Settings.contact_center.phone_number}/)
     end
   end
 end

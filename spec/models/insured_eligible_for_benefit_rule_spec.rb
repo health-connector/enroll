@@ -320,7 +320,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         end
 
         it "returns false for verification outstanding and event fired more than the outstanding verification window" do
-          args = OpenStruct.new
+          args = Struct.new
           args.determined_at = TimeKeeper.date_of_record - (Settings.aca.individual_market.verification_outstanding_window.days + 10.days)
           args.vlp_authority = "dhs"
           consumer_role.lawful_presence_determination.ssa_responses << EventResponse.new({received_at: args.determined_at, body: "payload"})
@@ -330,7 +330,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         end
 
         it "returns true for verification outstanding and event fired less than the outstanding verification window" do
-          args = OpenStruct.new
+          args = Struct.new
           args.determined_at = TimeKeeper.date_of_record - (Settings.aca.individual_market.verification_outstanding_window.days - 10.days)
           args.vlp_authority = "dhs"
           consumer_role.lawful_presence_determination.ssa_responses << EventResponse.new({received_at: args.determined_at, body: "payload"})

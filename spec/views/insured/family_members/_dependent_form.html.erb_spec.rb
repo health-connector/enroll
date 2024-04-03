@@ -123,7 +123,8 @@ describe "insured/family_members/_dependent_form.html.erb" do
     end
 
     it "should display the affirmative message" do
-      expect(rendered).not_to match(/Even if you don’t want health coverage for yourself, providing your SSN can be helpful since it can speed up the application process. We use SSNs to check income and other information to see who’s eligible for help with health coverage costs./)
+      expect(rendered).not_to match(/Even if you don’t want health coverage for yourself, providing your SSN can be helpful since it can speed up the application process./)
+      expect(rendered).not_to match(/We use SSNs to check income and other information to see who’s eligible for help with health coverage costs./)
     end
 
     it "should have address info area" do

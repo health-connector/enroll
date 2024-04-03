@@ -88,10 +88,10 @@ RSpec.describe ShopEmployerNotices::RenewalEmployerIneligibilityNotice do
     end
 
     it "should return plan year warnings" do
-      if renewal_plan_year.start_on.yday != 1
-        expect(@employer_notice.notice.plan_year.warnings).to eq ["At least two-thirds of your eligible employees enrolled in your group health coverage or waive due to having other coverage."]
-      else
+      if renewal_plan_year.start_on.yday == 1
         expect(@employer_notice.notice.plan_year.warnings).to eq []
+      else
+        expect(@employer_notice.notice.plan_year.warnings).to eq ["At least two-thirds of your eligible employees enrolled in your group health coverage or waive due to having other coverage."]
       end
     end
   end

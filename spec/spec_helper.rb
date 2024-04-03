@@ -18,7 +18,7 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 if ENV["COVERAGE"]
   require 'simplecov'
-  SimpleCov.command_name "specs_#{Process.pid}_#{ENV['TEST_ENV_NUMBER'] || '1'}"
+  SimpleCov.command_name "specs_#{Process.pid}_#{ENV.fetch('TEST_ENV_NUMBER', '1')}"
   SimpleCov.start 'rails'
 end
 

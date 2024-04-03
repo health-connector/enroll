@@ -105,7 +105,6 @@ RSpec.describe ShopEmployeeNotices::EeSepRequestAcceptedNotice, dbclean: :after_
     end
 
     it "should append data" do
-      sep = census_employee.employee_role.person.primary_family.special_enrollment_periods.order_by(:created_at.desc)[0]
       @employee_notice.append_data
       expect(@employee_notice.notice.sep.qle_on).to eq qle_on
       expect(@employee_notice.notice.sep.end_on).to eq end_on

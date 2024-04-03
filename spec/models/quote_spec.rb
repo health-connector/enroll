@@ -6,7 +6,6 @@ RSpec.describe Quote, type: :model, dbclean: :after_each do
   let(:valid_quote_params) {attributes_for(:quote)}
   let(:subject) {create :quote, :with_household_and_members}
   context "Validations" do
-    ()
     it { is_expected.to validate_uniqueness_of(:claim_code).case_insensitive }
   end
 

@@ -31,7 +31,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       end
 
       it "returns the latest received response date" do
-        args = OpenStruct.new
+        args = Struct.new
         args.determined_at = TimeKeeper.datetime_of_record - 1.month
         args.vlp_authority = "dhs"
         consumer_role.lawful_presence_determination.ssa_responses << EventResponse.new({received_at: args.determined_at, body: payload})
@@ -56,7 +56,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       end
 
       it "returns the latest received response date" do
-        args = OpenStruct.new
+        args = Struct.new
         args.determined_at = TimeKeeper.datetime_of_record - 1.month
         args.vlp_authority = "dhs"
         consumer_role.lawful_presence_determination.vlp_responses << EventResponse.new({received_at: args.determined_at, body: payload})
@@ -94,7 +94,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     context "state machine" do
       let(:person) { FactoryBot.create(:person, :with_consumer_role) }
       subject { person.consumer_role.lawful_presence_determination }
-      let(:verification_attr) { OpenStruct.new({ :determined_at => Time.now, :authority => "hbx" })}
+      let(:verification_attr) { Struct.new({ :determined_at => Time.now, :authority => "hbx" })}
       all_states = [:verification_pending, :verification_outstanding, :verification_successful]
       context "authorize" do
         all_states.each do |state|

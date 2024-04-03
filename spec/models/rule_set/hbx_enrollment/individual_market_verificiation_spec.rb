@@ -58,7 +58,9 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       context "assigns proper states for people" do
         verification_states.each do |status|
           it "#{status}_person has #{status} aasm_state" do
-            expect(eval("#{status}_person").consumer_role.aasm_state).to eq status
+            method_name = "#{status}_person"
+            result = send(method_name).consumer_role.aasm_state
+            expect(result).to eq(status)
           end
         end
       end

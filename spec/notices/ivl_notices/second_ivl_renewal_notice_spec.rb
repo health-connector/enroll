@@ -110,7 +110,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
       it "should generate pdf" do
         @proj_eligibility_notice.append_hbe
-        bc_period = hbx_profile.benefit_sponsorship.benefit_coverage_periods.detect { |bcp| bcp if bcp.start_on.year == TimeKeeper.date_of_record.next_year.year }
         @proj_eligibility_notice.build
         file = @proj_eligibility_notice.generate_pdf_notice
         expect(File.exist?(file.path)).to be true
