@@ -32,8 +32,8 @@ describe 'update_super_group' do
       invoke_task
       @plan2.reload
       @product2.reload
-      expect(@plan2.carrier_special_plan_identifier).to eq ENV["super_group_id"]
-      expect(@product2.issuer_assigned_id).to eq ENV["super_group_id"]
+      expect(@plan2.carrier_special_plan_identifier).to eq ENV.fetch("super_group_id", nil)
+      expect(@product2.issuer_assigned_id).to eq ENV.fetch("super_group_id", nil)
     end
 
     it "should not update other plans with non matching env variables, after rake task" do

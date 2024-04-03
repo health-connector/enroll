@@ -137,9 +137,9 @@ RSpec.describe Employers::PeopleController do
       {
         id: person_id,
         person: person_parameters.to_h
-          .deep_merge(addresses_attributes: {0 => {"id" => address_attributes}})
-          .deep_merge(phones_attributes: {0 => {"id" => phone_attributes}})
-          .deep_merge(emails_attributes: {0 => {"id" => email_attributes}})
+                                 .deep_merge(addresses_attributes: {0 => {"id" => address_attributes}})
+                                 .deep_merge(phones_attributes: {0 => {"id" => phone_attributes}})
+                                 .deep_merge(emails_attributes: {0 => {"id" => email_attributes}})
       }
     end
     let(:user) { FactoryBot.create(:user) }

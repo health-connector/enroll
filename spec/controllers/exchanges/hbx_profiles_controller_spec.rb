@@ -1236,10 +1236,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       let!(:term_bs) do
         FactoryBot.create(:benefit_sponsors_benefit_application,
-                           :with_benefit_package,
-                           :benefit_sponsorship => benefit_sponsorship,
-                           :aasm_state => 'termination_pending',
-                           :default_effective_period => current_date.beginning_of_year..current_date.end_of_month)
+                          :with_benefit_package,
+                          :benefit_sponsorship => benefit_sponsorship,
+                          :aasm_state => 'termination_pending',
+                          :default_effective_period => current_date.beginning_of_year..current_date.end_of_month)
       end
 
       let(:required_params) do

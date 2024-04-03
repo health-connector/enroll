@@ -33,7 +33,7 @@ describe 'user account with no email address', :dbclean => :after_each do
     end
 
     after :all do
-      File.delete("#{Rails.root}/hbx_report/users_account_with_no_email.csv") if File.exist?("#{Rails.root}/hbx_report/users_account_with_no_email.csv")
+      FileUtils.rm_rf("#{Rails.root}/hbx_report/users_account_with_no_email.csv")
     end
   end
 end

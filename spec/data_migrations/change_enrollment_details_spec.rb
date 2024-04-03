@@ -149,7 +149,7 @@ describe ChangeEnrollmentDetails do
       end
 
       it "should cancel the enrollment even if its terminated" do
-        hbx_enrollment.update_attributes(aasm_state:"coverage_terminated")
+        hbx_enrollment.update_attributes(aasm_state: "coverage_terminated")
         expect(hbx_enrollment.may_cancel_coverage?).to eq true
         original_status = hbx_enrollment.aasm_state
         hbx_enrollment.reload

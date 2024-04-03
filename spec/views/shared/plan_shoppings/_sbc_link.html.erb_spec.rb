@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe "shared/plan_shoppings/_sbc_link.html.erb" do
 
-  let(:aws_env) { ENV['AWS_ENV'] || "qa" }
+  let(:aws_env) { ENV.fetch('AWS_ENV', "qa") }
   let(:mock_carrier_profile) { instance_double("CarrierProfile", :dba => "a carrier name", :legal_name => "name") }
   let(:mock_plan) do
     double("Plan",

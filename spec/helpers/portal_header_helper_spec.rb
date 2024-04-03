@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe PortalHeaderHelper, :type => :helper, dbclean: :after_each do
@@ -10,12 +12,12 @@ RSpec.describe PortalHeaderHelper, :type => :helper, dbclean: :after_each do
       let!(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let!(:benefit_sponsor)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let!(:employer_profile)    { benefit_sponsor.employer_profile }
-      let!(:employer_staff_role){ FactoryBot.create(:employer_staff_role, aasm_state:'is_closed', :benefit_sponsor_employer_profile_id=>employer_profile.id)}
+      let!(:employer_staff_role){ FactoryBot.create(:employer_staff_role, aasm_state: 'is_closed', :benefit_sponsor_employer_profile_id => employer_profile.id)}
       let!(:benefit_sponsor2)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let!(:employer_profile2)    { benefit_sponsor2.employer_profile }
-      let!(:employer_staff_role2){ FactoryBot.create(:employer_staff_role, aasm_state:'is_active', :benefit_sponsor_employer_profile_id=>employer_profile2.id)}
+      let!(:employer_staff_role2){ FactoryBot.create(:employer_staff_role, aasm_state: 'is_active', :benefit_sponsor_employer_profile_id => employer_profile2.id)}
       let!(:this_person) { FactoryBot.build(:person, :employer_staff_roles => [employer_staff_role, employer_staff_role2]) }
-      let!(:current_user) { FactoryBot.build(:user, :person=>this_person)}
+      let!(:current_user) { FactoryBot.build(:user, :person => this_person)}
       let!(:emp_id) {current_user.person.active_employer_staff_roles.first.benefit_sponsor_employer_profile_id}
       let!(:employee_role) { FactoryBot.build(:employee_role, person: current_user.person, employer_profile: employer_profile)}
 

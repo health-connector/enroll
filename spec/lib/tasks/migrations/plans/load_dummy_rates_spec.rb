@@ -49,11 +49,11 @@ describe "load_dummy_rates" do
     end
 
     it "should have premium_tables for dummy" do
-      expect(@hp1.premium_tables.where(:"effective_period.min" => @application_period.max.next_month.beginning_of_month).count).to eq 4
+      expect(@hp1.premium_tables.where(:'effective_period.min' => @application_period.max.next_month.beginning_of_month).count).to eq 4
     end
 
     it "should have premium_tuples" do
-      dummy1 = @hp1.premium_tables.where(:"effective_period.min" => @application_period.max.next_month.beginning_of_month)
+      dummy1 = @hp1.premium_tables.where(:'effective_period.min' => @application_period.max.next_month.beginning_of_month)
       dummy1_pt = dummy1.first.premium_tuples
 
       expect(dummy1_pt.present?).to eq true
@@ -74,7 +74,7 @@ describe "load_dummy_rates" do
     end
 
     it "should not have premium_tables for dummy" do
-      expect(@hp1.premium_tables.where(:"effective_period.min" => @application_period.max.next_month.beginning_of_month).count).to eq 0
+      expect(@hp1.premium_tables.where(:'effective_period.min' => @application_period.max.next_month.beginning_of_month).count).to eq 0
     end
   end
 

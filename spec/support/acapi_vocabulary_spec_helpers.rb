@@ -26,7 +26,7 @@ module AcapiVocabularySpecHelpers
 
   def download_vocabularies
     schema_directory = File.join(Rails.root, "spec", "vocabularies")
-    Dir.mkdir(schema_directory) unless File.exist?(schema_directory)
+    FileUtils.mkdir_p(schema_directory)
     ACAPI_SCHEMA_FILE_LIST.each do |item|
       download_schema_file(item, schema_directory)
     end

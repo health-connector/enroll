@@ -284,9 +284,9 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
         let(:employee_role_2) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
         let!(:census_employee_2) do
           census_employee = FactoryBot.create(:census_employee, :with_active_assignment, first_name: person.first_name,
-                                                                                          last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
-                                                                                          employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
-                                                                                          employee_role_id: employee_role_2.id)
+                                                                                         last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
+                                                                                         employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
+                                                                                         employee_role_id: employee_role_2.id)
           census_employee.update_attributes(ssn: person.ssn, dob: person.dob, hired_on: hired_on)
           employee_role_2.update_attributes(census_employee_id: census_employee.id)
           census_employee

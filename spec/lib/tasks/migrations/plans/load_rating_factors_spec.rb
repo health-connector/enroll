@@ -131,7 +131,7 @@ RSpec.describe 'Load Rate Factors Task', :type => :task do
 
     context "it creates GroupSizeActuarialFactor correctly" do
       subject do
-        issuer_profile = BenefitSponsors::Organizations::Organization.issuer_profiles.where(:"profiles.issuer_hios_ids" => '34484').first.issuer_profile
+        issuer_profile = BenefitSponsors::Organizations::Organization.issuer_profiles.where(:'profiles.issuer_hios_ids' => '34484').first.issuer_profile
         BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor.where(issuer_profile_id: issuer_profile.id).first
       end
 

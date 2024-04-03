@@ -114,7 +114,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
     let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
     let(:valid_params) do
-      { 
+      {
         employer_application_id: initial_application.id,
         employer_id: benefit_sponsorship.id,
         end_on: initial_application.start_on.next_month

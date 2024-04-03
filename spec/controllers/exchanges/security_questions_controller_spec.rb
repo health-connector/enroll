@@ -66,7 +66,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
 
     before do
       allow(question).to receive(:safe_to_edit_or_delete?).and_return(true_if_allowed)
-      allow(question).to receive(:update_attributes).with( strong_params ).and_return(true)
+      allow(question).to receive(:update_attributes).with(strong_params).and_return(true)
       allow(question).to receive(:title).and_return(title)
       put :update, params: {id: question.id, security_question: strong_params }
     end

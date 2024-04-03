@@ -680,8 +680,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
     describe "#check_for_critical_changes" do
       sensitive_fields = ConsumerRole::VERIFICATION_SENSITIVE_ATTR
-      all_fields = FactoryBot.build(:person, :encrypted_ssn => "111111111", :gender => "male", "updated_by_id": "any").attributes.keys
-      mask_hash = all_fields.map{|v| [v, (sensitive_fields.include?(v) ? "call" : "don't call")]}.to_h
+      all_fields = FactoryBot.build(:person, :encrypted_ssn => "111111111", :gender => "male", updated_by_id: "any").attributes.keys
+      mask_hash = all_fields.to_h{|v| [v, (sensitive_fields.include?(v) ? "call" : "don't call")]}
       subject { ConsumerRole.new(:person => person) }
       let(:family) { double("Family", :person_has_an_active_enrollment? => true)}
       shared_examples_for "reping the hub fo critical changes" do |field, call, params|

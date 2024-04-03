@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -90,7 +92,7 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
     end
 
     it "should contain some readable text" do
-      ["$30.00", "#{product.title}", "#{product.product_type.upcase}"].each do |t|
+      ["$30.00", product.title.to_s, product.product_type.upcase.to_s].each do |t|
         expect(rendered).to have_content(t)
       end
     end
@@ -132,8 +134,8 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
     end
 
     it "should have title and other text" do
-      expect(rendered).to have_selector('h1', text: /Choose Plan - Compare Selected Plans/ )
-      expect(rendered).to have_selector('h4', text: /Each plan is different. Make sure you understand the differences so you can find the right plan to meet your needs and budget./ )
+      expect(rendered).to have_selector('h1', text: /Choose Plan - Compare Selected Plans/)
+      expect(rendered).to have_selector('h4', text: /Each plan is different. Make sure you understand the differences so you can find the right plan to meet your needs and budget./)
     end
   end
 

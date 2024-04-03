@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
@@ -20,7 +22,7 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
     sign_in current_user
   end
   it 'identifies HBX Staff' do
-    current_user.roles=['hbx_staff']
+    current_user.roles = ['hbx_staff']
     current_user.save
     render :template => 'layouts/_header.html.erb'
     expect(rendered).to match(/I'm an Admin/)
@@ -35,7 +37,7 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
   it 'identifies Employers' do
     allow(person_user).to receive(:employer_staff_roles).and_return([active_employer_staff_role])
     allow(controller).to receive(:controller_path).and_return("employer_profiles")
-    current_user.roles=['employer_staff']
+    current_user.roles = ['employer_staff']
     current_user.save
     allow_any_instance_of(User).to receive(:has_employer_staff_role?).and_return(true)
     render :template => 'layouts/_header.html.erb'
@@ -44,20 +46,20 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
 
   it 'identifies Customer Service Staff' do
     person_user.csr_role = FactoryBot.build(:csr_role, cac: false)
-    current_user.roles=['csr']
+    current_user.roles = ['csr']
     render :template => 'layouts/_header.html.erb'
     expect(rendered).to match(/I'm a Trained Expert/)
   end
 
   it 'identifies Certified Applicant Counselor' do
     person_user.csr_role = FactoryBot.build(:csr_role, cac: true)
-    current_user.roles=['csr']
+    current_user.roles = ['csr']
     render :template => 'layouts/_header.html.erb'
     expect(rendered).to match(/I'm a Trained Expert/)
   end
 
   it 'identifies Assisters' do
-    current_user.roles=['assister']
+    current_user.roles = ['assister']
     current_user.person.assister_role = FactoryBot.build(:assister_role)
     render :template => 'layouts/_header.html.erb'
     expect(rendered).to match(/I'm a Trained Expert/)

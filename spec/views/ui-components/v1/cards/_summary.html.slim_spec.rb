@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
-  let(:aws_env) { ENV['AWS_ENV'] || "qa" }
+  let(:aws_env) { ENV.fetch('AWS_ENV', "qa") }
   let(:person) {FactoryBot.create(:person)}
   let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
   let(:active_household) {family.active_household}

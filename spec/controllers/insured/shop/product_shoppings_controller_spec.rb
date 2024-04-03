@@ -310,7 +310,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
 
       let!(:params) do
-        {"health" => {"waiver_enrollment": health_enrollment.id }, "dental" => {"waiver_enrollment": dental_enrollment.id}}
+        {"health" => {waiver_enrollment: health_enrollment.id }, "dental" => {waiver_enrollment: dental_enrollment.id}}
       end
 
       before do

@@ -26,7 +26,7 @@ describe FixPlanYearsToObeyMinimumOpenEnrollmentPeriod, dbclean: :after_each do
       end
 
       after(:all) do
-        File.delete('fix_plan_year_output.txt') if File.exist?('fix_plan_year_output.txt')
+        FileUtils.rm_rf('fix_plan_year_output.txt')
       end
 
       it 'will set the open_enrollment_start_on date of the plan_year so that it follows the minimum 5 days rule' do

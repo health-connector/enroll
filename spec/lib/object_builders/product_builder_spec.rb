@@ -26,7 +26,7 @@ describe "qhp builder" do
 
     it "should not have any qhp data" do
       expect(Products::Qhp.all.count).to eq 0
-      expect(Products::Qhp.all.where(:"qhp_cost_share_variances.hios_plan_and_variant_id" => @product.hios_id).count).to eq 0
+      expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => @product.hios_id).count).to eq 0
     end
 
     it "should run the builder" do
@@ -46,12 +46,12 @@ describe "qhp builder" do
     end
 
     it "should assign qhp_cost_share_variances from file to the existing products" do
-      expect(Products::Qhp.all.where(:"qhp_cost_share_variances.hios_plan_and_variant_id" => @product.hios_id).count).to eq 1
+      expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => @product.hios_id).count).to eq 1
     end
 
     it "should have all qhp_cost_share_variances for all the products" do
       BenefitMarkets::Products::Product.all.each do |product|
-        expect(Products::Qhp.all.where(:"qhp_cost_share_variances.hios_plan_and_variant_id" => product.hios_id).count).to eq 1
+        expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => product.hios_id).count).to eq 1
       end
     end
   end
@@ -73,7 +73,7 @@ describe "qhp builder" do
 
     it "should have 1 qhp record" do
       expect(Products::Qhp.all.count).to eq 1
-      expect(Products::Qhp.all.where(:"qhp_cost_share_variances.hios_plan_and_variant_id" => @product2.hios_id).count).to eq 1
+      expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => @product2.hios_id).count).to eq 1
     end
 
     it "should run the builder" do
@@ -93,12 +93,12 @@ describe "qhp builder" do
     end
 
     it "should not create new qhp_cost_share_variances, but update from file to the existing one" do
-      expect(Products::Qhp.all.where(:"qhp_cost_share_variances.hios_plan_and_variant_id" => @product2.hios_id).count).to eq 1
+      expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => @product2.hios_id).count).to eq 1
     end
 
     it "should have all qhp_cost_share_variances for all the products" do
       BenefitMarkets::Products::Product.all.each do |product|
-        expect(Products::Qhp.all.where(:"qhp_cost_share_variances.hios_plan_and_variant_id" => product.hios_id).count).to eq 1
+        expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => product.hios_id).count).to eq 1
       end
     end
   end

@@ -11,7 +11,7 @@ module FederalHolidaysHelper
     elsif first > wday
       fwd = (wday + 7) - first + 1
     end
-    target = fwd + (n - 1) * 7
+    target = fwd + ((n - 1) * 7)
     begin
       t2 = Time.local year, month, target
     rescue ArgumentError
