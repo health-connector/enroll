@@ -1,4 +1,6 @@
 module CapybaraHelpers
+  include HtmlScrubberUtil
+
   # Perform an action then wait for the page to reload before proceeding
   def wait_for_page_reload_until(timeout, slice_size = 0.2, &blk)
     execute_script(<<-JSCODE)

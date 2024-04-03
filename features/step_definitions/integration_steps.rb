@@ -595,7 +595,6 @@ Then(/^.+ should see the employee search page$/) do
   wait_for_ajax(2, 2)
   sleep(1)
   expect(find('.interaction-field-control-person-first-name')).to be_visible
-  screenshot("employer_search")
 end
 
 Given(/^(.*) visits the employee portal$/) do |named_person|
