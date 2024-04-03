@@ -363,6 +363,7 @@ module ApplicationHelper
 
   def retrieve_show_path(provider, message)
     return benefit_sponsors.inboxes_message_path(provider, message_id: message.id) if provider.try(:broker_role)
+
     case(provider.model_name.name)
     when "Person"
       insured_inbox_path(provider, message_id: message.id)
