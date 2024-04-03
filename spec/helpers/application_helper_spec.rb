@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -93,9 +93,8 @@ RSpec.describe ApplicationHelper, :type => :helper do
     let(:plan){ Maybe.new(FactoryBot.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
 
     it "should return the named logo" do
-      expect(helper.display_carrier_logo(plan)).to eq "<img width=\"50\" src=\"/assets/logo/carrier/kaiser.jpg\" alt=\"Kaiser\" />"
+      expect(helper.display_carrier_logo(plan)).to match(/<img width="50" src="\/assets\/logo\/carrier\/kaiser-\w+\.jpg" \/>/)
     end
-
   end
 
   describe "#format_time_display" do

@@ -20,7 +20,7 @@ describe UpdateCarrierName, dbclean: :after_each do
 
     it "should update carrier name in old model" do
       organization = carrier_profile.organization
-      ClimateControl.modify abbrev: carrier_profile.abbrev.to_s, name: new_legal_name do
+      ClimateControl.modify fein: organization.fein, name: new_legal_name do
         subject.migrate
       end
       organization.reload

@@ -192,7 +192,7 @@ class Insured::FamiliesController < FamiliesController
       @terminate_reason = params[:terminate_reason] || ''
       render :layout => 'application'
     else
-      redirect_to :back
+      redirect_back fallback_location: main_app.root_path
     end
   end
 
@@ -201,7 +201,7 @@ class Insured::FamiliesController < FamiliesController
 
     if !params[:file] || !params[:subject]
       flash[:error] = "File or Subject not provided"
-      redirect_to(:back)
+      redirect_back fallback_location: main_app.root_path
       return
     elsif file_content_type != 'application/pdf'
       flash[:error] = "Please upload a PDF file. Other file formats are not supported."
@@ -226,7 +226,7 @@ class Insured::FamiliesController < FamiliesController
       flash[:error] = "Could not save file."
     end
 
-    redirect_to(:back)
+    redirect_back fallback_location: main_app.root_path
     return
   end
 

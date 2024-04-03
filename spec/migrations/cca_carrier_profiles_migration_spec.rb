@@ -37,7 +37,7 @@ describe "CcaCarrierProfilesMigration" do
     end
 
     it "should match total migrated organizations with carrier profiles" do
-      silence_stream($stdout) do
+      silence_warnings do
         Mongoid::Migrator.run(:up, @migrations_paths, @test_version.to_i)
       end
 

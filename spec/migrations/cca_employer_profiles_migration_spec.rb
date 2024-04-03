@@ -52,7 +52,7 @@ describe "CcaEmployerProfilesMigration" do
 
     #TODO: modify it after employer profile script is updated according to benefit sponsorship
     it "should match total migrated organizations" do
-      silence_stream($stdout) do
+      silence_warnings do
         Mongoid::Migrator.run(:up, @migrations_paths, @test_version.to_i)
       end
 
@@ -149,5 +149,6 @@ describe "CcaEmployerProfilesMigration" do
   end
   after(:all) do
     FileUtils.rm_rf(Dir["#{Rails.root}//hbx_report//employer_profiles_migration_*"])
+    DatabaseCleaner.clean
   end
 end

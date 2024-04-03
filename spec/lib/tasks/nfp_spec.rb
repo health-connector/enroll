@@ -44,11 +44,11 @@ RSpec.describe 'upload the invoice to s3', :type => :task, dbclean: :after_each 
     )
   end
 
-  let!(:benefit_application) {
+  let!(:benefit_application) do
     application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :active, default_effective_period: effective_period)
     application.benefit_sponsor_catalog.save!
     application
-  }
+  end
   let(:service)             { BenefitSponsors::Services::UploadDocumentsToProfilesService.new }
 
   context "Upload the notice to s3" do

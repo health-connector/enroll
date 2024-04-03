@@ -47,11 +47,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
   let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
   let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
   let(:blue_collar_benefit_group) {plan_year.benefit_groups[0]}
-  let!(:update_plan_year) do
-    plan_year.update_attributes(:effective_period => plan_year_start_on..plan_year_end_on, aasm_state: :enrollment_open)
-    plan_year.save!
-    plan_year.reload
-  end
 
   def blue_collar_benefit_group_assignment
     BenefitGroupAssignment.new(benefit_group: blue_collar_benefit_group, start_on: plan_year_start_on)
@@ -75,11 +70,12 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
   let(:blue_collar_benefit_group) {initial_application.benefit_groups[0]}
   let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
   let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
-  let!(:update_plan_year) do
-    plan_year.update_attributes(:effective_period => plan_year_start_on..plan_year_end_on, aasm_state: :enrollment_open)
+  let!(:update_plan_year) {
+    plan_year.benefit_application_items.create(:effective_period => plan_year_start_on..plan_year_end_on, state: :enrollment_open, sequence_id: 1)
+    plan_year.update_attributes!(aasm_state: :enrollment_open)
     plan_year.save!
     plan_year.reload
-  end
+  }
 
   let!(:update_person) do
     person.employee_roles.first.census_employee = census_employee

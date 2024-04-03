@@ -19,7 +19,6 @@ describe ChangeIncorrectTerminationDateInEnrollment do
       submitted_at: TimeKeeper.date_of_record,
       aasm_state: 'shopping',
       review_status: nil,
-      family: family
     )
 
   end

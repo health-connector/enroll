@@ -86,7 +86,7 @@ describe "CcaBrokerAgencyAccountsMigration" do
 
 
     it "should start and complete profiles migrations" do
-      silence_stream($stdout) do
+      silence_warnings do
         Mongoid::Migrator.run(:up, @migrations_paths, @emp_migration_version.to_i)
         Mongoid::Migrator.run(:up, @migrations_paths, @bk_migration_version.to_i)
       end
@@ -113,7 +113,7 @@ describe "CcaBrokerAgencyAccountsMigration" do
     describe "after profiles migration" do
 
       it "should start and complete accounts migrations" do
-        silence_stream($stdout) do
+        silence_warnings do
           Mongoid::Migrator.run(:up, @migrations_paths, @baa_migration_version.to_i)
         end
       end
@@ -140,5 +140,6 @@ describe "CcaBrokerAgencyAccountsMigration" do
   end
   after(:all) do
     FileUtils.rm_rf(Dir["#{Rails.root}//hbx_report//*_migration_status_*"])
+    DatabaseCleaner.clean
   end
 end

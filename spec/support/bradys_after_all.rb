@@ -186,15 +186,6 @@ module BradysAfterAll
                                         recorded_service_areas: recorded_service_areas
                                       )
 
-      @mikes_plan_year = create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
-                                :with_benefit_package,
-                                benefit_sponsorship: mikes_benefit_sponsorship,
-                                effective_period: effective_period,
-                                aasm_state: :active,
-                                open_enrollment_period: open_enrollment_period,
-                                recorded_rating_area: mikes_benefit_sponsorship.rating_area,
-                                recorded_service_areas: recorded_service_areas)
-
       @mikes_benefit_group   = @mikes_plan_year.benefit_packages[0]
 
       # @mikes_benefit_group = FactoryBot.build(:benefit_group, plan_year: nil)

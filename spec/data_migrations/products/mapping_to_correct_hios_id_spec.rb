@@ -42,7 +42,7 @@ describe MappingToCorrectHiosId, dbclean: :after_each do
     end
     let!(:benefit_sponsor_catalog) { FactoryBot.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
     let!(:benefit_application) do
-      FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
+      FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active)
     end
     let!(:benefit_application_id) { benefit_application.id.to_s }
     let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}

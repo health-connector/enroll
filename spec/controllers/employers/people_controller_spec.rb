@@ -19,7 +19,7 @@ RSpec.describe Employers::PeopleController do
 
   describe "POST create" do
     let(:user) { double("user") }
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
+    let!(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING").permit(:first_name,:user_id) }
     let(:phones) {double(:select => double("select")) }
     let(:addresses) {double(:select => double("select")) }
     let(:emails) {double(:select => double("select")) }
@@ -48,7 +48,7 @@ RSpec.describe Employers::PeopleController do
     let(:addresses) {double(:select => double("select")) }
     let(:emails) {double(:select => double("select")) }
     let(:person) { double(:phones => phones, :addresses => addresses, :emails => emails)}
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
+    let!(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING").permit(:first_name,:user_id) }
     let(:more_params){{:create_person => "create", person: person_parameters}}
     let(:found_person) { [] }
     let(:mock_employee_candidate) { instance_double("Forms::EmployeeCandidate", :valid? => validation_result) }
@@ -77,7 +77,7 @@ RSpec.describe Employers::PeopleController do
   describe "POST match" do
     let(:user) { double(id: user_id) }
     let(:user_id) { "SOMDFINKETHING_ID" }
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
+    let!(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING").permit(:first_name,:user_id) }
     let(:found_person) { [] }
     let(:mock_employee_candidate) { instance_double("Forms::EmployeeCandidate", :valid? => validation_result) }
 
@@ -123,7 +123,7 @@ RSpec.describe Employers::PeopleController do
   end
 
   describe "POST update" do
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING", :last_name => "SOME"} }
+    let(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING", :last_name => "SOME").permit(:first_name,:user_id) }
     let(:person) do
       double(:phones => double(:each => double("each")),
              :addresses => double(:each => double("each")),
@@ -136,7 +136,7 @@ RSpec.describe Employers::PeopleController do
     let(:valid_params) do
       {
         id: person_id,
-        person: person_parameters
+        person: person_parameters.to_h
           .deep_merge(addresses_attributes: {0 => {"id" => address_attributes}})
           .deep_merge(phones_attributes: {0 => {"id" => phone_attributes}})
           .deep_merge(emails_attributes: {0 => {"id" => email_attributes}})

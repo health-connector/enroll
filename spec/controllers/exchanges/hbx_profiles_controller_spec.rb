@@ -1249,12 +1249,13 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           start_on: new_start_date,
           end_on: new_start_date + 1.year - 1.day,
           open_enrollment_start_on: (current_date + 1.month).beginning_of_month,
-          open_enrollment_end_on: (current_date + 1.month).beginning_of_month + 20.days
+          open_enrollment_end_on: (current_date + 1.month).beginning_of_month + 20.days,
+          has_active_ba: true
         }
       end
 
       before :each do
-        xhr :post, :create_benefit_application, required_params, has_active_ba: true
+        post :create_benefit_application, params: required_params, xhr: true
       end
 
       it 'should respond with success status' do
