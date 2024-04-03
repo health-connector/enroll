@@ -126,7 +126,8 @@ module BenefitSponsors
             super
           end
         when :new?
-          session[:portal] = url_for(params)
+          params_hash = params.permit(:profile_type, :controller, :action)
+          session[:portal] = url_for(params_hash)
           redirect_to send(:sign_up_url)
         else
           session[:custom_url] = main_app.new_user_registration_path unless current_user
