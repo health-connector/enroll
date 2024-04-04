@@ -10,7 +10,7 @@ FactoryBot.define do
         product_package =  evaluator.product_package
         if contribution_model = product_package.contribution_model
           contribution_model.contribution_units.each do |unit|
-            contribution_unit = build(:benefit_sponsors_sponsored_benefits_contribution_level,
+            contribution_level = build(:benefit_sponsors_sponsored_benefits_contribution_level,
               sponsor_contribution: sponsor_contribution,
               display_name: unit.display_name, 
               is_offered: true, order: unit.order,
@@ -19,17 +19,17 @@ FactoryBot.define do
 
             case unit.display_name
             when 'Employee'
-              contribution_unit.contribution_factor = 1.0
-              contribution_unit.is_offered = true
+              contribution_level.contribution_factor = 1.0
+              contribution_level.is_offered = true
             when 'Spouse'
-              contribution_unit.contribution_factor = 0.80
-              contribution_unit.is_offered = true
+              contribution_level.contribution_factor = 0.80
+              contribution_level.is_offered = true
             when 'Domestic Partner'
-              contribution_unit.contribution_factor = 0.55
-              contribution_unit.is_offered = false
+              contribution_level.contribution_factor = 0.55
+              contribution_level.is_offered = false
             when 'Child Under 26'
-              contribution_unit.contribution_factor = 0.55
-              contribution_unit.is_offered = false
+              contribution_level.contribution_factor = 0.55
+              contribution_level.is_offered = false
             end
           end
         end

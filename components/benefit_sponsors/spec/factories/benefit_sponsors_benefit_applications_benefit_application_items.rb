@@ -14,10 +14,10 @@ FactoryBot.define do
     end
 
     transient do
-      default_effective_period nil
+      default_effective_period { nil }
     end
 
-    state :draft
-    sequence_id 0
+    state { :draft }
+    sequence_id { 0 }
   end
 end
