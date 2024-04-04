@@ -340,7 +340,7 @@ Style/ObjectThen: # new in 1.28
 Style/OpenStructUse: # new in 1.23
   Enabled: true
 Style/QuotedSymbols: # new in 1.16
-  Enabled: true
+  Enabled: false
 Style/RedundantArgument: # new in 1.4
   Enabled: true
 Style/RedundantInitialize: # new in 1.27

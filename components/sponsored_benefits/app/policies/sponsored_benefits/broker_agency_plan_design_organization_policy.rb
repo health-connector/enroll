@@ -8,7 +8,7 @@ module SponsoredBenefits
       return true if user.has_hbx_staff_role?
       return false unless user.person
 
-      broker_agency_staff_roles = user.person.broker_agency_staff_roles.select(&:is_active?)
+      broker_agency_staff_roles = user.person.broker_agency_staff_roles.select(&:active?)
 
       allowed_as_staff = broker_agency_staff_roles.any? do |basr|
         basr.benefit_sponsors_broker_agency_profile_id == record.id

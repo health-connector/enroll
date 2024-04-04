@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).on('ready turbolinks:load', function () {
   // Customize Dependent Family Member Delete Confirmation
   $('#family .remove').click(function() {
     var current_element = $(this).closest("#family .family_members_list");

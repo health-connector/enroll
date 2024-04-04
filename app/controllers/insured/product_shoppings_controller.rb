@@ -8,7 +8,7 @@ module Insured
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
       # TODO - use permit params
-      attr = params.permit!.to_h.deep_symbolize_keys
+      attr = strong_params.to_h.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
                                                                      dental_offering: attr[:dental_offering],  health_offering: attr[:health_offering],
                                                                      action: attr[:action], event: attr[:event])
@@ -51,7 +51,7 @@ module Insured
       end
 
       @waiver_context = if params[:waiver_attrs].present?
-                          params[:waiver_attrs].each_with_object({}) do |(k,v),output|
+                          strong_params[:waiver_attrs].to_h.each_with_object({}) do |(k,v),output|
                             context = Organizers::PrepareForWaiverCheckout.call(params: v, person: @person, event: params[:event])
                             output[k] = context.json
                           end
@@ -182,6 +182,10 @@ module Insured
     end
 
     private
+
+    def strong_params
+      params.permit!
+    end
 
     def sanatize_params(param)
       if param.instance_of?(Hash)

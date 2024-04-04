@@ -3,30 +3,31 @@
 module Insured
   class MembersSelectionController < ApplicationController
     def new
-      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.to_unsafe_h.deep_symbolize_keys.except(:controller, :action), event: params[:event])
+      @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.to_unsafe_h.symbolize_keys.except(:controller, :action), event: params[:event])
 
       if @organizer.success?
         @can_shop_both_markets = false
         set_bookmark_url
       else
         flash[:error] = @organizer.message
-        redirect_to(:back)
+        redirect_back fallback_location: main_app.root_path
       end
     end
 
     def eligible_coverage_selection
-      @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.to_unsafe_h.deep_symbolize_keys)
+      @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.to_unsafe_h.symbolize_keys)
 
+      binding.pry
       if @organizer.failure? # rubocop:disable Style/GuardClause
         flash[:error] = @organizer.message
-        redirect_to(:back)
+        redirect_back fallback_location: main_app.root_path
       end
 
       @organizer.event = "shop_for_plans"
     end
 
     def fetch
-      @organizer = Organizers::CoverageEligibilityForGivenEmployeeRole.call(params: params.to_unsafe_h.deep_symbolize_keys, market_kind: params["market_kind"], event: params[:event])
+      @organizer = Organizers::CoverageEligibilityForGivenEmployeeRole.call(params: params.to_unsafe_h.symbolize_keys, market_kind: params["market_kind"], event: params[:event])
 
       if @organizer.success?
         respond_to do |format|
@@ -38,11 +39,11 @@ module Insured
     end
 
     def create
-      @organizer = Organizers::CreateShoppingEnrollments.call(params: params.to_unsafe_h.deep_symbolize_keys, market_kind: params["market_kind"], session_original_application_type: session[:original_application_type], current_user: current_user)
+      @organizer = Organizers::CreateShoppingEnrollments.call(params: params.to_unsafe_h.symbolize_keys, market_kind: params["market_kind"], session_original_application_type: session[:original_application_type], current_user: current_user)
       if @organizer.failure?
         flash[:error] = @organizer.message
         logger.error "#{@organizer.message}\n"
-        redirect_to(:back)
+        redirect_back fallback_location: main_app.root_path
         return
         #employee_role_id = @organizer.employee_role.id if @organizer.employee_role
         # TODO

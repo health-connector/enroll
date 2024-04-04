@@ -952,8 +952,9 @@ When(/^.+ selects? a health plan on the plan shopping page$/) do
 end
 
 When(/^.+ selects? a dental plan on the plan shopping page$/) do
-  find(EmployeeEnrollInAPlan.select_plan_btn).click
+  find_all(EmployeeEnrollInAPlan.select_plan_btn)[0].click
 end
+
 Then(/^.+ should see the coverage summary page$/) do
   expect(page).to have_content('Confirm Your Plan Selection')
   screenshot("summary_page")
