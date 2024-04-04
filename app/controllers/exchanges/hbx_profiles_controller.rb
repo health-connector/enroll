@@ -298,6 +298,10 @@ class Exchanges::HbxProfilesController < ApplicationController
   def user_account_index
     authorize HbxProfile, :can_access_user_account_tab?
     @datatable = Effective::Datatables::UserAccountDatatable.new
+    respond_to do |format|
+      format.js
+      format.html { render '/exchanges/hbx_profiles/user_account_index_datatable.html.erb' }
+    end
   end
 
   def outstanding_verification_dt
