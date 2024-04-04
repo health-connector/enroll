@@ -203,7 +203,7 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
         end
 
         it "should return general_agency_profile that sort by favorite_general_agencies" do
-          sorted_general_agency_profiles = GeneralAgencyProfile.all.sort {|ga| [general_agency_profile.id].include?(ga.id) ? 0 : 1 }
+          sorted_general_agency_profiles = GeneralAgencyProfile.all.sort_by { |ga| [ga.id == general_agency_profile.id ? 0 : 1, ga.id] }
           expect(GeneralAgencyProfile.all_by_broker_role(broker_role)).to eq sorted_general_agency_profiles
         end
       end

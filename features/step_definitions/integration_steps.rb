@@ -952,7 +952,7 @@ When(/^.+ selects? a health plan on the plan shopping page$/) do
 end
 
 When(/^.+ selects? a dental plan on the plan shopping page$/) do
-  find_all(EmployeeEnrollInAPlan.select_plan_btn)[0].click
+  find(EmployeeEnrollInAPlan.select_plan_btn, wait: 5).click
 end
 
 Then(/^.+ should see the coverage summary page$/) do

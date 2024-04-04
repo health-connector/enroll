@@ -20,8 +20,14 @@ describe ::Importers::ConversionEmployeeSet do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employees", "sample_conversion_employees.xlsx") }
 
     let(:employee_data) do
-      {:default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000", :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962",
-       :subscriber_gender => "FEMALE", :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane", :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009", :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child", :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"}
+      {
+        :default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000",
+        :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962", :subscriber_gender => "FEMALE",
+        :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane",
+        :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009",
+        :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child",
+        :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"
+      }
     end
 
     let(:base_output_result) do
@@ -59,8 +65,14 @@ describe ::Importers::ConversionEmployeeSet do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employees", "sample_conversion_employees.csv") }
 
     let(:employee_data) do
-      {:default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000", :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962",
-       :subscriber_gender => "FEMALE", :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane", :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009", :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child", :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"}
+      {
+        :default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000",
+        :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962", :subscriber_gender => "FEMALE",
+        :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane",
+        :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009",
+        :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child",
+        :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"
+      }
     end
 
     let(:base_output_result) do
