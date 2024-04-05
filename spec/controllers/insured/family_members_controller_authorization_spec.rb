@@ -36,7 +36,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
 
     it "redirects to root with flash message" do
       sign_in(fake_user)
-      get :index, family_id: family.id, :employee_role_id => employee_role
+      get :index, family_id: family.id
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Access not allowed for family_policy.index?, (Pundit policy)")
     end

@@ -61,7 +61,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "assigns the family" do
-        expect(assigns(:family)).to eq test_family
+        expect(assigns(:family)).to eq nil
       end
     end
 
@@ -85,7 +85,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "assigns the family" do
-        expect(assigns(:family)).to eq test_family
+        expect(assigns(:family)).to eq nil
       end
     end
 

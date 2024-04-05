@@ -6,8 +6,7 @@ class Insured::FamilyMembersController < ApplicationController
   before_action :set_dependent, only: [:destroy, :show, :edit, :update]
 
   def index
-    family_id = params.require(:family_id)
-    @family = Family.find(family_id) if family_id
+    set_family_for_index
     authorize @family, :index?
 
     set_bookmark_url
@@ -217,6 +216,20 @@ private
     @family.special_enrollment_periods << sp
     sp.save
     sp
+  end
+
+  def set_family_for_index
+    if params[:employee_role_id].present? && params[:employee_role_id] != 'None'
+      emp_role_id = params[:employee_role_id]
+      @employee_role = if emp_role_id.present?
+                         @person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id.to_s }
+                       else
+                         @person.employee_roles.detect { |emp_role| emp_role.is_active == true }
+                       end
+      @family = @person.primary_family
+    elsif params[:family_id]
+      @family = Family.find(params[:family_id])
+    end
   end
 
   def set_dependent

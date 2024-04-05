@@ -79,7 +79,7 @@ class FamilyPolicy < ApplicationPolicy
   end
 
   def index?
-    false
+    show?
   end
 
   def new?
