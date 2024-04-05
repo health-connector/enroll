@@ -81,19 +81,16 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   options.add_argument("headless")
   options.add_argument("--window-size=1920,1080")
 
-  if RUBY_PLATFORM =~ /darwin/
-    options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess")
-  end
+  options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess") if RUBY_PLATFORM =~ /darwin/
 
   client = Selenium::WebDriver::Remote::Http::Default.new
   client.open_timeout = 120 # instead of the default 60
   client.read_timeout = 120 # instead of the default 60
 
   Capybara::Selenium::Driver.new(app,
-    browser: :chrome,
-    options: options,
-    http_client: client
-  )
+                                 browser: :chrome,
+                                 options: options,
+                                 http_client: client)
 end
 
 Capybara.default_driver = :selenium_chrome_custom

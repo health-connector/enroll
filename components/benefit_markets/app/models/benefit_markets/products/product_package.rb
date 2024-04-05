@@ -96,13 +96,14 @@ module BenefitMarkets
     def products_sorted_by_cost
       return @products_sorted_by_cost if defined? @products_sorted_by_cost
 
-      @products_sorted_by_cost = load_base_products.sort_by{|product|
+      @products_sorted_by_cost = load_base_products.sort_by do |product|
         product.cost_for_application_period(application_period)
-      }
+      end
     end
 
     def load_base_products
       return [] if products.empty?
+
       @loaded_base_products ||= BenefitMarkets::Products::Product.find(products.pluck(:_id))
     end
 
@@ -143,11 +144,13 @@ module BenefitMarkets
 
     def issuer_profiles
       return @issuer_profiles if defined?(@issuer_profiles)
+
       @issuer_profiles = active_products.select { |product| product.issuer_profile }.uniq!
     end
 
     def issuer_profile_products_for(issuer_profile)
       return @issuer_profile_products if defined?(@issuer_profile_products)
+
       @issuer_profile_products = products.by_issuer_profile(issuer_profile)
     end
 
@@ -160,6 +163,7 @@ module BenefitMarkets
     def all_benefit_market_products
       raise StandardError, "Product package is invalid" unless benefit_market_kind.present? && application_period.present? && product_kind.present? && package_kind.present?
       return @all_benefit_market_products if defined?(@all_benefit_market_products)
+
       @all_benefit_market_products = BenefitMarkets::Products::Product.by_product_package(self)
     end
 
@@ -187,6 +191,7 @@ module BenefitMarkets
       else
         issuer_profile = BenefitSponsors::Organizations::IssuerProfile.find(product_option_choice)
         return [] unless issuer_profile
+
         issuer_profile_products_for(issuer_profile)
       end
     end

@@ -255,21 +255,22 @@ module BenefitSponsors
           organization: organization,
           profile_id: organization.profiles.first.id,
           benefit_market: benefit_market,
-          employer_attestation: employer_attestation)
+          employer_attestation: employer_attestation
+        )
       end
 
       let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship) }
-      let(:benefit_application_form) { FactoryBot.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id ) }
+      let(:benefit_application_form) { FactoryBot.build(:benefit_sponsors_forms_benefit_application, id: benefit_application.id) }
       let(:subject) { BenefitSponsors::Services::BenefitApplicationService.new }
 
       it "should assign the form attributes from benefit application" do
-         form = subject.load_form_params_from_resource(benefit_application_form)
-         expect(form[:start_on]).to eq benefit_application.start_on.to_date.to_s
-         expect(form[:end_on]).to eq benefit_application.end_on.to_date.to_s
-         expect(form[:open_enrollment_start_on]).to eq benefit_application.open_enrollment_start_on.to_date.to_s
-         expect(form[:open_enrollment_end_on]).to eq benefit_application.open_enrollment_end_on.to_date.to_s
-         expect(form[:pte_count]).to eq benefit_application.pte_count
-         expect(form[:msp_count]).to eq benefit_application.msp_count
+        form = subject.load_form_params_from_resource(benefit_application_form)
+        expect(form[:start_on]).to eq benefit_application.start_on.to_date.to_s
+        expect(form[:end_on]).to eq benefit_application.end_on.to_date.to_s
+        expect(form[:open_enrollment_start_on]).to eq benefit_application.open_enrollment_start_on.to_date.to_s
+        expect(form[:open_enrollment_end_on]).to eq benefit_application.open_enrollment_end_on.to_date.to_s
+        expect(form[:pte_count]).to eq benefit_application.pte_count
+        expect(form[:msp_count]).to eq benefit_application.msp_count
       end
     end
 
@@ -279,9 +280,11 @@ module BenefitSponsors
       let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
-      let(:benefit_sponsorship)           { bs = employer_profile.add_benefit_sponsorship
-                                            bs.save!
-                                            bs }
+      let(:benefit_sponsorship)           do
+        bs = employer_profile.add_benefit_sponsorship
+        bs.save!
+        bs
+      end
 
       let(:start_on)                      { TimeKeeper.date_of_record.beginning_of_month + 2.months }
       let(:end_on)                        { start_on.next_year.prev_day }

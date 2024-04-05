@@ -44,6 +44,7 @@ class Insured::VerificationDocumentsController < ApplicationController
   end
 
   private
+
   def updateable?
     authorize Family, :updateable?
   end
@@ -72,16 +73,15 @@ class Insured::VerificationDocumentsController < ApplicationController
   def update_vlp_documents(title, file_uri)
     v_type = params[:verification_type]
     document = @docs_owner.consumer_role.vlp_documents.build
-    success = document.update_attributes({:identifier=>file_uri, :subject => title, :title=>title, :status=>"downloaded", :verification_type=>v_type})
+    success = document.update_attributes({:identifier => file_uri, :subject => title, :title => title, :status => "downloaded", :verification_type => v_type})
     @docs_owner.consumer_role.mark_doc_type_uploaded(v_type)
     @doc_errors = document.errors.full_messages unless success
     @docs_owner.save
   end
 
   def update_paper_application(title, file_uri)
-
     document = @docs_owner.resident_role.vlp_documents.build
-    success = document.update_attributes({:identifier=>file_uri, :subject => title, :title=>title, :status=>"downloaded", :verification_type=>params[:verification_type]})
+    success = document.update_attributes({:identifier => file_uri, :subject => title, :title => title, :status => "downloaded", :verification_type => params[:verification_type]})
     @doc_errors = document.errors.full_messages unless success
     @docs_owner.save
   end
@@ -102,16 +102,16 @@ class Insured::VerificationDocumentsController < ApplicationController
     verification_type = params[:verification_type]
     action = "Upload #{file_name(file)}" if params[:action] == "upload"
     @docs_owner.consumer_role.add_type_history_element(verification_type: verification_type,
-                                                   action: action,
-                                                   modifier: actor)
+                                                       action: action,
+                                                       modifier: actor)
   end
 
   def vlp_docs_clean(person)
     existing_documents = person.consumer_role.vlp_documents
-    person_consumer_role=Person.find(person.id).consumer_role
-    person_consumer_role.vlp_documents =[]
+    person_consumer_role = Person.find(person.id).consumer_role
+    person_consumer_role.vlp_documents = []
     person_consumer_role.save
-    person_consumer_role=Person.find(person.id).consumer_role
+    person_consumer_role = Person.find(person.id).consumer_role
     person_consumer_role.vlp_documents = existing_documents.uniq
     person_consumer_role.save
   end

@@ -27,7 +27,7 @@ module BenefitSponsors
       sponsorship
     end
     let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
-    let!(:model_instance) {
+    let!(:model_instance) do
       application = FactoryBot.create(
         :benefit_sponsors_benefit_application,
         :with_benefit_sponsor_catalog,
@@ -37,7 +37,7 @@ module BenefitSponsors
       )
       application.benefit_sponsor_catalog.save!
       application
-    }
+    end
     let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month}
     let(:open_enrollment_start_on) {(TimeKeeper.date_of_record - 1.month).beginning_of_month}
 
@@ -50,7 +50,7 @@ module BenefitSponsors
 
         it "should trigger model event" do
           model_instance.class.observer_peers.keys.each do |observer|
-            expect(observer).to receive(:notifications_send) do |instance, model_event|
+            expect(observer).to receive(:notifications_send) do |_instance, model_event|
               expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
               expect(model_event).to have_attributes(:event_key => :application_submitted, :klass_instance => model_instance, :options => {})
             end
@@ -84,7 +84,7 @@ module BenefitSponsors
 
       context "NoticeBuilder", dbclean: :after_each do
 
-        let(:data_elements) {
+        let(:data_elements) do
           [
             "employer_profile.notice_date",
             "employer_profile.employer_name",
@@ -95,14 +95,16 @@ module BenefitSponsors
             "employer_profile.broker.email",
             "employer_profile.broker_present?"
           ]
-        }
+        end
         let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
         let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-        let(:payload)   { {
+        let(:payload)   do
+          {
             "employer_id" => employer_profile.hbx_id.to_s,
             "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
             "event_object_id" => model_instance.id.to_s
-        } }
+          }
+        end
         let(:merge_model) { subject.construct_notice_object }
 
         before do

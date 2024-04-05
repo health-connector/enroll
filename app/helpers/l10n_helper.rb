@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-require './lib/html_scrubber_util.rb'
+
+require './lib/html_scrubber_util'
 
 module L10nHelper
   include ActionView::Helpers::TranslationHelper

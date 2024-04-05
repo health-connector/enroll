@@ -10,15 +10,17 @@ module BenefitSponsors
 
 
     # let!(:employer_profile) {benefit_sponsor.employer_profile}
-    let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
-    let!(:person) { FactoryBot.create(:person, employer_staff_roles:[active_employer_staff_role]) }
+    let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+    let!(:person) { FactoryBot.create(:person, employer_staff_roles: [active_employer_staff_role]) }
     let(:user) { FactoryBot.create(:user, :person => person)}
 
     describe ".find_profile" do
 
-      let(:staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
-          profile_id: employer_profile.id)
-      }
+      let(:staff_role_form) do
+        BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+          profile_id: employer_profile.id
+        )
+      end
 
       it 'should return employer profile' do
         expect(subject.find_profile(staff_role_form)).to eq employer_profile
@@ -29,12 +31,14 @@ module BenefitSponsors
 
       context "adding staff role with non existing person" do
 
-        let(:invalid_add_staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+        let(:invalid_add_staff_role_form) do
+          BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
             profile_id: employer_profile.id,
-            first_name:'new_staff_first_name',
-            last_name:'new_staff_first_name',
-            dob:TimeKeeper.date_of_record)
-        }
+            first_name: 'new_staff_first_name',
+            last_name: 'new_staff_first_name',
+            dob: TimeKeeper.date_of_record
+          )
+        end
 
         it 'should not add staff role for profile' do
           expect(subject.add_profile_representative!(invalid_add_staff_role_form)).to eq [false,"Person does not exist on the HBX Exchange"]
@@ -44,12 +48,14 @@ module BenefitSponsors
       context "adding staff role with existing person" do
 
         let!(:new_person) { FactoryBot.create(:person) }
-        let!(:add_staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+        let!(:add_staff_role_form) do
+          BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
             profile_id: employer_profile.id,
-            first_name:new_person.first_name,
-            last_name:new_person.last_name,
-            dob:new_person.dob.to_s)
-        }
+            first_name: new_person.first_name,
+            last_name: new_person.last_name,
+            dob: new_person.dob.to_s
+          )
+        end
 
         it 'should add staff role for profile' do
           expect(subject.add_profile_representative!(add_staff_role_form)).to eq [true, new_person]
@@ -61,13 +67,15 @@ module BenefitSponsors
 
       context "employer profile with one staff role." do
 
-        let!(:deactivate_staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+        let!(:deactivate_staff_role_form) do
+          BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
             profile_id: employer_profile.id,
-            first_name:person.first_name,
-            last_name:person.last_name,
-            dob:person.dob.to_s,
-            person_id:person.id)
-        }
+            first_name: person.first_name,
+            last_name: person.last_name,
+            dob: person.dob.to_s,
+            person_id: person.id
+          )
+        end
 
         it 'should not deactivate only staff role' do
           expect(subject.deactivate_profile_representative!(deactivate_staff_role_form)).to eq [false,"Please add another staff role before deleting this role"]
@@ -76,15 +84,17 @@ module BenefitSponsors
 
       context "employer profile more than one staff role." do
 
-        let!(:another_person_active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
-        let!(:another_person) { FactoryBot.create(:person, employer_staff_roles:[another_person_active_employer_staff_role]) }
-        let!(:deactivate_staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+        let!(:another_person_active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+        let!(:another_person) { FactoryBot.create(:person, employer_staff_roles: [another_person_active_employer_staff_role]) }
+        let!(:deactivate_staff_role_form) do
+          BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
             profile_id: employer_profile.id,
-            first_name:another_person.first_name,
-            last_name:another_person.last_name,
-            dob:another_person.dob.to_s,
-            person_id:another_person.id)
-        }
+            first_name: another_person.first_name,
+            last_name: another_person.last_name,
+            dob: another_person.dob.to_s,
+            person_id: another_person.id
+          )
+        end
 
         it 'should deactivate staff role' do
           expect(subject.deactivate_profile_representative!(deactivate_staff_role_form)).to eq [true,"Employee Staff Role is inactive"]
@@ -96,15 +106,17 @@ module BenefitSponsors
 
       context "staff role with applicant status" do
 
-        let!(:another_person_active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_applicant', benefit_sponsor_employer_profile_id: employer_profile.id)}
-        let!(:another_person) { FactoryBot.create(:person, employer_staff_roles:[another_person_active_employer_staff_role]) }
-        let!(:approve_staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+        let!(:another_person_active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_applicant', benefit_sponsor_employer_profile_id: employer_profile.id)}
+        let!(:another_person) { FactoryBot.create(:person, employer_staff_roles: [another_person_active_employer_staff_role]) }
+        let!(:approve_staff_role_form) do
+          BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
             profile_id: employer_profile.id,
-            first_name:another_person.first_name,
-            last_name:another_person.last_name,
-            dob:another_person.dob.to_s,
-            person_id:another_person.id)
-        }
+            first_name: another_person.first_name,
+            last_name: another_person.last_name,
+            dob: another_person.dob.to_s,
+            person_id: another_person.id
+          )
+        end
 
         it 'should approve staff role' do
           expect(subject.approve_profile_representative!(approve_staff_role_form)).to eq [true,"Role is approved"]
@@ -115,15 +127,17 @@ module BenefitSponsors
 
       context "staff role with is_closed status" do
 
-        let!(:another_person_active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_closed', benefit_sponsor_employer_profile_id: employer_profile.id)}
-        let!(:another_person) { FactoryBot.create(:person, employer_staff_roles:[another_person_active_employer_staff_role]) }
-        let!(:approve_staff_role_form) { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
+        let!(:another_person_active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_closed', benefit_sponsor_employer_profile_id: employer_profile.id)}
+        let!(:another_person) { FactoryBot.create(:person, employer_staff_roles: [another_person_active_employer_staff_role]) }
+        let!(:approve_staff_role_form) do
+          BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.new(
             profile_id: employer_profile.id,
-            first_name:another_person.first_name,
-            last_name:another_person.last_name,
-            dob:another_person.dob.to_s,
-            person_id:another_person.id)
-        }
+            first_name: another_person.first_name,
+            last_name: another_person.last_name,
+            dob: another_person.dob.to_s,
+            person_id: another_person.id
+          )
+        end
 
         it 'should not approve staff role' do
           expect(subject.approve_profile_representative!(approve_staff_role_form)).to eq [false, "Please contact HBX Admin to report this error"]

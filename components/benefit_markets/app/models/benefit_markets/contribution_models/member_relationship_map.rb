@@ -16,9 +16,7 @@ module BenefitMarkets
     validate :has_mappable_relationship
 
     def has_mappable_relationship
-      if display_relationship_name.blank?
-        errors.add(:relationship_name, "does not match a member relationship in the contribution model")
-      end
+      errors.add(:relationship_name, "does not match a member relationship in the contribution model") if display_relationship_name.blank?
     end
 
     def display_relationship_name
@@ -27,7 +25,7 @@ module BenefitMarkets
 
     def match?(rel_hash)
       compare_hash = rel_hash.stringify_keys
-      type_count = compare_hash[self.relationship_name.to_s] || 0
+      type_count = compare_hash[relationship_name.to_s] || 0
       case operator
       when :<
         type_count < count

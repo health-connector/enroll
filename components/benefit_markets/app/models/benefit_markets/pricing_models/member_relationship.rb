@@ -22,6 +22,7 @@ module BenefitMarkets
 
       def matches_age(age)
         return true if age_threshold.nil?
+
         case age_comparison
         when :>=
           age >= age_threshold
@@ -32,6 +33,7 @@ module BenefitMarkets
 
       def matches_disability(dis)
         return true if disability_qualifier.nil?
+
         (disability_qualifier == dis)
       end
     end

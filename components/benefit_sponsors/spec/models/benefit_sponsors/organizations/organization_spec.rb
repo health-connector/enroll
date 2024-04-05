@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../../../concerns/observable_spec.rb'
+require_relative '../../../concerns/observable_spec'
 
 module BenefitSponsors
   RSpec.describe Organizations::Organization, type: :model, dbclean: :after_each do
@@ -44,7 +44,7 @@ module BenefitSponsors
       before { broker_organization.plan_design_subjects << employer_organization }
 
       it "the employer should appear in the broker's subject list" do
-        expect((broker_organization.plan_design_subjects).size).to eq 1
+        expect(broker_organization.plan_design_subjects.size).to eq 1
         expect(broker_organization.plan_design_subjects.first).to eq employer_organization
       end
 
@@ -54,7 +54,7 @@ module BenefitSponsors
       # end
 
       it "the broker should appear in the employer's author ID list" do
-        expect((employer_organization.plan_design_author_ids).size).to eq 1
+        expect(employer_organization.plan_design_author_ids.size).to eq 1
         expect(employer_organization.plan_design_author_ids.first).to eq broker_organization.id
       end
 

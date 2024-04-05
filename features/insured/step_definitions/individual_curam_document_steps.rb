@@ -1,4 +1,3 @@
-
 When(/^the user navigates to the DOCUMENTS tab$/) do
   visit verification_insured_families_path
 end
@@ -23,7 +22,7 @@ When(/^the user clicks on the MEDICAID & TAX CREDITS button$/) do
   switch_to_window { find('.btn', text: 'Medicaid & Tax Credits').click }
 end
 
-Then(/^EA sets a flag in IAM to direct the consumer to the curam\/ drupal login$/) do
+Then(%r{^EA sets a flag in IAM to direct the consumer to the curam/ drupal login$}) do
   expect(page).to have_content('info@dchealthlink.com')
 end
 

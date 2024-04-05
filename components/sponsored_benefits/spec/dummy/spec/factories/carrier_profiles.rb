@@ -3,7 +3,7 @@ FactoryBot.define do
     organization  { FactoryBot.create(:organization, legal_name: "BMC HealthNet Plan", dba: "BMC HealthNet Plan") }
     abbrev        "UHIC"
     offers_sole_source false
-    sequence(:issuer_hios_ids, 11111) { |n| [n.to_s] }
+    sequence(:issuer_hios_ids, 11_111) { |n| [n.to_s] }
 
     transient do
       with_service_areas 1

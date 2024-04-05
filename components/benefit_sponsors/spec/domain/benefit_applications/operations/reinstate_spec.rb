@@ -466,12 +466,12 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       let(:new_start_on) { benefit_application.initial_effective_period.max.to_date.next_day }
       let!(:draft_application) do
         FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
-                           passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
-                           open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
-                           recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
-                           dental_sponsored_benefit: dental_sponsored_benefit, fte_count: 5, pte_count: 0, msp_count: 0,
-                           aasm_state: :draft,
-                           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: new_start_on..(new_start_on.next_year - 1.day), state: :draft)])
+                          passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
+                          open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
+                          recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
+                          dental_sponsored_benefit: dental_sponsored_benefit, fte_count: 5, pte_count: 0, msp_count: 0,
+                          aasm_state: :draft,
+                          benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: new_start_on..(new_start_on.next_year - 1.day), state: :draft)])
       end
 
       it 'should reinstate benefit application if there is no overlapping application' do
@@ -489,12 +489,12 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
     context "with overlapping application" do
       let!(:draft_application) do
         FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
-                           passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
-                           open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
-                           recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
-                           dental_sponsored_benefit: dental_sponsored_benefit, fte_count: 5, pte_count: 0, msp_count: 0,
-                           aasm_state: overlapping_state,
-                           benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: benefit_application.effective_period, state: overlapping_state)])
+                          passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
+                          open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
+                          recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
+                          dental_sponsored_benefit: dental_sponsored_benefit, fte_count: 5, pte_count: 0, msp_count: 0,
+                          aasm_state: overlapping_state,
+                          benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: benefit_application.effective_period, state: overlapping_state)])
       end
 
       context "with draft overlapping application" do

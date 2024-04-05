@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
-  s.test_files = Dir["spec/**/*"]
 
   s.add_dependency "rails", "~> 5.2.8.1"
   s.add_dependency "slim", "~> 3.0.9"
@@ -43,5 +42,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_bot_rails', '~> 4'
   s.add_development_dependency 'forgery'
   s.add_development_dependency 'mongoid_rails_migrations'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end
 

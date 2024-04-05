@@ -16,14 +16,14 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
 
   let(:product_kinds)  { [:health] }
 
-  let(:service_area) {
+  let(:service_area) do
     county_zip_id = create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id
     create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
-  }
+  end
 
-  let(:renewal_service_area) {
+  let(:renewal_service_area) do
     create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year + 1)
-  }
+  end
 
   let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:health_products) do
@@ -82,13 +82,13 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
 
   def map_products
     current_benefit_market_catalog.product_packages.each do |product_package|
-      if renewal_product_package = renewal_benefit_market_catalog.product_packages.detect{ |p|
-        p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind }
+      next unless renewal_product_package = renewal_benefit_market_catalog.product_packages.detect do |p|
+                    p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind
+                  end
 
-        renewal_product_package.products.each_with_index do |renewal_product, i|
-          current_product = product_package.products[i]
-          current_product.update(renewal_product_id: renewal_product.id)
-        end
+      renewal_product_package.products.each_with_index do |renewal_product, i|
+        current_product = product_package.products[i]
+        current_product.update(renewal_product_id: renewal_product.id)
       end
     end
   end

@@ -18,7 +18,7 @@ module BenefitMarkets
       validates_numericality_of :order, :allow_blank => false
 
       def assign_contribution_value_defaults(cv)
-        cv.contribution_unit_id = self.id
+        cv.contribution_unit_id = id
         cv.display_name = display_name
         cv.order = order
         cv.is_offered = true

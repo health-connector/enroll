@@ -8,7 +8,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeMatchesEmployerRooster', :
 
   let!(:person){ create :person}
   let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile)}
-  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name ) }
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, first_name: person.first_name, last_name: person.last_name) }
 
   let!(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
@@ -30,14 +30,14 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeMatchesEmployerRooster', :
       application_period: (start_on.beginning_of_year..start_on.end_of_year)
     )
   end
-  let!(:benefit_application) {
+  let!(:benefit_application) do
     application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
-      benefit_sponsorship: benefit_sponsorship, 
-      default_effective_period: start_on..start_on.next_year.prev_day,
-      open_enrollment_period: open_enrollment_start_on..open_enrollment_start_on+20.days)
+                                    benefit_sponsorship: benefit_sponsorship,
+                                    default_effective_period: start_on..start_on.next_year.prev_day,
+                                    open_enrollment_period: open_enrollment_start_on..open_enrollment_start_on + 20.days)
     application.benefit_sponsor_catalog.save!
     application
-  }
+  end
 
   describe "NoticeTrigger" do
     context "when EE matches ER roster" do
@@ -55,7 +55,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeMatchesEmployerRooster', :
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
         "employee_profile.notice_date",
         "employee_profile.employer_name",
@@ -67,14 +67,16 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeMatchesEmployerRooster', :
         "employee_profile.broker.email",
         "employee_profile.broker_present?"
       ]
-    }
+    end
 
     let(:recipient) { "Notifier::MergeDataModels::EmployeeProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "CensusEmployee",
         "event_object_id" => census_employee.id
-    } }
+      }
+    end
     let(:subject) { Notifier::NoticeKind.new(template: template, recipient: recipient) }
     let(:merge_model) { subject.construct_notice_object }
 

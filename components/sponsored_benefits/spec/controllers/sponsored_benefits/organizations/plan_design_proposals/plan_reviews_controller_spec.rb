@@ -12,14 +12,14 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
 
   let(:plan_design_organization) do
     FactoryBot.create :sponsored_benefits_plan_design_organization,
-                       owner_profile_id: owner_profile.id,
-                       sponsor_profile_id: sponsor_profile.id
+                      owner_profile_id: owner_profile.id,
+                      sponsor_profile_id: sponsor_profile.id
   end
 
   let(:plan_design_proposal) do
     FactoryBot.create(:plan_design_proposal,
-                       :with_profile,
-                       plan_design_organization: plan_design_organization).tap do |proposal|
+                      :with_profile,
+                      plan_design_organization: plan_design_organization).tap do |proposal|
       sponsorship = proposal.profile.benefit_sponsorships.first
       sponsorship.save
     end
@@ -33,8 +33,8 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
 
   let(:benefit_application) do
     FactoryBot.create :plan_design_benefit_application,
-                       :with_benefit_group_create,
-                       benefit_sponsorship: benefit_sponsorship
+                      :with_benefit_group_create,
+                      benefit_sponsorship: benefit_sponsorship
   end
 
   let(:benefit_group) do
@@ -53,17 +53,17 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
 
   let!(:plan_design_census_employee) do
     FactoryBot.create_list :plan_design_census_employee, 75,
-                            :with_random_age,
-                            benefit_sponsorship_id: benefit_sponsorship.id
+                           :with_random_age,
+                           benefit_sponsorship_id: benefit_sponsorship.id
   end
 
   [2016, 2017, 2018, 2019, 2020].each do |year|
     let!("health_plans_for_#{year}".to_sym) do
       FactoryBot.create_list :plan,
-                              77,
-                              :with_complex_premium_tables,
-                              active_year: year,
-                              coverage_kind: "health"
+                             77,
+                             :with_complex_premium_tables,
+                             active_year: year,
+                             coverage_kind: "health"
     end
   end
 
@@ -78,8 +78,8 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
       FactoryBot.create(:broker_agency_profile)
     else
       FactoryBot.create(:benefit_sponsors_organizations_general_organization,
-                         :with_site,
-                         :with_broker_agency_profile).profiles.first
+                        :with_site,
+                        :with_broker_agency_profile).profiles.first
     end
   end
 

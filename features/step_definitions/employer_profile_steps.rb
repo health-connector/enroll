@@ -1,4 +1,4 @@
-Given /(\w+) is a person$/ do |name|
+Given(/(\w+) is a person$/) do |name|
   SicCode.where(sic_code: '0111').first || FactoryBot.create(:sic_code, sic_code: "0111")
 
   person = FactoryBot.create(:person, first_name: name)
@@ -7,18 +7,19 @@ Given /(\w+) is a person$/ do |name|
   user = User.create(email: email, password: @pswd, password_confirmation: @pswd, person: person, oim_id: email)
 end
 
-Given /(\w+) is census employee to (.*?)$/ do |name, legal_name|
+Given(/(\w+) is census employee to (.*?)$/) do |_name, legal_name|
   org = @organization[legal_name]
   @cesnus_employees = FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: org.benefit_sponsorships.first, employer_profile: org.employer_profile)
 end
 
-Given /(\w+) has already provided security question responses/ do |name|
+Given(/(\w+) has already provided security question responses/) do |_name|
   security_questions = []
   3.times do
     security_questions << FactoryBot.create(:security_question)
   end
   User.all.each do |u|
     next if u.security_question_responses.count == 3
+
     security_questions.each do |q|
       u.security_question_responses << FactoryBot.build(:security_question_response, security_question_id: q.id, question_answer: 'answer')
     end
@@ -26,29 +27,27 @@ Given /(\w+) has already provided security question responses/ do |name|
   end
 end
 
-And /(\w+) also has a duplicate person with different DOB/ do |name|
+And(/(\w+) also has a duplicate person with different DOB/) do |name|
   person = Person.where(first_name: name).first
   FactoryBot.create(:person, first_name: person.first_name,
-                     last_name: person.last_name, dob: '06/06/1976')
+                             last_name: person.last_name, dob: '06/06/1976')
 end
-Given /(\w+) is a person who has not logged on$/ do |name|
+Given(/(\w+) is a person who has not logged on$/) do |name|
   person = FactoryBot.create(:person, first_name: name)
 end
 
-Then  /(\w+) signs in to portal/ do |name|
-  if page.has_link? 'Sign In Existing Account'
-    find('.interaction-click-control-sign-in-existing-account').click
-  end
+Then(/(\w+) signs in to portal/) do |name|
+  find('.interaction-click-control-sign-in-existing-account').click if page.has_link? 'Sign In Existing Account'
   person = Person.where(first_name: name).first
   fill_in "user[login]", :with => person.user.oim_id
   find('#user_login').set(person.user.email)
   fill_in "user[password]", :with => @pswd
-  #TODO this fixes the random login fails b/c of empty params on email
+  #TODO: this fixes the random login fails b/c of empty params on email
   fill_in "user[login]", :with => person.user.email unless find(:xpath, '//*[@id="user_login"]').value == person.user.email
   find('.interaction-click-control-sign-in').click
 end
 
-Given /(\w+) is a user with no person who goes to the Employer Portal/ do |name|
+Given(/(\w+) is a user with no person who goes to the Employer Portal/) do |_name|
   SicCode.where(sic_code: '0111').first || FactoryBot.create(:sic_code, sic_code: "0111")
 
   email = Forgery('email').address
@@ -62,12 +61,12 @@ Given /(\w+) is a user with no person who goes to the Employer Portal/ do |name|
   fill_in "user[password_confirmation]", :with => @pswd
 
   find(:xpath, '//label[@for="user_email_or_username"]').set(email)
-  #TODO this fixes the random login fails b/c of empty params on email
+  #TODO: this fixes the random login fails b/c of empty params on email
   fill_in "user[oim_id]", :with => email unless find(:xpath, '//label[@for="user_email_or_username"]').value == email
   find('.interaction-click-control-create-account').click
 end
 
-Given /(\w+) enters first, last, dob and contact info/ do |name|
+Given(/(\w+) enters first, last, dob and contact info/) do |name|
   fill_in 'organization[first_name]', :with => name
   fill_in 'organization[last_name]', with: Forgery('name').last_name
   fill_in 'jq_datepicker_ignore_organization[dob]', with: '03/03/1993'
@@ -77,7 +76,7 @@ Given /(\w+) enters first, last, dob and contact info/ do |name|
   fill_in 'organization[number]', with: '555-1212'
 end
 
-Given /(\w+) enters info matching the employer staff role/ do |name|
+Given(/(\w+) enters info matching the employer staff role/) do |name|
 
   person = Person.where(first_name: name).first
   fill_in 'organization[first_name]', with: person.first_name
@@ -88,7 +87,7 @@ Given /(\w+) enters info matching the employer staff role/ do |name|
   fill_in 'organization[number]', with: '555-1212'
 end
 
-Given /(\w+) matches with different DOB from employer staff role/ do |name|
+Given(/(\w+) matches with different DOB from employer staff role/) do |name|
   person = Person.where(first_name: name).first
   fill_in 'organization[first_name]', with:  person.first_name
   fill_in 'organization[last_name]', with: person.last_name
@@ -137,20 +136,20 @@ When(/(\w+) accesses the Employer Portal/) do |name|
   step "#{name} signs in to portal"
 end
 
-Then /(\w+) decides to Update Business information/ do |person|
+Then(/(\w+) decides to Update Business information/) do |_person|
   find('.interaction-click-control-update-business-info', :wait => 10).click
   wait_for_ajax(10,2)
   screenshot('update_business_info')
 end
 
-And /(.*?) fills in all mandatory fields and clicks on save$/ do |legal_name|
+And(/(.*?) fills in all mandatory fields and clicks on save$/) do |_legal_name|
   find(:xpath, "//*[@id='staff_first_name']").set "john"
   find(:xpath, "//*[@id='staff_last_name']").set "snow"
   find(:xpath, "//*[@id='staff_dob']").set "09/11/1990"
   find(:xpath, "//*[@id='new_staff']/button").click
 end
 
-And /Employer enters (.*?) details and clicks on save$/ do |new_staff|
+And(/Employer enters (.*?) details and clicks on save$/) do |new_staff|
   person = Person.where(first_name: new_staff).first
 
   find(:xpath, "//*[@id='staff_first_name']").set person.first_name
@@ -159,77 +158,77 @@ And /Employer enters (.*?) details and clicks on save$/ do |new_staff|
   find(:xpath, "//*[@id='new_staff']/button").click
 end
 
-Then /employer should see a error flash message/ do
-  expect(page).to have_content /Role was not added because Person does not exist on the HBX Exchange/
+Then(/employer should see a error flash message/) do
+  expect(page).to have_content(/Role was not added because Person does not exist on the HBX Exchange/)
 end
 
-Then /employer should see a success flash message/ do
-  expect(page).to have_content /Role added sucessfully/
+Then(/employer should see a success flash message/) do
+  expect(page).to have_content(/Role added sucessfully/)
 end
 
-Given /(\w+) adds an EmployerStaffRole to (\w+)/ do |staff, new_staff|
+Given(/(\w+) adds an EmployerStaffRole to (\w+)/) do |_staff, new_staff|
   person = Person.where(first_name: new_staff).first
 
   click_link 'Add Employer Staff Role'
   fill_in 'staff_first_name', with: person.first_name
   fill_in 'staff_last_name', with: person.last_name
-  fill_in  'staff_dob', with: person.dob
+  fill_in 'staff_dob', with: person.dob
   screenshot('add_existing_person_as_staff')
   find_all('.btn-primary')[0].click
   step 'Point of Contact count is 2'
 end
 
-Then /Point of Contact count is (\d+)/ do |count|
+Then(/Point of Contact count is (\d+)/) do |count|
   sleep(10)
   expect(page.all('tr').count - 1).to eq(count.to_i)
 end
 
-Then /(\w+) cannot remove EmployerStaffRole from John/ do |legal_name|
+Then(/(\w+) cannot remove EmployerStaffRole from John/) do |legal_name|
   staff = Person.where(first_name: legal_name).first
   accept_alert do
     find(:xpath, '//*[@id="edit_agency"]/div/div/div[1]/table/tbody/tr/td[6]/a').click
   end
 end
 
-When /(\w+) removes EmployerStaffRole from Sarah/ do |staff2|
+When(/(\w+) removes EmployerStaffRole from Sarah/) do |staff2|
   staff = Person.where(first_name: staff2).first
   accept_alert do
     find(:xpath, '//*[@id="edit_agency"]/div[2]/div/div[1]/table/tbody/tr[2]/td[6]/a').click
   end
 end
 
-Then /(\w+) removes EmployerStaffRole from John/ do |name|
+Then(/(\w+) removes EmployerStaffRole from John/) do |name|
   staff = Person.where(first_name: name).first
   accept_alert do
     find_all('.fa-trash-alt')[0].click
   end
 end
 
-When /(\w+) approves EmployerStaffRole for (\w+)/ do |staff1, staff2|
+When(/(\w+) approves EmployerStaffRole for (\w+)/) do |_staff1, staff2|
   staff = Person.where(first_name: staff2).first
   find('#approve_' + staff.id.to_s).click
   screenshot('before_approval')
-  expect(find('.alert-notice').text).to match /Role is approved/
+  expect(find('.alert-notice').text).to match(/Role is approved/)
   screenshot('after_approval')
 end
 
-Then /(\w+) sees new employer page/ do |ex_staff|
-  match = current_path.match  /employers\/employer_profiles\/new/
+Then(/(\w+) sees new employer page/) do |_ex_staff|
+  match = current_path.match  %r{employers/employer_profiles/new}
   expect(match.present?).to be_truthy
 end
 
-Then /(\w+) enters data for Turner Agency, Inc/ do |name|
+Then(/(\w+) enters data for Turner Agency, Inc/) do |_name|
   @fein = Organization.where(legal_name: /Turner Agency, Inc/).first.fein
   step 'NewGuy enters Employer Information'
 end
 
-Then /(\w+) is notified about Employer Staff Role (.*)/ do |name, alert|
+Then(/(\w+) is notified about Employer Staff Role (.*)/) do |_name, _alert|
   expect(page).to have_content("Thank you for submitting your request to access the employer account. Your application for access is pending.")
   expect(page).to have_css("a", :text => /back/i)
   screenshot('pending_person_stays_on_new_page')
 end
 
-Given /Admin accesses the Employers tab of HBX portal/ do
+Given(/Admin accesses the Employers tab of HBX portal/) do
   visit '/'
   portal_class = '.interaction-click-control-hbx-portal'
   find(portal_class).click
@@ -254,7 +253,7 @@ Given("the user is on the User Accounts tab of the Admin Dashboard") do
   find(tab_class, wait: 10).click
 end
 
-Given /Admin selects Hannahs company/ do
+Given(/Admin selects Hannahs company/) do
   company = find('a', text: 'Turner Agency, Inc', :wait => 3)
   company.click
 end
@@ -264,7 +263,7 @@ Then("user will click on action tab") do
   find_all('.dropdown.pull-right', text: 'Actions')[0].click
 end
 
-Given /(\w+) has HBXAdmin privileges/ do |name|
+Given(/(\w+) has HBXAdmin privileges/) do |name|
   person = Person.where(first_name: name).first
   role = FactoryBot.create(:hbx_staff_role, person: person)
   Permission.create(name: 'hbx_staff', modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
@@ -274,17 +273,17 @@ Given /(\w+) has HBXAdmin privileges/ do |name|
 
 end
 
-Given /a FEIN for an existing company/ do
+Given(/a FEIN for an existing company/) do
   SicCode.where(sic_code: '0111').first || FactoryBot.create(:sic_code, sic_code: "0111")
-  @fein = 100000000+rand(10000)
-  o=FactoryBot.create(:organization, fein: @fein)
-  @employer_profile= FactoryBot.create(:employer_profile, organization: o)
+  @fein = rand(100_000_000..100_009_999)
+  o = FactoryBot.create(:organization, fein: @fein)
+  @employer_profile = FactoryBot.create(:employer_profile, organization: o)
 end
 
-Given /a FEIN for a new company/ do
-  @fein = 100000000+rand(10000)
+Given(/a FEIN for a new company/) do
+  @fein = rand(100_000_000..100_009_999)
 end
-Given(/^(\w+) enters Employer Information/) do |name|
+Given(/^(\w+) enters Employer Information/) do |_name|
   fill_in 'agency[organization][legal_name]', :with => Forgery('name').company_name
   fill_in 'agency[organization][dba]', :with => Forgery('name').company_name
   fill_in 'agency[organization][fein]', :with => @fein
@@ -299,19 +298,19 @@ Given(/^(\w+) enters Employer Information/) do |name|
   find_button("Confirm").click
 end
 
-Then /(\w+) becomes an Employer/ do |name|
+Then(/(\w+) becomes an Employer/) do |_name|
   find('a', text: "I'm an Employer")
 end
 
-Then /there is a linked POC/ do
+Then(/there is a linked POC/) do
   find('td', text: /Linked/)
 end
 
-Then /there is an unlinked POC/ do
+Then(/there is an unlinked POC/) do
   find('td', text: /Unlinked/)
 end
 
-AfterStep do |scenario|
+AfterStep do |_scenario|
   sleep 1 if ENV['SCREENSHOTS'] == "true"
   screenshot("")
 end

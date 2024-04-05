@@ -61,8 +61,8 @@ module BenefitSponsors
 
         before do
           account.assign_attributes({
-            is_active: false
-          })
+                                      is_active: false
+                                    })
 
           subject.broker_hired?(account)
           subject.broker_fired?(account)

@@ -13,11 +13,11 @@ RSpec.describe 'BenefitSponsors::Queries::NoticeQueries', :dbclean => :after_eac
   end
   let!(:benefit_application) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                       :with_benefit_package,
-                       :benefit_sponsorship => benefit_sponsorship,
-                       :aasm_state => aasm_state,
-                       :default_effective_period => start_on..(start_on + 1.year) - 1.day,
-                       :open_enrollment_period => open_enrollment_period)
+                      :with_benefit_package,
+                      :benefit_sponsorship => benefit_sponsorship,
+                      :aasm_state => aasm_state,
+                      :default_effective_period => start_on..(start_on + 1.year) - 1.day,
+                      :open_enrollment_period => open_enrollment_period)
   end
 
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month}

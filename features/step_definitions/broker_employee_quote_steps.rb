@@ -10,12 +10,11 @@ module BrokerWorld
     attributes = traits.extract_options!
     @broker_agency ||= FactoryBot.create :broker, *traits, attributes
   end
-
 end
 
 World(BrokerWorld)
 
-Given (/^that a broker exists$/) do
+Given(/^that a broker exists$/) do
   broker_agency
   broker :with_family, :broker_with_person, organization: broker_agency
   broker_agency_profile = broker_agency.broker_agency_profile
@@ -189,13 +188,13 @@ Then(/^the broker should see the data in the table$/) do
 end
 
 Then(/^the broker enters the quote effective date$/) do
-  select "#{(TimeKeeper.date_of_record+3.month).strftime("%B %Y")}", :from => "quote_start_on"
+  select "#{(TimeKeeper.date_of_record + 3.month).strftime('%B %Y')}", :from => "quote_start_on"
 end
 
 When(/^the broker selects employer type$/) do
  #find('.interaction-choice-control-quote-employer-type').click()
- select "Prospect", :from => "quote_employer_type"
- fill_in 'quote[employer_name]', with: "prospect test Employee"
+  select "Prospect", :from => "quote_employer_type"
+  fill_in 'quote[employer_name]', with: "prospect test Employee"
 end
 
 When(/^broker enters valid information$/) do
@@ -224,7 +223,7 @@ Then(/^the broker clicks Actions dropdown$/) do
 end
 
 When(/^the broker clicks delete$/) do
-  find('a', text: "Delete"). click
+  find('a', text: "Delete").click
 end
 
 Then(/^the broker sees the confirmation$/) do

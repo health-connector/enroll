@@ -7,13 +7,13 @@ module BenefitSponsors
       include BenefitSponsors::Concerns::Observable
       include Config::AcaModelConcern
 
-      SUBJECT_KINDS = %w(
+      SUBJECT_KINDS = %w[
                           urn:openhbx:documents:v1::employer#invoice
                           urn:openhbx:documents:v1::employer#eligibility_attestation
                           urn:openhbx:documents:v1::broker#commission_statement
-                      )
-                      
-      ACCESS_RIGHTS = %w(public pii_restricted)
+                      ]
+
+      ACCESS_RIGHTS = %w[public pii_restricted]
 
       after_create :notify_on_create
 
@@ -72,8 +72,8 @@ module BenefitSponsors
       validates_presence_of :identifier, :title, :creator, :publisher, :type, :format, :source, :language
 
       validates :rights,
-        allow_blank: true,
-        inclusion: { in: ACCESS_RIGHTS, message: "%{value} is not a valid access right" }
+                allow_blank: true,
+                inclusion: { in: ACCESS_RIGHTS, message: "%<value>s is not a valid access right" }
 
 
       index({identifier: 1})

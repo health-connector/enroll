@@ -17,14 +17,14 @@ module BenefitMarkets
 
     let(:params) do
       {
-        effective_date:         effective_date,
-        effective_period:       effective_period,
+        effective_date: effective_date,
+        effective_period: effective_period,
         open_enrollment_period: open_enrollment_period,
         probation_period_kinds: probation_period_kinds,
-        service_areas:          service_areas,
-        sponsor_market_policy:  sponsor_market_policy,
-        member_market_policy:   member_market_policy,
-        product_packages:       product_packages,
+        service_areas: service_areas,
+        sponsor_market_policy: sponsor_market_policy,
+        member_market_policy: member_market_policy,
+        product_packages: product_packages
       }
     end
 
@@ -90,7 +90,7 @@ module BenefitMarkets
       end
 
 
- # TODO Fix -- re-enable when seed file supports these
+ # TODO: Fix -- re-enable when seed file supports these
       # context "with no sponsor_market_policy" do
       #   subject { described_class.new(params.except(:sponsor_market_policy)) }
 
@@ -154,7 +154,7 @@ module BenefitMarkets
         end
 
         it "the base_catalog should be less than the compare_catalog" do
-          expect(base_catalog <=> compare_catalog).to eq -1
+          expect(base_catalog <=> compare_catalog).to eq(-1)
         end
       end
 
@@ -169,7 +169,7 @@ module BenefitMarkets
         end
 
         it "the base_catalog should be lest than the compare_catalog" do
-          expect(base_catalog <=> compare_catalog).to eq -1
+          expect(base_catalog <=> compare_catalog).to eq(-1)
         end
       end
     end

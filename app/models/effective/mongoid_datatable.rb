@@ -6,7 +6,7 @@ module Effective
 
     protected
 
-    def table_tool 
+    def table_tool
       @table_tool ||= MongoidDatatableTool.new(self, table_columns.reject { |_, col| col[:array_column] })
     end
 

@@ -60,14 +60,13 @@ class Insured::GroupSelectionController < ApplicationController
 
     if @employee_role.census_employee.present?
       new_hire_enrollment_period = @employee_role.census_employee.new_hire_enrollment_period
-      if new_hire_enrollment_period.begin > TimeKeeper.date_of_record
-        raise "You're not yet eligible under your employer-sponsored benefits. Please return on #{new_hire_enrollment_period.begin.strftime("%m/%d/%Y")} to enroll for coverage."
-      end
+      raise "You're not yet eligible under your employer-sponsored benefits. Please return on #{new_hire_enrollment_period.begin.strftime('%m/%d/%Y')} to enroll for coverage." if new_hire_enrollment_period.begin > TimeKeeper.date_of_record
     end
 
     unless @adapter.is_waiving?(params)
       raise "You must select at least one Eligible applicant to enroll in the healthcare plan" if params[:family_member_ids].blank?
-      family_member_ids = params[:family_member_ids].values.collect do | family_member_id|
+
+      family_member_ids = params[:family_member_ids].values.collect do |family_member_id|
         BSON::ObjectId.from_string(family_member_id)
       end
     end
@@ -86,12 +85,10 @@ class Insured::GroupSelectionController < ApplicationController
       end
     end
 
-    if (@adapter.keep_existing_plan?(params) && @adapter.previous_hbx_enrollment.present?)
+    if @adapter.keep_existing_plan?(params) && @adapter.previous_hbx_enrollment.present?
       sep = @hbx_enrollment.is_shop? ? @hbx_enrollment.family.earliest_effective_shop_sep : @hbx_enrollment.family.earliest_effective_ivl_sep
 
-      if sep.present?
-        hbx_enrollment.special_enrollment_period_id = sep.id
-      end
+      hbx_enrollment.special_enrollment_period_id = sep.id if sep.present?
     end
 
     hbx_enrollment.generate_hbx_signature
@@ -118,12 +115,12 @@ class Insured::GroupSelectionController < ApplicationController
     else
       raise "You must select the primary applicant to enroll in the healthcare plan"
     end
-  rescue Exception => error
-    flash[:error] = error.message
-    logger.error "#{error.message}\n#{error.backtrace.join("\n")}"
+  rescue Exception => e
+    flash[:error] = e.message
+    logger.error "#{e.message}\n#{e.backtrace.join("\n")}"
     employee_role_id = @employee_role.id if @employee_role
     consumer_role_id = @consumer_role.id if @consumer_role
-    return redirect_to new_insured_group_selection_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, consumer_role_id: consumer_role_id, enrollment_kind: @enrollment_kind)
+    redirect_to new_insured_group_selection_path(person_id: @person.id, employee_role_id: employee_role_id, change_plan: @change_plan, market_kind: @market_kind, consumer_role_id: consumer_role_id, enrollment_kind: @enrollment_kind)
   end
 
   def terminate_selection
@@ -197,17 +194,18 @@ class Insured::GroupSelectionController < ApplicationController
         resident_role: @adapter.person.resident_role,
         coverage_household: @adapter.coverage_household,
         qle: @adapter.is_qle?,
-        opt_effective_on: @adapter.optional_effective_on)
+        opt_effective_on: @adapter.optional_effective_on
+      )
     when 'coverall'
       @adapter.coverage_household.household.new_hbx_enrollment_from(
         consumer_role: @person.consumer_role,
         resident_role: @person.resident_role,
         coverage_household: @adapter.coverage_household,
         qle: @adapter.is_qle?,
-        opt_effective_on: @adapter.optional_effective_on)
+        opt_effective_on: @adapter.optional_effective_on
+      )
     end
   end
-
 
   def initialize_common_vars
     @adapter = GroupSelectionPrevaricationAdapter.initialize_for_common_vars(params)

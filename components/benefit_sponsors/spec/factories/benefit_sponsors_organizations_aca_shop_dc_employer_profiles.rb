@@ -21,7 +21,7 @@ FactoryBot.define do
     end
 
     trait :with_benefit_sponsorship do
-      after :build do |profile, evaluator|
+      after :build do |profile, _evaluator|
         profile.add_benefit_sponsorship
       end
     end

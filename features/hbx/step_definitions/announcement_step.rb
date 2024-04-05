@@ -1,11 +1,11 @@
-And /^Hbx admin should see the link of announcements and click$/ do
+And(/^Hbx admin should see the link of announcements and click$/) do
   click_link 'Config'
   wait_for_ajax
   expect(page).to have_content("Announcements")
   click_link 'Announcements'
 end
 
-Then /^Hbx admin should see the page of announcements$/ do
+Then(/^Hbx admin should see the page of announcements$/) do
   expect(page).to have_content("Current Announcements")
   expect(page).to have_content("Msg Start Date")
 end
@@ -46,7 +46,7 @@ end
 When(/^Hbx admin enter announcement info with invalid params for (.*?)$/) do |role|
   fill_in 'announcement[content]', with: 'invalid announcement'
   fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record + 5.days).to_s
-  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: (TimeKeeper.date_of_record).to_s
+  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: TimeKeeper.date_of_record.to_s
   find('#announcement_content').click
   find('#announcement_audiences_ivl').click if role == "ivl"
   find('#announcement_audiences_employer').click if role == "employee"
@@ -82,7 +82,7 @@ When(/^Consumer click the link of homepage$/) do
 end
 
 Given(/^Consumer role exists$/) do
-  user = FactoryBot.create :user, :with_family, :consumer, email: 'consumer@dc.gov', password: '1qaz@WSX', password_confirmation: '1qaz@WSX' ,identity_final_decision_code: 'acc'
+  user = FactoryBot.create :user, :with_family, :consumer, email: 'consumer@dc.gov', password: '1qaz@WSX', password_confirmation: '1qaz@WSX',identity_final_decision_code: 'acc'
   FactoryBot.create(:consumer_role, person: user.person)
 end
 

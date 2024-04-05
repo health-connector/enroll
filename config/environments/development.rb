@@ -76,8 +76,8 @@ Rails.application.configure do
   config.active_job.queue_adapter = :resque
 
   HbxIdGenerator.slug!
-  config.ga_tracking_id = ENV['GA_TRACKING_ID'] || "dummy"
-  config.ga_tagmanager_id = ENV['GA_TAGMANAGER_ID'] || "dummy"
+  config.ga_tracking_id = ENV.fetch('GA_TRACKING_ID', "dummy")
+  config.ga_tagmanager_id = ENV.fetch('GA_TAGMANAGER_ID', "dummy")
 
 
   Mongoid.logger.level = Logger::ERROR

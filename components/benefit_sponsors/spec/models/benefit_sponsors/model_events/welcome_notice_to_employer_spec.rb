@@ -35,20 +35,22 @@ RSpec.describe 'BenefitSponsors::ModelEvents::WelcomeNoticeToEmployer', dbclean:
     end
   end
 
-   describe "NoticeBuilder" do
+  describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
           "employer_profile.notice_date",
           "employer_profile.employer_name"
       ]
-    }
+    end
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile",
         "event_object_id" => employer_profile.id
-    } }
+      }
+    end
     let(:subject) { Notifier::NoticeKind.new(template: template, recipient: recipient) }
     let(:merge_model) { subject.construct_notice_object }
 

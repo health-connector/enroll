@@ -1,8 +1,8 @@
 module BenefitSponsorWorld
-
   def benefit_sponsorship(employer = nil)
     @benefit_sponsorship ||= {}
     return @benefit_sponsorship.values.first if employer.blank?
+
     @benefit_sponsorship[employer.legal_name] ||= employer.employer_profile.add_benefit_sponsorship.tap do |benefit_sponsorship|
       benefit_sponsorship.save
     end

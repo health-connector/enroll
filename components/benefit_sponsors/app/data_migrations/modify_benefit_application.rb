@@ -24,7 +24,7 @@ class ModifyBenefitApplication < MongoidMigrationTask
   end
 
   def extend_open_enrollment
-    effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
+    effective_date = Date.strptime(ENV.fetch('effective_date', nil), "%m/%d/%Y")
     oe_end_date = Date.strptime(ENV['oe_end_date'], "%m/%d/%Y") if ENV['oe_end_date'].present?
 
     benefit_sponsorship = get_benefit_sponsorship
@@ -39,7 +39,7 @@ class ModifyBenefitApplication < MongoidMigrationTask
   end
 
   def begin_open_enrollment(benefit_applications)
-    effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
+    effective_date = Date.strptime(ENV.fetch('effective_date', nil), "%m/%d/%Y")
     benefit_application = benefit_applications.where(
       :aasm_state.in => [:approved, :enrollment_closed, :enrollment_eligible, :enrollment_ineligible],
       :"benefit_application_items.effective_period.min" => effective_date
@@ -48,8 +48,8 @@ class ModifyBenefitApplication < MongoidMigrationTask
       from_state = benefit_application.aasm_state
       benefit_application.update_attributes!(:aasm_state => :enrollment_open)
       benefit_application.workflow_state_transitions << WorkflowStateTransition.new(
-          from_state: from_state,
-          to_state: "enrollment_open"
+        from_state: from_state,
+        to_state: "enrollment_open"
       )
       if from_state == :approved
         benefit_application.recalc_pricing_determinations
@@ -62,20 +62,19 @@ class ModifyBenefitApplication < MongoidMigrationTask
     end
   end
 
-  def reinstate_benefit_application(benefit_applications)
-
-  end
+  def reinstate_benefit_application(benefit_applications); end
 
   def update_effective_period_and_approve(benefit_applications)
-    effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
-    new_start_date = Date.strptime(ENV['new_start_date'], "%m/%d/%Y")
-    new_end_date = Date.strptime(ENV['new_end_date'], "%m/%d/%Y")
+    effective_date = Date.strptime(ENV.fetch('effective_date', nil), "%m/%d/%Y")
+    new_start_date = Date.strptime(ENV.fetch('new_start_date', nil), "%m/%d/%Y")
+    new_end_date = Date.strptime(ENV.fetch('new_end_date', nil), "%m/%d/%Y")
     oe_start_on = new_start_date.prev_month
     oe_end_on = oe_start_on + 19.days
     raise 'new_end_date must be greater than new_start_date' if new_start_date >= new_end_date
+
     benefit_application = benefit_applications.where(:"benefit_application_items.effective_period.min" => effective_date, :aasm_state => :draft).first
     if benefit_application.present?
-      benefit_sponsorship =  benefit_application.benefit_sponsorship
+      benefit_sponsorship = benefit_application.benefit_sponsorship
       benefit_package = benefit_application.benefit_packages.detect(&:is_active)
       item = benefit_application.benefit_application_items.where(:"effective_period.min" => effective_date).first
       item.update(effective_period: new_start_date..new_end_date)
@@ -84,10 +83,10 @@ class ModifyBenefitApplication < MongoidMigrationTask
       benefit_sponsor_catalog = benefit_sponsorship.benefit_sponsor_catalog_for(new_effective_date)
       benefit_application.benefit_sponsor_catalog.delete
       benefit_sponsor_catalog.save!
-      benefit_application.benefit_sponsor_catalog =  benefit_sponsor_catalog
+      benefit_application.benefit_sponsor_catalog = benefit_sponsor_catalog
       benefit_application.save!
       benefit_sponsorship.census_employees.each do |ee|
-        ee.benefit_group_assignments.where(benefit_package_id: benefit_package.id).each do|bga|
+        ee.benefit_group_assignments.where(benefit_package_id: benefit_package.id).each do |bga|
           bga.update_attributes!(start_on: new_start_date)
         end
       end
@@ -110,12 +109,12 @@ class ModifyBenefitApplication < MongoidMigrationTask
   end
 
   def terminate_benefit_application(benefit_applications)
-    termination_kind = ENV['termination_kind']
-    termination_reason = ENV['termination_reason']
-    off_cycle_renewal = ENV['off_cycle_renewal']
-    termination_date = Date.strptime(ENV['termination_date'], "%m/%d/%Y")
-    notify_trading_partner = (ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true) ? true : false
-    end_on = Date.strptime(ENV['end_on'], "%m/%d/%Y")
+    termination_kind = ENV.fetch('termination_kind', nil)
+    termination_reason = ENV.fetch('termination_reason', nil)
+    off_cycle_renewal = ENV.fetch('off_cycle_renewal', nil)
+    termination_date = Date.strptime(ENV.fetch('termination_date', nil), "%m/%d/%Y")
+    notify_trading_partner = ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true ? true : false
+    end_on = Date.strptime(ENV.fetch('end_on', nil), "%m/%d/%Y")
     benefit_applications.each do |benefit_application|
       service = initialize_service(benefit_application)
       service.terminate(end_on, termination_date, termination_kind, termination_reason, notify_trading_partner)
@@ -135,7 +134,7 @@ class ModifyBenefitApplication < MongoidMigrationTask
 
   def cancel_benefit_application(benefit_application)
     service = initialize_service(benefit_application)
-    notify_trading_partner = (ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true) ? true : false
+    notify_trading_partner = ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true ? true : false
     service.cancel(notify_trading_partner)
   end
 
@@ -149,17 +148,17 @@ class ModifyBenefitApplication < MongoidMigrationTask
     benefit_sponsorship.benefit_applications
   end
 
-  def benefit_applications_for_reinstate
-  end
+  def benefit_applications_for_reinstate; end
 
   def benefit_application_for_force_submission
-    effective_date = Date.strptime(ENV['effective_date'], "%m/%d/%Y")
+    effective_date = Date.strptime(ENV.fetch('effective_date', nil), "%m/%d/%Y")
     benefit_sponsorship = get_benefit_sponsorship
     application = benefit_sponsorship.benefit_applications.where(
       :"benefit_application_items._id".in => benefit_sponsorship.benefit_applications.map { |app| app.earliest_benefit_application_item.id },
       :"benefit_application_items.effective_period.min" => effective_date
     )
     raise "Found #{application.count} benefit applications with that start date" if application.count != 1
+
     application.first
   end
 
@@ -176,15 +175,15 @@ class ModifyBenefitApplication < MongoidMigrationTask
       :"benefit_application_items.effective_period.min" => benefit_application_start_on
     )
     raise "Found #{application.count} benefit applications with that start date" if application.count != 1
+
     application.first
   end
 
   def get_benefit_sponsorship
     fein = ENV['fein'].to_s
     organizations = BenefitSponsors::Organizations::Organization.where(fein: fein)
-    if organizations.size != 1
-      raise "Found no (OR) more than 1 organizations with the #{fein}" unless Rails.env.test?
-    end
+    raise "Found no (OR) more than 1 organizations with the #{fein}" if organizations.size != 1 && !Rails.env.test?
+
     organizations.first.active_benefit_sponsorship
   end
 

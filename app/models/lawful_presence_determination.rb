@@ -10,10 +10,10 @@ class LawfulPresenceDetermination
   include Mongoid::History::Trackable
 
   embedded_in :ivl_role, polymorphic: true
-  embeds_many :ssa_responses, class_name:"EventResponse"
-  embeds_many :vlp_responses, class_name:"EventResponse"
-  embeds_many :ssa_requests, class_name:"EventRequest"
-  embeds_many :vlp_requests, class_name:"EventRequest"
+  embeds_many :ssa_responses, class_name: "EventResponse"
+  embeds_many :vlp_responses, class_name: "EventResponse"
+  embeds_many :ssa_requests, class_name: "EventRequest"
+  embeds_many :vlp_requests, class_name: "EventRequest"
 
   field :vlp_verified_at, type: DateTime
   field :vlp_authority, type: String
@@ -30,8 +30,8 @@ class LawfulPresenceDetermination
                           :citizenship_result,
                           :aasm_state],
                   :scope => :consumer_role,
-                  :track_create  => false,    # track document creation, default is false
-                  :track_update  => true,    # track document updates, default is true
+                  :track_create => false,    # track document creation, default is false
+                  :track_update => true,    # track document updates, default is true
                   :track_destroy => false     # track document destruction, default is false
 
   aasm do
@@ -60,19 +60,15 @@ class LawfulPresenceDetermination
 
   def latest_denial_date
     responses = (ssa_responses.to_a + vlp_responses.to_a)
-    if self.verification_outstanding? && responses.present?
-      responses.max_by(&:received_at).received_at
-    else
-      nil
-    end
+    responses.max_by(&:received_at).received_at if verification_outstanding? && responses.present?
   end
 
   def start_ssa_process
-    notify(SSA_VERIFICATION_REQUEST_EVENT_NAME, {:person => self.ivl_role.person})
+    notify(SSA_VERIFICATION_REQUEST_EVENT_NAME, {:person => ivl_role.person})
   end
 
   def start_vlp_process(requested_start_date)
-    notify(VLP_VERIFICATION_REQUEST_EVENT_NAME, {:person => self.ivl_role.person, :coverage_start_date => requested_start_date})
+    notify(VLP_VERIFICATION_REQUEST_EVENT_NAME, {:person => ivl_role.person, :coverage_start_date => requested_start_date})
   end
 
   def assign_citizen_status(new_status)
@@ -80,34 +76,23 @@ class LawfulPresenceDetermination
   end
 
   private
+
   def record_approval_information(*args)
     approval_information = args.first
-    self.update_attributes!(vlp_verified_at: approval_information.determined_at,
-                            vlp_authority: approval_information.vlp_authority)
-    if approval_information.citizenship_result
-      self.citizenship_result = approval_information.citizenship_result
-    else
-      self.ivl_role.is_native? ? self.citizenship_result = "us_citizen" : self.citizenship_result = "non_native_citizen"
-    end
-    if ["ssa", "curam"].include?(approval_information.vlp_authority)
-      if self.ivl_role
-        if self.ivl_role.person
-          unless self.ivl_role.person.ssn.blank?
-            self.ivl_role.ssn_validation = "valid"
-          end
-        end
-      end
-    end
+    update_attributes!(vlp_verified_at: approval_information.determined_at,
+                       vlp_authority: approval_information.vlp_authority)
+    self.citizenship_result = (approval_information.citizenship_result || (ivl_role.is_native? ? "us_citizen" : "non_native_citizen"))
+    ivl_role.ssn_validation = "valid" if ["ssa", "curam"].include?(approval_information.vlp_authority) && ivl_role && ivl_role.person && !ivl_role.person.ssn.blank?
   end
 
   def record_denial_information(*args)
     denial_information = args.first
-    self.update_attributes!(vlp_verified_at: denial_information.determined_at,
-                            vlp_authority: denial_information.vlp_authority,
-                            citizenship_result: ::ConsumerRole::NOT_LAWFULLY_PRESENT_STATUS)
+    update_attributes!(vlp_verified_at: denial_information.determined_at,
+                       vlp_authority: denial_information.vlp_authority,
+                       citizenship_result: ::ConsumerRole::NOT_LAWFULLY_PRESENT_STATUS)
   end
 
-  def record_transition(*args)
+  def record_transition(*_args)
     workflow_state_transitions << WorkflowStateTransition.new(
       from_state: aasm.from_state,
       to_state: aasm.to_state,

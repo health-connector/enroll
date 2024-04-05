@@ -2,9 +2,9 @@ module Importers::Mhc
   class ConversionEmployerPlanYear < Importers::ConversionEmployerPlanYear
 
     CARRIER_MAPPING = {
-      "bmc healthnet plan"=>"BMCHP", 
-      "fallon community health plan"=>"FCHP",
-      "health new england"=>"HNE",
+      "bmc healthnet plan" => "BMCHP",
+      "fallon community health plan" => "FCHP",
+      "health new england" => "HNE",
       "neighborhood health plan" => "NHP",
       "harvard pilgrim health care" => "HPHC",
       "boston medical center health plan" => "BMCHP",
@@ -18,19 +18,19 @@ module Importers::Mhc
     validate :validate_plan_selection, :validate_reference_plan
 
     attr_accessor :employee_only_rt_contribution,
-      :employee_only_rt_premium,
-      :employee_and_spouse_rt_offered,
-      :employee_and_spouse_rt_contribution,
-      :employee_and_spouse_rt_premium,
-      :employee_and_one_or_more_dependents_rt_offered,
-      :employee_and_one_or_more_dependents_rt_contribution,
-      :employee_and_one_or_more_dependents_rt_premium,
-      :family_rt_offered,
-      :family_rt_contribution,
-      :family_rt_premium,
-      :employer_domestic_partner_rt_contribution,
-      :employer_child_under_26_rt_contribution,
-      :sponsored_benefit_kind
+                  :employee_only_rt_premium,
+                  :employee_and_spouse_rt_offered,
+                  :employee_and_spouse_rt_contribution,
+                  :employee_and_spouse_rt_premium,
+                  :employee_and_one_or_more_dependents_rt_offered,
+                  :employee_and_one_or_more_dependents_rt_contribution,
+                  :employee_and_one_or_more_dependents_rt_premium,
+                  :family_rt_offered,
+                  :family_rt_contribution,
+                  :family_rt_premium,
+                  :employer_domestic_partner_rt_contribution,
+                  :employer_child_under_26_rt_contribution,
+                  :sponsored_benefit_kind
 
     def initialize(opts = {})
       super(opts)
@@ -51,14 +51,12 @@ module Importers::Mhc
         return
       end
 
-      available_plans = Plan.valid_shop_health_plans("carrier", found_carrier.id, (calculated_coverage_start).year).compact
-      select_reference_plan(available_plans, (calculated_coverage_start).year)
+      available_plans = Plan.valid_shop_health_plans("carrier", found_carrier.id, calculated_coverage_start.year).compact
+      select_reference_plan(available_plans, calculated_coverage_start.year)
     end
 
     def validate_plan_selection
-      if plan_selection != 'sole_source'
-        errors.add(:plan_selection, "invalid plan selection specified (not sole source)")
-      end
+      errors.add(:plan_selection, "invalid plan selection specified (not sole source)") if plan_selection != 'sole_source'
     end
 
     def service_area_plan_hios_ids(year)
@@ -71,18 +69,19 @@ module Importers::Mhc
     def select_reference_plan(available_plans, start_on_year)
       employer = find_employer
       if plan_selection == 'sole_source'
-        if !single_plan_hios_id.blank?
+        if single_plan_hios_id.blank?
+          errors.add(:single_plan_hios_id, "no hios id specified for single plan benefit group")
+        else
           sp_hios = single_plan_hios_id.strip
           service_area_plan_hios_ids_list = service_area_plan_hios_ids(start_on_year)
           if service_area_plan_hios_ids_list.include?(sp_hios) || service_area_plan_hios_ids_list.include?("#{sp_hios}-01")
             found_sole_source_plan = available_plans.detect { |pl| (pl.hios_id == sp_hios) || (pl.hios_id == "#{sp_hios}-01") }
             return found_sole_source_plan if found_sole_source_plan
+
             errors.add(:single_plan_hios_id, "hios id #{single_plan_hios_id.strip} not found for single plan benefit group")
           else
             errors.add(:single_plan_hios_id, "hios id #{sp_hios} not offered in employer service areas")
           end
-        else
-          errors.add(:single_plan_hios_id, "no hios id specified for single plan benefit group")
         end
       end
     end

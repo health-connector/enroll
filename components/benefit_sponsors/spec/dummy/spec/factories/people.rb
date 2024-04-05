@@ -11,7 +11,7 @@ FactoryBot.define do
     gender { "male" }
 
     trait :with_broker_role do
-      after(:create) do |p, evaluator|
+      after(:create) do |p, _evaluator|
         create_list(:broker_role, 1, person: p)
       end
     end
@@ -23,11 +23,11 @@ FactoryBot.define do
     end
 
     trait :with_work_phone do
-      phones { [FactoryBot.build(:phone, kind: "work") ] }
+      phones { [FactoryBot.build(:phone, kind: "work")] }
     end
 
     trait :with_work_email do
-      emails { [FactoryBot.build(:email, kind: "work") ] }
+      emails { [FactoryBot.build(:email, kind: "work")] }
     end
 
     trait :with_employee_role do

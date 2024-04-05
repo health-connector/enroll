@@ -7,7 +7,7 @@ module Insured
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
-      # TODO - use permit params
+      # TODO: - use permit params
       attr = strong_params.to_h.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
                                                                      dental_offering: attr[:dental_offering],  health_offering: attr[:health_offering],
@@ -59,7 +59,7 @@ module Insured
                           {}
                         end
 
-      @context = Hash[@context.sort.reverse]
+      @context = @context.sort.reverse.to_h
       set_consumer_bookmark_url(family_account_path)
 
       respond_to do |format|
@@ -83,7 +83,7 @@ module Insured
       end
 
       @context.merge!("waiver_context" => @waiver_context)
-      @context = Hash[@context.sort.reverse]
+      @context = @context.sort.reverse.to_h
 
       if @context.values.select{|hash| hash[:employee_is_shopping_before_hire]}.any?(true)
         session.delete(:pre_hbx_enrollment_id)
@@ -113,7 +113,7 @@ module Insured
         @dental_waiver = HbxEnrollment.find(params["waiver_context"]['dental']['waiver_enrollment']) if params["waiver_context"]['dental'].present?
       end
 
-      @context = Hash[@context.sort.reverse]
+      @context = @context.sort.reverse.to_h
 
       #TODO
       # @change_plan = params[:change_plan].present? ? params[:change_plan] : ''
@@ -123,7 +123,7 @@ module Insured
     end
 
     def waiver_thankyou
-      # TODO - use permit params
+      # TODO: - use permit params
       attrs = params.permit!.to_h.deep_symbolize_keys
       enr_details = attrs.slice(:health, :dental)
 
@@ -136,7 +136,7 @@ module Insured
         output[k] = context.json
       end
 
-      @context = Hash[@context.sort.reverse]
+      @context = @context.sort.reverse.to_h
       set_consumer_bookmark_url(family_account_path)
 
       respond_to do |format|
@@ -154,7 +154,7 @@ module Insured
         context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: value[:enrollment_id], waiver_reason: value[:waiver_reason])
         @context[key] = { waiver_status: context.waiver_enrollment.inactive?, waiver_enrollment: context.waiver_enrollment }
       end
-      @context = Hash[@context.sort.reverse]
+      @context = @context.sort.reverse.to_h
       session.delete(:pre_hbx_enrollment_id)
       redirect_to waiver_receipt_insured_product_shoppings_path(@context), notice: 'Waive Coverage Successful'
     end

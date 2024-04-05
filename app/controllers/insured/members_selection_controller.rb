@@ -18,7 +18,7 @@ module Insured
       @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.to_unsafe_h.symbolize_keys)
 
       binding.pry
-      if @organizer.failure? # rubocop:disable Style/GuardClause
+      if @organizer.failure?
         flash[:error] = @organizer.message
         redirect_back fallback_location: main_app.root_path
       end
@@ -65,7 +65,7 @@ module Insured
 
     def keep_existing_plan_cart
       shopping_enrollment = @organizer.shopping_enrollments.first
-      {shopping_enrollment.coverage_kind => {"id": shopping_enrollment.id, "product_id": @organizer.previous_hbx_enrollment.product_id}}
+      {shopping_enrollment.coverage_kind => {id: shopping_enrollment.id, product_id: @organizer.previous_hbx_enrollment.product_id}}
     end
   end
 end

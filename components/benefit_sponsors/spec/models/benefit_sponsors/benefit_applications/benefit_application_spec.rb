@@ -31,9 +31,9 @@ module BenefitSponsors
 
     let(:benefit_sponsor_catalog_2) do
       FactoryBot.create(:benefit_markets_benefit_sponsor_catalog,
-                         service_areas: [service_area],
-                         effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
-                         open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
+                        service_areas: [service_area],
+                        effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
+                        open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
     end
 
     let(:params) do
@@ -247,11 +247,11 @@ module BenefitSponsors
 
       let(:march_sponsors)                 do
         FactoryBot.create_list(:benefit_sponsors_benefit_application, 3,
-                                default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
+                               default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
       end
       let(:april_sponsors)                 do
         FactoryBot.create_list(:benefit_sponsors_benefit_application, 2,
-                                default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
+                               default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
       end
 
       before { TimeKeeper.set_date_of_record_unprotected!(Date.today) }

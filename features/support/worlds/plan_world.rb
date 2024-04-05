@@ -7,6 +7,6 @@ end
 
 World(PlanWorld)
 
-Given /a plan year(?:, )?(.*)(?:,) exists/ do |traits|
-  plan *traits.sub(/, (and )?/, ',').gsub(' ', '_').split(',').map(&:to_sym), market: 'shop', coverage_kind: 'health', deductible: 4000
+Given(/a plan year(?:, )?(.*)(?:,) exists/) do |traits|
+  plan(*traits.sub(/, (and )?/, ',').gsub(' ', '_').split(',').map(&:to_sym), market: 'shop', coverage_kind: 'health', deductible: 4000)
 end

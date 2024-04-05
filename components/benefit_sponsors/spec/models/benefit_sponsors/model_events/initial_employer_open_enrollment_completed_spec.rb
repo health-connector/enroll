@@ -1,5 +1,5 @@
 require 'rails_helper'
- 
+
 RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied', dbclean: :after_each do
 
   let(:model_event) { "employer_open_enrollment_completed" }
@@ -33,7 +33,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
   describe "ModelEvent" do
     it "should trigger model event" do
       model_instance.class.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:notifications_send) do |model_instance, model_event|
+        expect(observer).to receive(:notifications_send) do |model_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => :employer_open_enrollment_completed, :klass_instance => model_instance, :options => {})
         end
@@ -64,28 +64,30 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
         "employer_profile.notice_date",
         "employer_profile.employer_name",
         "employer_profile.benefit_application.current_py_start_date",
-        "employer_profile.benefit_application.initial_py_publish_due_date", 
+        "employer_profile.benefit_application.initial_py_publish_due_date",
         "employer_profile.broker.primary_fullname",
         "employer_profile.broker.organization",
         "employer_profile.broker.phone",
         "employer_profile.broker.email",
         "employer_profile.broker_present?"
       ]
-    }
+    end
 
     let(:merge_model) { subject.construct_notice_object }
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
 
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => model_instance.id
-    } }
+      }
+    end
 
     context "when notice event received" do
 
@@ -113,7 +115,8 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
       end
 
       it "should return publish due date" do
-        expect(merge_model.benefit_application.initial_py_publish_due_date).to eq Date.new(model_instance.start_on.prev_month.year, model_instance.start_on.prev_month.month, Settings.aca.shop_market.initial_application.publish_due_day_of_month).strftime('%m/%d/%Y')
+        expect(merge_model.benefit_application.initial_py_publish_due_date).to eq Date.new(model_instance.start_on.prev_month.year, model_instance.start_on.prev_month.month,
+                                                                                           Settings.aca.shop_market.initial_application.publish_due_day_of_month).strftime('%m/%d/%Y')
       end
 
       it "should return false when there is no broker linked to employer" do

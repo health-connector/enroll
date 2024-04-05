@@ -20,7 +20,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerNoBinderPaymentRece
 
   let!(:date_mock_object) { BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new.calculate_open_enrollment_date(TimeKeeper.date_of_record.next_month.beginning_of_month)[:binder_payment_due_date].next_day }
   let!(:person) { FactoryBot.create(:person, :with_family) }
-  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile ) }
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile) }
   let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
 
   before do
@@ -30,7 +30,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerNoBinderPaymentRece
   describe "ModelEvent" do
     it "should trigger model event" do
       benefit_application.class.observer_peers.keys.each do |observer|
-        expect(observer).to receive(:notifications_send) do |instance, model_event|
+        expect(observer).to receive(:notifications_send) do |_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => :initial_employer_no_binder_payment_received, :klass_instance => benefit_application, :options => {})
         end
@@ -66,7 +66,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerNoBinderPaymentRece
 
   describe "NoticeBuilder employee" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
           "employee_profile.notice_date",
           "employee_profile.employer_name",
@@ -77,13 +77,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerNoBinderPaymentRece
           "employee_profile.broker.email",
           "employee_profile.broker_present?"
       ]
-    }
+    end
     let(:recipient) { "Notifier::MergeDataModels::EmployeeProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => benefit_application.id
-    } }
+      }
+    end
     let(:subject) { Notifier::NoticeKind.new(template: template, recipient: recipient) }
     let(:merge_model) { subject.construct_notice_object }
 
@@ -114,9 +116,9 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerNoBinderPaymentRece
     end
   end
 
-   describe "NoticeBuilder employer" do
+  describe "NoticeBuilder employer" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
           "employer_profile.notice_date",
           "employer_profile.employer_name",
@@ -130,13 +132,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerNoBinderPaymentRece
           "employer_profile.broker.email",
           "employer_profile.broker_present?"
       ]
-    }
+    end
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => benefit_application.id
-    } }
+      }
+    end
     let(:subject) { Notifier::NoticeKind.new(template: template, recipient: recipient) }
     let(:merge_model) { subject.construct_notice_object }
     let(:next_available_start_date) {BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new.calculate_start_on_dates.first.to_date}

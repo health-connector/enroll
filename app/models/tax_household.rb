@@ -28,7 +28,7 @@ class TaxHousehold
 
   embeds_many :eligibility_determinations, cascade_callbacks: true
 
-  scope :tax_household_with_year, ->(year) { where( effective_starting_on: (Date.new(year)..Date.new(year).end_of_year)) }
+  scope :tax_household_with_year, ->(year) { where(effective_starting_on: (Date.new(year)..Date.new(year).end_of_year)) }
   scope :active_tax_household, ->{ where(effective_ending_on: nil) }
 
   def latest_eligibility_determination
@@ -49,7 +49,7 @@ class TaxHousehold
 
   def current_max_aptc
     eligibility_determination = latest_eligibility_determination
-    #TODO need business rule to decide how to get the max aptc
+    #TODO: need business rule to decide how to get the max aptc
     #during open enrollment and determined_at
     if eligibility_determination.present? #and eligibility_determination.determined_on.year == TimeKeeper.date_of_record.year
       eligibility_determination.max_aptc
@@ -80,7 +80,7 @@ class TaxHousehold
     # Look up premiums for each aptc_member
     benchmark_member_cost_hash = {}
     aptc_members.each do |member|
-      #TODO use which date to calculate premiums by slcp
+      #TODO: use which date to calculate premiums by slcp
       premium = slcsp.premium_for(effective_starting_on, member.age_on_effective_date)
       benchmark_member_cost_hash[member.applicant_id.to_s] = premium
     end
@@ -91,11 +91,11 @@ class TaxHousehold
     # Compute the ratio
     ratio_hash = {}
     benchmark_member_cost_hash.each do |member_id, cost|
-      ratio_hash[member_id] = cost/sum_premium_total
+      ratio_hash[member_id] = cost / sum_premium_total
     end
 
     ratio_hash
-  rescue => e
+  rescue StandardError => e
     log(e.message, {:severity => 'critical'})
     {}
   end
@@ -103,6 +103,7 @@ class TaxHousehold
   # Pass hbx_enrollment and get the total amount of APTC available by hbx_enrollment_members
   def total_aptc_available_amount_for_enrollment(hbx_enrollment)
     return 0 if hbx_enrollment.blank?
+
     hbx_enrollment.hbx_enrollment_members.reduce(0) do |sum, member|
       sum + (aptc_available_amount_by_member[member.applicant_id.to_s] || 0)
     end
@@ -116,7 +117,7 @@ class TaxHousehold
       aptc_available_amount_hash[member_id] = current_max_aptc.to_f * ratio
     end
 
-    # FIXME should get hbx_enrollments by effective_starting_on
+    # FIXME: should get hbx_enrollments by effective_starting_on
     household.hbx_enrollments_with_aptc_by_year(effective_starting_on.year).map(&:hbx_enrollment_members).flatten.each do |enrollment_member|
       applicant_id = enrollment_member.applicant_id.to_s
       if aptc_available_amount_hash.has_key?(applicant_id)
@@ -143,11 +144,11 @@ class TaxHousehold
     hbx_enrollment.hbx_enrollment_members.each do |enrollment_member|
       given_aptc = (aptc_available_amount_by_member[enrollment_member.applicant_id.to_s] || 0) * elected_pct
       ehb_premium = decorated_plan.premium_for(enrollment_member) * plan.ehb
-      if plan.coverage_kind == "dental"
-        aptc_available_amount_hash_for_enrollment[enrollment_member.applicant_id.to_s] = 0
-      else
-        aptc_available_amount_hash_for_enrollment[enrollment_member.applicant_id.to_s] = [given_aptc, ehb_premium].min
-      end
+      aptc_available_amount_hash_for_enrollment[enrollment_member.applicant_id.to_s] = if plan.coverage_kind == "dental"
+                                                                                         0
+                                                                                       else
+                                                                                         [given_aptc, ehb_premium].min
+                                                                                       end
     end
     aptc_available_amount_hash_for_enrollment
 
@@ -163,9 +164,9 @@ class TaxHousehold
   def total_incomes_by_year
     applicant_links.inject({}) do |acc, per|
       p_incomes = per.financial_statements.inject({}) do |acc, ae|
-        acc.merge(ae.total_incomes_by_year) { |k, ov, nv| ov + nv }
+        acc.merge(ae.total_incomes_by_year) { |_k, ov, nv| ov + nv }
       end
-      acc.merge(p_incomes) { |k, ov, nv| ov + nv }
+      acc.merge(p_incomes) { |_k, ov, nv| ov + nv }
     end
   end
 
@@ -176,15 +177,12 @@ class TaxHousehold
 
   def family
     return nil unless household
+
     household.family
   end
 
   def is_eligibility_determined?
-    if self.elegibility_determinizations.size > 0
-      true
-    else
-      false
-    end
+    elegibility_determinizations.size > 0
   end
 
   #primary applicant is the tax household member who is the subscriber

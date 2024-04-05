@@ -32,6 +32,7 @@ module BenefitSponsors
 
       def contribution_unit
         return @contribution_unit if defined? @contribution_unit
+
         @contribution_unit = contribution_model.find_contribution_unit(contribution_unit_id)
       end
 

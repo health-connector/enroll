@@ -11,7 +11,7 @@ end
 
 World(SiteWorld)
 
-Given(/^a (.*?) site exists with a benefit market$/) do |key|
+Given(/^a (.*?) site exists with a benefit market$/) do |_key|
   site
   make_all_permissions
   generate_sic_codes

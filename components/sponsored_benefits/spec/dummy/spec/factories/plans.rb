@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :plan do
-    sequence(:hbx_id)    { |n| n + 12345 }
+    sequence(:hbx_id)    { |n| n + 12_345 }
     sequence(:name)      { |n| "BlueChoice Silver#{n} 2,000" }
     sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }
     active_year         { TimeKeeper.date_of_record.year }
@@ -25,13 +25,13 @@ FactoryBot.define do
         start_on = Date.new(plan.active_year,1,1)
         end_on = start_on + 1.year - 1.day
 
-        unless Settings.aca.rating_areas.empty?
+        if Settings.aca.rating_areas.empty?
+          create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on)
+        else
           plan.service_area_id = CarrierServiceArea.for_issuer(plan.carrier_profile.issuer_hios_ids).first.service_area_id
           plan.save!
           rating_area = RatingArea.first.try(:rating_area) || FactoryBot.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
           create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on, rating_area: rating_area)
-        else
-          create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on)
         end
       end
     end
@@ -50,8 +50,8 @@ FactoryBot.define do
 
   factory :premium_table do
     sequence(:age, (19..66).cycle)
-    start_on  TimeKeeper.date_of_record.beginning_of_year
-    end_on  TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day
+    start_on TimeKeeper.date_of_record.beginning_of_year
+    end_on TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day
     cost {(age * 1001.00) / 100.00}
 
     after :create do |pt|
@@ -60,9 +60,9 @@ FactoryBot.define do
         silver: 100.00,
         gold: 90.00,
         platinum: 80.00,
-        dental: 10.00,
+        dental: 10.00
       }
-      pt.update_attribute(:cost, (pt.age * 1001.00) / metal_hash[:"#{pt.plan.metal_level}"] )
+      pt.update_attribute(:cost, (pt.age * 1001.00) / metal_hash[:"#{pt.plan.metal_level}"])
     end
   end
 end

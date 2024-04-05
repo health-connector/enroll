@@ -13,7 +13,7 @@ module BenefitSponsors
     let(:owner_legal_name)    { "ACME Widgets" }
     let(:owner_organization)  { BenefitSponsors::Organizations::ExemptOrganization.new(legal_name: owner_legal_name, entity_kind: entity_kind, profiles: [profile]) }
     let(:address)             { BenefitSponsors::Locations::Address.new(kind: "primary", address_1: "609 H St", city: "Washington", state: "DC", zip: "20002", county: "County") }
-    let(:phone  )             { BenefitSponsors::Locations::Phone.new(kind: "main", area_code: "202", number: "555-9999") }
+    let(:phone)             { BenefitSponsors::Locations::Phone.new(kind: "main", area_code: "202", number: "555-9999") }
     let(:office_location)     { BenefitSponsors::Locations::OfficeLocation.new(is_primary: true, address: address, phone: phone) }
     let(:office_locations)    { [office_location] }
     let(:profile)             { FactoryBot.build(:benefit_sponsors_organizations_hbx_profile, office_locations: office_locations) }
@@ -158,7 +158,7 @@ module BenefitSponsors
 
         it "should strip the leading numbers" do
           site.site_key = numeric_key
-          expect(site.site_key).to eq "days".to_sym
+          expect(site.site_key).to eq :days
         end
       end
 
@@ -167,7 +167,7 @@ module BenefitSponsors
 
         it "should strip the leading numbers" do
           site.site_key = funky_key
-          expect(site.site_key).to eq "mykey".to_sym
+          expect(site.site_key).to eq :mykey
         end
       end
     end
@@ -187,11 +187,11 @@ module BenefitSponsors
 
       # this will include the owner_organization in the count
       it "should have correct number of site_organizations" do
-        expect((site.site_organizations).size).to eq 3
+        expect(site.site_organizations.size).to eq 3
       end
 
       it "should have correct number of employer_profiles" do
-        expect((site.site_organizations.employer_profiles).size).to eq 2
+        expect(site.site_organizations.employer_profiles.size).to eq 2
       end
 
       context "and benefit_market associations must be valid" do

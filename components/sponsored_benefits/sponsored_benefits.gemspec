@@ -32,7 +32,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-struct'
   s.add_dependency 'dry-monads'
 
-  s.test_files = Dir["spec/**/*"]
 
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'shoulda-matchers'
@@ -41,4 +40,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_bot_rails',         '~> 4'
   s.add_development_dependency 'forgery'
   s.add_development_dependency "rspec-benchmark"
+  s.metadata['rubygems_mfa_required'] = 'true'
 end

@@ -6,7 +6,7 @@ module BenefitSponsors
       site
     end
 
-    def self.create_cca_site_with_hbx_profile_and_empty_benefit_market(market_kind = :aca_shop)
+    def self.create_cca_site_with_hbx_profile_and_empty_benefit_market(_market_kind = :aca_shop)
       site = create_cca_site_with_hbx_profile
       create_cca_shop_benefit_market(site._id)
       site
@@ -119,7 +119,7 @@ module BenefitSponsors
               kind: "work",
               city: "Washington",
               state: "MA",
-              zip: '20002',
+              zip: '20002'
             },
             phone: {
               _id: phone_id,

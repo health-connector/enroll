@@ -16,14 +16,10 @@ FactoryBot.define do
     end
 
     after(:build) do |benefit_package, evaluator|
-      
-      if evaluator.health_sponsored_benefit
-        build(:benefit_sponsors_sponsored_benefits_health_sponsored_benefit, benefit_package: benefit_package, product_package: evaluator.product_package)
-      end
 
-      if evaluator.dental_sponsored_benefit
-        build(:benefit_sponsors_sponsored_benefits_dental_sponsored_benefit, benefit_package: benefit_package, product_package: evaluator.dental_product_package)
-      end
+      build(:benefit_sponsors_sponsored_benefits_health_sponsored_benefit, benefit_package: benefit_package, product_package: evaluator.product_package) if evaluator.health_sponsored_benefit
+
+      build(:benefit_sponsors_sponsored_benefits_dental_sponsored_benefit, benefit_package: benefit_package, product_package: evaluator.dental_product_package) if evaluator.dental_sponsored_benefit
     end
   end
 end

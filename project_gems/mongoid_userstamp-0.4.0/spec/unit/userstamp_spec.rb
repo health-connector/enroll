@@ -1,4 +1,3 @@
-# -*- encoding : utf-8 -*-
 require 'spec_helper'
 
 describe Mongoid::Userstamp do
@@ -10,7 +9,7 @@ describe Mongoid::Userstamp do
 
   describe '#config' do
 
-    before { Mongoid::Userstamp.instance_variable_set(:'@config', nil) }
+    before { Mongoid::Userstamp.instance_variable_set(:@config, nil) }
 
     context 'without block' do
       subject{ Mongoid::Userstamp.config }
@@ -66,7 +65,7 @@ describe Mongoid::Userstamp do
   end
 
   describe '#model_classes' do
-    before { Mongoid::Userstamp.instance_variable_set(:'@model_classes', nil) }
+    before { Mongoid::Userstamp.instance_variable_set(:@model_classes, nil) }
     context 'default value' do
       it { subject.model_classes.should eq [] }
     end
@@ -80,7 +79,7 @@ describe Mongoid::Userstamp do
   end
 
   describe '#user_classes' do
-    before { Mongoid::Userstamp.instance_variable_set(:'@user_classes', nil) }
+    before { Mongoid::Userstamp.instance_variable_set(:@user_classes, nil) }
     context 'default value' do
       it { subject.user_classes.should eq [] }
     end

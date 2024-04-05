@@ -5,7 +5,7 @@ Rails.application.configure do
   # test suite. You never need to work with it otherwise. Remember that
   # your test database is "scratch space" for the test suite and is wiped
   # and recreated between test runs. Don't rely on the data there!
-  config.cache_classes = true 
+  config.cache_classes = true
   config.cache_store = :memory_store
 
   # Do not eager load code on boot. This avoids loading your whole application
@@ -18,10 +18,10 @@ Rails.application.configure do
   config.static_cache_control = 'public, max-age=3600'
 
     # Configure public file server for tests with Cache-Control for performance.
-    config.public_file_server.enabled = true
-    config.public_file_server.headers = {
-      'Cache-Control' => "public, max-age=#{1.hour.to_i}"
-    }
+  config.public_file_server.enabled = true
+  config.public_file_server.headers = {
+    'Cache-Control' => "public, max-age=#{1.hour.to_i}"
+  }
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -43,14 +43,14 @@ Rails.application.configure do
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
-  config.action_mailer.cache_settings = { :location => "#{Rails.root}/tmp/cache/action_mailer_cache_delivery#{ENV['TEST_ENV_NUMBER']}.cache" }
+  config.action_mailer.cache_settings = { :location => "#{Rails.root}/tmp/cache/action_mailer_cache_delivery#{ENV.fetch('TEST_ENV_NUMBER', nil)}.cache" }
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
   config.acapi.app_id = "enroll"
   HbxIdGenerator.slug!
-  config.ga_tracking_id = ENV['GA_TRACKING_ID'] || "dummy"
-  config.ga_tagmanager_id = ENV['GA_TAGMANAGER_ID'] || "dummy"
+  config.ga_tracking_id = ENV.fetch('GA_TRACKING_ID', "dummy")
+  config.ga_tagmanager_id = ENV.fetch('GA_TAGMANAGER_ID', "dummy")
 
   config.action_mailer.default_url_options = {
     :host => "127.0.0.1",

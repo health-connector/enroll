@@ -23,10 +23,8 @@ class Insured::PlanShoppingsController < ApplicationController
 
     qle = (plan_selection.hbx_enrollment.enrollment_kind == "special_enrollment")
 
-    if !plan_selection.hbx_enrollment.can_select_coverage?(qle: qle)
-      if plan_selection.hbx_enrollment.errors.present?
-        flash[:error] = plan_selection.hbx_enrollment.errors.full_messages
-      end
+    unless plan_selection.hbx_enrollment.can_select_coverage?(qle: qle)
+      flash[:error] = plan_selection.hbx_enrollment.errors.full_messages if plan_selection.hbx_enrollment.errors.present?
       redirect_back(fallback_location: :back)
       return
     end
@@ -87,13 +85,13 @@ class Insured::PlanShoppingsController < ApplicationController
       get_aptc_info_from_session(@enrollment)
     end
 
-    # TODO Fix this stub
+    # TODO: Fix this stub
     #@plan = @enrollment.build_plan_premium(qhp_plan: @plan, apply_aptc: can_apply_aptc?(@plan), elected_aptc: @elected_aptc, tax_household: @shopping_tax_household)
     @member_group = HbxEnrollmentSponsoredCostCalculator.new(@enrollment).groups_for_products([@plan]).first
 
     @family = @person.primary_family
 
-    #FIXME need to implement can_complete_shopping? for individual
+    #FIXME: need to implement can_complete_shopping? for individual
     @enrollable = @market_kind == 'individual' ? true : @enrollment.can_complete_shopping?(qle: @enrollment.is_special_enrollment?)
     @waivable = @enrollment.can_complete_shopping?
     @change_plan = params[:change_plan].present? ? params[:change_plan] : ''
@@ -223,7 +221,9 @@ class Insured::PlanShoppingsController < ApplicationController
 
   # no dental as of now
   def sort_member_groups(products)
-    products.select { |prod| prod.group_enrollment.product.id.to_s == @enrolled_hbx_enrollment_plan_ids.first.to_s } + products.select { |prod| prod.group_enrollment.product.id.to_s != @enrolled_hbx_enrollment_plan_ids.first.to_s }.sort_by { |mg| (mg.group_enrollment.product_cost_total - mg.group_enrollment.sponsor_contribution_total) }
+    products.select { |prod| prod.group_enrollment.product.id.to_s == @enrolled_hbx_enrollment_plan_ids.first.to_s } + products.select do |prod|
+                                                                                                                         prod.group_enrollment.product.id.to_s != @enrolled_hbx_enrollment_plan_ids.first.to_s
+                                                                                                                       end.sort_by { |mg| (mg.group_enrollment.product_cost_total - mg.group_enrollment.sponsor_contribution_total) }
   end
 
   def sort_by_standard_plans(plans)
@@ -282,7 +282,7 @@ class Insured::PlanShoppingsController < ApplicationController
 
     # for carrier search options
     carrier_profile_ids = @plans.map(&:carrier_profile_id).map(&:to_s).uniq
-    @carrier_names_map = Organization.valid_carrier_names_filters.select{|k, v| carrier_profile_ids.include?(k)}
+    @carrier_names_map = Organization.valid_carrier_names_filters.select{|k, _v| carrier_profile_ids.include?(k)}
   end
 
   def build_same_plan_premiums
@@ -296,9 +296,9 @@ class Insured::PlanShoppingsController < ApplicationController
       if @hbx_enrollment.is_shop?
         ref_plan = (@hbx_enrollment.coverage_kind == "health" ? @benefit_group.reference_plan : @benefit_group.dental_reference_plan)
 
-        @enrolled_plans = enrolled_plans.collect{|plan|
+        @enrolled_plans = enrolled_plans.collect do |plan|
           @benefit_group.decorated_plan(plan, same_plan_enrollment, ref_plan)
-        }
+        end
       else
         @enrolled_plans = same_plan_enrollment.calculate_costs_for_plans(enrolled_plans)
       end
@@ -313,6 +313,7 @@ class Insured::PlanShoppingsController < ApplicationController
 
   def thousand_ceil(num)
     return 0 if num.blank?
+
     (num.fdiv 1000).ceil * 1000
   end
 
@@ -337,8 +338,6 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def set_elected_aptc_by_params(elected_aptc)
-    if session[:elected_aptc].to_f != elected_aptc.to_f
-      session[:elected_aptc] = elected_aptc.to_f
-    end
+    session[:elected_aptc] = elected_aptc.to_f if session[:elected_aptc].to_f != elected_aptc.to_f
   end
 end

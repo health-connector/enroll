@@ -18,11 +18,13 @@ module BenefitMarkets
     let(:premium_q1_age_20)   { BenefitMarkets::Products::PremiumTuple.new(age: 20, cost: 201) }
     let(:premium_q1_age_30)   { BenefitMarkets::Products::PremiumTuple.new(age: 30, cost: 301) }
     let(:premium_q1_age_40)   { BenefitMarkets::Products::PremiumTuple.new(age: 40, cost: 401) }
-    let(:premium_table_q1)    { BenefitMarkets::Products::PremiumTable.new(
-                                  effective_period: quarter_1,
-                                  rating_area: rating_area,
-                                  premium_tuples: [premium_q1_age_14, premium_q1_age_20, premium_q1_age_30, premium_q1_age_40]
-                                ) }
+    let(:premium_table_q1)    do
+      BenefitMarkets::Products::PremiumTable.new(
+        effective_period: quarter_1,
+        rating_area: rating_area,
+        premium_tuples: [premium_q1_age_14, premium_q1_age_20, premium_q1_age_30, premium_q1_age_40]
+      )
+    end
 
     let(:premium2_q1_age_14) {BenefitMarkets::Products::PremiumTuple.new(age: 14, cost: 111)}
     let(:premium2_q1_age_20) {BenefitMarkets::Products::PremiumTuple.new(age: 20, cost: 211)}
@@ -206,11 +208,13 @@ module BenefitMarkets
         let(:premium_q2_age_20)   { BenefitMarkets::Products::PremiumTuple.new(age: 20, cost: 202) }
         let(:premium_q2_age_30)   { BenefitMarkets::Products::PremiumTuple.new(age: 30, cost: 302) }
         let(:premium_q2_age_40)   { BenefitMarkets::Products::PremiumTuple.new(age: 40, cost: 402) }
-        let(:premium_table_q2)    { BenefitMarkets::Products::PremiumTable.new(
-                                      effective_period: quarter_2,
-                                      rating_area: rating_area,
-                                      premium_tuples: [premium_q2_age_20, premium_q2_age_30, premium_q2_age_40],
-                                    ) }
+        let(:premium_table_q2)    do
+          BenefitMarkets::Products::PremiumTable.new(
+            effective_period: quarter_2,
+            rating_area: rating_area,
+            premium_tuples: [premium_q2_age_20, premium_q2_age_30, premium_q2_age_40]
+          )
+        end
 
         before { subject.add_premium_table(premium_table_q2) }
 
@@ -228,11 +232,13 @@ module BenefitMarkets
 
         context "and the premium_table effective_period isn't covered by the product application_period" do
           let(:out_of_range_effective_period) { Date.new(this_year + 1, 1, 1)..Date.new(this_year + 1, 3, 31) }
-          let(:invalid_premium_table)         { BenefitMarkets::Products::PremiumTable.new(
-                                                  effective_period: out_of_range_effective_period,
-                                                  rating_area: rating_area,
-                                                  premium_tuples: [premium_q2_age_20, premium_q2_age_30, premium_q2_age_40],
-                                                ) }
+          let(:invalid_premium_table)         do
+            BenefitMarkets::Products::PremiumTable.new(
+              effective_period: out_of_range_effective_period,
+              rating_area: rating_area,
+              premium_tuples: [premium_q2_age_20, premium_q2_age_30, premium_q2_age_40]
+            )
+          end
 
           it "should throw an error" do
             expect{subject.add_premium_table(invalid_premium_table)}.to raise_error(BenefitMarkets::InvalidEffectivePeriodError)
@@ -244,11 +250,13 @@ module BenefitMarkets
         let(:premium_q2_age_20)         { BenefitMarkets::Products::PremiumTuple.new(age: 20, cost: 203) }
         let(:premium_q2_age_30)         { BenefitMarkets::Products::PremiumTuple.new(age: 30, cost: 303) }
         let(:premium_q2_age_40)         { BenefitMarkets::Products::PremiumTuple.new(age: 40, cost: 403) }
-        let(:updated_premium_table_q2)  { BenefitMarkets::Products::PremiumTable.new(
-                                            effective_period: quarter_2,
-                                            rating_area: rating_area,
-                                            premium_tuples: [premium_q2_age_20, premium_q2_age_30, premium_q2_age_40],
-                                          ) }
+        let(:updated_premium_table_q2)  do
+          BenefitMarkets::Products::PremiumTable.new(
+            effective_period: quarter_2,
+            rating_area: rating_area,
+            premium_tuples: [premium_q2_age_20, premium_q2_age_30, premium_q2_age_40]
+          )
+        end
         let(:effective_date_q2)         { updated_premium_table_q2.effective_period.min }
 
         it "should replace the existing premium_table" do
@@ -261,11 +269,13 @@ module BenefitMarkets
           let(:premium_q3_age_20)         { BenefitMarkets::Products::PremiumTuple.new(age: 20, cost: 204) }
           let(:premium_q3_age_30)         { BenefitMarkets::Products::PremiumTuple.new(age: 30, cost: 304) }
           let(:premium_q3_age_40)         { BenefitMarkets::Products::PremiumTuple.new(age: 40, cost: 404) }
-          let(:premium_table_q3)          { BenefitMarkets::Products::PremiumTable.new(
-                                              effective_period: quarter_3,
-                                              rating_area: rating_area,
-                                              premium_tuples: [premium_q3_age_20, premium_q3_age_30, premium_q3_age_40],
-                                            ) }
+          let(:premium_table_q3)          do
+            BenefitMarkets::Products::PremiumTable.new(
+              effective_period: quarter_3,
+              rating_area: rating_area,
+              premium_tuples: [premium_q3_age_20, premium_q3_age_30, premium_q3_age_40]
+            )
+          end
 
           let(:effective_date_q3)         { premium_table_q3.effective_period.min }
 

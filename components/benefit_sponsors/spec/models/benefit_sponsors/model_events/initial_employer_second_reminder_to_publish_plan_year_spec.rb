@@ -15,18 +15,18 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerSecondRemainderToPu
   end
   let!(:model_instance) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                       :with_benefit_package,
-                       :benefit_sponsorship => benefit_sponsorship,
-                       :aasm_state => 'draft',
-                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+                      :with_benefit_package,
+                      :benefit_sponsorship => benefit_sponsorship,
+                      :aasm_state => 'draft',
+                      :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
-  let!(:date_mock_object) { double("Date", day: Settings.aca.shop_market.initial_application.advertised_deadline_of_month - 1 )}
+  let!(:date_mock_object) { double("Date", day: Settings.aca.shop_market.initial_application.advertised_deadline_of_month - 1)}
 
 
   describe "ModelEvent" do
     it "should trigger model event" do
       model_instance.class.observer_peers.keys.each do |observer|
-        expect(observer).to receive(:notifications_send) do |instance, model_event|
+        expect(observer).to receive(:notifications_send) do |_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => :initial_employer_second_reminder_to_publish_plan_year, :klass_instance => model_instance, :options => {})
         end
@@ -54,7 +54,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerSecondRemainderToPu
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
         "employer_profile.notice_date",
         "employer_profile.employer_name",
@@ -67,16 +67,18 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerSecondRemainderToPu
         "employer_profile.broker.email",
         "employer_profile.broker_present?"
       ]
-    }
+    end
 
     let(:merge_model) { subject.construct_notice_object }
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
 
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => model_instance.id
-    } }
+      }
+    end
 
     context "when notice event received" do
 
@@ -105,7 +107,8 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerSecondRemainderToPu
       end
 
       it "should return publish due date" do
-        expect(merge_model.benefit_application.initial_py_publish_due_date).to eq Date.new(model_instance.start_on.prev_month.year, model_instance.start_on.prev_month.month, Settings.aca.shop_market.initial_application.publish_due_day_of_month).strftime('%m/%d/%Y')
+        expect(merge_model.benefit_application.initial_py_publish_due_date).to eq Date.new(model_instance.start_on.prev_month.year, model_instance.start_on.prev_month.month,
+                                                                                           Settings.aca.shop_market.initial_application.publish_due_day_of_month).strftime('%m/%d/%Y')
       end
 
       it "should return false when there is no broker linked to employer" do

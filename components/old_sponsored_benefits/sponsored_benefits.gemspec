@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'roo', '~> 2.1.0'
 
-  s.test_files = Dir["spec/**/*"]
 
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'shoulda-matchers'
@@ -37,4 +36,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry-byebug'
   s.add_development_dependency 'pry-remote'
   s.add_development_dependency 'forgery'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end
