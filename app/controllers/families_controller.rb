@@ -64,7 +64,7 @@ private
     return if not @person.present?
     # @family = Family.find(params[:id])
     if @person.primary_family.present?
-      @family = @person.primary_familyt
+      @family = @person.primary_family
     else
       message = {}
       message[:message] = '@family was set to nil'
