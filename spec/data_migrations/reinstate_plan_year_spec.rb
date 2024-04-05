@@ -4,9 +4,7 @@ require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "reinstate_plan_year")
 
 describe ReinstatePlanYear, dbclean: :after_each do
-  skip do
-    "depricated rake task, update spec when rake task updated to new model"
-
+  skip "depricated rake task, update spec when rake task updated to new model" do
     let(:given_task_name) { "reinstate_plan_year" }
     subject { ReinstatePlanYear.new(given_task_name, double(:current_scope => nil)) }
 
@@ -17,7 +15,6 @@ describe ReinstatePlanYear, dbclean: :after_each do
     end
 
     describe "reinstate_plan_year", dbclean: :after_each do
-
       let!(:employer_profile)  { FactoryBot.create(:employer_profile) }
       let!(:organization)  { employer_profile.organization }
       let(:family) { FactoryBot.create(:family, :with_primary_family_member)}

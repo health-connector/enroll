@@ -1,6 +1,5 @@
 # These are expected to be called by a developer.  They are part of the datatables DSL.
 module EffectiveDatatablesHelper
-
   def render_datatable(datatable, input_js_options = nil)
     raise 'expected datatable to be present' unless datatable
 
@@ -8,12 +7,12 @@ module EffectiveDatatablesHelper
 
     begin
       EffectiveDatatables.authorized?(datatable, controller, :index, datatable.try(:collection_class) || datatable.try(:class)) || raise('unauthorized')
-    rescue => e
+    rescue StandardError => e
       return content_tag(:p, "You are not authorized to view this datatable. (cannot :index, #{datatable.try(:collection_class) || datatable.try(:class)})")
     end
 
     render partial: 'effective/datatables/datatable',
-      locals: { datatable: datatable, input_js_options: input_js_options.try(:to_json) }
+           locals: { datatable: datatable, input_js_options: input_js_options.try(:to_json) }
   end
 
   def render_simple_datatable(datatable, input_js_options = nil)
@@ -24,18 +23,19 @@ module EffectiveDatatablesHelper
 
     begin
       EffectiveDatatables.authorized?(datatable, controller, :index, datatable.try(:collection_class) || datatable.try(:class)) || raise('unauthorized')
-    rescue => e
+    rescue StandardError => e
       return content_tag(:p, "You are not authorized to view this datatable. (cannot :index, #{datatable.try(:collection_class) || datatable.try(:class)})")
     end
 
     render partial: 'effective/datatables/datatable',
-      locals: {datatable: datatable, input_js_options: input_js_options.try(:to_json) }
+           locals: {datatable: datatable, input_js_options: input_js_options.try(:to_json) }
   end
 
   def render_datatable_scopes(datatable)
     raise 'expected datatable to be present' unless datatable
 
     return unless datatable.scopes.present?
+
     datatable.view ||= self
 
     render partial: 'effective/datatables/scopes', locals: { datatable: datatable }
@@ -45,6 +45,7 @@ module EffectiveDatatablesHelper
     raise 'expected datatable to be present' unless datatable
 
     return unless datatable.charts.present?
+
     datatable.view ||= self
 
     datatable.charts.map { |name, _| render_datatable_chart(datatable, name) }.join.html_safe
@@ -55,6 +56,7 @@ module EffectiveDatatablesHelper
 
     return unless datatable.charts.present?
     return unless datatable.charts[name].present?
+
     datatable.view ||= self
 
     unless @effective_datatables_chart_javascript_rendered
@@ -68,20 +70,26 @@ module EffectiveDatatablesHelper
     chart = datatable.to_json[:charts][name]
 
     render partial: (options[:partial] || 'effective/datatables/chart'),
-      locals: { datatable: datatable, chart: chart }
+           locals: { datatable: datatable, chart: chart }
   end
 
   def datatables_admin_path?
-    @datatables_admin_path ||= (
+    @datatables_admin_path ||= begin
       path = request.path.to_s.downcase.chomp('/') + '/'
       referer = request.referer.to_s.downcase.chomp('/') + '/'
-      (attributes[:admin_path] || referer.include?('/admin/') || path.include?('/admin/')) rescue false
-    )
+      begin
+        (attributes[:admin_path] || referer.include?('/admin/') || path.include?('/admin/'))
+      rescue StandardError
+        false
+      end
+    end
   end
 
   # TODO: Improve on this
   def datatables_active_admin_path?
-    attributes[:active_admin_path] rescue false
+    attributes[:active_admin_path]
+  rescue StandardError
+    false
   end
 
   ### Icon Helpers for actions_column or elsewhere
@@ -133,7 +141,6 @@ module EffectiveDatatablesHelper
       end
     end
   end
-  alias_method :bootstrap_icon_to, :glyphicon_to
-  alias_method :glyph_icon_to, :glyphicon_to
-
+  alias bootstrap_icon_to glyphicon_to
+  alias glyph_icon_to glyphicon_to
 end

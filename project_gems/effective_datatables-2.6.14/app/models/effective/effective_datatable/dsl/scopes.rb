@@ -6,6 +6,7 @@ module Effective
         def scope(name, default, options = {}, &block)
           if block_given?
             raise "You cannot use partial: ... with the block syntax" if options[:partial]
+
             options[:block] = block
           end
 

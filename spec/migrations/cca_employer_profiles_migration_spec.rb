@@ -36,7 +36,10 @@
 #
 #       # employer_profile.organization.home_page = nil
 #       inbox = FactoryBot.create(:inbox, :with_message, recipient: employer_profile)
-#       inbox.messages.first.update_attributes(body: "<br>Your invoice is now available in your employer profile under the Billing tab. For more information, please download your <a href=/document/authorized_download/EmployerProfile/#{employer_profile.id}/documents/#{document1.id}?content_type=application/pdf&filename=MonthlyInvoiceAvailableNotice.pdf&disposition=inline target='_blank'>MonthlyInvoiceAvailableNotice</a>")
+#       inbox.messages.first.update_attributes(body:
+#       "<br>Your invoice is now available in your employer profile under the Billing tab. For more information, please download your
+#       <a href=/document/authorized_download/EmployerProfile/#{employer_profile.id}/documents/#{document1.id}?content_type=application/pdf&filename=MonthlyInvoiceAvailableNotice.pdf&disposition=inline
+#       target='_blank'>MonthlyInvoiceAvailableNotice</a>")
 #       FactoryBot.create(:employer_staff_role, employer_profile_id: employer_profile.id)
 #
 #       FactoryBot.create(:employee_role, employer_profile: employer_profile)

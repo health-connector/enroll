@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-include Config::SiteHelper
+
 RSpec.describe UserMailer do
+  include Config::SiteHelper
+
   describe 'generic_notice_alert' do
     let(:hbx_id) { rand(10_000)}
     let(:file){ Rails.root.join("spec","mailers","user_mailer_spec.rb").to_s }

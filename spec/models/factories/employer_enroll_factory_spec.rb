@@ -18,7 +18,7 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
       plan_year = FactoryBot.create :plan_year, employer_profile: employer_profile, aasm_state: :enrolled, :start_on => Date.new(calendar_year, 5, 1), :end_on => Date.new(calendar_year + 1, 4, 30),
                                                 :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
       benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: plan_year
-      owner = FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
+      FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
       2.times{|i| FactoryBot.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
       employer_profile.census_employees.each do |ce|
         person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
@@ -87,7 +87,7 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
                                                          :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
       benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
       renewing_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
-      owner = FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
+      FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
       2.times{|i| FactoryBot.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
       employer_profile.census_employees.each do |ce|
         person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
@@ -195,7 +195,7 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
                                                            :open_enrollment_start_on => Date.new(calendar_year, 4, 1), :open_enrollment_end_on => Date.new(calendar_year, 4, 10), fte_count: 5
         benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
         renewing_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
-        owner = FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
+        FactoryBot.create :census_employee, :old_case, :owner, employer_profile: employer_profile
         2.times{|i| FactoryBot.create :census_employee, :old_case, employer_profile: employer_profile, dob: TimeKeeper.date_of_record - 30.years + i.days }
         employer_profile.census_employees.each do |ce|
           person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
@@ -250,7 +250,7 @@ RSpec.describe Factories::EmployerEnrollFactory, type: :model, dbclean: :after_e
 
         employer_profile.census_employees.each do |ce|
           expect(ce.active_benefit_group_assignment).to be_nil
-          expired_assignment = ce.benefit_group_assignments.detect{|bg_assignment| bg_assignment.benefit_group == active_plan_year.benefit_groups.first }
+          ce.benefit_group_assignments.detect{|bg_assignment| bg_assignment.benefit_group == active_plan_year.benefit_groups.first }
         end
 
         expect(expiring_enrollments.size).to eq 3

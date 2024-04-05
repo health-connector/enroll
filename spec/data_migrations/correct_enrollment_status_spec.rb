@@ -18,10 +18,13 @@ describe CorrectEnrollmentStatus, dbclean: :after_each do
       person
     end
 
-    family_member = "#{state}_family_member".to_sym
-    let(family_member) { FamilyMember.new(person: eval(obj.to_s)) }
-    hbx_enrollment_member = "#{state}_enrollment_member".to_sym
-    let(hbx_enrollment_member) { FactoryBot.build(:hbx_enrollment_member, applicant_id: eval(family_member.to_s)) }
+    let("#{state}_family_member".to_sym) do
+      FamilyMember.new(person: send(obj))
+    end
+
+    let("#{state}_enrollment_member".to_sym) do
+      FactoryBot.build(:hbx_enrollment_member, applicant: send("#{state}_family_member"))
+    end
   end
 
   let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
@@ -39,7 +42,7 @@ describe CorrectEnrollmentStatus, dbclean: :after_each do
   context "assigns proper states for people" do
     verification_states.each do |status|
       it "#{status}_person has #{status} aasm_state" do
-        expect(eval("#{status}_person").consumer_role.aasm_state).to eq status
+        expect(send("#{status}_person").consumer_role.aasm_state).to eq status
       end
     end
   end

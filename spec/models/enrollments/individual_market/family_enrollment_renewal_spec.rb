@@ -8,8 +8,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
     let(:current_date) { Date.new(calender_year, 11, 1) }
 
-    let(:current_benefit_coverage_period) { OpenStruct.new(start_on: current_date.beginning_of_year, end_on: current_date.end_of_year) }
-    let(:renewal_benefit_coverage_period) { OpenStruct.new(start_on: current_date.next_year.beginning_of_year, end_on: current_date.next_year.end_of_year) }
+    let(:current_benefit_coverage_period) { Struct.new(start_on: current_date.beginning_of_year, end_on: current_date.end_of_year) }
+    let(:renewal_benefit_coverage_period) { Struct.new(start_on: current_date.next_year.beginning_of_year, end_on: current_date.next_year.end_of_year) }
 
     let(:aptc_values) {{}}
     let(:assisted) { nil }
@@ -199,18 +199,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
         it "should return regular renewal plan" do
           expect(subject.assisted_renewal_plan).to eq renewal_plan.id
-        end
-      end
-    end
-
-    describe ".clone_enrollment" do
-      context "For QHP enrollment" do
-        it "should set enrollment atrributes" do
-        end
-      end
-
-      context "Assisted enrollment" do
-        it "should append APTC values" do
         end
       end
     end

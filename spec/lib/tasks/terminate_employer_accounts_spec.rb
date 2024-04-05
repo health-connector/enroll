@@ -5,8 +5,7 @@ require 'rake'
 require 'stringio'
 
 describe 'terminating employer active plan year & enrollments', :dbclean => :around_each do
-  skip do
-    "Rake task depricated, & rake task & spec moved to new model"
+  skip "Rake task depricated, & rake task & spec moved to new model" do
 
     describe 'migrations:terminate_employer_account' do
 

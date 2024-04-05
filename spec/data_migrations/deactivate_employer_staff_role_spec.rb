@@ -4,8 +4,7 @@ require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "deactivate_employer_staff_role")
 
 describe DeactivateEmployerStaffRole do
-  skip do
-    "depricated migration, fix when rake updated to new model"
+  skip "depricated migration, fix when rake updated to new model" do
     let(:given_task_name) { "deactivate_employer_staff_role" }
     subject { DeactivateEmployerStaffRole.new(given_task_name, double(:current_scope => nil)) }
 

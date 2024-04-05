@@ -164,7 +164,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
     xcontext "and a prior person exists but is not associated with the user" do
       before(:each) do
         @user = FactoryBot.create(:user)
-        census_dependent = FactoryBot.build(:census_dependent)
+        FactoryBot.build(:census_dependent)
         benefit_group = FactoryBot.create(:benefit_group)
         plan_year = benefit_group.plan_year
         employer_profile = plan_year.employer_profile
@@ -304,10 +304,6 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         }
         valid_params = { employer_profile: employer_profile }.merge(valid_person_params).merge(valid_employee_params)
         @first_employee_role, @first_family = Factories::EnrollmentFactory.add_employee_role(**valid_params)
-
-        dependents = census_employee.census_dependents.collect(&:dup)
-        employee = census_employee.dup
-
 
         employer_profile_2 = FactoryBot.create(:employer_profile)
         plan_year_2 = FactoryBot.create(:plan_year, employer_profile: employer_profile_2)
@@ -549,7 +545,7 @@ RSpec.describe Factories::EnrollmentFactory, :dbclean => :after_each do
         it "build_employee_role should call save_relevant_coverage_households" do
           allow(Family).to receive(:new).and_return family1
           expect(family1).to receive(:save_relevant_coverage_households)
-          employee_role, family = Factories::EnrollmentFactory.add_employee_role(**params)
+          Factories::EnrollmentFactory.add_employee_role(**params)
         end
       end
     end

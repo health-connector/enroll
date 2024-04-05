@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SiteWorld
   def site
     @site ||= FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key)
@@ -11,7 +13,7 @@ end
 
 World(SiteWorld)
 
-Given(/^a (.*?) site exists with a benefit market$/) do |key|
+Given(/^a (.*?) site exists with a benefit market$/) do |_key|
   site
   make_all_permissions
   generate_sic_codes

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^\w+ visits? the Insured portal during open enrollment$/) do
   visit "/"
   click_link 'Consumer/Family Portal'
@@ -93,7 +95,7 @@ Then(/Individual should see a form to enter personal information$/) do
 
   fill_in "person_addresses_attributes_0_address_1", :with => "4900 USAA BLVD"
   fill_in "person_addresses_attributes_0_address_2", :with => "212"
-  fill_in "person_addresses_attributes_0_city", :with=> "Washington"
+  fill_in "person_addresses_attributes_0_city", :with => "Washington"
   find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
   find(:xpath, '//*[@id="address_info"]/div/div[3]/div[2]/div/div[3]/div/ul/li[10]').click
   fill_in "person[addresses_attributes][0][zip]", :with => "20002"
@@ -103,7 +105,7 @@ end
 
 And(/^.+ selects (.*) for coverage$/) do |coverage|
   if coverage == "applying"
-  find(:xpath, '//label[@for="is_applying_coverage_true"]').click
+    find(:xpath, '//label[@for="is_applying_coverage_true"]').click
   else
     find(:xpath, '//label[@for="is_applying_coverage_false"]').click
   end
@@ -140,17 +142,17 @@ When(/Individual clicks on Save and Exit/) do
   find('li a', text: 'SAVE & EXIT').click
 end
 
-Then (/Individual resumes enrollment/) do
+Then(/Individual resumes enrollment/) do
   visit '/'
   click_link 'Consumer/Family Portal'
 end
 
-Then (/Individual sees previously saved address/) do
+Then(/Individual sees previously saved address/) do
   expect(page).to have_field('ADDRESS LINE 1 *', with: '4900 USAA BLVD', wait: 10)
   find('.btn', text: 'CONTINUE').click
 end
 
-When /^Individual clicks on Individual and Family link should be on privacy agreeement page/ do
+When(/^Individual clicks on Individual and Family link should be on privacy agreeement page/) do
   wait_for_ajax
   find('.interaction-click-control-individual-and-family').click
   expect(page).to have_content('Authorization and Consent')
@@ -162,7 +164,7 @@ Then(/^\w+ agrees? to the privacy agreeement/) do
   click_link "Continue"
 end
 
-When /^Individual clicks on Individual and Family link should be on verification page/ do
+When(/^Individual clicks on Individual and Family link should be on verification page/) do
   wait_for_ajax
   find('.interaction-click-control-individual-and-family').click
   expect(page).to have_content('Verify Identity')
@@ -280,7 +282,7 @@ Then(/I click on back to my account$/) do
 end
 
 And(/^I click on continue button on group selection page$/) do
-  #TODO This some group selection nonsense
+  #TODO: This some group selection nonsense
   #wait_for_ajax(2,2)
   screenshot("test1")
   #click_link "Continue" #Get
@@ -294,8 +296,8 @@ And(/^I click on continue button on group selection page$/) do
 end
 
 And(/I select a plan on plan shopping page/) do
-   screenshot("plan_shopping")
-   find(:xpath, '//*[@id="plans"]/div[1]/div/div[5]/div[3]/a[1]').click
+  screenshot("plan_shopping")
+  find(:xpath, '//*[@id="plans"]/div[1]/div/div[5]/div[3]/a[1]').click
 end
 
 And(/I click on purchase button on confirmation page/) do
@@ -349,9 +351,9 @@ Then(/^Individual ads address for dependent$/) do
 end
 
 And(/I click to see my Secure Purchase Confirmation/) do
-  wait_and_confirm_text /Messages/
+  wait_and_confirm_text(/Messages/)
   @browser.link(text: /Messages/).click
-  wait_and_confirm_text /Your Secure Enrollment Confirmation/
+  wait_and_confirm_text(/Your Secure Enrollment Confirmation/)
 end
 
 When(/^I visit the Insured portal$/) do
@@ -361,7 +363,7 @@ end
 
 Then(/Second user creates an individual account$/) do
   @browser.button(class: /interaction-click-control-create-account/).wait_until_present
-  @browser.text_field(class: /interaction-field-control-user-email/).set(@u.email :email2)
+  @browser.text_field(class: /interaction-field-control-user-email/).set(@u.email(:email2))
   @browser.text_field(class: /interaction-field-control-user-password/).set("aA1!aA1!aA1!")
   @browser.text_field(class: /interaction-field-control-user-password-confirmation/).set("aA1!aA1!aA1!")
   screenshot("create_account")
@@ -372,12 +374,12 @@ Then(/^Second user goes to register as individual/) do
   step "user should see your information page"
   step "user goes to register as an individual"
   @browser.text_field(class: /interaction-field-control-person-first-name/).set("Second")
-  @browser.text_field(class: /interaction-field-control-person-ssn/).set(@u.ssn :ssn2)
+  @browser.text_field(class: /interaction-field-control-person-ssn/).set(@u.ssn(:ssn2))
 end
 
 Then(/^Second user should see a form to enter personal information$/) do
   step "Individual should see a form to enter personal information"
-  @browser.text_field(class: /interaction-field-control-person-emails-attributes-0-address/).set(@u.email :email2)
+  @browser.text_field(class: /interaction-field-control-person-emails-attributes-0-address/).set(@u.email(:email2))
 end
 
 Then(/Individual asks for help$/) do
@@ -388,7 +390,7 @@ Then(/Individual asks for help$/) do
   click_link "Help from a Customer Service Representative"
   wait_for_ajax(5,2.5)
   expect(page).to have_content "First Name"
-  #TODO bombs on help_first_name sometimes
+  #TODO: bombs on help_first_name sometimes
   fill_in "help_first_name", with: "Sherry"
   fill_in "help_last_name", with: "Buckner"
   screenshot("help_from_a_csr")
@@ -407,7 +409,7 @@ end
 When(/^a CSR exists/) do
   p = FactoryBot.create(:person, :with_csr_role, first_name: "Sherry", last_name: "Buckner")
   sleep 2 # Need to wait on factory
-  FactoryBot.create(:user, email: "sherry.buckner@dc.gov", password: "aA1!aA1!aA1!", password_confirmation: "aA1!aA1!aA1!", person: p, roles: ["csr"] )
+  FactoryBot.create(:user, email: "sherry.buckner@dc.gov", password: "aA1!aA1!aA1!", password_confirmation: "aA1!aA1!aA1!", person: p, roles: ["csr"])
 end
 
 When(/^CSR accesses the HBX portal$/) do
@@ -449,7 +451,7 @@ Then(/CSR starts a new enrollment/) do
 end
 
 Then(/^click continue again$/) do
-  wait_and_confirm_text /continue/i
+  wait_and_confirm_text(/continue/i)
 
   scroll_then_click(@browser.a(text: /continue/i))
 end
@@ -463,7 +465,7 @@ end
 
 Then(/^(\w+) creates a new account$/) do |person|
   find('.interaction-click-control-create-account').click
-  fill_in 'user[email]', with: (@u.email 'email' + person)
+  fill_in 'user[email]', with: (@u.email "email#{person}")
   fill_in 'user[password]', with: "aA1!aA1!aA1!"
   fill_in 'user[password_confirmation]', with: "aA1!aA1!aA1!"
   click_button 'Create account'
@@ -488,8 +490,8 @@ end
 
 When(/^(\w+) signs in$/) do |person|
   click_link 'Sign In Existing Account'
-  fill_in 'user[login]', with: (@u.find 'email' + person)
-  find('#user_email').set(@u.find 'email' + person)
+  fill_in 'user[login]', with: (@u.find "email#{person}")
+  find('#user_email').set(@u.find("email#{person}"))
   fill_in 'user[password]', with: "aA1!aA1!aA1!"
   click_button 'Sign in'
 end
@@ -529,11 +531,11 @@ Then(/^\w+ enters demographic information$/) do
 end
 
 And(/^\w+ is an Employee$/) do
-  wait_and_confirm_text /Employer/i
+  wait_and_confirm_text(/Employer/i)
 end
 
 And(/^\w+ is a Consumer$/) do
-  wait_and_confirm_text /Verify Identity/i
+  wait_and_confirm_text(/Verify Identity/i)
 end
 
 And(/(\w+) clicks on the purchase button on the confirmation page/) do |insured|
@@ -559,7 +561,7 @@ Then(/^Aptc user goes to register as individual/) do
   step "user should see your information page"
   step "user goes to register as an individual"
   @browser.text_field(class: /interaction-field-control-person-first-name/).set("Aptc")
-  @browser.text_field(class: /interaction-field-control-person-ssn/).set(@u.ssn :ssn3)
+  @browser.text_field(class: /interaction-field-control-person-ssn/).set(@u.ssn(:ssn3))
   screenshot("aptc_register")
 
 end
@@ -599,7 +601,7 @@ Then(/Aptc user should see aptc amount and click on confirm button on thanyou pa
   expect(@browser.td(text: "$20.00").visible?).to be_truthy
   @browser.checkbox(id: "terms_check_thank_you").set(true)
   @browser.text_field(class: /interaction-field-control-first-name-thank-you/).set("Aptc")
-  @browser.text_field(class: /interaction-field-control-last-name-thank-you/).set(@u.find :last_name1)
+  @browser.text_field(class: /interaction-field-control-last-name-thank-you/).set(@u.find(:last_name1))
   screenshot("aptc_purchase")
   click_when_present(@browser.a(text: /confirm/i))
 end

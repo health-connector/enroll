@@ -11,10 +11,11 @@ module Effective
           @default_entries = entries
         end
 
-        def table_column(name, options = {}, proc = nil, &block)
+        def table_column(name, options = {}, _proc = nil, &block)
           if block_given?
             raise "You cannot use partial: ... with the block syntax" if options[:partial] && !options[:type] == :actions
             raise "You cannot use proc: ... with the block syntax" if options[:proc]
+
             options[:block] = block
           end
           raise "You cannot use both partial: ... and proc: ..." if options[:partial] && options[:proc]
@@ -27,12 +28,28 @@ module Effective
         end
 
         def actions_column(options = {}, proc = nil, &block)
-          raise 'first parameter to actions_column should be a hash' unless options.kind_of?(Hash)
+          raise 'first parameter to actions_column should be a hash' unless options.is_a?(Hash)
 
-          show = options.fetch(:show, (EffectiveDatatables.actions_column[:show] rescue false))
-          edit = options.fetch(:edit, (EffectiveDatatables.actions_column[:edit] rescue false))
-          destroy = options.fetch(:destroy, (EffectiveDatatables.actions_column[:destroy] rescue false))
-          unarchive = options.fetch(:unarchive, (EffectiveDatatables.actions_column[:unarchive] rescue false))
+          show = options.fetch(:show, begin
+            EffectiveDatatables.actions_column[:show]
+          rescue StandardError
+            false
+          end)
+          edit = options.fetch(:edit, begin
+            EffectiveDatatables.actions_column[:edit]
+          rescue StandardError
+            false
+          end)
+          destroy = options.fetch(:destroy, begin
+            EffectiveDatatables.actions_column[:destroy]
+          rescue StandardError
+            false
+          end)
+          unarchive = options.fetch(:unarchive, begin
+            EffectiveDatatables.actions_column[:unarchive]
+          rescue StandardError
+            false
+          end)
           name = options.fetch(:name, 'actions')
 
           opts = {
@@ -50,7 +67,7 @@ module Effective
         end
 
         def bulk_actions_column(options = {}, proc = nil, &block)
-          raise 'first parameter to bulk_actions_column should be a hash' unless options.kind_of?(Hash)
+          raise 'first parameter to bulk_actions_column should be a hash' unless options.is_a?(Hash)
 
           name = options.fetch(:name, 'bulk_actions')
           resource_method = options.fetch(:resource_method, :to_param)
@@ -72,6 +89,7 @@ module Effective
         def aggregate(name, options = {}, &block)
           if block_given?
             raise "You cannot use proc: ... with the block syntax" if options[:proc]
+
             options[:block] = block
           end
 

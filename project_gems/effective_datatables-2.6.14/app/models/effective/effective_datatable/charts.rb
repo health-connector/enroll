@@ -1,9 +1,8 @@
 module Effective
   module EffectiveDatatable
     module Charts
-
       def charts_data
-        HashWithIndifferentAccess.new().tap do |retval|
+        HashWithIndifferentAccess.new.tap do |retval|
           (charts || {}).each do |name, chart|
             retval[name] = {
               name: chart[:name],
@@ -14,7 +13,6 @@ module Effective
           end
         end
       end
-
     end
   end
 end

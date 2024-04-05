@@ -20,7 +20,6 @@ describe "CcaBrokerAgencyProfilesMigration" do
 
       organization = FactoryBot.create(:broker)
       document3 = FactoryBot.build(:document)
-      document4 = FactoryBot.build(:document)
       broker_agency_profile = organization.broker_agency_profile
 
       FactoryBot.create(:message1, inbox: broker_agency_profile.inbox)

@@ -1336,8 +1336,14 @@ describe EmployerProfile, "group transmissions", dbclean: :after_each do
 
   let(:plan_year) { renewing_employer.published_plan_year }
   let(:renewal_plan_year) { renewing_employer.renewing_plan_year }
-  let(:benefit_group) { FactoryBot.build(:benefit_group, title: "silver offerings 1", plan_year: plan_year, reference_plan_id: health_plan.id, plan_option_kind: 'single_carrier', dental_plan_option_kind: 'single_carrier', dental_reference_plan_id: dental_plan.id)}
-  let(:renewal_benefit_group) { FactoryBot.build(:benefit_group, title: "silver offerings 2", plan_year: renewal_plan_year, reference_plan_id: new_health_plan.id, plan_option_kind: 'single_carrier', dental_plan_option_kind: 'single_carrier', dental_reference_plan_id: new_dental_plan.id)}
+  let(:benefit_group) do
+    FactoryBot.build(:benefit_group, title: "silver offerings 1", plan_year: plan_year, reference_plan_id: health_plan.id,
+    plan_option_kind: 'single_carrier', dental_plan_option_kind: 'single_carrier', dental_reference_plan_id: dental_plan.id)
+  end
+  let(:renewal_benefit_group) do
+    FactoryBot.build(:benefit_group, title: "silver offerings 2", plan_year: renewal_plan_year, reference_plan_id: new_health_plan.id,
+    plan_option_kind: 'single_carrier', dental_plan_option_kind: 'single_carrier', dental_reference_plan_id: new_dental_plan.id)
+  end
 
   describe '.is_renewal_transmission_eligible?' do
     context 'renewing_employer exists in enrolled state' do
