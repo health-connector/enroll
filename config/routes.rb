@@ -434,9 +434,7 @@ Rails.application.routes.draw do
 
   namespace :broker_agencies do
     root 'profiles#new'
-    resources :inboxes, only: [:new, :create, :show, :destroy] do
-      get :msg_to_portal
-    end
+
     resources :profiles, only: [:new, :create, :show, :index, :edit, :update] do
       get :inbox
 
@@ -466,19 +464,6 @@ Rails.application.routes.draw do
 
       resources :applicants
     end
-    resources :broker_roles, only: [:create] do
-      root 'broker_roles#new_broker'
-      collection do
-        get :new_broker
-        get :new_staff_member
-        get :new_broker_agency
-        get :search_broker_agency
-      end
-      member do
-        get :favorite
-      end
-    end
-
 
     resources :broker_roles do
 
