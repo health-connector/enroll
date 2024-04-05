@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitApplicationWorld
   def aasm_state(key = nil)
     @aasm_state ||= key

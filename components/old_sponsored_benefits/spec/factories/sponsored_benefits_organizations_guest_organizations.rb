@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :sponsored_benefits_organizations_guest_organization, class: 'SponsoredBenefits::Organizations::GuestOrganization' do
 

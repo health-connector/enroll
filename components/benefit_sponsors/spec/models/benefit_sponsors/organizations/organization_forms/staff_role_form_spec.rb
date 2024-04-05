@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module BenefitSponsors
@@ -15,7 +17,7 @@ module BenefitSponsors
     describe "model attributes", dbclean: :after_each do
       it {
         [:npn, :first_name, :last_name, :email, :phone, :status, :dob, :person_id, :area_code, :number, :extension, :profile_id, :profile_type].each do |key|
-          expect(subject.new.attributes.has_key?(key)).to be_truthy
+          expect(subject.new.attributes.key?(key)).to be_truthy
         end
       }
     end

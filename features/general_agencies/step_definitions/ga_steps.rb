@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GAWorld
   def general_agency(*traits)
     attributes = traits.extract_options!
@@ -44,7 +46,7 @@ When(/^they complete the new general agency form and hit the 'Submit' button$/) 
 
   fill_in 'organization[office_locations_attributes][0][address_attributes][zip]', with: '01002'
   wait_for_ajax
-  select "#{location[:county]}", :from => "organization[office_locations_attributes][0][address_attributes][county]"
+  select location[:county].to_s, :from => "organization[office_locations_attributes][0][address_attributes][county]"
 
   fill_in 'organization[office_locations_attributes][0][phone_attributes][area_code]', with: Forgery(:address).phone.match(/\((\d\d\d)\)/)[1]
   fill_in 'organization[office_locations_attributes][0][phone_attributes][number]', with: Forgery(:address).phone.match(/\)(.*)$/)[1]

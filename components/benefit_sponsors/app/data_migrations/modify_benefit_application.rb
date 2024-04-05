@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.join(File.dirname(__FILE__), "..", "..", "lib/mongoid_migration_task")
 
 class ModifyBenefitApplication < MongoidMigrationTask
@@ -113,7 +115,7 @@ class ModifyBenefitApplication < MongoidMigrationTask
     termination_reason = ENV.fetch('termination_reason', nil)
     off_cycle_renewal = ENV.fetch('off_cycle_renewal', nil)
     termination_date = Date.strptime(ENV.fetch('termination_date', nil), "%m/%d/%Y")
-    notify_trading_partner = ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true ? true : false
+    notify_trading_partner = ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true
     end_on = Date.strptime(ENV.fetch('end_on', nil), "%m/%d/%Y")
     benefit_applications.each do |benefit_application|
       service = initialize_service(benefit_application)
@@ -134,7 +136,7 @@ class ModifyBenefitApplication < MongoidMigrationTask
 
   def cancel_benefit_application(benefit_application)
     service = initialize_service(benefit_application)
-    notify_trading_partner = ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true ? true : false
+    notify_trading_partner = ENV['notify_trading_partner'] == "true" || ENV['notify_trading_partner'] == true
     service.cancel(notify_trading_partner)
   end
 

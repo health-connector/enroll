@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   module Datatables
     class PremiumBillingReportDataTable < Effective::MongoidDatatable
@@ -35,7 +37,7 @@ module Effective
                                                    content_tag(:span) do
                                                      " | # Dep(s) Covered: ".to_s + hbx.humanized_dependent_summary.to_s
                                                    end +
-                                                   content_tag(:p, (hbx.plan.carrier_profile.legal_name.to_s + " -- " + hbx.plan.name.to_s))
+                                                   content_tag(:p, "#{hbx.plan.carrier_profile.legal_name} -- #{hbx.plan.name}")
                                                end
                                              }, :filter => false, :sortable => false
 
@@ -78,7 +80,7 @@ module Effective
         billing_date = attributes[:billing_date] || billing_period_options.first[1]
         billing_date = (billing_date.is_a? Date) ? billing_date : Date.strptime(billing_date, "%m/%d/%Y")
         query = Queries::EmployerPremiumStatement.new(@employer_profile, billing_date)
-        @hbx_enrollment_ids ||= query.execute.nil? ? [] : query.execute.hbx_enrollments.collect{|h| h._id}
+        @hbx_enrollment_ids ||= query.execute.nil? ? [] : query.execute.hbx_enrollments.collect(&:_id)
       end
 
       def nested_filter_definition

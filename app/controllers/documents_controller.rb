@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DocumentsController < ApplicationController
   before_action :updateable?, except: [:show_docs, :download]
   before_action :set_document, only: [:destroy, :update]
@@ -65,9 +67,7 @@ class DocumentsController < ApplicationController
   def enrollment_verification
     family = @person.primary_family
     if family.active_household.hbx_enrollments.verification_needed.any?
-      family.active_household.hbx_enrollments.verification_needed.each do |enrollment|
-        enrollment.evaluate_individual_market_eligiblity
-      end
+      family.active_household.hbx_enrollments.verification_needed.each(&:evaluate_individual_market_eligiblity)
       family.save!
       respond_to do |format|
         format.html do
@@ -175,7 +175,7 @@ class DocumentsController < ApplicationController
     #@employer_profile.employer_attestation.employer_attestation_doccument = EmployerAttestationDocument.new() unless @employer_profile.employer_attestation.employer_attestation_doccument
     document = @employer_profile.employer_attestation.upload_document(file_path(params[:file]),file_name(params[:file]),params[:subject],params[:file].size)
     @employer_profile.employer_attestation.update_attributes(aasm_state: "submitted") if document.save!
-    redirect_to exchanges_hbx_profiles_path + '?tab=documents'
+    redirect_to "#{exchanges_hbx_profiles_path}?tab=documents"
   end
 
   def document_reader
@@ -189,7 +189,7 @@ class DocumentsController < ApplicationController
   def download_documents
     docs = Document.find(params[:ids])
     docs.each do |doc|
-      send_file "#{Rails.root}" + "/tmp" + doc.source.url, file_name: doc.title, :type => "application/pdf"
+      send_file "#{Rails.root}/tmp#{doc.source.url}", file_name: doc.title, :type => "application/pdf"
     end
   end
 
@@ -206,7 +206,7 @@ class DocumentsController < ApplicationController
     @document.employer_attestation_documents.find(params[:attestation_doc_id]).update_attributes(aasm_state: params[:status],reason_for_rejection: @reason)
     @document.update_attributes(aasm_state: params[:status])
 
-    redirect_to exchanges_hbx_profiles_path + '?tab=documents'
+    redirect_to "#{exchanges_hbx_profiles_path}?tab=documents"
   end
 
   def add_type_history_element
@@ -215,12 +215,10 @@ class DocumentsController < ApplicationController
     action = params[:admin_action] || params[:action]
     action = "Delete #{params[:doc_title]}" if action == "destroy"
     reason = params[:verification_reason]
-    if @person
-      @person.consumer_role.add_type_history_element(verification_type: verification_type,
+    @person&.consumer_role&.add_type_history_element(verification_type: verification_type,
                                                      action: action.split('_').join(' '),
                                                      modifier: actor,
                                                      update_reason: reason)
-    end
   end
 
   private

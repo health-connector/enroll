@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :sponsored_benefits_site, class: 'SponsoredBenefits::Site' do
     site_key    :acme

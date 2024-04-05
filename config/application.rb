@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'boot'
 
 require "rails"
@@ -7,7 +9,6 @@ require "action_controller/railtie"
 require "action_mailer/railtie"
 require "rails/test_unit/railtie"
 require "sprockets/railtie" # Uncomment this line for Rails 3.1+
-require "rails/test_unit/railtie"
 
 # Configure fallbacks for mongoid errors:
 require "i18n/backend/fallbacks"

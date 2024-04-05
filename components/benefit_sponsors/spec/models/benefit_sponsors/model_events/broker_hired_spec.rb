@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::BrokerAgencyHiredConfirmation', dbclean: :around_each  do

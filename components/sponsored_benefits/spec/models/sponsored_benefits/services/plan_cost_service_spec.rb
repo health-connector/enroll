@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbclean: :after_each do
   let!(:rating_area) { FactoryBot.create(:rating_area, zip_code: ofice_location.address.zip, county_name: ofice_location.address.county)}
 

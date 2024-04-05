@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AccessPolicies
   class GeneralAgencyProfile
     attr_accessor :user

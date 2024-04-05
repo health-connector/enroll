@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 
 class HbxEnrollment
@@ -18,27 +20,27 @@ class HbxEnrollment
   ENROLLMENT_CREATED_EVENT_NAME = "acapi.info.events.policy.created"
   ENROLLMENT_UPDATED_EVENT_NAME = "acapi.info.events.policy.updated"
 
-  Authority           = [:open_enrollment]
+  Authority           = [:open_enrollment].freeze
 
 
-  Kinds               = %w[individual employer_sponsored employer_sponsored_cobra coverall unassisted_qhp insurance_assisted_qhp streamlined_medicaid emergency_medicaid hcr_chip]
+  Kinds               = %w[individual employer_sponsored employer_sponsored_cobra coverall unassisted_qhp insurance_assisted_qhp streamlined_medicaid emergency_medicaid hcr_chip].freeze
 
-  ENROLLMENT_KINDS    = %w[open_enrollment special_enrollment]
-  COVERAGE_KINDS      = %w[health dental]
+  ENROLLMENT_KINDS    = %w[open_enrollment special_enrollment].freeze
+  COVERAGE_KINDS      = %w[health dental].freeze
 
   ENROLLED_STATUSES   = %w[coverage_selected transmitted_to_carrier enrolled_contingent coverage_enrolled coverage_termination_pending unverified coverage_reinstated].freeze
 
-  SELECTED_AND_WAIVED = %w[coverage_selected inactive]
-  TERMINATED_STATUSES = %w[coverage_terminated unverified coverage_expired void]
-  CANCELED_STATUSES   = %w[coverage_canceled]
+  SELECTED_AND_WAIVED = %w[coverage_selected inactive].freeze
+  TERMINATED_STATUSES = %w[coverage_terminated unverified coverage_expired void].freeze
+  CANCELED_STATUSES   = %w[coverage_canceled].freeze
   RENEWAL_STATUSES    = %w[auto_renewing renewing_coverage_selected renewing_transmitted_to_carrier renewing_coverage_enrolled
                            auto_renewing_contingent renewing_contingent_selected renewing_contingent_transmitted_to_carrier
-                           renewing_contingent_enrolled]
-  WAIVED_STATUSES     = %w[inactive renewing_waived]
+                           renewing_contingent_enrolled].freeze
+  WAIVED_STATUSES     = %w[inactive renewing_waived].freeze
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
 
-  OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan service area".freeze
+  OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan service area"
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",
       "I have coverage through parent’s employer health plan",
@@ -48,13 +50,13 @@ class HbxEnrollment
       "I have coverage through Tricare",
       "I have coverage through Medicaid",
       OUTSIDE_SERVICE_AREA_WAIVER_REASON
-  ]
-  CAN_TERMINATE_ENROLLMENTS = %w[coverage_termination_pending coverage_selected auto_renewing renewing_coverage_selected enrolled_contingent unverified coverage_enrolled]
+  ].freeze
+  CAN_TERMINATE_ENROLLMENTS = %w[coverage_termination_pending coverage_selected auto_renewing renewing_coverage_selected enrolled_contingent unverified coverage_enrolled].freeze
 
   ENROLLMENT_TRAIN_STOPS_STEPS = {"coverage_selected" => 1, "transmitted_to_carrier" => 2, "coverage_enrolled" => 3,
-                                  "auto_renewing" => 1, "renewing_coverage_selected" => 1, "renewing_transmitted_to_carrier" => 2, "renewing_coverage_enrolled" => 3}
+                                  "auto_renewing" => 1, "renewing_coverage_selected" => 1, "renewing_transmitted_to_carrier" => 2, "renewing_coverage_enrolled" => 3}.freeze
 
-  CAN_REINSTATE_AND_UPDATE_END_DATE = %w[coverage_termination_pending coverage_terminated]
+  CAN_REINSTATE_AND_UPDATE_END_DATE = %w[coverage_termination_pending coverage_terminated].freeze
 
   ENROLLMENT_TRAIN_STOPS_STEPS.default = 0
 
@@ -394,9 +396,7 @@ class HbxEnrollment
       found_families = Family.find_all_by_person(consumer_role.person)
       found_families.each do |ff|
         ff.households.each do |hh|
-          hh.hbx_enrollments.active.each do |he|
-            he.evaluate_individual_market_eligiblity
-          end
+          hh.hbx_enrollments.active.each(&:evaluate_individual_market_eligiblity)
         end
       end
     end
@@ -444,7 +444,7 @@ class HbxEnrollment
   def future_enrollment_termination_date
     return "" unless coverage_termination_pending?
 
-    employee_role && employee_role.census_employee && employee_role.census_employee.coverage_terminated_on
+    employee_role&.census_employee && employee_role.census_employee.coverage_terminated_on
   end
 
   def benefit_sponsored?
@@ -604,7 +604,7 @@ class HbxEnrollment
   def collect_predecessor_package_ids(benefit_application)
     if benefit_application.is_renewing? && (effective_on == sponsored_benefit_package.start_on) && employer_profile
       @predecessor_application = employer_profile.benefit_applications.published_benefit_applications_by_date(employer_profile.active_benefit_sponsorship, effective_on.prev_day).first
-      @predecessor_application.benefit_packages.pluck(:id) if @predecessor_application
+      @predecessor_application&.benefit_packages&.pluck(:id)
     end
   end
 
@@ -976,7 +976,7 @@ class HbxEnrollment
   def select_applicable_broker_account(broker_accounts)
     last_broker_before_purchase = broker_accounts.select do |baa|
       (baa.start_on < time_of_purchase) # &&
-    end.sort_by(&:start_on).last
+    end.max_by(&:start_on)
     return nil if last_broker_before_purchase.nil?
 
     last_broker_before_purchase if last_broker_before_purchase.end_on.blank? || (last_broker_before_purchase.end_on >= time_of_purchase)
@@ -1037,7 +1037,7 @@ class HbxEnrollment
   end
 
   def humanized_members_summary
-    hbx_enrollment_members.count{|member| member.covered? }
+    hbx_enrollment_members.count(&:covered?)
   end
 
   def phone_number
@@ -1518,7 +1518,7 @@ class HbxEnrollment
 
     if is_shop?
       census_employee = benefit_group_assignment.try(:census_employee)
-      census_employee.reinstate_employment if census_employee && census_employee.can_be_reinstated?
+      census_employee.reinstate_employment if census_employee&.can_be_reinstated?
     end
 
     if reinstate_enrollment.may_reinstate_coverage?
@@ -1879,7 +1879,7 @@ class HbxEnrollment
     purchased_at = [submitted_at, created_at].compact.max
     return true unless (shopping_plan_year.open_enrollment_period.min..shopping_plan_year.open_enrollment_period.max).include?(TimeKeeper.date_according_to_exchange_at(purchased_at))
 
-    !(shopping_plan_year.effective_period.min == effective_on)
+    shopping_plan_year.effective_period.min != effective_on
   end
 
   def update_coverage_kind_by_plan

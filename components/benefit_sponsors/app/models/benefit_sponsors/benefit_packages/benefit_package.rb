@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module BenefitPackages
     class BenefitPackage
@@ -50,7 +52,8 @@ module BenefitSponsors
       # returns a roster
       def new_hire_effective_on(roster); end
 
-      def eligible_on(date_of_hire) # date_of_hire probation type is deprecated
+# date_of_hire probation type is deprecated
+      def eligible_on(date_of_hire)
         return (date_of_hire + effective_on_offset.days) if (date_of_hire + effective_on_offset.days).day == 1
 
         (date_of_hire + effective_on_offset.days).end_of_month + 1.day
@@ -144,11 +147,11 @@ module BenefitSponsors
       end
 
       def reference_plan
-        health_sponsored_benefit.reference_product if health_sponsored_benefit
+        health_sponsored_benefit&.reference_product
       end
 
       def dental_reference_plan
-        dental_sponsored_benefit.reference_product if dental_sponsored_benefit
+        dental_sponsored_benefit&.reference_product
       end
 
       def health_sponsored_benefit
@@ -196,7 +199,7 @@ module BenefitSponsors
       end
 
       def can_renew?
-        sponsored_benefits.unscoped.map{ |sb| sb.can_renew?(renewal_date) }.include?(false) ? false : true
+        !sponsored_benefits.unscoped.map{ |sb| sb.can_renew?(renewal_date) }.include?(false)
       end
 
       def renew(new_benefit_package)
@@ -295,7 +298,7 @@ module BenefitSponsors
 
           sponsored_benefits.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-            hbx_enrollment.begin_coverage! if hbx_enrollment && hbx_enrollment.may_begin_coverage?
+            hbx_enrollment.begin_coverage! if hbx_enrollment&.may_begin_coverage?
           end
         end
       end
@@ -306,7 +309,7 @@ module BenefitSponsors
 
           sponsored_benefits.unscoped.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-            hbx_enrollment.expire_coverage! if hbx_enrollment && hbx_enrollment.may_expire_coverage?
+            hbx_enrollment.expire_coverage! if hbx_enrollment&.may_expire_coverage?
           end
         end
       end

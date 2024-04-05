@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 And(/^Hbx admin should see the link of announcements and click$/) do
   click_link 'Config'
   wait_for_ajax

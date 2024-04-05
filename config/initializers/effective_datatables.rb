@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 EffectiveDatatables.setup do |config|
   # Authorization Method
   #

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::BrokerFired', :dbclean => :after_each do
@@ -26,7 +28,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::BrokerFired', :dbclean => :after_e
     employer_profile.fire_broker_agency
     employer_profile.save!
     broker_agency_profile.update_attributes(primary_broker_role_id: broker_role.id)
-    @broker_agency_account1 = employer_profile.broker_agency_accounts.unscoped.select{|br| br.is_active == false}.sort_by(&:created_at).last
+    @broker_agency_account1 = employer_profile.broker_agency_accounts.unscoped.select{|br| br.is_active == false}.max_by(&:created_at)
   end
 
   describe "when ER fires a broker" do

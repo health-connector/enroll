@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^Employer Staff should see dialog with Attestation warning$/) do
   wait_for_ajax(3,2)
   expect(page).to have_content('Publish Anyways')

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   class MongoidDatatable < Effective::Datatable
     def global_search_method

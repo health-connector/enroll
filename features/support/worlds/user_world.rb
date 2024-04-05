@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module UserWorld
   def employee(employer = nil)
     if @employee

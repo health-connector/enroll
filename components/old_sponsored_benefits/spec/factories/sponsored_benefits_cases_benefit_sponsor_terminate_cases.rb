@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :sponsored_benefits_cases_benefit_sponsor_terminate_case, class: 'SponsoredBenefits::Cases::BenefitSponsorTerminateCase' do
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^the user navigates to the DOCUMENTS tab$/) do
   visit verification_insured_families_path
 end

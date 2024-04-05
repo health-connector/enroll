@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   include Pundit
   include Config::SiteConcern
@@ -308,9 +310,10 @@ class ApplicationController < ActionController::Base
   def set_bookmark_url(url = nil)
     set_current_person
     bookmark_url = url || request.original_url
-    if /employee/.match(bookmark_url)
+    case bookmark_url
+    when /employee/
       role = @person.try(:employee_roles).try(:last)
-    elsif /consumer/.match(bookmark_url)
+    when /consumer/
       role = @person.try(:consumer_role)
     end
     save_bookmark role, bookmark_url

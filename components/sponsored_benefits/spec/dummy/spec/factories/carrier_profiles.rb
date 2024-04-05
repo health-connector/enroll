@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :carrier_profile do
     organization  { FactoryBot.create(:organization, legal_name: "BMC HealthNet Plan", dba: "BMC HealthNet Plan") }

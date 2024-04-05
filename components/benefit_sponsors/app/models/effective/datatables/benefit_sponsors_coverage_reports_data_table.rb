@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   module Datatables
     class BenefitSponsorsCoverageReportsDataTable < Effective::MongoidDatatable
@@ -38,7 +40,7 @@ module Effective
                                                    content_tag(:span) do
                                                      " | # Dep(s) Covered: ".to_s + (row.members.size - 1).to_s
                                                    end +
-                                                   content_tag(:p, (issuer_info[row.group_enrollment.product[:issuer_profile_id]] + " -- " + product_info[row.group_enrollment.product[:id]]))
+                                                   content_tag(:p, "#{issuer_info[row.group_enrollment.product[:issuer_profile_id]]} -- #{product_info[row.group_enrollment.product[:id]]}")
                                                end
                                              }, :filter => false, :sortable => false
 

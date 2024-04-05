@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe SponsoredBenefits::Services::PlanDesignProposalService, type: :model, dbclean: :after_each do
 
   let(:subject) do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :sponsored_benefits_office_location, class: 'SponsoredBenefits::Organizations::OfficeLocation' do
     is_primary false

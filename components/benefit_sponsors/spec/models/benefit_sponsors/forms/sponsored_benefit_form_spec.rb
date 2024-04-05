@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module BenefitSponsors
@@ -13,7 +15,7 @@ module BenefitSponsors
     describe "model attributes" do
       it {
         [:benefit_package_id, :benefit_sponsorship_id, :sponsored_benefit_id, :kind].each do |key|
-          expect(subject.attributes.has_key?(key)).to be_truthy
+          expect(subject.attributes.key?(key)).to be_truthy
         end
       }
     end

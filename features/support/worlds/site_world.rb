@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SiteWorld
   def site
     @site ||= FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key)

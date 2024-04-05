@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # A model for grouping and organizing a {Person} with their related {FamilyMember FamilyMember(s)},
 # benefit enrollment eligibility, financial assistance eligibility and availability, benefit enrollments,
 # broker agents, and documents.
@@ -19,7 +21,7 @@ class Family
   include Mongoid::Autoinc
   include DocumentsVerificationStatus
 
-  IMMEDIATE_FAMILY = %w[self spouse life_partner child ward foster_child adopted_child stepson_or_stepdaughter stepchild domestic_partner]
+  IMMEDIATE_FAMILY = %w[self spouse life_partner child ward foster_child adopted_child stepson_or_stepdaughter stepchild domestic_partner].freeze
 
   field :version, type: Integer, default: 1
   embeds_many :versions, class_name: name, validate: false, cyclic: true, inverse_of: nil
@@ -280,7 +282,7 @@ class Family
   end
 
   def active_broker_agency_account
-    broker_agency_accounts.detect { |baa| baa.is_active? }
+    broker_agency_accounts.detect(&:is_active?)
   end
 
   def coverage_waived?
@@ -380,7 +382,7 @@ class Family
   #
   # @return [ Array<FamilyMember> ] the active members of this family
   def active_family_members
-    family_members.find_all { |family_member| family_member.is_active? }
+    family_members.find_all(&:is_active?)
   end
 
   # Get the {FamilyMember} associated with this {Person}
@@ -396,7 +398,7 @@ class Family
   end
 
   def is_eligible_to_enroll?(options = {})
-    current_enrollment_eligibility_reasons(qle: options[:qle]).length > 0
+    !current_enrollment_eligibility_reasons(qle: options[:qle]).empty?
   end
 
   def current_enrollment_eligibility_reasons(options = {})
@@ -415,7 +417,7 @@ class Family
   #
   # @return [ true, false ] true if under SHOP or Individual market open enrollment, false if not under SHOP or Individual market open enrollment
   def is_under_open_enrollment?
-    current_eligible_open_enrollments.length > 0
+    !current_eligible_open_enrollments.empty?
   end
 
   # Determine if this family has enrollment eligibility under Individual market open enrollment
@@ -428,7 +430,7 @@ class Family
   #
   # @return [ true, false ] true if under Individual market open enrollment, false if not under Individual market open enrollment
   def is_under_ivl_open_enrollment?
-    current_ivl_eligible_open_enrollments.length > 0
+    !current_ivl_eligible_open_enrollments.empty?
   end
 
   # Determine if this family has enrollment eligibility under SHOP market open enrollment
@@ -441,7 +443,7 @@ class Family
   #
   # @return [ true, false ] true if under SHOP market open enrollment, false if not under SHOP market open enrollment
   def is_under_shop_open_enrollment?
-    current_shop_eligible_open_enrollments.length > 0
+    !current_shop_eligible_open_enrollments.empty?
   end
 
   # Get list of Individual and SHOP market {EnrollmentEligibilityReason EnrollmentEligibilityReasons} currently available to this family
@@ -518,9 +520,9 @@ class Family
   #
   # @return [ true, false ] true if under a SEP, false if not under a SEP
   def is_under_special_enrollment_period?
-    return false if special_enrollment_periods.size == 0
+    return false if special_enrollment_periods.empty?
 
-    current_special_enrollment_periods.size > 0
+    !current_special_enrollment_periods.empty?
   end
 
   # Get list of {SpecialEnrollmentPeriod} (SEP) eligibilities currently available to this family
@@ -532,11 +534,11 @@ class Family
   #
   # @return [ Array<SpecialEnrollmentPeriod> ] The SEP eligibilities active on today's date
   def active_seps
-    special_enrollment_periods.find_all { |sep| sep.is_active? }
+    special_enrollment_periods.find_all(&:is_active?)
   end
 
   def latest_active_sep
-    special_enrollment_periods.order_by(:submitted_at.desc).detect{ |sep| sep.is_active? }
+    special_enrollment_periods.order_by(:submitted_at.desc).detect(&:is_active?)
   end
 
   # Get list of HBX Admin assigned {SpecialEnrollmentPeriod} (SEP) eligibilities currently available to this family
@@ -559,7 +561,7 @@ class Family
   #
   # @return [ Array<SpecialEnrollmentPeriod> ] The SEP eligibilities active on today's date
   def current_special_enrollment_periods
-    return [] if special_enrollment_periods.size == 0
+    return [] if special_enrollment_periods.empty?
 
     seps = special_enrollment_periods.order_by(:start_on.desc).only(:special_enrollment_periods)
     seps.reduce([]) do |list, event|
@@ -581,7 +583,7 @@ class Family
   # @return [ SpecialEnrollmentPeriod ] The SEP eligibility active on today's date with earliest
   #   coverage effective date
   def earliest_effective_sep
-    special_enrollment_periods.order_by(:effective_on.asc).to_a.detect{ |sep| sep.is_active? }
+    special_enrollment_periods.order_by(:effective_on.asc).to_a.detect(&:is_active?)
   end
 
   # Get the SHOP market {SpecialEnrollmentPeriod} (SEP) eligibility currently available to this
@@ -597,7 +599,7 @@ class Family
   # @return [ SpecialEnrollmentPeriod ] The SHOP market SEP eligibility active on today's date with earliest
   #   coverage effective date
   def earliest_effective_shop_sep
-    special_enrollment_periods.shop_market.order_by(:effective_on.asc).to_a.detect{ |sep| sep.is_active? }
+    special_enrollment_periods.shop_market.order_by(:effective_on.asc).to_a.detect(&:is_active?)
   end
 
   # Get the Individual market {SpecialEnrollmentPeriod} (SEP) eligibility currently available to this
@@ -613,7 +615,7 @@ class Family
   # @return [ SpecialEnrollmentPeriod ] The Individual market SEP eligibility active on today's date with earliest
   #   coverage effective date
   def earliest_effective_ivl_sep
-    special_enrollment_periods.individual_market.order_by(:effective_on.asc).to_a.detect{ |sep| sep.is_active? }
+    special_enrollment_periods.individual_market.order_by(:effective_on.asc).to_a.detect(&:is_active?)
   end
 
   # Get the most recently created, active SHOP market {SpecialEnrollmentPeriod} (SEP) eligibility currently available to this family
@@ -623,7 +625,7 @@ class Family
   #
   # @return [ SpecialEnrollmentPeriod ] The most recent, active SHOP market SEP eligibility
   def latest_shop_sep
-    special_enrollment_periods.shop_market.order_by(:submitted_at.desc).to_a.detect{ |sep| sep.is_active? }
+    special_enrollment_periods.shop_market.order_by(:submitted_at.desc).to_a.detect(&:is_active?)
   end
 
   def terminate_date_for_shop_by_enrollment(enrollment = nil)
@@ -649,7 +651,7 @@ class Family
   #
   # @return [ SpecialEnrollmentPeriod ] The SEP eligibility active on today's date with latest end on date
   def current_sep
-    active_seps.max { |sep| sep.end_on }
+    active_seps.max(&:end_on)
   end
 
   def build_from_employee_role(employee_role)
@@ -739,7 +741,7 @@ class Family
   #
   # @return [ Array<FamilyMember> ] the list of dependents are active
   def active_dependents
-    family_members.reject(&:is_primary_applicant).find_all { |family_member| family_member.is_active? }
+    family_members.reject(&:is_primary_applicant).find_all(&:is_active?)
   end
 
   def people_relationship_map
@@ -807,7 +809,7 @@ class Family
   #
   # @return [ BrokerAgencyAccount ] The active broker agency account for this family
   def current_broker_agency
-    broker_agency_accounts.detect { |account| account.is_active? }
+    broker_agency_accounts.detect(&:is_active?)
   end
 
   # Get the {BrokerRole BrokerRoles} on active enrollments. This method queries enrollment transactions, thus may return
@@ -981,7 +983,7 @@ class Family
 
   def save_relevant_coverage_households
     households.each do |household|
-      household.coverage_households.each{|hh| hh.save }
+      household.coverage_households.each(&:save)
     end
   end
 
@@ -1162,7 +1164,7 @@ class Family
   end
 
   def is_document_not_verified(type, person)
-    ["valid", "attested", "verified", "External Source"].include?(verification_type_status(type, person)) ? false : true
+    !["valid", "attested", "verified", "External Source"].include?(verification_type_status(type, person))
   end
 
   def has_valid_e_case_id?
@@ -1174,7 +1176,7 @@ class Family
   private
 
   def build_household
-    if households.size == 0
+    if households.empty?
       irs_group = initialize_irs_group
       initialize_household(irs_group)
     end
@@ -1214,7 +1216,7 @@ class Family
       list << family_member if family_member.is_primary_applicant?
       list
     end
-    errors.add(:family_members, "one family member must be primary family member") if list.size == 0
+    errors.add(:family_members, "one family member must be primary family member") if list.empty?
     errors.add(:family_members, "may not have more than one primary family member") if list.size > 1
   end
 
@@ -1233,7 +1235,7 @@ class Family
       list << household if household.is_active?
       list
     end
-    errors.add(:households, "one household must be active") if list.size == 0
+    errors.add(:households, "one household must be active") if list.empty?
     errors.add(:households, "may not have more than one active household") if list.size > 1
   end
 
@@ -1246,9 +1248,9 @@ class Family
   end
 
   def no_duplicate_family_members
-    family_members.group_by { |appl| appl.person_id }.select { |_k, v| v.size > 1 }.each_pair do |k, v|
-      errors.add(:family_members, "Duplicate family_members for person: #{k}\n" +
-                          "family_members: #{v.inspect}")
+    family_members.group_by(&:person_id).select { |_k, v| v.size > 1 }.each_pair do |k, v|
+      errors.add(:family_members, "Duplicate family_members for person: #{k}\n" \
+                                  "family_members: #{v.inspect}")
     end
   end
 
@@ -1277,11 +1279,7 @@ class Family
     return true if primary_applicant.nil? #responsible party case
     return true if primary_applicant.person.id == family_member.person.id
 
-    if IMMEDIATE_FAMILY.include? primary_applicant.person.find_relationship_with(family_member.person)
-      true
-    else
-      false
-    end
+    IMMEDIATE_FAMILY.include? primary_applicant.person.find_relationship_with(family_member.person)
   end
 
   def clear_blank_fields

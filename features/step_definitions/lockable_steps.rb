@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^there are (\d+) preloaded (.*?) user accounts$/) do |num, status|
   (0...num.to_i).each do |_int|
     user = FactoryBot.create(:user, :with_family)

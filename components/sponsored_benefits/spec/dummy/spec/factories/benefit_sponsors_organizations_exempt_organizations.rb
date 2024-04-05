@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_sponsors_organizations_exempt_organization, class: 'BenefitSponsors::Organizations::ExemptOrganization' do
     site          BenefitSponsors::Site.new

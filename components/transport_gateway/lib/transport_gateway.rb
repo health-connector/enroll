@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'aws-sdk'
 require "transport_gateway/engine"
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # module SponsoredBenefits
 module Effective
   module Datatables
@@ -96,9 +98,10 @@ module Effective
       end
 
       def search_column(collection, table_column, search_term, sql_column)
-        if table_column[:name] == 'legal_name'
+        case table_column[:name]
+        when 'legal_name'
           collection.datatable_search(search_term)
-        elsif table_column[:name] == 'fein'
+        when 'fein'
           collection.datatable_search_fein(search_term)
         else
           super

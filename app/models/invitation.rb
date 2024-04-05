@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Invitation
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -12,7 +14,7 @@ class Invitation
     "csr_role" => "csr_role",
     "hbx_staff_role" => "hbx_staff_role",
     "general_agency_staff_role" => "general_agency_staff_role"
-  }
+  }.freeze
   ROLES = INVITE_TYPES.values
   SOURCE_KINDS = INVITE_TYPES.keys
 

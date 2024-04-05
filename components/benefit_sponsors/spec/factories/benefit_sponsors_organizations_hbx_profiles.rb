@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_sponsors_organizations_hbx_profile, class: 'BenefitSponsors::Organizations::HbxProfile' do
 

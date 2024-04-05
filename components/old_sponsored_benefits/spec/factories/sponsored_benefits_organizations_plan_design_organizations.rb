@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :plan_design_organization, class: 'SponsoredBenefits::Organizations::PlanDesignOrganization' do
     legal_name  "Turner Agency, Inc"

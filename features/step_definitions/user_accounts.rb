@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^Hbx Admin should see buttons to filter$/) do
   expect(page).to have_content('Employee')
   expect(page).to have_content('Broker')

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'autoinc'
 
 class TaxHousehold
@@ -32,7 +34,7 @@ class TaxHousehold
   scope :active_tax_household, ->{ where(effective_ending_on: nil) }
 
   def latest_eligibility_determination
-    eligibility_determinations.sort {|a, b| a.determined_on <=> b.determined_on}.last
+    eligibility_determinations.max {|a, b| a.determined_on <=> b.determined_on}
   end
 
   def group_by_year
@@ -120,7 +122,7 @@ class TaxHousehold
     # FIXME: should get hbx_enrollments by effective_starting_on
     household.hbx_enrollments_with_aptc_by_year(effective_starting_on.year).map(&:hbx_enrollment_members).flatten.each do |enrollment_member|
       applicant_id = enrollment_member.applicant_id.to_s
-      if aptc_available_amount_hash.has_key?(applicant_id)
+      if aptc_available_amount_hash.key?(applicant_id)
         aptc_available_amount_hash[applicant_id] -= (enrollment_member.applied_aptc_amount || 0).try(:to_f)
         aptc_available_amount_hash[applicant_id] = 0 if aptc_available_amount_hash[applicant_id] < 0
       end
@@ -139,7 +141,7 @@ class TaxHousehold
     aptc_available_amount_hash_for_enrollment = {}
 
     total_aptc_available_amount = total_aptc_available_amount_for_enrollment(hbx_enrollment)
-    elected_pct = total_aptc_available_amount > 0 ? (elected_aptc.to_f / total_aptc_available_amount.to_f) : 0
+    elected_pct = total_aptc_available_amount > 0 ? (elected_aptc.to_f / total_aptc_available_amount) : 0
     decorated_plan = UnassistedPlanCostDecorator.new(plan, hbx_enrollment)
     hbx_enrollment.hbx_enrollment_members.each do |enrollment_member|
       given_aptc = (aptc_available_amount_by_member[enrollment_member.applicant_id.to_s] || 0) * elected_pct
@@ -182,7 +184,7 @@ class TaxHousehold
   end
 
   def is_eligibility_determined?
-    elegibility_determinizations.size > 0
+    !elegibility_determinizations.empty?
   end
 
   #primary applicant is the tax household member who is the subscriber

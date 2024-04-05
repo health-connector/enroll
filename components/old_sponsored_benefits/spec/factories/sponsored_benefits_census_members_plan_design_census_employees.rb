@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :plan_design_census_employee, class: 'SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee' do
 

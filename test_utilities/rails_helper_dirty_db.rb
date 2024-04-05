@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
 require 'spec_helper'
@@ -32,7 +34,7 @@ end
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each { |f| require f }
 
 RSpec.configure do |config|
   # RSpec Rails can automatically mix in different behaviours to your tests
@@ -48,7 +50,7 @@ RSpec.configure do |config|
   #
   # The different available types are documented in the features, such as in
   # https://relishapp.com/rspec/rspec-rails/docs
-  load Rails.root + "db/seedfiles/english_translations_seed.rb"
+  load "#{Rails.root}db/seedfiles/english_translations_seed.rb"
   DatabaseCleaner.strategy = :truncation, {:except => %w[translations]}
 
   config.after(:example, :dbclean => :after_each) do |example|

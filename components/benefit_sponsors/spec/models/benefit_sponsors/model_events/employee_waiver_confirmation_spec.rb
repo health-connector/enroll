@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeWaiverConfirmation', dbclean: :around_each  do
@@ -55,7 +57,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeWaiverConfirmation', dbcle
   describe "ModelEvent", dbclean: :around_each  do
     context "when employee waives coverage" do
       it "should trigger model event" do
-        model_instance.class.observer_peers.keys.each do |observer|
+        model_instance.class.observer_peers.each_key do |observer|
           expect(observer).to receive(:notifications_send) do |model_instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :employee_waiver_confirmation, :klass_instance => model_instance, :options => {})

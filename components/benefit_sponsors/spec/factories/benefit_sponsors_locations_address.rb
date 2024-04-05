@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_sponsors_locations_address, class: 'BenefitSponsors::Locations::Address' do
 

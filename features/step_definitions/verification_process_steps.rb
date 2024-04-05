@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VerificationUser
   def user(*traits)
     attributes = traits.extract_options!

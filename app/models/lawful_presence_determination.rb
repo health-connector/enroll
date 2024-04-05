@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LawfulPresenceDetermination
   SSA_VERIFICATION_REQUEST_EVENT_NAME = "local.enroll.lawful_presence.ssa_verification_request"
   VLP_VERIFICATION_REQUEST_EVENT_NAME = "local.enroll.lawful_presence.vlp_verification_request"

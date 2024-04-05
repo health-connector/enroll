@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^Hbx Admin should see an New DC Resident Application link$/) do
   find_link('New DC Resident Application').visible?
 end
@@ -54,7 +56,7 @@ Then(/^Hbx Admin should see text Special Enrollment Period$/) do
 end
 
 When(/Hbx Admin click the "(.*?)" in qle carousel/) do |qle_event|
-  click_link "#{qle_event}"
+  click_link qle_event.to_s
 end
 
 When(/Hbx Admin select a past qle date/) do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DirtyDbRoom
 
   def self.initialize_stern_mom!

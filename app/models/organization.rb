@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Organization
   include Mongoid::Document
   include SetCurrentUser
@@ -19,9 +21,9 @@ class Organization
     "household_employer",
     "governmental_employer",
     "foreign_embassy_or_consulate"
-  ]
+  ].freeze
 
-  FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected"}
+  FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected"}.freeze
 
   field :hbx_id, type: String
   field :issuer_assigned_id, type: String
@@ -349,11 +351,11 @@ class Organization
         if filters[:selected_carrier_level]
           case filters[:selected_carrier_level]
           when 'single_carrier'
-            carrier_plans.select! { |plan| plan.is_vertical }
+            carrier_plans.select!(&:is_vertical)
           when 'metal_level'
-            carrier_plans.select! { |plan| plan.is_horizontal }
+            carrier_plans.select!(&:is_horizontal)
           when 'sole_source'
-            carrier_plans.select! { |plan| plan.is_sole_source }
+            carrier_plans.select!(&:is_sole_source)
           end
         end
         carrier_names[org.carrier_profile.id.to_s] = org.carrier_profile.legal_name if carrier_plans.any?
@@ -520,7 +522,7 @@ class Organization
   end
 
   def office_location_kinds
-    location_kinds = office_locations.select{|l| !l.persisted?}.flat_map(&:address).compact.flat_map(&:kind)
+    location_kinds = office_locations.reject(&:persisted?).flat_map(&:address).compact.flat_map(&:kind)
     # should validate only office location which are not persisted AND kinds ie. primary, mailing, branch
     return if (no_primary = location_kinds.detect{|kind| ['work', 'home'].include?(kind)})
 
@@ -535,7 +537,7 @@ class Organization
     end
     return if errors.any? # this means that the validation succeeded and we can delete all the persisted ones
 
-    office_locations.delete_if{|l| l.persisted?}
+    office_locations.delete_if(&:persisted?)
   end
 
   def check_legal_name_or_fein_changed?
@@ -551,7 +553,7 @@ class Organization
     return unless employer_profile.present?
 
     FIELD_AND_EVENT_NAMES_MAP.each do |feild, event_name|
-      notify("acapi.info.events.employer.#{event_name}", {employer_id: hbx_id, event_name: "#{event_name}"}) if @changed_fields.present? && @changed_fields.include?(feild)
+      notify("acapi.info.events.employer.#{event_name}", {employer_id: hbx_id, event_name: event_name.to_s}) if @changed_fields.present? && @changed_fields.include?(feild)
     end
   end
 
@@ -563,7 +565,7 @@ class Organization
       old_address_dup.delete_if{|s| s["address"]["kind"] == address["address_attributes"]["kind"]}
       keys = address["address_attributes"].keys
       new_address_values = address["address_attributes"].values
-      old_addres_values = old_address.present? ? keys.map{|k| old_address[0]["address"]["#{k}"]} : []
+      old_addres_values = old_address.present? ? keys.map{|k| old_address[0]["address"][k.to_s]} : []
       changed_address << (new_address_values == old_addres_values)
     end
     changed_address << false if old_address_dup.present?

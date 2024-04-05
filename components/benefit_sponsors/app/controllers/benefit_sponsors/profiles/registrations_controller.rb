@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_dependency "benefit_sponsors/application_controller"
 
 module BenefitSponsors

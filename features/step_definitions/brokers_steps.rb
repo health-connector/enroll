@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^.+ visits the HBX Broker Registration form$/) do
   visit '/'
   find(".interaction-click-control-broker-registration", wait: 10).click
@@ -84,7 +86,7 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
   if role.include? 'Employer'
     wait_for_ajax
-    select "#{location[:county]}", :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
+    select (location[:county]).to_s, :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
   end
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]

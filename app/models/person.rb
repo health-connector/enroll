@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Person
   include Config::AcaModelConcern
   include Config::SiteModelConcern
@@ -45,15 +47,15 @@ class Person
   extend Mongorder
 #  validates_with Validations::DateRangeValidator
 
-  GENDER_KINDS = %w[male female]
+  GENDER_KINDS = %w[male female].freeze
 
-  IDENTIFYING_INFO_ATTRIBUTES = %w[first_name last_name ssn dob]
-  ADDRESS_CHANGE_ATTRIBUTES = %w[addresses phones emails]
-  RELATIONSHIP_CHANGE_ATTRIBUTES = %w[person_relationships]
+  IDENTIFYING_INFO_ATTRIBUTES = %w[first_name last_name ssn dob].freeze
+  ADDRESS_CHANGE_ATTRIBUTES = %w[addresses phones emails].freeze
+  RELATIONSHIP_CHANGE_ATTRIBUTES = %w[person_relationships].freeze
 
   PERSON_CREATED_EVENT_NAME = "acapi.info.events.individual.created"
   PERSON_UPDATED_EVENT_NAME = "acapi.info.events.individual.updated"
-  VERIFICATION_TYPES = ['Social Security Number', 'American Indian Status', 'Citizenship', 'Immigration status']
+  VERIFICATION_TYPES = ['Social Security Number', 'American Indian Status', 'Citizenship', 'Immigration status'].freeze
 
   field :hbx_id, type: String
   field :name_pfx, type: String
@@ -298,11 +300,11 @@ class Person
   end
 
   def check_households(family)
-    family.households.present? ? true : false
+    family.households.present?
   end
 
   def check_tax_households(family)
-    family.households.first.tax_households.present? ? true : false
+    family.households.first.tax_households.present?
   end
 
   def completed_identity_verification?
@@ -472,7 +474,7 @@ class Person
 
   def work_email_or_best
     email = emails.detect { |adr| adr.kind == "work" } || emails.first
-    (email && email.address) || (user && user.email)
+    email&.address || user&.email
   end
 
   def work_phone
@@ -523,7 +525,7 @@ class Person
   end
 
   def active_employee_roles
-    employee_roles.select{|employee_role| employee_role.census_employee && employee_role.census_employee.is_active? }
+    employee_roles.select{|employee_role| employee_role.census_employee&.is_active? }
   end
 
   def has_multiple_active_employers?
@@ -582,7 +584,7 @@ class Person
     def additional_exprs(clean_str)
       additional_exprs = []
       if clean_str.include?(" ")
-        parts = clean_str.split(" ").compact
+        parts = clean_str.split.compact
         first_re = ::Regexp.new(::Regexp.escape(parts.first), true)
         last_re = ::Regexp.new(::Regexp.escape(parts.last), true)
         additional_exprs << {:first_name => first_re, :last_name => last_re}
@@ -898,7 +900,7 @@ class Person
     welcome_subject = "Welcome to #{site_short_name}"
     welcome_body = "#{site_short_name} is the #{aca_state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
     mailbox = Inbox.create(recipient: self)
-    mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: "#{site_short_name}")
+    mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: site_short_name.to_s)
   end
 
   def update_full_name

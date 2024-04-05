@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :hbx_enrollment do
     kind { "employer_sponsored" }

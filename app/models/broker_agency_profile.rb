@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BrokerAgencyProfile
   include Mongoid::Document
   include SetCurrentUser
@@ -12,7 +14,7 @@ class BrokerAgencyProfile
     "Individual & Family Marketplace ONLY" => "individual",
     "Small Business Marketplace ONLY" => "shop",
     "Both - Individual & Family AND Small Business Marketplaces" => "both"
-  }
+  }.freeze
   MARKET_KINDS_OPTIONS = ALL_MARKET_KINDS_OPTIONS.select { |_k,v| MARKET_KINDS.include? v }
 
   field :entity_kind, type: String
@@ -161,7 +163,7 @@ class BrokerAgencyProfile
   end
 
   def families
-    linked_active_employees = linked_employees.select{ |person| person.has_active_employee_role? }
+    linked_active_employees = linked_employees.select(&:has_active_employee_role?)
     employee_families = linked_active_employees.map(&:primary_family).to_a
     consumer_families = Family.by_broker_agency_profile_id(id).to_a
     families = (consumer_families + employee_families).uniq
@@ -208,12 +210,12 @@ class BrokerAgencyProfile
       return nil if id.blank?
 
       organizations = Organization.where("broker_agency_profile._id" => BSON::ObjectId.from_string(id)).to_a
-      organizations.size > 0 ? organizations.first.broker_agency_profile : nil
+      organizations.empty? ? nil : organizations.first.broker_agency_profile
     end
 
     def get_organization_from_broker_profile_id(id)
       organizations = Organization.where("broker_agency_profile._id" => id).to_a
-      organizations.size > 0 ? organizations.first : nil
+      organizations.empty? ? nil : organizations.first
     end
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Organization
 # Base class for any business, government agency, or other organized entity
 module BenefitSponsors
@@ -17,13 +19,13 @@ module BenefitSponsors
         :limited_liability_corporation,
         :limited_liability_partnership,
         :household_employer
-      ]
+      ].freeze
 
       EXEMPT_ENTITY_KINDS = [
         :governmental_employer,
         :foreign_embassy_or_consulate,
         :health_insurance_exchange
-      ]
+      ].freeze
 
       FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected", "dba" => "name_changed"}.freeze
 
@@ -355,7 +357,7 @@ module BenefitSponsors
       end
 
       def is_benefit_sponsor?
-        profiles.any? { |profile| profile.is_benefit_sponsorship_eligible? }
+        profiles.any?(&:is_benefit_sponsorship_eligible?)
       end
 
       def update_plan_design_organization

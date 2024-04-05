@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'haml-rails'
 require 'kaminari'
 require 'simple_form'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EmployerWorld
   include ActionView::Helpers::NumberHelper
   def employer(legal_name, *traits)

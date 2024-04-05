@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   class SiteSpecHelpers
     def self.create_cca_site_with_hbx_profile_and_benefit_market(market_kind = :aca_shop)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'curl'
 
 module Notifier
@@ -13,7 +15,7 @@ module Notifier
       "Broker" => "Notifier::MergeDataModels::BrokerProfile",
       "Broker Agency" => "Notifier::MergeDataModels::BrokerAgencyProfile",
       "GeneralAgency" => "Notifier::MergeDataModels::GeneralAgency"
-    }
+    }.freeze
 
     field :title, type: String
     field :description, type: String
@@ -44,7 +46,7 @@ module Notifier
     end
 
     def conditional_tokens
-      template.raw_body.scan(/\[\[([\s|\w.?]*)/).flatten.map(&:strip).collect{|ele| ele.gsub(/if|else|end|else if|elsif/i, '')}.map(&:strip).reject{|elem| elem.blank?}.uniq
+      template.raw_body.scan(/\[\[([\s|\w.?]*)/).flatten.map(&:strip).collect{|ele| ele.gsub(/if|else|end|else if|elsif/i, '')}.map(&:strip).reject(&:blank?).uniq
     end
 
     def set_data_elements

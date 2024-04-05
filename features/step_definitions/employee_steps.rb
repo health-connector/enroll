@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/a matched Employee exists with only employee role/) do
   FactoryBot.create(:user)
   person = FactoryBot.create(:person, :with_employee_role, :with_family, first_name: "Employee", last_name: "E", user: user)
@@ -52,7 +54,7 @@ Given(/a person exists with dual roles/) do
 end
 
 Then(/(.*) sign in to portal/) do |name|
-  user = Person.where(first_name: "#{name}").first.user
+  user = Person.where(first_name: name.to_s).first.user
   login_as user
   visit "/families/home"
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/a matched Employee exists with multiple employee roles/) do
   org1 = FactoryBot.create :organization, :with_active_plan_year
   org2 = FactoryBot.create :organization, :with_active_plan_year_and_without_dental
@@ -64,9 +66,10 @@ end
 And(/(.*) has a dependent in (.*) relationship with age (.*) than 26/) do |role, kind, var|
   dob = (var == "greater" ? TimeKeeper.date_of_record - 35.years : TimeKeeper.date_of_record - 5.years)
   @family = Family.all.first
-  dependent = if role == "employee"
+  dependent = case role
+              when "employee"
                 FactoryBot.create :person, dob: dob
-              elsif role == "Resident"
+              when "Resident"
                 FactoryBot.create :person, :with_resident_role, dob: dob
               else
                 FactoryBot.create :person, :with_consumer_role, dob: dob
@@ -163,7 +166,7 @@ end
 
 And(/Employer not offers dental benefits for spouse in renewal plan year/) do
   benefits = @renewal_benefit_group.dental_relationship_benefits
-  benefits.each { |rb| rb.delete } until benefits.blank?
+  benefits.each(&:delete) until benefits.blank?
   rbs = [FactoryBot.build_stubbed(:dental_relationship_benefit, benefit_group: @renewal_benefit_group, relationship: :employee, premium_pct: 49, employer_max_amt: 1000.00),
          FactoryBot.build_stubbed(:dental_relationship_benefit, benefit_group: @renewal_benefit_group, relationship: :spouse, premium_pct: 40, employer_max_amt:  200.00, offered: false)]
   @renewal_benefit_group.save
@@ -231,8 +234,8 @@ end
 Then(/(.*) should see all the family members names/) do |_role|
   people = Person.all
   people.each do |person|
-    expect(page).to have_content "#{person.last_name}"
-    expect(page).to have_content "#{person.first_name}"
+    expect(page).to have_content person.last_name.to_s
+    expect(page).to have_content person.first_name.to_s
 
   end
 end

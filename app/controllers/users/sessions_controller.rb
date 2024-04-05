@@ -1,31 +1,35 @@
-class Users::SessionsController < Devise::SessionsController
-  include RecaptchaConcern if Settings.aca.recaptcha_enabled
+# frozen_string_literal: true
 
-  after_action :log_failed_login, :only => :new
-  before_action :set_ie_flash_by_announcement, only: [:new]
+module Users
+  class SessionsController < Devise::SessionsController
+    include RecaptchaConcern if Settings.aca.recaptcha_enabled
 
-  def create
-    self.resource = warden.authenticate!(auth_options)
-    set_flash_message(:notice, :signed_in) if is_flashing_format?
-    sign_in(resource_name, resource)
-    yield resource if block_given?
-    location = after_sign_in_path_for(resource)
-    flash[:warning] = current_user.get_announcements_by_roles_and_portal(location) if current_user.present?
-    respond_with resource, location: location
-  end
+    after_action :log_failed_login, :only => :new
+    before_action :set_ie_flash_by_announcement, only: [:new]
 
-  private
+    def create
+      self.resource = warden.authenticate!(auth_options)
+      set_flash_message(:notice, :signed_in) if is_flashing_format?
+      sign_in(resource_name, resource)
+      yield resource if block_given?
+      location = after_sign_in_path_for(resource)
+      flash[:warning] = current_user.get_announcements_by_roles_and_portal(location) if current_user.present?
+      respond_with resource, location: location
+    end
 
-  def log_failed_login
-    return unless failed_login?
+    private
 
-    attempted_user = User.where(email: request.filtered_parameters["user"]["login"])
-    return unless attempted_user.present?
+    def log_failed_login
+      return unless failed_login?
 
-    SessionIdHistory.create(session_user_id: attempted_user.first.id, sign_in_outcome: "Failed", ip_address: request.remote_ip)
-  end
+      attempted_user = User.where(email: request.filtered_parameters["user"]["login"])
+      return unless attempted_user.present?
 
-  def failed_login?
-    (options = Rails.env["warden.options"]) && options[:action] == "unauthenticated"
+      SessionIdHistory.create(session_user_id: attempted_user.first.id, sign_in_outcome: "Failed", ip_address: request.remote_ip)
+    end
+
+    def failed_login?
+      (options = Rails.env["warden.options"]) && options[:action] == "unauthenticated"
+    end
   end
 end

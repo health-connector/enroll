@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Broker-owned model to manage attributes of the prospective of existing employer
 module SponsoredBenefits
   module Organizations
@@ -85,7 +87,7 @@ module SponsoredBenefits
 
       def active_employer_benefit_sponsorship
         bs = employer_profile.active_benefit_sponsorship
-        bs if bs && bs.is_eligible?
+        bs if bs&.is_eligible?
       end
 
       # TODO: Move this method to BenefitMarket Model
@@ -148,7 +150,7 @@ module SponsoredBenefits
         builder.add_benefit_application
         builder.add_plan_design_employees
         builder.plan_design_organization.save
-        builder.census_employees.each{|ce| ce.save}
+        builder.census_employees.each(&:save)
         builder.add_proposal_state(new_proposal_state)
         builder.plan_design_proposal
       end

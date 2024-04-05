@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module BenefitSponsors
@@ -13,7 +15,7 @@ module BenefitSponsors
     describe "model attributes" do
       it {
         [:start_on, :end_on, :open_enrollment_start_on, :open_enrollment_end_on, :admin_datatable_action].each do |key|
-          expect(subject.attributes.has_key?(key)).to be_truthy
+          expect(subject.attributes.key?(key)).to be_truthy
         end
       }
     end

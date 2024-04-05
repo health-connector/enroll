@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :sponsored_benefits_cases_composite_task, class: 'SponsoredBenefits::Cases::CompositeTask' do
 
