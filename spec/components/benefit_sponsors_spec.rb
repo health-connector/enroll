@@ -4,8 +4,9 @@ require 'rails_helper'
 
 if begin
   "BenefitSponsors::Engine".constantize
-rescue StandardError
-  nil
+   rescue StandardError
+     puts "Error - #{e.message}"
+    nil
 end
 #  Dir[Rails.root.join("components/benefit_markets/spec/factories/*.rb")].each do |f|
 #    require f

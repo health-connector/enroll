@@ -386,14 +386,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end
@@ -424,14 +422,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end
@@ -1278,14 +1274,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end
@@ -1316,14 +1310,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # This migration was build to move BrokerAgency data from old models to new models sometime in 2018.
 # These are not being used and are outdated as the migration is 100% complete now.
 

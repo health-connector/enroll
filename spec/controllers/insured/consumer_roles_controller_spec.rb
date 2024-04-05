@@ -453,7 +453,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     describe "Get edit consumer role", dbclean: :after_each do
       let(:consumer_role2){ FactoryBot.build(:consumer_role, :bookmark_url => "http://localhost:3000/insured/consumer_role/591f44497af8800bb5000016/edit") }
       before(:each) do
-        current_user = user
         allow(ConsumerRole).to receive(:find).and_return(consumer_role)
         allow(consumer_role).to receive(:person).and_return(person)
         allow(consumer_role).to receive(:build_nested_models_for_person).and_return(true)

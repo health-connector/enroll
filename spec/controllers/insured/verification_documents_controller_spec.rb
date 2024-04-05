@@ -36,7 +36,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       describe "file upload" do
         let(:file) { double }
         let(:temp_file) { double }
-        let(:consumer_role_params) {}
+        let(:consumer_role_params) { }
         let(:params) { {person: {consumer_role: ''}, file: file} }
         let(:bucket_name) { 'id-verification' }
         let(:doc_id) { "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}{#sample-key" }
@@ -66,7 +66,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
           let(:file) { [:temp_file] }
           let(:person) { FactoryBot.create(:person, :with_consumer_role) }
           let(:temp_file) { double }
-          let(:consumer_role_params) {}
+          let(:consumer_role_params) { }
           let(:params) { {person: {consumer_role: person.consumer_role}, file: file} }
           let(:bucket_name) { 'id-verification' }
           let(:doc_uri) { "doc_uri" }
