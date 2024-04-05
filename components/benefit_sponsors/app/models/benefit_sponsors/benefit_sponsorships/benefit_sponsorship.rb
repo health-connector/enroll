@@ -29,10 +29,10 @@ module BenefitSponsors
 
     ACTIVE_STATES   = [:applicant, :active].freeze
     INACTIVE_STATES = [:suspended, :ineligible, :teminated].freeze
-    ENROLLED_STATES = [:enrolled]
+    ENROLLED_STATES = [:enrolled].freeze
 
-    INVOICE_VIEW_INITIAL  ||= %w[published enrolling enrolled active suspended]
-    INVOICE_VIEW_RENEWING ||= %w[renewing_published renewing_enrolling renewing_enrolled renewing_draft]
+    INVOICE_VIEW_INITIAL  = %w[published enrolling enrolled active suspended].freeze
+    INVOICE_VIEW_RENEWING = %w[renewing_published renewing_enrolling renewing_enrolled renewing_draft].freeze
 
 
     # Origination of this BenefitSponsorship instance in association
@@ -434,7 +434,7 @@ module BenefitSponsors
 
     # TODO: Enable it for new domain benefit sponsor catalog
     def benefit_sponsor_catalog_for(effective_date)
-      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: self._id).value!
+      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: _id).value!
       BenefitMarkets::BenefitSponsorCatalog.new(benefit_sponsor_catalog_entity.to_h)
     end
 
@@ -551,7 +551,7 @@ module BenefitSponsors
     end
 
     def active_benefit_application
-      benefit_applications.order_by(:created_at.desc).detect {|application| application.active?}
+      benefit_applications.order_by(:created_at.desc).detect(&:active?)
     end
 
     def is_off_cycle?
@@ -579,8 +579,9 @@ module BenefitSponsors
       renewal_benefit_application || most_recent_benefit_application
     end
 
-    def renewing_submitted_benefit_application # TODO: -recheck
-      benefit_applications.order_by(:created_at.desc).detect {|application| application.is_renewal_enrolling? }
+    # TODO: -recheck
+    def renewing_submitted_benefit_application
+      benefit_applications.order_by(:created_at.desc).detect(&:is_renewal_enrolling?)
     end
 
     alias renewing_published_benefit_application renewing_submitted_benefit_application
@@ -737,7 +738,8 @@ module BenefitSponsors
         benefit_applications.each do |benefit_application|
           benefit_application.benefit_sponsorship_event_subscriber(aasm)
         end
-      rescue StandardError
+      rescue StandardError => e
+        Rails.logger.error("#{e.inspect}")
       end
     end
 
