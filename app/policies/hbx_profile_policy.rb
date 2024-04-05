@@ -1,4 +1,6 @@
 class HbxProfilePolicy < ApplicationPolicy
+  # BRH TODO audit older methods here later - see if unused and removable. OR if applicationpolicy methods should be used instead?
+
   def oe_extendable_applications?
     staff_can_extend_open_enrollment?
   end
@@ -123,6 +125,12 @@ class HbxProfilePolicy < ApplicationPolicy
     staff_can_terminate_enrollment?
   end
 
+  # BRH TODO - staff_change_enrollment_end_date not in application policy in MA codebase - are MA perms in DB ok to add it
+  # (i.e., will the right users in MA also have the same perms as this would require)?
+  # def view_enrollment_to_update_end_date?
+  #   staff_change_enrollment_end_date?
+  # end
+
   def view_admin_tabs?
     role = user_hbx_staff_role
     return false unless role
@@ -201,6 +209,7 @@ class HbxProfilePolicy < ApplicationPolicy
       @user.has_role?(:assister)
   end
 
+  # BRH TODO impl here does not follow the same code path as in dc. leave as is?
   def index?
     @user.has_role? :hbx_staff
   end
@@ -229,6 +238,7 @@ class HbxProfilePolicy < ApplicationPolicy
     index?
   end
 
+  # BRH TODO this differs in DC - looking for specific perm. can we assume right MA folks have this perm or leave as-is?
   def configuration?
     index?
   end
@@ -282,6 +292,7 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def set_date?
+    # BRH TODO changed in DC version - change here?
     index?
   end
 
