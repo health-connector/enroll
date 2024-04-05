@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Mongoid
   module Userstamp
     class ModelConfig

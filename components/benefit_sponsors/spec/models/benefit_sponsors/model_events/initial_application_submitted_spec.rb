@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 module BenefitSponsors
@@ -51,7 +49,7 @@ module BenefitSponsors
       context "ModelEvent" do
 
         it "should trigger model event" do
-          model_instance.class.observer_peers.each_key do |observer|
+          model_instance.class.observer_peers.keys.each do |observer|
             expect(observer).to receive(:notifications_send) do |_instance, model_event|
               expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
               expect(model_event).to have_attributes(:event_key => :application_submitted, :klass_instance => model_instance, :options => {})

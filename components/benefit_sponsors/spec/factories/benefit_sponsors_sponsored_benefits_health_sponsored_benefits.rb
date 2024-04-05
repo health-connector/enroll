@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :benefit_sponsors_sponsored_benefits_health_sponsored_benefit, class: 'BenefitSponsors::SponsoredBenefits::HealthSponsoredBenefit', parent: :benefit_sponsors_sponsored_benefits_sponsored_benefit do
 

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :benefit_sponsors_forms_benefit_application, class: 'BenefitSponsors::Forms::BenefitApplicationForm' do
     start_on { TimeKeeper.date_of_record + 3.months }

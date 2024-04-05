@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :sponsored_benefits_benefit_market_service_period, class: 'SponsoredBenefits::BenefitMarketServicePeriod' do
 

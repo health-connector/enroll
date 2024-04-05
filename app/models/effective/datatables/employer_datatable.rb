@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Effective
   module Datatables
     class EmployerDatatable < Effective::MongoidDatatable
@@ -43,7 +41,9 @@ module Effective
         #   [@latest_plan_year.try(:enrolled_summary), @latest_plan_year.try(:waived_summary)].compact.join("/")
         #   }, :filter => false, :sortable => false
         table_column :xml_submitted, :label => 'XML Submitted', :proc => proc {|_row| format_time_display(@employer_profile.xml_transmitted_timestamp)}, :filter => false, :sortable => false
-        table_column :attestation_status, :label => 'Attestation Status', :proc => proc {|row| row.employer_profile.employer_attestation&.aasm_state&.titleize }, :filter => false, :sortable => false if employer_attestation_is_enabled?
+        if employer_attestation_is_enabled?
+          table_column :attestation_status, :label => 'Attestation Status', :proc => proc {|row| row.employer_profile.employer_attestation.aasm_state.titleize if row.employer_profile.employer_attestation }, :filter => false, :sortable => false
+        end
         table_column :actions, :width => '50px', :proc => proc { |row|
           dropdown = [
            # Link Structure: ['Link Name', link_path(:params), 'link_type'], link_type can be 'ajax', 'static', or 'disabled'
@@ -100,16 +100,14 @@ module Effective
       end
 
       def search_column(collection, table_column, search_term, sql_column)
-        case table_column[:name]
-        when 'legal_name'
+        if table_column[:name] == 'legal_name'
           collection.datatable_search(search_term)
-        when 'fein'
+        elsif table_column[:name] == 'fein'
           collection.datatable_search_fein(search_term)
-        when 'conversion'
-          case search_term
-          when "Yes"
+        elsif table_column[:name] == 'conversion'
+          if search_term == "Yes"
             collection.datatable_search_employer_profile_source("conversion")
-          when "No"
+          elsif search_term == "No"
             collection.datatable_search_employer_profile_source("self_serve")
           else
             super

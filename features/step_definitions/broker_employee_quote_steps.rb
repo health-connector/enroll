@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 #Capybara.ignore_hidden_elements = false
 
 module BrokerWorld
@@ -190,7 +188,7 @@ Then(/^the broker should see the data in the table$/) do
 end
 
 Then(/^the broker enters the quote effective date$/) do
-  select (TimeKeeper.date_of_record + 3.month).strftime('%B %Y').to_s, :from => "quote_start_on"
+  select "#{(TimeKeeper.date_of_record + 3.month).strftime('%B %Y')}", :from => "quote_start_on"
 end
 
 When(/^the broker selects employer type$/) do

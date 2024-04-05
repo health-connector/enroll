@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "..", "..", "support/benefit_sponsors_site_spec_helpers")
 
@@ -816,7 +814,7 @@ module BenefitSponsors
         let(:initial_application_state) { :enrollment_closed }
         let(:renewal_application_state) { :enrollment_closed }
         let(:april_enrollment_elgible_sponsor) { april_sponsors[0] }
-        let(:april_ineligible_sponsors) { april_sponsors.reject{|sponsor| sponsor == april_enrollment_elgible_sponsor } }
+        let(:april_ineligible_sponsors) { april_sponsors.select{|sponsor| sponsor != april_enrollment_elgible_sponsor } }
 
         before do
           april_enrollment_elgible_sponsor.benefit_applications.first.credit_binder!
@@ -834,7 +832,7 @@ module BenefitSponsors
         let(:initial_application_state) { :enrollment_ineligible }
         let(:renewal_application_state) { :enrollment_ineligible }
         let(:april_enrollment_elgible_sponsor) { april_sponsors[0] }
-        let(:april_ineligible_sponsors) { april_sponsors.reject{|sponsor| sponsor == april_enrollment_elgible_sponsor } }
+        let(:april_ineligible_sponsors) { april_sponsors.select{|sponsor| sponsor != april_enrollment_elgible_sponsor } }
 
         before do
           april_enrollment_elgible_sponsor.benefit_applications.first.update(aasm_state: :enrollment_closed)

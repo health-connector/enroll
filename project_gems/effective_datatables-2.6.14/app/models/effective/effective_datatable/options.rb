@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # This is extended as class level into Datatable
 
 module Effective
@@ -90,11 +88,10 @@ module Effective
           rescue StandardError
             []
           end.each do |reflect|
-            case reflect.macro
-            when :has_many
+            if reflect.macro == :has_many
               klass = reflect.klass || reflect.build_association({}).class
               has_manys[reflect.name.to_s] = { klass: klass }
-            when :has_and_belongs_to_many
+            elsif reflect.macro == :has_and_belongs_to_many
               klass = reflect.klass || reflect.build_association({}).class
               has_and_belongs_to_manys[reflect.name.to_s] = { klass: klass }
             end

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class SessionTimeoutController < ApplicationController
   # These are what prevent check_time_until_logout and
   # reset_user_clock from resetting users' Timeoutable

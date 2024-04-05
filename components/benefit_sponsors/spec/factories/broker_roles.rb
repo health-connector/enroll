@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :broker_role do
     person { FactoryBot.create(:person, :with_work_phone, :with_work_email) }

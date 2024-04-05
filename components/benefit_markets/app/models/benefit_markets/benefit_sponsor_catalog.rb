@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module BenefitMarkets
   class BenefitSponsorCatalog
     include Mongoid::Document

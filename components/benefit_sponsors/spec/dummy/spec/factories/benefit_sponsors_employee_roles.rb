@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :benefit_sponsors_employee_role, class: "EmployeeRole" do
     association :person

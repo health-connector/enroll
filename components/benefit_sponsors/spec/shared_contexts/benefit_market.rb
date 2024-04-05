@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require File.join(File.dirname(__FILE__), "..", "support/benefit_sponsors_site_spec_helpers")
 
 RSpec.shared_context "setup benefit market with market catalogs and product packages", :shared_context => :metadata do

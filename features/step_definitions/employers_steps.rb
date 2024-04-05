@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 Given(/^the employer clicks on billing tab$/) do
   find('.interaction-click-control-billing', wait: 30).click
 end
@@ -580,7 +578,7 @@ Given(/^the employer has broker agency profile$/) do
 end
 
 When(/^they visit the Employer Home page$/) do
-  visit "#{employers_employer_profile_path(employer.employer_profile)}?tab=home"
+  visit employers_employer_profile_path(employer.employer_profile) + "?tab=home"
 end
 
 And(/^(.*?) employer visit the Employee Roster$/) do |legal_name|
@@ -917,7 +915,7 @@ Then(/^employer should see the rehired error flash notice$/) do
 end
 
 When(/^the employer goes to benefits tab$/) do
-  visit "#{employers_employer_profile_path(employer.employer_profile)}?tab=benefits"
+  visit employers_employer_profile_path(employer.employer_profile) + "?tab=benefits"
 end
 
 When(/^the employer clicks on claim quote$/) do
@@ -941,7 +939,7 @@ end
 
 When(/^.+ go(?:es)? to the documents tab directly$/) do
   #interaction-click-control-documents
-  visit "#{employers_employer_profile_path(employer.employer_profile)}?tab=documents"
+  visit employers_employer_profile_path(employer.employer_profile) + "?tab=documents"
 end
 
 When(/^.+ go(?:es)? to the documents tab$/) do

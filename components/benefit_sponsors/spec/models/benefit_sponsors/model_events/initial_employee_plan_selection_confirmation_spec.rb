@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfirmation', dbclean: :around_each  do
@@ -80,7 +78,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   describe "Plan selection confirmation when ER made binder payment" do
     context "ModelEvent" do
       it "should set to true after transition" do
-        benefit_application.class.observer_peers.each_key do |observer|
+        benefit_application.class.observer_peers.keys.each do |observer|
           expect(observer).to receive(:notifications_send) do |_model_instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :initial_employee_plan_selection_confirmation, :klass_instance => benefit_application, :options => {})

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 Given(/^the HBX admin is on the User Accounts page$/) do
   visit '/exchanges/hbx_profiles'
   click_link 'User Accounts'
@@ -118,7 +116,7 @@ end
 When(/^the HBX admin searches for the given user by hbx id$/) do
   user = User.where(:roles.in => ["employee"], locked_at: nil).first
   person = FactoryBot.create(:person, user: user)
-  find("input[type='search']").set(person.hbx_id.to_s)
+  find("input[type='search']").set("#{person.hbx_id}")
 end
 
 Then(/^the HBX admin should see the user in the search results$/) do

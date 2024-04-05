@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class GeneralAgencyAccount
   include Mongoid::Document
   include SetCurrentUser

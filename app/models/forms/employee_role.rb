@@ -1,10 +1,8 @@
-# frozen_string_literal: true
-
 module Forms
   class EmployeeRole < SimpleDelegator
     WRAPPED_ATTRIBUTES = [
       "employee_role_id"
-    ].freeze
+    ]
 
     attr_accessor(*WRAPPED_ATTRIBUTES)
 

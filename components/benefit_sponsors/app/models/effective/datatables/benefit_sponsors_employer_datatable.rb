@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Effective
   module Datatables
     class BenefitSponsorsEmployerDatatable < Effective::MongoidDatatable

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :census_employee, class: 'CensusEmployee' do
 

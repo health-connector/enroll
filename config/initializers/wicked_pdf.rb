@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 arch = case RUBY_PLATFORM
        when /64.*linux/
          'linux-amd64'

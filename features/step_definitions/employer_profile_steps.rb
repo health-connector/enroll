@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 Given(/(\w+) is a person$/) do |name|
   SicCode.where(sic_code: '0111').first || FactoryBot.create(:sic_code, sic_code: "0111")
 
@@ -208,7 +206,7 @@ end
 
 When(/(\w+) approves EmployerStaffRole for (\w+)/) do |_staff1, staff2|
   staff = Person.where(first_name: staff2).first
-  find("#approve_#{staff.id}").click
+  find('#approve_' + staff.id.to_s).click
   screenshot('before_approval')
   expect(find('.alert-notice').text).to match(/Role is approved/)
   screenshot('after_approval')

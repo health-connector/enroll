@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 module BenefitSponsors
@@ -82,7 +80,7 @@ module BenefitSponsors
 
         it "should move applications into canceled state" do
           (april_sponsors + april_renewal_sponsors).each do |sponsor|
-            benefit_application = sponsor.benefit_applications.detect(&:is_renewing?)
+            benefit_application = sponsor.benefit_applications.detect{|application| application.is_renewing?}
             benefit_application = sponsor.benefit_applications.first if benefit_application.blank?
 
             expect(sponsor.applicant?).to be_truthy unless benefit_application.is_renewing?

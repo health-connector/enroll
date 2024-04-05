@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -41,7 +39,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeCoveragePassivelyWaivedNot
 
   describe "ModelEvent" do
     it "should trigger model event" do
-      census_employee.class.observer_peers.each_key do |observer|
+      census_employee.class.observer_peers.keys.each do |observer|
         expect(observer).to receive(:notifications_send) do |_instance, model_event|
           expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => :employee_coverage_passively_waived, :klass_instance => census_employee, :options => {event_object: renewal_application})

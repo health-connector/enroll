@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "rails_helper"
 
 module BenefitMarkets
@@ -16,22 +14,22 @@ module BenefitMarkets
 
       it "is missing a name" do
         subject.valid?
-        expect(subject.errors.key?(:name)).to be_truthy
+        expect(subject.errors.has_key?(:name)).to be_truthy
       end
 
       it "is missing pricing units" do
         subject.valid?
-        expect(subject.errors.key?(:pricing_units)).to be_truthy
+        expect(subject.errors.has_key?(:pricing_units)).to be_truthy
       end
 
       it "is missing member relationships" do
         subject.valid?
-        expect(subject.errors.key?(:member_relationships)).to be_truthy
+        expect(subject.errors.has_key?(:member_relationships)).to be_truthy
       end
 
       it "is missing price calculator kind" do
         subject.valid?
-        expect(subject.errors.key?(:price_calculator_kind)).to be_truthy
+        expect(subject.errors.has_key?(:price_calculator_kind)).to be_truthy
       end
     end
 

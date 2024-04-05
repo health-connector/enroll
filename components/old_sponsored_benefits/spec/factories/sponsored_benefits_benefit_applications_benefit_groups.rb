@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :sponsored_benefits_benefit_applications_benefit_group, class: 'SponsoredBenefits::BenefitApplications::BenefitGroup' do
     effective_on_kind "date_of_hire"

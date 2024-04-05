@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'spec_helper'
 
 RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :after_each do

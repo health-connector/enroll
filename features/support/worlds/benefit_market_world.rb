@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module BenefitMarketWorld
   def benefit_market
     @benefit_market ||= site.benefit_markets.first

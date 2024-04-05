@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Effective
   module Datatables
     class BrokerAgencyDatatable < Effective::MongoidDatatable
@@ -40,6 +38,10 @@ module Effective
 
       def global_search?
         true
+      end
+
+      def search_column(collection, table_column, search_term, sql_column)
+        super
       end
 
       def nested_filter_definition

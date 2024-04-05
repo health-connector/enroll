@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 RSpec.describe "views/benefit_sponsors/profiles/employers/broker_agency/_active_broker.html.erb", :type => :view, dbclean: :after_each do
 

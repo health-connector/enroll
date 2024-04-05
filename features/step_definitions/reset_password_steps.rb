@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 Then(/^Hbx Admin should see the list of primary applicants and Action buttons$/) do
   within('.effective-datatable') do
     expect(page).to have_css('.dropdown-toggle', count: 2)

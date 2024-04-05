@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module BenefitMarkets
   class BenefitMarketsController < ApplicationController
     layout 'benefit_markets/application.html.slim'

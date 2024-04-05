@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module PlanWorld
   def plan(*traits)
     attributes = traits.extract_options!

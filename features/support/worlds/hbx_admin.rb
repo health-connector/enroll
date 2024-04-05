@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module HbxAdminWorld
   def hbx_admin(*traits)
     p_staff = Permission.create(name: 'hbx_staff', modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,

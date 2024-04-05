@@ -1,9 +1,7 @@
-# frozen_string_literal: true
-
 require 'rubygems'
 require 'ostruct'
 
-$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$:.push File.expand_path('../../lib', __FILE__)
 
 require 'active_support/all'
 require 'mongoid'

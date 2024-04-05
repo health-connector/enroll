@@ -1,11 +1,9 @@
-# frozen_string_literal: true
-
 class VlpDocument < Document
   include Mongoid::History::Trackable
 
   attr_accessor :changing_status
 
-  NATURALIZATION_DOCUMENT_TYPES = ["Certificate of Citizenship", "Naturalization Certificate"].freeze
+  NATURALIZATION_DOCUMENT_TYPES = ["Certificate of Citizenship", "Naturalization Certificate"]
 
   VLP_DOCUMENT_IDENTIFICATION_KINDS = [
       "Alien Number",
@@ -17,10 +15,10 @@ class VlpDocument < Document
       "Receipt Number",
       "Citizenship Number",
       "Card Number"
-    ].freeze
+    ]
 
   #list of the documents consumer can provide to verify SSN
-  SSN_DOCUMENTS_KINDS = ['US Passport', 'Social Security Card'].freeze
+  SSN_DOCUMENTS_KINDS = ['US Passport', 'Social Security Card']
 
   #list of the documents consumer can provide to verify Citizenship
   CITIZENSHIP_DOCUMENTS_KINDS = [
@@ -28,7 +26,7 @@ class VlpDocument < Document
       'Social Security Card',
       'Certification of Birth Abroad (issued by the U.S. Department of State Form FS-545)',
       'Original or certified copy of a birth certificate'
-  ].freeze
+  ]
 
   #list of the documents user can provide to verify Immigration status
   VLP_DOCUMENT_KINDS = [
@@ -47,9 +45,9 @@ class VlpDocument < Document
       "DS2019 (Certificate of Eligibility for Exchange Visitor (J-1) Status)",
       "Other (With Alien Number)",
       "Other (With I-94 Number)"
-    ].freeze
+    ]
 
-  VLP_DOCUMENTS_VERIF_STATUS = ['not submitted', 'downloaded', 'verified', 'rejected'].freeze
+  VLP_DOCUMENTS_VERIF_STATUS = ['not submitted', 'downloaded', 'verified', 'rejected']
 
   COUNTRIES_LIST = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
                     "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
@@ -76,20 +74,20 @@ class VlpDocument < Document
                     "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey",
                     "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
                     "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
-                    "Yemen", "Zambia","Zimbabwe"].freeze
+                    "Yemen", "Zambia","Zimbabwe"]
 
   # admin action list for verification process, dropdown for each verification type
-  ADMIN_VERIFICATION_ACTIONS = ["Verify", "Reject", "View History", "Call HUB", "Extend"].freeze
+  ADMIN_VERIFICATION_ACTIONS = ["Verify", "Reject", "View History", "Call HUB", "Extend"]
 
   # reasons admin can provide when verifying type
-  VERIFICATION_REASONS = ["Document in EnrollApp", "Document in DIMS", "SAVE system", "E-Verified in Curam"].freeze
+  VERIFICATION_REASONS = ["Document in EnrollApp", "Document in DIMS", "SAVE system", "E-Verified in Curam"]
 
   # reasons admin can provide when rejecting verification type. these reasons applied for all verification types
-  ALL_TYPES_REJECT_REASONS = ["Illegible", "Incomplete Doc", "Wrong Type", "Wrong Person"].freeze
+  ALL_TYPES_REJECT_REASONS = ["Illegible", "Incomplete Doc", "Wrong Type", "Wrong Person"]
   #additionla reasons for citizenship and immigartion verification types
-  CITIZEN_IMMIGR_TYPE_ADD_REASONS = ["Expired"].freeze
+  CITIZEN_IMMIGR_TYPE_ADD_REASONS = ["Expired"]
   #additional reasons for Income verification types WILL BE IMPLEMENTED LATER
-  INCOME_TYPE_ADD_REASONS = ["4 weeks", "Too old", "All types"].freeze
+  INCOME_TYPE_ADD_REASONS = ["4 weeks", "Too old", "All types"]
 
 
   field :alien_number, type: String

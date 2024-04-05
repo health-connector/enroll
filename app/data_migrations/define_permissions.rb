@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require File.join(Rails.root, "lib/migration_task")
 
 class DefinePermissions < MigrationTask

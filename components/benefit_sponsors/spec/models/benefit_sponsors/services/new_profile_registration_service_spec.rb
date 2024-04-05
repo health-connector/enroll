@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "..", "..", "support/benefit_sponsors_site_spec_helpers")
 

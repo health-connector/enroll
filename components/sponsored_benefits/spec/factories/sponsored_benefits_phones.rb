@@ -1,12 +1,10 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :sponsored_benefits_phone, class: 'SponsoredBenefits::Locations::Phone' do
     kind { 'home' }
     # sequence(:area_code, WrappingSequence.new(100, 999)) { |n| "#{n}"}
     area_code { 202 }
-    sequence(:number, 1_111_111, &:to_s)
-    sequence(:extension, &:to_s)
+    sequence(:number, 1_111_111) { |n| "#{n}"}
+    sequence(:extension) { |n| "#{n}"}
 
     trait :without_kind do
       kind { ' ' }

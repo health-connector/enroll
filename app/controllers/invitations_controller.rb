@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class InvitationsController < ApplicationController
   before_action :require_login_and_allow_new_account
 

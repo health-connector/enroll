@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :plan do
     sequence(:hbx_id)    { |n| n + 12_345 }

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice', dbclean: :after_each do
@@ -35,7 +33,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
   describe "ModelEvent" do
     context "when initial employer application is denied" do
       it "should trigger model event" do
-        model_instance.class.observer_peers.each_key do |observer|
+        model_instance.class.observer_peers.keys.each do |observer|
           expect(observer).to receive(:notifications_send) do |model_event|
             expect(model_event).to be_an_instance_of(ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :application_denied, :klass_instance => model_instance, :options => {})

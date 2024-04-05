@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.shared_context "setup initial benefit application", :shared_context => :metadata do
 
   let(:aasm_state)                { :active }

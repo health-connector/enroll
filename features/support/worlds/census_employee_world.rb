@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module CensusEmployeeWorld
   def census_employees(roster_count = 1, *traits)
     attributes = traits.extract_options!
@@ -72,8 +70,10 @@ module CensusEmployeeWorld
         emp_staff_roles << emp_staff_role
       end
       person_record.employer_staff_roles = emp_staff_roles
+      person_record.save!
+    else
+      person_record.save!
     end
-    person_record.save!
     person_record
   end
 

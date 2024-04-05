@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 When(/^\w+ visits? the Insured portal during open enrollment$/) do
   visit "/"
   click_link 'Consumer/Family Portal'
@@ -465,7 +463,7 @@ end
 
 Then(/^(\w+) creates a new account$/) do |person|
   find('.interaction-click-control-create-account').click
-  fill_in 'user[email]', with: (@u.email "email#{person}")
+  fill_in 'user[email]', with: (@u.email 'email' + person)
   fill_in 'user[password]', with: "aA1!aA1!aA1!"
   fill_in 'user[password_confirmation]', with: "aA1!aA1!aA1!"
   click_button 'Create account'
@@ -490,8 +488,8 @@ end
 
 When(/^(\w+) signs in$/) do |person|
   click_link 'Sign In Existing Account'
-  fill_in 'user[login]', with: (@u.find "email#{person}")
-  find('#user_email').set(@u.find("email#{person}"))
+  fill_in 'user[login]', with: (@u.find 'email' + person)
+  find('#user_email').set(@u.find('email' + person))
   fill_in 'user[password]', with: "aA1!aA1!aA1!"
   click_button 'Sign in'
 end

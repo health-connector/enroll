@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # load Rails.root + "db/seeds.rb"
 When(/I use unique values/) do
   require 'test/unique_value_stash'
@@ -454,13 +452,13 @@ When(/(^.+) enters? office location for (.+)$/) do |role, location|
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
   if role.include? 'Employer'
     wait_for_ajax
-    select (location[:county]).to_s, :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
+    select "#{location[:county]}", :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
   end
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
   #fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
   wait_for_ajax
-  page.find('h4', text: Settings.site.byline.to_s).click
+  page.find('h4', text: "#{Settings.site.byline}").click
 end
 
 When(/^.+ updates office location from (.+) to (.+)$/) do |old_add, new_add|
@@ -659,8 +657,8 @@ When(/^.+ enters? the identifying info of (.*)$/) do |named_person|
 end
 
 And(/^(.*?) sees the option to enroll for all employers$/) do |_named_person|
-  @organization.each_key do |legal_name|
-    expect(page).to have_content("Enroll as an employee of #{legal_name}")
+  @organization.keys.each do |legal_name|
+    expect(page).to have_content("Enroll as an employee of " + legal_name)
   end
 end
 
@@ -1091,7 +1089,7 @@ And(/^clicks on the person in families tab$/) do
   page.find('.families.dropdown-toggle.interaction-click-control-families').click
   find(:xpath, "//a[@href='/exchanges/hbx_profiles/family_index_dt']").click
   wait_for_ajax(10,2)
-  family_member = page.find('a', :text => user.person.full_name.to_s)
+  family_member = page.find('a', :text => "#{user.person.full_name}")
   family_member.click
   visit verification_insured_families_path
   find(:xpath, "//ul/li/a[contains(@class, 'interaction-click-control-documents')]").click
@@ -1103,7 +1101,7 @@ When(/^.+ clicks? on the tab for (.+)$/) do |tab_name|
 end
 
 When(/^I click the "(.*?)" in qle carousel$/) do |qle_event|
-  click_link qle_event.to_s
+  click_link "#{qle_event}"
 end
 
 When(/^I click on "(.*?)" button on household info page$/) do |_select_action|

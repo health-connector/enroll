@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # module SponsoredBenefits
 module Effective
   module Datatables
@@ -48,7 +46,7 @@ module Effective
                                                                                  general_agency_profiles = row.general_agency_profile
                                                                                  broker_agency_profile = row.broker_agency_profile
                                                                                  ga_legal_name = general_agency_profiles.legal_name
-                                                                                 clear_assign_path = raw('<br>') + link_to(l10n('clear_assignment').to_s, main_app.clear_assign_for_employer_broker_agencies_profile_path(id: broker_agency_profile.id, employer_id: row.employer_profile.id), method: :post, remote: true, data: {  confirm: l10n("broker_agencies.profiles.remove_general_agency_assignment") })
+                                                                                 clear_assign_path = raw('<br>') + link_to("#{l10n('clear_assignment')}", main_app.clear_assign_for_employer_broker_agencies_profile_path(id: broker_agency_profile.id, employer_id: row.employer_profile.id), method: :post, remote: true, data: {  confirm: l10n("broker_agencies.profiles.remove_general_agency_assignment") })
                                                                                  general_agency = ga_legal_name + clear_assign_path if ga_legal_name
                                                                                end
                                                                              }, :sortable => false, :filter => false
@@ -147,10 +145,9 @@ module Effective
       end
 
       def search_column(collection, table_column, search_term, sql_column)
-        case table_column[:name]
-        when 'legal_name'
+        if table_column[:name] == 'legal_name'
           collection.datatable_search(search_term)
-        when 'fein'
+        elsif table_column[:name] == 'fein'
           collection.datatable_search_fein(search_term)
         else
           super

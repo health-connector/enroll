@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
 
   factory :benefit_sponsor_employer_staff_role, class: 'EmployerStaffRole' do

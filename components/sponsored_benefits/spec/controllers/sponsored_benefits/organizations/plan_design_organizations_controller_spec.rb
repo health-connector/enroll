@@ -1,8 +1,6 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
-USER_ROLES = [:with_hbx_staff_role, :without_hbx_staff_role].freeze
+USER_ROLES = [:with_hbx_staff_role, :without_hbx_staff_role]
 
 module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignOrganizationsController, type: :controller, dbclean: :around_each  do

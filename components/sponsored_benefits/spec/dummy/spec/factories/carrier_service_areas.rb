@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :carrier_service_area do
     issuer_hios_id '12345'

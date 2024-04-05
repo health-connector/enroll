@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 module SponsoredBenefits
@@ -8,7 +6,7 @@ module SponsoredBenefits
     let(:ordinal_position)                  { 1 }
     let(:key)                               { :family }
     let(:title)                             { "Family" }
-    let(:is_offered)                        { true }
+    let(:is_offered)                        { :true }
     let(:sponsor_contribution_factor_kind)  { :percentage_of_reference_plan }
     let(:sponsor_contribution_minimum)      { 0.75 }
     let(:sponsor_contribution_maximum)      { 750.0 }

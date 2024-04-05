@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 Given(/^Multiple Conversion Employers for (.*) exist with active and renewing plan years$/) do |named_person|
   person = people[named_person]
 
@@ -100,12 +98,13 @@ end
 When(/census employee (.*) logs in/) do |named_person|
   if @person_user_record.present?
     login_as @person_user_record
+    visit "/"
   else
     person = people[named_person]
     user = User.where(email: person[:email]).first
     login_as user
+    visit "/"
   end
-  visit "/"
   wait_for_ajax
   sleep(2)
   expect(page).to have_link("Logout")
@@ -272,7 +271,7 @@ Then(/(.*) should see the receipt page with renewing plan year start date as eff
 end
 
 When(/Employee click the "(.*?)" in qle carousel/) do |qle_event|
-  click_link qle_event.to_s
+  click_link "#{qle_event}"
 end
 
 When(/Employee select a past qle date/) do

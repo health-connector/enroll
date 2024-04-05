@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module BenefitSponsors
   module Documents
     class Document
@@ -13,9 +11,9 @@ module BenefitSponsors
                           urn:openhbx:documents:v1::employer#invoice
                           urn:openhbx:documents:v1::employer#eligibility_attestation
                           urn:openhbx:documents:v1::broker#commission_statement
-                      ].freeze
+                      ]
 
-      ACCESS_RIGHTS = %w[public pii_restricted].freeze
+      ACCESS_RIGHTS = %w[public pii_restricted]
 
       after_create :notify_on_create
 

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SponsoredBenefits
   class Engine < ::Rails::Engine
     isolate_namespace SponsoredBenefits

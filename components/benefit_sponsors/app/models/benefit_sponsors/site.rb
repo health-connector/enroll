@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module BenefitSponsors
   class Site
     include Mongoid::Document

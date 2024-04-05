@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-$LOAD_PATH.push File.expand_path("../lib", __FILE__)
+$:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
 require "transport_profiles/version"

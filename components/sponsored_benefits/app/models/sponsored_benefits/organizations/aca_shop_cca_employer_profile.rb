@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module SponsoredBenefits
   module Organizations
     class AcaShopCcaEmployerProfile < Profile
@@ -37,7 +35,7 @@ module SponsoredBenefits
       def service_area_ids
         return nil if use_simple_employer_calculation_model?
 
-        service_areas.collect(&:service_area_id).uniq
+        service_areas.collect { |service_area| service_area.service_area_id }.uniq
       end
 
       private

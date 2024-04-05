@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 def question_attrs
   { title: 'Updated security question', visible: false }
 end
@@ -22,14 +20,13 @@ Then(/^there is (\d+) questions available in the list$/) do |num|
 end
 
 When(/^Hbx Admin clicks on (.*?) Question link$/) do |link|
-  link_title = case link
-               when 'Security'
+  link_title = if link.eql?('Security')
                  'Security Question'
-               when 'New'
+               elsif link.eql?('New')
                  'New Question'
-               when 'Edit'
+               elsif link.eql?('Edit')
                  'Edit'
-               when 'Delete'
+               elsif link.eql?('Delete')
                  'Delete'
                end
   click_link(link_title)

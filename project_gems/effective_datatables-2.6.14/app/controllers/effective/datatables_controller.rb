@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Effective
   class DatatablesController < ApplicationController
     skip_log_page_views quiet: true if defined?(EffectiveLogging)

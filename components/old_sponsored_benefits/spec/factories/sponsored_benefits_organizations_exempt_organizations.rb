@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :sponsored_benefits_organizations_exempt_organization, class: 'SponsoredBenefits::Organizations::ExemptOrganization' do
     legal_name "ACME Widgets, Inc."

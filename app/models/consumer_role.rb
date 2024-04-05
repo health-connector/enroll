@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class ConsumerRole
   RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME = "local.enroll.residency.verification_request"
 
@@ -15,24 +13,24 @@ class ConsumerRole
 
   embedded_in :person
 
-  VLP_AUTHORITY_KINDS = %w[ssa dhs hbx curam].freeze
+  VLP_AUTHORITY_KINDS = %w[ssa dhs hbx curam]
   NATURALIZED_CITIZEN_STATUS = "naturalized_citizen"
   INDIAN_TRIBE_MEMBER_STATUS = "indian_tribe_member"
   US_CITIZEN_STATUS = "us_citizen"
   NOT_LAWFULLY_PRESENT_STATUS = "not_lawfully_present_in_us"
   ALIEN_LAWFULLY_PRESENT_STATUS = "alien_lawfully_present"
-  INELIGIBLE_CITIZEN_VERIFICATION = %w[not_lawfully_present_in_us non_native_not_lawfully_present_in_us].freeze
+  INELIGIBLE_CITIZEN_VERIFICATION = %w[not_lawfully_present_in_us non_native_not_lawfully_present_in_us]
 
-  SSN_VALIDATION_STATES = %w[na valid outstanding pending].freeze
-  NATIVE_VALIDATION_STATES = %w[na valid outstanding pending].freeze
-  LOCAL_RESIDENCY_VALIDATION_STATES = %w[attested valid outstanding pending].freeze #attested state is used for people with active enrollments before locale residency verification was turned on
-  VERIFICATION_SENSITIVE_ATTR = %w[first_name last_name ssn us_citizen naturalized_citizen eligible_immigration_status dob indian_tribe_member].freeze
+  SSN_VALIDATION_STATES = %w[na valid outstanding pending]
+  NATIVE_VALIDATION_STATES = %w[na valid outstanding pending]
+  LOCAL_RESIDENCY_VALIDATION_STATES = %w[attested valid outstanding pending] #attested state is used for people with active enrollments before locale residency verification was turned on
+  VERIFICATION_SENSITIVE_ATTR = %w[first_name last_name ssn us_citizen naturalized_citizen eligible_immigration_status dob indian_tribe_member]
 
   US_CITIZEN_STATUS_KINDS = %w[
   us_citizen
   naturalized_citizen
   indian_tribe_member
-  ].freeze
+  ]
   CITIZEN_STATUS_KINDS = %w[
       us_citizen
       naturalized_citizen
@@ -43,13 +41,13 @@ class ConsumerRole
       non_native_not_lawfully_present_in_us
       ssn_pass_citizenship_fails_with_SSA
       non_native_citizen
-  ].freeze
+  ]
 
   ACA_ELIGIBLE_CITIZEN_STATUS_KINDS = %w[
       us_citizen
       naturalized_citizen
       indian_tribe_member
-  ].freeze
+  ]
 
   # FiveYearBarApplicabilityIndicator ??
   field :five_year_bar, type: Boolean, default: false
@@ -109,7 +107,7 @@ class ConsumerRole
   embeds_many :documents, as: :documentable
   embeds_many :vlp_documents, as: :documentable do
     def uploaded
-      @target.select(&:identifier)
+      @target.select{|document| document.identifier }
     end
   end
   embeds_many :workflow_state_transitions, as: :transitional
@@ -182,7 +180,7 @@ class ConsumerRole
   embeds_many :history_action_trackers, as: :history_trackable
 
   #list of the collections we want to track under consumer role model
-  COLLECTIONS_TO_TRACK = %w[Person consumer_role vlp_documents lawful_presence_determination hbx_enrollments].freeze
+  COLLECTIONS_TO_TRACK = %w[Person consumer_role vlp_documents lawful_presence_determination hbx_enrollments]
 
   def ivl_coverage_selected
     coverage_purchased! if unverified?
@@ -655,8 +653,7 @@ class ConsumerRole
     trigger_residency! if can_trigger_residency?(person_params["no_dc_address"], family)
   end
 
-# trigger for change in address
-  def can_trigger_residency?(no_dc_address, family)
+  def can_trigger_residency?(no_dc_address, family) # trigger for change in address
     person.age_on(TimeKeeper.date_of_record) > 18 &&
       person.no_dc_address &&
       no_dc_address == "false" &&
@@ -667,8 +664,7 @@ class ConsumerRole
     verification_type_history_elements << VerificationTypeHistoryElement.new(params)
   end
 
-# initial trigger check for coverage purchase
-  def can_start_residency_verification?
+  def can_start_residency_verification? # initial trigger check for coverage purchase
     !person.no_dc_address && person.age_on(TimeKeeper.date_of_record) > 18
   end
 
@@ -912,10 +908,9 @@ class ConsumerRole
   end
 
   def sensitive_information_changed(field, person_params)
-    case field
-    when "dob"
+    if field == "dob"
       person.send(field) != Date.strptime(person_params[field], "%Y-%m-%d")
-    when "ssn"
+    elsif field == "ssn"
       person.send(field).to_s != person_params[field].tr("-", "")
     else
       person.send(field).to_s != person_params[field]

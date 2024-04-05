@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module PermissionsConcern
   extend ActiveSupport::Concern
 
@@ -33,15 +31,15 @@ module PermissionsConcern
     end
 
     def has_consumer_role?
-      person&.consumer_role
+      person && person.consumer_role
     end
 
     def has_resident_role?
-      person&.resident_role
+      person && person.resident_role
     end
 
     def has_employer_staff_role?
-      person&.has_active_employer_staff_role?
+      person && person.has_active_employer_staff_role?
     end
 
     def has_broker_agency_staff_role?
@@ -73,11 +71,11 @@ module PermissionsConcern
     end
 
     def has_csr_subrole?
-      person&.csr_role && !person.csr_role.cac
+      person && person.csr_role && !person.csr_role.cac
     end
 
     def has_cac_subrole?
-      person&.csr_role && person.csr_role.cac
+      person && person.csr_role && person.csr_role.cac
     end
 
     def has_assister_role?

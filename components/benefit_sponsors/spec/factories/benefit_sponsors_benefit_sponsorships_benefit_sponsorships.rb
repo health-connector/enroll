@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 FactoryBot.define do
   factory :benefit_sponsors_benefit_sponsorship, class: 'BenefitSponsors::BenefitSponsorships::BenefitSponsorship' do
 
@@ -159,12 +157,13 @@ FactoryBot.define do
       end
 
       after :build do |benefit_sponsorship, evaluator|
-        broker_agency_account = if evaluator.broker_agency_profile
-                                  FactoryBot.build :benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: evaluator.broker_agency_profile, benefit_sponsorship: benefit_sponsorship
-                                else
-                                  FactoryBot.build :benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship
-                                end
-        benefit_sponsorship.broker_agency_accounts = [broker_agency_account]
+        if evaluator.broker_agency_profile
+          broker_agency_account = FactoryBot.build :benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: evaluator.broker_agency_profile, benefit_sponsorship: benefit_sponsorship
+          benefit_sponsorship.broker_agency_accounts = [broker_agency_account]
+        else
+          broker_agency_account = FactoryBot.build :benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship
+          benefit_sponsorship.broker_agency_accounts = [broker_agency_account]
+        end
       end
     end
 
