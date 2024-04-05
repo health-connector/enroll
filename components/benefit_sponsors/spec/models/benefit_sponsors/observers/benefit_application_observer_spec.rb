@@ -14,10 +14,10 @@ RSpec.describe BenefitSponsors::Observers::BenefitApplicationObserver, dbclean: 
   end
   let!(:model_instance) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                      :with_benefit_package,
-                      :benefit_sponsorship => benefit_sponsorship,
-                      :aasm_state => 'active',
-                      :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'active',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
 
   subject { BenefitSponsors::Observers::BenefitApplicationObserver.new }

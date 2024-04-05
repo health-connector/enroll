@@ -25,5 +25,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'rspec'
-  s.metadata['rubygems_mfa_required'] = 'true'
 end

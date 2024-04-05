@@ -1,13 +1,14 @@
 require 'rails_helper'
 
 module BenefitSponsors
+
   RSpec.describe Organizations::OrganizationForms::StaffRoleForm, type: :model, dbclean: :after_each do
 
     let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let!(:benefit_sponsor) { create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let!(:employer_profile) { benefit_sponsor.employer_profile }
-    let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
-    let!(:person) { FactoryBot.create(:person, employer_staff_roles: [active_employer_staff_role]) }
+    let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+    let!(:person) { FactoryBot.create(:person, employer_staff_roles:[active_employer_staff_role]) }
     let(:user) { FactoryBot.create(:user, :person => person)}
 
     subject { BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm }
@@ -24,14 +25,14 @@ module BenefitSponsors
 
       context "#is_broker_profile? " do
 
-        let!(:params) do
+        let!(:params) {
           {
-            profile_type: 'broker_agency',
-            first_name: person.first_name,
-            last_name: person.last_name,
-            dob: person.dob.to_s
+              profile_type: 'broker_agency',
+              first_name: person.first_name,
+              last_name: person.last_name,
+              dob: person.dob.to_s
           }
-        end
+        }
 
         it "should return true" do
           expect(subject.new(params).is_broker_profile?).to eq true
@@ -44,14 +45,14 @@ module BenefitSponsors
 
       context "#is_employer_profile?? " do
 
-        let!(:params) do
+        let!(:params) {
           {
-            profile_type: 'benefit_sponsor',
-            first_name: person.first_name,
-            last_name: person.last_name,
-            dob: person.dob.to_s
+              profile_type: 'benefit_sponsor',
+              first_name: person.first_name,
+              last_name: person.last_name,
+              dob: person.dob.to_s
           }
-        end
+        }
 
         it "should return true" do
           expect(subject.new(params).is_employer_profile?).to eq true
@@ -72,14 +73,14 @@ module BenefitSponsors
     describe '#for_create' do
 
       let!(:person) { FactoryBot.create(:person) }
-      let!(:params) do
+      let!(:params) {
         {
-          profile_id: employer_profile.id.to_s,
-          first_name: person.first_name,
-          last_name: person.last_name,
-          dob: person.dob.to_s
+            profile_id: employer_profile.id.to_s,
+            first_name: person.first_name,
+            last_name: person.last_name,
+            dob: person.dob.to_s
         }
-      end
+      }
 
       context "with valid form attributes " do
 
@@ -132,17 +133,17 @@ module BenefitSponsors
 
     describe '#for_approve' do
 
-      let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_applicant', benefit_sponsor_employer_profile_id: employer_profile.id)}
-      let!(:person) { FactoryBot.create(:person, employer_staff_roles: [active_employer_staff_role]) }
-      let!(:params) do
+      let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_applicant', benefit_sponsor_employer_profile_id: employer_profile.id)}
+      let!(:person) { FactoryBot.create(:person, employer_staff_roles:[active_employer_staff_role]) }
+      let!(:params) {
         {
-          profile_id: employer_profile.id.to_s,
-          first_name: person.first_name,
-          last_name: person.last_name,
-          dob: person.dob.to_s,
-          person_id: person.id
+            profile_id: employer_profile.id.to_s,
+            first_name: person.first_name,
+            last_name: person.last_name,
+            dob: person.dob.to_s,
+            person_id:person.id
         }
-      end
+      }
 
       context "with valid form attributes " do
 
@@ -178,17 +179,17 @@ module BenefitSponsors
 
     describe '#for_destroy' do
 
-      let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
-      let!(:person2) { FactoryBot.create(:person, first_name: 'y',employer_staff_roles: [active_employer_staff_role]) }
-      let!(:params) do
+      let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
+      let!(:person2) { FactoryBot.create(:person, first_name:'y',employer_staff_roles:[active_employer_staff_role]) }
+      let!(:params) {
         {
-          profile_id: employer_profile.id.to_s,
-          first_name: person2.first_name,
-          last_name: person2.last_name,
-          dob: person2.dob.to_s,
-          person_id: person2.id
+            profile_id: employer_profile.id.to_s,
+            first_name: person2.first_name,
+            last_name: person2.last_name,
+            dob: person2.dob.to_s,
+            person_id:person2.id
         }
-      end
+      }
 
       context "with valid form attributes " do
 

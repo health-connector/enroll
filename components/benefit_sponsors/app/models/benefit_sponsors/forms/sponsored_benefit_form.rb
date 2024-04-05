@@ -9,7 +9,7 @@ module BenefitSponsors
       attribute :kind, String
       attribute :product_option_choice, String
       attribute :product_package_kind, String, default: 'single_product'
-
+      
       # for employee cost details
       attribute :employees_cost, Array[EmployeeCostForm]
 
@@ -42,31 +42,31 @@ module BenefitSponsors
 
       def self.for_new(params)
         kinds.collect do |kind|
-          form = new(kind: kind)
+          form = self.new(kind: kind)
           form.sponsor_contribution = SponsorContributionForm.for_new({product_package: form.product_package_for(kind, params[:application])})
           form
         end
       end
 
       def self.for_new_benefit(params)
-        form = new(params)
+        form = self.new(params)
         #form.sponsored_benefit = BenefitSponsors::Forms::SponsoredBenefitForm.new(kind: params[:kind])
         form.service = resolve_service(params)
         form.service.load_form_meta_data(form)
       end
 
-      def self.resolve_service(attrs = {})
+      def self.resolve_service(attrs={})
         @service = BenefitSponsors::Services::SponsoredBenefitService.new(attrs)
       end
 
       def self.for_create(params)
-        form = new(params)
+        form = self.new(params)
         form.service = resolve_service(params)
         form
       end
 
       def self.for_edit(params)
-        form = new(params)
+        form = self.new(params)
         form.service = resolve_service(params)
         form.assign_attributes(form.service.find(form.id))
         form.is_new_benefit = false
@@ -74,20 +74,20 @@ module BenefitSponsors
       end
 
       def self.for_update(params)
-        form = new(params)
+        form = self.new(params)
         form.service = resolve_service(params)
         form
       end
 
       def self.fetch(params)
-        form = new(params)
+        form = self.new(params)
         # form.sponsored_benefit = BenefitSponsors::Forms::SponsoredBenefitForm.new(kind: params[:kind], id: form.sponsored_benefit_id)
         form.service = resolve_service(params)
         form.service.load_form_meta_data(form)
       end
 
       def self.for_destroy(params)
-        form = new(params)
+        form = self.new(params)
         form.service = resolve_service(params)
         form
       end
@@ -97,11 +97,9 @@ module BenefitSponsors
       end
 
       def persist(update: false)
-        return false unless valid?
-
+        return false unless self.valid?
         save_result, persisted_object = (update ? service.update(self) : service.save(self))
         return false unless save_result
-
         @show_page_model = persisted_object
         true
       end
@@ -115,21 +113,21 @@ module BenefitSponsors
       end
 
       def self.for_calculating_employer_contributions(params)
-        form = new(params)
+        form = self.new(params)
         form.service = resolve_service(params)
         form.service.load_form_meta_data(form)
         form.service.calculate_premiums(form)
       end
 
       def self.for_calculating_employee_cost_details(params)
-        form = new(params)
+        form = self.new(params)
         form.service = resolve_service(params)
         form.service.load_form_meta_data(form)
         form.service.calculate_employee_cost_details(form)
       end
 
       def self.kinds
-        %w[health]
+        %w(health)
         # get kinds from catalog based on products/product packages
       end
 
@@ -140,7 +138,7 @@ module BenefitSponsors
 
       def assign_attributes(atts)
         atts.each_pair do |k, v|
-          send("#{k}=".to_sym, v)
+          self.send("#{k}=".to_sym, v)
         end
       end
     end

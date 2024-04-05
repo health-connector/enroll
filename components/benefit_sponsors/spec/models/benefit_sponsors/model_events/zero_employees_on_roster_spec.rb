@@ -16,18 +16,18 @@ RSpec.describe 'BenefitSponsors::ModelEvents::ZeroEmployeesOnRoster', dbclean: :
   end
   let!(:model_instance) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                      :with_benefit_package,
-                      :benefit_sponsorship => benefit_sponsorship,
-                      :aasm_state => 'draft',
-                      :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'draft',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
-
+  
   describe "ModelEvent" do
 
     context "when zero employees on the roster" do
       it "should trigger model event" do
         model_instance.class.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:notifications_send) do |_instance, model_event|
+          expect(observer).to receive(:notifications_send) do |instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :renewal_application_autosubmitted, :klass_instance => model_instance, :options => {})
           end
@@ -60,7 +60,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::ZeroEmployeesOnRoster', dbclean: :
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) do
+    let(:data_elements) {
       [
         "employer_profile.notice_date",
         "employer_profile.employer_name",
@@ -72,16 +72,14 @@ RSpec.describe 'BenefitSponsors::ModelEvents::ZeroEmployeesOnRoster', dbclean: :
         "employer_profile.broker.email",
         "employer_profile.broker_present?"
       ]
-    end
+    }
     let(:merge_model) { subject.construct_notice_object }
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   do
-      {
-        "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
-        "event_object_id" => model_instance.id
-      }
-    end
+    let(:payload)   { {
+      "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
+      "event_object_id" => model_instance.id
+    } }
 
     context "when notice event received" do
 

@@ -10,13 +10,13 @@ FactoryBot.define do
     end
 
     trait :with_owner_general_organization do
-      after :build do |site, _evaluator|
+      after :build do |site, evaluator|
         site.owner_organization = build(:sponsored_benefits_organizations_general_organization, :with_hbx_profile, site: site)
       end
     end
 
     trait :with_owner_exempt_organization do
-      after :build do |site, _evaluator|
+      after :build do |site, evaluator|
         site.owner_organization = build(:sponsored_benefits_organizations_exempt_organization, :with_hbx_profile, site: site)
       end
     end

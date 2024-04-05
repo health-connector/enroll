@@ -9,9 +9,9 @@ module BenefitSponsors
     let!(:security_question)  { FactoryBot.create_default :security_question }
 
     let!(:user_with_hbx_staff_role) { FactoryBot.create(:user, :with_hbx_staff_role) }
-    let!(:person) { FactoryBot.create(:person, user: user_with_hbx_staff_role)}
+    let!(:person) { FactoryBot.create(:person, user: user_with_hbx_staff_role )}
     let!(:person01) { FactoryBot.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryBot.create(:user, person: person01) }
+    let!(:user_with_broker_role) { FactoryBot.create(:user, person: person01 ) }
 
     let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization_with_hbx_profile)  { site.owner_organization }

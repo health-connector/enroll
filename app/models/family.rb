@@ -19,10 +19,10 @@ class Family
   include Mongoid::Autoinc
   include DocumentsVerificationStatus
 
-  IMMEDIATE_FAMILY = %w[self spouse life_partner child ward foster_child adopted_child stepson_or_stepdaughter stepchild domestic_partner]
+  IMMEDIATE_FAMILY = %w(self spouse life_partner child ward foster_child adopted_child stepson_or_stepdaughter stepchild domestic_partner)
 
   field :version, type: Integer, default: 1
-  embeds_many :versions, class_name: name, validate: false, cyclic: true, inverse_of: nil
+  embeds_many :versions, class_name: self.name, validate: false, cyclic: true, inverse_of: nil
 
   field :hbx_assigned_id, type: Integer
   increments :hbx_assigned_id, seed: 9999
@@ -79,31 +79,33 @@ class Family
 
   index({"households.hbx_enrollments.aasm_state" => 1,
          "households.hbx_enrollments.created_at" => 1},
-        {name: "state_and_created"})
+         {name: "state_and_created"})
 
-  index({"households.hbx_enrollments.kind" => 1,
+    index({"households.hbx_enrollments.kind" => 1,
          "households.hbx_enrollments.aasm_state" => 1,
          "households.hbx_enrollments.effective_on" => 1,
-         "households.hbx_enrollments.terminated_on" => 1},
-        {name: "kind_and_state_and_created_and_terminated"})
+         "households.hbx_enrollments.terminated_on" => 1
+         },
+         {name: "kind_and_state_and_created_and_terminated"})
 
   index({"households.hbx_enrollments._id" => 1})
   index({"households.hbx_enrollments.kind" => 1,
          "households.hbx_enrollments.aasm_state" => 1,
          "households.hbx_enrollments.coverage_kind" => 1,
-         "households.hbx_enrollments.effective_on" => 1},
-        {name: "kind_and_state_and_coverage_kind_effective_date"})
+         "households.hbx_enrollments.effective_on" => 1
+         },
+         {name: "kind_and_state_and_coverage_kind_effective_date"})
 
   index({
-          "households.hbx_enrollments.sponsored_benefit_package_id" => 1,
-          "households.hbx_enrollments.sponsored_benefit_id" => 1,
-          "households.hbx_enrollments.effective_on" => 1,
-          "households.hbx_enrollments.submitted_at" => 1,
-          "households.hbx_enrollments.terminated_on" => 1,
-          "households.hbx_enrollments.employee_role_id" => 1,
-          "households.hbx_enrollments.aasm_state" => 1,
-          "households.hbx_enrollments.kind" => 1
-        }, {name: "hbx_enrollment_sb_package_lookup"})
+    "households.hbx_enrollments.sponsored_benefit_package_id" => 1,
+    "households.hbx_enrollments.sponsored_benefit_id" => 1,
+    "households.hbx_enrollments.effective_on" => 1,
+    "households.hbx_enrollments.submitted_at" => 1,
+    "households.hbx_enrollments.terminated_on" => 1,
+    "households.hbx_enrollments.employee_role_id" => 1,
+    "households.hbx_enrollments.aasm_state" => 1,
+    "households.hbx_enrollments.kind" => 1
+  }, {name: "hbx_enrollment_sb_package_lookup"})
 
   index({"households.hbx_enrollments.plan_id" => 1}, { sparse: true })
   index({"households.hbx_enrollments.writing_agent_id" => 1}, { sparse: true })
@@ -145,9 +147,9 @@ class Family
  # after_save :update_family_search_collection
  # after_destroy :remove_family_search_record
 
-  scope :with_enrollment_hbx_id, lambda { |enrollment_hbx_id|
-                                   where("households.hbx_enrollments.hbx_id" => enrollment_hbx_id)
-                                 }
+  scope :with_enrollment_hbx_id, ->(enrollment_hbx_id) {
+      where("households.hbx_enrollments.hbx_id" => enrollment_hbx_id)
+    }
 
   scope :all_with_single_family_member,     ->{ exists({:'family_members.1' => false}) }
   scope :all_with_multiple_family_members,  ->{ exists({:'family_members.1' => true})  }
@@ -156,52 +158,37 @@ class Family
   scope :all_current_households,            ->{ exists(households: true).order_by(:start_on.desc).limit(1).only(:_id, :"households._id") }
   scope :all_tax_households,                ->{ exists(:"households.tax_households" => true) }
 
-  scope :by_writing_agent_id,               ->(broker_id){ where(broker_agency_accounts: {:$elemMatch => {writing_agent_id: broker_id, is_active: true}})}
-  scope :by_broker_agency_profile_id,       lambda { |broker_agency_profile_id|
-                                              where(broker_agency_accounts: {:$elemMatch => {is_active: true, "$or": [{benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id}, {broker_agency_profile_id: broker_agency_profile_id}]}})
-                                            }
-  scope :by_general_agency_profile_id,      ->(general_agency_profile_id) { where(general_agency_accounts: {:$elemMatch => {general_agency_profile_id: general_agency_profile_id, aasm_state: "active"}})}
+  scope :by_writing_agent_id,               ->(broker_id){ where(broker_agency_accounts: {:$elemMatch=> {writing_agent_id: broker_id, is_active: true}})}
+  scope :by_broker_agency_profile_id,       ->(broker_agency_profile_id) { where(broker_agency_accounts: {:$elemMatch=> {is_active: true, "$or": [{benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id}, {broker_agency_profile_id: broker_agency_profile_id}]}})}
+  scope :by_general_agency_profile_id,      ->(general_agency_profile_id) { where(general_agency_accounts: {:$elemMatch=> {general_agency_profile_id: general_agency_profile_id, aasm_state: "active"}})}
 
-  scope :all_assistance_applying,           lambda {
-                                              unscoped.exists(:"households.tax_households.eligibility_determinations" => true).order(
-                                                :"households.tax_households.eligibility_determinations.determined_at".desc
-                                              )
-                                            }
+  scope :all_assistance_applying,           ->{ unscoped.exists(:"households.tax_households.eligibility_determinations" => true).order(
+                                                  :"households.tax_households.eligibility_determinations.determined_at".desc) }
 
   scope :all_aptc_hbx_enrollments,      ->{ unscoped.where(:"households.hbx_enrollments.applied_aptc_amount.cents".gt => 0)}
   scope :all_unassisted,                ->{ exists(:"households.tax_households.eligibility_determinations" => false) }
 
   scope :all_eligible_for_assistance,   ->{ exists(:"households.tax_households.eligibility_determinations" => true) }
 
-  scope :all_assistance_receiving,      lambda {
-                                          unscoped.where(:"households.tax_households.eligibility_determinations.max_aptc.cents".gt => 0).order(
-                                            :"households.tax_households.eligibility_determinations.determined_at".desc
-                                          )
-                                        }
+  scope :all_assistance_receiving,      ->{ unscoped.where(:"households.tax_households.eligibility_determinations.max_aptc.cents".gt => 0).order(
+                                                  :"households.tax_households.eligibility_determinations.determined_at".desc) }
 
-  scope :all_active_assistance_receiving_for_current_year, lambda {
-                                                             unscoped.where(:"households.tax_households.eligibility_determinations.max_aptc.cents".gt => 0).order(
-                                                               :"households.tax_households.eligibility_determinations.determined_at".desc
-                                                             ).and(
-                                                               :"households.tax_households.effective_ending_on" => nil
-                                                             ).and(
-                                                               :"households.tax_households.effective_starting_on".gte => Date.new(TimeKeeper.date_of_record.year)
-                                                             ).and(
-                                                               :"households.tax_households.effective_starting_on".lte => Date.new(TimeKeeper.date_of_record.year).end_of_year
-                                                             )
-                                                           }
+  scope :all_active_assistance_receiving_for_current_year, ->{ unscoped.where( :"households.tax_households.eligibility_determinations.max_aptc.cents".gt => 0).order(
+                                                                        :"households.tax_households.eligibility_determinations.determined_at".desc).and(
+                                                                        :"households.tax_households.effective_ending_on" => nil ).and(
+                                                                        :"households.tax_households.effective_starting_on".gte => Date.new(TimeKeeper.date_of_record.year)).and(
+                                                                        :"households.tax_households.effective_starting_on".lte => Date.new(TimeKeeper.date_of_record.year).end_of_year)
+                                                      }
 
   scope :active_assistance_receiving,   ->{ all_assistance_receiving.where(:"households.tax_households.effective_ending_on" => nil) }
   scope :all_plan_shopping,             ->{ exists(:"households.hbx_enrollments" => true) }
 
 
-  scope :by_eligibility_determination_date_range, lambda { |start_at, end_at|
-                                                    where(
-                                                      :"households.tax_households.eligibility_determinations.determined_on".gte => start_at
-                                                    ).and(
-                                                      :"households.tax_households.eligibility_determinations.determined_on".lte => end_at
-                                                    )
-                                                  }
+  scope :by_eligibility_determination_date_range, ->(start_at, end_at){ where(
+                                                        :"households.tax_households.eligibility_determinations.determined_on".gte => start_at).and(
+                                                        :"households.tax_households.eligibility_determinations.determined_on".lte => end_at
+                                                      )
+                                                    }
 
   scope :by_datetime_range,                     ->(start_at, end_at){ where(:created_at.gte => start_at).and(:created_at.lte => end_at) }
   scope :all_enrollments,                       ->{  where(:"households.hbx_enrollments.aasm_state".in => HbxEnrollment::ENROLLED_STATUSES) }
@@ -211,56 +198,44 @@ class Family
   scope :by_enrollment_individual_market,       ->{ where(:"households.hbx_enrollments.kind".in => ["individual", "unassisted_qhp", "insurance_assisted_qhp", "streamlined_medicaid", "emergency_medicaid", "hcr_chip"]) }
   scope :by_enrollment_shop_market,             ->{ where(:"households.hbx_enrollments.kind".in => ["employer_sponsored", "employer_sponsored_cobra"]) }
   scope :by_enrollment_renewing,                ->{ where(:"households.hbx_enrollments.aasm_state".in => HbxEnrollment::RENEWAL_STATUSES) }
-  scope :by_enrollment_created_datetime_range,  ->(start_at, end_at){ where(:"households.hbx_enrollments.created_at" => { "$gte" => start_at, "$lte" => end_at})}
-  scope :by_enrollment_updated_datetime_range,  ->(start_at, end_at){ where(:"households.hbx_enrollments.updated_at" => { "$gte" => start_at, "$lte" => end_at})}
-  scope :by_enrollment_effective_date_range,    ->(start_on, end_on){ where(:"households.hbx_enrollments.effective_on" => { "$gte" => start_on, "$lte" => end_on})}
+  scope :by_enrollment_created_datetime_range,  ->(start_at, end_at){ where(:"households.hbx_enrollments.created_at" => { "$gte" => start_at, "$lte" => end_at} )}
+  scope :by_enrollment_updated_datetime_range,  ->(start_at, end_at){ where(:"households.hbx_enrollments.updated_at" => { "$gte" => start_at, "$lte" => end_at} )}
+  scope :by_enrollment_effective_date_range,    ->(start_on, end_on){ where(:"households.hbx_enrollments.effective_on" => { "$gte" => start_on, "$lte" => end_on} )}
   scope :non_enrolled,                          ->{ where(:"households.hbx_enrollments.aasm_state".nin => HbxEnrollment::ENROLLED_STATUSES) }
   scope :sep_eligible,                          ->{ where(:"active_seps.count".gt => 0) }
   scope :coverage_waived,                       ->{ where(:"households.hbx_enrollments.aasm_state".in => HbxEnrollment::WAIVED_STATUSES) }
   scope :having_unverified_enrollment,          ->{ where(:"households.hbx_enrollments.aasm_state" => "enrolled_contingent")}
-  scope :with_all_verifications,                ->{ where(:"households.hbx_enrollments" => {:"$elemMatch" => {:aasm_state => "enrolled_contingent", :review_status => "ready"}})}
-  scope :with_partial_verifications,            ->{ where(:"households.hbx_enrollments" => {:"$elemMatch" => {:aasm_state => "enrolled_contingent", :review_status => "in review"}})}
-  scope :with_no_verifications,                 ->{ where(:"households.hbx_enrollments" => {:"$elemMatch" => {:aasm_state => "enrolled_contingent", :review_status => "incomplete"}})}
+  scope :with_all_verifications,                ->{ where(:"households.hbx_enrollments" => {:"$elemMatch" => {:"aasm_state" => "enrolled_contingent", :"review_status" => "ready"}})}
+  scope :with_partial_verifications,            ->{ where(:"households.hbx_enrollments" => {:"$elemMatch" => {:"aasm_state" => "enrolled_contingent", :"review_status" => "in review"}})}
+  scope :with_no_verifications,                 ->{ where(:"households.hbx_enrollments" => {:"$elemMatch" => {:"aasm_state" => "enrolled_contingent", :"review_status" => "incomplete"}})}
   scope :with_reset_verifications,              ->{ where(:"households.hbx_enrollments.aasm_state" => "enrolled_contingent")}
   scope :vlp_fully_uploaded,                    ->{ where(vlp_documents_status: "Fully Uploaded")}
   scope :vlp_partially_uploaded,                ->{ where(vlp_documents_status: "Partially Uploaded")}
   scope :vlp_none_uploaded,                     ->{ where(:vlp_documents_status.in => ["None",nil])}
-  scope :outstanding_verification,              lambda {
-                                                  by_enrollment_individual_market.where(:"households.hbx_enrollments" => {"$elemMatch" => {:aasm_state => "enrolled_contingent", :effective_on => { :"$gte" => TimeKeeper.date_of_record.beginning_of_year, :"$lte" => TimeKeeper.date_of_record.end_of_year }}})
-                                                }
-  scope :enrolled_through_benefit_package,      lambda { |benefit_package|
-                                                  unscoped.where(
+  scope :outstanding_verification,              ->{ by_enrollment_individual_market.where(:"households.hbx_enrollments"=>{"$elemMatch"=>{:aasm_state => "enrolled_contingent", :effective_on => { :"$gte" => TimeKeeper.date_of_record.beginning_of_year, :"$lte" =>  TimeKeeper.date_of_record.end_of_year }}}) }
+  scope :enrolled_through_benefit_package,      ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES),
                                                     :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
-                                                  )
-                                                }
+                                                  ) }
 
-  scope :enrolled_and_terminated_through_benefit_package, lambda { |benefit_package|
-                                                            unscoped.where(
-                                                              :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES),
-                                                              :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
-                                                            )
-                                                          }
+  scope :enrolled_and_terminated_through_benefit_package, ->(benefit_package) { unscoped.where(
+                                                    :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES),
+                                                    :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
+                                                  ) }
 
-  scope :all_enrollments_by_benefit_package,    lambda { |benefit_package|
-                                                  unscoped.where(
+  scope :all_enrollments_by_benefit_package,    ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments" => {
                                                       :$elemMatch => { :sponsored_benefit_package_id => benefit_package._id, :aasm_state.ne => :shopping }
-                                                    }
-                                                  )
-                                                }
+                                                  }) }
 
   scope :all_enrollments_by_benefit_sponsorship_id,  ->(benefit_sponsorship_id){where(:"households.hbx_enrollments.benefit_sponsorship_id" => benefit_sponsorship_id) }
-  scope :enrolled_under_benefit_application,    lambda { |benefit_application|
-                                                  unscoped.where(
+  scope :enrolled_under_benefit_application,    ->(benefit_application) { unscoped.where(
                                                     :"households.hbx_enrollments" => {
                                                       :$elemMatch => {
                                                         :sponsored_benefit_package_id => {"$in" => benefit_application.benefit_packages.pluck(:_id) },
                                                         :aasm_state => {'$nin' => %w[coverage_canceled shopping coverage_terminated] }
                                                       }
-                                                    }
-                                                  )
-                                                }
+                                                  })}
 
 
   def enrollment_is_not_most_recent_sep_enrollment?(hbx_enrollment)
@@ -288,13 +263,12 @@ class Family
   end
 
   def remove_family_search_record
-    Searches::FamilySearch.where("id" => id).delete_all
+    Searches::FamilySearch.where("id" => self.id).delete_all
   end
 
   def latest_household
     return households.first if households.size == 1
-
-    households.order_by(:submitted_at.desc).limit(1).only(:households).first
+    households.order_by(:'submitted_at'.desc).limit(1).only(:households).first
   end
 
   def active_household
@@ -306,9 +280,11 @@ class Family
     # latest_household.try(:enrolled_hbx_enrollments)
   end
 
-  def terminated_benefits; end
+  def terminated_benefits
+  end
 
-  def renewal_benefits; end
+  def renewal_benefits
+  end
 
   def currently_enrolled_plans(enrollment)
     enrolled_plans = active_household.hbx_enrollments.enrolled_and_renewing.by_coverage_kind(enrollment.coverage_kind)
@@ -323,7 +299,6 @@ class Family
 
   def enrollments
     return [] if  latest_household.blank?
-
     latest_household.hbx_enrollments.show_enrollments_sans_canceled
   end
 
@@ -342,7 +317,7 @@ class Family
   end
 
   def primary_family_member=(new_primary_family_member)
-    primary_family_member.is_primary_applicant = false unless primary_family_member.blank?
+    self.primary_family_member.is_primary_applicant = false unless primary_family_member.blank?
 
     existing_family_member = find_family_member_by_person(new_primary_family_member)
     if existing_family_member.present?
@@ -355,8 +330,9 @@ class Family
   end
 
   def terminated_enrollments
-    active_household.hbx_enrollments.where(:aasm_state.in => ["coverage_terminated", "coverage_termination_pending"])
+    active_household.hbx_enrollments.where(:aasm_state.in=> ["coverage_terminated", "coverage_termination_pending"])
   end
+
 
   def set_admin_dt_enrollments(enrollment_set)
     @admin_dt_enrollments = enrollment_set
@@ -367,7 +343,7 @@ class Family
   end
 
   # @deprecated Use {primary_applicant}
-  alias primary_family_member primary_applicant
+  alias_method :primary_family_member, :primary_applicant
 
   def consent_applicant
     family_members.detect { |family_member| family_member.is_consent_applicant? && family_member.is_active? }
@@ -468,7 +444,9 @@ class Family
 
     benefit_sponsorship = HbxProfile.current_hbx.try(:benefit_sponsorship)
     (benefit_sponsorship.try(:benefit_coverage_periods) || []).each do |benefit_coverage_period|
-      eligible_open_enrollments << EnrollmentEligibilityReason.new(benefit_sponsorship) if benefit_coverage_period.open_enrollment_contains?(TimeKeeper.date_of_record)
+      if benefit_coverage_period.open_enrollment_contains?(TimeKeeper.date_of_record)
+        eligible_open_enrollments << EnrollmentEligibilityReason.new(benefit_sponsorship)
+      end
     end
 
     eligible_open_enrollments
@@ -485,13 +463,13 @@ class Family
 
     active_employee_roles = primary_applicant.person.active_employee_roles if primary_applicant.present?
     active_employee_roles.each do |employee_role|
-      next unless (benefit_group = employee_role.benefit_group(qle: options[:qle])) &&
-                  (employer_profile = employee_role.try(:employer_profile))
-
-      employer_profile.try(:published_plan_year).try(:enrolling?) &&
+      if (benefit_group = employee_role.benefit_group(qle: options[:qle])) &&
+        (employer_profile = employee_role.try(:employer_profile))
+        employer_profile.try(:published_plan_year).try(:enrolling?) &&
         benefit_group.effective_on_for(employee_role.hired_on) > benefit_group.start_on
 
-      eligible_open_enrollments << EnrollmentEligibilityReason.new(employer_profile)
+        eligible_open_enrollments << EnrollmentEligibilityReason.new(employer_profile)
+      end
     end
 
     eligible_open_enrollments
@@ -519,7 +497,6 @@ class Family
   # @return [ true, false ] true if under a SEP, false if not under a SEP
   def is_under_special_enrollment_period?
     return false if special_enrollment_periods.size == 0
-
     current_special_enrollment_periods.size > 0
   end
 
@@ -534,6 +511,7 @@ class Family
   def active_seps
     special_enrollment_periods.find_all { |sep| sep.is_active? }
   end
+
 
   def latest_active_sep
     special_enrollment_periods.order_by(:submitted_at.desc).detect{ |sep| sep.is_active? }
@@ -560,12 +538,8 @@ class Family
   # @return [ Array<SpecialEnrollmentPeriod> ] The SEP eligibilities active on today's date
   def current_special_enrollment_periods
     return [] if special_enrollment_periods.size == 0
-
     seps = special_enrollment_periods.order_by(:start_on.desc).only(:special_enrollment_periods)
-    seps.reduce([]) do |list, event|
-      list << event if event.is_active?
-      list
-    end
+    seps.reduce([]) { |list, event| list << event if event.is_active?; list }
   end
 
   # Get the {SpecialEnrollmentPeriod} (SEP) eligibility currently available to this family with the
@@ -626,7 +600,7 @@ class Family
     special_enrollment_periods.shop_market.order_by(:submitted_at.desc).to_a.detect{ |sep| sep.is_active? }
   end
 
-  def terminate_date_for_shop_by_enrollment(enrollment = nil)
+  def terminate_date_for_shop_by_enrollment(enrollment=nil)
     if latest_shop_sep.present?
       coverage_end_date = if latest_shop_sep.qualifying_life_event_kind.reason == 'death'
                             latest_shop_sep.qle_on
@@ -689,11 +663,11 @@ class Family
     end
 
     family_member = family_members.build(
-      person: person,
-      is_primary_applicant: is_primary_applicant,
-      is_coverage_applicant: is_coverage_applicant,
-      is_consent_applicant: is_consent_applicant
-    )
+        person: person,
+        is_primary_applicant: is_primary_applicant,
+        is_coverage_applicant: is_coverage_applicant,
+        is_consent_applicant: is_consent_applicant
+      )
 
     active_household.add_household_coverage_member(family_member)
     family_member
@@ -743,7 +717,7 @@ class Family
   end
 
   def people_relationship_map
-    map = {}
+    map = Hash.new
     people.each do |person|
       map[person] = person_relationships.detect { |r| r.object_person == person.id }.relationship_kind
     end
@@ -751,16 +725,16 @@ class Family
   end
 
   def is_active?
-    is_active
+    self.is_active
   end
 
   def find_matching_inactive_member(personish)
     inactive_members = family_members.reject(&:is_active)
     return nil if inactive_members.blank?
-
-    if personish.ssn.blank?
+    if !personish.ssn.blank?
+      inactive_members.detect { |mem| mem.person.ssn == personish.ssn }
+    else
       return nil if personish.dob.blank?
-
       search_dob = personish.dob.strftime("%m/%d/%Y")
       inactive_members.detect do |mem|
         mp = mem.person
@@ -769,29 +743,28 @@ class Family
           (personish.first_name.downcase.strip == mp.first_name.downcase.strip) &&
           (search_dob == mem_dob)
       end
-    else
-      inactive_members.detect { |mem| mem.person.ssn == personish.ssn }
     end
   end
 
   def hire_broker_agency(broker_role_id)
     return unless broker_role_id
-
     existing_agency = current_broker_agency
     broker_role = BrokerRole.find(broker_role_id)
     broker_agency_profile_id = broker_role.benefit_sponsors_broker_agency_profile_id.present? ? broker_role.benefit_sponsors_broker_agency_profile_id : broker_role.broker_agency_profile_id
     terminate_broker_agency if existing_agency
     start_on = Time.now
-    broker_agency_account = BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id, writing_agent_id: broker_role_id, start_on: start_on, is_active: true)
+    broker_agency_account =  BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id, writing_agent_id: broker_role_id, start_on: start_on, is_active: true)
     broker_agency_accounts.push(broker_agency_account)
-    save
+    self.save
   end
 
   # Terminate the active Broker agency for this family
   #
   # @param terminate_on [ Date ] Date to end broker engagement
   def terminate_broker_agency(terminate_on = TimeKeeper.date_of_record)
-    current_broker_agency.update_attributes!(end_on: (terminate_on.to_date - 1.day).end_of_day, is_active: false) if current_broker_agency.present?
+    if current_broker_agency.present?
+      current_broker_agency.update_attributes!(end_on: (terminate_on.to_date - 1.day).end_of_day, is_active: false)
+    end
   end
 
   # Get the active {BrokerAgencyAccount} account for this family. New Individual market enrollments will include this
@@ -837,29 +810,29 @@ class Family
     def expire_individual_market_enrollments
       current_benefit_period = HbxProfile.current_hbx.benefit_sponsorship.current_benefit_coverage_period
       query = {
-        :effective_on.lt => current_benefit_period.start_on,
-        :kind => 'individual',
-        :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES - ['coverage_termination_pending', 'enrolled_contingent', 'unverified']
+          :effective_on.lt => current_benefit_period.start_on,
+          :kind => 'individual',
+          :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES - ['coverage_termination_pending', 'enrolled_contingent', 'unverified']
       }
       families = Family.where("households.hbx_enrollments" => {:$elemMatch => query})
       families.each do |family|
-
-        family.active_household.hbx_enrollments.where(query).each do |enrollment|
-          enrollment.expire_coverage! if enrollment.may_expire_coverage?
+        begin
+          family.active_household.hbx_enrollments.where(query).each do |enrollment|
+            enrollment.expire_coverage! if enrollment.may_expire_coverage?
+          end
+        rescue Exception => e
+          Rails.logger.error "Unable to expire enrollments for family #{family.e_case_id}"
         end
-      rescue Exception => e
-        Rails.logger.error "Unable to expire enrollments for family #{family.e_case_id}"
-
       end
     end
 
     def begin_coverage_for_ivl_enrollments
       current_benefit_period = HbxProfile.current_hbx.benefit_sponsorship.current_benefit_coverage_period
       query = {
-        :effective_on => current_benefit_period.start_on,
-        :kind => 'individual',
-        :aasm_state => 'auto_renewing'
-      }
+          :effective_on => current_benefit_period.start_on,
+          :kind => 'individual',
+          :aasm_state => 'auto_renewing'
+        }
       families = Family.where("households.hbx_enrollments" => {:$elemMatch => query})
 
       families.each do |family|
@@ -880,21 +853,20 @@ class Family
       start_time = (new_date - 2.days).in_time_zone("Eastern Time (US & Canada)").beginning_of_day
       end_time = (new_date - 2.days).in_time_zone("Eastern Time (US & Canada)").end_of_day
       families = Family.where({
-                                "households.hbx_enrollments" => {
-                                  "$elemMatch" => {
-                                    "kind" => "individual",
-                                    "aasm_state" => { "$in" => HbxEnrollment::ENROLLED_STATUSES },
-                                    "created_at" => { "$gte" => start_time, "$lte" => end_time}
-                                  }
-                                }
-                              })
+        "households.hbx_enrollments" => {
+          "$elemMatch" => {
+            "kind" => "individual",
+            "aasm_state" => { "$in" => HbxEnrollment::ENROLLED_STATUSES },
+            "created_at" => { "$gte" => start_time, "$lte" => end_time},
+        } }
+      })
       families.each do |family|
-
-        person = family.primary_applicant.person
-        IvlNoticesNotifierJob.perform_later(person.id.to_s, "enrollment_notice") if person.consumer_role.present?
-      rescue Exception => e
-        Rails.logger.error { "Unable to deliver enrollment notice #{person.hbx_id} due to #{e.inspect}" }
-
+        begin
+          person = family.primary_applicant.person
+          IvlNoticesNotifierJob.perform_later(person.id.to_s, "enrollment_notice") if person.consumer_role.present?
+        rescue Exception => e
+          Rails.logger.error { "Unable to deliver enrollment notice #{person.hbx_id} due to #{e.inspect}" }
+        end
       end
     end
 
@@ -927,17 +899,17 @@ class Family
     # @param person [ Person ] Person to match
     # @return [ Array<Family> ] The families where this person is primary applicant
     def find_primary_applicant_by_person(person)
-      find_all_by_person(person).select { |f| f.primary_applicant.person.id.to_s == person.id.to_s }
+      find_all_by_person(person).select() { |f| f.primary_applicant.person.id.to_s == person.id.to_s }
     end
 
     # @deprecated Use find_primary_applicant_by_person
-    alias find_all_by_primary_applicant find_primary_applicant_by_person
+    alias_method :find_all_by_primary_applicant, :find_primary_applicant_by_person
 
     # @deprecated Use find_primary_applicant_by_person
-    alias find_by_primary_family_member find_primary_applicant_by_person
+    alias_method :find_by_primary_family_member, :find_primary_applicant_by_person
 
     # @deprecated Use find_primary_applicant_by_person
-    alias find_by_primary_applicant find_primary_applicant_by_person
+    alias_method :find_by_primary_applicant, :find_primary_applicant_by_person
 
     # Get the family(s) with this eligibility case identifier
     # @param id [ String ] Eligibility case ID to match
@@ -950,7 +922,6 @@ class Family
   def build_consumer_role(family_member, opts = {})
     person = family_member.person
     return if person.consumer_role.present?
-
     person.build_consumer_role({:is_applicant => false}.merge(opts))
     person.save!
   end
@@ -966,7 +937,6 @@ class Family
   def build_resident_role(family_member, opts = {})
     person = family_member.person
     return if person.resident_role.present?
-
     person.build_resident_role({:is_applicant => false}.merge(opts))
     person.save!
   end
@@ -986,11 +956,7 @@ class Family
   end
 
   def has_aptc_hbx_enrollment?
-    enrollments = begin
-      latest_household.hbx_enrollments.active
-    rescue StandardError
-      []
-    end
+    enrollments = latest_household.hbx_enrollments.active rescue []
     enrollments.any? {|enrollment| enrollment.applied_aptc_amount > 0}
   end
 
@@ -1001,7 +967,9 @@ class Family
   # Get all {HbxEnrollment HbxEnrollments} under this family's active household.  Includes active and inactive enrollments.
   # @return [ Array<HbxEnrollment> ] The {HbxEnrollment HbxEnrollments} for this family's active household
   def all_enrollments
-    active_household.hbx_enrollments if active_household.present?
+    if self.active_household.present?
+      active_household.hbx_enrollments
+    end
   end
 
   def enrolled_hbx_enrollments
@@ -1012,51 +980,52 @@ class Family
     latest_household.try(:enrolled_including_waived_hbx_enrollments)
   end
 
+
   # Get {HbxEnrollment HbxEnrollments} that meet application criteria for display in the UI
   # @see waivers_for_display
   # @return [ Array<HbxEnrollment> ] The {HbxEnrollment HbxEnrollments} filtered by display criteria
   def enrollments_for_display
     Family.collection.aggregate([
-      {"$match" => {'_id' => _id}},
+      {"$match" => {'_id' => self._id}},
       {"$unwind" => '$households'},
       {"$unwind" => '$households.hbx_enrollments'},
       {"$match" => {"households.hbx_enrollments.aasm_state" => {"$nin" => ['void', "coverage_canceled"]} }},
       {"$match" => {"households.hbx_enrollments.external_enrollment" => {"$ne" => true}}},
       {"$sort" => {"households.hbx_enrollments.submitted_at" => -1 }},
       {"$group" => {'_id' => {
-                      'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
-                      'month' => { "$month" => '$households.hbx_enrollments.effective_on'},
-                      'day' => { "$dayOfMonth" => '$households.hbx_enrollments.effective_on'},
-                      'subscriber_id' => '$households.hbx_enrollments.enrollment_signature',
-                      'provider_id' => '$households.hbx_enrollments.carrier_profile_id',
-                      'benefit_group_id' => '$households.hbx_enrollments.benefit_group_id',
-                      'state' => '$households.hbx_enrollments.aasm_state',
-                      'market' => '$households.hbx_enrollments.kind',
-                      'coverage_kind' => '$households.hbx_enrollments.coverage_kind'
-                    },
-                    "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
+                  'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
+                  'month' => { "$month" => '$households.hbx_enrollments.effective_on'},
+                  'day' => { "$dayOfMonth" => '$households.hbx_enrollments.effective_on'},
+                  'subscriber_id' => '$households.hbx_enrollments.enrollment_signature',
+                  'provider_id'   => '$households.hbx_enrollments.carrier_profile_id',
+                  'benefit_group_id' => '$households.hbx_enrollments.benefit_group_id',
+                  'state' => '$households.hbx_enrollments.aasm_state',
+                  'market' => '$households.hbx_enrollments.kind',
+                  'coverage_kind' => '$households.hbx_enrollments.coverage_kind'},
+                  "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
       {"$project" => {'hbx_enrollment._id' => 1, '_id' => 1}}
       ],
-                                :allow_disk_use => true)
+      :allow_disk_use => true)
   end
+
 
   # Get waived {HbxEnrollment HbxEnrollments} that meet application criteria for display in the UI
   # @see enrollments_for_display
   # @return [ Array<HbxEnrollment> ] The {HbxEnrollment HbxEnrollments} filtered by display criteria
   def waivers_for_display
     Family.collection.aggregate([
-      {"$match" => {'_id' => _id}},
+      {"$match" => {'_id' => self._id}},
       {"$unwind" => '$households'},
       {"$unwind" => '$households.hbx_enrollments'},
       {"$match" => {'households.hbx_enrollments.aasm_state' => 'inactive'}},
       {"$sort" => {"households.hbx_enrollments.submitted_at" => -1 }},
       {"$group" => {'_id' => {'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
-                              'state' => '$households.hbx_enrollments.aasm_state',
-                              'kind' => '$households.hbx_enrollments.kind',
-                              'coverage_kind' => '$households.hbx_enrollments.coverage_kind'}, "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
+                    'state' => '$households.hbx_enrollments.aasm_state',
+                    'kind' => '$households.hbx_enrollments.kind',
+                    'coverage_kind' => '$households.hbx_enrollments.coverage_kind'}, "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
       {"$project" => {'hbx_enrollment._id' => 1, '_id' => 0}}
       ],
-                                :allow_disk_use => true)
+      :allow_disk_use => true)
   end
 
   def generate_family_search
@@ -1096,15 +1065,16 @@ class Family
   def contingent_enrolled_active_family_members
     enrolled_family_members = []
     family_members.active.each do |family_member|
-      enrolled_family_members << family_member if enrolled_policy(family_member).present?
+      if enrolled_policy(family_member).present?
+        enrolled_family_members << family_member
+      end
     end
     enrolled_family_members
   end
 
   def document_due_date(family_member, v_type)
     return nil if family_member.person.consumer_role.is_type_verified?(v_type)
-
-    sv = family_member.person.consumer_role.special_verifications.where(verification_type: v_type).order_by(:created_at.desc).first
+    sv = family_member.person.consumer_role.special_verifications.where(verification_type: v_type).order_by(:"created_at".desc).first
     sv.present? ? sv.due_date : nil
   end
 
@@ -1127,52 +1097,51 @@ class Family
   def self.min_verification_due_date_range(start_date,end_date)
     timekeeper_date = TimeKeeper.date_of_record + 95.days
     if timekeeper_date >= start_date.to_date && timekeeper_date <= end_date.to_date
-      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date}).or(:min_verification_due_date => nil)
+      self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date}).or(:"min_verification_due_date" => nil)
     else
-      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date})
+     self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date})
     end
   end
 
   def all_persons_vlp_documents_status
     documents_list = []
     document_status_outstanding = []
-    active_family_members.each do |member|
+    self.active_family_members.each do |member|
       member.person.verification_types.each do |type|
-        if member.person.consumer_role && is_document_not_verified(type, member.person)
-          documents_list << (member.person.consumer_role.has_docs_for_type?(type) && verification_type_status(type, member.person) != "outstanding")
-          document_status_outstanding << member.person.consumer_role.has_outstanding_documents?
-        end
+      if member.person.consumer_role && is_document_not_verified(type, member.person)
+        documents_list <<  (member.person.consumer_role.has_docs_for_type?(type) && verification_type_status(type, member.person) != "outstanding")
+        document_status_outstanding << member.person.consumer_role.has_outstanding_documents?
+      end
       end
     end
-    if documents_list.include?(true) && documents_list.include?(false)
-      "Partially Uploaded"
-    elsif documents_list.include?(true) && !documents_list.include?(false)
+    case
+    when documents_list.include?(true) && documents_list.include?(false)
+      return "Partially Uploaded"
+    when documents_list.include?(true) && !documents_list.include?(false)
       if document_status_outstanding.include?("outstanding")
-        "Partially Uploaded"
+        return "Partially Uploaded"
       else
-        "Fully Uploaded"
+        return "Fully Uploaded"
       end
-    elsif !documents_list.include?(true) && documents_list.include?(false)
-      "None"
+    when !documents_list.include?(true) && documents_list.include?(false)
+      return "None"
     end
   end
 
   def update_family_document_status!
-    update_attributes(vlp_documents_status: all_persons_vlp_documents_status)
+    update_attributes(vlp_documents_status: self.all_persons_vlp_documents_status)
   end
 
   def is_document_not_verified(type, person)
-    ["valid", "attested", "verified", "External Source"].include?(verification_type_status(type, person)) ? false : true
+    ["valid", "attested", "verified", "External Source"].include?(verification_type_status(type, person))?  false : true
   end
 
   def has_valid_e_case_id?
-    return false unless e_case_id
-
+    return false if !e_case_id
     e_case_id.split('#').last.scan(/\D/).empty?
   end
 
-  private
-
+private
   def build_household
     if households.size == 0
       irs_group = initialize_irs_group
@@ -1190,13 +1159,11 @@ class Family
 
   def primary_applicant_person
     return nil unless primary_applicant.present?
-
     primary_applicant.person
   end
 
   def only_one_active_primary_family
     return unless primary_family_member.present? && primary_family_member.person.present?
-
     families_with_same_primary = Family.where(
       "family_members" => {
         "$elemMatch" => {
@@ -1206,21 +1173,19 @@ class Family
       },
       "is_active" => true
     )
-    errors.add(:base, "has another active family with the same primary applicant") if families_with_same_primary.any? { |fam| fam.id.to_s != id.to_s }
+    if (families_with_same_primary.any? { |fam| fam.id.to_s != self.id.to_s })
+      self.errors.add(:base, "has another active family with the same primary applicant")
+    end
   end
 
   def single_primary_family_member
-    list = family_members.reduce([]) do |list, family_member|
-      list << family_member if family_member.is_primary_applicant?
-      list
-    end
-    errors.add(:family_members, "one family member must be primary family member") if list.size == 0
-    errors.add(:family_members, "may not have more than one primary family member") if list.size > 1
+    list = family_members.reduce([]) { |list, family_member| list << family_member if family_member.is_primary_applicant?; list }
+    self.errors.add(:family_members, "one family member must be primary family member") if list.size == 0
+    self.errors.add(:family_members, "may not have more than one primary family member") if list.size > 1
   end
 
   def all_family_member_relations_defined
     return unless primary_family_member.present? && primary_family_member.person.present?
-
     primary_member_id = primary_family_member.id
     primary_person = primary_family_member.person
     other_family_members = family_members.select { |fm| (fm.id.to_s != primary_member_id.to_s) && fm.person.present? }
@@ -1229,12 +1194,9 @@ class Family
   end
 
   def single_active_household
-    list = households.reduce([]) do |list, household|
-      list << household if household.is_active?
-      list
-    end
-    errors.add(:households, "one household must be active") if list.size == 0
-    errors.add(:households, "may not have more than one active household") if list.size > 1
+    list = households.reduce([]) { |list, household| list << household if household.is_active?; list }
+    self.errors.add(:households, "one household must be active") if list.size == 0
+    self.errors.add(:households, "may not have more than one active household") if list.size > 1
   end
 
   def initialize_irs_group
@@ -1246,7 +1208,7 @@ class Family
   end
 
   def no_duplicate_family_members
-    family_members.group_by { |appl| appl.person_id }.select { |_k, v| v.size > 1 }.each_pair do |k, v|
+    family_members.group_by { |appl| appl.person_id }.select { |k, v| v.size > 1 }.each_pair do |k, v|
       errors.add(:family_members, "Duplicate family_members for person: #{k}\n" +
                           "family_members: #{v.inspect}")
     end
@@ -1254,11 +1216,11 @@ class Family
 
   # This method will return true only if all the family_members in tax_household_members and coverage_household_members are present in self.family_members
   def integrity_of_family_member_objects
-    return true if households.blank?
+    return true if self.households.blank?
 
-    family_members_in_family = family_members - [nil]
-    tax_household_family_members_valid = are_arrays_of_family_members_same?(family_members_in_family.map(&:id), households.flat_map(&:tax_households).flat_map(&:tax_household_members).map(&:applicant_id))
-    coverage_family_members_valid = are_arrays_of_family_members_same?(family_members_in_family.map(&:id), households.flat_map(&:coverage_households).flat_map(&:coverage_household_members).map(&:applicant_id))
+    family_members_in_family = self.family_members - [nil]
+    tax_household_family_members_valid = are_arrays_of_family_members_same?(family_members_in_family.map(&:id), self.households.flat_map(&:tax_households).flat_map(&:tax_household_members).map(&:applicant_id))
+    coverage_family_members_valid = are_arrays_of_family_members_same?(family_members_in_family.map(&:id), self.households.flat_map(&:coverage_households).flat_map(&:coverage_household_members).map(&:applicant_id))
     tax_household_family_members_valid && coverage_family_members_valid
   end
 
@@ -1278,13 +1240,15 @@ class Family
     return true if primary_applicant.person.id == family_member.person.id
 
     if IMMEDIATE_FAMILY.include? primary_applicant.person.find_relationship_with(family_member.person)
-      true
+      return true
     else
-      false
+      return false
     end
   end
 
   def clear_blank_fields
-    unset("e_case_id") if e_case_id.blank?
+    if e_case_id.blank?
+      unset("e_case_id")
+    end
   end
 end

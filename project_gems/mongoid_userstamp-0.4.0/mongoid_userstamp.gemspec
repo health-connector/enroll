@@ -13,9 +13,10 @@ Gem::Specification.new do |s|
 
   s.files         = Dir['LICENSE', 'README.md', 'Rakefile', 'lib/**/*', 'spec/**/*', 'Gemfile', 'init.rb']
   s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  s.test_files    = s.files.grep(%r{^(test|spec|features)/})
   s.require_paths = ['lib']
 
-  s.post_install_message = File.read('UPGRADING') if File.exist?('UPGRADING')
+  s.post_install_message = File.read('UPGRADING') if File.exists?('UPGRADING')
 
   s.add_runtime_dependency 'mongoid', '>= 3.0.4'
   s.add_development_dependency 'rake'
@@ -23,5 +24,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'yard'
   s.add_development_dependency 'gem-release'
   s.add_development_dependency 'request_store'
-  s.metadata['rubygems_mfa_required'] = 'true'
 end

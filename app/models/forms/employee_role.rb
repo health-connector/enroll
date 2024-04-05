@@ -8,7 +8,9 @@ module Forms
 
     def initialize(person, employee_role = nil)
       super(person)
-      self.employee_role_id = employee_role.id if employee_role
+      if employee_role
+        self.employee_role_id = employee_role.id
+      end
     end
 
     def self.model_name
@@ -16,19 +18,19 @@ module Forms
     end
 
     def self.find(id)
-      new(Person.find(id))
+      self.new(Person.find(id))
     end
 
     def clean_attributes(hsh)
       atts = hsh.dup.stringify_keys
-      for_wrapper, for_person = atts.partition { |k, _v| WRAPPED_ATTRIBUTES.include?(k) }
-      [for_wrapper.to_h, for_person.to_h]
+      for_wrapper, for_person = atts.partition { |k, v| WRAPPED_ATTRIBUTES.include?(k) }
+      [Hash[for_wrapper], Hash[for_person]]
     end
 
     def update_attributes(hsh)
       for_wrapper, for_person = clean_attributes(hsh.to_h)
       for_wrapper.each_pair do |k,v|
-        send("#{k}=", v)
+        self.send("#{k}=", v)
       end
       super(for_person)
     end
@@ -46,7 +48,7 @@ module Forms
     end
 
     def employer_profile
-      @employer_profile ||= employee_role.employer_profile
+      @employer_profile ||= self.employee_role.employer_profile
     end
 
     def census_employee
@@ -54,7 +56,7 @@ module Forms
     end
 
     def employee_role
-      @employee_role ||= __getobj__.employee_roles.detect { |role| role.id.to_s == employee_role_id.to_s }
+      @employee_role ||= __getobj__.employee_roles.detect { |role| role.id.to_s == self.employee_role_id.to_s }
     end
   end
 end

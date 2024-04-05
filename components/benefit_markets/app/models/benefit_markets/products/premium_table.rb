@@ -26,12 +26,10 @@ module BenefitMarkets
     # validates_presence_of :premium_tuples, :allow_blank => false
 
 
-    scope :effective_period_cover,    lambda { |compare_date = TimeKeeper.date_of_record|
-                                        where(
-                                          :"effective_period.min".lte => compare_date,
-                                          :"effective_period.max".gte => compare_date
-                                        )
-                                      }
+    scope :effective_period_cover,    ->(compare_date = TimeKeeper.date_of_record) { where(
+                                                                           :"effective_period.min".lte => compare_date,
+                                                                           :"effective_period.max".gte => compare_date)
+                                                                        }
     def comparable_attrs
       [:effective_period, :rating_area]
     end
@@ -51,7 +49,7 @@ module BenefitMarkets
     end
 
     def create_copy_for_embedding
-      self.class.new(attributes.except(:premium_tuples))
+      self.class.new(self.attributes.except(:premium_tuples))
     end
   end
 end

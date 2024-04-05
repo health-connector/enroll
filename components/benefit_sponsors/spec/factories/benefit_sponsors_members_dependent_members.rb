@@ -5,11 +5,11 @@ FactoryBot.define do
     ssn do
       Forgery('basic').text(
         :exactly => 9,
-        :allow_numeric => true,
-        :allow_lower => false,
-        :allow_upper => false,
-        :allow_special => false
-      )
+        :allow_numeric  => true,
+        :allow_lower    => false,
+        :allow_upper    => false,
+        :allow_special  => false
+        )
     end
 
     trait :as_female_domestic_partner do

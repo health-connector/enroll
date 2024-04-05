@@ -20,31 +20,31 @@ module BenefitSponsors
 
     describe "validate Form" do
 
-      let(:valid_params) do
+      let(:valid_params) {
         {
           :benefit_sponsorship_id => "id",
           :start_on => TimeKeeper.date_of_record + 3.months,
-          :end_on => TimeKeeper.date_of_record + 1.year + 3.months - 1.day,
+          :end_on => TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
           :open_enrollment_start_on => TimeKeeper.date_of_record + 2.months,
           :open_enrollment_end_on => TimeKeeper.date_of_record + 2.months + 20.day,
           :fte_count => 2
         }
-      end
+      }
 
-      let(:invalid_params) do
+      let(:invalid_params) {
         {
           :benefit_sponsorship_id => nil,
           :start_on => TimeKeeper.date_of_record + 3.months,
-          :end_on => TimeKeeper.date_of_record + 1.year + 3.months - 1.day,
+          :end_on =>  TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
           :open_enrollment_start_on => TimeKeeper.date_of_record + 2.months,
           :open_enrollment_end_on => TimeKeeper.date_of_record + 2.months + 20.day
         }
-      end
+      }
 
       context "with invalid params" do
 
         let(:build_benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(invalid_params)}
-
+        
         it "should return false" do
           expect(build_benefit_application_form.valid?).to be_falsey
         end
@@ -72,7 +72,7 @@ module BenefitSponsors
     end
 
     describe "#for_create" do
-      let(:params) do
+      let(:params) {
         {
           :start_on => (TimeKeeper.date_of_record.beginning_of_month + 2.months).strftime("%m/%d/%Y"),
           :end_on => (TimeKeeper.date_of_record.beginning_of_month + 1.year + 2.months - 1.day).strftime("%m/%d/%Y"),
@@ -80,7 +80,7 @@ module BenefitSponsors
           :open_enrollment_end_on => (TimeKeeper.date_of_record.beginning_of_month + 1.month + Settings.aca.shop_market.open_enrollment.monthly_end_on.days).strftime("%m/%d/%Y"),
           :has_active_ba => false
         }
-      end
+      }
 
       it "should create the form assign the params for forms" do
         form = BenefitSponsors::Forms::BenefitApplicationForm.for_create(params)
@@ -91,7 +91,7 @@ module BenefitSponsors
     end
 
     describe ".submit_application" do
-      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
+      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(id: benefit_application.id) }
       let!(:service_object) { double("BenefitApplicationService")}
       context "has to submit application and" do
@@ -110,7 +110,7 @@ module BenefitSponsors
     end
 
     describe ".force_submit_application_with_eligibility_errors" do
-      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
+      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(id: benefit_application.id) }
       let!(:service_object) { double("BenefitApplicationService")}
       context "has to force submit application and" do
@@ -123,7 +123,7 @@ module BenefitSponsors
     end
 
     describe ".revert" do
-      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
+      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { BenefitSponsors::Forms::BenefitApplicationForm.new(id: benefit_application.id) }
       let!(:service_object) { double("BenefitApplicationService")}
       context "has to revert back and" do
@@ -142,7 +142,7 @@ module BenefitSponsors
     end
 
     describe ".persist" do
-      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship: benefit_sponsorship) }
+      let(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsorship:benefit_sponsorship) }
       let(:benefit_application_form) { FactoryBot.build(:benefit_sponsors_forms_benefit_application, fte_count: 2)}
       let!(:service_object) { double("BenefitApplicationService")}
       context "save request received" do
@@ -199,28 +199,28 @@ module BenefitSponsors
     end
 
     describe 'validate form for dt action' do
-      let(:valid_params) do
+      let(:valid_params) {
         {
           admin_datatable_action: true,
           benefit_sponsorship_id: 'id',
           start_on: TimeKeeper.date_of_record + 3.months,
-          end_on: TimeKeeper.date_of_record + 1.year + 3.months - 1.day,
+          end_on: TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
           open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months),
           open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day),
           fte_count: 2
         }
-      end
+      }
 
-      let(:invalid_params) do
+      let(:invalid_params) {
         {
           admin_datatable_action: true,
           benefit_sponsorship_id: 'id',
           start_on: TimeKeeper.date_of_record + 3.months,
-          end_on: TimeKeeper.date_of_record + 1.year + 3.months - 1.day,
+          end_on:  TimeKeeper.date_of_record + 1.year + 3.months  - 1.day,
           open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months + 20.day),
           open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months)
         }
-      end
+      }
 
       context 'for valid params' do
         before :each do

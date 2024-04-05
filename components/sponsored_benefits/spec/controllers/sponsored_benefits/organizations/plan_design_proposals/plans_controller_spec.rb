@@ -11,24 +11,24 @@ module SponsoredBenefits
       let!(:issuer_profile) { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile) }
       let!(:county_zip) do
         FactoryBot.create(:benefit_markets_locations_county_zip,
-                          county_name: 'Middlesex',
-                          zip: '01754',
-                          state: 'MA')
+                           county_name: 'Middlesex',
+                           zip: '01754',
+                           state: 'MA')
       end
       let!(:service_area) do
         FactoryBot.create(:benefit_markets_locations_service_area,
-                          county_zip_ids: [county_zip.id],
-                          active_year: current_effective_date.year)
+                           county_zip_ids: [county_zip.id],
+                           active_year: current_effective_date.year)
       end
 
       let!(:hps) do
         FactoryBot.create_list(:benefit_markets_products_health_products_health_product,
-                               5,
-                               application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-                               product_package_kinds: [:single_issuer, :metal_level, :single_product],
-                               service_area: service_area,
-                               issuer_profile_id: issuer_profile.id,
-                               metal_level_kind: :gold)
+                                5,
+                                application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+                                product_package_kinds: [:single_issuer, :metal_level, :single_product],
+                                service_area: service_area,
+                                issuer_profile_id: issuer_profile.id,
+                                metal_level_kind: :gold)
       end
 
       before do

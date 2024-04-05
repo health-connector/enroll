@@ -7,17 +7,18 @@ module I18n
       def _fetch(cache_key, &block)
         result = I18n.cache_store.read(cache_key)
         return result unless result.nil?
-
         result = catch(:exception, &block)
-        I18n.cache_store.write(cache_key, result) unless result.is_a?(Proc) || result.is_a?(MissingTranslation)
+        unless result.is_a?(Proc) || result.is_a?(MissingTranslation)
+          I18n.cache_store.write(cache_key, result)
+        end
         result
       end
     end
   end
 end
 
-unless ENV["NO_CACHE_TRANSLATIONS"] == "true"
-  I18n::Backend::Chain.include I18n::Backend::Cache
-  I18n::Backend::KeyValue.include I18n::Backend::Cache
+unless (ENV["NO_CACHE_TRANSLATIONS"] == "true")
+  I18n::Backend::Chain.send(:include, I18n::Backend::Cache)
+  I18n::Backend::KeyValue.send(:include, I18n::Backend::Cache)
   I18n.cache_store = ActiveSupport::Cache.lookup_store(:memory_store)
 end

@@ -94,7 +94,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def aca_recaptcha_enabled?
-    ENV.fetch('RECAPTCHA_IS_ENABLED', false)
+    ENV['RECAPTCHA_IS_ENABLED'] || false
   end
 
   # You can put the params you want to permit in the empty array.

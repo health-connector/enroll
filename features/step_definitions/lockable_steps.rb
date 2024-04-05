@@ -1,12 +1,12 @@
 Then(/^there are (\d+) preloaded (.*?) user accounts$/) do |num, status|
-  (0...num.to_i).each do |_int|
+  (0...num.to_i).each do |int|
     user = FactoryBot.create(:user, :with_family)
     user.lock! if status.eql?('locked')
   end
 end
 
 Then(/^there are (\d+) preloaded user accounts without the email$/) do |num|
-  (0...num.to_i).each do |_int|
+  (0...num.to_i).each do |int|
     FactoryBot.create(:user, :without_email, :with_family)
   end
 end

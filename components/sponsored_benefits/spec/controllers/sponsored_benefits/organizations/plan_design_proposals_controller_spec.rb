@@ -11,9 +11,9 @@ module SponsoredBenefits
     let(:sponsor) { double(:sponsor, id: '5ac4cb58be0a6c3ef400009a', sic_code: '1111') }
     let(:active_user) { double(:has_hbx_staff_role? => false) }
 
-    let!(:plan_design_organization) do
-      create(:sponsored_benefits_plan_design_organization, sponsor_profile_id: sponsor.id, owner_profile_id: '5ac4cb58be0a6c3ef400009b', plan_design_proposals: [plan_design_proposal], sic_code: sponsor.sic_code)
-    end
+    let!(:plan_design_organization) {
+        create(:sponsored_benefits_plan_design_organization, sponsor_profile_id: sponsor.id, owner_profile_id: '5ac4cb58be0a6c3ef400009b', plan_design_proposals: [ plan_design_proposal ], sic_code: sponsor.sic_code )
+    }
 
     let(:broker_agency_profile_id) { "5ac4cb58be0a6c3ef400009b" }
     let(:broker_agency_profile) do
@@ -26,26 +26,25 @@ module SponsoredBenefits
 
     let(:broker_role) { double(:broker_role, broker_agency_profile_id: broker_agency_profile.id) }
 
-    let(:sponsorship) do
-      build(:plan_design_benefit_sponsorship,
-            benefit_market: :aca_shop_cca,
-            initial_enrollment_period: initial_enrollment_period,
-            annual_enrollment_period_begin_month: beginning_of_next_month.month,
-            benefit_applications: [benefit_application])
-    end
-    let(:benefit_application) { build(:plan_design_benefit_application, effective_period: initial_enrollment_period, open_enrollment_period: (open_enrollment_start_on..(open_enrollment_start_on + 20.days))) }
-    let(:cca_employer_profile) do
+    let(:sponsorship) { build(:plan_design_benefit_sponsorship,
+                        benefit_market: :aca_shop_cca,
+                        initial_enrollment_period: initial_enrollment_period,
+                        annual_enrollment_period_begin_month: beginning_of_next_month.month,
+                        benefit_applications: [ benefit_application ]
+                        ) }
+    let(:benefit_application) { build(:plan_design_benefit_application, effective_period: initial_enrollment_period, open_enrollment_period: (open_enrollment_start_on..(open_enrollment_start_on+20.days))) }
+    let(:cca_employer_profile) {
       employer = build(:shop_cca_employer_profile)
       employer.benefit_sponsorships = [sponsorship]
       employer
-    end
+    }
     let(:plan_design_proposal) { build(:plan_design_proposal, profile: cca_employer_profile) }
     let(:open_enrollment_start_on) { (beginning_of_next_month - 15.days).prev_month }
     let(:beginning_of_next_month) { Date.today.next_month.beginning_of_month }
     let(:end_of_month) { Date.today.end_of_month }
     let(:initial_enrollment_period) { (beginning_of_next_month..(beginning_of_next_month + 1.year - 1.day)) }
 
-    let(:valid_attributes) do
+    let(:valid_attributes) {
       {
         title: 'A Proposal Title',
         effective_date: beginning_of_next_month.strftime("%Y-%m-%d"),
@@ -60,10 +59,10 @@ module SponsoredBenefits
           }
         }
       }
-    end
+    }
 
 
-    let(:invalid_attributes) do
+    let(:invalid_attributes) {
       {
         title: 'A Proposal Title',
         effective_date: beginning_of_next_month.strftime("%Y-%m-%d"),
@@ -78,7 +77,7 @@ module SponsoredBenefits
           }
         }
       }
-    end
+    }
 
     # This should return the minimal set of values that should be in the session
     # in order to pass any filters (e.g. authentication) defined in
@@ -131,9 +130,9 @@ module SponsoredBenefits
     describe "POST #create" do
       context "with valid params" do
         it "creates a new Organizations::PlanDesignProposal" do
-          expect do
+          expect {
             post :create, params: { plan_design_organization_id: plan_design_organization.to_param, forms_plan_design_proposal: valid_attributes }, format: :js
-          end.to change { plan_design_organization.reload.plan_design_proposals.count }.by(1)
+          }.to change { plan_design_organization.reload.plan_design_proposals.count }.by(1)
         end
 
         it "redirects to the created benefit_application" do

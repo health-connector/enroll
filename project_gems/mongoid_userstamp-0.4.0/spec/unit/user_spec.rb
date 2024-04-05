@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require 'spec_helper'
 
 describe Mongoid::Userstamp::User do
@@ -11,10 +12,7 @@ describe Mongoid::Userstamp::User do
   let(:admin_2) { Admin.create!(name: 'Stephan Norway') }
 
   describe '::current and #current?' do
-    before do
-      Admin.current = nil
-      User.current = nil
-    end
+    before { Admin.current = nil; User.current = nil }
 
     context 'when current users are not set' do
       it { Admin.current.should be_nil }
@@ -67,14 +65,14 @@ describe Mongoid::Userstamp::User do
         Admin.do_as admin_2 do
           raise
         end
-      rescue StandardError
+      rescue
       end
       Admin.current.should eq admin_1
     end
   end
 
   describe '::mongoid_userstamp_user' do
-    before{ User.instance_variable_set(:@mongoid_userstamp_user, nil) }
+    before{ User.instance_variable_set(:'@mongoid_userstamp_user', nil) }
 
     context 'when options are not given' do
       subject{ User.mongoid_userstamp_user }
@@ -89,10 +87,7 @@ describe Mongoid::Userstamp::User do
     end
 
     context 'when mongoid_userstamp_user has been set' do
-      subject do
-        User.mongoid_userstamp_user
-        User.mongoid_userstamp_user(reader: :foo)
-      end
+      subject{ User.mongoid_userstamp_user; User.mongoid_userstamp_user(reader: :foo) }
       it { should be_a Mongoid::Userstamp::UserConfig }
       it { subject.reader.should eq :current_user  }
     end

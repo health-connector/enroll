@@ -50,16 +50,15 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
     let(:benefit_sponsorship) do
       FactoryBot.create(
-        :benefit_sponsors_benefit_sponsorship,
-        :with_rating_area,
-        :with_service_areas,
-        supplied_rating_area: rating_area,
-        service_area_list: [service_area],
-        organization: organization,
-        profile_id: organization.profiles.first.id,
-        benefit_market: site.benefit_markets[0],
-        employer_attestation: employer_attestation
-      )
+          :benefit_sponsors_benefit_sponsorship,
+          :with_rating_area,
+          :with_service_areas,
+          supplied_rating_area: rating_area,
+          service_area_list: [service_area],
+          organization: organization,
+          profile_id: organization.profiles.first.id,
+          benefit_market: site.benefit_markets[0],
+          employer_attestation: employer_attestation)
     end
 
     let(:start_on)  { current_effective_date }
@@ -74,19 +73,16 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
 
     let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-    let(:census_employee) do
-      FactoryBot.create(:census_employee,
-                        employer_profile: benefit_sponsorship.profile,
-                        benefit_sponsorship: benefit_sponsorship,
-                        benefit_group_assignments: [benefit_group_assignment])
-    end
+    let(:census_employee) { FactoryBot.create(:census_employee,
+                                               employer_profile: benefit_sponsorship.profile,
+                                               benefit_sponsorship: benefit_sponsorship,
+                                               benefit_group_assignments: [benefit_group_assignment]
+    )}
     let(:person) { FactoryBot.create(:person) }
     let(:family) { double }
-    let(:hbx_enrollment) do
-      double(kind: "employer_sponsored", effective_on: start_on, employee_role_id: employee_role.id,
-             sponsored_benefit_package_id: benefit_package.id, benefit_group_assignment_id: benefit_group_assignment.id,
-             aasm_state: 'coverage_selected')
-    end
+    let(:hbx_enrollment) { double(kind: "employer_sponsored", effective_on: start_on, employee_role_id: employee_role.id,
+                                  sponsored_benefit_package_id: benefit_package.id, benefit_group_assignment_id: benefit_group_assignment.id,
+                                  aasm_state: 'coverage_selected') }
 
     around do |example|
       ClimateControl.modify fein: organization.fein do
@@ -201,14 +197,14 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       around do |example|
         ClimateControl.modify(
-          off_cycle_renewal: 'true',
-          termination_notice: 'true',
-          termination_kind: 'voluntary',
-          termination_reason: 'Company went out of business/bankrupt',
-          notify_trading_partner: 'true',
-          action: 'terminate',
-          termination_date: termination_date.strftime("%m/%d/%Y"),
-          end_on: end_on.strftime("%m/%d/%Y")
+            off_cycle_renewal: 'true',
+            termination_notice: 'true',
+            termination_kind: 'voluntary',
+            termination_reason: 'Company went out of business/bankrupt',
+            notify_trading_partner: 'true',
+            action: 'terminate',
+            termination_date: termination_date.strftime("%m/%d/%Y"),
+            end_on: end_on.strftime("%m/%d/%Y")
         ) do
           example.run
         end
@@ -286,12 +282,12 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
         application
       end
 
-      let!(:import_draft_benefit_application) do
+      let!(:import_draft_benefit_application) {
         application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, aasm_state: :imported, default_effective_period: range_effective_period)
         application.benefit_sponsor_catalog.save!
         application.save
         application
-      end
+      }
 
       around do |example|
         ClimateControl.modify plan_year_start_on: range_effective_period.min.strftime("%m/%d/%Y"), action: 'cancel',notify_trading_partner: 'true' do
@@ -322,10 +318,10 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       around do |example|
         ClimateControl.modify(
-          action: 'update_effective_period_and_approve',
-          effective_date: effective_date.strftime("%m/%d/%Y"),
-          new_start_date: new_start_date.strftime("%m/%d/%Y"),
-          new_end_date: new_end_date.strftime("%m/%d/%Y")
+            action: 'update_effective_period_and_approve',
+            effective_date: effective_date.strftime("%m/%d/%Y"),
+            new_start_date: new_start_date.strftime("%m/%d/%Y"),
+            new_end_date: new_end_date.strftime("%m/%d/%Y")
         ) do
           example.run
         end
@@ -404,16 +400,15 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
           organization: organization,
           profile_id: organization.profiles.first.id,
           benefit_market: site.benefit_markets[0],
-          employer_attestation: employer_attestation
-        )
+          employer_attestation: employer_attestation)
       end
 
-      let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year..start_on.end_of_month }
-      let!(:old_benefit_application) do
+      let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year ..start_on.end_of_month }
+      let!(:old_benefit_application) {
         application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: old_effective_period, aasm_state: :active)
         application.benefit_sponsor_catalog.save!
         application
-      end
+      }
 
       let!(:renewing_benefit_market_catalog) do
         create(
@@ -426,7 +421,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       end
 
       let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
-      let!(:renewing_benefit_application) do
+      let!(:renewing_benefit_application) {
         application = FactoryBot.create(
           :benefit_sponsors_benefit_application,
           :with_benefit_sponsor_catalog,
@@ -438,17 +433,17 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
         application.benefit_sponsor_catalog.save!
         application
-      end
+      }
 
       let!(:old_benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: old_benefit_application, product_package: product_package_1) }
       let!(:renewing_benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: renewing_benefit_application, product_package: product_package_1) }
 
       around do |example|
         ClimateControl.modify(
-          action: 'update_effective_period_and_approve',
-          effective_date: effective_date.strftime("%m/%d/%Y"),
-          new_start_date: new_start_date.strftime("%m/%d/%Y"),
-          new_end_date: new_end_date.strftime("%m/%d/%Y")
+            action: 'update_effective_period_and_approve',
+            effective_date: effective_date.strftime("%m/%d/%Y"),
+            new_start_date: new_start_date.strftime("%m/%d/%Y"),
+            new_end_date: new_end_date.strftime("%m/%d/%Y")
         ) do
           example.run
         end
@@ -479,14 +474,14 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       around do |example|
         ClimateControl.modify(
-          off_cycle_renewal: 'true',
-          termination_notice: 'true',
-          termination_kind: 'voluntary',
-          termination_reason: 'Company went out of business/bankrupt',
-          notify_trading_partner: 'true',
-          action: 'terminate',
-          termination_date: termination_date.strftime("%m/%d/%Y"),
-          end_on: end_on.strftime("%m/%d/%Y")
+            off_cycle_renewal: 'true',
+            termination_notice: 'true',
+            termination_kind: 'voluntary',
+            termination_reason: 'Company went out of business/bankrupt',
+            notify_trading_partner: 'true',
+            action: 'terminate',
+            termination_date: termination_date.strftime("%m/%d/%Y"),
+            end_on: end_on.strftime("%m/%d/%Y")
         ) do
           example.run
         end
@@ -497,7 +492,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
       context "should trigger termination notice to employer and employees" do
         it "should trigger model event" do
           model_instance.class.observer_peers.keys.each do |observer|
-            expect(observer).to receive(:notifications_send) do |_instance, model_event|
+            expect(observer).to receive(:notifications_send) do |instance, model_event|
               expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
               expect(model_event).to have_attributes(:event_key => :group_advance_termination_confirmation, :klass_instance => model_instance, :options => {})
             end

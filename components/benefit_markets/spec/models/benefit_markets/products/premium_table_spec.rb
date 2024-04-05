@@ -16,8 +16,8 @@ module BenefitMarkets
     let(:params) do
       {
         effective_period: effective_period,
-        rating_area: rating_area,
-        premium_tuples: premium_tuples
+        rating_area:      rating_area,
+        premium_tuples:   premium_tuples,
       }
     end
 
@@ -83,10 +83,8 @@ module BenefitMarkets
       context "and the attributes are different" do
         let(:compare_premium_table)              { described_class.new(**params) }
 
-        before do
-          compare_premium_table.effective_period = (base_premium_table.effective_period.min + 3.months)..
-                                                          (base_premium_table.effective_period.max + 3.months)
-        end
+        before { compare_premium_table.effective_period = (base_premium_table.effective_period.min + 3.months)..
+                                                          (base_premium_table.effective_period.max + 3.months) }
 
         it "should not match" do
           expect(base_premium_table).to_not eq compare_premium_table

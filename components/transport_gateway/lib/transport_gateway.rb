@@ -9,8 +9,7 @@ module URI
 
     def key
       return nil if path.nil?
-
-      path.gsub(%r{^/}, '')
+      path.gsub(/^\//, '')
     end
 
     def bucket
@@ -25,7 +24,7 @@ end
 # Provides the raw underlying plumbing for transfering resources.
 #
 # You probably don't want this.
-#
+# 
 # If you are looking to create a workflow that moves artifacts, your starting point is subclassing {TransportProfiles::Processes::Process}.
 module TransportGateway
 end

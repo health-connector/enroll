@@ -110,9 +110,9 @@ module BenefitSponsors
 
 
     describe "GET coverage_reports" do
-      let!(:employees) do
+      let!(:employees) {
         FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
-      end
+      }
 
       before do
         benefit_sponsorship.save!

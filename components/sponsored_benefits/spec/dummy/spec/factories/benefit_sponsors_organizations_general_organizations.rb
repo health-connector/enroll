@@ -5,20 +5,20 @@ FactoryBot.define do
     entity_kind :c_corporation
 
     fein do
-      Forgery('basic').text(:allow_lower => false,
-                            :allow_upper => false,
-                            :allow_numeric => true,
-                            :allow_special => false, :exactly => 9)
+      Forgery('basic').text(:allow_lower   => false,
+        :allow_upper   => false,
+        :allow_numeric => true,
+        :allow_special => false, :exactly => 9)
     end
 
     trait :with_broker_agency_profile do
-      after :build do |organization, _evaluator|
+      after :build do |organization, evaluator|
         build(:benefit_sponsors_organizations_broker_agency_profile, organization: organization)
       end
     end
 
     trait :with_aca_shop_cca_employer_profile do
-      after :build do |organization, _evaluator|
+      after :build do |organization, evaluator|
         build(:benefit_sponsors_organizations_aca_shop_cca_employer_profile, organization: organization)
       end
     end

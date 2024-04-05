@@ -12,12 +12,12 @@ FactoryBot.define do
     trait :with_massachusetts_address do
       is_primary { true }
       address { FactoryBot.build(:benefit_sponsors_locations_address, :cca_shop_baseline) }
-      phone   do
-        FactoryBot.build(:benefit_sponsors_locations_phone,
-                         kind: "work",
-                         area_code: 617,
-                         number: 5_551_212)
-      end
+      phone   { FactoryBot.build(:benefit_sponsors_locations_phone,
+        kind: "work",
+        area_code: 617,
+        number: 5551212,
+        )
+      }
     end
   end
 end

@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", "~> 5.2.8.1"
   s.add_dependency "slim", "~> 3.0.8"
@@ -43,6 +44,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-struct'
   s.add_dependency 'dry-monads'
 
+  s.test_files = Dir["spec/**/*"]
 
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency "mongoid-rspec"
@@ -56,5 +58,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'mongoid_rails_migrations'
   s.add_development_dependency 'rails-perftest'
   s.add_development_dependency 'climate_control',           '~> 0.2.0'
-  s.metadata['rubygems_mfa_required'] = 'true'
 end

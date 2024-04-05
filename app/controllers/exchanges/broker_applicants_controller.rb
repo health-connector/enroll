@@ -34,7 +34,9 @@ class Exchanges::BrokerApplicantsController < ApplicationController
 
   def update
     broker_role = @broker_applicant.broker_role
-    broker_role.update_attributes(:reason => params[:person][:broker_role_attributes][:reason]) if params[:person] && params[:person][:broker_role_attributes] && params[:person][:broker_role_attributes][:reason]
+    if params[:person] && params[:person][:broker_role_attributes] && params[:person][:broker_role_attributes][:reason]
+      broker_role.update_attributes(:reason => params[:person][:broker_role_attributes][:reason])
+    end
     if params['deny']
       broker_role.deny!
       flash[:notice] = "Broker applicant denied."
@@ -42,7 +44,7 @@ class Exchanges::BrokerApplicantsController < ApplicationController
       all_carrier_appointments = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
       permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
       all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
-      params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments
+      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments
       broker_role.update(params.require(:person).require(:broker_role_attributes).permit!.except(:id))
     elsif params['decertify']
       broker_role.decertify!
@@ -62,12 +64,14 @@ class Exchanges::BrokerApplicantsController < ApplicationController
       broker_role.reload
 
       if broker_role.is_primary_broker?
-        broker_role.broker_agency_profile.approve! if broker_role.broker_agency_profile.aasm_state != "is_approved"
+        broker_role.broker_agency_profile.approve! if broker_role.broker_agency_profile.aasm_state !=  "is_approved"
         staff_role = broker_role.person.broker_agency_staff_roles[0]
         staff_role.broker_agency_accept! if staff_role
       end
-
-      send_secure_message_to_broker_agency(broker_role) if broker_role.agency_pending? && broker_role.broker_agency_profile
+      
+      if broker_role.agency_pending?
+        send_secure_message_to_broker_agency(broker_role) if broker_role.broker_agency_profile
+      end
       flash[:notice] = "Broker applicant approved successfully."
     end
 
@@ -79,12 +83,12 @@ class Exchanges::BrokerApplicantsController < ApplicationController
   def broker_carrier_appointments
     all_carrier_appointments = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
     broker_carrier_appointments_enabled = Settings.aca.broker_carrier_appointments_enabled
-    if broker_carrier_appointments_enabled
-      params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments.each{ |key,_str| all_carrier_appointments[key] = "true" }
-    else
+    unless broker_carrier_appointments_enabled
       permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
       all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
-      params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments
+      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments
+    else
+      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments.each{ |key,str| all_carrier_appointments[key] = "true" }
     end
   end
 
@@ -102,6 +106,8 @@ class Exchanges::BrokerApplicantsController < ApplicationController
   end
 
   def check_hbx_staff_role
-    redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => "You must be an HBX staff member" } unless current_user.has_hbx_staff_role?
+    unless current_user.has_hbx_staff_role?
+      redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => "You must be an HBX staff member" }
+    end
   end
 end

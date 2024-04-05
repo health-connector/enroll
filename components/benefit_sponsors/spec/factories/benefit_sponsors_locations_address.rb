@@ -48,6 +48,6 @@ FactoryBot.define do
     end
 
     factory :benefit_sponsors_locations_address_invalid_address, traits: [:without_kind, :without_address_1,
-                                                                          :without_city, :without_state, :without_zip]
+      :without_city, :without_state, :without_zip]
   end
 end

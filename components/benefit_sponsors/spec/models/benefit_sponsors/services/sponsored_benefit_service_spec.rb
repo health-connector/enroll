@@ -11,12 +11,11 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
 
   let(:current_effective_date)  { TimeKeeper.date_of_record }
   let(:benefit_market)      { site.benefit_markets.first }
-  let(:benefit_market_catalog) do
-    create(:benefit_markets_benefit_market_catalog, :with_product_packages,
-           benefit_market: benefit_market,
-           title: "SHOP Benefits for #{current_effective_date.year}",
-           application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
-  end
+  let(:benefit_market_catalog) { create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+    benefit_market: benefit_market,
+    title: "SHOP Benefits for #{current_effective_date.year}",
+    application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
+  }
   let(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let(:product_package_kind) { :single_product}
   let(:product_package) { benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
@@ -28,31 +27,31 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
   let(:partner_contribution_unit) { contribution_model.contribution_units.where(order: 2).first }
   let(:child_contribution_unit) { contribution_model.contribution_units.where(order: 3).first }
 
-  let(:attrs) do
+  let(:attrs) {
     {
       benefit_package_id: benefit_package.id,
       kind: :dental
     }
-  end
+  }
 
-  let(:sponsor_contribution_attributes) do
+  let(:sponsor_contribution_attributes) {
     {
-      :contribution_levels_attributes => contribution_levels_attributes
+        :contribution_levels_attributes => contribution_levels_attributes
     }
-  end
+  }
 
-  let(:contribution_levels_attributes) do
+  let(:contribution_levels_attributes) {
     {
-      "0" => {:is_offered => "true", :display_name => "Employee", :contribution_factor => "95", contribution_unit_id: employee_contribution_unit.id },
-      "1" => {:is_offered => "true", :display_name => "Spouse", :contribution_factor => "85", contribution_unit_id: spouse_contribution_unit.id },
-      "2" => {:is_offered => "true", :display_name => "Domestic Partner", :contribution_factor => "75", contribution_unit_id: partner_contribution_unit.id },
-      "3" => {:is_offered => "true", :display_name => "Child Under 26", :contribution_factor => "75", contribution_unit_id: child_contribution_unit.id }
+        "0" => {:is_offered => "true", :display_name => "Employee", :contribution_factor => "95", contribution_unit_id: employee_contribution_unit.id },
+        "1" => {:is_offered => "true", :display_name => "Spouse", :contribution_factor => "85", contribution_unit_id: spouse_contribution_unit.id },
+        "2" => {:is_offered => "true", :display_name => "Domestic Partner", :contribution_factor => "75", contribution_unit_id: partner_contribution_unit.id },
+        "3" => {:is_offered => "true", :display_name => "Child Under 26", :contribution_factor => "75", contribution_unit_id: child_contribution_unit.id }
     }
-  end
+  }
 
   describe "while creating a sponsored benefit" do
 
-    let(:benefits_params) do
+    let(:benefits_params) {
       {
         :kind => "dental",
         :benefit_package_id => benefit_package.id,
@@ -63,7 +62,7 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
 
         :sponsor_contribution_attributes => sponsor_contribution_attributes
       }
-    end
+    }
 
     let(:create_form) { BenefitSponsors::Forms::SponsoredBenefitForm.new(benefits_params) }
     let(:subject) { BenefitSponsors::Services::SponsoredBenefitService.new(attrs) }
@@ -120,7 +119,7 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
 
   describe "while destroying a sponsored benefit" do
 
-    let(:benefits_params) do
+    let(:benefits_params) {
       {
         :kind => "dental",
         :benefit_package_id => benefit_package.id,
@@ -130,7 +129,7 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
         :reference_plan_id => product.id.to_s,
         :sponsor_contribution_attributes => sponsor_contribution_attributes
       }
-    end
+    }
 
     let(:form) { BenefitSponsors::Forms::SponsoredBenefitForm.new(benefits_params) }
     let(:subject) { BenefitSponsors::Services::SponsoredBenefitService.new(attrs) }
@@ -226,8 +225,7 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
         benefit_application,
         sponsored_benefit,
         reference_product,
-        product_package
-      ).and_return(costs)
+        product_package).and_return(costs)
       allow(form).to receive(:employer_estimated_monthly_cost=).with(employer_estimated_exposure)
       allow(form).to receive(:employer_estimated_min_monthly_cost=).with(employee_estimated_min_cost)
       allow(form).to receive(:employer_estimated_max_monthly_cost=).with(employee_estimated_max_cost)
@@ -270,33 +268,31 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
     let(:benefit_market_catalog) { current_benefit_market_catalog }
     let(:product_package) { benefit_market_catalog.product_packages.where(package_kind: product_package_kind, product_kind: :dental).first }
 
-    let(:sponsored_benefit_attributes) do
-      {
-        benefit_package_id: initial_application.benefit_packages[0].id,
-        benefit_application_id: initial_application.id,
-        benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
-        product_package_kind: "single_product",
-        reference_plan_id: dental_reference_product.id,
-        :sponsor_contribution_attributes => sponsor_contribution_attributes,
-        kind: "dental"
-      }
-    end
+    let(:sponsored_benefit_attributes) { {
+      benefit_package_id: initial_application.benefit_packages[0].id,
+      benefit_application_id: initial_application.id,
+      benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+      product_package_kind: "single_product", 
+      reference_plan_id: dental_reference_product.id,
+      :sponsor_contribution_attributes => sponsor_contribution_attributes,
+      kind: "dental"
+      } }
 
     let(:form) { BenefitSponsors::Forms::SponsoredBenefitForm.new(sponsored_benefit_attributes) }
     subject { BenefitSponsors::Services::SponsoredBenefitService.new(sponsored_benefit_attributes) }
 
-    context '.calculate_premiums' do
+    context '.calculate_premiums' do 
 
       context 'when employer setting up dental sponsored benefit' do
 
-        it "should calculate employer contribution amounts" do
+        it "should calculate employer contribution amounts" do 
           subject.load_form_meta_data(form)
           result = subject.calculate_premiums(form)
         end
-      end
+      end 
     end
 
-    context '.calculate_employee_cost_details' do
+    context '.calculate_employee_cost_details' do 
 
       include_context "setup employees"
 
@@ -307,7 +303,7 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
           allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(15)
         end
 
-        it "should calculate employee cost details" do
+        it "should calculate employee cost details" do 
           subject.load_form_meta_data(form)
           result = subject.calculate_employee_cost_details(form)
         end

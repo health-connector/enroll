@@ -40,11 +40,11 @@ module Notifier
 
 
     def tokens
-      template.raw_body.scan(/\#\{([\w|.\s+\-]*)\}/).flatten.reject{|element| element.scan(/Settings/).any?}.uniq.map(&:strip)
+      template.raw_body.scan(/\#\{([\w|\.|\s|\+|\-]*)\}/).flatten.reject{|element| element.scan(/Settings/).any?}.uniq.map(&:strip)
     end
 
     def conditional_tokens
-      template.raw_body.scan(/\[\[([\s|\w.?]*)/).flatten.map(&:strip).collect{|ele| ele.gsub(/if|else|end|else if|elsif/i, '')}.map(&:strip).reject{|elem| elem.blank?}.uniq
+      template.raw_body.scan(/\[\[([\s|\w|\.|?]*)/).flatten.map(&:strip).collect{|ele| ele.gsub(/if|else|end|else if|elsif/i, '')}.map(&:strip).reject{|elem| elem.blank?}.uniq
     end
 
     def set_data_elements
@@ -74,12 +74,14 @@ module Notifier
 
     def execute_notice(event_name, payload)
       finder_mapping = Notifier::ApplicationEventMapper.lookup_resource_mapping(event_name)
-      raise ArgumentError, "BOGUS EVENT...could n't find resoure mapping for event #{event_name}." if finder_mapping.nil?
-
+      if finder_mapping.nil?
+        raise ArgumentError.new("BOGUS EVENT...could n't find resoure mapping for event #{event_name}.")
+      end
       @payload = payload
       @resource = finder_mapping.mapped_class.send(finder_mapping.search_method, payload[finder_mapping.identifier_key.to_s])
-      raise ArgumentError, "Bad Payload...could n't find resoure with #{payload[finder_mapping.identifier_key.to_s]}." if @resource.blank?
-
+      if @resource.blank?
+        raise ArgumentError.new("Bad Payload...could n't find resoure with #{payload[finder_mapping.identifier_key.to_s]}.")
+      end
       generate_pdf_notice
       upload_and_send_secure_message
       send_generic_notice_alert
@@ -107,22 +109,23 @@ module Notifier
       state :archived
 
       event :publish, :after => :record_transition do
-        transitions from: :draft,  to: :published,  :guard => :can_be_published?
+        transitions from: :draft,  to: :published,  :guard  => :can_be_published?
       end
 
       event :archive, :after => :record_transition do
         transitions from: [:published],  to: :archived
-      end
+      end  
     end
 
     # Check if notice with same MPI indictor exists
-    def can_be_published?; end
+    def can_be_published?
+    end
 
     def record_transition
-      workflow_state_transitions << WorkflowStateTransition.new(
+      self.workflow_state_transitions << WorkflowStateTransition.new(
         from_state: aasm.from_state,
         to_state: aasm.to_state
-      )
+        )
     end
 
     # def self.markdown
@@ -130,7 +133,7 @@ module Notifier
     #       no_links: true,
     #       hard_wrap: true,
     #       disable_indented_code_blocks: true,
-    #       fenced_code_blocks: false,
+    #       fenced_code_blocks: false,        
     #     )
     # end
 

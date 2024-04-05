@@ -10,20 +10,20 @@ module SponsoredBenefits
     let(:sponsor_contribution_factor_kind)  { :percentage_of_reference_plan }
     let(:sponsor_contribution_minimum)      { 0.75 }
     let(:sponsor_contribution_maximum)      { 750.0 }
-    let(:member_to_tier_maps)               { [FactoryBot.build(:sponsored_benefits_rating_models_member_to_tier_map)] }
+    let(:member_to_tier_maps)               { [ FactoryBot.build(:sponsored_benefits_rating_models_member_to_tier_map) ] }
 
 
     let(:params) do
       {
-        ordinal_position: ordinal_position,
-        key: key,
-        title: title,
-        is_offered: is_offered,
-        sponsor_contribution_factor_kind: sponsor_contribution_factor_kind,
-        sponsor_contribution_minimum: sponsor_contribution_minimum,
-        sponsor_contribution_maximum: sponsor_contribution_maximum,
-        member_to_tier_maps: member_to_tier_maps
-      }
+          ordinal_position: ordinal_position,
+          key: key,
+          title: title,
+          is_offered: is_offered,
+          sponsor_contribution_factor_kind: sponsor_contribution_factor_kind,
+          sponsor_contribution_minimum: sponsor_contribution_minimum,
+          sponsor_contribution_maximum: sponsor_contribution_maximum,
+          member_to_tier_maps: member_to_tier_maps,
+        }
     end
 
     context "when initialized" do
@@ -107,7 +107,7 @@ module SponsoredBenefits
     context "with congress member categories" do
       let(:employee_only_map)                         { SponsoredBenefits::RatingModels::MemberRelationship.new(ordinal_position: 1, key: :employee_only) }
       let(:employee_plus_one_dependent_map)           { SponsoredBenefits::RatingModels::MemberRelationship.new(ordinal_position: 2, key: :employee_plus_one_dependent) }
-      let(:employee_plus_two_or_more_dependents_map)  { SponsoredBenefits::RatingModels::MemberRelationship.new(ordinal_position: 3, key: :employee_plus_two_or_more_dependents) }
+      let(:employee_plus_two_or_more_dependents_map)  { SponsoredBenefits::RatingModels::MemberRelationship.new(ordinal_position: 3, key: :employee_plus_two_or_more_dependents, ) }
 
       let(:sponsor_credit_structure_kind)             { :percent_with_cap }
       let(:contribution_percent_minimum)              {   75 }

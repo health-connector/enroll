@@ -5,9 +5,11 @@ class Insured::EmployeeRolesController < ApplicationController
   include ErrorBubble
   include EmployeeRoles
 
-  def welcome; end
+  def welcome
+  end
 
-  def privacy; end
+  def privacy
+  end
 
   def search
     @no_previous_button = true
@@ -53,10 +55,12 @@ class Insured::EmployeeRolesController < ApplicationController
 
     census_employees = if actual_user && actual_user.person.present?
                          CensusEmployee.matchable(actual_user.person.ssn, actual_user.person.dob).to_a
-                       elsif params[:census_employee_id] && match = CensusEmployee.where("census_employee_id" => params[:census_employee_id]).first
-                         CensusEmployee.matchable(match.person.ssn, match.person.dob).to_a
                        else
-                         []
+                         if params[:census_employee_id] && match = CensusEmployee.where("census_employee_id" => params[:census_employee_id]).first
+                           CensusEmployee.matchable(match.person.ssn, match.person.dob).to_a
+                         else
+                           []
+                         end
                        end
 
     census_employees.each { |ce| ce.construct_employee_role_for_match_person }
@@ -71,7 +75,7 @@ class Insured::EmployeeRolesController < ApplicationController
       end
     else
       respond_to do |format|
-        log("Refs #19220 We have an SSN collision for the employee belonging to employer #{@employment_relationship.census_employee.employer_profile.parent.legal_name}", :severity => 'error')
+        log("Refs #19220 We have an SSN collision for the employee belonging to employer #{@employment_relationship.census_employee.employer_profile.parent.legal_name}", :severity=>'error')
         format.html { redirect_back(fallback_location: :back, alert: "You can not enroll as another employee. Please reach out to customer service for assistance")}
       end
     end
@@ -84,13 +88,13 @@ class Insured::EmployeeRolesController < ApplicationController
       @family = @person.primary_family
       build_nested_models
     end
-
+    
     notifier = BenefitSponsors::Services::NoticeService.new
     notifier.deliver(recipient: @employee_role, event_object: @employee_role.census_employee, notice_event: "employee_matches_employer_rooster", notice_params: {})
   end
 
   def update
-    save_and_exit = params['exit_after_method'] == 'true'
+    save_and_exit =  params['exit_after_method'] == 'true'
     person = Person.find(params.require(:id))
     object_params = params.require(:person).permit(*person_parameters_list)
     @employee_role = person.employee_roles.detect { |emp_role| emp_role.id.to_s == object_params[:employee_role_id].to_s }
@@ -105,20 +109,26 @@ class Insured::EmployeeRolesController < ApplicationController
         # set_employee_bookmark_url
         # @employee_role.census_employee.trigger_notices("employee_eligibility_notice")
         redirect_path = insured_family_members_path(employee_role_id: @employee_role.id)
-        redirect_path = insured_root_path if @person.primary_family && @person.primary_family.active_household && @person.primary_family.active_household.hbx_enrollments.any?
+        if @person.primary_family && @person.primary_family.active_household
+          if @person.primary_family.active_household.hbx_enrollments.any?
+            redirect_path = insured_root_path
+          end
+        end
         respond_to do |format|
           format.html { redirect_to redirect_path }
         end
       end
-    elsif save_and_exit
-      respond_to do |format|
-        format.html {redirect_to destroy_user_session_path}
-      end
     else
-      bubble_address_errors_by_person(@person)
-      build_nested_models
-      respond_to do |format|
-        format.html { render "edit" }
+      if save_and_exit
+        respond_to do |format|
+          format.html {redirect_to destroy_user_session_path}
+        end
+      else
+        bubble_address_errors_by_person(@person)
+        build_nested_models
+        respond_to do |format|
+          format.html { render "edit" }
+        end
       end
     end
   end
@@ -180,7 +190,7 @@ class Insured::EmployeeRolesController < ApplicationController
 
   def employment_relationship_params
     params.require(:employment_relationship).permit(:first_name, :last_name, :middle_name,
-                                                    :name_pfx, :name_sfx, :gender, :hired_on, :eligible_for_coverage_on, :census_employee_id, :employer_name, :no_ssn)
+      :name_pfx, :name_sfx, :gender, :hired_on, :eligible_for_coverage_on, :census_employee_id, :employer_name, :no_ssn)
   end
 
   def redirect_to_check_employee_role
@@ -189,8 +199,8 @@ class Insured::EmployeeRolesController < ApplicationController
 
   def show
     #PATH REACHED FOR UNKNOWN REASONS, POSSIBLY DUPLICATE PERSONS SO USER, URL ARE LOGGED
-    message = {}
-    message[:message] = "insured/employee_role/show is not a valid route, "
+    message={}
+    message[:message] ="insured/employee_role/show is not a valid route, "
     message[:user] = current_user.oim_id
     message[:url] = request.original_url
     log(message, severity: 'error')

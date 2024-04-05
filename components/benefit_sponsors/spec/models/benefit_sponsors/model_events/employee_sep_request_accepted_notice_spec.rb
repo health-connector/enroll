@@ -13,10 +13,10 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployeeSepRequestAccepted', :dbcl
   end
   let!(:benefit_application) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                      :with_benefit_package,
-                      :benefit_sponsorship => benefit_sponsorship,
-                      :aasm_state => 'active',
-                      :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'active',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
   let!(:person){ FactoryBot.create(:person, :with_family)}
   let!(:family) {person.primary_family}

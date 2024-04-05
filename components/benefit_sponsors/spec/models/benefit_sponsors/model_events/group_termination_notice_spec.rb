@@ -10,22 +10,21 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
   let(:family)       { person.primary_family }
   let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment,  benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
   let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id)}
-  let(:hbx_enrollment) do
-    FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                      household: family.active_household,
-                      aasm_state: "coverage_selected",
-                      effective_on: initial_application.start_on,
-                      rating_area_id: initial_application.recorded_rating_area_id,
-                      sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                      sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
-                      benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
-                      employee_role_id: employee_role.id)
-  end
+  let(:hbx_enrollment) {  FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                        household: family.active_household,
+                        aasm_state: "coverage_selected",
+                        effective_on: initial_application.start_on,
+                        rating_area_id: initial_application.recorded_rating_area_id,
+                        sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                        sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
+                        benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
+                        employee_role_id: employee_role.id)
+  }
   let(:model_instance) { initial_application }
   let(:end_date) { TimeKeeper.date_of_record.prev_month.end_of_month }
-  let(:termination_date) {TimeKeeper.date_of_record}
+  let(:termination_date) {(TimeKeeper.date_of_record)}
   let(:service) { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(model_instance) }
-
+  
   before do
     census_employee.update_attributes(employee_role_id: employee_role.id)
   end
@@ -34,7 +33,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
     context 'ModelEvent' do
       it 'should trigger model event' do
         model_instance.class.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:notifications_send) do |_instance, model_event|
+          expect(observer).to receive(:notifications_send) do |instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :benefit_coverage_period_terminated_voluntary, :klass_instance => model_instance, :options => {})
           end
@@ -50,7 +49,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
     context 'NoticeTrigger' do
       subject { BenefitSponsors::Observers::BenefitApplicationObserver.new }
       let(:model_event) { ::BenefitSponsors::ModelEvents::ModelEvent.new(:benefit_coverage_period_terminated_voluntary, model_instance, {}) }
-
+      
       it 'should trigger notice event' do
         expect(subject.notifier).to receive(:notify) do |event_name, payload|
           expect(event_name).to eq "acapi.info.events.employer.group_advance_termination_confirmation"
@@ -76,7 +75,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
     let(:merge_model) { subject.construct_notice_object }
 
     context 'when notice received to employer' do
-      let(:data_elements) do
+      let(:data_elements) {
         [
           "employer_profile.notice_date",
           "employer_profile.employer_name",
@@ -88,17 +87,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
           "employer_profile.broker.primary_fullname",
           "employer_profile.broker.organization",
           "employer_profile.broker.phone",
-          "employer_profile.broker.email"
+          "employer_profile.broker.email",
         ]
-      end
+      }
 
       let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
-      let(:payload)   do
-        {
-          "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
-          "event_object_id" => model_instance.id
-        }
-      end
+      let(:payload)   { {
+        "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
+        "event_object_id" => model_instance.id
+      } }
 
       before do
         allow(subject).to receive(:resource).and_return(abc_profile)
@@ -132,7 +129,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
     end
 
     context 'when notice received to employee' do
-      let(:data_elements) do
+      let(:data_elements) {
         [
           "employee_profile.notice_date",
           "employee_profile.employer_name",
@@ -144,17 +141,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::GroupTerminationNotice', :dbclean 
           "employee_profile.broker.primary_fullname",
           "employee_profile.broker.organization",
           "employee_profile.broker.phone",
-          "employee_profile.broker.email"
+          "employee_profile.broker.email",
         ]
-      end
+      }
 
       let(:recipient) { "Notifier::MergeDataModels::EmployeeProfile" }
-      let(:payload)   do
-        {
-          "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
-          "event_object_id" => model_instance.id
-        }
-      end
+      let(:payload)   { {
+        "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
+        "event_object_id" => model_instance.id
+      } }
 
       before do
         allow(subject).to receive(:resource).and_return(employee_role)

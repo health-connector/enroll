@@ -24,7 +24,7 @@ module EffectiveDatatables
   # rubocop:disable Style/RaiseArgs
   # rubocop:disable Style/SoleNestedConditional
   def self.authorized?(datatable, controller, action, resource)
-    if authorization_method.respond_to?(:call) || authorization_method.is_a?(Symbol)
+    if authorization_method.respond_to?(:call) || authorization_method.kind_of?(Symbol)
       raise Effective::AccessDenied.new() unless (controller || self).instance_exec(datatable, controller, action, resource, &authorization_method)
     end
     true
@@ -32,4 +32,5 @@ module EffectiveDatatables
   # rubocop:enable Style/MethodCallWithoutArgsParentheses
   # rubocop:enable Style/RaiseArgs
   # rubocop:enable Style/SoleNestedConditional
+
 end

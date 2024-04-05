@@ -12,7 +12,6 @@ module PermissionsConcern
 
     def person_id
       return nil unless person.present?
-
       person.id
     end
 
@@ -22,7 +21,6 @@ module PermissionsConcern
 
     def has_role?(role_sym)
       return false if person_id.blank?
-
       roles.any? { |r| r == role_sym.to_s }
     end
 
@@ -59,11 +57,11 @@ module PermissionsConcern
     end
 
     def hbx_staff_role?
-      person&.hbx_staff_role.present?
+      self.person&.hbx_staff_role.present?
     end
 
     def has_hbx_staff_role?
-      has_role?(:hbx_staff) || try(:person).try(:hbx_staff_role)
+      has_role?(:hbx_staff) || self.try(:person).try(:hbx_staff_role)
     end
 
     def has_csr_role?

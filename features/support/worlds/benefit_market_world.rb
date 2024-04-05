@@ -1,4 +1,5 @@
 module BenefitMarketWorld
+
   def benefit_market
     @benefit_market ||= site.benefit_markets.first
   end
@@ -45,16 +46,17 @@ module BenefitMarketWorld
 
   def county_zip
     @county_zip ||= FactoryBot.create(:benefit_markets_locations_county_zip,
-                                      county_name: 'Middlesex',
-                                      zip: '01754',
-                                      state: 'MA')
+      county_name: 'Middlesex',
+      zip: '01754',
+      state: 'MA'
+    )
   end
 
-  def issuer_profile(carrier = :default)
+  def issuer_profile(carrier=:default)
     @issuer_profile[carrier] ||= FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
-  def dental_issuer_profile(carrier = :default)
+  def dental_issuer_profile(carrier=:default)
     @dental_issuer_profile[carrier] ||= FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
@@ -133,12 +135,12 @@ module BenefitMarketWorld
 
   def dental_products
     create_list(:benefit_markets_products_dental_products_dental_product,
-                5,
-                application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-                product_package_kinds: [:single_product],
-                service_area: service_area,
-                issuer_profile_id: dental_issuer_profile.id,
-                metal_level_kind: :dental)
+        5,
+        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+        product_package_kinds: [:single_product],
+        service_area: service_area,
+        issuer_profile_id: dental_issuer_profile.id,
+        metal_level_kind: :dental)
   end
 
   def generate_initial_catalog_products_for(coverage_kinds)
@@ -176,16 +178,16 @@ module BenefitMarketWorld
   end
 
   def renewal_dental_products
-    create_list(:benefit_markets_products_dental_products_dental_product,
-                5,
-                :with_renewal_product,
-                application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-                product_package_kinds: [:single_product],
-                service_area: service_area,
-                renewal_service_area: renewal_service_area,
-                issuer_profile_id: dental_issuer_profile.id,
-                #renewal_issuer_profile_id: dental_issuer_profile.id,
-                metal_level_kind: :dental)
+     create_list(:benefit_markets_products_dental_products_dental_product,
+        5,
+        :with_renewal_product,
+        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+        product_package_kinds: [:single_product],
+        service_area: service_area,
+        renewal_service_area: renewal_service_area,
+        issuer_profile_id: dental_issuer_profile.id,
+        #renewal_issuer_profile_id: dental_issuer_profile.id,
+        metal_level_kind: :dental)
   end
 
   def generate_renewal_catalog_products_for(coverage_kinds)

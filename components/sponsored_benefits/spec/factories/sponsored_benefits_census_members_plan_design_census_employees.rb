@@ -8,7 +8,7 @@ FactoryBot.define do
     expected_selection { "enroll" }
     employee_relationship { "self" }
     hired_on { "2015-04-01".to_date }
-    sequence(:ssn) { |n| 222_222_220 + n }
+    sequence(:ssn) { |n| 222222220 + n }
     is_business_owner  { false }
 
     address { build(:sponsored_benefits_locations_address) }
@@ -25,7 +25,9 @@ FactoryBot.define do
 
     after(:create) do |census_employee, evaluator|
       census_employee.created_at = TimeKeeper.date_of_record
-      census_employee.census_dependents.create(employee_relationship: 'spouse') if evaluator.create_with_spouse
+      if evaluator.create_with_spouse
+        census_employee.census_dependents.create(employee_relationship: 'spouse')
+      end
     end
 
     trait :owner do
@@ -43,7 +45,7 @@ FactoryBot.define do
     trait :with_random_age do
       dob { rand(65.years.ago..18.years.ago) }
 
-      after :create do |census_employee, _evaluator|
+      after :create do |census_employee, evaluator|
         census_employee.census_dependents.create(employee_relationship: 'spouse', dob: rand(census_employee.dob..census_employee.dob + 5.years))
       end
     end

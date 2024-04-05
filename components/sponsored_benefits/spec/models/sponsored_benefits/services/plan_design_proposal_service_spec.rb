@@ -1,11 +1,9 @@
 RSpec.describe SponsoredBenefits::Services::PlanDesignProposalService, type: :model, dbclean: :after_each do
 
-  let(:subject) do
-    SponsoredBenefits::Services::PlanDesignProposalService.new(
-      kind: benefit_kind,
-      proposal: proposal
-    )
-  end
+  let(:subject) { SponsoredBenefits::Services::PlanDesignProposalService.new(
+    kind: benefit_kind,
+    proposal: proposal
+  )}
 
   let(:organization) { FactoryBot.create(:sponsored_benefits_plan_design_organization, :with_profile)}
   let(:proposal) { organization.plan_design_proposals.first }
@@ -73,22 +71,22 @@ RSpec.describe SponsoredBenefits::Services::PlanDesignProposalService, type: :mo
 
   describe "save benefits" do
 
-    let(:relationship_benefits_attributes) do
+    let(:relationship_benefits_attributes) {
       {
-        "0" => {:relationship => "employee", :premium_pct => "65", :offered => "true"},
-        "1" => {:relationship => "spouse", :premium_pct => "65", :offered => "true"},
-        "2" => {:relationship => "domestic_partner", :premium_pct => "65", :offered => "true"},
-        "3" => {:relationship => "child_under_26", :premium_pct => "70", :offered => "true"},
-        "4" => {:relationship => "child_26_and_over", :premium_pct => "0", :offered => "false"}
+        "0" => {:relationship => "employee", :premium_pct =>"65", :offered => "true"},
+        "1" => {:relationship => "spouse", :premium_pct =>"65", :offered => "true"},
+        "2" => {:relationship => "domestic_partner", :premium_pct =>"65", :offered => "true"},
+        "3" => {:relationship => "child_under_26", :premium_pct =>"70", :offered => "true"},
+        "4" => {:relationship => "child_26_and_over", :premium_pct =>"0", :offered => "false"}
       }
-    end
+    }
 
-    let(:health_attributes) do
+    let(:health_attributes) {
       {
         :plan_option_kind => health_plan_option_kind,
         :relationship_benefits_attributes => relationship_benefits_attributes
       }
-    end
+    }
     let(:health_plan_option_kind) { "single_issuer" }
 
     let(:benefit_group) { application.benefit_groups.first }
@@ -113,12 +111,12 @@ RSpec.describe SponsoredBenefits::Services::PlanDesignProposalService, type: :mo
 
     context "#save_dental_benefits" do
       let(:dental_plan_option_kind) { "single_plan" }
-      let(:dental_attributes) do
+      let(:dental_attributes) {
         {
           :plan_option_kind => dental_plan_option_kind,
           :relationship_benefits_attributes => relationship_benefits_attributes
         }
-      end
+      }
       let(:benefit_kind) { "dental" }
 
       before do

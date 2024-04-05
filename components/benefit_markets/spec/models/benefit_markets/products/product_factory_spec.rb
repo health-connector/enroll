@@ -11,7 +11,7 @@ module BenefitMarkets
       end
 
       it "should return false if rates are not available from all carriers" do
-        expect(::BenefitMarkets::Products::ProductFactory.new(TimeKeeper.date_of_record - 1.year).has_rates?).to eq false
+        expect(::BenefitMarkets::Products::ProductFactory.new(TimeKeeper.date_of_record-1.year).has_rates?).to eq false
       end
     end
   end

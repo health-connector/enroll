@@ -8,7 +8,7 @@ FactoryBot.define do
       office_location_kind { :primary }
     end
 
-    after(:build) do |_office_locations_count, evaluator|
+    after(:build) do |office_locations_count, evaluator|
       create_list(:office_location, evaluator.office_locations_count, evaluator.office_location_kind, office_location: office_location)
     end
 

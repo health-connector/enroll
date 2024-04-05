@@ -7,7 +7,7 @@ FactoryBot.define do
     us_state_abbreviation   { "MA" }
     organization            { build(:benefit_sponsors_organizations_exempt_organization) }
 
-    after(:build) do |profile, _evaluator|
+    after(:build) do |profile, evaluator|
       profile.office_locations << build(:benefit_sponsors_locations_office_location, :with_massachusetts_address, :primary)
     end
 

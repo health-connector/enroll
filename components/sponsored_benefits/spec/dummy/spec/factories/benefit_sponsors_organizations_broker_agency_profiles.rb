@@ -13,11 +13,11 @@ FactoryBot.define do
 
     after(:build) do |profile, evaluator|
       if profile.organization.blank?
-        profile.organization = if evaluator.assigned_site
-                                 FactoryBot.build(:benefit_sponsors_organizations_general_organization, legal_name: evaluator.legal_name, site: evaluator.assigned_site)
-                               else
-                                 FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_site)
-                               end
+        if evaluator.assigned_site
+          profile.organization = FactoryBot.build(:benefit_sponsors_organizations_general_organization, legal_name: evaluator.legal_name, site: evaluator.assigned_site )
+        else
+          profile.organization = FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_site)
+        end
       end
     end
   end

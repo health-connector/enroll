@@ -15,10 +15,10 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerInvoiceAvailable', 
   end
   let!(:benefit_application) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                      :with_benefit_package,
-                      :benefit_sponsorship => benefit_sponsorship,
-                      :aasm_state => 'enrollment_eligible',
-                      :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'enrollment_eligible',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
 
   let(:model_instance) do
@@ -34,7 +34,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerInvoiceAvailable', 
     context "when initial invoice is generated" do
       it "should trigger model event" do
         model_instance.class.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:notifications_send) do |_instance, model_event|
+          expect(observer).to receive(:notifications_send) do |instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :initial_employer_invoice_available, :klass_instance => model_instance, :options => {})
           end
@@ -66,7 +66,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerInvoiceAvailable', 
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) do
+    let(:data_elements) {
       [
         "employer_profile.notice_date",
         "employer_profile.employer_name",
@@ -77,17 +77,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerInvoiceAvailable', 
         "employer_profile.broker.email",
         "employer_profile.broker_present?"
       ]
-    end
+    }
     let(:merge_model) { subject.construct_notice_object }
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
 
-    let(:payload)   do
-      {
+    let(:payload)   { {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => benefit_application.id
-      }
-    end
+    } }
 
     context "when notice event received" do
 
@@ -113,7 +111,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerInvoiceAvailable', 
 
       it "should return plan year start date" do
         schedular = BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new
-        expect(merge_model.benefit_application.binder_payment_due_date).to eq((schedular.map_binder_payment_due_date_by_start_on(benefit_application.start_on)).strftime("%m/%d/%Y"))
+        expect(merge_model.benefit_application.binder_payment_due_date).to eq ((schedular.map_binder_payment_due_date_by_start_on(benefit_application.start_on)).strftime("%m/%d/%Y"))
       end
 
       it "should return false when there is no broker linked to employer" do

@@ -24,7 +24,7 @@ module SponsoredBenefits
         short_name: short_name,
         domain_name: domain_name,
         owner_organization: owner_organization,
-        benefit_markets: [benefit_market]
+        benefit_markets: [benefit_market],
       }
     end
 
@@ -73,10 +73,7 @@ module SponsoredBenefits
       context "with all required arguments" do
         let(:valid_site) { Site.new(params) }
 
-        before do
-          valid_site.owner_organization = owner_organization
-          valid_site.site_organizations << owner_organization
-        end
+        before { valid_site.owner_organization = owner_organization; valid_site.site_organizations << owner_organization }
 
         it "should be valid" do
           valid_site.validate
@@ -129,7 +126,7 @@ module SponsoredBenefits
 
         it "should strip the leading numbers" do
           site.site_key = numeric_key
-          expect(site.site_key).to eq :days
+          expect(site.site_key).to eq "days".to_sym
         end
       end
 
@@ -138,14 +135,14 @@ module SponsoredBenefits
 
         it "should strip the leading numbers" do
           site.site_key = funky_key
-          expect(site.site_key).to eq :mykey
+          expect(site.site_key).to eq "mykey".to_sym
         end
       end
 
       context "with duplicate keys" do
         let(:site_key)  { :mykey }
 
-        it "should reject duplicate key"
+        it "should reject duplicate key" 
       end
     end
 
@@ -155,7 +152,7 @@ module SponsoredBenefits
       let(:loony_legal_name)    { "Loony Tunes, LLC" }
       let(:itune_legal_name)    { "iTunes, Inc" }
 
-      let!(:site)               { FactoryBot.create(:sponsored_benefits_site, :owner_organization => owner_organization, site_organizations: [owner_organization]) }
+      let!(:site)               { FactoryBot.create(:sponsored_benefits_site, :owner_organization => owner_organization, site_organizations: [ owner_organization ]) }
       let(:owner_organization)  { FactoryBot.build(:sponsored_benefits_organizations_general_organization, legal_name: owner_legal_name, profiles: [hbx_profile]) }
       let!(:loony_organization) { FactoryBot.create(:sponsored_benefits_organizations_general_organization, legal_name: loony_legal_name, site: site, profiles: [employer_profile]) }
       let!(:acme_organization)  { FactoryBot.create(:sponsored_benefits_organizations_general_organization, legal_name: itune_legal_name, site: site, profiles: [employer_profile]) }
@@ -166,11 +163,11 @@ module SponsoredBenefits
 
       # this will include the owner_organization in the count
       it "should have correct number of site_organizations" do
-        expect(site.site_organizations.size).to eq 3
+        expect((site.site_organizations).size).to eq 3
       end
 
       it "should have correct number of employer_profiles" do
-        expect(site.site_organizations.employer_profiles.size).to eq 2
+        expect((site.site_organizations.employer_profiles).size).to eq 2
       end
 
       context "and benefit_market associations must be valid" do
@@ -203,9 +200,9 @@ module SponsoredBenefits
           let(:owner_organization_2)  { FactoryBot.build(:sponsored_benefits_organizations_general_organization, legal_name: legal_name_2, profiles: [employer_profile]) }
           let(:owner_organization_3)  { FactoryBot.build(:sponsored_benefits_organizations_general_organization, legal_name: legal_name_3, profiles: [employer_profile]) }
 
-          let(:shop_only_site)        { FactoryBot.build(:sponsored_benefits_site, :owner_organization => owner_organization_1, site_organizations: [owner_organization_1], benefit_markets: [shop_benefit_market_1]) }
-          let(:ivl_only_site)         { FactoryBot.build(:sponsored_benefits_site, :owner_organization => owner_organization_2, site_organizations: [owner_organization_2], benefit_markets: [ivl_benefit_market_1]) }
-          let(:shop_and_ivl_site)     { FactoryBot.build(:sponsored_benefits_site, :owner_organization => owner_organization_3, site_organizations: [owner_organization_3], benefit_markets: [ivl_benefit_market_2, shop_benefit_market_2]) }
+          let(:shop_only_site)        { FactoryBot.build(:sponsored_benefits_site, :owner_organization => owner_organization_1, site_organizations: [ owner_organization_1 ], benefit_markets: [shop_benefit_market_1]) }
+          let(:ivl_only_site)         { FactoryBot.build(:sponsored_benefits_site, :owner_organization => owner_organization_2, site_organizations: [ owner_organization_2 ], benefit_markets: [ivl_benefit_market_1]) }
+          let(:shop_and_ivl_site)     { FactoryBot.build(:sponsored_benefits_site, :owner_organization => owner_organization_3, site_organizations: [ owner_organization_3 ], benefit_markets: [ivl_benefit_market_2, shop_benefit_market_2]) }
 
 
           it "should find the right benefit_markets using benefit_market_for" do

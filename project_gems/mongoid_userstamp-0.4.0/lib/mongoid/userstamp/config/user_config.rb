@@ -1,14 +1,17 @@
+# -*- encoding : utf-8 -*-
+
 module Mongoid
-  module Userstamp
-    class UserConfig
+module Userstamp
 
-      def initialize(opts = {})
-        @reader = opts.delete(:reader)
-      end
+  class UserConfig
 
-      def reader
-        @reader || Mongoid::Userstamp.config.user_reader
-      end
+    def initialize(opts = {})
+      @reader = opts.delete(:reader)
+    end
+
+    def reader
+      @reader || Mongoid::Userstamp.config.user_reader
     end
   end
+end
 end

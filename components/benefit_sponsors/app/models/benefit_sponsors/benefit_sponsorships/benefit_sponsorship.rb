@@ -277,7 +277,7 @@ module BenefitSponsors
     index({"benefit_application._id" => 1})
     index({"benefit_application.predecessor_id" => 1})
     index({ "benefit_application.aasm_state" => 1, "benefit_application_items.effective_period.min" => 1, "benefit_application_items.effective_period.max" => 1},
-          { name: "effective_period" })
+            { name: "effective_period" })
 
     index({ "benefit_application.aasm_state" => 1, "open_enrollment_period.min" => 1, "open_enrollment_period.max" => 1},
           { name: "open_enrollment_period" })
@@ -434,7 +434,7 @@ module BenefitSponsors
 
     # TODO: Enable it for new domain benefit sponsor catalog
     def benefit_sponsor_catalog_for(effective_date)
-      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: _id).value!
+      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: self._id).value!
       BenefitMarkets::BenefitSponsorCatalog.new(benefit_sponsor_catalog_entity.to_h)
     end
 

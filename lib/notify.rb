@@ -1,7 +1,7 @@
 module Notify
   include Acapi::Notifiers
 
-  def notify_change_event(obj, monitored_objs = {})
+  def notify_change_event(obj, monitored_objs={})
     modal_name = obj.class.to_s.downcase
     monitored_objs.each do |name, attributes|
       attributes.each do |field|
@@ -12,9 +12,10 @@ module Notify
         end
       end
     end
-  rescue StandardError => e
+  rescue => e
     Rails.logger(e)
   end
+
 
   # return {"status" =>"created/changed", "first_name" => ["before", "now"]}
   def payload(obj, field:)
@@ -25,8 +26,7 @@ module Notify
       if obj.send(field).is_a?(Array)
         # embeds_many
         return nil if obj.send(field).blank?
-
-        change_items = obj.send(field).select(&:changed?)
+        change_items = obj.send(field).select(&:changed?) 
         payload = case change_items.count
                   when 0
                     nil
@@ -35,29 +35,33 @@ module Notify
                   else
                     {"status" => "changed", field => change_items.map(&:changes)}
                   end
-      elsif obj.send(field).respond_to?(:new_record?)
-        # embeds_one
-        payload = if obj.send(field).new_record?
-                    {"status" => "created", field => obj.send(field)}
-                  else
-                    {"status" => "changed", field => obj.send(field).changes}
-                  end
       else
-        return nil
+        # embeds_one
+        if obj.send(field).respond_to?(:new_record?)
+          if obj.send(field).new_record?
+            payload = {"status" => "created", field => obj.send(field)}
+          else
+            payload = {"status" => "changed", field => obj.send(field).changes}
+          end
+        else
+          return nil
+        end
       end
     else
       # field
-      payload = if obj.send("#{field}_changed?")
-                  if obj.new_record?
+      if obj.send("#{field}_changed?")
+          payload = if obj.new_record?
                     {"status" => "created", field => obj.send("#{field}_change")}
                   else
                     {"status" => "changed", field => obj.send("#{field}_change")}
                   end
-                end
+      else
+        payload = nil
+      end
     end
     payload
-  rescue StandardError => e
+  rescue => e
     Rails.logger(e)
-    nil
+    return nil
   end
 end

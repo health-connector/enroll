@@ -11,30 +11,28 @@ FactoryBot.define do
     end
 
     trait :with_primary_family_member do
-      family_members do
-        [FactoryBot.build(:family_member, family: self,
-                                          is_primary_applicant: true, is_active: true, person: person)]
-      end
+      family_members { [FactoryBot.build(:family_member, family: self,
+          is_primary_applicant: true, is_active: true, person: person)] }
     end
 
     trait :with_family_members do
       family_members { people.map{|person| FactoryBot.build(:family_member, family: self, is_primary_applicant: (self.person == person), is_active: true, person: person) }}
     end
 
-    after(:create) do |f, _evaluator|
+    after(:create) do |f, evaluator|
       f.households.first.add_household_coverage_member(f.family_members.first)
       f.save
     end
 
     trait :with_primary_family_member_and_dependent do
-      family_members do
+      family_members {
         [
           FactoryBot.build(:family_member, family: self, is_primary_applicant: true, is_active: true, person: person),
           FactoryBot.build(:family_member, family: self, is_primary_applicant: false, is_active: true, person: FactoryBot.create(:person, first_name: "John", last_name: "Doe")),
           FactoryBot.build(:family_member, family: self, is_primary_applicant: false, is_active: true, person:  FactoryBot.create(:person, first_name: "Alex", last_name: "Doe"))
         ]
-      end
-      before(:create)  do |family, _evaluator|
+      }
+      before(:create)  do |family, evaluator|
         family.dependents.each do |dependent|
           family.relate_new_member(dependent.person, "child")
         end

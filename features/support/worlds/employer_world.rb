@@ -9,7 +9,7 @@ module EmployerWorld
       organization = FactoryBot.create(
         :benefit_sponsors_organizations_general_organization, *traits,
         attributes.merge(site: site)
-      )
+        )
 
       @employer_profile = organization.employer_profile
       @organization[legal_name] = organization
@@ -54,7 +54,7 @@ And(/^(.*?) employer has a staff role$/) do |legal_name|
   @staff_role ||= FactoryBot.create(:user, :person => person)
 end
 
-And(/^(.*?) employer terminates employees$/) do |_legal_name|
+And(/^(.*?) employer terminates employees$/) do |legal_name|
   termination_date = TimeKeeper.date_of_record - 1.day
   @census_employees.each do |employee|
     employee.terminate_employment(termination_date)

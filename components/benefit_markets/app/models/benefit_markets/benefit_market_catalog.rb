@@ -40,7 +40,7 @@ module BenefitMarkets
     embeds_one  :member_market_policy,
                 class_name: "::BenefitMarkets::MarketPolicies::MemberMarketPolicy"
     embeds_many :product_packages, as: :packagable,
-                                   class_name: "::BenefitMarkets::Products::ProductPackage"
+                class_name: "::BenefitMarkets::Products::ProductPackage"
 
     # Entire geography covered by under this catalog
     has_and_belongs_to_many  :service_areas,
@@ -86,7 +86,8 @@ module BenefitMarkets
 
     def issuers_for(benefit_application); end
 
-    def product_packages_by_benefit_kind; end
+    def product_packages_by_benefit_kind # => health, dental
+    end
 
     def benefit_types_for(benefit_application); end
 

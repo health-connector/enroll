@@ -37,12 +37,12 @@ module BenefitMarkets
 
       subject do
         PricingModels::PricingModel.new({
-                                          :price_calculator_kind => "::BenefitMarkets::PricingModelsMocks::MockPriceCalculator"
-                                        })
+          :price_calculator_kind => "::BenefitMarkets::PricingModelsMocks::MockPriceCalculator"
+        })
       end
 
       it "has access to the specified calculator" do
-        expect(subject.pricing_calculator.is_a?(::BenefitMarkets::PricingModelsMocks::MockPriceCalculator)).to be_truthy
+        expect(subject.pricing_calculator.kind_of?(::BenefitMarkets::PricingModelsMocks::MockPriceCalculator)).to be_truthy
       end
     end
 

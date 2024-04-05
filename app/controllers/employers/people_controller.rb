@@ -14,7 +14,22 @@ class Employers::PeopleController < ApplicationController
     @employee_candidate = Forms::EmployeeCandidate.new(person_params.merge({user_id: current_user.id}))
     if @employee_candidate.valid?
       found_person = @employee_candidate.match_person
-      if params["create_person"].present? # when create person button clicked
+      unless params["create_person"].present? # when search button is clicked
+        if found_person.present? #when person is found
+          @person = found_person
+          respond_to do |format|
+            format.js { render 'match' }
+            format.html { render 'match' }
+          end
+        else # when there is no person match
+          @person = Person.new
+          build_nested_models
+          respond_to do |format|
+            format.js { render 'no_match' }
+            format.html { render 'no_match' }
+          end
+        end
+      else # when create person button clicked
         params.permit!
         @person = current_user.instantiate_person
         @person.attributes = params[:person]
@@ -23,19 +38,6 @@ class Employers::PeopleController < ApplicationController
         respond_to do |format|
           format.js { render "edit" }
           format.html { render "edit" }
-        end
-      elsif found_person.present? # when search button is clicked
-        @person = found_person
-        respond_to do |format|
-          format.js { render 'match' }
-          format.html { render 'match' }
-        end #when person is found
-      else # when there is no person match
-        @person = Person.new
-        build_nested_models
-        respond_to do |format|
-          format.js { render 'no_match' }
-          format.html { render 'no_match' }
         end
       end
     else # when person is not valid
@@ -94,34 +96,47 @@ class Employers::PeopleController < ApplicationController
 
   def sanitize_person_params
     person_params["addresses_attributes"].each do |key, address|
-      person_params["addresses_attributes"].delete("#{key}") if address["city"].blank? && address["zip"].blank? && address["address_1"].blank?
+      if address["city"].blank? && address["zip"].blank? && address["address_1"].blank?
+        person_params["addresses_attributes"].delete("#{key}")
+      end
     end
 
     person_params["phones_attributes"].each do |key, phone|
-      person_params["phones_attributes"].delete("#{key}") if phone["full_phone_number"].blank?
+      if phone["full_phone_number"].blank?
+        person_params["phones_attributes"].delete("#{key}")
+      end
     end
 
     person_params["emails_attributes"].each do |key, email|
-      person_params["emails_attributes"].delete("#{key}") if email["address"].blank?
+      if email["address"].blank?
+        person_params["emails_attributes"].delete("#{key}")
+      end
     end
   end
 
-  def make_new_person_params(person)
+  def make_new_person_params person
+
     # Delete old sub documents
     person.addresses.each {|address| address.delete}
     person.phones.each {|phone| phone.delete}
     person.emails.each {|email| email.delete}
 
-    person_params["addresses_attributes"].each do |_key, address|
-      address.delete('id') if address.has_key?('id')
+    person_params["addresses_attributes"].each do |key, address|
+      if address.has_key?('id')
+        address.delete('id')
+      end
     end
 
-    person_params["phones_attributes"].each do |_key, phone|
-      phone.delete('id') if phone.has_key?('id')
+    person_params["phones_attributes"].each do |key, phone|
+      if phone.has_key?('id')
+        phone.delete('id')
+      end
     end
 
-    person_params["emails_attributes"].each do |_key, email|
-      email.delete('id') if email.has_key?('id')
+    person_params["emails_attributes"].each do |key, email|
+      if email.has_key?('id')
+        email.delete('id')
+      end
     end
   end
 
@@ -135,7 +150,7 @@ class Employers::PeopleController < ApplicationController
       respond_to do |format|
         format.js { render "employers/employer_profiles/search"}
         format.html {}
-      end
+     end
     end
   end
 

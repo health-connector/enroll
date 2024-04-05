@@ -15,10 +15,10 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
   end
   let!(:model_instance) do
     FactoryBot.create(:benefit_sponsors_benefit_application,
-                      :with_benefit_package,
-                      :benefit_sponsorship => benefit_sponsorship,
-                      :aasm_state => 'enrollment_closed',
-                      :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'enrollment_closed',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
 
   describe "ModelEvent" do
@@ -56,7 +56,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) do
+    let(:data_elements) {
       [
           "employer_profile.notice_date",
           "employer_profile.employer_name",
@@ -65,17 +65,15 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
           "employer_profile.benefit_application.enrollment_errors",
           "employer_profile.broker_present?"
       ]
-    end
+    }
 
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
 
-    let(:payload)   do
-      {
+    let(:payload)   { {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => model_instance.id
-      }
-    end
+    } }
     let(:merge_model) { subject.construct_notice_object }
 
     context "when notice event received" do
@@ -108,7 +106,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
       end
       it "should return enrollment errors" do
         enrollment_errors = []
-        enrollment_policy = BenefitSponsors::BenefitApplications::AcaShopEnrollmentEligibilityPolicy.new
+      enrollment_policy = BenefitSponsors::BenefitApplications::AcaShopEnrollmentEligibilityPolicy.new
         policy = enrollment_policy.business_policies_for(model_instance, :end_open_enrollment)
         unless policy.is_satisfied?(model_instance)
           policy.fail_results.each do |k, _|
@@ -119,8 +117,8 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
               enrollment_errors << "At least one non-owner employee enrolled in health coverage."
             end
           end
-        end
-        expect(merge_model.benefit_application.enrollment_errors).to eq(enrollment_errors.join(' AND/OR '))
+      end
+        expect(merge_model.benefit_application.enrollment_errors).to eq (enrollment_errors.join(' AND/OR '))
       end
     end
   end

@@ -56,7 +56,7 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/broker_agency/_active_
     end
 
     it "show should the Broker phone" do
-      expect(rendered).to match(/#{Regexp.escape(broker_agency_account.writing_agent.phone.to_s)}/)
+      expect(rendered).to match /#{Regexp.escape(broker_agency_account.writing_agent.phone.to_s)}/
     end
 
     it "should show the broker assignment date" do

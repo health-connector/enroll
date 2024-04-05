@@ -17,20 +17,24 @@ FactoryBot.define do
     #   end
     # end
 
-    after(:build) do |profile, _evaluator|
+    after(:build) do |profile, evaluator|
       profile.office_locations = [build(:benefit_sponsors_locations_office_location, :with_massachusetts_address)]
     end
 
     trait :with_organization_and_site do
       after(:build) do |profile, evaluator|
         site = nil
-        site = evaluator.site || BenefitSponsors::Site.by_site_key(:cca).first || create(:benefit_sponsors_site, :as_hbx_profile, :with_benefit_market, :cca)
+        if evaluator.site
+          site = evaluator.site
+        else
+          site = BenefitSponsors::Site.by_site_key(:cca).first || create(:benefit_sponsors_site, :as_hbx_profile, :with_benefit_market, :cca)
+        end
         profile.organization = build(:benefit_sponsors_organizations_general_organization, site: site)
       end
     end
 
     trait :with_benefit_sponsorship do
-      after(:build) do |profile, _evaluator|
+      after(:build) do |profile, evaluator|
         profile.add_benefit_sponsorship
       end
     end

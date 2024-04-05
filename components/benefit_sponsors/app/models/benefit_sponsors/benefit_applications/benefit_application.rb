@@ -407,12 +407,12 @@ module BenefitSponsors
         write_attribute(:recorded_service_area_ids, [])
         @recorded_service_areas = []
       else
-        raise ArgumentError, "expected ServiceArea" if new_recorded_service_areas.any?{|service_area| !service_area.is_a? BenefitMarkets::Locations::ServiceArea}
+        raise ArgumentError.new("expected ServiceArea") if new_recorded_service_areas.any?{|service_area| !service_area.is_a? BenefitMarkets::Locations::ServiceArea}
 
         write_attribute(:recorded_service_area_ids, new_recorded_service_areas.map(&:_id))
         @recorded_service_areas = new_recorded_service_areas
       end
-      @recorded_service_areas
+       @recorded_service_areas
     end
 
     def recorded_service_areas
@@ -609,7 +609,7 @@ module BenefitSponsors
 
       total_enrolled = enrolled_families
 
-      owner_employees = active_census_employees.select{|ce| ce.is_business_owner}
+      owner_employees  = active_census_employees.select{|ce| ce.is_business_owner}
       total_enrolled = filter_enrolled_employees(owner_employees, total_enrolled)
 
       waived_employees = active_census_employees.select{|ce| ce.waived?}
@@ -742,7 +742,9 @@ module BenefitSponsors
     end
 
     def reinstate_canceled_benefit_package_members
-      benefit_packages.each { |benefit_package| benefit_package.reinstate_canceled_member_benefits } if aasm.from_state == :canceled
+      if aasm.from_state == :canceled
+        benefit_packages.each { |benefit_package| benefit_package.reinstate_canceled_member_benefits }
+      end
     end
 
     def transition_benefit_package_members(options = {})
@@ -974,7 +976,7 @@ module BenefitSponsors
       event :cancel do
         transitions from: :active, to: :retroactive_canceled,  :guard => :can_retroactive_cancel? # Enrollment cancelled after it became active
         transitions from: APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES + [:enrollment_ineligible, :active, :approved],
-                    to: :canceled
+          to:     :canceled
       end
 
       # Coverage disabled due to non-payment
@@ -1034,7 +1036,9 @@ module BenefitSponsors
       #   deny_enrollment_eligiblity!
       # end
 
-      cancel! if aasm.to_state == :applicant && aasm.current_event == :cancel! && ((enrollment_ineligible? || enrollment_closed?) && may_cancel?)
+      if (aasm.to_state == :applicant && aasm.current_event == :cancel!)
+        cancel! if (enrollment_ineligible? || enrollment_closed?) && may_cancel?
+      end
     end
 
     def notify_application(notify = false)

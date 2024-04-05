@@ -21,11 +21,11 @@ module BenefitSponsors
       sponsorship.save
       sponsorship
     end
-    let(:benefit_application)   do
+    let(:benefit_application)   {
       application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: default_effective_period)
       application.benefit_sponsor_catalog.save!
       application
-    end
+    }
     let!(:product_package_kind)     { :single_issuer }
     let!(:product_package)          { benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
     let!(:product)                  { product_package.products.first }
@@ -42,7 +42,7 @@ module BenefitSponsors
     end
 
     shared_context "valid params", :shared_context => :metadata do
-      let(:benefit_package_params) do
+      let(:benefit_package_params) {
         {
           :benefit_application_id => benefit_application.id.to_s,
           :title => "New Benefit Package",
@@ -50,9 +50,9 @@ module BenefitSponsors
           :probation_period_kind => "first_of_month",
           :sponsored_benefits_attributes => sponsored_benefits_params
         }
-      end
+      }
 
-      let(:sponsored_benefits_params) do
+      let(:sponsored_benefits_params) {
         {
           "0" => {
             :sponsor_contribution_attributes => sponsor_contribution_attributes,
@@ -62,26 +62,26 @@ module BenefitSponsors
             :reference_plan_id => product.id.to_s
           }
         }
-      end
+      }
 
-      let(:sponsor_contribution_attributes) do
+      let(:sponsor_contribution_attributes) {
         {
           :contribution_levels_attributes => contribution_levels_attributes
         }
-      end
+      }
 
-      let(:contribution_levels_attributes) do
+      let(:contribution_levels_attributes) {
         {
           "0" => {:is_offered => "true", :display_name => "Employee", :contribution_factor => "0.95"},
           "1" => {:is_offered => "true", :display_name => "Spouse", :contribution_factor => "0.85"},
           "2" => {:is_offered => "true", :display_name => "Domestic Partner", :contribution_factor => "0.75"},
           "3" => {:is_offered => "true", :display_name => "Child Under 26", :contribution_factor => "0.75"}
         }
-      end
+      }
     end
 
     shared_context "invalid params", :shared_context => :metadata do
-      let(:benefit_package_params) do
+      let(:benefit_package_params) {
         {
           :benefit_application_id => nil,
           :title => nil,
@@ -89,9 +89,9 @@ module BenefitSponsors
           :probation_period_kind => "first_of_month",
           :sponsored_benefits_attributes => sponsored_benefits_params
         }
-      end
+      }
 
-      let(:sponsored_benefits_params) do
+      let(:sponsored_benefits_params) {
         {
           "0" => {
             :sponsor_contribution_attributes => sponsor_contribution_attributes,
@@ -101,22 +101,22 @@ module BenefitSponsors
             :reference_plan_id => product.id.to_s
           }
         }
-      end
+      }
 
-      let(:sponsor_contribution_attributes) do
+      let(:sponsor_contribution_attributes) {
         {
           :contribution_levels_attributes => invalid_contribution_levels_attributes
         }
-      end
+      }
 
-      let(:invalid_contribution_levels_attributes) do
+      let(:invalid_contribution_levels_attributes) {
         {
           "0" => {:is_offered => "true", :display_name => "Employee", :contribution_factor => nil},
           "1" => {:is_offered => "true", :display_name => "Spouse", :contribution_factor => "0.85"},
           "2" => {:is_offered => "true", :display_name => "Domestic Partner", :contribution_factor => "0.75"},
           "3" => {:is_offered => "true", :display_name => "Child Under 26", :contribution_factor => "0.75"}
         }
-      end
+      }
     end
 
     before do
@@ -192,12 +192,12 @@ module BenefitSponsors
 
       let(:benefit_application_id)  { benefit_application.id.to_s }
       let!(:benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
-      let(:params_for_edit)  do
+      let(:params_for_edit)  {
         {
           "id" => benefit_package.id.to_s,
           "benefit_application_id" => benefit_application_id
         }
-      end
+      }
 
       before do
         benefit_package.sponsored_benefits.first.reference_product.update_attributes!(:issuer_profile_id => issuer_profile.id)
@@ -222,10 +222,10 @@ module BenefitSponsors
 
       before do
         sponsored_benefits_params["0"].merge!({
-                                                :id => benefit_package.sponsored_benefits[0].id.to_s
-                                              })
+          :id => benefit_package.sponsored_benefits[0].id.to_s,
+        })
 
-        contribution_levels_attributes.each do |_k, v|
+        contribution_levels_attributes.each do |k, v|
           cl = contribution_levels.where(:display_name => v[:display_name].to_s).first
           v.merge!({ :id => cl.id.to_s })
         end
@@ -244,4 +244,5 @@ module BenefitSponsors
     end
 
   end
+
 end

@@ -7,13 +7,13 @@ class BrokerAgencyProfile
 
   embedded_in :organization
 
-  MARKET_KINDS = individual_market_is_enabled? ? %w[individual shop both] : %w[shop]
+  MARKET_KINDS = individual_market_is_enabled? ? %W[individual shop both] : %W[shop]
   ALL_MARKET_KINDS_OPTIONS = {
     "Individual & Family Marketplace ONLY" => "individual",
     "Small Business Marketplace ONLY" => "shop",
     "Both - Individual & Family AND Small Business Marketplaces" => "both"
   }
-  MARKET_KINDS_OPTIONS = ALL_MARKET_KINDS_OPTIONS.select { |_k,v| MARKET_KINDS.include? v }
+  MARKET_KINDS_OPTIONS = ALL_MARKET_KINDS_OPTIONS.select { |k,v| MARKET_KINDS.include? v }
 
   field :entity_kind, type: String
   field :market_kind, type: String
@@ -51,18 +51,18 @@ class BrokerAgencyProfile
   validates_presence_of :market_kind, :entity_kind #, :primary_broker_role_id
 
   validates :corporate_npn,
-            numericality: {only_integer: true},
-            length: { minimum: 1, maximum: 10 },
-            uniqueness: true,
-            allow_blank: true
+    numericality: {only_integer: true},
+    length: { minimum: 1, maximum: 10 },
+    uniqueness: true,
+    allow_blank: true
 
   validates :market_kind,
-            inclusion: { in: ->(_val) { MARKET_KINDS }, message: "%<value>s is not a valid market kind" },
-            allow_blank: false
+    inclusion: { in: -> (val) { MARKET_KINDS }, message: "%{value} is not a valid market kind" },
+    allow_blank: false
 
   validates :entity_kind,
-            inclusion: { in: Organization::ENTITY_KINDS[0..3], message: "%<value>s is not a valid business entity kind" },
-            allow_blank: false
+    inclusion: { in: Organization::ENTITY_KINDS[0..3], message: "%{value} is not a valid business entity kind" },
+    allow_blank: false
 
   after_initialize :build_nested_models
 
@@ -73,7 +73,6 @@ class BrokerAgencyProfile
   def employer_clients
     return unless (MARKET_KINDS - ["individual"]).include?(market_kind)
     return @employer_clients if defined? @employer_clients
-
     @employer_clients = EmployerProfile.find_by_broker_agency_profile(self)
   end
 
@@ -81,15 +80,13 @@ class BrokerAgencyProfile
   def family_clients
     return unless (MARKET_KINDS - ["shop"]).include?(market_kind)
     return @family_clients if defined? @family_clients
-
-    @family_clients = Family.by_broker_agency_profile_id(id)
+    @family_clients = Family.by_broker_agency_profile_id(self.id)
   end
 
   # has_one primary_broker_role
   def primary_broker_role=(new_primary_broker_role = nil)
     if new_primary_broker_role.present?
-      raise ArgumentError, "expected BrokerRole class" unless new_primary_broker_role.is_a? BrokerRole
-
+      raise ArgumentError.new("expected BrokerRole class") unless new_primary_broker_role.is_a? BrokerRole
       self.primary_broker_role_id = new_primary_broker_role._id
     else
       unset("primary_broker_role_id")
@@ -99,8 +96,7 @@ class BrokerAgencyProfile
 
   def primary_broker_role
     return @primary_broker_role if defined? @primary_broker_role
-
-    @primary_broker_role = BrokerRole.find(primary_broker_role_id) unless primary_broker_role_id.blank?
+    @primary_broker_role = BrokerRole.find(self.primary_broker_role_id) unless primary_broker_role_id.blank?
   end
 
   # has_many active broker_roles
@@ -145,12 +141,12 @@ class BrokerAgencyProfile
   end
 
   def is_active?
-    is_approved?
+    self.is_approved?
   end
 
   def languages
     if languages_spoken.any?
-      languages_spoken.map {|lan| LanguageList::LanguageInfo.find(lan).name if LanguageList::LanguageInfo.find(lan)}.compact.join(",")
+      return languages_spoken.map {|lan| LanguageList::LanguageInfo.find(lan).name if LanguageList::LanguageInfo.find(lan)}.compact.join(",")
     end
   end
 
@@ -163,15 +159,14 @@ class BrokerAgencyProfile
   def families
     linked_active_employees = linked_employees.select{ |person| person.has_active_employee_role? }
     employee_families = linked_active_employees.map(&:primary_family).to_a
-    consumer_families = Family.by_broker_agency_profile_id(id).to_a
+    consumer_families = Family.by_broker_agency_profile_id(self.id).to_a
     families = (consumer_families + employee_families).uniq
     families.sort_by{|f| f.primary_applicant.person.last_name}
   end
 
   def default_general_agency_profile=(new_default_general_agency_profile = nil)
     if new_default_general_agency_profile.present?
-      raise ArgumentError, "expected GeneralAgencyProfile class" unless new_default_general_agency_profile.is_a? GeneralAgencyProfile
-
+      raise ArgumentError.new("expected GeneralAgencyProfile class") unless new_default_general_agency_profile.is_a? GeneralAgencyProfile
       self.default_general_agency_profile_id = new_default_general_agency_profile.id
     else
       unset("default_general_agency_profile_id")
@@ -181,8 +176,7 @@ class BrokerAgencyProfile
 
   def default_general_agency_profile
     return @default_general_agency_profile if defined? @default_general_agency_profile
-
-    @default_general_agency_profile = GeneralAgencyProfile.find(default_general_agency_profile_id) if default_general_agency_profile_id.present?
+    @default_general_agency_profile = GeneralAgencyProfile.find(self.default_general_agency_profile_id) if default_general_agency_profile_id.present?
   end
 
   ## Class methods
@@ -206,7 +200,6 @@ class BrokerAgencyProfile
 
     def find(id)
       return nil if id.blank?
-
       organizations = Organization.where("broker_agency_profile._id" => BSON::ObjectId.from_string(id)).to_a
       organizations.size > 0 ? organizations.first.broker_agency_profile : nil
     end
@@ -241,7 +234,7 @@ class BrokerAgencyProfile
     end
   end
 
-  private
+private
 
   def build_nested_models
     build_inbox if inbox.nil?
