@@ -62,4 +62,27 @@ class FamilyPolicy < ApplicationPolicy
     role.permission.can_update_ssn
   end
 
+  def create?
+    show?
+  end
+
+  def edit?
+    show?
+  end
+
+  def update?
+    show?
+  end
+
+  def destroy?
+    show?
+  end
+
+  def index?
+    false
+  end
+
+  def new?
+    show?
+  end
 end
