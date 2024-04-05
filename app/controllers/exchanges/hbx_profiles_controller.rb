@@ -14,8 +14,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
   before_action :find_benefit_sponsorship, only: [:oe_extendable_applications, :oe_extended_applications, :edit_open_enrollment, :extend_open_enrollment, :close_extended_open_enrollment, :edit_fein, :update_fein, :force_publish, :edit_force_publish]
-  # GET /exchanges/hbx_profiles
-  # GET /exchanges/hbx_profiles.json
   layout 'single_column'
 
   def oe_extendable_applications
@@ -210,8 +208,8 @@ class Exchanges::HbxProfilesController < ApplicationController
       end
   end
 
-def employer_poc
-     # authorize HbxProfile, :employer_poc?
+  def employer_poc
+    # authorize HbxProfile, :employer_poc?
 
     # Dynamic Filter values for upcoming 30, 60, 90 days renewals
     @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
@@ -220,11 +218,11 @@ def employer_poc
 
     @datatable = Effective::Datatables::EmployerDatatable.new
     render '/exchanges/hbx_profiles/employer_poc'
- #   respond_to do |format|
-  #    format.html
-   #   format.js
-   # end
-  end
+    # respond_to do |format|
+    #    format.html
+    #    format.js
+    # end
+    end
 
 
   def staff_index
