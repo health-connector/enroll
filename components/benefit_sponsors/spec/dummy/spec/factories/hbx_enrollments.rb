@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :hbx_enrollment do
     kind { "employer_sponsored" }
@@ -22,10 +24,14 @@ FactoryBot.define do
       active_year { TimeKeeper.date_of_record.year }
     end
 
-    # plan { create(:plan, :with_rating_factors, :with_premium_tables, active_year: active_year) }
-
     trait :with_enrollment_members do
-      hbx_enrollment_members { enrollment_members.map{|member| FactoryBot.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: self.effective_on, eligibility_date: self.effective_on) }}
+      hbx_enrollment_members do
+        enrollment_members.map do |member|
+          FactoryBot.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self,
+                                                   is_subscriber: member.is_primary_applicant, coverage_start_on: effective_on,
+                                                   eligibility_date: effective_on)
+        end
+      end
     end
 
     trait :shop do

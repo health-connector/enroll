@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :family do
     association :person
@@ -11,8 +13,7 @@ FactoryBot.define do
     end
 
     trait :with_primary_family_member do
-      family_members { [FactoryBot.build(:family_member, family: self,
-          is_primary_applicant: true, is_active: true, person: person)] }
+      family_members { [FactoryBot.build(:family_member, family: self, is_primary_applicant: true, is_active: true, person: person)] }
     end
 
     trait :with_family_members do

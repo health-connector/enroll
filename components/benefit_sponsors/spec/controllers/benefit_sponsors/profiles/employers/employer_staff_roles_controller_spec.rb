@@ -15,11 +15,11 @@ module BenefitSponsors
     let(:new_benefit_sponsor) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)    { benefit_sponsor.employer_profile }
 
-    let!(:active_employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
-    let!(:person) { FactoryBot.create(:person, employer_staff_roles:[active_employer_staff_role]) }
+    let!(:active_employer_staff_role) { FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id) }
+    let!(:person) { FactoryBot.create(:person, employer_staff_roles: [active_employer_staff_role]) }
     let!(:new_person_for_staff) { FactoryBot.create(:person) }
-    let(:applicant_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, aasm_state:'is_applicant', benefit_sponsor_employer_profile_id: employer_profile.id)}
-    let!(:applicant_person) { FactoryBot.create(:person,employer_staff_roles:[applicant_employer_staff_role]) }
+    let(:applicant_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, aasm_state: 'is_applicant', benefit_sponsor_employer_profile_id: employer_profile.id)}
+    let!(:applicant_person) { FactoryBot.create(:person,employer_staff_roles: [applicant_employer_staff_role]) }
     let(:user) { FactoryBot.create(:user, :person => person)}
 
 

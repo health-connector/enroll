@@ -73,11 +73,12 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
     let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
 
     let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-    let(:census_employee) { FactoryBot.create(:census_employee,
-                                               employer_profile: benefit_sponsorship.profile,
-                                               benefit_sponsorship: benefit_sponsorship,
-                                               benefit_group_assignments: [benefit_group_assignment]
-    )}
+    let(:census_employee) do
+      FactoryBot.create(:census_employee,
+                        employer_profile: benefit_sponsorship.profile,
+                        benefit_sponsorship: benefit_sponsorship,
+                        benefit_group_assignments: [benefit_group_assignment])
+    end
     let(:person) { FactoryBot.create(:person) }
     let(:family) { double }
     let(:hbx_enrollment) { double(kind: "employer_sponsored", effective_on: start_on, employee_role_id: employee_role.id,

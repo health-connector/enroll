@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_sponsors_organizations_general_organization, class: 'BenefitSponsors::Organizations::GeneralOrganization' do
     legal_name  { "ACME Widgets, Inc." }
@@ -42,10 +44,9 @@ FactoryBot.define do
       with_aca_shop_dc_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_initial_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_initial_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 
@@ -53,10 +54,9 @@ FactoryBot.define do
       with_aca_shop_cca_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_initial_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_initial_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 
@@ -64,10 +64,9 @@ FactoryBot.define do
       with_aca_shop_dc_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_renewal_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_renewal_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 
@@ -75,10 +74,9 @@ FactoryBot.define do
       with_aca_shop_cca_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_renewal_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_renewal_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 
@@ -86,10 +84,9 @@ FactoryBot.define do
       with_aca_shop_cca_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_renewal_draft_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_renewal_draft_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 
@@ -97,10 +94,9 @@ FactoryBot.define do
       with_aca_shop_cca_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_expired_and_active_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_expired_and_active_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 
@@ -108,10 +104,9 @@ FactoryBot.define do
       with_aca_shop_cca_employer_profile
       after :build do |organization, _evaluator|
         organization.benefit_sponsorships = [build(:benefit_sponsors_benefit_sponsorship,
-          :with_benefit_market,
-          :with_imported_and_renewal_benefit_application,
-          profile: organization.employer_profile
-        )]
+                                                   :with_benefit_market,
+                                                   :with_imported_and_renewal_benefit_application,
+                                                   profile: organization.employer_profile)]
       end
     end
 

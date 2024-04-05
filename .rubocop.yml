@@ -167,8 +167,6 @@ Lint/RaiseException: # (new in 0.81)
   Enabled: true
 Lint/SelfAssignment: # (new in 0.89)
   Enabled: true
-Lint/StructNewOverride: # (new in 0.81)
-  Enabled: true
 Lint/TopLevelReturnWithArgument: # (new in 0.89)
   Enabled: true
 Lint/TrailingCommaInAttributeDeclaration: # (new in 0.90)
@@ -338,8 +336,10 @@ Style/NumberedParametersLimit: # new in 1.22
 Style/ObjectThen: # new in 1.28
   Enabled: true
 Style/OpenStructUse: # new in 1.23
-  Enabled: true
+  Enabled: false
 Style/QuotedSymbols: # new in 1.16
+  Enabled: false
+Lint/StructNewOverride: # (new in 0.81)
   Enabled: false
 Style/RedundantArgument: # new in 1.4
   Enabled: true

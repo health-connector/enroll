@@ -201,11 +201,7 @@ module BenefitSponsors
       def update_benefit_sponsorship(profile)
         rating_area = ::BenefitMarkets::Locations::RatingArea.rating_area_for(profile.primary_office_location.address)
         service_areas = ::BenefitMarkets::Locations::ServiceArea.service_areas_for(profile.primary_office_location.address)
-        rating_area_id = begin
-          rating_area.id.to_s
-        rescue StandardError
-          nil
-        end
+        rating_area_id = rating_area.id.to_s rescue nil
         active_benefit_sponsorship.assign_attributes(rating_area_id: rating_area_id)
         active_benefit_sponsorship.service_areas = service_areas
         active_benefit_sponsorship
@@ -260,9 +256,9 @@ module BenefitSponsors
         bs_having_start_date = benefit_sponsorships_with_benefit_application
 
         if bs_without_date.count > 0
-          benefit_sponsorship =  bs_without_date.first
+          bs_without_date.first
         elsif bs_having_start_date.count > 0
-          benefit_sponsorship = bs_having_start_date.order_by(&:effective_being_on.desc).first
+          bs_having_start_date.order_by(&:effective_being_on.desc).first
         end
       end
 

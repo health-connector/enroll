@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :person do
     # name_pfx 'Mr'
@@ -18,16 +20,16 @@ FactoryBot.define do
 
     trait :with_family do
       after :create do |person|
-        family = FactoryBot.create :family, :with_primary_family_member, person: person
+        FactoryBot.create :family, :with_primary_family_member, person: person
       end
     end
 
     trait :with_work_phone do
-      phones { [FactoryBot.build(:phone, kind: "work") ] }
+      phones { [FactoryBot.build(:phone, kind: "work")] }
     end
 
     trait :with_work_email do
-      emails { [FactoryBot.build(:email, kind: "work") ] }
+      emails { [FactoryBot.build(:email, kind: "work")] }
     end
 
     trait :with_employee_role do

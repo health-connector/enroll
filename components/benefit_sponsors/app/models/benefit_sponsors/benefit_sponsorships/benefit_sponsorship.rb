@@ -739,7 +739,7 @@ module BenefitSponsors
           benefit_application.benefit_sponsorship_event_subscriber(aasm)
         end
       rescue StandardError => e
-        Rails.logger.error("#{e.inspect}")
+        Rails.logger.error("publish_benefit_sponsor_event failed with #{e.inspect}")
       end
     end
 

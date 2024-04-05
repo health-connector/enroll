@@ -15,7 +15,7 @@ module BenefitSponsors
 
     let(:broker_organization) {FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
     let(:broker_person) { FactoryBot.create(:person, :with_broker_role) }
-    let(:broker_user) { FactoryBot.create(:user, person: broker_person ) }
+    let(:broker_user) { FactoryBot.create(:user, person: broker_person) }
 
     let(:admin_person) {FactoryBot.create(:person)}
     let(:admin_user) {FactoryBot.create(:user, :person => admin_person)}

@@ -57,7 +57,7 @@ module PermissionsConcern
     end
 
     def hbx_staff_role?
-      self.person&.hbx_staff_role.present?
+      person&.hbx_staff_role.present?
     end
 
     def has_hbx_staff_role?
