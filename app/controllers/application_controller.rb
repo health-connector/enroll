@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   include Pundit
   include Config::SiteConcern
@@ -143,14 +145,18 @@ class ApplicationController < ActionController::Base
   end
 
   def update_url
-    if ((controller_name == "employer_profiles" && action_name == "show") ||
-       (controller_name == "families" && action_name == "home") ||
-       (controller_name == "profiles" && action_name == "new") ||
-       (controller_name == 'profiles' && action_name == 'show') ||
-       (controller_name == 'hbx_profiles' && action_name == 'show')) && (current_user.last_portal_visited != request.original_url)
-      current_user.last_portal_visited = request.original_url
-      current_user.save
-    end
+    return unless [
+      ["employer_profiles", "show"],
+      ["families", "home"],
+      ["profiles", "new"],
+      ["profiles", "show"],
+      ["hbx_profiles", "show"]
+    ].any? { |controller, action| controller_name == controller && action_name == action }
+
+    return if current_user.last_portal_visited == request.original_url
+
+    current_user.last_portal_visited = request.original_url
+    current_user.save
   end
 
   def user_preferred_language
@@ -190,7 +196,7 @@ class ApplicationController < ActionController::Base
         redirect_to main_app.new_user_registration_path
       end
     end
-  rescue Exception => e
+  rescue StandardError => e
     message = {}
     message[:message] = "Application Exception - #{e.message}"
     message[:session_person_id] = session[:person_id] if session[:person_id]
@@ -308,9 +314,10 @@ class ApplicationController < ActionController::Base
   def set_bookmark_url(url = nil)
     set_current_person
     bookmark_url = url || request.original_url
-    if /employee/.match(bookmark_url)
+    case bookmark_url
+    when /employee/
       role = @person.try(:employee_roles).try(:last)
-    elsif /consumer/.match(bookmark_url)
+    when /consumer/
       role = @person.try(:consumer_role)
     end
     save_bookmark role, bookmark_url
@@ -360,7 +367,8 @@ class ApplicationController < ActionController::Base
     announcements = Announcement.get_announcements_for_web
     dismiss_announcements = begin
       JSON.parse(session[:dismiss_announcements] || "[]")
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(e.message)
       []
     end
     announcements -= dismiss_announcements
@@ -380,6 +388,7 @@ class ApplicationController < ActionController::Base
     dismiss_announcements = begin
       JSON.parse(session[:dismiss_announcements] || "[]")
     rescue StandardError
+      Rails.logger.error(ex.message)
       []
     end
     announcements -= dismiss_announcements

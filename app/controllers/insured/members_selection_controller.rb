@@ -17,7 +17,6 @@ module Insured
     def eligible_coverage_selection
       @organizer = Organizers::EligibleCoverageSelectionForNew.call(params: params.to_unsafe_h.symbolize_keys)
 
-      binding.pry
       if @organizer.failure? # rubocop:disable Style/GuardClause
         flash[:error] = @organizer.message
         redirect_back fallback_location: main_app.root_path

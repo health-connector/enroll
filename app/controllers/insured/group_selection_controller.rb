@@ -67,7 +67,7 @@ class Insured::GroupSelectionController < ApplicationController
 
     unless @adapter.is_waiving?(params)
       raise "You must select at least one Eligible applicant to enroll in the healthcare plan" if params[:family_member_ids].blank?
-      family_member_ids = params[:family_member_ids].values.collect do | family_member_id|
+      family_member_ids = params[:family_member_ids].values.collect do |family_member_id|
         BSON::ObjectId.from_string(family_member_id)
       end
     end

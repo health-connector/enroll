@@ -11,7 +11,7 @@ class AddPrimaryFamily < MongoidMigrationTask
     end
     family.family_members.map(&:__association_reload_on_person)
     family.save!
-  rescue Exception => e
-     puts e.message
+  rescue StandardError => e
+    puts e.message
   end
 end

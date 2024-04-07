@@ -159,7 +159,7 @@ class User
 
   def is_benefit_sponsor_active_broker?(profile_id)
     profile_organization = BenefitSponsors::Organizations::Organization.employer_profiles.where(:"profiles._id" => BSON::ObjectId.from_string(profile_id)).first
-    person == profile_organization.employer_profile.active_broker if profile_organization && profile_organization.employer_profile && profile_organization.employer_profile.active_broker
+    person == profile_organization&.employer_profile&.active_broker
   end
 
   def handle_headless_records
@@ -206,12 +206,9 @@ class User
 
     if portal_path.include?("employers/employer_profiles")
       announcements.concat(Announcement.current_msg_for_employer) if has_employer_staff_role?
-    elsif portal_path.include?("families/home")
+    elsif portal_path.include?("families/home") || portal_path.include?("employee")
       announcements.concat(Announcement.current_msg_for_employee) if has_employee_role? || (person && person.has_active_employee_role?)
-      announcements.concat(Announcement.current_msg_for_ivl) if has_consumer_role? || (person && person.has_active_consumer_role?)
-    elsif portal_path.include?("employee")
-      announcements.concat(Announcement.current_msg_for_employee) if has_employee_role? || (person && person.has_active_employee_role?)
-    elsif portal_path.include?("consumer")
+    elsif portal_path.include?("families/home") || portal_path.include?("consumer")
       announcements.concat(Announcement.current_msg_for_ivl) if has_consumer_role? || (person && person.has_active_consumer_role?)
     elsif portal_path.include?("broker_agencies")
       announcements.concat(Announcement.current_msg_for_broker) if has_broker_role?

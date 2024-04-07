@@ -7,7 +7,7 @@ module Insured
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
-      # TODO - use permit params
+      # TODO: Use permit params
       attr = strong_params.to_h.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
                                                                      dental_offering: attr[:dental_offering],  health_offering: attr[:health_offering],
@@ -123,7 +123,7 @@ module Insured
     end
 
     def waiver_thankyou
-      # TODO - use permit params
+      # TODO: Use permit params
       attrs = params.permit!.to_h.deep_symbolize_keys
       enr_details = attrs.slice(:health, :dental)
 

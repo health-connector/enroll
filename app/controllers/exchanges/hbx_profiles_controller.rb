@@ -95,6 +95,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       flash["notice"] = "Successfully submitted the selected employer(s) for binder paid."
       render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
     rescue StandardError => e
+      Rails.logger.error(e.message)
       render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
     end
 
@@ -670,7 +671,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     begin
       forms_time_keeper.set_date_of_record(forms_time_keeper.forms_date_of_record)
       flash[:notice] = "Date of record set to " + TimeKeeper.date_of_record.strftime("%m/%d/%Y")
-    rescue Exception => e
+    rescue StandardError => e
       flash[:error] = "Failed to set date of record, " + e.message
     end
     redirect_to exchanges_hbx_profiles_root_path
@@ -705,7 +706,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     begin
       setting_record.update(value: setting_params[:value]) if setting_record.present?
-    rescue Exception => e
+    rescue StandardError => e
       flash[:error] = "Failed to update setting, " + e.message
     end
     redirect_to exchanges_hbx_profiles_root_path
@@ -814,7 +815,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       last_name = insured.last_name
       name = insured.full_name
       insured_email = insured.emails.last.try(:address) || insured.try(:user).try(:email)
-      root = 'http://' + request.env["HTTP_HOST"] + '/exchanges/agents/resume_enrollment?person_id=' + params[:person] + '&original_application_type:'
+      root = 'http://' + request.env['HTTP_HOST'] + '/exchanges/agents/resume_enrollment?person_id=' + params[:person] + '&original_application_type:'
       body =
         "Please contact #{insured.first_name} #{insured.last_name}. <br> " +
         "Plan shopping help has been requested by #{insured_email}<br>" +
