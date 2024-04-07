@@ -240,7 +240,7 @@ Given(/^Hbx Admin exists$/) do
   year = (Date.today + 2.months).year
   year = (Date.today + 2.months).year
   plan = FactoryBot.create :plan, :with_premium_tables, :with_rating_factors, active_year: year, market: 'shop', coverage_kind: 'health', deductible: 4000
-  plan2 = FactoryBot.create :plan, :with_premium_tables, :with_rating_factors, active_year: (year - 1), market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id
+  FactoryBot.create :plan, :with_premium_tables, :with_rating_factors, active_year: (year - 1), market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id
 end
 
 Given(/^a Hbx admin with read and write permissions and broker agencies$/) do
@@ -253,9 +253,9 @@ Given(/^a Hbx admin with read and write permissions and broker agencies$/) do
   FactoryBot.create :hbx_staff_role, person: user.person, hbx_profile: hbx_profile, permission_id: p_staff.id
   FactoryBot.create :hbx_enrollment, household: user.primary_family.active_household
   org1 = FactoryBot.create(:organization, legal_name: 'ACME Agency')
-  broker_agency_profile1 = FactoryBot.create(:broker_agency_profile, organization: org1)
+  FactoryBot.create(:broker_agency_profile, organization: org1)
   org2 = FactoryBot.create(:organization, legal_name: 'Chase & Assoc')
-  broker_agency_profile2 = FactoryBot.create(:broker_agency_profile, organization: org2)
+  FactoryBot.create(:broker_agency_profile, organization: org2)
 end
 
 Given(/^a Hbx admin with read and write permissions exists$/) do
@@ -299,7 +299,7 @@ Given(/^(.*)Employer for (.*) exists with a published health plan year$/) do |_k
   FactoryBot.create(:rating_area, zip_code: "01002", county_name: "Franklin", rating_area: Settings.aca.rating_areas.first)
   organization = FactoryBot.create :organization, legal_name: person[:legal_name], dba: person[:dba], fein: person[:fein]
   employer_profile = FactoryBot.create :employer_profile, organization: organization
-  owner = FactoryBot.create :census_employee, :owner, employer_profile: employer_profile
+  FactoryBot.create :census_employee, :owner, employer_profile: employer_profile
   employee = FactoryBot.create :census_employee, employer_profile: employer_profile,
                                                  first_name: person[:first_name],
                                                  last_name: person[:last_name],
@@ -328,7 +328,7 @@ Given(/^Employer for (.*) exists with a published plan year offering health and 
   FactoryBot.create(:rating_area, zip_code: "01002", county_name: "Franklin", rating_area: Settings.aca.rating_areas.first)
   organization = FactoryBot.create :organization, legal_name: person[:legal_name], dba: person[:dba], fein: person[:fein]
   employer_profile = FactoryBot.create :employer_profile, organization: organization
-  owner = FactoryBot.create :census_employee, :owner, employer_profile: employer_profile
+  FactoryBot.create :census_employee, :owner, employer_profile: employer_profile
   employee = FactoryBot.create :census_employee, employer_profile: employer_profile,
                                                  first_name: person[:first_name],
                                                  last_name: person[:last_name],
@@ -400,7 +400,7 @@ Given(/(.*) Employer for (.*) exists with active and expired plan year/) do |kin
   FactoryBot.create(:rating_area, zip_code: "01002", county_name: "Franklin", rating_area: Settings.aca.rating_areas.first)
   organization = FactoryBot.create :organization, :with_expired_and_active_plan_years, legal_name: person[:legal_name], dba: person[:dba], fein: person[:fein]
   organization.employer_profile.update_attributes(profile_source: (kind.downcase == 'conversion' ? kind.downcase : 'self_serve'), registered_on: TimeKeeper.date_of_record)
-  owner = FactoryBot.create :census_employee, :owner, employer_profile: organization.employer_profile
+  FactoryBot.create :census_employee, :owner, employer_profile: organization.employer_profile
   employee = FactoryBot.create :census_employee, employer_profile: organization.employer_profile,
                                                  first_name: person[:first_name],
                                                  last_name: person[:last_name],
@@ -422,7 +422,7 @@ Given(/(.*) Employer for (.*) exists with active and renewing enrolling plan yea
   FactoryBot.create(:rating_area, zip_code: "01002", county_name: "Franklin", rating_area: Settings.aca.rating_areas.first)
   organization = FactoryBot.create :organization, :with_active_and_renewal_plan_years, legal_name: person[:legal_name], dba: person[:dba], fein: person[:fein]
   organization.employer_profile.update_attributes(profile_source: (kind.downcase == 'conversion' ? kind.downcase : 'self_serve'), registered_on: TimeKeeper.date_of_record)
-  owner = FactoryBot.create :census_employee, :owner, employer_profile: organization.employer_profile
+  FactoryBot.create :census_employee, :owner, employer_profile: organization.employer_profile
   employee = FactoryBot.create :census_employee, employer_profile: organization.employer_profile,
                                                  first_name: person[:first_name],
                                                  last_name: person[:last_name],
@@ -1284,9 +1284,9 @@ Given(/^a Hbx admin with read and write permissions and employers$/) do
   @user_2 = FactoryBot.create :user, :with_family, :employer_staff, oim_id: "Employer2"
   FactoryBot.create :hbx_staff_role, person: user.person, hbx_profile: hbx_profile, permission_id: p_staff.id
   org1 = FactoryBot.create(:organization, legal_name: 'Acme Agency', hbx_id: "123456")
-  employer_profile = FactoryBot.create :employer_profile, organization: org1
+  FactoryBot.create :employer_profile, organization: org1
   org2 = FactoryBot.create(:organization, legal_name: 'Chase & Assoc', hbx_id: "67890")
-  employer_profile = FactoryBot.create :employer_profile, organization: org2
+  FactoryBot.create :employer_profile, organization: org2
 end
 
 Given(/^Continuous plan shopping is turned off$/) do

@@ -93,7 +93,7 @@ Then(/^I should only see locked user with employee role$/) do
 end
 
 Then(/^I should only see unlocked user with employee role$/) do
-  locked_employee_user = User.where(:roles.in => ["employee"], :locked_at.ne => nil).first.oim_id
+  User.where(:roles.in => ["employee"], :locked_at.ne => nil).first.oim_id
   locked_employer_user = User.where(:roles.in => ["employer_staff"], :locked_at.ne => nil).first.oim_id
   locked_broker_user = User.where(:roles.in => ["broker"], :locked_at.ne => nil).first.oim_id
   employee_user = User.where(:roles.in => ["employee"], locked_at: nil).first.oim_id

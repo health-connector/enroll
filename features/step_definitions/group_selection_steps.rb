@@ -167,8 +167,8 @@ end
 And(/Employer not offers dental benefits for spouse in renewal plan year/) do
   benefits = @renewal_benefit_group.dental_relationship_benefits
   benefits.each(&:delete) until benefits.blank?
-  rbs = [FactoryBot.build_stubbed(:dental_relationship_benefit, benefit_group: @renewal_benefit_group, relationship: :employee, premium_pct: 49, employer_max_amt: 1000.00),
-         FactoryBot.build_stubbed(:dental_relationship_benefit, benefit_group: @renewal_benefit_group, relationship: :spouse, premium_pct: 40, employer_max_amt:  200.00, offered: false)]
+  [FactoryBot.build_stubbed(:dental_relationship_benefit, benefit_group: @renewal_benefit_group, relationship: :employee, premium_pct: 49, employer_max_amt: 1000.00),
+   FactoryBot.build_stubbed(:dental_relationship_benefit, benefit_group: @renewal_benefit_group, relationship: :spouse, premium_pct: 40, employer_max_amt:  200.00, offered: false)]
   @renewal_benefit_group.save
 end
 
@@ -257,7 +257,7 @@ And(/user did not apply coverage for child as ivl/) do
 end
 
 And(/employee has a valid "(.*)" qle/) do |qle|
-  qle = FactoryBot.create :qualifying_life_event_kind, title: qle
+  FactoryBot.create :qualifying_life_event_kind, title: qle
 end
 
 And(/employee cannot uncheck primary person/) do

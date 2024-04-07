@@ -16,7 +16,7 @@ module UserWorld
       @broker
     else
       person = FactoryBot.create(:person)
-      broker_role = FactoryBot.build(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person)
+      FactoryBot.build(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person)
       @broker = FactoryBot.create(:user, :person => person)
     end
   end
@@ -38,7 +38,7 @@ module UserWorld
       else
         raise "No permission was found for subrole #{subrole}"
       end
-      hbx_staff_role = HbxStaffRole.create!(person: person, permission_id: permission_id, subrole: subrole, hbx_profile_id: hbx_profile_id)
+      HbxStaffRole.create!(person: person, permission_id: permission_id, subrole: subrole, hbx_profile_id: hbx_profile_id)
       @admin = FactoryBot.create(:user, :person => person)
     end
   end

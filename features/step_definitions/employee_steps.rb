@@ -38,14 +38,14 @@ end
 def employee_by_legal_name(legal_name, person)
   org = org_by_legal_name(legal_name)
   employee_role = FactoryBot.create(:employee_role, person: person, benefit_sponsors_employer_profile_id: org.employer_profile.id)
-  ce = FactoryBot.create(:census_employee,
-                         first_name: person.first_name,
-                         last_name: person.last_name,
-                         ssn: person.ssn,
-                         dob: person.dob,
-                         employer_profile: org.employer_profile,
-                         benefit_sponsorship: benefit_sponsorship(org),
-                         employee_role_id: employee_role.id)
+  FactoryBot.create(:census_employee,
+                    first_name: person.first_name,
+                    last_name: person.last_name,
+                    ssn: person.ssn,
+                    dob: person.dob,
+                    employer_profile: org.employer_profile,
+                    benefit_sponsorship: benefit_sponsorship(org),
+                    employee_role_id: employee_role.id)
 end
 
 Given(/a person exists with dual roles/) do
