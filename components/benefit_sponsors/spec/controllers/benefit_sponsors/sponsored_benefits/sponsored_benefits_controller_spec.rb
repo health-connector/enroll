@@ -16,7 +16,7 @@ RSpec.describe BenefitSponsors::SponsoredBenefits::SponsoredBenefitsController, 
   let(:current_effective_date)  { TimeKeeper.date_of_record }
   let(:benefit_market)      { site.benefit_markets.first }
   let(:benefit_market_catalog) do
-    Factorybot.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
+    FactoryBot.create(:benefit_markets_benefit_market_catalog, :with_product_packages,
                       benefit_market: benefit_market,
                       title: "SHOP Benefits for #{current_effective_date.year}",
                       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year))
