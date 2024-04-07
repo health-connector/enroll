@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module Effective
   module EffectiveDatatable
     module Hooks
       # Called on the final collection after searching, ordering, arrayizing and formatting have been completed
-      def finalize(collection) # Override me if you like
+# Override me if you like
+      def finalize(collection)
         collection
       end
 

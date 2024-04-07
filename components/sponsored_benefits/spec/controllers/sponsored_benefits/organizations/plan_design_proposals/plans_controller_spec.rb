@@ -11,24 +11,24 @@ module SponsoredBenefits
       let!(:issuer_profile) { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile) }
       let!(:county_zip) do
         FactoryBot.create(:benefit_markets_locations_county_zip,
-                           county_name: 'Middlesex',
-                           zip: '01754',
-                           state: 'MA')
+                          county_name: 'Middlesex',
+                          zip: '01754',
+                          state: 'MA')
       end
       let!(:service_area) do
         FactoryBot.create(:benefit_markets_locations_service_area,
-                           county_zip_ids: [county_zip.id],
-                           active_year: current_effective_date.year)
+                          county_zip_ids: [county_zip.id],
+                          active_year: current_effective_date.year)
       end
 
       let!(:hps) do
         FactoryBot.create_list(:benefit_markets_products_health_products_health_product,
-                                5,
-                                application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-                                product_package_kinds: [:single_issuer, :metal_level, :single_product],
-                                service_area: service_area,
-                                issuer_profile_id: issuer_profile.id,
-                                metal_level_kind: :gold)
+                               5,
+                               application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+                               product_package_kinds: [:single_issuer, :metal_level, :single_product],
+                               service_area: service_area,
+                               issuer_profile_id: issuer_profile.id,
+                               metal_level_kind: :gold)
       end
 
       before do
@@ -66,11 +66,11 @@ module SponsoredBenefits
       let(:plan_design_organization) { FactoryBot.create(:sponsored_benefits_plan_design_organization) }
       let(:carrier_profile) { FactoryBot.create(:carrier_profile) }
       let(:plan_1) { FactoryBot.create(:plan, premium_tables: [premium_table_1], carrier_profile_id: carrier_profile.id, active_year: 2022) }
-      let!(:product_1) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: plan_1.hios_id, application_period: ('2022-01-01'.to_date..'2022-12-31'.to_date)) }
+      let!(:product_1) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: plan_1.hios_id, application_period: (('2022-01-01'.to_date)..('2022-12-31'.to_date))) }
       let(:premium_table_1) { PremiumTable.new(age: 12, cost: 12, start_on: '2022-07-01'.to_date, end_on: '2022-09-30'.to_date) }
 
       let(:plan_2) { FactoryBot.create(:plan, premium_tables: [premium_table_2], carrier_profile_id: carrier_profile.id, active_year: 2022) }
-      let!(:product_2) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: plan_2.hios_id, application_period: ('2022-01-01'.to_date..'2022-12-31'.to_date)) }
+      let!(:product_2) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: plan_2.hios_id, application_period: (('2022-01-01'.to_date)..('2022-12-31'.to_date))) }
       let(:premium_table_2) { PremiumTable.new(age: 12, cost: 12, start_on: '2022-01-01'.to_date, end_on: '2022-03-31'.to_date) }
 
       let(:valid_params) do

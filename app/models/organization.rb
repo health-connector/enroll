@@ -534,7 +534,7 @@ class Organization
   def office_location_kinds
     location_kinds = office_locations.reject(&:persisted?).flat_map(&:address).compact.flat_map(&:kind)
     # should validate only office location which are not persisted AND kinds ie. primary, mailing, branch
-    return if (location_kinds.detect{|kind| ['work', 'home'].include?(kind)})
+    return if location_kinds.detect { |kind| ['work', 'home'].include?(kind) }
 
     return if location_kinds.empty?
 

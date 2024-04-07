@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # These are Class level methods.
 
 module Effective

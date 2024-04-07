@@ -815,7 +815,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       last_name = insured.last_name
       name = insured.full_name
       insured_email = insured.emails.last.try(:address) || insured.try(:user).try(:email)
-      root = 'http://' + request.env['HTTP_HOST'] + '/exchanges/agents/resume_enrollment?person_id=' + params[:person] + '&original_application_type:'
+      root = "http://#{request.env['HTTP_HOST']}/exchanges/agents/resume_enrollment?person_id=#{params[:person]}&original_application_type:"
       body =
         "Please contact #{insured.first_name} #{insured.last_name}. <br> " +
         "Plan shopping help has been requested by #{insured_email}<br>" +

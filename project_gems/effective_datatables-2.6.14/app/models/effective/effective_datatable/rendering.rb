@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 # This is extended as class level into Datatable
 
 module Effective
   module EffectiveDatatable
     module Rendering
-      BLANK = ''.freeze
+      BLANK = ''
 
       protected
 
@@ -110,13 +112,13 @@ module Effective
               end.to_s
             elsif opts[:type] == :has_many
               begin
-                obj.send(name).map { |obj| obj.to_s }.join('<br>')
+                obj.send(name).map(&:to_s).join('<br>')
               rescue StandardError
                 BLANK
               end
             elsif opts[:type] == :has_and_belongs_to_many
               begin
-                obj.send(name).map { |obj| obj.to_s }.join('<br>')
+                obj.send(name).map(&:to_s).join('<br>')
               rescue StandardError
                 BLANK
               end
@@ -170,18 +172,18 @@ module Effective
               row[index] = value.to_s
             when :has_many
               if value.is_a?(Array)
-                row[index] = if value.length == 0
+                row[index] = if value.empty?
                                BLANK
                              elsif value.length == 1
                                value.first.to_s
                              elsif opts[:sentence]
-                               value.map { |v| v.to_s }.to_sentence
+                               value.map(&:to_s).to_sentence
                              else
-                               value.map { |v| v.to_s }.join('<br>')
+                               value.map(&:to_s).join('<br>')
                              end
               end
             when :effective_address
-              row[index] = value.map { |addr| addr.to_html }.join('<br>')
+              row[index] = value.map(&:to_html).join('<br>')
             when :effective_roles
               row[index] = value.join(', ')
             when :datetime
@@ -454,6 +456,6 @@ module Effective
           path.split('/')[0...-1].map { |path| path.downcase.to_sym if path.present? }.compact
         end
       end
-    end # / Rendering
+    end
   end
 end

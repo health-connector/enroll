@@ -339,8 +339,8 @@ class Person
   def date_of_birth=(val)
     self.dob = begin
       Date.strptime(val, "%m/%d/%Y").to_date
-     rescue StandardError => ex
-       Rails.logger.error(ex)
+    rescue StandardError => e
+      Rails.logger.error(e)
       nil
     end
   end

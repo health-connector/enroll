@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This is extended as class level into Datatable
 
 module Effective
