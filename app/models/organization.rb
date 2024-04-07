@@ -401,12 +401,14 @@ class Organization
   def self.upload_invoice(file_path,file_name)
     invoice_date = begin
                      invoice_date(file_path)
-                   rescue StandardError
+                   rescue StandardError => e
+                     Rails.logger.error(e)
                      nil
                    end
     org = begin
             by_invoice_filename(file_path)
-          rescue StandardError
+          rescue StandardError => e
+            Rails.logger.error(e)
             nil
           end
     if invoice_date && org && !invoice_exist?(invoice_date,org)
@@ -433,12 +435,14 @@ class Organization
   def self.upload_commission_statement(file_path,file_name)
     statement_date = begin
                        commission_statement_date(file_path)
-                     rescue StandardError
+                     rescue StandardError => e
+                       Rails.logger.error(e)
                        nil
                      end
     org = begin
             by_commission_statement_filename(file_path)
           rescue StandardError
+            Rails.logger.error(e)
             nil
           end
     if statement_date && org && !commission_statement_exist?(statement_date,org)
@@ -462,15 +466,17 @@ class Organization
   def self.upload_invoice_to_print_vendor(file_path,file_name)
     org = begin
             by_invoice_filename(file_path)
-          rescue StandardError
+          rescue StandardError => e
+            Rails.logger.error(e)
             nil
           end
     return unless org.employer_profile.is_converting?
 
     bucket_name = Settings.paper_notice
     begin
-      doc_uri = Aws::S3Storage.save(file_path,bucket_name,file_name)
-    rescue Exception => e
+      Aws::S3Storage.save(file_path,bucket_name,file_name)
+    rescue StandardError => e
+      Rails.logger.error(e)
       puts "Unable to upload invoices to paper notices bucket"
     end
   end
