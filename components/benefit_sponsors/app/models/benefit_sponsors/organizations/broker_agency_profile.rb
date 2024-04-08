@@ -13,6 +13,11 @@ module BenefitSponsors
         "Both – Individual & Family AND Small Business Marketplaces" => "both"
       }
 
+      # @!attribute SHOP_MARKET_KINDS
+      #   @return [Array<Symbol>] Represents the market types that are considered as shop markets.
+      #   The possible values are :both and :shop.
+      SHOP_MARKET_KINDS = %i[both shop].freeze
+
       MARKET_KINDS_OPTIONS = ALL_MARKET_KINDS_OPTIONS.select { |k,v| MARKET_KINDS.include? v.to_sym }
 
       field :market_kind, type: Symbol
@@ -145,6 +150,14 @@ module BenefitSponsors
         event :close do
           transitions from: [:is_approved, :is_suspended], to: :is_closed
         end
+      end
+
+      # Checks if the broker agency profile is associated with the shop market.
+      # It checks if the market_kind of the broker agency profile is included in the SHOP_MARKET_KINDS.
+      #
+      # @return [Boolean] Returns true if the broker agency profile is associated with the shop market, false otherwise.
+      def shop_market?
+        SHOP_MARKET_KINDS.include?(market_kind)
       end
 
       private
