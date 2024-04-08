@@ -113,10 +113,6 @@ gem 'config',                   '~> 2.0'
 #
 #######################################################
 
-group :doc do
-  gem 'sdoc',  '~> 1.0'
-end
-
 group :development do
   gem "certified"
   gem 'overcommit'
@@ -143,6 +139,7 @@ group :development, :test do
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
+  gem 'sdoc',  '~> 1.0'
 end
 
 group :test do
