@@ -22,16 +22,13 @@ Then(/^there is (\d+) questions available in the list$/) do |num|
 end
 
 When(/^Hbx Admin clicks on (.*?) Question link$/) do |link|
-  link_title = case link
-               when 'Security'
-                 'Security Question'
-               when 'New'
-                 'New Question'
-               when 'Edit'
-                 'Edit'
-               when 'Delete'
-                 'Delete'
-               end
+  link_titles = {
+    'Security' => 'Security Question',
+    'New' => 'New Question',
+    'Edit' => 'Edit',
+    'Delete' => 'Delete'
+  }
+  link_title = link_titles[link]
   click_link(link_title)
 end
 

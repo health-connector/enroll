@@ -350,7 +350,7 @@ And(/^employees for (.*?) have a selected coverage$/) do |legal_name|
   bga =  @census_employees.first.active_benefit_group_assignment
   benefit_package = fetch_benefit_group(legal_name)
   coverage_household = person.primary_family.households.first
-  rating_area_id = benefit_package.benefit_application.recorded_rating_area_id
+  benefit_package.benefit_application.recorded_rating_area_id
   sponsored_benefit_id = benefit_package.sponsored_benefits.first.id
   FactoryBot.create(
     :hbx_enrollment,

@@ -344,7 +344,7 @@ end
 
 When(/^I go to the Profile tab$/) do
   find('.interaction-click-control-update-business-info').click
-  find('.interaction-click-control-cancel').clickfeatures / employers / step_definitions / cobra_steps.rb
+  find('.interaction-click-control-cancel').click
 
   expect(page).to have_content('Business Info')
 end

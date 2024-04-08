@@ -31,6 +31,7 @@ module UserWorld
       raise "No subrole was provided" if subrole.blank?
 
       raise "No permission was found for subrole #{subrole}" if Permission.where(name: subrole).blank?
+
       permission = Permission.where(name: subrole).first
       permission.update_attributes(can_modify_plan_year: true)
       permission.update_attributes(can_access_user_account_tab: true)
