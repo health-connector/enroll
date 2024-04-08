@@ -578,10 +578,8 @@ module BenefitSponsors
         end
 
         before do
-          allow(renewal_sponsored_benefit).to receive(:products).and_return(#removing hbx_enrollment.product.renewal_product from renewal_product_package
-renewal_product_package.products.reject do |prod|
-  prod.id == hbx_enrollment.product.renewal_product.id
-                                                                            end
+          #removing hbx_enrollment.product.renewal_product from renewal_product_package
+          allow(renewal_sponsored_benefit).to receive(:products).and_return(renewal_product_package.products.reject{ |prod| prod.id == hbx_enrollment.product.renewal_product.id })
           allow(current_enrolled_product).to receive(:renewal_product).and_return(nil)
           allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(renewal_sponsored_benefit)
         end
