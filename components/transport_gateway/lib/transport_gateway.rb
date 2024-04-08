@@ -17,8 +17,7 @@ module URI
     end
   end
 
-  @schemes ||= {}
-  @schemes['S3'] = S3
+  @@schemes['S3'] = S3
 end
 
 # Provides the raw underlying plumbing for transfering resources.
