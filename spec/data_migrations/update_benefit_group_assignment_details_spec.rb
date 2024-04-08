@@ -49,10 +49,6 @@ describe ChangeEnrollmentDetails do
         sequence_id: 1,
         state: benefit_application.aasm_state
       )
-      allow(ENV).to receive(:[]).with("ce_id").and_return(census_employee.id.to_s)
-      allow(ENV).to receive(:[]).with("bga_id").and_return(benefit_group_assignment.id)
-      allow(ENV).to receive(:[]).with("new_state").and_return "coverage_void"
-      allow(ENV).to receive(:[]).with("action").and_return "change_aasm_state"
     end
 
     it "should change the aasm state" do

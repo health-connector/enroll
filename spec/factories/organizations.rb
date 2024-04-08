@@ -23,9 +23,12 @@ FactoryBot.define do
       end
       after :create do |organization, _evaluator|
         start_on = TimeKeeper.date_of_record.beginning_of_month
-        active_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "active",
-                                                         :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
-        active_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
+        active_plan_year = FactoryBot.create(
+          :plan_year,
+          employer_profile: organization.employer_profile, aasm_state: "active", start_on: start_on, end_on: start_on + 1.year - 1.day, fte_count: 5,
+          open_enrollment_start_on: (start_on - 30).beginning_of_month, open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks
+        )
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
       end
     end
 
@@ -35,9 +38,12 @@ FactoryBot.define do
       end
       after :create do |organization, _evaluator|
         start_on = TimeKeeper.date_of_record.beginning_of_month
-        active_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "active",
-                                                         :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
-        active_benefit_group = FactoryBot.create :benefit_group, plan_year: active_plan_year
+        active_plan_year = FactoryBot.create(
+          :plan_year,
+          employer_profile: organization.employer_profile, aasm_state: "active", start_on: start_on, end_on: start_on + 1.year - 1.day, fte_count: 5,
+          open_enrollment_start_on: (start_on - 30).beginning_of_month, open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks
+        )
+        FactoryBot.create :benefit_group, plan_year: active_plan_year
       end
     end
 
@@ -47,13 +53,20 @@ FactoryBot.define do
       end
       after :create do |organization, _evaluator|
         start_on = TimeKeeper.date_of_record.beginning_of_month - 1.year
-        expired_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "expired",
-                                                          :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
+        expired_plan_year = FactoryBot.create(
+          :plan_year,
+          employer_profile: organization.employer_profile, aasm_state: "expired", :start_on => start_on, :end_on => start_on + 1.year - 1.day,
+          :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
+        )
         start_on = TimeKeeper.date_of_record.beginning_of_month
-        active_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "active",
-                                                         :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
-        expired_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: expired_plan_year
-        active_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
+        active_plan_year = FactoryBot.create(
+          :plan_year,
+          employer_profile: organization.employer_profile, aasm_state: "active", start_on: start_on, end_on: start_on + 1.year - 1.day, fte_count: 5,
+          open_enrollment_start_on: (start_on - 30).beginning_of_month, open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks
+        )
+
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: expired_plan_year
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
       end
     end
 
@@ -64,10 +77,10 @@ FactoryBot.define do
       after :create do |organization, _evaluator|
         start_on = (TimeKeeper.date_of_record + 2.months).beginning_of_month - 1.year
         active_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "active", :start_on => start_on, :end_on => start_on + 1.year - 1.day, fte_count: 5
-        start_on = (TimeKeeper.date_of_record + 2.months).beginning_of_month
         renewing_plan_year = FactoryBot.create(:future_plan_year, employer_profile: organization.employer_profile, aasm_state: "renewing_enrolling")
-        benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
-        renewing_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
+
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_plan_year
       end
     end
 
@@ -94,10 +107,13 @@ FactoryBot.define do
                                                               :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month,
                                                               :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5, is_conversion: true
         start_on = TimeKeeper.date_of_record.beginning_of_month
-        renewing_canceled_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "renewing_canceled",
-                                                                    :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
-        con_expired_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: con_expired_plan_year
-        renewing_canceled_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_canceled_plan_year
+        renewing_canceled_plan_year = FactoryBot.create(
+          :plan_year,
+          employer_profile: organization.employer_profile, aasm_state: "renewing_canceled", start_on: start_on, end_on: start_on + 1.year - 1.day,
+          open_enrollment_start_on: (start_on - 30).beginning_of_month, open_enrollment_end_on: (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
+        )
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: con_expired_plan_year
+        FactoryBot.create :benefit_group, :with_valid_dental, plan_year: renewing_canceled_plan_year
       end
     end
   end
@@ -108,13 +124,20 @@ FactoryBot.define do
     end
     after :create do |organization, _evaluator|
       start_on = TimeKeeper.date_of_record.beginning_of_month - 1.year
-      expired_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "expired",
-                                                        :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5, :is_conversion => true
+      expired_plan_year = FactoryBot.create(
+        :plan_year,
+        employer_profile: organization.employer_profile, aasm_state: "expired", :start_on => start_on, :end_on => start_on + 1.year - 1.day, :is_conversion => true,
+        :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
+      )
       start_on = TimeKeeper.date_of_record.beginning_of_month
-      active_plan_year = FactoryBot.create :plan_year, employer_profile: organization.employer_profile, aasm_state: "active",
-                                                       :start_on => start_on, :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5, :is_conversion => true
-      expired_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: expired_plan_year
-      active_benefit_group = FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
+      active_plan_year = FactoryBot.create(
+        :plan_year,
+        employer_profile: organization.employer_profile, aasm_state: "active", :start_on => start_on, :end_on => start_on + 1.year - 1.day, :is_conversion => true,
+        :open_enrollment_start_on => (start_on - 30).beginning_of_month, :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks, fte_count: 5
+      )
+
+      FactoryBot.create :benefit_group, :with_valid_dental, plan_year: expired_plan_year
+      FactoryBot.create :benefit_group, :with_valid_dental, plan_year: active_plan_year
     end
   end
 
@@ -180,7 +203,7 @@ FactoryBot.define do
       after :create do |organization, _evaluator|
 
         plan_year = FactoryBot.create :next_month_plan_year, employer_profile: organization.employer_profile
-        plan_year.benefit_groups.push(benefit_group = FactoryBot.create(:benefit_group, plan_year: plan_year, relationship_benefits: [relationship_benefit = FactoryBot.build(:relationship_benefit)]))
+        plan_year.benefit_groups.push(benefit_group = FactoryBot.create(:benefit_group, plan_year: plan_year, relationship_benefits: [FactoryBot.build(:relationship_benefit)]))
 
         # data to create an enrollment
         family = FactoryBot.create(:family, :with_primary_family_member)
@@ -189,7 +212,7 @@ FactoryBot.define do
         hbx_enrollment = FactoryBot.create(:hbx_enrollment, household: household, plan: FactoryBot.create(:plan), benefit_group: benefit_group, hbx_enrollment_members: [hbx_enrollment_member], coverage_kind: "health")
         # end of data to create an enrollment
 
-        census_employees = FactoryBot.create_list(:census_employee, 1, :with_enrolled_census_employee, employer_profile_id: organization.employer_profile.id).tap do |census_employees|
+        FactoryBot.create_list(:census_employee, 1, :with_enrolled_census_employee, employer_profile_id: organization.employer_profile.id).tap do |census_employees|
           census_employees.each do |census_employee|
             census_employee.aasm_state = "employee_role_linked"
             census_employee.benefit_group_assignments.create benefit_group: benefit_group, start_on: benefit_group.start_on, aasm_state: "coverage_selected", hbx_enrollment_id: hbx_enrollment.id
@@ -221,7 +244,6 @@ FactoryBot.define do
       organization.broker_agency_profile = FactoryBot.build :broker_agency_profile, organization: organization
     end
   end
-
 
   factory :general_agency, class: Organization do
     legal_name { Forgery(:name).company_name }

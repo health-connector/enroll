@@ -43,7 +43,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       And employer clicked on gold metal level
       Then employer should see create plan year button disabled
       And employer selected 100 contribution percent for the application
-      Then employer should see your estimated montly cost
+      Then employer should see employer estimated montly cost
       And employer should see that the create plan year is true
       And employer clicks Create Plan Year
       And staff role person clicked on employees tab
@@ -101,7 +101,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       And employer clicked on gold metal level
       Then employer should see create plan year button disabled
       And employer selected 100 contribution percent for the application
-      Then employer should see your estimated montly cost
+      Then employer should see employer estimated montly cost
       And employer should see that the create plan year is true
       And employer clicks Create Plan Year
       And staff role person clicked on employees tab

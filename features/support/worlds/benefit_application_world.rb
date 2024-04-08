@@ -50,10 +50,10 @@ module BenefitApplicationWorld
 
   def application_dates_for(effective_date, aasm_state)
     oe_period = if effective_date >= TimeKeeper.date_of_record
-      TimeKeeper.date_of_record.beginning_of_month..(effective_date.prev_month + 20.days)
-    else
-      effective_date.prev_month..(effective_date.prev_month + Settings.aca.shop_market.open_enrollment.monthly_end_on - 1.day)
-    end
+                  TimeKeeper.date_of_record.beginning_of_month..(effective_date.prev_month + 20.days)
+                else
+                  effective_date.prev_month..(effective_date.prev_month + Settings.aca.shop_market.open_enrollment.monthly_end_on - 1.day)
+                end
 
     {
       effective_period: effective_date..effective_date.next_year.prev_day,
@@ -98,15 +98,15 @@ module BenefitApplicationWorld
                              end
     application_dates = application_dates_for(application_start_date, new_application_status)
     @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
-                       :with_benefit_package,
-                       benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
-                       default_effective_period: application_dates[:effective_period],
-                       aasm_state: new_application_status,
-                       open_enrollment_period: application_dates[:open_enrollment_period],
-                       recorded_rating_area: rating_area,
-                       recorded_service_areas: [service_area],
-                       package_kind: package_kind,
-                       dental_sponsored_benefit: dental)
+                                         :with_benefit_package,
+                                         benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
+                                         default_effective_period: application_dates[:effective_period],
+                                         aasm_state: new_application_status,
+                                         open_enrollment_period: application_dates[:open_enrollment_period],
+                                         recorded_rating_area: rating_area,
+                                         recorded_service_areas: [service_area],
+                                         package_kind: package_kind,
+                                         dental_sponsored_benefit: dental)
     @new_application.benefit_sponsor_catalog.benefit_application = @new_application
     @new_application.benefit_sponsor_catalog.save!
     @new_application
@@ -123,16 +123,16 @@ module BenefitApplicationWorld
 
     application_dates = application_dates_for(renewal_effective_date, renewal_state)
     @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
-                       :with_benefit_package, :with_predecessor_application,
-                       predecessor_application_state: aasm_state,
-                       benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
-                       default_effective_period: application_dates[:effective_period],
-                       aasm_state: renewal_state,
-                       open_enrollment_period: application_dates[:open_enrollment_period],
-                       recorded_rating_area: renewal_rating_area,
-                       recorded_service_areas: [renewal_service_area],
-                       package_kind: package_kind,
-                       predecessor_application_catalog: true)
+                                         :with_benefit_package, :with_predecessor_application,
+                                         predecessor_application_state: aasm_state,
+                                         benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
+                                         default_effective_period: application_dates[:effective_period],
+                                         aasm_state: renewal_state,
+                                         open_enrollment_period: application_dates[:open_enrollment_period],
+                                         recorded_rating_area: renewal_rating_area,
+                                         recorded_service_areas: [renewal_service_area],
+                                         package_kind: package_kind,
+                                         predecessor_application_catalog: true)
   end
 
   def initial_application

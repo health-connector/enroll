@@ -5,9 +5,7 @@ module BenefitSponsors
       include Mongoid::Timestamps
       include ::FloatHelper
 
-
-      embedded_in :sponsor_contribution,
-                  class_name: "BenefitSponsors::SponsoredBenefits::SponsorContribution"
+      embedded_in :sponsor_contribution, class_name: "BenefitSponsors::SponsoredBenefits::SponsorContribution"
 
       field :display_name, type: String
       field :contribution_unit_id, type: BSON::ObjectId

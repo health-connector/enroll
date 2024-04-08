@@ -8,17 +8,15 @@ module TkNotifyWrapper
   class SimpleWrapper < SimpleDelegator
 
 
-    def expect_event(e, pay)
-      @event = e
+    def expect_event(event, pay)
+      @event = event
       @payload = pay
     end
 
     def instrument(event, payload)
-      if event == @event && payload == @payload
-        raise ExpectedLogCallInvoked
-      else
-        super(event,payload)
-      end
+      raise ExpectedLogCallInvoked if event == @event && payload == @payload
+
+      super(event,payload)
     end
   end
 end

@@ -121,17 +121,13 @@ describe ChangeEnrollmentDetails do
       let(:benefit_application) { ::BenefitSponsors::BenefitApplications::BenefitApplication.new }
       let(:benefit_package) { ::BenefitSponsors::BenefitPackages::BenefitPackage.new }
 
-      before do
-        hbx_enrollment.update_attributes(sponsored_benefit_package_id: benefit_package.id)
-      end
-
-
       it "should change the aasm state " do
         ClimateControl.modify hbx_id: hbx_enrollment.hbx_id.to_s, action: "change_enrollment_status", new_aasm_state: "move_to_enrolled" do
           hbx_enrollment.update_attribute('aasm_state', 'unverified')
           hbx_enrollment.reload
           allow(::BenefitSponsors::BenefitPackages::BenefitPackage).to receive(:find).and_return(benefit_package)
           allow(benefit_package).to receive(:benefit_application).and_return(benefit_application)
+          allow(benefit_package).to receive(:successor).and_return(nil)
           expect(hbx_enrollment.may_move_to_enrolled?).to eq true
           subject.migrate
           hbx_enrollment.reload
@@ -153,7 +149,7 @@ describe ChangeEnrollmentDetails do
       end
 
       it "should cancel the enrollment even if its terminated" do
-        hbx_enrollment.update_attributes(aasm_state:"coverage_terminated")
+        hbx_enrollment.update_attributes(aasm_state: "coverage_terminated")
         expect(hbx_enrollment.may_cancel_coverage?).to eq true
         original_status = hbx_enrollment.aasm_state
         hbx_enrollment.reload

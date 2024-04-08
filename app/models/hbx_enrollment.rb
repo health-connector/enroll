@@ -142,8 +142,8 @@ class HbxEnrollment
                         :review_status,
                         :special_verification_period,
                         :termination_submitted_on],
-                :track_create  => true,    # track document creation, default is false
-                :track_update  => true,    # track document updates, default is true
+                :track_create => true,    # track document creation, default is false
+                :track_update => true,    # track document updates, default is true
                 :track_destroy => true     # track document destruction, default is false
 
   associated_with_one :benefit_group, :benefit_group_id, "BenefitGroup"
@@ -217,7 +217,7 @@ class HbxEnrollment
   embeds_many :workflow_state_transitions, as: :transitional
 
   belongs_to :benefit_sponsorship,
-              class_name: "::BenefitSponsors::BenefitSponsorships::BenefitSponsorship", optional: true
+             class_name: "::BenefitSponsors::BenefitSponsorships::BenefitSponsorship", optional: true
 
   embeds_many :hbx_enrollment_members
   accepts_nested_attributes_for :hbx_enrollment_members, reject_if: :all_blank, allow_destroy: true

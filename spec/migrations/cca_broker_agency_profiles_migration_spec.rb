@@ -20,7 +20,6 @@ describe "CcaBrokerAgencyProfilesMigration" do
 
       organization = FactoryBot.create(:broker)
       document3 = FactoryBot.build(:document)
-      document4 = FactoryBot.build(:document)
       broker_agency_profile = organization.broker_agency_profile
 
       FactoryBot.create(:message1, inbox: broker_agency_profile.inbox)
@@ -47,7 +46,7 @@ describe "CcaBrokerAgencyProfilesMigration" do
     end
 
     it "should match total migrated organizations with employer profiles" do
-      silence_stream($stdout) do
+      silence_warnings do
         Mongoid::Migrator.run(:up, @migrations_paths, @test_version.to_i)
       end
 
@@ -120,5 +119,6 @@ describe "CcaBrokerAgencyProfilesMigration" do
 
   after(:all) do
     FileUtils.rm_rf(Dir["#{Rails.root}//hbx_report//cca_broker_profile_migration_*"])
+    DatabaseCleaner.clean
   end
 end

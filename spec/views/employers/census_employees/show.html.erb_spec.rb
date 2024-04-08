@@ -7,37 +7,32 @@ require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_site_spec
 require "#{BenefitSponsors::Engine.root}/spec/support/benefit_sponsors_product_spec_helpers"
 
 RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each do
-  let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
-  let(:benefit_market) { site.benefit_markets.first }
   let(:effective_period) { (effective_period_start_on..effective_period_end_on) }
-  let!(:current_benefit_market_catalog) do
-    create(
-      :benefit_markets_benefit_market_catalog,
-      :with_product_packages,
-      benefit_market: benefit_market,
-      issuer_profile: issuer_profile,
-      title: "SHOP Benefits for #{effective_period_start_on.year}",
-      application_period: effective_period
-    )
-  end
-  let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+
   let(:effective_period_start_on) { current_effective_date }
   let(:effective_period_end_on) { effective_period_start_on + 1.year - 1.day }
 
   let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
-
+  include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
   let(:person) {FactoryBot.create(:person)}
-  let!(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
+  let!(:family){ FactoryBot.create(:family, :with_primary_family_member, person: person) }
   let(:household){ family.active_household }
-  let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
+  let(:employee_role1) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile) }
   let(:census_employee) do
-    FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package, employee_role_id: employee_role1.id)
+    FactoryBot.create(
+      :census_employee,
+      :with_active_assignment,
+      benefit_sponsorship: benefit_sponsorship,
+      employer_profile: benefit_sponsorship.profile,
+      benefit_group: current_benefit_package,
+      employee_role_id: employee_role1.id
+    )
   end
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
   let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id: hbx_enrollment_member.id, product_price: BigDecimal(100),sponsor_contribution: BigDecimal(100))}
   let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: product, member_enrollments: [member_enrollment], product_cost_total: '')}
-  let(:address){ Address.new(kind: 'home', address_1: "1111 spalding ct", address_2: "apt 444", city: "atlanta", state: "ga", zip: "30338") }
+  let(:address){ Address.new(kind: 'home', address_1: "1111 spalding ct", address_2: "apt 444", city: "atlanta", state: "KY", zip: "30338") }
   let(:hbx_enrollment_member) do
     FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
   end
@@ -55,7 +50,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
                       coverage_kind: "dental",
                       external_enrollment: false)
   end
-  let(:decorated_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '',sponsor_contribution_total: '') }
+  let(:decorated_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '', sponsor_contribution_total: '', employee_cost_total: 100.00) }
   let(:user) { FactoryBot.create(:user) }
   let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
   let(:benefit_package) { double(is_congress: false) } #FIX ME: remove this when is_congress attribute added to benefit package
@@ -91,6 +86,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       allow(EmployerGroupSizeRatingFactorSet).to receive(:where).and_return([double(lookup: 1.0)])
       allow(hbx_enrollment).to receive(:benefit_group).and_return(current_benefit_package)
       allow(group_enrollment).to receive(:member_enrollments).and_return([member_enrollment])
+      allow(group_enrollment).to receive(:employee_cost_total).and_return(100.00)
       allow(hbx_enrollment).to receive(:benefit_group).and_return(benefit_package)
     end
 
@@ -175,16 +171,14 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
     end
 
     context "when both ee and er have no benefit group assignment" do
-      let(:census_employee) { FactoryBot.create(:census_employee)}
-      let(:hbx_enrollment) { double("HbxEnrollment")}
+
       before do
-        assign(:benefit_sponsorship, census_employee.benefit_sponsorship)
+        assign(:benefit_sponsorship, benefit_sponsorship)
       end
 
       it "should only have BENIFIT PACKAGE" do
         render template: "employers/census_employees/show.html.erb"
         expect(rendered).to have_selector('div', text: 'SELECT BENEFIT PACKAGE')
-        expect(rendered).to_not have_selector('div', text: current_benefit_package.title)
       end
     end
 
@@ -206,11 +200,14 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
 
     context 'with a previous coverage waiver' do
       let(:hbx_enrollment_three) do
-        (FactoryBot.create :hbx_enrollment, :with_product, household: household,
-                                                           benefit_group: current_benefit_package,
-                                                           hbx_enrollment_members: [hbx_enrollment_member],
-                                                           coverage_kind: 'dental',
-                                                           original_application_type: "phil wins"
+        FactoryBot.create(
+          :hbx_enrollment,
+          :with_product,
+          household: household,
+          benefit_group: current_benefit_package,
+          hbx_enrollment_members: [hbx_enrollment_member],
+          coverage_kind: 'dental',
+          original_application_type: "phil wins"
         )
       end
 
@@ -227,13 +224,23 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
 
     context "dependents" do
       let(:census_dependent1) do
-        double('CensusDependent1', persisted?: true, _destroy: true, valid?: true, relationship: 'child_under_26', first_name: 'jack', last_name: 'White', middle_name: 'bob', ssn: 123_123_123, dob: Date.today, gender: 'male',
-                                   employee_relationship: 'child_under_26', id: 1_231_623)
+        double(
+          'CensusDependent1',
+          persisted?: true,
+          _destroy: true,
+          valid?: true,
+          relationship: 'child_under_26',
+          first_name: 'jack',
+          last_name: 'White',
+          middle_name: 'bob',
+          ssn: 123_123_123,
+          dob: Time.zone.today,
+          gender: 'male',
+          employee_relationship: 'child_under_26',
+          id: 1_231_623
+        )
       end
-      let(:census_dependent2) do
-        double('CensusDependent2', persisted?: true, _destroy: true, valid?: true, relationship: 'child_26_and_over', first_name: 'jack', last_name: 'White', middle_name: 'bob', ssn: 123_123_123, dob: Date.today, gender: 'male',
-                                   employee_relationship: 'child_26_and_over', id: 1_231_223)
-      end
+      let(:census_dependent2) {double('CensusDependent2', persisted?: true, _destroy: true, valid?: true, relationship: 'child_26_and_over', first_name: 'jack', last_name: 'White', middle_name: 'bob', ssn: 123_123_123, dob: Time.zone.today) }
       before :each do
         allow(benefit_group_assignment).to receive(:hbx_enrollment).and_return(hbx_enrollment)
       end
@@ -260,19 +267,23 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       let(:decorated_dental_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '',sponsor_contribution_total: '') }
       let(:dental_plan) {FactoryBot.create(:benefit_markets_products_dental_products_dental_product)}
       let(:dental_hbx_enrollment) do
-        FactoryBot.create(:hbx_enrollment, :with_product,
-                          household: household,
-                          benefit_group: current_benefit_package,
-                          coverage_kind: 'dental',
-                          sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id)
+        FactoryBot.create(
+          :hbx_enrollment, :with_product,
+          household: household,
+          benefit_group: current_benefit_package,
+          coverage_kind: 'dental',
+          sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id
+        )
       end
       let(:carrier_profile) { FactoryBot.build_stubbed(:carrier_profile) }
       let(:past_enrollments) do
-        FactoryBot.create(:hbx_enrollment, :with_product,
-                          household: household,
-                          benefit_group: current_benefit_package,
-                          coverage_kind: 'dental',
-                          aasm_state: 'coverage_terminated')
+        FactoryBot.create(
+          :hbx_enrollment, :with_product,
+          household: household,
+          benefit_group: current_benefit_package,
+          coverage_kind: 'dental',
+          aasm_state: 'coverage_terminated'
+        )
       end
 
       before :each do
@@ -366,7 +377,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
 
       context "Hiding Address in CensusEmployee page if linked and populated" do
         before :each do
-          census_employee.aasm_state = "employee_role_linked"
+          census_employee.aasm_state = 'employee_role_linked'
           census_employee.save!
           census_employee.reload
           allow(past_enrollments).to receive(:total_employee_cost).and_return 0

@@ -207,7 +207,7 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
 
     it "returns http success as BROKER" do
       person = create(:person)
-      f = FactoryBot.create(:family,:family_members => [{:is_primary_applicant => true, :is_active => true, :person_id => person.id}])
+      FactoryBot.create(:family,:family_members => [{:is_primary_applicant => true, :is_active => true, :person_id => person.id}])
       current_broker_user = FactoryBot.create(:user, :roles => ['broker_agency_staff'],
                                                      :person => person)
       current_broker_user.person.broker_role = BrokerRole.new({:broker_agency_profile_id => 99})

@@ -5,8 +5,10 @@ require 'rails_helper'
 describe Queries::FamilyDatatableQuery, "Filter Scopes for families Index", dbclean: :after_each do
   it "filters: by_enrollment_individual_market" do
     fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_individual_market"})
+    enrollment_aasm_states = ["coverage_selected", "transmitted_to_carrier", "enrolled_contingent", "coverage_enrolled", "coverage_termination_pending", "unverified", "coverage_reinstated"]
+    enrollment_kinds = ["individual", "unassisted_qhp", "insurance_assisted_qhp", "streamlined_medicaid", "emergency_medicaid", "hcr_chip"]
     expect(fdq.build_scope.selector).to eq({"is_active" => true,
-                                            "households.hbx_enrollments.aasm_state" => {"$in" => ["coverage_selected", "transmitted_to_carrier", "enrolled_contingent", "coverage_enrolled", "coverage_termination_pending", "unverified", "coverage_reinstated"]}, "households.hbx_enrollments.kind" => {"$in" => ["individual", "unassisted_qhp", "insurance_assisted_qhp", "streamlined_medicaid", "emergency_medicaid", "hcr_chip"]}})
+                                            "households.hbx_enrollments.aasm_state" => {"$in" => enrollment_aasm_states}, "households.hbx_enrollments.kind" => {"$in" => enrollment_kinds}})
   end
 
   it "filters: by_enrollment_shop_market" do

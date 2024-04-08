@@ -53,7 +53,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         allow(person).to receive("primary_family").and_return(family)
         allow(person).to receive_message_chain("families.first.primary_applicant.person").and_return(person)
         @eligibility_notice = IvlNotices::EnrollmentNoticeBuilder.new(person.consumer_role, valid_params)
-        bc_period = hbx_profile.benefit_sponsorship.benefit_coverage_periods.detect { |bcp| bcp if (bcp.start_on..bcp.end_on).cover?(TimeKeeper.date_of_record.next_year) }
         @eligibility_notice.build
       end
       it "should return coverage year" do
@@ -103,7 +102,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       context "when individual is fully verified" do
         let(:payload) { "somepayload" }
         it "should return nil due date" do
-          args = OpenStruct.new
+          args = Struct.new
           args.determined_at = TimeKeeper.datetime_of_record - 1.month
           args.vlp_authority = "ssa"
           person.consumer_role.lawful_presence_determination.vlp_responses << EventResponse.new({received_at: args.determined_at, body: payload})
@@ -152,7 +151,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       context "when there are no outstanding verification family members" do
         let(:payload) { "somepayload" }
         it "should return nil" do
-          args = OpenStruct.new
+          args = Struct.new
           args.determined_at = TimeKeeper.datetime_of_record - 1.month
           args.vlp_authority = "ssa"
           person.consumer_role.lawful_presence_determination.vlp_responses << EventResponse.new({received_at: args.determined_at, body: payload})
@@ -214,7 +213,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
       it "should generate pdf" do
         @eligibility_notice.append_hbe
-        bc_period = hbx_profile.benefit_sponsorship.benefit_coverage_periods.detect { |bcp| bcp if (bcp.start_on..bcp.end_on).cover?(TimeKeeper.date_of_record.next_year) }
         @eligibility_notice.build
         file = @eligibility_notice.generate_pdf_notice
         expect(File.exist?(file.path)).to be true

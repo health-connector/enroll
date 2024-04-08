@@ -188,7 +188,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       )
     end
 
-    let(:aws_env) { ENV['AWS_ENV'] || "qa" }
+    let(:aws_env) { ENV.fetch('AWS_ENV', "qa") }
     let(:sbc_document) do
       Document.new({title: 'sbc_file_name', subject: "SBC",
                     :identifier => "urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"})

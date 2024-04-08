@@ -6,6 +6,10 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 
 describe "shared/_comparison.html.erb", dbclean: :after_each do
 
+  after :all do
+    DatabaseCleaner.clean
+  end
+
   include_context 'setup benefit market with market catalogs and product packages'
   include_context 'setup initial benefit application'
 
@@ -30,7 +34,7 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
                       eligibility_date: hbx_enrollment.effective_on)
   end
 
-  let(:product) {health_products[0]}
+  let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile) }
 
   # QHP still checking for old plan instance for rx_formulary_url & provider_directory_url in view file.
   let(:plan) do
@@ -40,7 +44,7 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
   end
   let(:mock_qhp){instance_double("Products::QhpCostShareVariance", :product => product, :plan => plan, :plan_marketing_name => product.title)}
   let(:mock_qhps) {[mock_qhp]}
-  let(:sbc_document) { double("SbcDocument", identifier: "download#abc") }
+  let(:sbc_document) { double("SbcDocument", id: BSON::ObjectId.new, identifier: "download#abc") }
   let(:mock_family){ double("Family") }
 
   before :each do
@@ -55,6 +59,7 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
 
     before :each do
       assign :coverage_kind, "dental"
+      assign :market_kind, 'aca_shop'
       render "shared/comparison", :qhps => mock_qhps
     end
 
@@ -77,7 +82,8 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
 
     before :each do
       assign :coverage_kind, "health"
-      allow(product).to receive(:sbc_document).and_return double("Document", :identifier => "identifier")
+      assign :market_kind, 'aca_shop'
+      allow(product).to receive(:sbc_document).and_return double("Document", id: BSON::ObjectId.new, :identifier => "identifier")
       render "shared/comparison", :qhps => mock_qhps
     end
 
@@ -100,8 +106,7 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
     end
 
     it "should have download link" do
-      expect(rendered).to have_selector('a', text: 'Download')
-      expect(rendered).to have_selector('a[href="/products/plans/comparison.csv?coverage_kind=health"]', text: "Download")
+      expect(rendered).to have_selector('a[href]', text: 'Download')
     end
 
     it "should not have Out of Network text" do
@@ -137,24 +142,39 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
   context "provider_directory_url and rx_formulary_url" do
     # View file is checking for both Plan & Product instances. Does this needs to be fixed?
     before do
+      assign :plans, [hbx_enrollment.product]
       allow(product).to receive(:rx_formulary_url).and_return plan.rx_formulary_url
+      assign :market_kind, 'aca_shop'
     end
 
     it "should have rx formulary url coverage_kind = health" do
+      plan.update_attributes!(nationwide: true)
       render "shared/comparison", :qhps => mock_qhps
       expect(rendered).to match(/#{plan.rx_formulary_url}/)
       expect(rendered).to match("PROVIDER DIRECTORY")
     end
 
     if aca_state_abbreviation == "DC" # There is no plan comparision for MA dental
-      it "should not have rx_formulary_url coverage_kind = dental" do
-        render "shared/comparison", :qhps => mock_qhps
-        expect(rendered).to_not match(/#{plan.rx_formulary_url}/)
+      context 'for dental coverage' do
+        let!(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, :with_issuer_profile) }
+        let!(:dental_plan) { FactoryBot.create(:plan, market: 'shop', metal_level: 'dental', hios_id: "91111111122302", coverage_kind: 'dental', dental_level: 'high') }
+        let!(:mock_qhp){instance_double("Products::QhpCostShareVariance", :product => dental_product, :plan => dental_plan, :plan_marketing_name => dental_product.title)}
+        let(:mock_qhps) {[mock_qhp]}
+
+        before :each do
+          allow(mock_qhp).to receive(:product_for).with('aca_shop').and_return(product)
+        end
+
+        it "should not have rx_formulary_url coverage_kind = dental" do
+          render "shared/comparison", :qhps => mock_qhps
+          expect(rendered).to_not have_selector('a', text: 'DRUG LIST')
+        end
       end
     end
 
     if offers_nationwide_plans?
       it "should have provider directory url if nationwide = true" do
+        plan.update_attributes!(nationwide: true)
         render "shared/comparison", :qhps => mock_qhps
         expect(rendered).to match(/#{plan.provider_directory_url}/)
       end

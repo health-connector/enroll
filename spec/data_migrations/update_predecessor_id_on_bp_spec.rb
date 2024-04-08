@@ -55,7 +55,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
 
     let(:start_on)  { TimeKeeper.date_of_record}
     let(:old_effective_period)  { start_on.next_month.beginning_of_month - 1.year..start_on.end_of_month }
-    let!(:old_benefit_application) {
+    let!(:old_benefit_application) do
       application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: old_effective_period, aasm_state: :active)
       application.benefit_sponsor_catalog.save!
       application
@@ -63,7 +63,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
 
     let(:renewing_effective_period)  { start_on.next_month.beginning_of_month..start_on.end_of_month + 1.year }
 
-    let!(:renewing_benefit_application) {
+    let!(:renewing_benefit_application) do
       application = FactoryBot.create(
         :benefit_sponsors_benefit_application,
         :with_benefit_sponsor_catalog,

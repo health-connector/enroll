@@ -4,9 +4,7 @@ require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_invalid_benefit_group_assignment_for_census_employee")
 
 describe RemoveInvalidBenefitGroupAssignmentForCensusEmployee, dbclean: :after_each do
-  skip do
-    "Rake task deletes benefit group assignment & We should not delete benefit group assignment"
-
+  skip "Rake task deletes benefit group assignment & We should not delete benefit group assignment" do
     let(:given_task_name) { "remove_invalid_benefit_group_assignment_for_census_employee" }
     subject { RemoveInvalidBenefitGroupAssignmentForCensusEmployee.new(given_task_name, double(:current_scope => nil)) }
 

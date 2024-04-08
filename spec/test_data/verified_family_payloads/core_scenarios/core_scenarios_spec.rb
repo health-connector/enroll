@@ -6,15 +6,20 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   describe Subscribers::FamilyApplicationCompleted do
     let(:hbx_profile_organization) { double("HbxProfile", benefit_sponsorship:  double(current_benefit_coverage_period: double(slcsp: Plan.new.id)))}
     let(:max_aptc) do
-      parser.households.select do |h|
+      households = parser.households.select do |h|
         h.integrated_case_id == parser.integrated_case_id
-      end.first.tax_households.select do |th|
+      end
+
+      tax_households = households.first.tax_households.select do |th|
         th.primary_applicant_id == parser.family_members.detect do |fm|
           fm.id == parser.primary_family_member_id
         end.id.split('#').last
-      end.select do |th|
+      end
+
+      primary_th = tax_households.select do |th|
         th.id == th.primary_applicant_id && th.primary_applicant_id == parser.primary_family_member_id.split('#').last
-      end.first.eligibility_determinations.max_by(&:determination_date).maximum_aptc
+      end
+      primary_th.first.eligibility_determinations.max_by(&:determination_date).maximum_aptc
     end
 
     it "should subscribe to the correct event" do

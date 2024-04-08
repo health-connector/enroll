@@ -30,20 +30,24 @@ describe "QhpRateBuilder", dbclean: :after_each do
 
   let!(:issuer_profiles) {BenefitSponsors::Organizations::Organization.issuer_profiles.all}
   let!(:hp1) do
-    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502",
-                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))
+    FactoryBot.create(:benefit_markets_products_health_products_health_product,
+                      application_period: application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502",
+                      csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))
   end
   let!(:hp2) do
-    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: previous_application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502",
-                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))
+    FactoryBot.create(:benefit_markets_products_health_products_health_product,
+                      application_period: previous_application_period, issuer_profile_id: issuer_profiles[0].issuer_profile.id, hios_id: "42690MA1234502-01", hios_base_id: "42690MA1234502",
+                      csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: premium_period))
   end
   let!(:hp3) do
-    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503",
-                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))
+    FactoryBot.create(:benefit_markets_products_health_products_health_product,
+                      application_period: application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503",
+                      csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))
   end
   let!(:hp4) do
-    FactoryBot.create(:benefit_markets_products_health_products_health_product, application_period: previous_application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503",
-                                                                                csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))
+    FactoryBot.create(:benefit_markets_products_health_products_health_product,
+                      application_period: previous_application_period, issuer_profile_id: issuer_profiles[2].issuer_profile.id, hios_id: "42690MA1234503-01", hios_base_id: "42690MA1234503",
+                      csr_variant_id: "01", premium_tables: build_list(:benefit_markets_products_premium_table, 1, effective_period: Range.new(premium_period.min.months_ago(3), premium_period.max.months_ago(3))))
   end
 
   let!(:plan) {FactoryBot.create(:plan, active_year: 2017)}

@@ -49,7 +49,7 @@ describe UpdateEmployeeRoleId, dbclean: :after_each do
 
     let(:start_on)  { current_effective_date }
     let(:effective_period)  { start_on..start_on.next_year.prev_day }
-    let!(:benefit_application) {
+    let!(:benefit_application) do
       application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active)
       application.benefit_sponsor_catalog.save!
       application

@@ -15,14 +15,14 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
     org = abc_organization
     TimeKeeper.set_date_of_record_unprotected!(Date.today.end_of_year)
     employer_profile = abc_profile
-    active_plan_year = predecessor_application
-    renewing_plan_year = renewal_application
+    predecessor_application
+    renewal_application
 
     benefit_group = predecessor_application.benefit_packages[0]
     renewing_benefit_group = benefit_package
 
-    census_employee = FactoryBot.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: renewing_benefit_group, dob: TimeKeeper.date_of_record - 30.years,
-                                                          hired_on: (TimeKeeper.date_of_record + 2.months).beginning_of_month)
+    FactoryBot.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: renewing_benefit_group, dob: TimeKeeper.date_of_record - 30.years,
+                                        hired_on: (TimeKeeper.date_of_record + 2.months).beginning_of_month)
 
     employer_profile.census_employees.each do |ce|
       ce.add_benefit_group_assignment benefit_group, benefit_group.start_on
@@ -30,7 +30,7 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
       person = FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name)
       employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
       ce.update_attributes({employee_role: employee_role})
-      family = Family.find_or_build_from_employee_role(employee_role)
+      Family.find_or_build_from_employee_role(employee_role)
     end
 
     org

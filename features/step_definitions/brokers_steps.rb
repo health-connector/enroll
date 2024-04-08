@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^.+ visits the HBX Broker Registration form$/) do
   visit '/'
   find(".interaction-click-control-broker-registration", wait: 10).click
@@ -84,13 +86,13 @@ And(/^.+ enters broker agency information for SHOP markets$/) do
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][zip]', :with => location[:zip]
   if role.include? 'Employer'
     wait_for_ajax
-    select "#{location[:county]}", :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
+    select (location[:county]).to_s, :from => "agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][county]"
   end
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][area_code]', :with => location[:phone_area_code]
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][number]', :with => location[:phone_number]
   #fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][phone_attributes][extension]', :with => location[:phone_extension]
   sleep 5
-  # Clicking the 'Create Broker Agency' button 
+  # Clicking the 'Create Broker Agency' button
   find("#broker-btn").click
 end
 
@@ -99,7 +101,7 @@ And(/^.+ clicks? on Create Broker Agency$/) do
   wait_for_ajax
   page.find('h1', text: 'Broker Registration').click
   wait_for_ajax
-  # Clicking the 'Create Broker Agency' button 
+  # Clicking the 'Create Broker Agency' button
   find("#broker-btn").click
 end
 
@@ -111,15 +113,14 @@ end
 And(/^.+ should see the list of broker applicants$/) do
 end
 
-
 Then(/^.+ click the current broker applicant show button$/) do
   find('.interaction-click-control-broker-show').click
 end
 
 And(/^.+ should see the broker application with carrier appointments$/) do
-  if (Settings.aca.broker_carrier_appointments_enabled)
-    find_all("[id^=person_broker_role_attributes_carrier_appointments_]").each do |checkbox| 
-      checkbox.should be_checked 
+  if Settings.aca.broker_carrier_appointments_enabled
+    find_all("[id^=person_broker_role_attributes_carrier_appointments_]").each do |checkbox|
+      checkbox.should be_checked
     end
     expect(page).to have_content("Carrier appointments for broker are not necessary for participation in #{Settings.site.long_name}")
   end
@@ -143,7 +144,7 @@ end
 
 When(/^.+ visits? invitation url in email$/) do
   invitation_link = links_in_email(current_email).first
-  invitation_link.sub!(/http\:\/\/127\.0\.0\.1\:3000/, '')
+  invitation_link.sub!(%r{http://127\.0\.0\.1:3000}, '')
   visit(invitation_link)
 end
 
@@ -185,7 +186,7 @@ When(/^.+ clicks? on Browse Brokers button$/) do
 end
 
 Then(/^.+ should see broker agencies index view$/) do
-  #TODO add AJAX handling
+  #TODO: add AJAX handling
   wait_for_ajax(3)
   expect(page).to have_content('Broker Agencies', :wait => 5)
 end
@@ -221,7 +222,7 @@ Then(/^.+ should see broker selected successful message$/) do
   expect(page).to have_content("Your broker has been notified of your selection and should contact you shortly. You can always call or email them directly. If this is not the broker you want to use, select 'Change Broker'.")
 end
 
-And (/^.+ should see broker active for the employer$/) do
+And(/^.+ should see broker active for the employer$/) do
   expect(page).to have_content('Logistics Inc')
   expect(page).to have_content(/RICKY MARTIN/i)
 end
@@ -272,10 +273,10 @@ Then(/^.* creates and publishes a plan year$/) do
   find('.interaction-click-control-create-plan-year').click
   find('.alert-notice')
 
-  if (Settings.aca.enforce_employer_attestation.to_s == "true")
-    find('.interaction-click-control-documents').click
+  if Settings.aca.enforce_employer_attestation.to_s == "true"
+    find('#uic-employers-right-menu > li:nth-child(5) > a').click
     wait_for_ajax
-    find('.interaction-click-control-upload').click
+    find('.upload-document-location').click
     wait_for_ajax
     find('#subject_Employee_Attestation').click
     # There is no way to actually trigger the click and upload functionality
@@ -346,14 +347,13 @@ end
 
 Given(/^zip code for county exists as rate reference$/) do
   FactoryBot.create(:rating_area, zip_code: '01010', county_name: 'Worcester', rating_area: Settings.aca.rating_areas.first,
-    zip_code_in_multiple_counties: true)
+                                  zip_code_in_multiple_counties: true)
 end
 
 Given(/^a valid ach record exists$/) do
   FactoryBot.create(:ach_record, routing_number: '123456789', bank_name: 'Big Bank')
 end
 
-#
 Given(/^enters the existing zip code$/) do
   fill_in 'organization[office_locations_attributes][0][address_attributes][zip]', with: '01010'
 end

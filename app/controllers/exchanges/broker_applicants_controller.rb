@@ -44,7 +44,7 @@ class Exchanges::BrokerApplicantsController < ApplicationController
       all_carrier_appointments = BrokerRole::BROKER_CARRIER_APPOINTMENTS.stringify_keys
       permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
       all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
-      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments
+      params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments
       broker_role.update(params.require(:person).require(:broker_role_attributes).permit!.except(:id))
     elsif params['decertify']
       broker_role.decertify!
@@ -86,9 +86,9 @@ class Exchanges::BrokerApplicantsController < ApplicationController
     unless broker_carrier_appointments_enabled
       permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
       all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
-      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments
+      params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments
     else
-      params[:person][:broker_role_attributes][:carrier_appointments]= all_carrier_appointments.each{ |key,str| all_carrier_appointments[key] = "true" }
+      params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments.each{ |key, _| all_carrier_appointments[key] = "true" }
     end
   end
 

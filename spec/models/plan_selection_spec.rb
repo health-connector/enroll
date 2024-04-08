@@ -102,8 +102,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         end
         it 'should set eligibility dates to that of the previous enrollment' do
           subject.set_enrollment_member_coverage_start_dates
-          previous_eligibility_dates = Hash[previous_coverage.hbx_enrollment_members.collect {|hbx_em| [hash_key_creator(hbx_em), hbx_em.coverage_start_on]}]
-          new_eligibility_dates = Hash[hbx_enrollment.hbx_enrollment_members.collect {|hbx_em| [hash_key_creator(hbx_em), hbx_em.coverage_start_on]}]
+          previous_eligibility_dates = (previous_coverage.hbx_enrollment_members.collect {|hbx_em| [hash_key_creator(hbx_em), hbx_em.coverage_start_on]}).to_h
+          new_eligibility_dates = (hbx_enrollment.hbx_enrollment_members.collect {|hbx_em| [hash_key_creator(hbx_em), hbx_em.coverage_start_on]}).to_h
           new_eligibility_dates.each do |hbx_id,date|
             expect(previous_eligibility_dates[hbx_id]).to eq(date)
           end

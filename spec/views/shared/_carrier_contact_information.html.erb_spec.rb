@@ -83,7 +83,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("1-888-333-4742")
       expect(rendered).to match("send secure email after login to member account")
-      expect(rendered).to match("Monday, Tuesday, & Thursday from 8:00 a.m. to 6:00 p.m.; Wednesday from 10:00 a.m. to 6:00 p.m.; and Friday from 8:00 a.m. to 5:30 p.m")
+      expect(rendered).to match("Monday, Tuesday, &amp; Thursday from 8:00 a.m. to 6:00 p.m.; Wednesday from 10:00 a.m. to 6:00 p.m.; and Friday from 8:00 a.m. to 5:30 p.m")
     end
   end
 

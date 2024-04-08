@@ -13,7 +13,7 @@ FactoryBot.define do
     end
 
     trait :recurring_rules do
-      recurring_rules { }
+      recurring_rules
     end
 
     trait :start_on_friday do

@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -93,9 +93,8 @@ RSpec.describe ApplicationHelper, :type => :helper do
     let(:plan){ Maybe.new(FactoryBot.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
 
     it "should return the named logo" do
-      expect(helper.display_carrier_logo(plan)).to eq "<img width=\"50\" src=\"/assets/logo/carrier/kaiser.jpg\" alt=\"Kaiser\" />"
+      expect(helper.display_carrier_logo(plan)).to match(%r{<img width="50" src="/assets/logo/carrier/kaiser-\w+\.jpg" />})
     end
-
   end
 
   describe "#format_time_display" do
@@ -390,11 +389,11 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
 
       it "when ehb_premium > aptc_amount" do
-        expect(helper.current_cost(200, 0.9)).to eq(200 - 0.5 * 200)
+        expect(helper.current_cost(200, 0.9)).to eq(200 - (0.5 * 200))
       end
 
       it "when ehb_premium < aptc_amount" do
-        expect(helper.current_cost(100, 0.9)).to eq(100 - 0.9 * 100)
+        expect(helper.current_cost(100, 0.9)).to eq(100 - (0.9 * 100))
       end
 
       it "should return 0" do
@@ -420,7 +419,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
   end
 
   describe "env_bucket_name" do
-    let(:aws_env) { ENV['AWS_ENV'] || "qa" }
+    let(:aws_env) { ENV.fetch('AWS_ENV', "qa") }
     it "should return bucket name with system name prepended and environment name appended" do
       bucket_name = "sample-bucket"
       expect(env_bucket_name(bucket_name)).to eq("#{Settings.site.s3_prefix}-enroll-#{bucket_name}-#{aws_env}")

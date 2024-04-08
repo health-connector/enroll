@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #Capybara.ignore_hidden_elements = false
 
 module BrokerWorld
@@ -10,12 +12,11 @@ module BrokerWorld
     attributes = traits.extract_options!
     @broker_agency ||= FactoryBot.create :broker, *traits, attributes
   end
-
 end
 
 World(BrokerWorld)
 
-Given (/^that a broker exists$/) do
+Given(/^that a broker exists$/) do
   broker_agency
   broker :with_family, :broker_with_person, organization: broker_agency
   broker_agency_profile = broker_agency.broker_agency_profile
@@ -189,13 +190,13 @@ Then(/^the broker should see the data in the table$/) do
 end
 
 Then(/^the broker enters the quote effective date$/) do
-  select "#{(TimeKeeper.date_of_record+3.month).strftime("%B %Y")}", :from => "quote_start_on"
+  select (TimeKeeper.date_of_record + 3.month).strftime('%B %Y').to_s, :from => "quote_start_on"
 end
 
 When(/^the broker selects employer type$/) do
  #find('.interaction-choice-control-quote-employer-type').click()
- select "Prospect", :from => "quote_employer_type"
- fill_in 'quote[employer_name]', with: "prospect test Employee"
+  select "Prospect", :from => "quote_employer_type"
+  fill_in 'quote[employer_name]', with: "prospect test Employee"
 end
 
 When(/^broker enters valid information$/) do
@@ -224,7 +225,7 @@ Then(/^the broker clicks Actions dropdown$/) do
 end
 
 When(/^the broker clicks delete$/) do
-  find('a', text: "Delete"). click
+  find('a', text: "Delete").click
 end
 
 Then(/^the broker sees the confirmation$/) do
@@ -258,13 +259,11 @@ end
 
 Given(/^the Plans exist$/) do
   open_enrollment_start_on = TimeKeeper.date_of_record.end_of_month + 1.day
-  open_enrollment_end_on = open_enrollment_start_on + 12.days
   start_on = open_enrollment_start_on + 2.months
-  end_on = start_on + 1.year - 1.day
-  plan1 = FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
-  plan2 = FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'bronze', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
-  plan3 = FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
-  plan4 = FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'bronze', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
   Caches::PlanDetails.load_record_cache!
 end

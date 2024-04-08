@@ -49,7 +49,7 @@ RSpec.describe Transcripts::FamilyTranscript, type: :model do
       context "and dependent family member missing" do
 
         it 'should have add on dependnet' do
-          transcript = build_transcript
+          build_transcript
         end
       end
     end

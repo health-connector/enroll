@@ -3,8 +3,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.6'
 
-gem "benefit_markets", path: "components/benefit_markets"
-gem "benefit_sponsors", path: "components/benefit_sponsors"
+gem "benefit_markets",    path: "components/benefit_markets"
+gem "benefit_sponsors",   path: "components/benefit_sponsors"
 gem "notifier",           path: "components/notifier"
 gem "sponsored_benefits", path: "components/sponsored_benefits"
 gem "transport_gateway",  path: "components/transport_gateway"
@@ -40,6 +40,7 @@ gem 'jquery-turbolinks'
 gem 'jquery-ui-rails'
 gem 'kaminari', '0.17.0'
 gem 'kaminari-mongoid'
+gem 'kaminari-actionview'
 gem 'language_list', '~> 1.1.0'
 gem 'mail', '2.6.3'
 gem 'maskedinput-rails'
@@ -94,8 +95,6 @@ gem 'haml-rails', '~> 1.0'
 gem 'sassc',                    '~> 2.0'
 gem 'sass-rails',               '~> 5'
 gem 'config',                   '~> 2.0'
-
-gem 'uri', '~> 0.13.0'
 
 #######################################################
 # Removed gems

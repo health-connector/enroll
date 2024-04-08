@@ -23,7 +23,7 @@ class Users::PasswordsController < Devise::PasswordsController
   end
 
   def confirm_identity
-    return true if current_user && current_user.has_role?('hbx_staff')
+    return true if current_user&.has_role?('hbx_staff')
 
     return if user.identity_confirmed_token == params[:user][:identity_confirmed_token]
 

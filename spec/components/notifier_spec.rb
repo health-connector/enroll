@@ -5,6 +5,7 @@ require 'rails_helper'
 if begin
   "Notifier::Engine".constantize
 rescue StandardError
+  puts "Error - #{e.message}"
   nil
 end
   Dir[Rails.root.join("components/notifier/spec/**/*_spec.rb")].sort.each do |f|

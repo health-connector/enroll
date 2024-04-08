@@ -5,8 +5,6 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 
 module BenefitSponsors
   RSpec.describe BenefitApplications::BenefitApplicationsController, type: :controller, dbclean: :after_each do
-#    include_context "setup benefit market with market catalogs and product packages"
-
     routes { BenefitSponsors::Engine.routes }
     let(:site) { BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_empty_benefit_market }
     let(:benefit_market) { site.benefit_markets.first }
@@ -43,15 +41,15 @@ module BenefitSponsors
 
     let!(:permission)               { FactoryBot.create(:permission, :hbx_staff) }
     let!(:user_with_hbx_staff_role) { FactoryBot.create(:user, :with_hbx_staff_role) }
-    let!(:hbx_person)               { FactoryBot.create(:person, user: user_with_hbx_staff_role )}
+    let!(:hbx_person)               { FactoryBot.create(:person, user: user_with_hbx_staff_role)}
     let(:organization_with_hbx_profile)  { site.owner_organization }
 
     let!(:person1) { FactoryBot.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryBot.create(:user, person: person1 ) }
+    let!(:user_with_broker_role) { FactoryBot.create(:user, person: person1) }
     let!(:broker_organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
-    let!(:employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: benefit_sponsorship.profile.id)}
-    let!(:person) { FactoryBot.create(:person, employer_staff_roles:[employer_staff_role]) }
+    let!(:employer_staff_role) {FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: benefit_sponsorship.profile.id)}
+    let!(:person) { FactoryBot.create(:person, employer_staff_roles: [employer_staff_role]) }
     let!(:user) { FactoryBot.create_default :user, person: person}
 
     let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
@@ -66,7 +64,8 @@ module BenefitSponsors
         organization: organization,
         profile_id: organization.profiles.first.id,
         benefit_market: site.benefit_markets[0],
-        employer_attestation: employer_attestation) 
+        employer_attestation: employer_attestation
+      )
     end
 
     let(:benefit_sponsorship_id) { benefit_sponsorship.id.to_s }
@@ -75,7 +74,7 @@ module BenefitSponsors
     let(:open_enrollment_period_start_on) { effective_period_start_on.prev_month }
     let(:open_enrollment_period_end_on)   { open_enrollment_period_start_on + 9.days }
 
-    let(:benefit_application_params) {
+    let(:benefit_application_params) do
 
       {
         :start_on => effective_period_start_on,
@@ -87,13 +86,13 @@ module BenefitSponsors
         :open_enrollment_end_on => open_enrollment_period_end_on,
         :benefit_sponsorship_id => benefit_sponsorship_id
       }
-    }
+    end
 
     shared_context "shared_stuff", :shared_context => :metadata do
       let(:effective_period)                { effective_period_start_on..effective_period_end_on }
       let(:open_enrollment_period)          { open_enrollment_period_start_on..open_enrollment_period_end_on }
 
-      let(:params) {
+      let(:params) do
         {
           recorded_rating_area: rating_area,
           recorded_service_areas: service_areas,
@@ -103,7 +102,7 @@ module BenefitSponsors
           msp_count: "5",
           benefit_sponsor_catalog_id: BSON::ObjectId.new
         }
-      }
+      end
 
       let(:ben_app) do
         application = benefit_sponsorship.benefit_applications.build(params)
@@ -176,11 +175,8 @@ module BenefitSponsors
       end
 
       context "when create fails" do
-
         before do
-          benefit_application_params.merge!({
-            open_enrollment_end_on: nil
-          })
+          benefit_application_params.merge!({ open_enrollment_end_on: nil })
         end
 
         it "should redirect to new" do
@@ -205,7 +201,6 @@ module BenefitSponsors
     end
 
     describe "GET late_rates_check", dbclean: :after_each do
-
       before { sign_in user }
 
       it "should return false when it is not in late rate scenario" do
@@ -262,7 +257,6 @@ module BenefitSponsors
       it "should be a success" do
         [user_with_hbx_staff_role, user, user_with_broker_role].each do |login_user|
           sign_in_and_do_update(login_user)
-          # expect(response).to have_http_status(:success)
         end
       end
 
@@ -283,9 +277,7 @@ module BenefitSponsors
       context "when update fails" do
 
         before do
-          benefit_application_params.merge!({
-            open_enrollment_end_on: nil
-          })
+          benefit_application_params.merge!({ open_enrollment_end_on: nil })
         end
 
         it "should redirect to edit" do
@@ -310,7 +302,6 @@ module BenefitSponsors
     end
 
     describe "POST publish" do
-
       include_context 'shared_stuff'
       include_context "setup initial benefit application"
 
@@ -329,12 +320,14 @@ module BenefitSponsors
             expect(flash[:notice]).to eq "Plan Year successfully published."
           end
         end
+
         it "should redirect with success message for amdin" do
           [user_with_hbx_staff_role].each do |login_user|
             sign_in_and_submit_application(login_user)
             expect(flash[:notice]).to eq "Plan Year successfully published."
           end
         end
+
         it "should redirect with success message for employer" do
           [user].each do |login_user|
             sign_in_and_submit_application(login_user)

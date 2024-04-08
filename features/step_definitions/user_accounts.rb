@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^Hbx Admin should see buttons to filter$/) do
   expect(page).to have_content('Employee')
   expect(page).to have_content('Broker')
@@ -47,23 +49,23 @@ And(/^a locked user exists with broker role$/) do
   FactoryBot.create :user, :broker_with_person, oim_id: 'test1_broker1', email: 'broker23311@dc.gov', password: '1412q24az@WSX', password_confirmation: '1412q24az@WSX', locked_at: Date.today
 end
 
-When(/^I click Employee button$/)do
+When(/^I click Employee button$/) do
   find(:xpath, '//*[@id="Tab:all_employee_roles"]').click
 end
 
-When(/^I click Employee and Locked button$/)do
+When(/^I click Employee and Locked button$/) do
   find(:xpath, '//*[@id="Tab:all_employee_roles"]').click
   find(:xpath, '//*[@id="Tab:all_employee_roles-locked"]').click
 end
 
-When(/^I click Employee and Unlocked button$/)do
+When(/^I click Employee and Unlocked button$/) do
   find(:xpath, '//*[@id="Tab:all_employee_roles-unlocked"]').click
 end
 
-Then(/^I should only see user with employee role$/)do
-  employee_user = User.where(:'roles'.in => ["employee"]).first.oim_id
-  employer_user = User.where(:'roles'.in => ["employer_staff"]).first.oim_id
-  broker_user = User.where(:'roles'.in => ["broker"]).first.oim_id
+Then(/^I should only see user with employee role$/) do
+  employee_user = User.where(:roles.in => ["employee"]).first.oim_id
+  employer_user = User.where(:roles.in => ["employer_staff"]).first.oim_id
+  broker_user = User.where(:roles.in => ["broker"]).first.oim_id
   expect(page).to have_content(employee_user)
   expect(page).not_to have_content(employer_user)
   expect(page).not_to have_content(broker_user)
@@ -71,17 +73,17 @@ Then(/^I should only see user with employee role$/)do
   expect(page).to have_content("Unlocked")
 end
 
-When(/^I click All button$/)do
+When(/^I click All button$/) do
   find(:xpath, '//*[@id="Tab:all"]').click
 end
 
-Then(/^I should only see locked user with employee role$/)do
-  locked_employee_user = User.where(:'roles'.in => ["employee"], :locked_at.ne => nil).first.oim_id
-  locked_employer_user = User.where(:'roles'.in => ["employer_staff"], :locked_at.ne => nil).first.oim_id
-  locked_broker_user = User.where(:'roles'.in => ["broker"], :locked_at.ne => nil).first.oim_id
-  employee_user = User.where(:'roles'.in => ["employee"], locked_at: nil).first.oim_id
-  employer_user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first.oim_id
-  broker_user = User.where(:'roles'.in => ["broker"], locked_at: nil).first.oim_id
+Then(/^I should only see locked user with employee role$/) do
+  locked_employee_user = User.where(:roles.in => ["employee"], :locked_at.ne => nil).first.oim_id
+  locked_employer_user = User.where(:roles.in => ["employer_staff"], :locked_at.ne => nil).first.oim_id
+  locked_broker_user = User.where(:roles.in => ["broker"], :locked_at.ne => nil).first.oim_id
+  employee_user = User.where(:roles.in => ["employee"], locked_at: nil).first.oim_id
+  employer_user = User.where(:roles.in => ["employer_staff"], locked_at: nil).first.oim_id
+  broker_user = User.where(:roles.in => ["broker"], locked_at: nil).first.oim_id
   expect(page).not_to have_content(employee_user)
   expect(page).not_to have_content(employer_user)
   expect(page).not_to have_content(broker_user)
@@ -90,13 +92,13 @@ Then(/^I should only see locked user with employee role$/)do
   expect(page).not_to have_content(locked_broker_user)
 end
 
-Then(/^I should only see unlocked user with employee role$/)do
-  locked_employee_user = User.where(:'roles'.in => ["employee"], :locked_at.ne => nil).first.oim_id
-  locked_employer_user = User.where(:'roles'.in => ["employer_staff"], :locked_at.ne => nil).first.oim_id
-  locked_broker_user = User.where(:'roles'.in => ["broker"], :locked_at.ne => nil).first.oim_id
-  employee_user = User.where(:'roles'.in => ["employee"], locked_at: nil).first.oim_id
-  employer_user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first.oim_id
-  broker_user = User.where(:'roles'.in => ["broker"], locked_at: nil).first.oim_id
+Then(/^I should only see unlocked user with employee role$/) do
+  User.where(:roles.in => ["employee"], :locked_at.ne => nil).first.oim_id
+  locked_employer_user = User.where(:roles.in => ["employer_staff"], :locked_at.ne => nil).first.oim_id
+  locked_broker_user = User.where(:roles.in => ["broker"], :locked_at.ne => nil).first.oim_id
+  employee_user = User.where(:roles.in => ["employee"], locked_at: nil).first.oim_id
+  employer_user = User.where(:roles.in => ["employer_staff"], locked_at: nil).first.oim_id
+  broker_user = User.where(:roles.in => ["broker"], locked_at: nil).first.oim_id
   expect(page).to have_content(employee_user)
   expect(page).not_to have_content(employer_user)
   expect(page).not_to have_content(broker_user)
@@ -106,10 +108,10 @@ Then(/^I should only see unlocked user with employee role$/)do
 end
 
 
-Then(/^I should only see user with all roles$/)do
-  employee_user = User.where(:'roles'.in => ["employee"]).first.oim_id
-  employer_user = User.where(:'roles'.in => ["employer_staff"]).first.oim_id
-  broker_user = User.where(:'roles'.in => ["broker"]).first.oim_id
+Then(/^I should only see user with all roles$/) do
+  employee_user = User.where(:roles.in => ["employee"]).first.oim_id
+  employer_user = User.where(:roles.in => ["employer_staff"]).first.oim_id
+  broker_user = User.where(:roles.in => ["broker"]).first.oim_id
   expect(page).to have_content(employee_user)
   expect(page).to have_content(employer_user)
   expect(page).to have_content(broker_user)
@@ -117,14 +119,14 @@ Then(/^I should only see user with all roles$/)do
   expect(page).to have_content("Unlocked")
 end
 
-When(/^I click Employer button$/)do
+When(/^I click Employer button$/) do
   find(:xpath, '//*[@id="Tab:all_employer_staff_roles"]').click
 end
 
-Then(/^I should only see user with employer staff role$/)do
-  employee_user = User.where(:'roles'.in => ["employee"]).first.oim_id
-  employer_user = User.where(:'roles'.in => ["employer_staff"]).first.oim_id
-  broker_user = User.where(:'roles'.in => ["broker"]).first.oim_id
+Then(/^I should only see user with employer staff role$/) do
+  employee_user = User.where(:roles.in => ["employee"]).first.oim_id
+  employer_user = User.where(:roles.in => ["employer_staff"]).first.oim_id
+  broker_user = User.where(:roles.in => ["broker"]).first.oim_id
   expect(page).not_to have_content(employee_user)
   expect(page).to have_content(employer_user)
   expect(page).not_to have_content(broker_user)
@@ -132,14 +134,14 @@ Then(/^I should only see user with employer staff role$/)do
   expect(page).to have_content("Unlocked")
 end
 
-When(/^I click Broker button$/)do
+When(/^I click Broker button$/) do
   find(:xpath, '//*[@id="Tab:all_broker_roles"]').click
 end
 
-Then(/^I should only see user with broker role$/)do
-  employee_user = User.where(:'roles'.in => ["employee"]).first.oim_id
-  employer_user = User.where(:'roles'.in => ["employer_staff"]).first.oim_id
-  broker_user = User.where(:'roles'.in => ["broker"]).first.oim_id
+Then(/^I should only see user with broker role$/) do
+  employee_user = User.where(:roles.in => ["employee"]).first.oim_id
+  employer_user = User.where(:roles.in => ["employer_staff"]).first.oim_id
+  broker_user = User.where(:roles.in => ["broker"]).first.oim_id
   expect(page).not_to have_content(employee_user)
   expect(page).not_to have_content(employer_user)
   expect(page).to have_content(broker_user)
@@ -147,7 +149,7 @@ Then(/^I should only see user with broker role$/)do
   expect(page).to have_content("Unlocked")
 end
 
-When(/^a user enters an user name search box$/)do
+When(/^a user enters an user name search box$/) do
   page.find("input[type='search']").set(@user_1.oim_id)
 end
 
@@ -156,7 +158,7 @@ Then(/^a user should see a result with the user name$/) do
   expect(page).to have_no_content(@user_2.oim_id)
 end
 
-When(/^a user enter person hbx id$/)do
+When(/^a user enter person hbx id$/) do
   page.find("input[type='search']").set(@user_1.email)
 end
 

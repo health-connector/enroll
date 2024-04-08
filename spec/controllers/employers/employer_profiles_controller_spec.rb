@@ -111,7 +111,7 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
     let(:subject){"Employee Attestation"}
     let(:file) { double }
     let(:temp_file) { double }
-    let(:file_path) { "#{Rails.root}test/JavaScript.pdf" }
+    let(:file_path) { "#{Rails.root}/test/JavaScript.pdf" }
 
     before(:each) do
       @controller = Employers::EmployerProfilesController.new

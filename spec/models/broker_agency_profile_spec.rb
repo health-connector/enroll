@@ -229,7 +229,7 @@ RSpec.describe BrokerAgencyProfile, dbclean: :after_each do
     it "should find a linked employee" do
       allow(employer_profile).to receive(:active_benefit_sponsorship).and_return(benefit_sponsorship)
       employer_profile.update_attributes(broker_agency_profile: broker_agency_profile)
-      employee_role = FactoryBot.create(:employee_role, person: person, employer_profile: employer_profile)
+      FactoryBot.create(:employee_role, person: person, employer_profile: employer_profile)
       expect(broker_agency_profile.linked_employees.count).to eq(1)
     end
 

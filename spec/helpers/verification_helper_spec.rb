@@ -22,8 +22,10 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "#verification_type_status" do
-      let(:verification_attr) { OpenStruct.new({ :determined_at => Time.now, :vlp_authority => "hbx" })}
+      let(:verification_attr) { Struct.new({ :determined_at => Time.now, :vlp_authority => "hbx" })}
       let(:types) { ["DC Residency", "Social Security Number", "Citizenship", "Immigration status", "American Indian Status"] }
+
+      # rubocop:disable Metrics/ParameterLists
       shared_examples_for "verification type status" do |current_state, verification_type, uploaded_doc, status, curam, admin, dob|
         before do
           uploaded_doc ? person.consumer_role.vlp_documents << FactoryBot.build(:vlp_document, :verification_type => verification_type) : person.consumer_role.vlp_documents = []
@@ -45,10 +47,12 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
             person.consumer_role.lawful_presence_determination.deny!(verification_attr)
           end
         end
+
         it "returns #{status} status for #{verification_type} #{uploaded_doc ? 'with uploaded doc' : 'without uploaded docs'}" do
           expect(helper.verification_type_status(verification_type, person, admin)).to eq status
         end
       end
+      # rubocop:enable Metrics/ParameterLists
 
       context "consumer role" do
         it_behaves_like "verification type status", "outstanding", "Social Security Number", false, "outstanding", false, false

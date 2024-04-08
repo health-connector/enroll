@@ -86,8 +86,7 @@ module BenefitMarkets
 
     def issuers_for(benefit_application); end
 
-    def product_packages_by_benefit_kind # => health, dental
-    end
+    def product_packages_by_benefit_kind; end
 
     def benefit_types_for(benefit_application); end
 

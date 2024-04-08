@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BrokerAgencyWorld
   def broker_organization
     @broker_organization ||= FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site)

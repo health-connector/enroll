@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :benefit_sponsors_organizations_hbx_profile, class: 'BenefitSponsors::Organizations::HbxProfile' do
 
@@ -5,7 +7,7 @@ FactoryBot.define do
     us_state_abbreviation   { "MA" }
     organization            { build(:benefit_sponsors_organizations_exempt_organization) }
 
-    after(:build) do |profile, evaluator|
+    after(:build) do |profile, _evaluator|
       profile.office_locations << build(:benefit_sponsors_locations_office_location, :with_massachusetts_address, :primary)
     end
 

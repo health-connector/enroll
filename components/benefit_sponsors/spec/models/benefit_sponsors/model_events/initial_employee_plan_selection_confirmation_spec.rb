@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfirmation', dbclean: :around_each  do
@@ -50,7 +52,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
 
   let(:person)       { FactoryBot.create(:person, :with_family) }
   let(:family)       { person.primary_family }
-  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, active_benefit_group_assignment: benefit_package.id ) }
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile, active_benefit_group_assignment: benefit_package.id) }
   let(:employee_role)     { FactoryBot.create(:benefit_sponsors_employee_role, employer_profile: employer_profile, person: person, census_employee_id: census_employee.id) }
   let!(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
 
@@ -78,8 +80,8 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
   describe "Plan selection confirmation when ER made binder payment" do
     context "ModelEvent" do
       it "should set to true after transition" do
-        benefit_application.class.observer_peers.keys.each do |observer|
-          expect(observer).to receive(:notifications_send) do |model_instance, model_event|
+        benefit_application.class.observer_peers.each_key do |observer|
+          expect(observer).to receive(:notifications_send) do |_model_instance, model_event|
             expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :initial_employee_plan_selection_confirmation, :klass_instance => benefit_application, :options => {})
           end
@@ -105,22 +107,24 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployeePlanSelectionConfir
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
         "employee_profile.notice_date",
         "employee_profile.employer_name",
         "employee_profile.enrollment.coverage_start_on",
         "employee_profile.enrollment.plan_name",
         "employee_profile.enrollment.employee_responsible_amount",
-        "employee_profile.enrollment.employer_responsible_amount",
+        "employee_profile.enrollment.employer_responsible_amount"
       ]
-    }
+    end
     let(:recipient) { "Notifier::MergeDataModels::EmployeeProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "CensusEmployee",
         "event_object_id" => census_employee.id
-    } }
+      }
+    end
     let(:subject) { Notifier::NoticeKind.new(template: template, recipient: recipient, event_name: "initial_employee_plan_selection_confirmation") }
     let(:merge_model) { subject.construct_notice_object }
 

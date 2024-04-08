@@ -20,7 +20,7 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     let(:office_location)                 { FactoryBot.build(:office_location, :primary) }
     let!(:old_organization)               { FactoryBot.create(:organization, office_locations: [office_location]) }
     let!(:old_employer_profile)           { FactoryBot.create(:employer_profile, organization: old_organization) }
-    let!(:person)                         { FactoryBot.create(:person) }
+    let!(:person)                         { FactoryBot.create(:person, :with_ssn) }
     let!(:employee_role)                  { FactoryBot.create(:employee_role, person: person, employer_profile_id: old_employer_profile.id) }
 
     let!(:rating_area)                    { FactoryBot.create_default :benefit_markets_locations_rating_area }
@@ -57,7 +57,7 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
     let(:old_organization)               { FactoryBot.create(:organization, office_locations: [office_location]) }
     let(:old_employer_profile)           { FactoryBot.create(:employer_profile, organization: old_organization) }
     let(:old_census_record)              { CensusEmployee.create(first_name: "Eddie", last_name: "Vedder", gender: "male", dob: "1964-10-23".to_date, employer_profile_id: old_employer_profile.id, hired_on: "2015-04-01".to_date, ssn: "112212221") }
-    let(:person)                         { FactoryBot.create(:person) }
+    let(:person)                         { FactoryBot.create(:person, :with_ssn) }
     let(:employee_role)                  { FactoryBot.create(:employee_role, person: person, employer_profile_id: old_employer_profile.id, census_employee_id: old_census_record.id) }
 
     let(:rating_area)                    { FactoryBot.create_default :benefit_markets_locations_rating_area }
@@ -105,7 +105,7 @@ describe UpdateFieldsOfEmployeeRole, dbclean: :after_each do
 
   describe "#update_with_given_census_employee_id" do
     let(:census_employee) { FactoryBot.create(:census_employee)}
-    let(:person) { FactoryBot.create(:person, :with_employee_role)}
+    let(:person) { FactoryBot.create(:person, :with_ssn, :with_employee_role)}
     let(:employee_role) { person.employee_roles.first }
 
     context "should update census_employee_id by using employee_role" do

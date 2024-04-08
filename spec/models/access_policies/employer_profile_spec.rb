@@ -41,7 +41,7 @@ describe AccessPolicies::EmployerProfile, :dbclean => :after_each do
 
       it "should authorize" do
         broker_role.save
-        broker_agency_account = BrokerAgencyAccount.create(employer_profile: employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
+        BrokerAgencyAccount.create(employer_profile: employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
         expect(subject.authorize_show(employer_profile, controller)).to be_truthy
       end
     end
@@ -77,7 +77,7 @@ describe AccessPolicies::EmployerProfile, :dbclean => :after_each do
 
       it "should redirect you to new" do
         broker_role.save
-        broker_agency_account = BrokerAgencyAccount.create(employer_profile: another_employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
+        BrokerAgencyAccount.create(employer_profile: another_employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
         expect(controller).to receive(:redirect_to_new)
         subject.authorize_show(employer_profile, controller)
       end
@@ -110,7 +110,7 @@ describe AccessPolicies::EmployerProfile, :dbclean => :after_each do
 
       it "should authorize" do
         broker_role.save
-        broker_agency_account = BrokerAgencyAccount.create(employer_profile: employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
+        BrokerAgencyAccount.create(employer_profile: employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
         expect(subject.authorize_index(employer_profile, controller)).not_to be_truthy
         expect(controller).not_to receive(:redirect_to_new)
       end
@@ -146,7 +146,7 @@ describe AccessPolicies::EmployerProfile, :dbclean => :after_each do
 
       it "should authorize" do
         broker_role.save
-        broker_agency_account = BrokerAgencyAccount.create(employer_profile: employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
+        BrokerAgencyAccount.create(employer_profile: employer_profile, start_on: TimeKeeper.date_of_record, broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id)
         expect(subject.authorize_edit(employer_profile, controller)).to be_truthy
       end
     end

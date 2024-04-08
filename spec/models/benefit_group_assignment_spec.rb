@@ -346,7 +346,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
       end
 
       it "should #{status}return the #{state} enrollments" do
-        result = result == "enrollment" ? [enrollment] : result
+        result = [enrollment] if result == "enrollment"
         expect(census_employee.active_benefit_group_assignment.hbx_enrollments).to eq result
       end
     end
@@ -379,7 +379,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
       end
 
       it "should #{status}return the #{state} enrollments" do
-        result = result == "active_enrollment" ? [enrollment] : result
+        result = [enrollment] if result == "active_enrollment"
         expect(census_employee.active_benefit_group_assignment.active_and_waived_enrollments).to eq result
       end
     end
@@ -439,7 +439,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
       end
 
       it "should #{status}return the #{state} enrollments" do
-        result = result == "active_enrollment" ? [enrollment] : result
+        result = [enrollment] if result == "active_enrollment"
         expect(census_employee.active_benefit_group_assignment.active_enrollments).to eq result
       end
     end

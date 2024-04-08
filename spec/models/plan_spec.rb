@@ -113,7 +113,7 @@ RSpec.describe Plan, dbclean: :after_each do
       context "check associations with plan model with renewal plan mapping" do
         it "embeds_many assiciation check" do
           associations = Plan.reflect_on_all_associations(:embeds_many)
-          association = associations.detect {|a| a.name === :renewal_plan_mappings }
+          association = associations.detect {|a| a.name == :renewal_plan_mappings }
 
           expect(association.name).to eq(:renewal_plan_mappings)
         end

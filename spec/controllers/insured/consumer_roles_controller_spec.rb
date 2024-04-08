@@ -174,7 +174,9 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         it "should navigate to another page which has information for user to signin/recover account" do
           post :match, params: { :person => person_parameters }
           expect(response).to redirect_to(ssn_taken_insured_consumer_role_index_path)
-          expect(flash[:alert]).to eq "The SSN entered is associated with an existing user. Please <a href=\"https://iam_login_url\">Sign In</a> with your user name and password or <a href=\"https://account_recovery\">Click here</a> if you've forgotten your password."
+          expect(flash[:alert]).to eq(
+            "The SSN entered is associated with an existing user. Please <a href=\"https://iam_login_url\">Sign In</a> with your user name and password or <a href=\"https://account_recovery\">Click here</a> if you've forgotten your password."
+          )
         end
       end
     end
@@ -453,7 +455,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     describe "Get edit consumer role", dbclean: :after_each do
       let(:consumer_role2){ FactoryBot.build(:consumer_role, :bookmark_url => "http://localhost:3000/insured/consumer_role/591f44497af8800bb5000016/edit") }
       before(:each) do
-        current_user = user
         allow(ConsumerRole).to receive(:find).and_return(consumer_role)
         allow(consumer_role).to receive(:person).and_return(person)
         allow(consumer_role).to receive(:build_nested_models_for_person).and_return(true)

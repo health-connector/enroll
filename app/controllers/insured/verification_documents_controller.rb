@@ -17,7 +17,7 @@ class Insured::VerificationDocumentsController < ApplicationController
             flash[:notice] = "File Saved"
           else
             flash[:error] = "Could not save file. " + @doc_errors.join(". ")
-            redirect_to(:back)
+            redirect_back fallback_location: main_app.root_path
             return
           end
         else

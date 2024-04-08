@@ -202,18 +202,22 @@ describe ChangePlanYearEffectiveDate, dbclean: :after_each do
 
     it "should output an error if plan year does not belong to conversion employer" do
       plan_year.employer_profile.update_attributes(profile_source: "self_serve")
-      ClimateControl.modify fein: plan_year.employer_profile.parent.fein,
-                            aasm_state: plan_year.aasm_state,
-                            py_new_start_on: (plan_year.start_on - 1.month).to_s,
-                            referenece_plan_hios_id: plan.hios_id,
-                            ref_plan_active_year: plan.active_year.to_s,
-                            action_on_enrollments: "py_start_on",
-                            REDIS_URL: "redis://what",
-                            REDIS_NAMESPACE_QUIET: "what",
-                            REDIS_NAMESPACE_DEPRECATIONS: "what",
-                            plan_year_state: "revert_application" do
+      params = {
+        fein: plan_year.employer_profile.parent.fein,
+        aasm_state: plan_year.aasm_state,
+        py_new_start_on: (plan_year.start_on - 1.month).to_s,
+        referenece_plan_hios_id: plan.hios_id,
+        ref_plan_active_year: plan.active_year.to_s,
+        action_on_enrollments: "py_start_on",
+        REDIS_URL: "redis://what",
+        REDIS_NAMESPACE_QUIET: "what",
+        REDIS_NAMESPACE_DEPRECATIONS: "what",
+        plan_year_state: "revert_application"
+      }
+
+      ClimateControl.modify(params) do
+        expect(subject.migrate).to eq nil
       end
-      expect(subject.migrate).to eq nil
     end
 
     it "should output an error if plan year has published renewing plan year" do

@@ -386,14 +386,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end
@@ -424,14 +422,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end
@@ -928,7 +924,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated",
                                                                              {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
                                                                               "is_trading_partner_publishable" => false})
-              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js, xhr: true
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
@@ -1235,11 +1231,11 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       let(:new_start_date) { (current_date + 2.months).beginning_of_month }
 
       let!(:term_bs) do
-        FactoryGirl.create(:benefit_sponsors_benefit_application,
-                           :with_benefit_package,
-                           :benefit_sponsorship => benefit_sponsorship,
-                           :aasm_state => 'termination_pending',
-                           :default_effective_period => current_date.beginning_of_year..current_date.end_of_month)
+        FactoryBot.create(:benefit_sponsors_benefit_application,
+                          :with_benefit_package,
+                          :benefit_sponsorship => benefit_sponsorship,
+                          :aasm_state => 'termination_pending',
+                          :default_effective_period => current_date.beginning_of_year..current_date.end_of_month)
       end
 
       let(:required_params) do
@@ -1249,12 +1245,13 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           start_on: new_start_date,
           end_on: new_start_date + 1.year - 1.day,
           open_enrollment_start_on: (current_date + 1.month).beginning_of_month,
-          open_enrollment_end_on: (current_date + 1.month).beginning_of_month + 20.days
+          open_enrollment_end_on: (current_date + 1.month).beginning_of_month + 20.days,
+          has_active_ba: true
         }
       end
 
       before :each do
-        xhr :post, :create_benefit_application, required_params, has_active_ba: true
+        post :create_benefit_application, params: required_params, xhr: true
       end
 
       it 'should respond with success status' do
@@ -1277,14 +1274,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end
@@ -1315,14 +1310,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
           benefit_sponsorship = org.employer_profile.add_benefit_sponsorship
           benefit_sponsorship.save
-          org
         end
       end
       let(:person) do
         FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
           FactoryBot.create(:permission, :super_admin).tap do |permission|
             person.hbx_staff_role.update_attributes(permission_id: permission.id)
-            person
           end
         end
       end

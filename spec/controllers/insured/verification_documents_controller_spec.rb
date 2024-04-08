@@ -36,7 +36,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       describe "file upload" do
         let(:file) { double }
         let(:temp_file) { double }
-        let(:consumer_role_params) {}
         let(:params) { {person: {consumer_role: ''}, file: file} }
         let(:bucket_name) { 'id-verification' }
         let(:doc_id) { "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}{#sample-key" }
@@ -66,7 +65,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
           let(:file) { [:temp_file] }
           let(:person) { FactoryBot.create(:person, :with_consumer_role) }
           let(:temp_file) { double }
-          let(:consumer_role_params) {}
           let(:params) { {person: {consumer_role: person.consumer_role}, file: file} }
           let(:bucket_name) { 'id-verification' }
           let(:doc_uri) { "doc_uri" }
@@ -84,7 +82,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
             allow_any_instance_of(Insured::VerificationDocumentsController).to receive(:file_name).with('temp_file').and_return("sample-filename")
             allow_any_instance_of(Insured::VerificationDocumentsController).to receive(:update_vlp_documents).with("sample-filename", doc_uri).and_return(true)
 
-            controller.instance_variable_set(:"@family", family)
+            controller.instance_variable_set(:@family, family)
             sign_in user
             post :upload, params: params
 

@@ -46,10 +46,7 @@ describe FixOrganization, dbclean: :after_each do
     end
     context "not updating the fein when there is no organization with the fein" do
       it "should not change fein" do
-<<<<<<< HEAD
         old_fein = employer_organization.fein
-=======
->>>>>>> 18ded975b9 (few rubocop fixes)
         employer_organization.fein = ("111111111")
         employer_organization.save!
         ClimateControl.modify action: 'update_fein',
@@ -63,27 +60,11 @@ describe FixOrganization, dbclean: :after_each do
     end
     context "not updating the fein when there is no organization with the fein" do
       it "should not change fein" do
-<<<<<<< HEAD
         ClimateControl.modify action: 'some_other_action' do
           subject.migrate
           employer_organization.reload
           expect(employer_organization.fein).not_to eq "987654321"
         end
-=======
-        employer_organization.fein = ("111111111")
-        employer_organization.save!
-        subject.migrate
-        employer_organization.reload
-        expect(employer_organization.fein).not_to eq "987654321"
-      end
-    end
-    context "not updating the fein when there is no organization with the fein" do
-      it "should not change fein" do
-        ENV["action"] = "some_other_action"
-        subject.migrate
-        employer_organization.reload
-        expect(employer_organization.fein).not_to eq "987654321"
->>>>>>> 18ded975b9 (few rubocop fixes)
       end
     end
   end
@@ -134,15 +115,11 @@ describe FixOrganization, dbclean: :after_each do
     let(:employer_profile)        { employer_organization.employer_profile }
     let(:site)                    { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let!(:employer_attestation)   { FactoryBot.build(:employer_attestation, aasm_state: 'unsubmitted') }
-<<<<<<< HEAD
-    let!(:benefit_sponsorship)   { employer_profile.add_benefit_sponsorship }
-=======
     let!(:benefit_sponsorship) do
       sponsorship = employer_profile.add_benefit_sponsorship
       sponsorship.save
       sponsorship
     end
->>>>>>> 18ded975b9 (few rubocop fixes)
     before(:each) do
       employer_profile.employer_attestation = employer_attestation
       benefit_sponsorship.save

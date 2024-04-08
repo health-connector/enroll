@@ -34,7 +34,7 @@ RSpec.describe SamlController do
     context "with valid saml response" do
       sample_xml = File.read("spec/saml/invalid_saml_response.xml")
       let(:name_id) { user.oim_id }
-      let(:valid_saml_response) { double(is_valid?: true, :"settings=" => true, attributes: attributes_double, name_id: name_id)}
+      let(:valid_saml_response) { double(is_valid?: true, :'settings=' => true, attributes: attributes_double, name_id: name_id)}
       let(:attributes_double) { { 'mail' => user.email} }
 
       before do

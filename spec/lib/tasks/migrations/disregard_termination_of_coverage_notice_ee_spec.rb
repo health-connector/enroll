@@ -27,11 +27,13 @@ RSpec.describe 'The employees of MA new groups received a notice in their accoun
       message = person1.inbox.messages.last
       expect(message.subject).to eq "Disregard Termination of Coverage Notice"
       expect(message.from).to eq "#{aca_state_abbreviation} #{site_short_name}"
-      expect(message.body).to eq "Please disregard the notice that you received on #{ENV['notice_date']} stating that your employer was not offering health coverage through the #{aca_state_name} #{site_short_name}. This notice was sent in error. We apologize for any inconvenience this may have caused." \
-                                 "<br><br>Your employer has completed its open enrollment period and has successfully met all eligibility requirements." \
-                                 "<br><br>Your plan selection, if any, will go into effect on the coverage effective date shown in your account." \
-                                 "<br><br>Thank you for enrolling into employer-sponsored coverage through the #{site_short_name}." \
-                                 "<br> <br>If you have any questions, please call #{contact_center_phone_number} (TTY: #{contact_center_tty_number}), press option 1."
+      expect(message.body).to eq "Please disregard the notice that you received on #{ENV.fetch(
+        'notice_date', nil
+      )} stating that your employer was not offering health coverage through the #{aca_state_name} #{site_short_name}. This notice was sent in error. We apologize for any inconvenience this may have caused." \
+      "<br><br>Your employer has completed its open enrollment period and has successfully met all eligibility requirements." \
+      "<br><br>Your plan selection, if any, will go into effect on the coverage effective date shown in your account." \
+      "<br><br>Thank you for enrolling into employer-sponsored coverage through the #{site_short_name}." \
+      "<br> <br>If you have any questions, please call #{contact_center_phone_number} (TTY: #{contact_center_tty_number}), press option 1."
     end
   end
 end

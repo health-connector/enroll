@@ -156,8 +156,8 @@ class Organization
   scope :all_employers_enrolled,              ->{ unscoped.where(:"employer_profile.plan_years.aasm_state" => "enrolled") }
   scope :all_employer_profiles,               ->{ unscoped.exists(employer_profile: true) }
   scope :invoice_view_all,                    lambda {
-                                                unscoped.where(:"employer_profile.plan_years.aasm_state".in => EmployerProfile::INVOICE_VIEW_RENEWING + EmployerProfile::INVOICE_VIEW_INITIAL, :"employer_profile.plan_years.start_on".gte => TimeKeeper.date_of_record.next_month.beginning_of_month)
-                                              }
+    unscoped.where(:"employer_profile.plan_years.aasm_state".in => EmployerProfile::INVOICE_VIEW_RENEWING + EmployerProfile::INVOICE_VIEW_INITIAL, :"employer_profile.plan_years.start_on".gte => TimeKeeper.date_of_record.next_month.beginning_of_month)
+  }
   scope :employer_profile_renewing_coverage,  ->{ where(:"employer_profile.plan_years.aasm_state".in => EmployerProfile::INVOICE_VIEW_RENEWING) }
   scope :employer_profile_initial_coverage,   ->{ where(:"employer_profile.plan_years.aasm_state".nin => EmployerProfile::INVOICE_VIEW_RENEWING, :"employer_profile.plan_years.aasm_state".in => EmployerProfile::INVOICE_VIEW_INITIAL) }
   scope :employer_profile_plan_year_start_on, ->(begin_on){ where(:"employer_profile.plan_years.start_on" => begin_on) if begin_on.present? }
@@ -183,8 +183,8 @@ class Organization
   scope :employer_profiles_with_attestation_document, -> { exists(:"employer_profile.employer_attestation.employer_attestation_documents" => true) }
 
   scope :datatable_search, lambda { |query|
-                             where({"$or" => [{"legal_name" => ::Regexp.compile(::Regexp.escape(query), true)}, {"fein" => ::Regexp.compile(::Regexp.escape(query), true)}, {"hbx_id" => ::Regexp.compile(::Regexp.escape(query), true)}]})
-                           }
+    where({"$or" => [{"legal_name" => ::Regexp.compile(::Regexp.escape(query), true)}, {"fein" => ::Regexp.compile(::Regexp.escape(query), true)}, {"hbx_id" => ::Regexp.compile(::Regexp.escape(query), true)}]})
+  }
 
   def self.generate_fein
     loop do
@@ -401,12 +401,14 @@ class Organization
   def self.upload_invoice(file_path,file_name)
     invoice_date = begin
       invoice_date(file_path)
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(e)
       nil
     end
     org = begin
       by_invoice_filename(file_path)
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(e)
       nil
     end
     if invoice_date && org && !invoice_exist?(invoice_date,org)
@@ -433,12 +435,14 @@ class Organization
   def self.upload_commission_statement(file_path,file_name)
     statement_date = begin
       commission_statement_date(file_path)
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(e)
       nil
     end
     org = begin
       by_commission_statement_filename(file_path)
     rescue StandardError
+      Rails.logger.error(e)
       nil
     end
     if statement_date && org && !commission_statement_exist?(statement_date,org)
@@ -462,15 +466,17 @@ class Organization
   def self.upload_invoice_to_print_vendor(file_path,file_name)
     org = begin
       by_invoice_filename(file_path)
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(e)
       nil
     end
     return unless org.employer_profile.is_converting?
 
     bucket_name = Settings.paper_notice
     begin
-      doc_uri = Aws::S3Storage.save(file_path,bucket_name,file_name)
-    rescue Exception => e
+      Aws::S3Storage.save(file_path,bucket_name,file_name)
+    rescue StandardError => e
+      Rails.logger.error(e)
       puts "Unable to upload invoices to paper notices bucket"
     end
   end
@@ -520,9 +526,9 @@ class Organization
   end
 
   def office_location_kinds
-    location_kinds = office_locations.select{|l| !l.persisted?}.flat_map(&:address).compact.flat_map(&:kind)
+    location_kinds = office_locations.reject(&:persisted?).flat_map(&:address).compact.flat_map(&:kind)
     # should validate only office location which are not persisted AND kinds ie. primary, mailing, branch
-    return if (no_primary = location_kinds.detect{|kind| ['work', 'home'].include?(kind)})
+    return if location_kinds.detect { |kind| ['work', 'home'].include?(kind) }
 
     return if location_kinds.empty?
 
@@ -535,7 +541,7 @@ class Organization
     end
     return if errors.any? # this means that the validation succeeded and we can delete all the persisted ones
 
-    office_locations.delete_if{|l| l.persisted?}
+    office_locations.delete_if(&:persisted?)
   end
 
   def check_legal_name_or_fein_changed?
@@ -551,7 +557,7 @@ class Organization
     return unless employer_profile.present?
 
     FIELD_AND_EVENT_NAMES_MAP.each do |feild, event_name|
-      notify("acapi.info.events.employer.#{event_name}", {employer_id: hbx_id, event_name: "#{event_name}"}) if @changed_fields.present? && @changed_fields.include?(feild)
+      notify("acapi.info.events.employer.#{event_name}", {employer_id: hbx_id, event_name: event_name.to_s}) if @changed_fields.present? && @changed_fields.include?(feild)
     end
   end
 

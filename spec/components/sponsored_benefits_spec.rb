@@ -5,6 +5,7 @@ require 'rails_helper'
 if begin
   "SponsoredBenefits::Engine".constantize
 rescue StandardError
+  puts "Error - #{e.message}"
   nil
 end
   # Dir[Rails.root.join("components/sponsored_benefits/spec/factories/sponsored_benefits_*.rb")].each do |f|

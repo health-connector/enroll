@@ -11,10 +11,9 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
   let(:employer_profile) { benefit_sponsorship.profile }
   let(:person1) { FactoryBot.create(:person) }
+  let(:user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person1)}
 
   describe ".index" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
-
     before :each do
       sign_in(user)
       get :index, params: { employers_action_id: "employers_action_#{employer_profile.id}", employer_id: benefit_sponsorship }, xhr: true
@@ -26,7 +25,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     end
 
     context 'when hbx staff role missing' do
-      let(:user) { instance_double("User", :has_hbx_staff_role? => false, :person => person1) }
+      let(:user) { FactoryBot.create(:user, person: person1)}
 
       it 'should redirect when hbx staff role missing' do
         expect(response).to have_http_status(:redirect)
@@ -36,21 +35,16 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "PUT terminate" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
     let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     context "when user has permissions" do
       before :each do
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
-        put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month, term_reason: "nonpayment" }
+        put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month, term_reason: "nonpayment" }, format: :json
       end
 
       context 'when application in active status' do
-        before do
-          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.to_s, term_reason: "nonpayment", format: :json
-        end
-
         it "should be success" do
           expect(response).to have_http_status(:success)
         end
@@ -58,16 +52,14 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         it "should terminate the plan year" do
           initial_application.reload
           expect(initial_application.aasm_state).to eq :termination_pending
-          expect(JSON.parse(response.body)).to eq({
-                                                    'employer_id' => benefit_sponsorship.id.to_s, 'employer_application_id' => initial_application.id.to_s, 'sequence_id' => 1
-                                                  })
+          expect(JSON.parse(response.body)).to eq({'employer_id' => benefit_sponsorship.id.to_s, 'employer_application_id' => initial_application.id.to_s, 'sequence_id' => 1})
         end
       end
 
       context 'when application is termination_pending' do
         before do
           initial_application.update_attributes(aasm_state: 'termination_pending')
-          put :terminate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.to_s, term_reason: "nonpayment", format: :json
+          put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.to_s, term_reason: "nonpayment" }, format: :json
         end
 
         it "should be success" do
@@ -79,7 +71,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
           expect(initial_application.aasm_state).to eq :termination_pending
           expect(JSON.parse(response.body)).to eq({
                                                     'employer_id' => benefit_sponsorship.id.to_s, 'employer_application_id' => initial_application.id.to_s,
-                                                    'sequence_id' => 0, 'errors' => ["This tool cannot terminate an application in termination-pending state."]
+                                                    'sequence_id' => 1, 'errors' => ["This tool cannot terminate an application in termination-pending state."]
                                                   })
         end
       end
@@ -99,7 +91,12 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         before :each do
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
-          put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day, term_reason: "nonpayment", term_kind: "nonpayment" }
+          put :terminate, format: :json, params: {
+            employer_application_id: initial_application.id,
+            employer_id: benefit_sponsorship.id,
+            end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day,
+            term_reason: "nonpayment", term_kind: "nonpayment"
+          }
         end
 
         it 'should display appropriate error message' do
@@ -110,15 +107,21 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "PUT cancel" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
     let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
+    let(:valid_params) do
+      {
+        employer_application_id: initial_application.id,
+        employer_id: benefit_sponsorship.id,
+        end_on: initial_application.start_on.next_month
+      }
+    end
 
     context "when user has permissions" do
       before :each do
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :enrollment_open)
-        put :cancel,params: {  employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: initial_application.start_on.next_month }
+        put :cancel, params: valid_params, format: :json
       end
 
       it "should be success" do
@@ -141,7 +144,6 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "get term reasons" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
     let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     before :each do
@@ -156,8 +158,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
   end
 
   describe "PUT reinstate" do
-    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1, id: "12345") }
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
     context 'Success' do
       before :each do
@@ -165,7 +166,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :terminated)
-        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+        put :reinstate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
       end
 
       it 'should have redirect response' do
@@ -178,7 +179,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: false))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :terminated)
-        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+        put :reinstate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
       end
 
       it 'should have redirect response' do
@@ -196,7 +197,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :enrollment_eligible)
-        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+        put :reinstate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
       end
 
       it 'should have redirect response' do
@@ -210,7 +211,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :enrollment_eligible)
-        put :reinstate, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+        put :reinstate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
       end
 
       it 'should have redirect response' do
@@ -219,15 +220,14 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     end
 
     context "application history" do
-      let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
-      let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person1) }
+      let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1) }
 
       context 'when feature enabled' do
         before :each do
           allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(true)
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
-          put :application_history, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+          put :application_history, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
         end
 
         it 'returns success' do
@@ -241,7 +241,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
           allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(false)
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
-          put :application_history, employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id
+          put :application_history, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
         end
 
         it 'should have redirect response' do

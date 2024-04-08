@@ -23,7 +23,7 @@ $(document).on('click', '#downloadReferencePlanDetailsButton.plan-saved', sendPd
 
 
 $(document).on('ready', pageInit);
-$(document).on('page:load', pageInit);
+$(document).on('page:load turbolinks:load', pageInit);
 
 function pageInit() {
   if ($("#reference_plan_id").val() != '') {

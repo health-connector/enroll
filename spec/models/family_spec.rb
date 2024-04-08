@@ -344,7 +344,7 @@ describe Family do
 
   describe "family has a past QLE, but Special Enrollment Period has expired" do
     before :each do
-      expired_sep = FactoryBot.build(:special_enrollment_period, :expired, family: family)
+      FactoryBot.build(:special_enrollment_period, :expired, family: family)
     end
 
     it "should have the SEP instance" do
@@ -381,9 +381,10 @@ describe Family do
 
   context "and the family is under more than one SEP" do
     before do
-      current_sep = FactoryBot.build(:special_enrollment_period, family: family)
-      another_current_sep = FactoryBot.build(:special_enrollment_period, qle_on: 4.days.ago.to_date, family: family)
+      FactoryBot.build(:special_enrollment_period, family: family)
+      FactoryBot.build(:special_enrollment_period, qle_on: 4.days.ago.to_date, family: family)
     end
+
     it "should return multiple current_special_enrollment" do
       expect(family.current_special_enrollment_periods.size).to eq 2
     end

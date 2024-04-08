@@ -327,7 +327,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "update_verification_type private" do
-      let(:verification_attr) { OpenStruct.new({ :determined_at => Time.now, :vlp_authority => "hbx" })}
+      let(:verification_attr) { Struct.new({ :determined_at => Time.now, :vlp_authority => "hbx" })}
       let(:consumer) { person.consumer_role }
       shared_examples_for "update verification type for consumer" do |verification_type, old_authority, new_authority|
         before do
@@ -351,7 +351,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "#update_all_verification_types private" do
-      let(:verification_attr) { OpenStruct.new({ :determined_at => Time.now, :vlp_authority => "curam" })}
+      let(:verification_attr) { Struct.new({ :determined_at => Time.now, :vlp_authority => "curam" })}
       let(:consumer) { person.consumer_role }
       shared_examples_for "update update all verification types for consumer" do |old_authority, new_authority|
         before do
@@ -375,12 +375,14 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "#admin_verification_action private" do
-      let(:verification_attr) { OpenStruct.new({ :determined_at => Time.now, :vlp_authority => "curam" })}
+      let(:verification_attr) { Struct.new({ :determined_at => Time.now, :vlp_authority => "curam" })}
       let(:consumer) { person.consumer_role }
-      shared_examples_for "admin verification actions" do |admin_action, v_type, update_reason, upd_attr, result, rejected_field|
+
+      shared_examples_for "admin verification actions" do |admin_action, v_type, upd_attr, result, rejected_field|
         before do
-          consumer.admin_verification_action(admin_action, v_type, update_reason)
+          consumer.admin_verification_action(admin_action, v_type, "Document in EnrollApp")
         end
+
         it "updates #{v_type} as #{result} if admin clicks #{admin_action}" do
           expect(consumer.send(upd_attr)).to eq result
         end
@@ -393,47 +395,48 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
       end
 
       context "verify" do
-        it_behaves_like "admin verification actions", "verify", "Social Security Number", "Document in EnrollApp", "ssn_validation", "valid"
-        it_behaves_like "admin verification actions", "verify", "Social Security Number", "Document in EnrollApp", "ssn_update_reason", "Document in EnrollApp"
-        it_behaves_like "admin verification actions", "verify", "DC Residency", "Document in EnrollApp", "local_residency_validation", "valid"
-        it_behaves_like "admin verification actions", "verify", "DC Residency", "Document in EnrollApp", "residency_update_reason", "Document in EnrollApp"
+        it_behaves_like "admin verification actions", "verify", "Social Security Number", "ssn_validation", "valid"
+        it_behaves_like "admin verification actions", "verify", "Social Security Number", "ssn_update_reason", "Document in EnrollApp"
+        it_behaves_like "admin verification actions", "verify", "DC Residency", "local_residency_validation", "valid"
+        it_behaves_like "admin verification actions", "verify", "DC Residency", "residency_update_reason", "Document in EnrollApp"
 
       end
 
       context "return for deficiency" do
-        it_behaves_like "admin verification actions", "return_for_deficiency", "Social Security Number", "Document in EnrollApp", "ssn_validation", "outstanding", "ssn_rejected"
-        it_behaves_like "admin verification actions", "return_for_deficiency", "Social Security Number", "Document in EnrollApp", "ssn_update_reason", "Document in EnrollApp", "ssn_rejected"
-        it_behaves_like "admin verification actions", "return_for_deficiency", "American Indian Status", "Document in EnrollApp", "native_update_reason", "Document in EnrollApp", "native_rejected"
-        it_behaves_like "admin verification actions", "return_for_deficiency", "DC Residency", "Illegible Document", "local_residency_validation", "outstanding", "residency_rejected"
+        it_behaves_like "admin verification actions", "return_for_deficiency", "Social Security Number", "ssn_validation", "outstanding", "ssn_rejected"
+        it_behaves_like "admin verification actions", "return_for_deficiency", "Social Security Number", "ssn_update_reason", "Document in EnrollApp", "ssn_rejected"
+        it_behaves_like "admin verification actions", "return_for_deficiency", "American Indian Status", "native_update_reason", "Document in EnrollApp", "native_rejected"
+        it_behaves_like "admin verification actions", "return_for_deficiency", "DC Residency", "local_residency_validation", "outstanding", "residency_rejected"
       end
     end
 
     describe "state machine" do
       let(:consumer) { person.consumer_role }
-      let(:verification_attr) { OpenStruct.new({ :determined_at => Time.now, :vlp_authority => "hbx" })}
+      let(:verification_attr) { Struct.new({ :determined_at => Time.now, :vlp_authority => "hbx" })}
       all_states = [:unverified, :ssa_pending, :dhs_pending, :verification_outstanding, :fully_verified, :sci_verified, :verification_period_ended]
-      all_citizen_states = %w[any us_citizen naturalized_citizen alien_lawfully_present lawful_permanent_resident]
-      shared_examples_for "IVL state machine transitions and workflow" do |ssn, citizen, residency, residency_status, from_state, to_state, event|
+
+      shared_examples_for "IVL state machine transitions and workflow" do |ssn, citizen, residency, residency_status, from_state|
         before do
           person.ssn = ssn
           consumer.citizen_status = citizen
           consumer.is_state_resident = residency
           consumer.local_residency_validation = residency_status
         end
-        it "moves from #{from_state} to #{to_state} on #{event}" do
-          expect(consumer).to transition_from(from_state).to(to_state).on_event(event.to_sym, verification_attr)
+
+        it "moves from #{from_state} to fully_verified on import!" do
+          expect(consumer).to transition_from(from_state).to(:fully_verified).on_event(:import!, verification_attr)
         end
       end
 
       context "import" do
         all_states.each do |state|
-          it_behaves_like "IVL state machine transitions and workflow", nil, nil, nil, "pending", state, :fully_verified, "import!"
-          it_behaves_like "IVL state machine transitions and workflow", "111111111", "us_citizen", true, "valid", state, :fully_verified, "import!"
-          it_behaves_like "IVL state machine transitions and workflow", "111111111", "naturalized_citizen", true, "valid", state, :fully_verified, "import!"
-          it_behaves_like "IVL state machine transitions and workflow", "111111111", "alien_lawfully_present", true, "valid", state, :fully_verified, "import!"
-          it_behaves_like "IVL state machine transitions and workflow", "111111111", "lawful_permanent_resident", false, "outstanding", state, :fully_verified, "import!"
-          it_behaves_like "IVL state machine transitions and workflow", "111111111", "any", true, "valid", state, :fully_verified, "import!"
-          it_behaves_like "IVL state machine transitions and workflow", nil, "any", false, "outstanding", state, :fully_verified, "import!"
+          it_behaves_like "IVL state machine transitions and workflow", nil, nil, nil, "pending", state
+          it_behaves_like "IVL state machine transitions and workflow", "111111111", "us_citizen", true, "valid", state
+          it_behaves_like "IVL state machine transitions and workflow", "111111111", "naturalized_citizen", true, "valid", state
+          it_behaves_like "IVL state machine transitions and workflow", "111111111", "alien_lawfully_present", true, "valid", state
+          it_behaves_like "IVL state machine transitions and workflow", "111111111", "lawful_permanent_resident", false, "outstanding", state
+          it_behaves_like "IVL state machine transitions and workflow", "111111111", "any", true, "valid", state
+          it_behaves_like "IVL state machine transitions and workflow", nil, "any", false, "outstanding", state
           it "updates all verification types with callback" do
             consumer.import!
             expect(consumer.all_types_verified?).to eq true
@@ -680,8 +683,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
     describe "#check_for_critical_changes" do
       sensitive_fields = ConsumerRole::VERIFICATION_SENSITIVE_ATTR
-      all_fields = FactoryBot.build(:person, :encrypted_ssn => "111111111", :gender => "male", "updated_by_id": "any").attributes.keys
-      mask_hash = all_fields.map{|v| [v, (sensitive_fields.include?(v) ? "call" : "don't call")]}.to_h
+      all_fields = FactoryBot.build(:person, :encrypted_ssn => "111111111", :gender => "male", updated_by_id: "any").attributes.keys
+      mask_hash = all_fields.to_h{|v| [v, (sensitive_fields.include?(v) ? "call" : "don't call")]}
       subject { ConsumerRole.new(:person => person) }
       let(:family) { double("Family", :person_has_an_active_enrollment? => true)}
       shared_examples_for "reping the hub fo critical changes" do |field, call, params|

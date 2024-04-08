@@ -41,14 +41,9 @@ describe MappingToCorrectHiosId, dbclean: :after_each do
       )
     end
     let!(:benefit_sponsor_catalog) { FactoryBot.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
-<<<<<<< HEAD
-    let!(:benefit_application) { FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active) }
-
-=======
     let!(:benefit_application) do
-      FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, effective_period: effective_period, aasm_state: :active)
+      FactoryBot.create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: effective_period, aasm_state: :active)
     end
->>>>>>> 18ded975b9 (few rubocop fixes)
     let!(:benefit_application_id) { benefit_application.id.to_s }
     let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
     let!(:product_package_kind) { :single_issuer }

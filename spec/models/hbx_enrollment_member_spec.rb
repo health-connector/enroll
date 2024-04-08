@@ -7,6 +7,7 @@ describe HbxEnrollmentMember, dbclean: :around_each do
     include_context "BradyWorkAfterAll"
 
     attr_reader :household, :coverage_household, :enrollment, :family_member_ids
+
     before :each do
       create_brady_census_families
       @household = mikes_family.households.first

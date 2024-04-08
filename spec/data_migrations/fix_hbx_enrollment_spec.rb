@@ -17,9 +17,9 @@ describe FixHbxEnrollments, dbclean: :after_each do
     end
 
     family_member = "#{state}_family_member".to_sym
-    let(family_member) { FamilyMember.new(person: eval(obj.to_s)) }
+    let(family_member) { FamilyMember.new(person: send(obj.to_s)) }
     hbx_enrollment_member = "#{state}_enrollment_member".to_sym
-    let(hbx_enrollment_member) { FactoryBot.build(:hbx_enrollment_member, applicant_id: eval(family_member.to_s)) }
+    let(hbx_enrollment_member) { FactoryBot.build(:hbx_enrollment_member, applicant_id: send(family_member.to_s)) }
   end
 
   let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
@@ -37,7 +37,7 @@ describe FixHbxEnrollments, dbclean: :after_each do
   context "assigns proper states for people" do
     verification_states.each do |status|
       it "#{status}_person has #{status} aasm_state" do
-        expect(eval("#{status}_person").consumer_role.aasm_state).to eq status
+        expect(send("#{status}_person").consumer_role.aasm_state).to eq status
       end
     end
   end

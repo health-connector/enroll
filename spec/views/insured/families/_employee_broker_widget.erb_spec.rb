@@ -24,7 +24,7 @@ RSpec.describe "_employee_brokers_widget.html.erb" do
     end
 
     it "should display broker widget for consumer" do
-      expect(rendered).to have_text('h3', "Your Broker")
+      expect(rendered).to have_text("Your Broker")
     end
 
     it "should display brokers email" do

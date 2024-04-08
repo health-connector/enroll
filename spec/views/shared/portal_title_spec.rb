@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe "layouts/_header.html.erb", :dbclean => :after_each do
+RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
 
   let(:person_user) { FactoryBot.create(:person) }
   let(:current_user){FactoryBot.create(:user, :person => person_user)}
@@ -36,8 +36,10 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :after_each do
   end
   it 'identifies Employers' do
     allow(person_user).to receive(:employer_staff_roles).and_return([active_employer_staff_role])
+    allow(controller).to receive(:controller_path).and_return("employer_profiles")
     current_user.roles = ['employer_staff']
     current_user.save
+    allow_any_instance_of(User).to receive(:has_employer_staff_role?).and_return(true)
     render :template => 'layouts/_header.html.erb'
     expect(rendered).to match(/I'm an Employer/)
   end

@@ -4,7 +4,8 @@ require "rails_helper"
 
 RSpec.describe "insured/_plan_filters.html.erb" do
   let(:benefit_group){ double("BenefitGroup") }
-  let(:hbx_enrollment) { FactoryBot.build_stubbed(:hbx_enrollment) }
+  let(:family) { FactoryBot.build(:family, :with_primary_family_member_and_dependent)}
+  let(:hbx_enrollment) { FactoryBot.build_stubbed(:hbx_enrollment, household: family.active_household)}
   context "without consumer_role" do
     let(:person) {double(has_active_consumer_role?: false)}
     let(:offers_nationwide_plans) { true }
@@ -33,7 +34,8 @@ RSpec.describe "insured/_plan_filters.html.erb" do
     end
 
     it 'should have Metal Level title text' do
-      expect(rendered).to match(/Plans use metal levels as an easy way to help indicate how generous they are in paying expenses.Metal levels only focus on what the plan is expected to pay, and do NOT reflect the quality of health care or service providers available through the health insurance plan./i)
+      expect(rendered).to match(/Plans use metal levels as an easy way to help indicate how generous they are in paying expenses./i)
+      expect(rendered).to match(/Metal levels only focus on what the plan is expected to pay, and do NOT reflect the quality of health care or service providers available through the health insurance plan./i)
     end
 
     it 'should have Bronze title text' do
@@ -53,7 +55,8 @@ RSpec.describe "insured/_plan_filters.html.erb" do
     end
 
     it 'should have Catastrophic title text' do
-      expect(rendered).to match(/While not a metal level plan, catastrophic plans are another group of plans that have low monthly premiums and high annual deductibles. The plans are designed to protect consumers from worst case situations like a serious illness or an accident. Catastrophic plans are only available to people under 30 or people with a hardship exemption./i)
+      expect(rendered).to match(/While not a metal level plan, catastrophic plans are another group of plans that have low monthly premiums and high annual deductibles./i)
+      expect(rendered).to match(/The plans are designed to protect consumers from worst case situations like a serious illness or an accident. Catastrophic plans are only available to people under 30 or people with a hardship exemption./i)
     end
 
     it 'should have Plan Type title text ' do
@@ -77,19 +80,26 @@ RSpec.describe "insured/_plan_filters.html.erb" do
     end
 
     it 'should have HMO title text' do
-      expect(rendered).to match(/#{Regexp.escape("An HMO (Health Maintenance Organization) plan usually only covers care from in-network providers. It generally won't cover out-of-network care except in an emergency, and may require you to live or work in its service area to be eligible for coverage. You may be required to choose a primary care doctor.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("An HMO (Health Maintenance Organization) plan usually only covers care from in-network providers.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("It generally won't cover out-of-network care except in an emergency, and may require you to live or work in its service area to be eligible for coverage.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("You may be required to choose a primary care doctor.")}/i)
     end
 
     it 'should have PPO title text' do
-      expect(rendered).to match(/#{Regexp.escape("A PPO (Preferred Provider Organization) plan covers care from in-network and out-of-network providers. You pay less if you use providers that belong to the plan’s network. You can use providers outside of the network for an additional cost.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("A PPO (Preferred Provider Organization) plan covers care from in-network and out-of-network providers.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("You pay less if you use providers that belong to the plan’s network. You can use providers outside of the network for an additional cost.")}/i)
     end
 
     it 'should have POS title text' do
-      expect(rendered).to match(/#{Regexp.escape("A POS (Point-of-Service) plan is a combination of an HMO and a PPO. Typically it has a network that functions like an HMO – you pick a primary care doctor, who manages and coordinates your care within the network. Similar to a PPO, POS plans usually also allow you to use a provider who is not in the network.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("A POS (Point-of-Service) plan is a combination of an HMO and a PPO.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("Typically it has a network that functions like an HMO – you pick a primary care doctor, who manages and coordinates your care within the network.")}/i)
+      expect(rendered).to match(/#{Regexp.escape("Similar to a PPO, POS plans usually also allow you to use a provider who is not in the network.")}/i)
     end
 
     it 'should have Hsa_eligibilty title text' do
-      expect(rendered).to match(/#{Regexp.escape("Plans that are eligible for HSA (Health Savings Accounts) are classified as High Deductible Health Plans (HDHP) and enable you to open a tax-preferred medical savings account at your bank to pay for qualified medical expenses. Funds in an HSA account roll over year to year if you don't spend them.")}/i)
+      text = "Plans that are eligible for HSA (Health Savings Accounts) are classified as High Deductible Health Plans (HDHP) and enable you to open a tax-preferred medical savings account at your bank to pay for qualified medical expenses."
+      expect(rendered).to match(/#{Regexp.escape(text)}/i)
+      expect(rendered).to match(/#{Regexp.escape("Funds in an HSA account roll over year to year if you don't spend them.")}/i)
     end
 
     it "should have Premium amount search" do

@@ -76,7 +76,6 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     let(:body_ssn_true_citizenship_false) do
       doc = Nokogiri::XML(body_ssn_true_citizenship_true)
       doc.xpath("//ns1:citizenship_verified", {:ns1 => "http://openhbx.org/api/terms/1.0"}).first.content = "false"
-      doc
       doc.to_xml(:indent => 2)
     end
 

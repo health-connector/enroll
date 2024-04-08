@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "..", "..", "support/benefit_sponsors_site_spec_helpers")
 
@@ -12,8 +14,8 @@ module BenefitSponsors
     let(:broker_agency) {FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
     let!(:broker_agency_profile) {broker_agency.broker_agency_profile}
     let!(:user) { FactoryBot.create(:user)}
-    let!(:person) { FactoryBot.create(:person, emails:[ FactoryBot.build(:email, kind:'work') ], user_id: user.id) }
-    let!(:active_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, aasm_state:'is_active', benefit_sponsor_employer_profile_id: employer_profile.id, person: person)}
+    let!(:person) { FactoryBot.create(:person, emails: [FactoryBot.build(:email, kind: 'work')], user_id: user.id) }
+    let!(:active_employer_staff_role) {FactoryBot.create(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id, person: person)}
     let!(:broker_role) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person) }
 
     shared_examples_for "should return profile type" do |profile_type|
@@ -21,7 +23,7 @@ module BenefitSponsors
       it "profile_type #{profile_type}" do
         params = { profile_id: profile_type == "benefit_sponsor" ? employer_profile.id : broker_agency_profile.id}
         service = subject.new params
-        expect(service.pluck_profile_type params[:profile_id]).to eq profile_type
+        expect(service.pluck_profile_type(params[:profile_id])).to eq profile_type
       end
 
     end
@@ -38,7 +40,7 @@ module BenefitSponsors
         service = subject.new params
         build_hash = service.build params
         expect(build_hash[:profile_type]).to eq profile_type
-        expect(build_hash[:organization][:legal_name]).to eq profile_type == "benefit_sponsor" ?  employer_profile.legal_name : broker_agency_profile.legal_name
+        expect(build_hash[:organization][:legal_name]).to eq profile_type == "benefit_sponsor" ? employer_profile.legal_name : broker_agency_profile.legal_name
       end
 
       it "should return new form for #{profile_type} type" do
@@ -58,11 +60,11 @@ module BenefitSponsors
     shared_examples_for "should find profile and return form for profile" do |profile_type|
 
       it "should return form for #{profile_type} type" do
-        params = { profile_id: profile_type == "benefit_sponsor" ? employer_profile.id.to_s : broker_agency_profile.id, profile_type:profile_type}
+        params = { profile_id: profile_type == "benefit_sponsor" ? employer_profile.id.to_s : broker_agency_profile.id, profile_type: profile_type}
         service = subject.new params
         find_hash = service.find
         expect(find_hash[:profile_type]).to eq profile_type
-        expect(find_hash[:organization][:legal_name]).to eq profile_type == "benefit_sponsor" ?  employer_profile.legal_name : broker_agency_profile.legal_name
+        expect(find_hash[:organization][:legal_name]).to eq profile_type == "benefit_sponsor" ? employer_profile.legal_name : broker_agency_profile.legal_name
       end
     end
 

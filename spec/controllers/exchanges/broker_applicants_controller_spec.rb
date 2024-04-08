@@ -126,11 +126,16 @@ RSpec.describe Exchanges::BrokerApplicantsController do
           expect(response).to redirect_to('/exchanges/hbx_profiles')
           #only really testing that the params go through.
           if aca_state_abbreviation == "DC"
-            expect(broker_role.carrier_appointments).to eq({"Aetna Health Inc" => "true", "Aetna Life Insurance Company" => nil, "Carefirst Bluechoice Inc" => nil, "Group Hospitalization and Medical Services Inc" => nil, "Kaiser Foundation" => nil,
-                                                            "Optimum Choice" => nil, "United Health Care Insurance" => "true", "United Health Care Mid Atlantic" => nil})
+            expect(broker_role.carrier_appointments).to eq({
+                                                             "Aetna Health Inc" => "true", "Aetna Life Insurance Company" => nil, "Carefirst Bluechoice Inc" => nil, "Group Hospitalization and Medical Services Inc" => nil,
+                                                             "Kaiser Foundation" => nil, "Optimum Choice" => nil, "United Health Care Insurance" => "true", "United Health Care Mid Atlantic" => nil
+                                                           })
           else
-            expect(broker_role.carrier_appointments).to eq({"Aetna Health Inc" => "true", "Altus" => nil, "Blue Cross Blue Shield MA" => nil, "Boston Medical Center Health Plan" => nil, "Delta" => nil, "FCHP" => nil, "Guardian" => nil,
-                                                            "Harvard Pilgrim Health Care" => nil, "Health New England" => nil, "Minuteman Health" => nil, "Neighborhood Health Plan" => nil, "Tufts Health Plan Direct" => nil, "Tufts Health Plan Premier" => nil, "United Health Care Insurance" => "true"})
+            expect(broker_role.carrier_appointments).to eq({
+                                                             "Aetna Health Inc" => "true", "Altus" => nil, "Blue Cross Blue Shield MA" => nil, "Boston Medical Center Health Plan" => nil,
+                                                             "Delta" => nil, "FCHP" => nil, "Guardian" => nil, "Harvard Pilgrim Health Care" => nil, "Health New England" => nil, "Minuteman Health" => nil,
+                                                             "Neighborhood Health Plan" => nil, "Tufts Health Plan Direct" => nil, "Tufts Health Plan Premier" => nil, "United Health Care Insurance" => "true"
+                                                           })
           end
         end
 

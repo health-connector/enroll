@@ -170,8 +170,8 @@ class ConsumerRole
                 :scope => :person,
                 :modifier_field => :modifier,
                 :version_field => :tracking_version,
-                :track_create  => true,    # track document creation, default is false
-                :track_update  => true,    # track document updates, default is true
+                :track_create => true,    # track document creation, default is false
+                :track_update => true,    # track document updates, default is true
                 :track_destroy => true
 
   # used to track history verification actions can be used on any top node model to build history of changes.
