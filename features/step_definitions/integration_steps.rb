@@ -440,7 +440,7 @@ Given(/(.*) Employer for (.*) exists with active and renewing enrolling plan yea
 end
 
 When(/(^.+) enters? office location for (.+)$/) do |role, location|
-  location = eval(location) if location.instance_of?(String)
+  location = eval(location) if location.class == String
   RatingArea.where(zip_code: "01001").first || FactoryBot.create(:rating_area, zip_code: "01001", county_name: "Hampden", rating_area: Settings.aca.rating_areas.first)
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_1]', :with => location[:address1]
   fill_in 'agency[organization][profile_attributes][office_locations_attributes][0][address_attributes][address_2]', :with => location[:address2]
@@ -464,8 +464,8 @@ When(/(^.+) enters? office location for (.+)$/) do |role, location|
 end
 
 When(/^.+ updates office location from (.+) to (.+)$/) do |old_add, new_add|
-  old_add = eval(old_add) if old_add.instance_of?(String)
-  new_add = eval(new_add) if new_add.instance_of?(String)
+  old_add = eval(old_add) if old_add.class == String
+  new_add = eval(new_add) if new_add.class == String
   fill_in 'organization[office_locations_attributes][0][address_attributes][address_1]', :with => new_add[:address1]
   fill_in 'organization[office_locations_attributes][0][address_attributes][address_2]', :with => new_add[:address2]
   fill_in 'organization[office_locations_attributes][0][address_attributes][city]', :with => new_add[:city]

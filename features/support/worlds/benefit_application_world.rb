@@ -1,7 +1,6 @@
-# frozen_string_literal: true
-
 module BenefitApplicationWorld
-  def aasm_state(key = nil)
+
+  def aasm_state(key=nil)
     @aasm_state ||= key
   end
 
@@ -9,11 +8,11 @@ module BenefitApplicationWorld
     @renewal_state ||= key
   end
 
-  def health_state(key = false)
+  def health_state(key=false)
     @health_state ||= key
   end
 
-  def dental_state(key = false)
+  def dental_state(key=false)
     @dental_state ||= key
   end
 
@@ -25,7 +24,7 @@ module BenefitApplicationWorld
     @dental_package_kind ||= :single_product
   end
 
-  def dental_sponsored_benefit(default = false)
+  def dental_sponsored_benefit(default=false)
     @dental_sponsored_benefit = default
   end
 
@@ -49,7 +48,7 @@ module BenefitApplicationWorld
     @sic_code ||= benefit_sponsorship.sic_code
   end
 
-  def application_dates_for(effective_date, _aasm_state)
+  def application_dates_for(effective_date, aasm_state)
     oe_period = if effective_date >= TimeKeeper.date_of_record
                   TimeKeeper.date_of_record.beginning_of_month..(effective_date.prev_month + 20.days)
                 else
@@ -113,10 +112,14 @@ module BenefitApplicationWorld
     @new_application
   end
 
-  def create_applications(predecessor_status:, new_application_status:)
-    aasm_state(predecessor_status) if predecessor_status
+  def create_applications(predecessor_status: , new_application_status: )
+    if predecessor_status
+      aasm_state(predecessor_status)
+    end
 
-    renewal_state(new_application_status) if new_application_status
+    if new_application_status
+      renewal_state(new_application_status)
+    end
 
     application_dates = application_dates_for(renewal_effective_date, renewal_state)
     @new_application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
@@ -151,10 +154,8 @@ And(/^this employer offering (.*?) contribution to (.*?)$/) do |percent, display
     application.benefit_packages.each do |benefit_package|
       benefit_package.sponsored_benefits.each do |sponsored_benefit|
         next unless sponsored_benefit.sponsor_contribution.present?
-
         sponsored_benefit.sponsor_contribution.contribution_levels.each do |contribution_level|
           next unless contribution_level.display_name == display_name
-
           contribution_level.update_attributes(contribution_factor: percent)
         end
       end
@@ -170,7 +171,6 @@ And(/^this employer (.*?) not offering (.*?) benefits to (.*?)$/) do |legal_name
       sponsored_benefit = sponsored_benefit == "dental" ? benefit_package.dental_sponsored_benefit : benefit_package.health_sponsored_benefit
       sponsored_benefit.sponsor_contribution.contribution_levels.each do |contribution_level|
         next unless contribution_level.display_name == display_name
-
         contribution_level.update_attributes(is_offered: false)
       end
     end

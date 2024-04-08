@@ -199,21 +199,22 @@ class User
     save
   end
 
-  def get_announcements_by_roles_and_portal(portal_path = "")
+  def get_announcements_by_roles_and_portal(portal_path="")
     announcements = []
 
-    if portal_path.include?("employers/employer_profiles")
+    case
+    when portal_path.include?("employers/employer_profiles")
       announcements.concat(Announcement.current_msg_for_employer) if has_employer_staff_role?
-    elsif portal_path.include?("families/home")
+    when portal_path.include?("families/home")
       announcements.concat(Announcement.current_msg_for_employee) if has_employee_role? || (person && person.has_active_employee_role?)
       announcements.concat(Announcement.current_msg_for_ivl) if has_consumer_role? || (person && person.has_active_consumer_role?)
-    elsif portal_path.include?("employee")
+    when portal_path.include?("employee")
       announcements.concat(Announcement.current_msg_for_employee) if has_employee_role? || (person && person.has_active_employee_role?)
-    elsif portal_path.include?("consumer")
+    when portal_path.include?("consumer")
       announcements.concat(Announcement.current_msg_for_ivl) if has_consumer_role? || (person && person.has_active_consumer_role?)
-    elsif portal_path.include?("broker_agencies")
+    when portal_path.include?("broker_agencies")
       announcements.concat(Announcement.current_msg_for_broker) if has_broker_role?
-    elsif portal_path.include?("general_agencies")
+    when portal_path.include?("general_agencies")
       announcements.concat(Announcement.current_msg_for_ga) if has_general_agency_staff_role?
     end
 

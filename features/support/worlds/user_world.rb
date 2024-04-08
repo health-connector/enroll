@@ -30,14 +30,11 @@ module UserWorld
       person = FactoryBot.create(:person)
       raise "No subrole was provided" if subrole.blank?
 
-      if Permission.where(name: subrole).present?
-        permission = Permission.where(name: subrole).first
-        permission.update_attributes(can_modify_plan_year: true)
-        permission.update_attributes(can_access_user_account_tab: true)
-        permission_id = permission.id
-      else
-        raise "No permission was found for subrole #{subrole}"
-      end
+      raise "No permission was found for subrole #{subrole}" if Permission.where(name: subrole).blank?
+      permission = Permission.where(name: subrole).first
+      permission.update_attributes(can_modify_plan_year: true)
+      permission.update_attributes(can_access_user_account_tab: true)
+      permission_id = permission.id
       HbxStaffRole.create!(person: person, permission_id: permission_id, subrole: subrole, hbx_profile_id: hbx_profile_id)
       @admin = FactoryBot.create(:user, :person => person)
     end

@@ -15,7 +15,7 @@ module CensusEmployeeWorld
   end
 
   def build_enrollment(attributes, *traits)
-    @hbx_enrollment ||= FactoryBot.create(
+    @build_enrollment ||= FactoryBot.create(
       :hbx_enrollment,
       :with_enrollment_members,
       *traits,
@@ -79,7 +79,7 @@ module CensusEmployeeWorld
 
   def user_record_from_census_employee(person)
     person_record = Person.where(first_name: person[:first_name], last_name: person[:last_name]).first
-    @person_user_record ||= FactoryBot.create(:user, :person => person_record)
+    @user_record_from_census_employee ||= FactoryBot.create(:user, :person => person_record)
   end
 
   def employee(employer = nil)
@@ -350,8 +350,8 @@ And(/^employees for (.*?) have a selected coverage$/) do |legal_name|
   bga =  @census_employees.first.active_benefit_group_assignment
   benefit_package = fetch_benefit_group(legal_name)
   coverage_household = person.primary_family.households.first
-  benefit_package.benefit_application.recorded_rating_area_id
-  benefit_package.sponsored_benefits.first.id
+  rating_area_id = benefit_package.benefit_application.recorded_rating_area_id
+  sponsored_benefit_id = benefit_package.sponsored_benefits.first.id
   FactoryBot.create(
     :hbx_enrollment,
     household: coverage_household,

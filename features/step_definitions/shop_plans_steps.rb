@@ -5,9 +5,9 @@ Given("shop health plans exist for both last and this year") do
   plan = FactoryBot.create :plan, :with_premium_tables, active_year: year, market: 'shop', coverage_kind: 'health', deductible: 4000, is_sole_source: false
   FactoryBot.create :plan, :with_premium_tables, active_year: (year - 1), market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id, is_sole_source: false
   FactoryBot.create :plan, :with_rating_factors, :with_premium_tables, active_year: year, market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id, is_vertical: false,
-                                                                                          is_horizontal: false, is_sole_source: true
+                                                                       is_horizontal: false, is_sole_source: true
   FactoryBot.create :plan, :with_rating_factors, :with_premium_tables, active_year: (year - 1), market: 'shop', coverage_kind: 'health', deductible: 4000, carrier_profile_id: plan.carrier_profile_id, is_vertical: false,
-                                                                                              is_horizontal: false, is_sole_source: true
+                                                                       is_horizontal: false, is_sole_source: true
 
 end
 

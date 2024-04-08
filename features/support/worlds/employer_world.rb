@@ -25,7 +25,7 @@ module EmployerWorld
   end
 
   def registering_employer
-    @registering_organization ||= FactoryBot.build(
+    @registering_employer ||= FactoryBot.build(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
       site: site
