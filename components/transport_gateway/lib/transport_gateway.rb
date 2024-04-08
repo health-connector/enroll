@@ -1,6 +1,7 @@
 require 'aws-sdk'
 require "transport_gateway/engine"
 
+# rubocop:disable Style/ClassVars
 module URI
   class S3 < Generic
     def region
@@ -20,6 +21,7 @@ module URI
   @@schemes ||= scheme_list
   @@schemes['S3'] = S3
 end
+# rubocop:enable Style/ClassVars
 
 # Provides the raw underlying plumbing for transfering resources.
 #
