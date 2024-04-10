@@ -276,12 +276,7 @@ Rails.application.routes.draw do
 
     root 'families#home'
 
-    resources :family_members do
-      get :resident_index, on: :collection
-      get :new_resident_dependent, on: :collection
-      get :edit_resident_dependent, on: :member
-      get :show_resident_dependent, on: :member
-    end
+    resources :family_members, only: [:new, :create, :show, :index, :edit, :update, :destroy]
 
     resources :group_selections, controller: "group_selection", only: [:new, :create] do
       collection do
