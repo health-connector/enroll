@@ -12,6 +12,10 @@ describe Factories::EnrollmentFactory, "starting with unlinked employee_family a
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
+  before :all do
+    DatabaseCleaner.clean
+  end
+
   let(:hired_on) { TimeKeeper.date_of_record - 30.days }
   let(:terminated_on) { TimeKeeper.date_of_record - 1.days }
   let(:dob) { employee_role.dob }
