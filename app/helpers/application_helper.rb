@@ -437,8 +437,7 @@ module ApplicationHelper
     carriers.each do |car|
       if Rails.env == "production"
         image = "logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
-        digest_image = "/assets/#{Rails.application.assets.find_asset(image)&.digest_path}"
-        Rails.logger.warn("Unable to find carrier logo asset for #{car.legal_name}.") if Rails.application.assets.find_asset(image)&.digest_path.nil?
+        digest_image = "/assets/#{::Sprockets::Railtie.build_environment(Rails.application).find_asset(image)&.digest_path}"
         carrier_logo_hash[car.legal_name] = digest_image
       else
         image = "/assets/logo/carrier/#{car.legal_name.parameterize.underscore}.jpg"
