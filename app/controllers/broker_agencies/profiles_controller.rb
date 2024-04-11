@@ -277,7 +277,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     @employers = @general_agency_profile.employer_clients
   end
 
-# TODO: these can be moved, no GA References
   def messages
     @sent_box = true
     @provider = Person.find(params["id"])
