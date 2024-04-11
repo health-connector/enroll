@@ -520,7 +520,7 @@ module BenefitSponsors
     end
 
     def dt_display_benefit_application
-      benefit_applications.where(:aasm_state.nin => [:canceled,:retroactive_canceled]).max_by(&:start_on) || latest_benefit_application
+      benefit_applications.where(:aasm_state.nin => [:canceled, :retroactive_canceled]).max_by(&:start_on) || latest_benefit_application
     end
 
     def off_cycle_benefit_application
@@ -563,10 +563,6 @@ module BenefitSponsors
       published_benefit_application ||
         benefit_applications.order(updated_at: :desc).non_terminated_non_imported.where(:id.ne => off_cycle_benefit_application&.id).first ||
         benefit_applications.order_by(:updated_at.desc).non_imported.where(:id.ne => off_cycle_benefit_application&.id).first
-    end
-
-    def dt_display_benefit_application
-      benefit_applications.where(:aasm_state.nin => [:canceled, :retroactive_canceled]).max_by(&:start_on) || latest_benefit_application
     end
 
     def latest_application
