@@ -5,15 +5,11 @@ class BrokerAgencies::ProfilesController < ApplicationController
 
   before_action :check_broker_agency_staff_role, only: [:new, :create]
   before_action :broker_profile_params, only: [:create, :update]
-  before_action :check_admin_staff_role, only: [:index]
-  before_action :find_hbx_profile, only: [:index]
   before_action :find_broker_agency_profile, only: [:show, :edit, :update, :employers, :assign, :update_assign, :employer_datatable, :manage_employers, :general_agency_index, :clear_assign_for_employer, :set_default_ga, :assign_history]
   before_action :set_current_person, only: [:staff_index]
   before_action :check_general_agency_profile_permissions_assign, only: [:assign, :update_assign, :clear_assign_for_employer, :assign_history]
   before_action :check_general_agency_profile_permissions_set_default, only: [:set_default_ga]
   before_action :redirect_unless_general_agency_is_enabled?, only: [:assign, :update_assign]
-  before_action :check_and_download_commission_statement, only: [:download_commission_statement, :show_commission_statement]
-
   layout 'single_column'
 
   EMPLOYER_DT_COLUMN_TO_FIELD_MAP = {
@@ -21,10 +17,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "4"     => "employer_profile.aasm_state",
     "5"     => "employer_profile.plan_years.start_on"
   }
-
-  def index
-    @broker_agency_profiles = BrokerAgencyProfile.all
-  end
 
   def new
     @organization = ::Forms::BrokerAgencyProfile.new
@@ -40,14 +32,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
       flash[:error] = "Failed to create Broker Agency Profile"
       render "new"
     end
-  end
-
-  def show
-    set_flash_by_announcement
-    session[:person_id] = nil
-     @provider = @broker_agency_profile.primary_broker_role.person
-     @staff_role = current_user.has_broker_agency_staff_role?
-     @id=params[:id]
   end
 
   def edit
@@ -94,119 +78,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     end
   end
 
-  def staff_index
-    @q = params.permit(:q)[:q]
-    @staff = eligible_brokers
-    @page_alphabets = page_alphabets(@staff, "last_name")
-    page_no = cur_page_no(@page_alphabets.first)
-    if @q.nil?
-      @staff = @staff.where(last_name: /^#{page_no}/i)
-    else
-      @staff = @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
-    end
-  end
-
-  def family_datatable
-    id = params[:id]
-
-    is_search = false
-
-    dt_query = extract_datatable_parameters
-
-    if current_user.has_broker_role?
-      @broker_agency_profile = BrokerAgencyProfile.find(current_user.person.broker_role.broker_agency_profile_id)
-    elsif current_user.has_hbx_staff_role?
-      @broker_agency_profile = BrokerAgencyProfile.find(BSON::ObjectId.from_string(id))
-    else
-      redirect_to new_broker_agencies_profile_path
-      return
-    end
-
-    query = Queries::BrokerFamiliesQuery.new(dt_query.search_string, @broker_agency_profile.id)
-
-    @total_records = query.total_count
-    @records_filtered = query.filtered_count
-
-    @families = query.filtered_scope.skip(dt_query.skip).limit(dt_query.take).to_a
-    primary_member_ids = @families.map do |fam|
-      fam.primary_family_member.person_id
-    end
-    @primary_member_cache = {}
-    Person.where(:_id => { "$in" => primary_member_ids }).each do |pers|
-      @primary_member_cache[pers.id] = pers
-    end
-    @draw = dt_query.draw
-  end
-
-  def family_index
-    @q = params.permit(:q)[:q]
-    id = params.permit(:id)[:id]
-    page = params.permit([:page])[:page]
-    if current_user.has_broker_role?
-      @broker_agency_profile = BrokerAgencyProfile.find(current_user.person.broker_role.broker_agency_profile_id)
-    elsif current_user.has_hbx_staff_role?
-      @broker_agency_profile = BrokerAgencyProfile.find(BSON::ObjectId.from_string(id))
-    else
-      redirect_to new_broker_agencies_profile_path
-      return
-    end
-    #
-    # total_families = @broker_agency_profile.families
-    # @total = total_families.count
-    # @page_alphabets = total_families.map{|f| f.primary_applicant.person.last_name[0]}.map(&:capitalize).uniq
-    # if page.present?
-    #   @families = total_families.select{|v| v.primary_applicant.person.last_name =~ /^#{page}/i }
-    # elsif @q.present?
-    #   query= Regexp.escape(@q)
-    #   query_args= query.split("\\ ")
-    #   reg_ex = query_args.join('(.*)?')
-    #   @families = total_families.select{|v| v.primary_applicant.person.full_name =~ /#{reg_ex}/i }
-    # else
-    #   @families = total_families[0..20]
-    # end
-    #
-    # @family_count = @families.count
-    respond_to do |format|
-      format.js {}
-    end
-  end
-
-  def commission_statements
-    permitted = params.permit(:id)
-    @id = permitted[:id]
-    if current_user.has_broker_role?
-      @broker_agency_profile = BrokerAgencyProfile.find(current_user.person.broker_role.broker_agency_profile_id)
-    elsif current_user.has_hbx_staff_role?
-      @broker_agency_profile = BrokerAgencyProfile.find(BSON::ObjectId.from_string(@id))
-    else
-      redirect_to new_broker_agencies_profile_path
-      return
-    end
-    documents = @broker_agency_profile.organization.documents
-    if documents
-      @statements = get_commission_statements(documents)
-    end
-    collect_and_sort_commission_statements
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def show_commission_statement
-    options={}
-    options[:filename] = @commission_statement.title
-    options[:type] = 'application/pdf'
-    options[:disposition] = 'inline'
-    send_data Aws::S3Storage.find(@commission_statement.identifier) , options
-  end
-
-  def download_commission_statement
-    options={}
-    options[:content_type] = @commission_statement.type
-    options[:filename] = @commission_statement.title
-    send_data Aws::S3Storage.find(@commission_statement.identifier) , options
-  end
-
   def employers
     if current_user.has_broker_agency_staff_role? || current_user.has_hbx_staff_role?
       @orgs = Organization.by_broker_agency_profile(@broker_agency_profile._id)
@@ -234,7 +105,7 @@ class BrokerAgencies::ProfilesController < ApplicationController
       elsif @general_agency_profile.present?
         @broker_agency_profile.default_general_agency_profile = @general_agency_profile
         @broker_agency_profile.employer_clients.each do |employer_profile|
-          @general_agency_profile.general_agency_hired_notice(employer_profile) # GA notice when broker selects a default GA 
+          @general_agency_profile.general_agency_hired_notice(employer_profile) # GA notice when broker selects a default GA
         end
       end
       @broker_agency_profile.save
@@ -266,12 +137,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
       broker_role_id = current_user.person.broker_role.id
       @orgs = Organization.unscoped.by_broker_role(broker_role_id)
     end
-
-    #not using code, commenting it to to fix brakeman errors
-    # if order_by.present?
-    #   # If searching on column 5 (PY start_on), also sort by aasm_state
-    #   @orgs = params[:order]["0"][:column] == 5 ? @orgs.order_by(:'employer_profile.plan_years.aasm_state'.asc, order_by.send(params[:order]["0"][:dir])) : @orgs.order_by(order_by.send(params[:order]["0"][:dir]))
-    # end
 
     total_records = @orgs.count
 
@@ -412,6 +277,7 @@ class BrokerAgencies::ProfilesController < ApplicationController
     @employers = @general_agency_profile.employer_clients
   end
 
+# TODO: these can be moved, no GA References
   def messages
     @sent_box = true
     @provider = Person.find(params["id"])
@@ -421,18 +287,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
   def agency_messages
     @sent_box = true
     @broker_agency_profile = current_user.person.broker_agency_staff_roles.first.broker_agency_profile
-  end
-
-  def inbox
-    @sent_box = true
-    id = params["id"]||params['profile_id']
-    @broker_agency_provider = BrokerAgencyProfile.find(id)
-    @folder = (params[:folder] || 'Inbox').capitalize
-    if current_user.person._id.to_s == id
-      @provider = current_user.person
-    else
-      @provider = @broker_agency_provider
-    end
   end
 
   def redirect_to_show(broker_agency_profile_id)
@@ -475,46 +329,9 @@ class BrokerAgencies::ProfilesController < ApplicationController
     end
   end
 
-  def check_and_download_commission_statement
-      @broker_agency_profile = BrokerAgencyProfile.find(params[:id])
-      authorize @broker_agency_profile, :access_to_broker_agency_profile?
-      @commission_statement = @broker_agency_profile.organization.documents.find(params[:statement_id])
-  end
-
-  def get_commission_statements(documents)
-    commission_statements = []
-    documents.each do |document|
-      # grab only documents that are commission statements by checking the bucket in which they are placed
-      if document.identifier.include?("commission-statements")
-        commission_statements << document
-      end
-    end
-    commission_statements
-  end
-
-  def collect_and_sort_commission_statements(sort_order='ASC')
-    @statement_years = (Settings.aca.shop_market.broker_agency_profile.minimum_commission_statement_year..TimeKeeper.date_of_record.year).to_a.reverse
-    #sort_order == 'ASC' ? @statements.sort_by!(&:date) : @statements.sort_by!(&:date).reverse!
-    @statements.sort_by!(&:date).reverse!
-  end
-
-  def find_hbx_profile
-    @profile = current_user.person.hbx_staff_role.hbx_profile
-  end
-
   def find_broker_agency_profile
     @broker_agency_profile = BrokerAgencyProfile.find(params[:id])
     authorize @broker_agency_profile, :access_to_broker_agency_profile?
-  end
-
-  def check_admin_staff_role
-    if current_user.has_hbx_staff_role? || current_user.has_csr_role?
-      # TODO: Why is this blank? Lolz
-    elsif current_user.has_broker_agency_staff_role? && current_user.person.broker_agency_staff_roles&.first&.broker_agency_profile_id
-      redirect_to broker_agencies_profile_path(:id => current_user.person.broker_agency_staff_roles.first.broker_agency_profile_id)
-    else
-      redirect_to new_broker_agencies_profile_path
-    end
   end
 
   def check_broker_agency_staff_role
@@ -532,10 +349,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     body = "<br><p>Associated details<br>General Agency : #{general_agency.legal_name}<br>Employer : #{employer_profile.legal_name}<br>Status : #{status}</p>"
     secure_message(@broker_agency_profile, general_agency, subject, body)
     secure_message(@broker_agency_profile, employer_profile, subject, body)
-  end
-
-  def eligible_brokers
-    Person.where('broker_role.broker_agency_profile_id': {:$exists => true}).where(:'broker_role.aasm_state'=> 'active').any_in(:'broker_role.market_kind'=>[person_market_kind, "both"])
   end
 
   def update_ga_for_employers(broker_agency_profile, old_default_ga=nil)
