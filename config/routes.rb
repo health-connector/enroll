@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   mount TransportProfiles::Engine,      at: "/transport_profiles"
   mount SponsoredBenefits::Engine,      at: "/sponsored_benefits"
   mount Notifier::Engine, at: "/notifier"
+  mount IndividualMarket::Engine,     at: "/individual_market"
 
   devise_for :users, :controllers => { :registrations => "users/registrations", :sessions => 'users/sessions', :passwords => 'users/passwords' }
 

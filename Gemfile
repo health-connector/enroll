@@ -5,6 +5,7 @@ ruby '2.7.6'
 
 gem "benefit_markets", path: "components/benefit_markets"
 gem "benefit_sponsors", path: "components/benefit_sponsors"
+gem 'individual_market', path: 'components/individual_market'
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'

@@ -131,6 +131,12 @@ PATH
       virtus (~> 1.0.5)
 
 PATH
+  remote: components/individual_market
+  specs:
+    individual_market (0.0.1)
+      rails (~> 4.2.11)
+
+PATH
   remote: components/notifier
   specs:
     notifier (0.0.1)
@@ -963,6 +969,7 @@ DEPENDENCIES
   holidays (~> 8.6)
   httparty
   i18n (= 0.7.0)
+  individual_market!
   interactor (~> 3.1)
   interactor-rails (~> 2.2)
   jbuilder (~> 2.0)
