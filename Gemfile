@@ -5,6 +5,7 @@ ruby '2.7.6'
 
 gem "benefit_markets", path: "components/benefit_markets"
 gem "benefit_sponsors", path: "components/benefit_sponsors"
+gem 'individual_market', path: 'components/individual_market'
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
@@ -143,6 +144,9 @@ group :development, :test do
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
+  gem 'pry'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 end
 
 group :test do

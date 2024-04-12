@@ -4,7 +4,7 @@
     <div class="col-md-6">
       Provide verification reason:
     </div>
-    <%= form_tag update_verification_type_documents_path, method: :put do %>
+    <%= form_tag individual_market.update_verification_type_documents_path, method: :put do %>
         <%= hidden_field_tag 'person_id', person.id  %>
         <%= hidden_field_tag 'verification_type', v_type%>
         <%= hidden_field_tag 'admin_action', 'verify' %>
@@ -26,7 +26,7 @@
     <div class="col-md-6">
       Reject reason:
     </div>
-    <%= form_tag update_verification_type_documents_path, method: :put do %>
+    <%= form_tag individual_market.update_verification_type_documents_path, method: :put do %>
         <%= hidden_field_tag 'person_id', person.id  %>
         <%= hidden_field_tag 'verification_type', v_type%>
         <%= hidden_field_tag 'admin_action', 'return_for_deficiency' %>
