@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Declare your gem's dependencies in individual_market.gemspec.
+# Declare your gem's dependencies in benefit_sponsors.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and
 # development dependencies will be added by default to the :development group.
 gemspec
@@ -13,3 +13,9 @@ gemspec
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
 
+gem "notifier", path: "../notifier"
+gem "benefit_markets", path: "../benefit_markets"
+gem "sponsored_benefits", path: "../sponsored_benefits"
+gem "benefit_sponsors", path: "../benefit_sponsors"
+gem "effective_datatables", path: ".../../../../project_gems/effective_datatables-2.6.14"
+gem 'resource_registry',  git: 'https://github.com/ideacrew/resource_registry.git', branch: 'trunk'

@@ -603,7 +603,6 @@ Rails.application.routes.draw do
     collection do
       put :change_person_aasm_state
       get :show_docs
-      put :update_verification_type
       get :enrollment_verification
       put :extend_due_date
       get :fed_hub_request
