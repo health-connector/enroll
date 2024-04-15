@@ -18,7 +18,7 @@ module SponsoredBenefits
           return nil
         end
         proposal_for = benefit_application.effective_period.min.year if benefit_application
-        RatingArea.rating_area_for(primary_office_location.address, proposal_for)
+        RatingArea.rating_area_for(primary_office_location.address, proposal_for) if primary_office_location.present?
       rescue StandardError => ex
         Rails.logger.error("Error in AcaShopCcaEmployerProfile::rating_area with organization - #{organization&.id&.to_s},
                             plan_design_organization - #{plan_design_organization&.id&.to_s} error -#{ex.message}, backtrace - #{ex.backtrace}")
