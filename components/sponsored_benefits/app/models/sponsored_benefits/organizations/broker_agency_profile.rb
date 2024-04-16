@@ -39,6 +39,7 @@ module SponsoredBenefits
 
           plan_design_organization = SponsoredBenefits::Organizations::PlanDesignOrganization.find_by_owner_and_sponsor(broker_agency.id, employer.id)
 
+          Rails.logger.info("*** plan_design_organization - #{plan_design_organization&.id&.to_s}, office_locations - #{office_locations&.count}")
           if plan_design_organization
             plan_design_organization.update_attributes!({
               has_active_broker_relationship: true,
@@ -54,9 +55,15 @@ module SponsoredBenefits
               has_active_broker_relationship: true,
               sic_code: employer.sic_code,
             })
-
-            broker_profile.save!
+            Rails.logger.info("*** assign_employer - #{broker_profile.inspect}, attributes - #{broker_profile.attributes}")
+            begin
+              broker_profile.save!
+            rescue StandardError => ex
+              Rails.logger.error("*** message - #{ex.message}, attributes - #{ex.backtrace}")
+              raise ex
+            end
           end
+          Rails.logger.info("*** completed running assign_employer")
         end
 
         def unassign_broker(broker_agency:, employer:)
