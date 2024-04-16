@@ -8,6 +8,10 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
     let(:renewal_state) { :enrollment_open }
   end
 
+  before :all do
+    DatabaseCleaner.clean
+  end
+
   let(:calendar_year) { TimeKeeper.date_of_record.year }
   let(:organization) {
     org = abc_organization
