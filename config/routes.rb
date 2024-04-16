@@ -596,26 +596,13 @@ Rails.application.routes.draw do
   get "document/download/:bucket/:key" => "documents#download", as: :document_download
   get "document/authorized_download/:model/:model_id/:relation/:relation_id" => "documents#authorized_download", as: :authorized_document_download
 
-  resources :documents, only: [ :new, :create, :destroy, :update] do
-    get :document_reader,on: :member
+  resources :documents, only: [:destroy] do
     get :autocomplete_organization_legal_name, :on => :collection
     collection do
       put :change_person_aasm_state
       get :show_docs
-      put :update_verification_type
-      get :enrollment_verification
-      put :extend_due_date
-      get :fed_hub_request
-      post 'download_documents'
-      post 'delete_documents'
-      post :fed_hub_request
-    end
-
-    member do
-      get :download_employer_document
     end
   end
-
 
   # Temporary for Generic Form Template
   match 'templates/form-template', to: 'welcome#form_template', via: [:get, :post]
@@ -674,5 +661,21 @@ Rails.application.routes.draw do
   #   end
   #
   # You can have the root of your site routed with "root"
+
+  # individual market controllers and actions routing
+  if Settings.aca.market_kinds.include?("individual")
+    namespace :individual_market do
+      resources :documents, only: [] do
+        collection do
+          put :update_verification_type
+          get :enrollment_verification
+          put :extend_due_date
+          get :fed_hub_request
+          post :fed_hub_request
+        end
+      end
+    end
+  end
+
   root 'welcome#index'
 end
