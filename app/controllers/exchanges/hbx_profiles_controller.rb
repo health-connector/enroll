@@ -374,7 +374,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def update_cancel_enrollment
-    params_parser = ::Forms::BulkActionsForAdmin.new(params)
+    params_parser = ::Forms::BulkActionsForAdmin.new(params.permit(uniq_cancel_params).to_h)
     @result = params_parser.result
     @row = params_parser.row
     @family_id = params_parser.family_id
@@ -393,7 +393,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def update_terminate_enrollment
-    params_parser = ::Forms::BulkActionsForAdmin.new(params)
+    params_parser = ::Forms::BulkActionsForAdmin.new(params.permit(uniq_terminate_params).to_h)
     @result = params_parser.result
     @row = params_parser.row
     @family_id = params_parser.family_id
@@ -713,6 +713,14 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   private
+
+  def uniq_terminate_params
+    params.keys.map { |key| key.match(/terminate_hbx_.*/) || key.match(/termination_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
+  end
+
+  def uniq_cancel_params
+    params.keys.map { |key| key.match(/cancel_hbx_.*/) || key.match(/cancel_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
+  end
 
   def group_enrollments_by_year_and_market(all_enrollments)
     current_year = TimeKeeper.date_of_record.year
