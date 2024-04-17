@@ -39,7 +39,7 @@ module BenefitSponsors
 
       def billing_adapter
         return @billing_adapter if defined? @billing_adapter
-        billing_info = @employer_profile.billing_plan_year(@billing_date)
+        billing_info = @employer_profile.billing_benefit_application(@billing_date)
         @billing_adapter = {:application => billing_info[0], :billing_date => billing_info[1]}
       end
 

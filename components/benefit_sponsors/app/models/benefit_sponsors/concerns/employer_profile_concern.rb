@@ -197,17 +197,17 @@ module BenefitSponsors
         valid_applications = benefit_applications.non_draft.non_canceled
 
         if billing_date.present?
-          application = valid_applications.effective_period_cover(billing_date).first
+          application = valid_applications.effective_period_cover(active_benefit_sponsorship, billing_date).first
           return application, billing_date
         end
 
-        application = valid_applications.future_effective_date(billing_report_date).first
+        application = valid_applications.future_effective_date(active_benefit_sponsorship, billing_report_date).first
         return application, application.start_on.to_date if application.present?
 
-        application = valid_applications.effective_period_cover(billing_report_date).first
+        application = valid_applications.effective_period_cover(active_benefit_sponsorship, billing_report_date).first
         return application, billing_report_date if application.present?
 
-        application = valid_applications.effective_period_cover.first
+        application = valid_applications.effective_period_cover(active_benefit_sponsorship).first
         return application, TimeKeeper.date_of_record if application.present?
         return nil, nil
       end

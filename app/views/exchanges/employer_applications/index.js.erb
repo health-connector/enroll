@@ -13,6 +13,11 @@ var employerId = "";
 var pyEndDate = "";
 var termKind = "";
 var termReason = "";
+var pyEndOn = "";
+var pyStartDate = "";
+var pyStatus = "";
+var pyStartOn = "";
+var transmit_to_carrier = "";
 
 if ( $parent_row.next().hasClass('child-row') ) {
 //
@@ -29,7 +34,8 @@ $('input[name=plan_year_radio]').click(function() {
   hideTerminationRadios();
   $('.py-btn-grp').addClass('disabled');
   var pyStatus = $(this).attr("status");
-  populateDropDown(pyStatus);
+  var actionTakenUnder24Hours = $(this).attr("action_under_24_hours");
+  populateDropDown(pyStatus, actionTakenUnder24Hours);
   $('input[name=plan_year_radio]:checked').closest('td').siblings().find('.py-btn-grp').removeClass('disabled')
 });
 
@@ -39,31 +45,28 @@ $('#plan-year-btn-group ul li').each(function() {
   })
 });
 
-function populateDropDown(status) {
+function populateDropDown(status, actionTakenUnder24Hours) {
+  var cancel_states = ["approved", "pending", "draft", "imported", "enrollment_open", "enrollment_extended", "enrollment_closed", "enrollment_eligible", "binder_paid", "enrollment_ineligible", "active"];
+  var term_states = ["active", "suspended", "expired"];
+  var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled"];
+  var revise_end_date_states = ["terminated", "termination_pending"];
 
-  var cancel_states = ["approved", "pending", "draft", "imported", "enrollment_open", "enrollment_extended", "enrollment_closed", "enrollment_eligible", "binder_paid", "enrollment_ineligible", "active"]
-  var term_states = ["active", "suspended", "expired", "termination_pending"]
-  var reinstate_states = []
+  if (actionTakenUnder24Hours === 'true') {
+    $('li.cancel-py, li.terminate-py, li.reinstate-py, li.revise-end-date-py').addClass('blocking');
+  } else {
+    updateBlockingState(status, 'cancel-py', cancel_states);
+    updateBlockingState(status, 'terminate-py', term_states);
+    updateBlockingState(status, 'reinstate-py', reinstate_states);
+    updateBlockingState(status, 'revise-end-date-py', revise_end_date_states);
+  }
+}
 
-  if (cancel_states.indexOf(status) > -1) {
-    $('li.cancel-py').removeClass('blocking');
-  }
-  else {
-   $('li.cancel-py').addClass('blocking');
-  }
-
-  if (term_states.indexOf(status) > -1) {
-    $('li.terminate-py').removeClass('blocking');
-  }
-  else {
-   $('li.terminate-py').addClass('blocking');
-  }
-
-  if (reinstate_states.indexOf(status) > -1) {
-    $('li.reinstate-py').removeClass('blocking');
-  }
-  else {
-   $('li.reinstate-py').addClass('blocking');
+function updateBlockingState(status, elementClass, requiredStates) {
+  var $element = $('li.' + elementClass);
+  if (requiredStates.indexOf(status) > -1) {
+    $element.removeClass('blocking');
+  } else {
+    $element.addClass('blocking');
   }
 }
 
@@ -90,8 +93,8 @@ function validateFormat(id, pyStartOn, pyEndOn) {
   pyEndDate = element;
 
   setTimeout(function() {
-    if (element.length != 10 || element.indexOf("/") != 2 || checkTermReason(ele2)) {
-      if (element.length > 0 && (checkTermReason(ele2) == false)) {
+    if (element.length != 10 || element.indexOf("/") != 2 || checkTermReason(ele2, actionSelected)) {
+      if (element.length > 0 && (checkTermReason(ele2, actionSelected) == false)) {
         element = "";
         alert("Please use mm/dd/yyyy format");
       }
@@ -117,6 +120,7 @@ function validateFormat(id, pyStartOn, pyEndOn) {
 
 function enableDatePicker() {
   $('input#datepicker').prop('disabled', false);
+  $('#' + applicationId).find('input.py-end-date').prop('disabled', false);
 }
 
 function clearDatePickerValue() {
@@ -177,36 +181,72 @@ function validTerminatePy() {
   }
 }
 
-function pyAction(action, id, employer_id, term_date, start_on) {
-  applicationId = id;
-  employerId = employer_id
+function populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicationId) {
+
+  var canceled_states = ["retroactive_canceled"];
+  var terminated_states = ["terminated", "termination_pending"];
+
+  if (canceled_states.includes(pyStatus)) {
+    hideEndDateField(pyStartDate, applicationId);
+  }
+
+  if (terminated_states.includes(pyStatus)) {
+    hideEndDateField(pyEndDate, applicationId);
+  }
+}
+
+function selectReviseEndDate(pyStatus, applicationId) {
+
+  var terminated_states = ["terminated", "termination_pending"];
+
+  if (terminated_states.includes(pyStatus)) {
+    showOnlyLastDate(applicationId);
+    validateFormat(applicationId);
+  }
+}
+
+
+function pyAction(action, id, status, employer_id, end_on, start_on) {
   actionSelected = action;
-  pyStartDate = start_on
+  applicationId = id;
+  pyStatus = status;
+  employerId = employer_id;
+  pyEndDate = end_on;
+  pyStartDate = start_on;
+
   showPlanYearActions(id);
   showEndDateField();
+
   if (action == "reinstate") {
-    disableDatePicker();
-    $('input#datepicker').val(<%= Date.today %>);
+    populateReinstateStartDate(pyStatus, pyStartDate, pyEndDate, applicationId);
     hideTerminationRadios();
-    enableSubmitButton()
+    enableSubmitButton();
   }
-  
+
+  if (action == "revise_end_date") {
+    hideTerminationRadios();
+    clearDatePickerValue();
+    disableSubmitButton();
+    selectReviseEndDate(pyStatus, applicationId);
+  }
+
   if (action == 'terminate') {
     showTerminationRadios();
     clearDatePickerValue();
     disableSubmitButton();
-    updateDatePickerBasedOnTermReason('voluntary', id)
+    updateDatePickerBasedOnTermReason('voluntary', id);
   }
-  
+
   if (action == 'cancel') {
     hideEndDateField(pyStartDate, applicationId);
     hideTerminationRadios();
     enableSubmitButton();
   }
+
   // Clears all end dates from previous rows
   var endDates = document.querySelectorAll('.py-end-date');
-  
-  for (date of endDates) {
+
+  for (var date of endDates) {
     date.value = "";
   }
 }
@@ -272,8 +312,11 @@ function addTermReasons(reason, id) {
   return true
 }
 
-function checkTermReason(element) {
-  if (element == undefined || element == "") {
+function checkTermReason(element, actionSelected) {
+  if (actionSelected == 'revise_end_date') {
+    return false
+  }
+  else if (element == undefined || element == "") {
     return true
   }
   else {
@@ -283,14 +326,40 @@ function checkTermReason(element) {
 
 // You can use the actionSelected here
 function submitPlanActions() {
-  termKind = actionSelected == "terminate" ? $('input[name=term_actions]:checked').val() : ""
-  termReason = $('#term_reason_' + applicationId).val()
-  transmit_to_carrier =  $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked")
-  $.ajax({
-    url: "/exchanges/employer_applications/"+applicationId+"/"+actionSelected,
-    method: 'PUT',
-    data: { employer_id: employerId, end_on: pyEndDate, term_kind: termKind, term_reason: termReason, transmit_to_carrier: transmit_to_carrier }
-  });
+  transmit_to_carrier = $('#' + applicationId).find('input[id=transmit_to_carrier]').is(":checked");
+  $('input:hidden[name=transmit_to_carrier]').val(transmit_to_carrier);
+  $('input:hidden[name=employer_id]').val(employerId);
+  $('input:hidden[name=employer_application_id]').val(applicationId);
+
+  if (actionSelected == 'reinstate') {
+    $("#reinstateBenefitApplication").modal('show');
+  } else if (actionSelected == 'revise_end_date') {
+    $('input:hidden[name=revise_end_date]').val(pyEndDate);
+    $("#reviseEndDateBenefitApplication").modal('show');
+  } else {
+    termKind = actionSelected == "terminate" ? $('input[name=term_actions]:checked').val() : "";
+    termReason = $('#term_reason_' + applicationId).val();
+
+    $.ajax({
+      url: "/exchanges/employer_applications/" + applicationId + "/" + actionSelected,
+      method: 'PUT',
+      data: { 
+        employer_id: employerId, 
+        end_on: pyEndDate, 
+        term_kind: termKind, 
+        term_reason: termReason, 
+        transmit_to_carrier: transmit_to_carrier 
+      },
+      dataType: "json",
+      beforeSend: function() {
+        swal({title: "<%=  l10n("exchange.employer_applications.swal_title")%>", text: "<%= l10n("exchange.employer_applications.swal_text") %>", icon:"success", buttons:false, closeOnClickOutside:false});
+      },
+      success: function(data) {
+        params = new URLSearchParams(data);
+        window.location.href = "/exchanges/employer_applications/confirmation_details?"+params.toString()
+      }
+    });
+  }
 }
 
 $('#attestation_documents_table').mousemove(function() {
