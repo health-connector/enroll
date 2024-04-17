@@ -41,9 +41,10 @@ class InvitationsController < ApplicationController
   end
 
   def require_login_and_allow_new_account
+    params_hash = params.permit(:id, :person_id).to_h
     return unless current_user.nil?
 
-    session[:portal] = url_for(params)
-    redirect_to new_user_registration_url(:invitation_id => params[:id])
+    session[:portal] = url_for(params_hash)
+    redirect_to new_user_registration_url(:invitation_id => params_hash[:id])
   end
 end
