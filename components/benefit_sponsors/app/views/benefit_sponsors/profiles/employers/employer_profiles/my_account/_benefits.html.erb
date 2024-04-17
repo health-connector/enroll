@@ -49,7 +49,7 @@
   <% if @benefit_applications.present? %>
 
     <% @benefit_applications.each do |benefit_application| %>
-      <div class="row no-buffer module plan-year">
+      <div class="row no-buffer module plan-year mt-2">
         <div class="col-xs-6">
           <h3 class="no-buffer heading-text">
             <div class="row">
@@ -62,8 +62,25 @@
                 <i class="fa fa-users"></i>
                 <% end %>
               </span>
-              <%= benefit_application.start_on.to_date.year %>
-              Plan Year (<%= benefit_application_summarized_state(benefit_application) %>)
+              <div class="mr-1" style="display: inline-block; vertical-align: middle;">
+                <%= benefit_application.start_on.to_date.year %>
+              </div>
+              <% state = benefit_application_summarized_state(benefit_application)%>
+              <% styling_info = benefit_application_state_styling(state)%>
+              <div class="cylinder-benefit-application-state" style="<%= styling_info[:style] %>">
+                <% if styling_info[:icon_class].present? %>
+                  <i class="<%= styling_info[:icon_class]%> mr-1" style="<%= styling_info[:icon_style]%>"></i>
+                <% elsif styling_info[:img_source].present?%>
+                  <img src="<%= styling_info[:img_source] %>" class="mr-1" style="margin-bottom: 5px" alt="<%= styling_info[:img_text] %>">
+                <% end %>
+                <strong><%= state %></strong>
+              </div>
+              <% if benefit_application.latest_benefit_application_item&.state&.to_s == "reinstate" %>
+                <% styling_info = benefit_application_state_styling("reinstate")%>
+                <div class="cylinder-benefit-application-state" style="<%= styling_info[:style] %>">
+                  <strong><%= "Reinstated" %></strong>
+                </div>
+              <% end %>
             </div>
           </h3>
         </div>
@@ -86,10 +103,7 @@
           <% end %>
           <span></span>
         </div>
-      <div class="col-xs-1">
-            &nbsp;
-      </div>
-
+        <div class="col-xs-1">&nbsp;</div>
         <% if benefit_application.draft? && benefit_application.benefit_packages.empty? %>
           <div class="benefit-group">
             <div class="panel benefitgroup col-xs-12">

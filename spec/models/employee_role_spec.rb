@@ -52,9 +52,13 @@ describe ".coverage_effective_on" do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup renewal application"
 
+    before :all do
+      DatabaseCleaner.clean
+    end
+
     let(:renewal_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
     let(:current_effective_date)  { renewal_effective_date.prev_year }
-    let(:employer_profile) { abc_profile }  
+    let(:employer_profile) { abc_profile }
     let(:organization) { abc_organization }
     let(:hired_on) {TimeKeeper.date_of_record.beginning_of_month}
 

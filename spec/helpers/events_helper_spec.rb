@@ -291,8 +291,12 @@ describe EventsHelper, "selecting plan years to be exported", dbclean: :after_ea
 
     context "terminated plan year with future date of termination" do
       before do
-        predecessor_application.update_attributes({:terminated_on => TimeKeeper.date_of_record + 1.month,
-                                     :aasm_state => "terminated"})
+        predecessor_application.update_attributes(:aasm_state => "terminated")
+        predecessor_application.benefit_application_items.create({
+                                                                   effective_period: predecessor_application.start_on..TimeKeeper.date_of_record + 1.month,
+                                                                   state: :terminated,
+                                                                   sequence_id: 1
+                                                                 })
       end
 
       it "should return the plan year" do

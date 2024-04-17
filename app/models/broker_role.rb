@@ -99,6 +99,16 @@ class BrokerRole
     self.person
   end
 
+  # Checks if the broker is associated with the shop market.
+  # As the field market_kind is not being used properly, we depend on Broker Agency Profile's market_kind.
+  #
+  # @return [Boolean] Returns true if the broker is associated with the shop market, false otherwise.
+  def shop_market?
+    return false unless broker_agency_profile
+
+    broker_agency_profile.shop_market?
+  end
+
   # belongs_to broker_agency_profile
   def broker_agency_profile=(new_broker_agency)
     if new_broker_agency.is_a? BenefitSponsors::Organizations::BrokerAgencyProfile

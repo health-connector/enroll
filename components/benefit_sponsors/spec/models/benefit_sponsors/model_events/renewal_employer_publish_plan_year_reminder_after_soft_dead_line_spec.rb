@@ -18,7 +18,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerPublishPlanYearRemi
   let!(:date_mock_object) { double("Date", day: Settings.aca.shop_market.renewal_application.application_submission_soft_deadline + 1 )}
 
   before do
-    model_instance.update_attributes(:effective_period =>  renewal_effective_date..(renewal_effective_date + 1.year) - 1.day)
+    model_instance.benefit_application_items.create(
+      effective_period: renewal_effective_date..(renewal_effective_date + 1.year) - 1.day,
+      sequence_id: 1,
+      state: renewal_application.aasm_state
+    )
   end
 
   describe "ModelEvent" do

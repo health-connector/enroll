@@ -363,14 +363,15 @@ module ApplicationHelper
   end
 
   def retrieve_show_path(provider, message)
-    return broker_agencies_inbox_path(provider, message_id: message.id) if provider.try(:broker_role)
+    return benefit_sponsors.inboxes_message_path(provider, message_id: message.id) if provider.try(:broker_role)
+
     case(provider.model_name.name)
     when "Person"
       insured_inbox_path(provider, message_id: message.id)
     when "EmployerProfile"
       employers_inbox_path(provider, message_id: message.id)
     when "BrokerAgencyProfile"
-      broker_agencies_inbox_path(provider, message_id: message.id)
+      benefit_sponsors.inboxes_message_path(provider, message_id: message.id)
     when "HbxProfile"
       exchanges_inbox_path(provider, message_id: message.id)
     when "GeneralAgencyProfile"
@@ -379,15 +380,18 @@ module ApplicationHelper
   end
 
   def retrieve_inbox_path(provider, folder: 'inbox')
-    broker_agency_mailbox =  broker_agencies_profile_inbox_path(profile_id: provider.id, folder: folder)
-    return broker_agency_mailbox if provider.try(:broker_role)
+    if provider.try(:broker_role)
+      broker_agency_mailbox = benefit_sponsors.inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
+      return broker_agency_mailbox
+    end
+
     case(provider.model_name.name)
     when "EmployerProfile"
       inbox_employers_employer_profiles_path(id: provider.id, folder: folder)
     when "HbxProfile"
       inbox_exchanges_hbx_profile_path(provider, folder: folder)
     when "BrokerAgencyProfile"
-      broker_agencies_profile_inbox_path(profile_id: provider.id, folder: folder)
+      benefit_sponsors.inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
     when "Person"
       inbox_insured_families_path(profile_id: provider.id, folder: folder)
     when "GeneralAgencyProfile"
@@ -702,7 +706,7 @@ module ApplicationHelper
 
   def participation_rule(employer)
     benefit_application = employer.show_plan_year
-    start_date = benefit_application.effective_period.min
+    start_date = benefit_application.start_on
     @participation_count = employer.show_plan_year.additional_required_participants_count
 
     if start_date.day == 1 && start_date.month == 1
@@ -768,6 +772,45 @@ module ApplicationHelper
     summary_text = aasm_map[benefit_application.aasm_state] || benefit_application.aasm_state
     summary_text = "#{renewing} #{summary_text.to_s.humanize.titleize}"
     return summary_text.strip
+  end
+
+  def benefit_application_state_styling(state)
+    case state.downcase
+    when 'active', 'enrolling', 'enrolled', 'published', 'renewing enrolling', 'renewing enrolled', 'renewing published', 'enrollment closed', 'enrollment extended'
+      { style: "border: 2px solid #00A81B; background-color: #F2FFF4;", icon_class: "fas fa-check-circle", icon_style: "color: #00A81B;"}
+    when 'draft', 'renewing draft'
+      { style: "border: 2px solid #D47200; background-color: #FFECD5;", icon_class: "fas fa-pencil-alt", icon_style: ""}
+    when 'application ineligible', 'renewing application ineligible', 'publish_pending', 'renewing publish pending'
+      { style: "border: 2px solid #D47200; background-color: #FFECD5;", img_source: asset_path('icons/status-warning.svg'), img_text: "Exclamation Triangle"}
+    when 'expired', 'renewing expired', 'reinstate'
+      { style: "border: 2px solid #005689; background-color: #CCE5F3;" }
+    else
+      { style: "border: 2px solid #323130; background-color: #E1DFDD;" }
+    end
+  end
+
+  def is_latest_action_under_24_hours(benefit_applications)
+    return false unless ::EnrollRegistry.feature_enabled?(:restrict_benefit_application_admin_actions_24_hours)
+    return false unless benefit_applications.present?
+
+    benefit_applications.any? do |benefit_application|
+      item = benefit_application.latest_benefit_application_item
+      next if item.sequence_id == 0
+
+      ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+    end
+  end
+
+  def latest_ba_item_within_24_hours(benefit_applications)
+    items = benefit_applications.collect do |benefit_application|
+      item = benefit_application.latest_benefit_application_item
+      next if item.sequence_id == 0
+      next unless ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+
+      item
+    end.compact
+
+    items.max_by(&:created_at)
   end
 
   def json_for_plan_shopping_member_groups(member_groups)

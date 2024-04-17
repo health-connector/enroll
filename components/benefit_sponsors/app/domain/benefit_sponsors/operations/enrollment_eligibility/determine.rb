@@ -68,21 +68,21 @@ module BenefitSponsors
         end
 
         def is_initial_sponsor?(benefit_applications, effective_date)
-          recent_benefit_application = benefit_applications.max_by { |benefit_application|  benefit_application.effective_period.min }
+          recent_benefit_application = benefit_applications.max_by { |benefit_application| benefit_application.effective_period.begin }
           return true unless recent_benefit_application
           return true if recent_benefit_application.is_termed_or_ineligible? || recent_benefit_application.aasm_state == :active && recent_benefit_application.effective_period.cover?(effective_date)
 
           ba_states = BenefitSponsors::BenefitApplications::BenefitApplication::RENEWAL_TRANSMISSION_STATES +
                       BenefitSponsors::BenefitApplications::BenefitApplication::CANCELED_STATES +
                       BenefitSponsors::BenefitApplications::BenefitApplication::EXPIRED_STATES
-          effective_date.to_date > recent_benefit_application.effective_period.max.to_date.next_day || ba_states.include?(recent_benefit_application.aasm_state)
+          effective_date.to_date > recent_benefit_application.earliest_benefit_application_item.effective_period.end.to_date.next_day || ba_states.include?(recent_benefit_application.aasm_state)
         end
 
         def is_renewing_sponsor?(benefit_applications, effective_date)
           active_benefit_application = benefit_applications.detect { |benefit_application| benefit_application.aasm_state == :active }
           return false unless active_benefit_application
 
-          effective_date.to_date == active_benefit_application.effective_period.max.to_date.next_day
+          effective_date.to_date == active_benefit_application.effective_period.end.to_date.next_day
         end
       end
     end

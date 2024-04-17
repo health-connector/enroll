@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after_each do
@@ -14,25 +16,28 @@ RSpec.describe BenefitSponsors::ModelEvents::BenefitApplication, dbclean: :after
     sponsorship.save
     sponsorship
   end
-  let!(:model_instance) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-                                             :with_benefit_package,
-                                             :benefit_sponsorship => benefit_sponsorship,
-                                             :aasm_state => 'active',
-                                             :effective_period =>  start_on..(start_on + 1.year) - 1.day
-  )}
+  let!(:model_instance) do
+    FactoryGirl.create(:benefit_sponsors_benefit_application,
+                       :with_benefit_package,
+                       :benefit_sponsorship => benefit_sponsorship,
+                       :aasm_state => 'active',
+                       :default_effective_period => start_on..(start_on + 1.year) - 1.day)
+  end
+
 
 
   shared_examples_for "for employer plan year action" do |action, event|
     it "should create model event and should have attributes" do
-      model_instance.class.observer_peers.keys.each do |observer|
+      model_instance.class.observer_peers.each_key do |observer|
         expect(observer).to receive(:notifications_send) do |model_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => event.to_sym, :klass_instance => model_instance, :options => {})
         end
         if action == "cancel"
+          model_instance.benefit_application_items.build(state: :cancel, sequence_id: 1, effective_period: model_instance.effective_period)
           model_instance.cancel!
         else
-          model_instance.termination_kind = action
+          model_instance.benefit_application_items.build(state: :terminated, sequence_id: 1, action_type: :change, action_kind: action, effective_period: model_instance.effective_period)
           model_instance.terminate_enrollment!
         end
       end
