@@ -181,6 +181,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family).to receive(:active_family_members).and_return(family_members)
         allow(family).to receive(:check_for_consumer_role).and_return nil
         allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
+        allow(controller).to receive(:authorize).and_return(true)
         sign_in user
         get :home
       end
@@ -224,6 +225,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family).to receive(:active_family_members).and_return(family_members)
         allow(family).to receive(:check_for_consumer_role).and_return true
         sign_in user
+        allow(controller).to receive(:authorize).and_return(true)
         get :home
       end
 
@@ -257,6 +259,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
           allow(person).to receive(:has_active_employee_role?).and_return(false)
           allow(person).to receive(:has_active_consumer_role?).and_return(true)
           allow(person).to receive(:active_employee_roles).and_return([])
+          allow(controller).to receive(:authorize).and_return(true)
           sign_in user
           get :home
         end
@@ -330,6 +333,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family2).to receive(:check_for_consumer_role).and_return true
         allow(controller).to receive(:update_changing_hbxs).and_return(true)
         allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
+        allow(controller).to receive(:authorize).and_return(true)
         sign_in user2
       end
 
@@ -379,6 +383,9 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   end
 
   describe "GET verification" do
+    before :each do
+      allow(controller).to receive(:authorize).and_return(true)
+    end
 
     it "should be success" do
       get :verification
@@ -411,6 +418,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(user).to receive(:has_hbx_staff_role?).and_return(false)
       allow(person).to receive(:active_employee_roles).and_return(employee_role)
       allow(family).to receive_message_chain("special_enrollment_periods.where").and_return([special_enrollment_period])
+      allow(controller).to receive(:authorize).and_return(true)
       get :find_sep, hbx_enrollment_id: "2312121212", change_plan: "change_plan"
     end
 
@@ -450,6 +458,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       special_enrollment_period.save
       allow(person).to receive(:primary_family).and_return(@family)
       allow(person).to receive(:hbx_staff_role).and_return(nil)
+      allow(controller).to receive(:authorize).and_return(true)
     end
 
     context 'when its initial enrollment' do
@@ -480,6 +489,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
   describe "qle kinds" do
     before(:each) do
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
       @qle = FactoryGirl.create(:qualifying_life_event_kind)
       @family = FactoryGirl.build(:family, :with_primary_family_member)
@@ -541,6 +551,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   describe "GET check_qle_date", dbclean: :after_each do
 
     before(:each) do
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
       allow(person).to receive(:resident_role?).and_return(false)
     end
@@ -708,6 +719,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     let(:person) { FactoryGirl.create(:person) }
 
     before(:each) do
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
     end
 
@@ -745,6 +757,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       person2.consumer_role.gender = 'male'
       person2.save
       request.env["HTTP_REFERER"] = "/insured/families/upload_notice_form"
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user2)
     end
 
@@ -940,6 +953,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         before do
           allow(employee_role).to receive(:census_employee).and_return census_employee
           allow(person2).to receive(:active_employee_roles).and_return([employee_role])
+          allow(controller).to receive(:authorize).and_return(true)
           sign_in(broker_user)
           session[:person_id] = person2.id
         end
@@ -980,7 +994,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
           expect(response).to have_http_status(:redirect)
           expect(response).to_not render_template("manage_family")
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.manage_family?, (Pundit policy)")
         end
 
         it 'should not be a success on GET personal' do
@@ -988,7 +1002,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
           expect(response).to have_http_status(:redirect)
           expect(response).to_not render_template("personal")
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.personal?, (Pundit policy)")
         end
 
         it 'should not be a success on GET inbox' do
@@ -996,10 +1010,37 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
           expect(response).to have_http_status(:redirect)
           expect(response).to_not render_template("inbox")
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.inbox?, (Pundit policy)")
         end
       end
     end
+  end
+
+  describe "logged in user has no roles" do
+    shared_examples_for "logged in user has no authorization roles for families controller" do |action|
+      it "redirects to root with flash message" do
+        person = FactoryGirl.create(:person, :with_family)
+        unauthorized_user = FactoryGirl.create(:user, :person => person)
+        sign_in(unauthorized_user)
+
+        get action
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for family_policy.#{action}?, (Pundit policy)")
+      end
+    end
+
+    it_behaves_like 'logged in user has no authorization roles for families controller', :home
+    it_behaves_like 'logged in user has no authorization roles for families controller', :manage_family
+    it_behaves_like 'logged in user has no authorization roles for families controller', :brokers
+    it_behaves_like 'logged in user has no authorization roles for families controller', :find_sep
+    it_behaves_like 'logged in user has no authorization roles for families controller', :personal
+    it_behaves_like 'logged in user has no authorization roles for families controller', :inbox
+    it_behaves_like 'logged in user has no authorization roles for families controller', :verification
+    it_behaves_like 'logged in user has no authorization roles for families controller', :upload_application
+    it_behaves_like 'logged in user has no authorization roles for families controller', :check_qle_date
+    it_behaves_like 'logged in user has no authorization roles for families controller', :purchase
+    it_behaves_like 'logged in user has no authorization roles for families controller', :upload_notice
+    it_behaves_like 'logged in user has no authorization roles for families controller', :upload_notice_form
   end
 end
 
@@ -1013,6 +1054,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(HbxEnrollment).to receive(:find).and_return hbx_enrollment
       allow(person).to receive(:primary_family).and_return(family)
       allow(hbx_enrollment).to receive(:reset_dates_on_previously_covered_members).and_return(true)
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
       get :purchase, id: family.id, hbx_enrollment_id: hbx_enrollment.id, terminate: 'terminate'
     end
