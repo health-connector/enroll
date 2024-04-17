@@ -47,6 +47,17 @@ module SponsoredBenefits
         if benefit_sponsorship
           benefit_sponsorship.benefit_applications.each do |benefit_application|
             next unless ((new_benefit_application.id != benefit_application.id) && (benefit_application.start_on == new_benefit_application.start_on))
+
+            sequence_id = benefit_application.benefit_application_items.max(:sequence_id) + 1
+            state = benefit_application.active? && benefit_application.start_on <= TimeKeeper.date_of_record ? :retroactive_canceled : :canceled
+
+            benefit_application.benefit_application_items.create(
+              sequence_id: sequence_id,
+              effective_period: benefit_application.effective_period,
+              action_type: :change,
+              state: state,
+              action_kind: 'cancel'
+            )
             benefit_application.cancel! if benefit_application.may_cancel?
           end
         end

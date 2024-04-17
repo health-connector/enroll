@@ -108,9 +108,16 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
       let!(:benefit_application_update) do
         initial_application.update_attributes(
           :fte_count => 5,
-          effective_period: Date.new(2021, 1, 1)..Date.new(2021, 1, 1).end_of_year + 1.month,
           :open_enrollment_period => Range.new(Date.today, Date.today + BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN)
         )
+
+        initial_application.benefit_application_items[0].update(
+          effective_period: Date.new(2021, 1, 1)..Date.new(2021, 1, 1).end_of_year + 1.month,
+          sequence_id: 1,
+          state: initial_application.aasm_state
+        )
+
+        initial_application
       end
 
       it 'should pass' do
@@ -128,9 +135,16 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
       let!(:benefit_application_update) do
         initial_application.update_attributes(
           :fte_count => 5,
-          effective_period: Date.new(2021, 2, 1)..Date.new(2021, 1, 1).end_of_year + 1.month,
           :open_enrollment_period => Range.new(Date.today, Date.today + BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN)
         )
+
+        initial_application.benefit_application_items.create(
+          effective_period: Date.new(2021, 2, 1)..Date.new(2021, 1, 1).end_of_year + 1.month,
+          sequence_id: 1,
+          state: initial_application.aasm_state
+        )
+
+        initial_application
       end
 
       it 'should not pass' do

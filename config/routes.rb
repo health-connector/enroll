@@ -10,16 +10,6 @@ Rails.application.routes.draw do
 
   devise_for :users, :controllers => { :registrations => "users/registrations", :sessions => 'users/sessions', :passwords => 'users/passwords' }
 
-  namespace :uis do
-    resources :bootstrap3_examples do
-      collection do
-        get :index
-        get :components
-        get :getting_started
-      end
-    end
-  end
-
   get 'check_time_until_logout' => 'session_timeout#check_time_until_logout', :constraints => { :only_ajax => true }
   get 'reset_user_clock' => 'session_timeout#reset_user_clock', :constraints => { :only_ajax => true }
   get 'unsupportive_browser' => 'users#unsupportive_browser'
@@ -159,9 +149,12 @@ Rails.application.routes.draw do
     resources :employer_applications do
       put :terminate
       put :cancel
-      put :reinstate
+      get :application_history
       collection do
         get :get_term_reasons
+        put :reinstate
+        put :revise_end_date
+        get :confirmation_details
       end
     end
 
@@ -431,9 +424,7 @@ Rails.application.routes.draw do
 
   namespace :broker_agencies do
     root 'profiles#new'
-    resources :inboxes, only: [:new, :create, :show, :destroy] do
-      get :msg_to_portal
-    end
+
     resources :profiles, only: [:new, :create, :show, :index, :edit, :update] do
       get :inbox
 
@@ -463,19 +454,6 @@ Rails.application.routes.draw do
 
       resources :applicants
     end
-    resources :broker_roles, only: [:create] do
-      root 'broker_roles#new_broker'
-      collection do
-        get :new_broker
-        get :new_staff_member
-        get :new_broker_agency
-        get :search_broker_agency
-      end
-      member do
-        get :favorite
-      end
-    end
-
 
     resources :broker_roles do
 
@@ -614,7 +592,6 @@ Rails.application.routes.draw do
       get :claim
     end
   end
-  resources :office_locations, only: [:new]
 
   get "document/download/:bucket/:key" => "documents#download", as: :document_download
   get "document/authorized_download/:model/:model_id/:relation/:relation_id" => "documents#authorized_download", as: :authorized_document_download

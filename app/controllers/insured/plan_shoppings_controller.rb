@@ -10,8 +10,10 @@ class Insured::PlanShoppingsController < ApplicationController
 
   before_action :set_current_person, :only => [:receipt, :thankyou, :waive, :show, :plans, :checkout, :terminate]
   before_action :set_kind_for_market_and_coverage, only: [:thankyou, :show, :plans, :checkout, :receipt]
+  before_action :find_hbx_enrollment
 
   def checkout
+    authorize @hbx_enrollment, :checkout?
     plan_selection = PlanSelection.for_enrollment_id_and_plan_id(params.require(:id), params.require(:plan_id))
 
     if plan_selection.employee_is_shopping_before_hire?
@@ -43,7 +45,8 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def receipt
-    @enrollment = HbxEnrollment.find(params.require(:id))
+    authorize @hbx_enrollment, :receipt?
+    @enrollment = @hbx_enrollment
     @plan = @enrollment.product
 
     if @enrollment.is_shop?
@@ -59,26 +62,16 @@ class Insured::PlanShoppingsController < ApplicationController
 
     @change_plan = params[:change_plan].present? ? params[:change_plan] : ''
     @enrollment_kind = params[:enrollment_kind].present? ? params[:enrollment_kind] : ''
-    # employee_mid_year_plan_change(@person, @change_plan)
-    # @enrollment.ee_plan_selection_confirmation_sep_new_hire #mirror notice
-    # @enrollment.mid_year_plan_change_notice #mirror notice
 
     send_receipt_emails if @person.emails.first
   end
 
-  def fix_member_dates(enrollment, plan)
-    return if enrollment.parent_enrollment.present? && plan.id == enrollment.parent_enrollment.product_id
-
-    @enrollment.hbx_enrollment_members.each do |member|
-      member.coverage_start_on = enrollment.effective_on
-    end
-  end
-
   def thankyou
+    authorize @hbx_enrollment, :thankyou?
     set_elected_aptc_by_params(params[:elected_aptc]) if params[:elected_aptc].present?
     set_consumer_bookmark_url(family_account_path)
     @plan = BenefitMarkets::Products::Product.find(params[:plan_id])
-    @enrollment = HbxEnrollment.find(params.require(:id))
+    @enrollment = @hbx_enrollment
     @enrollment.set_special_enrollment_period
 
     if @enrollment.is_shop?
@@ -106,7 +99,8 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def waive
-    hbx_enrollment = HbxEnrollment.find(params.require(:id))
+    authorize @hbx_enrollment, :waive?
+    hbx_enrollment = @hbx_enrollment
 
     begin
       @waiver_enrollment = if hbx_enrollment.shopping?
@@ -132,11 +126,12 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def print_waiver
-    @hbx_enrollment = HbxEnrollment.find(params.require(:id))
+    authorize @hbx_enrollment, :print_waiver?
   end
 
   def terminate
-    hbx_enrollment = HbxEnrollment.find(params.require(:id))
+    authorize @hbx_enrollment, :terminate?
+    hbx_enrollment = @hbx_enrollment
     coverage_end_date = @person.primary_family.terminate_date_for_shop_by_enrollment(hbx_enrollment)
     hbx_enrollment.terminate_enrollment(coverage_end_date, params[:terminate_reason])
 
@@ -152,13 +147,12 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def show
+    authorize @hbx_enrollment, :show?
     set_consumer_bookmark_url(family_account_path) if params[:market_kind] == 'individual'
     set_employee_bookmark_url(family_account_path) if params[:market_kind] == 'shop'
     set_resident_bookmark_url(family_account_path) if params[:market_kind] == 'coverall'
-    hbx_enrollment_id = params.require(:id)
     @change_plan = params[:change_plan].present? ? params[:change_plan] : ''
     @enrollment_kind = params[:enrollment_kind].present? ? params[:enrollment_kind] : ''
-    @hbx_enrollment = HbxEnrollment.find(hbx_enrollment_id)
     sponsored_cost_calculator = HbxEnrollmentSponsoredCostCalculator.new(@hbx_enrollment)
     products = @hbx_enrollment.sponsored_benefit.products(@hbx_enrollment.sponsored_benefit.rate_schedule_date)
 
@@ -196,13 +190,15 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   def set_elected_aptc
+    authorize @hbx_enrollment, :set_elected_aptc?
     session[:elected_aptc] = params[:elected_aptc].to_f
     render json: 'ok'
   end
 
   def plans
+    authorize @hbx_enrollment, :plans?
     set_consumer_bookmark_url(family_account_path)
-    set_plans_by(hbx_enrollment_id: params.require(:id))
+    set_plans_by(hbx_enrollment_id: @hbx_enrollment.id)
     if @person.primary_family.active_household.latest_active_tax_household.present?
       if is_eligibility_determined_and_not_csr_100?(@person)
         sort_for_csr(@plans)
@@ -220,6 +216,18 @@ class Insured::PlanShoppingsController < ApplicationController
   end
 
   private
+
+  def find_hbx_enrollment
+    @hbx_enrollment = HbxEnrollment.find(params.require(:id))
+  end
+
+  def fix_member_dates(enrollment, plan)
+    return if enrollment.parent_enrollment.present? && plan.id == enrollment.parent_enrollment.product_id
+
+    @enrollment.hbx_enrollment_members.each do |member|
+      member.coverage_start_on = enrollment.effective_on
+    end
+  end
 
   # no dental as of now
   def sort_member_groups(products)

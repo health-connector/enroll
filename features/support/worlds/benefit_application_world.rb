@@ -88,9 +88,11 @@ module BenefitApplicationWorld
     end
   end
 
-  def create_application(new_application_status, dental: false, safe_date: false)
+  def create_application(new_application_status, dental: false, safe_date: false, with_current: false)
     application_start_date = if safe_date
                                safe_application_effective_on(new_application_status) || current_effective_date
+                             elsif with_current
+                               current_effective_date
                              else
                                application_effective_on(new_application_status) || current_effective_date
                              end
@@ -98,7 +100,7 @@ module BenefitApplicationWorld
     @new_application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
                        :with_benefit_package,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
-                       effective_period: application_dates[:effective_period],
+                       default_effective_period: application_dates[:effective_period],
                        aasm_state: new_application_status,
                        open_enrollment_period: application_dates[:open_enrollment_period],
                        recorded_rating_area: rating_area,
@@ -124,7 +126,7 @@ module BenefitApplicationWorld
                        :with_benefit_package, :with_predecessor_application,
                        predecessor_application_state: aasm_state,
                        benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
-                       effective_period: application_dates[:effective_period],
+                       default_effective_period: application_dates[:effective_period],
                        aasm_state: renewal_state,
                        open_enrollment_period: application_dates[:open_enrollment_period],
                        recorded_rating_area: renewal_rating_area,
@@ -211,6 +213,13 @@ And(/^initial employer (.*) has (.*) benefit application$/) do |legal_name, new_
   app
 end
 
+And(/^initial employer (.*) has (.*) benefit application with current effective date$/) do |legal_name, new_application_status|
+  @employer_profile = employer_profile(legal_name)
+  app = create_application(new_application_status.to_sym, with_current: true)
+  app.update_attributes!(recorded_rating_area: renewal_rating_area) if current_effective_date.month == 2
+  app
+end
+
 # Addresses certain cucumbers failing in Nov/Dec
 And(/^initial SAFE employer (.*) has (.*) benefit application$/) do |legal_name, new_application_status|
   @employer_profile = employer_profile(legal_name)
@@ -277,7 +286,7 @@ And(/^employer (.*) has draft benefit application for force publishing$/) do |le
       :benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog,
       :with_benefit_package,
       benefit_sponsorship: @employer_profile.active_benefit_sponsorship,
-      effective_period: application_dates[:effective_period],
+      default_effective_period: application_dates[:effective_period],
       aasm_state: :draft,
       open_enrollment_period: application_dates[:open_enrollment_period],
       recorded_rating_area: rating_area,
