@@ -37,17 +37,17 @@ module SponsoredBenefits
 
         def assign_employer(broker_agency:, employer:, office_locations:)
           broker_profile = find_or_initialize_broker_profile(broker_agency).broker_agency_profile
+          broker_profile.save unless broker_profile.persisted?
 
           plan_design_organization = SponsoredBenefits::Organizations::PlanDesignOrganization.find_by_owner_and_sponsor(broker_agency.id, employer.id)
 
-          Rails.logger.info("*** plan_design_organization - #{plan_design_organization&.id&.to_s}, office_locations - #{office_locations&.count}")
           if plan_design_organization
             plan_design_organization.update_attributes!({
               has_active_broker_relationship: true,
               office_locations: office_locations(employer).map(&:attributes)
             })
           else
-            broker_profile.plan_design_organizations.new({
+            broker_profile.plan_design_organizations.create({
               owner_profile_id: broker_agency._id,
               sponsor_profile_id: employer._id,
               office_locations: office_locations(employer).map(&:attributes),
@@ -56,15 +56,7 @@ module SponsoredBenefits
               has_active_broker_relationship: true,
               sic_code: employer.sic_code,
             })
-            Rails.logger.info("*** assign_employer - #{broker_profile.inspect}, attributes - #{broker_profile.attributes}")
-            begin
-              broker_profile.save!
-            rescue StandardError => e
-              Rails.logger.error("*** message - #{e.message}, attributes - #{e.backtrace}")
-              raise e
-            end
           end
-          Rails.logger.info("*** completed running assign_employer")
         end
 
         def unassign_broker(broker_agency:, employer:)
