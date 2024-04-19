@@ -62,4 +62,7 @@ class FamilyPolicy < ApplicationPolicy
     role.permission.can_update_ssn
   end
 
+  def complete_plan_shopping?
+    show?
+  end
 end
