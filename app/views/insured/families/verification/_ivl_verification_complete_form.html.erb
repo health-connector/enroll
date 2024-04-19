@@ -4,7 +4,7 @@
     <!-- Admin comment form -->
       <div class="head hide"><%=l10n("insured.families.verification.provide_verification_reason") %>:</div>
       <div class="content hide ">
-        <%= form_tag update_verification_type_documents_path, multipart: true, method: :put do %>
+        <%= form_tag individual_market_update_verification_type_documents_path, multipart: true, method: :put do %>
             <ul id="verification-reason">
               <%= hidden_field_tag 'person_id', person.id  %>
               <%= hidden_field_tag 'verification_type', v_type  %>
