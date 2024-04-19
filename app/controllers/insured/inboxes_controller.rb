@@ -12,7 +12,6 @@ class Insured::InboxesController < InboxesController # rubocop:disable Style/Cla
 
   def find_inbox_provider
     @inbox_provider = Person.find(params["id"])
-    authorize_inbox_access
     @inbox_provider_name = @inbox_provider.full_name
   end
 
