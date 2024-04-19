@@ -178,6 +178,28 @@ module SponsoredBenefits
           end
         end
       end
+
+      context "create prospective employer for a broker" do
+        before do
+          allow(active_user).to receive(:has_hbx_staff_role?).and_return(true)
+        end
+        it "creates a prospective employer for a broker with no previous SponsoredBenefits::Organizations" do
+          bap = FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile)
+          post :create, params: { organization: valid_attributes, broker_agency_id: bap.id, format: 'js'}
+
+          expect(SponsoredBenefits::Organizations::PlanDesignOrganization.all.last.owner_profile_id).to eq(bap.id)
+        end
+
+        it "creates a prospective employer for a broker with previous SponsoredBenefits::Organizations" do
+          bap = FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile)
+          # persist SponsoredBenefits::Organizations::BrokerAgencyProfile
+          SponsoredBenefits::Organizations::Organization.create!(hbx_id: bap.hbx_id, legal_name: bap.legal_name, office_locations: bap.office_locations, fein: bap.fein, broker_agency_profile: SponsoredBenefits::Organizations::BrokerAgencyProfile.new)
+          post :create, params: { organization: valid_attributes, broker_agency_id: bap.id, format: 'js'}
+
+          expect(SponsoredBenefits::Organizations::PlanDesignOrganization.all.last.owner_profile_id).to eq(bap.id)
+        end
+      end
+
     end
 
     describe "PATCH #update" do
