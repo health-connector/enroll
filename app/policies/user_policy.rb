@@ -22,4 +22,16 @@ class UserPolicy < ApplicationPolicy
 
     false
   end
+
+  def view?
+    user.present?
+  end
+
+  def new?
+    view?
+  end
+
+  def create?
+    view?
+  end
 end

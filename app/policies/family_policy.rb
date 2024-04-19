@@ -65,4 +65,28 @@ class FamilyPolicy < ApplicationPolicy
   def complete_plan_shopping?
     show?
   end
+
+  def create?
+    show?
+  end
+
+  def edit?
+    show?
+  end
+
+  def update?
+    show?
+  end
+
+  def destroy?
+    show?
+  end
+
+  def index?
+    show?
+  end
+
+  def new?
+    show?
+  end
 end
