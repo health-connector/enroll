@@ -6,19 +6,6 @@ class FamiliesController < ApplicationController
 
   layout "two_column"
 
-  # def index
-    # @q = params.permit(:q)[:q]
-    # page_string = params.permit(:page)[:page]
-    # page_no = page_string.blank? ? nil : page_string.to_i
-    # @families = Family.search(@q).exists(employer_profile: true).page page_no
-  #   @families = Family.all
-
-  # end
-
-  # def show
-    # @family = Family.find(params[id])
-  # end
-
   def new
     authorize current_user, :new?
     @family = Family.new

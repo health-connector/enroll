@@ -17,29 +17,6 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     allow(controller).to receive(:authorize).and_return(true)
   end
 
-  # describe "no family on person" do
-  #   let(:resident_role_double) do
-  #     double(id: 1)
-  #   end
-  #   # let(:family_id) { "addbedddedtotallyafamiyid" }
-  #   before do
-  #     allow(person).to receive(:primary_family).and_return(nil)
-  #     allow(user).to receive(:person).and_return(person)
-  #     allow(ResidentRole).to receive(:find).with("1").and_return(resident_role_double)
-  #     allow(Family).to receive(:find).and_return(test_family)
-  #     allow(person).to receive(:resident_role).and_return(resident_role_double)
-  #     sign_in(user)
-  #     # Just to hit a call on family
-  #     get :index, resident_role_id: "1", family_id: test_family.id
-  #   end
-  #
-  #   it "should redirect to root_path if person has no family" do
-  #     expect(assigns(:family)).to eq(nil)
-  #     expect(response).to have_http_status(302)
-  #     expect(response).to redirect_to(root_path)
-  #   end
-  # end
-
   describe "GET index" do
     context 'normal' do
       before(:each) do
