@@ -36,7 +36,6 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
       end
     end
 
-
     context "with two member family" do
       let!(:dependent) { FactoryGirl.create(:person) }
       let!(:family_member) { FactoryGirl.create(:family_member, family: family,person: dependent)}
@@ -46,6 +45,36 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
         get :new, person_id: ee_person.id, employee_role_id: employee_role.id
         expect(response).to have_http_status(:success)
       end
+    end
+
+    context "when the logged-in user is not authorized to access the create, new, eligible_coverage_selection and fetch actions" do
+      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+
+      it "redirects to the root path and displays an error message" do
+        sign_in(fake_user)
+
+        post :create, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
+
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for family_policy.complete_plan_shopping?, (Pundit policy)")
+      end
+
+      shared_examples_for "logged in user has no authorization roles for MembersSelectionController" do |action|
+        it "redirects to the root path and displays an error message" do
+          sign_in(fake_user)
+
+          get action, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
+
+          expect(response).to redirect_to(root_path)
+          expect(flash[:error]).to eq("Access not allowed for family_policy.complete_plan_shopping?, (Pundit policy)")
+        end
+      end
+
+      it_behaves_like 'logged in user has no authorization roles for MembersSelectionController', :new
+      it_behaves_like 'logged in user has no authorization roles for MembersSelectionController', :eligible_coverage_selection
+      it_behaves_like 'logged in user has no authorization roles for MembersSelectionController', :fetch
     end
   end
 end
