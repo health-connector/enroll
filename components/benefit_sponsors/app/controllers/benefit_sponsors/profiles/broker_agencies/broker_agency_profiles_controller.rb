@@ -79,6 +79,7 @@ module BenefitSponsors
         end
 
         def commission_statements
+          authorize self, :redirect_signup?
           permitted = params.permit(:id)
           @id = permitted[:id]
           if current_user.has_broker_role?
@@ -101,6 +102,7 @@ module BenefitSponsors
         end
 
         def show_commission_statement
+          authorize self, :redirect_signup?
           options={}
           options[:filename] = @commission_statement.title
           options[:type] = 'application/pdf'
@@ -109,6 +111,7 @@ module BenefitSponsors
         end
 
         def download_commission_statement
+          authorize self, :redirect_signup?
           options={}
           options[:content_type] = @commission_statement.type
           options[:filename] = @commission_statement.title
@@ -144,6 +147,7 @@ module BenefitSponsors
         end
 
         def messages
+          authorize self, :redirect_signup?
           @sent_box = true
           # don't use current_user
           # messages are different for current_user is admin and broker account login
