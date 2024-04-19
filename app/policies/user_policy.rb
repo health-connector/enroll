@@ -29,4 +29,9 @@ class UserPolicy < ApplicationPolicy
     view?
   end
 
+  def change_password?
+    return true if user.present? && record.present? && record == user
+
+    false
+  end
 end
