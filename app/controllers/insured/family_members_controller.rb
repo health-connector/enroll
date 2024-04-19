@@ -6,6 +6,9 @@ class Insured::FamilyMembersController < ApplicationController
   before_action :set_dependent, only: [:destroy, :show, :edit, :update]
 
   def index
+    set_family_for_index
+    authorize @family, :index?
+
     set_bookmark_url
     @type = (params[:employee_role_id].present? && params[:employee_role_id] != 'None') ? "employee" : "consumer"
 
@@ -61,14 +64,13 @@ class Insured::FamilyMembersController < ApplicationController
       @prev_url_include_consumer_role_id = false
     end
 
-  rescue StandardError => e
-    exception_message = "Error: #{e}"
-    exception_message += "Unable to find family for person #{@person&.hbx_id}." if @family.blank?
-    Rails.logger.error(exception_message) unless Rails.env.test?
-    redirect_to root_path
   end
 
   def new
+    family_id = params.require(:family_id)
+    @family = Family.find(family_id) if family_id
+    authorize @family, :new?
+
     @dependent = Forms::FamilyMember.new(:family_id => params.require(:family_id))
     respond_to do |format|
       format.html
@@ -77,6 +79,8 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def create
+    authorize @family, :create?
+
     @dependent = ::Forms::FamilyMember.new(params[:dependent])
 
     if ((Family.find(@dependent.family_id)).primary_applicant.person.resident_role?)
@@ -115,6 +119,8 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def destroy
+    authorize @family, :destroy?
+
     @dependent.destroy!
     @banner_text = "#{t('insured.family_member_removed')} <div class='mt-1'><a href='/insured/families/find_sep' style='text-decoration: underline;'>#{t('insured.shop_with_sep')}</a></div>".html_safe
     if @family.present?
@@ -131,6 +137,8 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def show
+    authorize @family, :show?
+
     respond_to do |format|
       format.html
       format.js
@@ -138,6 +146,8 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def edit
+    authorize @family, :edit?
+
     consumer_role = @dependent.family_member.try(:person).try(:consumer_role)
     @vlp_doc_subject = get_vlp_doc_subject_by_consumer_role(consumer_role) if consumer_role.present?
 
@@ -148,6 +158,7 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def update
+    authorize @family, :update?
     if ((Family.find(@dependent.family_id)).primary_applicant.person.resident_role?)
       if @dependent.update_attributes(params.require(:dependent))
         respond_to do |format|
@@ -182,57 +193,6 @@ class Insured::FamilyMembersController < ApplicationController
     end
   end
 
-
-  def resident_index
-    set_bookmark_url
-    @resident_role = @person.resident_role
-    @change_plan = params[:change_plan].present? ? 'change_by_qle' : ''
-    @change_plan_date = params[:qle_date].present? ? params[:qle_date] : ''
-
-    if params[:qle_id].present?
-      qle = QualifyingLifeEventKind.find(params[:qle_id])
-      special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_on_kind])
-      @effective_on_date =  special_enrollment_period.selected_effective_on = Date.strptime(params[:effective_on_date], "%m/%d/%Y") if params[:effective_on_date].present?
-      special_enrollment_period.qualifying_life_event_kind = qle
-      special_enrollment_period.qle_on = Date.strptime(params[:qle_date], "%m/%d/%Y")
-      special_enrollment_period.qle_answer = params[:qle_reason_choice] if params[:qle_reason_choice].present?
-      special_enrollment_period.save
-      @market_kind = "coverall"
-    end
-
-    if request.referer.present?
-      @prev_url_include_intractive_identity = request.referer.include?("interactive_identity_verifications")
-      @prev_url_include_consumer_role_id = request.referer.include?("consumer_role_id")
-    else
-      @prev_url_include_intractive_identity = false
-      @prev_url_include_consumer_role_id = false
-    end
-  end
-
-  def new_resident_dependent
-    @dependent = Forms::FamilyMember.new(:family_id => params.require(:family_id))
-    respond_to do |format|
-      format.html
-      format.js
-    end
-  end
-
-  def edit_resident_dependent
-    @dependent = Forms::FamilyMember.find(params.require(:id))
-    respond_to do |format|
-      format.html
-      format.js
-    end
-  end
-
-  def show_resident_dependent
-    @dependent = Forms::FamilyMember.find(params.require(:id))
-    respond_to do |format|
-      format.html
-      format.js
-    end
-  end
-
 private
   def set_family
     @family = @person.try(:primary_family)
@@ -258,7 +218,22 @@ private
     sp
   end
 
+  def set_family_for_index
+    if params[:employee_role_id].present? && params[:employee_role_id] != 'None'
+      emp_role_id = params[:employee_role_id]
+      @employee_role = if emp_role_id.present?
+                         @person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id.to_s }
+                       else
+                         @person.employee_roles.detect { |emp_role| emp_role.is_active == true }
+                       end
+      @family = @person.primary_family
+    elsif params[:family_id]
+      @family = Family.find(params[:family_id])
+    end
+  end
+
   def set_dependent
     @dependent = Forms::FamilyMember.find(params.require(:id))
+    @family = Family.find(@dependent.family_id) if @dependent.family_id
   end
 end
