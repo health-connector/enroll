@@ -1,11 +1,19 @@
 require 'rails_helper'
 
 describe UsersController do
-  let(:admin) { instance_double(User) }
-  let(:user_policy) { instance_double(UserPolicy) }
-  let(:user) { instance_double(User, :email => user_email) }
+  let(:admin) { instance_double(User, person: staff_person) }
+  let(:user) { instance_double(User, :email => user_email, :person => person) }
+  let(:staff_person) { double('Person', hbx_staff_role: hbx_staff_role) }
+  let(:person) { double('Person', hbx_staff_role: nil) }
+  let(:hbx_staff_role) { double('HbxStaffRole', permission: permission)}
+  let(:permission) { double('Permission')}
+
   let(:user_id) { "23432532423424" }
   let(:user_email) { "some_email@some_domain.com" }
+
+  after :all do
+    DatabaseCleaner.clean
+  end
 
   describe '.change_password' do
     let(:user) { build(:user, id: '1', password: 'Complex!@#$') }
@@ -32,14 +40,13 @@ describe UsersController do
 
 
   before :each do
-    allow(UserPolicy).to receive(:new).with(admin, User).and_return(user_policy)
     allow(User).to receive(:find).with(user_id).and_return(user)
   end
 
   describe ".change_username_and_email" do
     let(:user) { build(:user, id: '1', oim_id: user_email) }
     before do
-      allow(user_policy).to receive(:change_username_and_email?).and_return(true)
+      allow(permission).to receive(:can_change_username_and_email).and_return(true)
     end
 
     context "An admin is allowed to access the change username action" do
@@ -54,12 +61,14 @@ describe UsersController do
 
     context "An admin is not allowed to access the change username action" do
       before do
-        allow(user_policy).to receive(:change_username_and_email?).and_return(false)
+        allow(permission).to receive(:can_change_username_and_email).and_return(false)
         sign_in(admin)
       end
       it "doesn't render the change username form" do
         get :change_username_and_email, id: user_id, format: :js
         expect(response.code).to eq "403"
+        expect(flash[:error]).to be_present
+        expect(flash[:error]).to include('Access not allowed for hbx_profile_policy.change_username_and_email?, (Pundit policy)')
       end
     end
   end
@@ -67,14 +76,17 @@ describe UsersController do
   describe ".confirm_change_username_and_email", dbclean: :after_each do
     let(:person) { FactoryGirl.create(:person) }
     let(:user) { FactoryGirl.create(:user, :person => person) }
+    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person)}
+    let(:permission) { double('Permission')}
+    let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
     let(:invalid_username) { "ggg" }
     let(:valid_username) { "gariksubaric" }
     let(:invalid_email) { "email@" }
     let(:valid_email) { "email@email.com" }
 
     before do
-      allow(UserPolicy).to receive(:new).with(user, User).and_return(user_policy)
-      allow(user_policy).to receive(:change_username_and_email?).and_return(true)
+      allow(hbx_staff_role).to receive(:permission).and_return permission
+      allow(permission).to receive(:can_change_username_and_email).and_return(true)
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
       sign_in(user)
     end
@@ -104,7 +116,7 @@ describe UsersController do
 
   describe ".confirm_lock, with a user allowed to perform locking" do
     before do
-      allow(user_policy).to receive(:lockable?).and_return(true)
+      allow(permission).to receive(:can_lock_unlock).and_return(true)
       sign_in(admin)
       get :confirm_lock, id: user_id, format: :js
     end
@@ -113,7 +125,7 @@ describe UsersController do
 
   describe ".lockable" do
     before do
-      allow(user_policy).to receive(:lockable?).and_return(can_lock)
+      allow(permission).to receive(:can_lock_unlock).and_return(can_lock)
       allow(user).to receive(:lockable_notice).and_return("locked/unlocked")
     end
 
@@ -128,7 +140,7 @@ describe UsersController do
       end
       it do
         get :lockable, id: user_id
-        expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url)
+        expect(response).to redirect_to(root_url)
       end
     end
 
@@ -165,7 +177,7 @@ describe UsersController do
 
   describe '.reset_password' do
     before do
-      allow(user_policy).to receive(:reset_password?).and_return(can_reset_password)
+      allow(permission).to receive(:can_reset_password).and_return(can_reset_password)
     end
 
     context 'When admin is not authorized for reset password then' do
@@ -179,7 +191,8 @@ describe UsersController do
       end
       it do
         get :reset_password, id: user_id, format: :js
-        expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url)
+        expect(flash[:error]).to be_present
+        expect(flash[:error]).to include('Access not allowed for hbx_profile_policy.reset_password?, (Pundit policy)')
       end
     end
 
@@ -204,7 +217,7 @@ describe UsersController do
     let(:can_reset_password) { false }
     
     before do
-      allow(user_policy).to receive(:reset_password?).and_return(can_reset_password)
+      allow(permission).to receive(:can_reset_password).and_return(can_reset_password)
     end
 
     context 'When admin is not authorized for reset password then' do
@@ -215,7 +228,7 @@ describe UsersController do
       end
       it { expect(user).not_to receive(:send_reset_password_instructions) }
       it { expect(assigns(:user)).to eq(user) }
-      it { expect(response).to redirect_to(user_account_index_exchanges_hbx_profiles_url) }
+      it { expect(response).to have_http_status(:forbidden) }
     end
 
     context 'When user email not present then' do
@@ -236,17 +249,6 @@ describe UsersController do
         expect(response).to render_template('users/reset_password.js.erb')
       end
     end
-
-  describe '.edit' do
-    let(:user) { FactoryGirl.build(:user, :with_consumer_role) }
-    before do
-      sign_in(admin)
-      allow(User).to receive(:find).with(user.id).and_return(user)
-      get :edit, id: user.id, format: 'js'
-    end
-    it { expect(assigns(:user)).to eq(user) }
-    it { expect(response).to render_template('edit') }
-  end
 
     context 'When user information is not valid' do
       let(:can_reset_password) { true }

@@ -37,6 +37,21 @@ describe DefinePermissions, dbclean: :after_each do
       end
     end
 
+    context 'update can change username and email for super admin hbx staff role', dbclean: :before_each do
+      let(:given_task_name) {':hbx_admin_can_change_username_and_email'}
+      let(:person) { FactoryGirl.create(:person) }
+      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
+
+      before do
+        subject.hbx_admin_can_change_username_and_email
+      end
+
+      it "updates hbx_admin_can_change_username_and_email to true" do
+        expect(permission.reload.can_change_username_and_email).to be true
+      end
+    end
+
     describe 'update permissions for hbx staff role to be able to view username and email' do
       let(:given_task_name) {':hbx_admin_can_add_view_username_and_email'}
 
