@@ -36,22 +36,30 @@ class FamilyPolicy < ApplicationPolicy
   end
 
   def updateable?
-    return true unless role = user.person && user.person.hbx_staff_role
+    role = user.person&.hbx_staff_role
+    return true unless role
+
     role.permission.modify_family
   end
 
   def can_update_ssn?
-    return false unless role = user.person && user.person.hbx_staff_role
+    role = user.person&.hbx_staff_role
+    return false unless role
+
     role.permission.can_update_ssn
   end
 
   def can_view_username_and_email?
-    return false unless role = (user.person && user.person.hbx_staff_role) || (user.person.csr_role)
+    role = user.person&.hbx_staff_role || user.person&.csr_role
+    return false unless role
+
     role.permission.can_view_username_and_email || user.person.csr_role.present?
   end
 
   def hbx_super_admin_visible?
-    return false unless role = user.person && user.person.hbx_staff_role
+    role = user.person&.hbx_staff_role
+    return false unless role
+
     role.permission.can_update_ssn
   end
 
@@ -166,6 +174,7 @@ class FamilyPolicy < ApplicationPolicy
 
     permission.modify_family
   end
+
   def create?
     show?
   end
