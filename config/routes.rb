@@ -546,21 +546,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :people do #TODO Delete
-    get 'select_employer'
-    get 'my_account'
-
-    collection do
-      post 'person_confirm'
-      post 'plan_details'
-      get 'check_qle_marriage_date'
-    end
-
-    member do
-      get 'get_member'
-    end
-
-  end
+  resources :people, only: [:index, :update]
 
   match 'families/home', to: 'insured/families#home', via:[:get], as: "family_account"
 
