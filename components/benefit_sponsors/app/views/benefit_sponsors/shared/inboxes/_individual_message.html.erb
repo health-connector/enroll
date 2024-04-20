@@ -6,7 +6,7 @@
 <td>
     <%=message.created_at.strftime("%m/%d/%Y") %>
   <td>
-    <%= message.try(:subject) %>
+    <%= sanitize(message.try(:subject)) %>
   </td>
   <%- if @folder != 'Deleted' %>
       <td class="  <%#=pundit_class(Family, :updateable?)%>">
