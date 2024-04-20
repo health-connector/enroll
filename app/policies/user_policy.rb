@@ -16,4 +16,17 @@ class UserPolicy < ApplicationPolicy
     return false unless role = user.person && user.person.hbx_staff_role
     role.permission.can_view_username_and_email
   end
+
+  def view?
+    user.present?
+  end
+
+  def new?
+    view?
+  end
+
+  def create?
+    view?
+  end
+
 end
