@@ -420,17 +420,11 @@ Rails.application.routes.draw do
   namespace :broker_agencies do
     root 'profiles#new'
 
-    resources :profiles, only: [:new, :create, :show, :index, :edit, :update] do
-      get :inbox
-
+    resources :profiles, only: [:new, :create, :edit, :update] do
       collection do
-        get :family_index
         get :employers
-        get :messages
-        get :staff_index
         get :agency_messages
         get :assign_history
-        get  :commission_statements
       end
       member do
         if Settings.aca.general_agency_enabled
@@ -441,10 +435,7 @@ Rails.application.routes.draw do
         get :assign
         post :update_assign
         post :employer_datatable
-        post :family_datatable
         post :set_default_ga
-        get :download_commission_statement
-        get :show_commission_statement
       end
 
       resources :applicants
