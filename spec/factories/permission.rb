@@ -124,6 +124,7 @@ FactoryGirl.define do
       can_reinstate_enrollment true
       view_the_configuration_tab true 
       can_submit_time_travel_request false
+      view_login_history true
     end
   end
 end

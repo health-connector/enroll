@@ -92,6 +92,12 @@ namespace :permissions do
   DefinePermissions.define_task :hbx_admin_can_update_enrollment_end_date_or_reinstate => :environment
 end
 
+#RAILS_ENV=production bundle exec rake permissions:hbx_admin_view_login_history
+namespace :permissions do
+  desc 'hbx super admin can view login history'
+  DefinePermissions.define_task :hbx_admin_view_login_history => :environment
+end
+
 #rake permissions:initial_hbx
 #rake permissions:migrate_hbx
 #rake permissions:hbx_admin_can_update_ssn
