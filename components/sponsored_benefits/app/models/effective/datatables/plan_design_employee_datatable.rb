@@ -93,9 +93,10 @@ module Effective
       def authorized?(current_user, _controller, _action, _resource)
         return false unless current_user
 
-        benefit_sponsorship = SponsoredBenefits::BenefitSponsorships::BenefitSponsorship.find(attributes[:id])
-        proposal_organization = benefit_sponsorship.plan_design_organization
-        SponsoredBenefits::PlanDesignOrganizationPolicy.new(current_user, proposal_organization).view_employees?
+        # TODO: FIX THIS
+        # benefit_sponsorship = SponsoredBenefits::BenefitSponsorships::BenefitSponsorship.find(attributes[:id])
+        # proposal_organization = benefit_sponsorship.plan_design_organization
+        # SponsoredBenefits::PlanDesignOrganizationPolicy.new(current_user, proposal_organization).view_employees?
       end
     end
   end
