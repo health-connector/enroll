@@ -18,7 +18,6 @@ module SponsoredBenefits
       end
 
       def plan_year
-        Rails.logger.info("*** plan_year - #{rating_area.class}")
         OpenStruct.new(
           :start_on => effective_period.begin,
           :sic_code => sic_code,

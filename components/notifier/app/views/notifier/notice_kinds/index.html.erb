@@ -30,7 +30,7 @@
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
                       <i class='fa fa-file-text-o' aria-hidden='true'></i> Upload Notices
                     </button>
-                    <%= link_to "<i class='fa fa-cloud-download' aria-hidden='true'></i> Download Notices".html_safe, download_notices_notice_kinds_path, class: "btn btn-primary" %>
+                    <%= link_to "<i class='f`a fa-cloud-download' aria-hidden='true'></i> Download Notices".html_safe, download_notices_notice_kinds_path, class: "btn btn-primary", target: "_blank", rel: "noopener noreferrer" %>
                   </span>
                 <%= render_datatable(@datatable) %>
               </div>

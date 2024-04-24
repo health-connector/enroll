@@ -832,7 +832,6 @@ class BenefitGroup
   end
 
   def check_employer_contribution_for_employee
-    Rails.logger.info("*** check_employer_contribution_for_employee - #{self&.id}")
     start_on = self.plan_year.try(:start_on)
     return if start_on.try(:at_beginning_of_year) == start_on
     # all employee contribution < 50% for 1/1 employers
