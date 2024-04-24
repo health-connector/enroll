@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "rails_helper"
+
 RSpec.describe L10nHelper, :type => :helper do
   # All translations are configured to load before every rspec
   it "should translate existing translations" do
