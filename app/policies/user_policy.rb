@@ -17,12 +17,6 @@ class UserPolicy < ApplicationPolicy
     role.permission.can_view_username_and_email
   end
 
-  def change_password?
-    return true if user.present? && record.present? && record == user
-
-    false
-  end
-
   def view?
     user.present?
   end
@@ -33,5 +27,11 @@ class UserPolicy < ApplicationPolicy
 
   def create?
     view?
+  end
+
+  def change_password?
+    return true if user.present? && record.present? && record == user
+
+    false
   end
 end

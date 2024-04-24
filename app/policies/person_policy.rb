@@ -31,6 +31,21 @@ class PersonPolicy < ApplicationPolicy
 
   private
 
+  def allowed_to_download?
+    allowed_to_access?
+  end
+
+  # The user can download the document if they are a primary family member
+  #
+  # @return [Boolean] Returns true if the user has permission to download the document, false otherwise.
+  def allowed_to_access?
+    return true if shop_market_primary_family_member?
+    return true if shop_market_admin?
+    return true if active_associated_shop_market_family_broker?
+
+    false
+  end
+
   def allowed_to_modify?
     (current_user.person == record) || (current_user == associated_user) || role_has_permission_to_modify?
   end
@@ -76,20 +91,5 @@ class PersonPolicy < ApplicationPolicy
     end
 
     nil
-  end
-
-  def allowed_to_download?
-    allowed_to_access?
-  end
-
-  # The user can download the document if they are a primary family member
-  #
-  # @return [Boolean] Returns true if the user has permission to download the document, false otherwise.
-  def allowed_to_access?
-    return true if shop_market_primary_family_member?
-    return true if shop_market_admin?
-    return true if active_associated_shop_market_family_broker?
-
-    false
   end
 end
