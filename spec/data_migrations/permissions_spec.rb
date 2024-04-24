@@ -52,6 +52,21 @@ describe DefinePermissions, dbclean: :after_each do
       end
     end
 
+    context 'update can view login history for super admin hbx staff role', dbclean: :before_each do
+      let(:given_task_name) {':hbx_admin_view_login_history'}
+      let(:person) { FactoryGirl.create(:person) }
+      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
+
+      before do
+        subject.hbx_admin_view_login_history
+      end
+
+      it "updates hbx_admin_view_login_history to true" do
+        expect(permission.reload.view_login_history).to be true
+      end
+    end
+
     describe 'update permissions for hbx staff role to be able to view username and email' do
       let(:given_task_name) {':hbx_admin_can_add_view_username_and_email'}
 

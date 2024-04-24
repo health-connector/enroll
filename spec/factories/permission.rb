@@ -125,6 +125,7 @@ FactoryGirl.define do
       view_the_configuration_tab true 
       can_submit_time_travel_request false
       can_change_username_and_email true
+      view_login_history true
     end
   end
 end
