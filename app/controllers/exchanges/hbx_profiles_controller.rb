@@ -223,7 +223,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     #    format.html
     #    format.js
     # end
-    end
+  end
 
 
   def staff_index
@@ -256,7 +256,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def request_help
     authorize HbxProfile, :request_help?
-    insured = Person.where(_id: params[:person]).first
+    # insured = Person.where(_id: params[:person]).first
 
     role = nil
     if params[:type]

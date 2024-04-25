@@ -68,11 +68,9 @@ class HbxProfilePolicy < ApplicationPolicy
     index?
   end
 
-
   def family_index_dt?
     index?
   end
-
 
   def user_account_index?
     staff_can_access_user_account_tab?
@@ -259,11 +257,13 @@ class HbxProfilePolicy < ApplicationPolicy
     return true if shop_market_admin?
     return true if active_associated_shop_market_family_broker?
     return true if active_associated_shop_market_general_agency?
+
     false
   end
 
   def request_help?
     return true if shop_market_primary_family_member?
+
     show?
   end
 
