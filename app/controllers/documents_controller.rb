@@ -2,6 +2,7 @@ class DocumentsController < ApplicationController
   before_action :fetch_record, only: [:authorized_download]
   before_action :set_document, only: [:destroy]
   respond_to :html, :js
+  rescue_from ActionController::RedirectBackError, with: :redirect_to_default
 
   def authorized_download
     authorize @record, :can_download_document?
@@ -48,7 +49,7 @@ class DocumentsController < ApplicationController
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket}##{key}"
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
-      redirect_back(fallback_location: root_path, :flash => {error: e.message})
+      redirect_to :back, :flash => { :error => e.message }
     end
   end
 
@@ -61,7 +62,7 @@ class DocumentsController < ApplicationController
       uri = sbc_document.identifier
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
-      redirect_back(fallback_location: root_path, :flash => {error: e.message})
+      redirect_to :back, :flash => { :error => e.message }
     end
   end
 
@@ -73,7 +74,7 @@ class DocumentsController < ApplicationController
       uri = attestation_document&.identifier
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
-      redirect_back(fallback_location: root_path, :flash => {error: e.message})
+      redirect_to :back, :flash => { :error => e.message }
     end
   end
 
@@ -134,5 +135,9 @@ class DocumentsController < ApplicationController
 
   def file_name(file)
     file.original_filename
+  end
+
+  def redirect_to_default
+    redirect_to root_path
   end
 end

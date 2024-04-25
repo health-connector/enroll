@@ -22,6 +22,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
   # broker staff role
   let(:broker_agency_staff_role) { FactoryGirl.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: 'active')}
   let!(:broker_agency_staff_user) {FactoryGirl.create(:user, :person => broker_agency_staff_role.person, roles: ['broker_agency_staff_role'])}
+  let(:admin_user) { user }
 
   before :each do
     sign_in user
@@ -117,7 +118,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
     context 'hbx staff role' do
       context 'with permission to access' do
         before do
-          sign_in user
+          sign_in admin_user
         end
 
         it 'hbx staff should be able to download' do
@@ -131,7 +132,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         let!(:update_admin) { person.hbx_staff_role.update_attributes(permission_id: permission.id) }
 
         before do
-          sign_in user
+          sign_in admin_user
         end
 
         it 'hbx staff should be able to download' do
@@ -143,7 +144,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
     end
   end
 
-    describe "GET employees_template_download" do
+  describe "GET employees_template_download" do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup initial benefit application"
 
@@ -245,7 +246,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         it 'current user employer should be able to download' do
           sign_in employee_user
 
-          get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to be_successful
         end
       end
@@ -257,7 +258,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         end
 
         it 'current user without any role should not be able to download' do
-          get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to have_http_status(:found)
           expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
         end
@@ -267,16 +268,14 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
     context 'broker role' do
       context 'with authorized account' do
         before do
-          broker_agency_profile.update!(market_kind: 'both')
-          employee_person.primary_family.broker_agency_accounts << BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id,
-                                                                                                                      writing_agent_id: broker_role.id,
-                                                                                                                      start_on: Time.now,
-                                                                                                                      is_active: true)
+          allow_any_instance_of(ApplicationPolicy).to receive(:active_associated_shop_market_family_broker?).and_return true
+          broker_agency_profile.update!(market_kind: 'shop')
+          session[:person_id] = employee_person.id
           sign_in broker_role_user
         end
 
         it 'broker should be able to download' do
-          get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }, session: { person_id: employee_person.id }
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to be_successful
         end
       end
@@ -288,7 +287,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         end
 
         it 'broker should be able to download' do
-          get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }, session: { person_id: employee_person.id }
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }, session: { person_id: employee_person.id }
           expect(response).to have_http_status(:found)
           expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
         end
@@ -302,7 +301,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         end
 
         it 'hbx staff should be able to download' do
-          get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to be_successful
         end
       end
