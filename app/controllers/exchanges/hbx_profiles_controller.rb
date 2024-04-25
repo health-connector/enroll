@@ -7,9 +7,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Config::AcaHelper
 
   before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
-  # BRH TODO re: check_hbx_staff_role
-  # see https://github.com/ideacrew/enroll/commit/3bde97790758c8314e2d061f346a0a0e0fc77ca5#diff-501fc0300be1b3d42aa4881fe8645ccf6af22a57da171a3bd89500a4d18fa26b for the change involvng
-  # but basically appears they ditched this filter and instead do a pundit check in each method.
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :view_the_configuration_tab?, only: [:configuration, :set_date]
   before_action :can_submit_time_travel_request?, only: [:set_date]
@@ -112,7 +109,6 @@ class Exchanges::HbxProfilesController < ApplicationController
     #redirect_to exchanges_hbx_profiles_root_path
   end
 
-  # BRH TODO UNKNOWN - not in DC code- can i infer? look at policy needed for other stuff.
   def transmit_group_xml
     HbxProfile.transmit_group_xml(params[:id].split)
     @employer_profile = EmployerProfile.find(params[:id])
@@ -124,9 +120,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     send_data v2_xml_generator.generate_xmls
   end
 
-  # BRH TODO UNKNOWN - not in DC code- can i infer? look at policy needed for other stuff.
-  # likely path is own-named method in policy and check staff level index perms...
   def employer_index
+    authorize HbxProfile, :employer_index?
     @q = params.permit(:q)[:q]
     @orgs = Organization.search(@q).exists(employer_profile: true)
     @page_alphabets = page_alphabets(@orgs, "legal_name")
@@ -215,9 +210,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def employer_poc
-    # BRH TODO add to policy file - this method commented out in dc vsn - is policy method extant? NOPE. gonna need guidance.
-    # 
-    # authorize HbxProfile, :employer_poc?
+    authorize HbxProfile, :employer_poc?
 
     # Dynamic Filter values for upcoming 30, 60, 90 days renewals
     @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
@@ -248,9 +241,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def assister_index
-    # BRH TODO add to policy file - COME BACK TO - this is complex - will need to check if all conditions existing policy
-    #
-    # authorize HbxProfile, :assister_index?
+    authorize HbxProfile, :assister_index?
 
     @q = params.permit(:q)[:q]
     @staff = Person.where(assister_role: {:$exists =>true})
@@ -263,23 +254,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-  # BRH TODO consider moving to private mehtod to match dc. only used here. do in separate commit.
-  def find_email(agent, role)
-    if role == 'Broker'
-      agent.try(:broker_role).try(:email).try(:address)
-    else
-      agent.try(:user).try(:email)
-    end
-  end
-
   def request_help
+    authorize HbxProfile, :request_help?
     insured = Person.where(_id: params[:person]).first
-    # BRH TODO add to policy file
-    # ALSO make sure no corresponding form was changed that feeds the above param on the dc side...
-    # BRH TODO COME BACK TO - this is kind of a rabbit hole. need to change family policy method and that points to another method
-    # that is complex and has been heavily refactored. not sure how far i want to go there with my level of knowledge.
-    #
-    # authorize insured.primary_family, :request_help?
 
     role = nil
     if params[:type]
@@ -476,9 +453,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def view_enrollment_to_update_end_date
-    # BRH TODO see note in policy file. fix and uncomment this
-    #
-    # authorize HbxProfile, :view_enrollment_to_update_end_date?
+    authorize HbxProfile, :view_enrollment_to_update_end_date?
 
     @person = Person.find(params[:person_id])
     @row = params[:family_actions_id]
@@ -487,11 +462,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     @dup_enr_ids = fetch_duplicate_enrollment_ids(@coverage_ended_enrollments).map(&:to_s)
   end
 
-  # BRH TODO decide to fix spelling or don't - match policy method with whichever is final spelling
-  def update_enrollment_termianted_on_date
-    # BRH TODO add to policy file - see note on spelling... also underlying app permission not in MA policy file.
-    #
-    # authorize HbxProfile, :update_enrollment_termianted_on_date?
+  def update_enrollment_terminated_on_date
+    authorize HbxProfile, :update_enrollment_terminated_on_date?
 
     begin
       enrollment = HbxEnrollment.find(params[:enrollment_id])
@@ -538,8 +510,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-  # BRH TODO this is not in DC - what is right perm? same #index? perm as others?
   def issuer_index
+    authorize HbxProfile, :issuer_index?
     @issuers = CarrierProfile.all
 
     respond_to do |format|
@@ -548,8 +520,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-  # BRH TODO this is not in DC - what is right perm? same #index? perm as others?
   def verification_index
+    authorize HbxProfile, :verification_index?
     #@families = Family.by_enrollment_individual_market.where(:'households.hbx_enrollments.aasm_state' => "enrolled_contingent").page(params[:page]).per(15)
     # @datatable = Effective::Datatables::DocumentDatatable.new
     @documents = [] # Organization.all_employer_profiles.employer_profiles_with_attestation_document
@@ -560,8 +532,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-  # BRH TODO this is not in DC - what is right perm? same #index? perm as others?
   def binder_index
+    authorize HbxProfile, :binder_index?
     @organizations = Organization.retrieve_employers_eligible_for_binder_paid
 
     respond_to do |format|
@@ -570,8 +542,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-  # BRH TODO this is not in DC - what is right perm?
   def binder_index_datatable
+    authorize HbxProfile, :binder_index_datatable?
     dt_query = extract_datatable_parameters
     organizations = []
 
@@ -594,8 +566,8 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   end
 
-  # BRH TODO this is not in DC - what is right perm?
   def product_index
+    authorize HbxProfile, :product_index?
     respond_to do |format|
       format.html { render "product_index" }
       format.js {}
@@ -639,7 +611,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     else
       message = {notice: "Unable to find Enrollment."}
     end
-    
+
     redirect_to exchanges_hbx_profiles_root_path, flash: message
   end
 
@@ -703,11 +675,6 @@ class Exchanges::HbxProfilesController < ApplicationController
         return
       end
     end
-    # BRH TODO possible redundancy with above conditionals, but the #show? policy here is also perhaps not same as in DC.
-    #   Very different impls. this one says csr, staff, assister are all ok. DC #show? takes an involved path that
-    # expects a particular permission. would users in MA have this permission? need guidance on this.
-    #
-    # authorize HbxProfile, :show?
 
     session[:person_id] = nil
     session[:dismiss_announcements] = nil
@@ -765,6 +732,14 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
 private
+
+  def find_email(agent, role)
+    if role == 'Broker'
+      agent.try(:broker_role).try(:email).try(:address)
+    else
+      agent.try(:user).try(:email)
+    end
+  end
 
   def group_enrollments_by_year_and_market(all_enrollments)
     current_year = TimeKeeper.date_of_record.year

@@ -1,5 +1,4 @@
 class HbxProfilePolicy < ApplicationPolicy
-  # BRH TODO audit older methods here later - see if unused and removable. OR if applicationpolicy methods should be used instead?
 
   def oe_extendable_applications?
     staff_can_extend_open_enrollment?
@@ -58,6 +57,10 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def employer_datatable?
+    index?
+  end
+
+  def employer_poc?
     index?
   end
 
@@ -125,11 +128,13 @@ class HbxProfilePolicy < ApplicationPolicy
     staff_can_terminate_enrollment?
   end
 
-  # BRH TODO - staff_change_enrollment_end_date not in application policy in MA codebase - are MA perms in DB ok to add it
-  # (i.e., will the right users in MA also have the same perms as this would require)?
-  # def view_enrollment_to_update_end_date?
-  #   staff_change_enrollment_end_date?
-  # end
+  def view_enrollment_to_update_end_date?
+    staff_can_update_ssn?
+  end
+
+  def update_enrollment_terminated_on_date?
+    staff_can_update_ssn?
+  end
 
   def view_admin_tabs?
     role = user_hbx_staff_role
@@ -209,7 +214,6 @@ class HbxProfilePolicy < ApplicationPolicy
       @user.has_role?(:assister)
   end
 
-  # BRH TODO impl here does not follow the same code path as in dc. leave as is?
   def index?
     @user.has_role? :hbx_staff
   end
@@ -234,11 +238,35 @@ class HbxProfilePolicy < ApplicationPolicy
     index?
   end
 
+  def verification_index?
+    index?
+  end
+
+  def binder_index?
+    index?
+  end
+
+  def binder_index_datatable?
+    index?
+  end
+
   def product_index?
     index?
   end
 
-  # BRH TODO this differs in DC - looking for specific perm. can we assume right MA folks have this perm or leave as-is?
+  def assister_index?
+    return true if shop_market_primary_family_member?
+    return true if shop_market_admin?
+    return true if active_associated_shop_market_family_broker?
+    return true if active_associated_shop_market_general_agency?
+    false
+  end
+
+  def request_help?
+    return true if shop_market_primary_family_member?
+    show?
+  end
+
   def configuration?
     index?
   end
@@ -292,7 +320,6 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def set_date?
-    # BRH TODO changed in DC version - change here?
     index?
   end
 
