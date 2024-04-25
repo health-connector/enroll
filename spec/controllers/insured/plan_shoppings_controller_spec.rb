@@ -217,6 +217,46 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
       expect(response).to have_http_status(:success)
     end
 
+    describe 'Broker association with family in thankyou action' do
+      let(:current_broker_user) { FactoryBot.create(:user, roles: ['broker_agency_staff'], person: create(:person)) }
+      let(:bap) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile) }
+      let(:broker_role) { BrokerRole.new(benefit_sponsors_broker_agency_profile_id: bap.id, aasm_state: 'active', market_kind: 'both') }
+
+      before do
+        current_broker_user.person.broker_role = broker_role
+        sign_in(current_broker_user)
+        session[:person_id] = person.id.to_s
+      end
+
+      context 'when family has BROKER' do
+        before do
+          hbx_enrollment.family.broker_agency_accounts << BenefitSponsors::Accounts::BrokerAgencyAccount.new(
+            benefit_sponsors_broker_agency_profile_id: bap.id,
+            writing_agent_id: broker_role.id,
+            start_on: Time.now,
+            is_active: true
+          )
+          hbx_enrollment.family.save!
+          family.primary_person.active_employee_roles.first.employer_profile.broker_agency_accounts << family.broker_agency_accounts.first
+        end
+
+        it 'returns http success' do
+          get :thankyou, id: 'id', plan_id: 'plan_id'
+
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      context 'when family is not associated with BROKER' do
+        it 'returns authorization error' do
+          get :thankyou, id: 'id', plan_id: 'plan_id'
+
+          expect(response).to redirect_to(root_path)
+          expect(flash[:error]).to eq('Access not allowed for hbx_enrollment_policy.thankyou?, (Pundit policy)')
+        end
+      end
+    end
+
     context "when not eligible to complete shopping" do
       before do
         allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return(false)
@@ -240,22 +280,6 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
         expect(session[:elected_aptc]).to eq 50
       end
     end
-
-    # context "for qualify_qle_notice" do
-    #   it "should get error msg" do
-    #     allow(hbx_enrollment).to receive(:can_select_coverage?).and_return false
-    #     sign_in(user)
-    #     get :thankyou, id: "id", plan_id: "plan_id"
-    #     expect(flash[:error]).to include("In order to purchase benefit coverage, you must be in either an Open Enrollment or Special Enrollment period. ")
-    #   end
-    #
-    #   it "should not get error msg" do
-    #     allow(hbx_enrollment).to receive(:can_select_coverage?).and_return true
-    #     sign_in(user)
-    #     get :thankyou, id: "id", plan_id: "plan_id"
-    #     expect(flash[:error]).to eq nil
-    #   end
-    # end
   end
 
   context "GET print_waiver" do
@@ -398,15 +422,14 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
       )
     end
     let!(:update_sponsored_benefit) { sponsored_benefit.update_attributes(product_package_kind: "single_product") }
+    let(:person) {FactoryBot.create(:person, :with_employee_role)}
+    let(:user) { FactoryBot.create(:user, person: person) }
+    let(:family){ FactoryBot.create(:family, :with_primary_family_member_and_dependent, person: person) }
 
     before :each do
       allow(HbxEnrollmentSponsoredCostCalculator).to receive(:new).with(hbx_enrollment).and_return(cost_calculator)
       allow(HbxEnrollment).to receive(:find).with("hbx_id").and_return(hbx_enrollment)
       allow(hbx_enrollment).to receive(:household).and_return(household)
-      allow(family).to receive(:family_members).and_return(family_members)
-      allow(user).to receive(:person).and_return(person)
-      allow(person).to receive(:primary_family).and_return(family)
-      allow(family).to receive(:enrolled_hbx_enrollments).and_return([])
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_plan")
       allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return(true)
       allow(hbx_enrollment).to receive(:effective_on).and_return(Date.new(2015))
@@ -551,5 +574,34 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
         end
       end
     end
+  end
+
+  context "logged in user has no roles" do
+    shared_examples_for "logged in user has no authorization roles" do |action|
+      before do
+        allow(HbxEnrollment).to receive(:find).with("id").and_return(hbx_enrollment)
+      end
+
+      it "redirects to root with flash message" do
+        person = create(:person)
+        current_broker_user = FactoryBot.create(:user, :person => person)
+        session[:person_id] = person.id.to_s
+        sign_in(current_broker_user)
+
+        get action, params: {id: "id", plan_id: "plan_id"}
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.#{action}?, (Pundit policy)")
+      end
+    end
+
+    it_behaves_like "logged in user has no authorization roles", :checkout
+    it_behaves_like "logged in user has no authorization roles", :receipt
+    it_behaves_like "logged in user has no authorization roles", :thankyou
+    it_behaves_like "logged in user has no authorization roles", :waive
+    it_behaves_like "logged in user has no authorization roles", :print_waiver
+    it_behaves_like "logged in user has no authorization roles", :terminate
+    it_behaves_like "logged in user has no authorization roles", :show
+    it_behaves_like 'logged in user has no authorization roles', :set_elected_aptc
+    it_behaves_like 'logged in user has no authorization roles', :plans
   end
 end

@@ -72,20 +72,10 @@ module Notifier
     end
 
     def download_notices
-      notices = Notifier::NoticeKind.all
-      csv_data = notices.to_csv
-
-      Tempfile.create(['notices', '.csv']) do |tempfile|
-        tempfile.write(csv_data)
-        tempfile.rewind
-        send_file tempfile.path,
-                  filename: "notices_#{Time.zone.today.strftime('%m_%d_%Y')}.csv",
-                  type: 'text/csv',
-                  disposition: 'attachment'
-      end
-    rescue StandardError => e
-      Rails.logger.error "Failed to generate notices CSV: #{e.message}"
-      raise e
+      send_data Notifier::NoticeKind.to_csv,
+                :filename => "notices_#{TimeKeeper.date_of_record.strftime('%m_%d_%Y')}.csv",
+                :disposition => 'attachment',
+                :type => 'text/csv'
     end
 
     def upload_notices
