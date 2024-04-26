@@ -667,7 +667,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def set_date
     authorize HbxProfile, :modify_admin_tabs?
-    forms_time_keeper = Forms::TimeKeeper.new(params[:forms_time_keeper])
+    forms_time_keeper = Forms::TimeKeeper.new(timekeeper_params.to_h)
     begin
       forms_time_keeper.set_date_of_record(forms_time_keeper.forms_date_of_record)
       flash[:notice] = "Date of record set to " + TimeKeeper.date_of_record.strftime("%m/%d/%Y")
@@ -716,6 +716,10 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def uniq_terminate_params
     params.keys.map { |key| key.match(/terminate_hbx_.*/) || key.match(/termination_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
+  end
+
+  def timekeeper_params
+    params.require(:forms_time_keeper).permit(:date_of_record)
   end
 
   def uniq_cancel_params
