@@ -19,7 +19,7 @@ module Effective
         table_column :actions, :width => '50px', :proc => Proc.new { |row|
           dropdown = [
                       # Link Structure: ['Link Name', link_path(:params), 'link_type'], link_type can be 'ajax', 'static', or 'disabled'
-                      ['Add SEP', add_sep_form_exchanges_hbx_profiles_path(family: row.id, family_actions_id: "family_actions_#{row.id.to_s}"), add_sep_link_type( pundit_allow(HbxProfile, :can_add_sep?) )],
+                      ['Add SEP', add_sep_form_exchanges_hbx_profiles_path(family: row.id, family_actions_id: "family_actions_#{row.id.to_s}"), add_sep_link_type( pundit_allow(HbxProfile, :add_new_sep?) )],
                       ['View SEP History', show_sep_history_exchanges_hbx_profiles_path(family: row.id, family_actions_id: "family_actions_#{row.id.to_s}"), 'ajax'],
                       ['Cancel Enrollment', cancel_enrollment_exchanges_hbx_profiles_path(family: row.id, family_actions_id: "family_actions_#{row.id.to_s}"), cancel_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
                       #cancel_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
@@ -77,7 +77,7 @@ module Effective
       def add_sep_link_type(allow)
         allow ? 'ajax' : 'disabled'
       end
-      
+
       def reinstate_enrollment_type(family, allow)
         return 'disabled' unless allow
         reinstate_eligibles = family.active_household.hbx_enrollments.any? do |en|
@@ -85,7 +85,7 @@ module Effective
          end
         reinstate_eligibles ? 'ajax' : 'disabled'
        end
- 
+
       def update_terminated_enrollment_type(family, allow)
         return 'disabled' unless allow
         end_date_update_eligibles = family.active_household.hbx_enrollments.any? do |en|

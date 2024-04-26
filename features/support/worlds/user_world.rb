@@ -39,7 +39,7 @@ module UserWorld
         raise "No permission was found for subrole #{subrole}"
       end
       hbx_staff_role = HbxStaffRole.create!( person: person, permission_id: permission_id, subrole: subrole, hbx_profile_id: hbx_profile_id)
-      @admin = FactoryGirl.create(:user, :person => person)
+      @admin = FactoryGirl.create(:user, :with_hbx_staff_role, :person => person)
     end
   end
 
