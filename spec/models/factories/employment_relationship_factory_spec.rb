@@ -2,7 +2,7 @@ require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: :after_each do
+RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: :around_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup renewal application" do
     let(:renewal_state) { :enrollment_open }
