@@ -285,11 +285,6 @@ Rails.application.routes.draw do
     end
 
     resources :product_shoppings, controller: "product_shoppings", only: [] do
-      member do
-        get 'waive'
-        get 'print_waiver'
-      end
-
       collection do
         get 'continuous_show'
         get 'thankyou'

@@ -4,6 +4,7 @@ module Insured
   class ProductShoppingsController < ApplicationController
 
     before_action :set_current_person, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout, :terminate]
+    before_action :set_hbx_enrollment, :only => [:continuous_show, :thankyou, :checkout, :receipt, :waiver_checkout, :waiver_thankyou]
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
@@ -159,26 +160,22 @@ module Insured
     def waiver_receipt
       @health_enrollment = params[:health].present? ? HbxEnrollment.find(params[:health][:waiver_enrollment]) : nil
       @dental_enrollment = params[:dental].present? ? HbxEnrollment.find(params[:dental][:waiver_enrollment]) : nil
-    end
+      hbx_enrollment = @health_enrollment || @dental_enrollment
+      return nil if hbx_enrollment.nil?
 
-    def waive
-      context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: params[:id], waiver_reason: params[:waiver_reason])
-
-      if context.waiver_enrollment.inactive?
-        redirect_to print_waiver_insured_plan_shopping_path(context.waiver_enrollment), notice: 'Waive Coverage Successful'
-      else
-        redirect_to new_insured_members_selection_path(person_id: @person.id, change_plan: 'change_plan', hbx_enrollment_id: context.hbx_enrollment.id), alert: 'Waive Coverage Failed'
-      end
-    rescue StandardError => e
-      log(e.message, :severity => 'error')
-      redirect_to new_insured_members_selection_path(person_id: @person.id, change_plan: 'change_plan', hbx_enrollment_id: context.hbx_enrollment.id), alert: 'Waive Coverage Failed'
-    end
-
-    def print_waiver
-      @hbx_enrollment = HbxEnrollment.find(params.require(:id))
+      authorize hbx_enrollment, :waiver_receipt?
     end
 
     private
+
+    def set_hbx_enrollment
+      @hbx_enrollment = HbxEnrollment.find(params[:health][:enrollment_id]) if params[:health]
+      @hbx_enrollment = HbxEnrollment.find(params[:cart][:health][:id]) if params[:cart] && params[:cart][:health]
+      @hbx_enrollment = HbxEnrollment.find(params[:dental][:enrollment_id]) if params[:dental]
+      @hbx_enrollment = HbxEnrollment.find(params[:cart][:dental][:id]) if params[:cart] && params[:cart][:dental]
+
+      authorize @hbx_enrollment, :complete_plan_shopping?
+    end
 
     def sanatize_params(param)
       if param.instance_of?(Hash)
