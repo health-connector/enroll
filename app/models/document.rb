@@ -12,6 +12,15 @@ class Document
                      BenefitSponsors::Organizations::GeneralAgencyProfile
                      EmployeeRole Person ConsumerRole].freeze
 
+  MODEL_CLASS_MAPPING = {
+    "BenefitSponsors::Organizations::AcaShopDcEmployerProfile" => BenefitSponsors::Organizations::AcaShopDcEmployerProfile,
+    "BenefitSponsors::Organizations::FehbEmployerProfile" => BenefitSponsors::Organizations::FehbEmployerProfile,
+    "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile" => BenefitSponsors::Organizations::AcaShopCcaEmployerProfile,
+    "EmployeeRole" => EmployeeRole,
+    "Person" => Person,
+    "ConsumerRole" => ConsumerRole
+  }.freeze
+
   ACCESS_RIGHTS = %w(public pii_restricted)
 
   after_save :notify_on_save
