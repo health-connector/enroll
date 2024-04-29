@@ -258,12 +258,7 @@ Rails.application.routes.draw do
 
     root 'families#home'
 
-    resources :family_members do
-      get :resident_index, on: :collection
-      get :new_resident_dependent, on: :collection
-      get :edit_resident_dependent, on: :member
-      get :show_resident_dependent, on: :member
-    end
+    resources :family_members
 
     resources :group_selections, controller: "group_selection", only: [:new, :create] do
       collection do
@@ -417,17 +412,11 @@ Rails.application.routes.draw do
   namespace :broker_agencies do
     root 'profiles#new'
 
-    resources :profiles, only: [:new, :create, :show, :index, :edit, :update] do
-      get :inbox
-
+    resources :profiles, only: [:new, :create, :edit, :update] do
       collection do
-        get :family_index
         get :employers
-        get :messages
-        get :staff_index
         get :agency_messages
         get :assign_history
-        get  :commission_statements
       end
       member do
         if Settings.aca.general_agency_enabled
@@ -438,10 +427,7 @@ Rails.application.routes.draw do
         get :assign
         post :update_assign
         post :employer_datatable
-        post :family_datatable
         post :set_default_ga
-        get :download_commission_statement
-        get :show_commission_statement
       end
 
       resources :applicants
@@ -543,21 +529,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :people do #TODO Delete
-    get 'select_employer'
-    get 'my_account'
-
-    collection do
-      post 'person_confirm'
-      post 'plan_details'
-      get 'check_qle_marriage_date'
-    end
-
-    member do
-      get 'get_member'
-    end
-
-  end
+  resources :people, only: [:index, :update]
 
   match 'families/home', to: 'insured/families#home', via:[:get], as: "family_account"
 
@@ -588,26 +560,13 @@ Rails.application.routes.draw do
   get "document/download/:bucket/:key" => "documents#download", as: :document_download
   get "document/authorized_download/:model/:model_id/:relation/:relation_id" => "documents#authorized_download", as: :authorized_document_download
 
-  resources :documents, only: [ :new, :create, :destroy, :update] do
-    get :document_reader,on: :member
+  resources :documents, only: [:destroy] do
     get :autocomplete_organization_legal_name, :on => :collection
     collection do
       put :change_person_aasm_state
       get :show_docs
-      put :update_verification_type
-      get :enrollment_verification
-      put :extend_due_date
-      get :fed_hub_request
-      post 'download_documents'
-      post 'delete_documents'
-      post :fed_hub_request
-    end
-
-    member do
-      get :download_employer_document
     end
   end
-
 
   # Temporary for Generic Form Template
   match 'templates/form-template', to: 'welcome#form_template', via: [:get, :post]
@@ -666,5 +625,21 @@ Rails.application.routes.draw do
   #   end
   #
   # You can have the root of your site routed with "root"
+
+  # individual market controllers and actions routing
+  if Settings.aca.market_kinds.include?("individual")
+    namespace :individual_market do
+      resources :documents, only: [] do
+        collection do
+          put :update_verification_type
+          get :enrollment_verification
+          put :extend_due_date
+          get :fed_hub_request
+          post :fed_hub_request
+        end
+      end
+    end
+  end
+
   root 'welcome#index'
 end

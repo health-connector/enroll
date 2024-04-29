@@ -3,7 +3,7 @@
     <div class="container">
       <ul role="tablist" class="list-unstyled list-inline" id="myTab">
         <li role="presentation" id="home-tab" <%= menu_tab_class(active_tab, "home-tab") %>>
-          <%= link_to(main_app.broker_agencies_profile_path(@broker_agency_profile), "aria-expanded" => "true", "aria-controls" => "home", "role" => "tab" ) do  %>
+          <%= link_to(benefit_sponsors.profiles_broker_agencies_broker_agency_profile_path(@broker_agency_profile), "aria-expanded" => "true", "aria-controls" => "home", "role" => "tab" ) do  %>
             <span class="hidden-xs"><%= l10n("home")%></span>
             <span title="Home" aria-hidden="true" class="glyphicon glyphicon-user hidden-md hidden-sm hidden-lg"></span>
           <% end %>
@@ -16,7 +16,7 @@
         </li>
         </li>
         <li role="presentation" id="families-tab" <%= menu_tab_class(active_tab, "families-tab") %>>
-          <%= link_to(main_app.family_index_broker_agencies_profiles_path(id: @broker_agency_profile.id), "aria-expanded" => "true", :remote => true, "aria-controls" => "families", "role" => "tab" ) do  %>
+          <%= link_to(benefit_sponsors.family_index_profiles_broker_agencies_broker_agency_profiles_path(id: @broker_agency_profile.id), "aria-expanded" => "true", :remote => true, "aria-controls" => "families", "role" => "tab" ) do  %>
             <span class="hidden-xs"><%= l10n("hbx_profiles.employees")%></span>
             <span class="glyphicon glyphicon-user hidden-md hidden-sm hidden-lg" title="<%= l10n("hbx_profiles.employees")%>"></span>
           <% end %>
@@ -73,7 +73,7 @@
         -->
 
         <li role="presentation" id="inbox-tab" <%= menu_tab_class(active_tab, "inbox-tab") %>>
-          <%= link_to(messages_broker_agencies_profiles_path(id: @provider, profile_id: @broker_agency_profile), :remote => true, "aria-expanded" => "true", "aria-controls" => "inbox", "role" => "tab") do  %>
+          <%= link_to(benefit_sponsors.messages_profiles_broker_agencies_broker_agency_profiles_path(id: @provider, profile_id: @broker_agency_profile), :remote => true, "aria-expanded" => "true", "aria-controls" => "inbox", "role" => "tab") do  %>
           <!--TODO: Will have to implement code related to Inbox/Messages-->
             <span class="badge message-unread"><%=begin; @provider.inbox.unread_messages.try(:count); rescue; return 0; end %></span>
             <%= l10n("broker_mail")%>
@@ -81,7 +81,7 @@
         </li>
         <% if aca_broker_routing_information %>
           <li role="presentation" id="commissions-tab" <%= menu_tab_class(active_tab, "commissions-tab") %>>
-            <%= link_to(main_app.commission_statements_broker_agencies_profiles_path(id: @broker_agency_profile), :remote => true, "aria-expanded" => "true", "aria-controls" => "home", "role" => "tab" ) do  %>
+            <%= link_to(benefit_sponsors.commission_statements_profiles_broker_agencies_broker_agency_profiles_path(id: @broker_agency_profile), :remote => true, "aria-expanded" => "true", "aria-controls" => "home", "role" => "tab" ) do  %>
               <span class="hidden-xs">Commissions</span>
               <span title="Home" aria-hidden="true" class="glyphicon glyphicon-user hidden-md hidden-sm hidden-lg"></span>
             <% end %>

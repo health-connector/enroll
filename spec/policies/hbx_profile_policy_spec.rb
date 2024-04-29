@@ -196,6 +196,61 @@ describe HbxProfilePolicy do
       expect(policy.can_submit_time_travel_request?).to be false
     end
   end
+
+  describe 'instance methods' do
+    subject { described_class.new(user, HbxProfile) }
+
+    shared_examples_for 'access without role' do |def_name, result|
+      let(:user) { double(User, person: double(hbx_staff_role: nil, consumer_role: nil, csr_role: nil, broker_role: nil, active_general_agency_staff_roles: [], broker_agency_staff_roles: nil, resident_role: nil, primary_family: nil)) }
+
+      it "#{def_name} returns #{result}" do
+        expect(subject.send(def_name)).to eq result
+      end
+    end
+
+    it_behaves_like 'access without role', :confirm_lock?
+    it_behaves_like 'access without role', :lockable?
+    it_behaves_like 'access without role', :reset_password?
+    it_behaves_like 'access without role', :confirm_reset_password?
+    it_behaves_like 'access without role', :change_username_and_email?
+    it_behaves_like 'access without role', :confirm_change_username_and_email?
+    it_behaves_like 'access without role', :login_history?
+
+    shared_examples_for 'with role and permission' do |def_name, permission_name, permission_val, result|
+      let(:user) { double(User, person: double(hbx_staff_role: staff_role, consumer_role: nil, csr_role: nil, broker_role: nil, active_general_agency_staff_roles: [], broker_agency_staff_roles: nil, resident_role: nil, primary_family: nil)) }
+      let(:staff_role) { double(permission: permission) }
+      let(:permission) { double(:permission) }
+
+      before do
+        allow(permission).to receive(permission_name).and_return permission_val if permission_name
+      end
+
+      it "returns #{def_name} as #{result} when #{permission_name} is #{permission_val}" do
+        expect(subject.send(def_name)).to eq result
+      end
+    end
+
+    it_behaves_like 'with role and permission', :confirm_lock?, :can_lock_unlock, true, true
+    it_behaves_like 'with role and permission', :confirm_lock?, :can_lock_unlock, false, false
+
+    it_behaves_like 'with role and permission', :lockable?, :can_lock_unlock, true, true
+    it_behaves_like 'with role and permission', :lockable?, :can_lock_unlock, false, false
+
+    it_behaves_like 'with role and permission', :reset_password?, :can_reset_password, true, true
+    it_behaves_like 'with role and permission', :reset_password?, :can_reset_password, false, false
+
+    it_behaves_like 'with role and permission', :confirm_reset_password?, :can_reset_password, true, true
+    it_behaves_like 'with role and permission', :confirm_reset_password?, :can_reset_password, false, false
+
+    it_behaves_like 'with role and permission', :change_username_and_email?, :can_change_username_and_email, true, true
+    it_behaves_like 'with role and permission', :change_username_and_email?, :can_change_username_and_email, false, false
+
+    it_behaves_like 'with role and permission', :confirm_change_username_and_email?, :can_change_username_and_email, true, true
+    it_behaves_like 'with role and permission', :confirm_change_username_and_email?, :can_change_username_and_email, false, false
+
+    it_behaves_like 'with role and permission', :login_history?, :view_login_history, true, true
+    it_behaves_like 'with role and permission', :login_history?, :view_login_history, false, false
+  end
 end
 
 describe HbxProfilePolicy do
