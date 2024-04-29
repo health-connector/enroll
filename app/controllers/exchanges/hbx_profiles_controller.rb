@@ -618,7 +618,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   def edit_dob_ssn
     authorize HbxProfile, :edit_dob_ssn?
 
-    authorize Family, :can_update_ssn?
     @person = Person.find(params[:id])
     @element_to_replace_id = params[:family_actions_id]
     respond_to do |format|
@@ -640,7 +639,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   def update_dob_ssn
     authorize HbxProfile, :update_dob_ssn?
 
-    authorize  Family, :can_update_ssn?
     @element_to_replace_id = params[:person][:family_actions_id]
     @person = Person.find(params[:person][:pid]) if !params[:person].blank? && !params[:person][:pid].blank?
     @ssn_match = Person.find_by_ssn(params[:person][:ssn]) unless params[:person][:ssn].blank?

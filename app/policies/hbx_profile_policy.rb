@@ -221,7 +221,7 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def family_index?
-    index?
+    index? || @user.has_role?(:csr)
   end
 
   def broker_agency_index?
