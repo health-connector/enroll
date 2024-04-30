@@ -10,7 +10,7 @@ describe FamilyPolicy, "given a user who has no properties" do
   subject { FamilyPolicy.new(user, family) }
 
   it "can't show" do
-    expect(subject.show?).to be_falsey
+    expect(subject.legacy_show?).to be_falsey
   end
 end
 
@@ -24,7 +24,7 @@ describe FamilyPolicy, "given a user who is the primary member" do
   subject { FamilyPolicy.new(user, family) }
 
   it "can show" do
-    expect(subject.show?).to be_truthy
+    expect(subject.legacy_show?).to be_truthy
   end
 end
 
@@ -43,7 +43,7 @@ describe FamilyPolicy, "given a family with an active broker agency account", :d
     let(:user) { FactoryBot.create(:user, :person => person)}
 
     it "can show" do
-      expect(subject.show?).to be_truthy
+      expect(subject.legacy_show?).to be_truthy
     end
   end
 
@@ -53,7 +53,7 @@ describe FamilyPolicy, "given a family with an active broker agency account", :d
     let(:user) { FactoryBot.create(:user, :person => broker_person)}
 
     it "can't show" do
-      expect(subject.show?).to be_falsey
+      expect(subject.legacy_show?).to be_falsey
     end
   end
 end
@@ -76,7 +76,7 @@ describe FamilyPolicy, "given a family where the primary has an active employer 
     let(:user) { FactoryBot.create(:user, :person => person)}
 
     it "can show" do
-      expect(subject.show?).to be_truthy
+      expect(subject.legacy_show?).to be_truthy
     end
   end
 
@@ -86,7 +86,7 @@ describe FamilyPolicy, "given a family where the primary has an active employer 
     let(:user) { FactoryBot.create(:user, :person => employee_person)}
 
     it "can't show" do
-      expect(subject.show?).to be_falsey
+      expect(subject.legacy_show?).to be_falsey
     end
   end
 end
@@ -111,7 +111,7 @@ describe FamilyPolicy, "given a family where the primary has an active employer 
     let(:general_agency_account_profile_id) { general_agency_profile_id }
 
     it "can show" do
-      expect(subject.show?).to be_truthy
+      expect(subject.legacy_show?).to be_truthy
     end
   end
 
@@ -119,7 +119,7 @@ describe FamilyPolicy, "given a family where the primary has an active employer 
     let(:general_agency_account_profile_id) { double }
 
     it "can't show" do
-      expect(subject.show?).to be_falsey
+      expect(subject.legacy_show?).to be_falsey
     end
   end
 end
@@ -137,7 +137,71 @@ describe FamilyPolicy, "given a user who has the modify family permission" do
   subject { FamilyPolicy.new(user, family) }
 
   it "can show" do
-    expect(subject.show?).to be_truthy
+    expect(subject.legacy_show?).to be_truthy
   end
 end
 
+
+RSpec.describe FamilyPolicy, type: :policy do
+  context 'user with permission' do
+    let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
+    let(:person) { FactoryGirl.create(:person, :with_employee_role)}
+    let(:user) { FactoryGirl.create(:user, person: person) }
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person) }
+
+    before do
+      allow(person).to receive(:user).and_return(user)
+      allow(person).to receive(:primary_family).and_return family
+    end
+
+    context 'user with hbx_staff_role roles' do
+
+      shared_examples_for "logged in user has hbx admin role" do |policy_type|
+        let(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
+        let(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
+        let(:permission) { FactoryGirl.create(:permission, :super_admin) }
+        let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: permission.id) }
+        let(:policy) { FamilyPolicy.new(admin_user, family)}
+
+        it 'hbx_staff with super_admin permission' do
+          expect(policy.send(policy_type)).to be true
+        end
+      end
+
+      it_behaves_like 'logged in user has hbx admin role', :show?
+      it_behaves_like 'logged in user has hbx admin role', :home?
+      it_behaves_like 'logged in user has hbx admin role', :manage_family?
+      it_behaves_like 'logged in user has hbx admin role', :brokers?
+      it_behaves_like 'logged in user has hbx admin role', :find_sep?
+      it_behaves_like 'logged in user has hbx admin role', :personal?
+      it_behaves_like 'logged in user has hbx admin role', :inbox?
+      it_behaves_like 'logged in user has hbx admin role', :verification?
+      it_behaves_like 'logged in user has hbx admin role', :upload_application?
+      it_behaves_like 'logged in user has hbx admin role', :check_qle_date?
+      it_behaves_like 'logged in user has hbx admin role', :purchase?
+      it_behaves_like 'logged in user has hbx admin role', :upload_notice?
+      it_behaves_like 'logged in user has hbx admin role', :upload_notice_form?
+    end
+
+    context 'user with employee role' do
+      shared_examples_for "logged in user has employee role" do |policy_type|
+        let(:policy) { FamilyPolicy.new(user, family)}
+
+        it 'employee role permission' do
+          expect(policy.send(policy_type)).to be true
+        end
+      end
+
+      it_behaves_like 'logged in user has employee role', :show?
+      it_behaves_like 'logged in user has employee role', :home?
+      it_behaves_like 'logged in user has employee role', :manage_family?
+      it_behaves_like 'logged in user has employee role', :brokers?
+      it_behaves_like 'logged in user has employee role', :find_sep?
+      it_behaves_like 'logged in user has employee role', :personal?
+      it_behaves_like 'logged in user has employee role', :inbox?
+      it_behaves_like 'logged in user has employee role', :verification?
+      it_behaves_like 'logged in user has employee role', :check_qle_date?
+      it_behaves_like 'logged in user has employee role', :purchase?
+    end
+  end
+end

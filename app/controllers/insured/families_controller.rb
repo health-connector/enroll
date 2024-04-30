@@ -12,7 +12,7 @@ class Insured::FamiliesController < FamiliesController
   before_action :transition_family_members_update_params, only: %i[transition_family_members_update]
 
   def home
-    authorize @family, :show?
+    authorize @family, :home?
     build_employee_role_by_census_employee_id
     set_flash_by_announcement
     set_bookmark_url
@@ -41,6 +41,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def manage_family
+    authorize @family, :manage_family?
     set_bookmark_url
     @family_members = @family.active_family_members
     @resident = @person.has_active_resident_role?
@@ -54,6 +55,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def brokers
+    authorize @family, :brokers?
     @tab = params['tab']
 
     if @person.active_employee_roles.present?
@@ -62,6 +64,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def find_sep
+    authorize @family, :find_sep?
     @hbx_enrollment_id = params[:hbx_enrollment_id]
     @change_plan = params[:change_plan]
     @employee_role_id = params[:employee_role_id]
@@ -82,6 +85,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def record_sep
+    authorize @family, :record_sep?
     if params[:qle_id].present?
       qle = QualifyingLifeEventKind.find(params[:qle_id])
       special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_on_kind])
@@ -100,6 +104,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def personal
+    authorize @family, :personal?
     @tab = params['tab']
 
     @family_members = @family.active_family_members
@@ -113,6 +118,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def inbox
+    authorize @family, :inbox?
     @tab = params['tab']
     @folder = params[:folder] || 'Inbox'
     @sent_box = false
@@ -120,14 +126,17 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def verification
+    authorize @family, :verification?
     @family_members = @person.primary_family.family_members.active
   end
 
   def upload_application
+    authorize @family, :upload_application?
     @family_members = @person.primary_family.family_members.active
   end
 
   def check_qle_date
+    authorize @family, :check_qle_date?
     today = TimeKeeper.date_of_record
     @qle_date = Date.strptime(params[:date_val], "%m/%d/%Y")
     start_date = today - 30.days
@@ -159,12 +168,15 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def check_move_reason
+    authorize @family, :check_qle_reason?
   end
 
   def check_insurance_reason
+    authorize @family, :check_qle_reason?
   end
 
   def check_marriage_reason
+    authorize @family, :check_qle_reason?
   end
 
   def purchase
@@ -173,6 +185,8 @@ class Insured::FamiliesController < FamiliesController
     else
       @enrollment = @family.active_household.hbx_enrollments.active.last if @family.present?
     end
+    @family ||= @enrollment&.family
+    authorize @family, :purchase?
 
     if @enrollment.present?
       @enrollment.reset_dates_on_previously_covered_members
@@ -198,7 +212,7 @@ class Insured::FamiliesController < FamiliesController
 
   # admin manually uploads a notice for person
   def upload_notice
-
+    authorize @family, :upload_notice?
     if !params[:file] || !params[:subject]
       flash[:error] = "File or Subject not provided"
       redirect_back fallback_location: main_app.root_path
@@ -232,11 +246,13 @@ class Insured::FamiliesController < FamiliesController
 
   # displays the form to upload a notice for a person
   def upload_notice_form
+    authorize @family, :upload_notice_form?
     @notices = @person.documents.where(subject: 'notice')
   end
 
   def delete_consumer_broker
     @family = Family.find(params[:id])
+    authorize @family, :delete_consumer_broker?
     if @family.current_broker_agency.destroy
       redirect_to :action => "home" , flash: {notice: "Successfully deleted."}
     end

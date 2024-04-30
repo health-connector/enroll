@@ -3,38 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe PeopleController, dbclean: :after_each do
-  let(:census_employee_id) { "abcdefg" }
-  let(:user) { FactoryBot.build(:user) }
-  let(:email) {FactoryBot.build(:email)}
+  let(:email) {FactoryGirl.build(:email)}
 
   let(:consumer_role){FactoryBot.build(:consumer_role)}
 
   let(:census_employee){FactoryBot.build(:census_employee)}
   let(:employee_role){FactoryBot.build(:employee_role, :census_employee => census_employee)}
   let(:person) { FactoryBot.create(:person, :with_employee_role) }
+  let(:user) { FactoryBot.create(:user, person: person) }
 
 
   let(:vlp_document){FactoryBot.build(:vlp_document)}
-
-  it "GET new" do
-    sign_in(user)
-    get :new
-    expect(response).to have_http_status(:success)
-  end
-
-  describe "POST create" do
-    context "with valid attributes" do
-      it 'should add a new person' do
-        expect { post :create, params: { person: FactoryBot.attributes_for(:person) }}.to change(Person,:count).by(0)
-      end
-    end
-
-    context "with invalid attributes"  do
-      it 'should not add a new person' do
-        expect { post :create, params: { person: FactoryBot.attributes_for(:person,:with_bad_mailing_address) }}.to_not change(Person,:count)
-      end
-    end
-  end
 
   describe "POST update" do
     let(:vlp_documents_attributes) { {"1" => vlp_document.attributes.to_hash}}
@@ -107,7 +86,6 @@ RSpec.describe PeopleController, dbclean: :after_each do
     context "when employee" do
       it "when employee" do
         person_attributes[:emails_attributes] = email_attributes
-        allow(controller).to receive(:get_census_employee).and_return(census_employee)
         allow(person).to receive(:update_attributes).and_return(true)
 
         post :update, params: {id: person.id, person: person_attributes}

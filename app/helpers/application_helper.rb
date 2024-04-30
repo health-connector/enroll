@@ -1,4 +1,5 @@
 module ApplicationHelper
+  include HtmlScrubberUtil
 
   def can_employee_shop?(date)
     return false if date.blank?
