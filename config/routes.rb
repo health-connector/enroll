@@ -646,6 +646,13 @@ Rails.application.routes.draw do
           post :fed_hub_request
         end
       end
+
+      resources :family_members do
+        get :resident_index, on: :collection
+        get :new_resident_dependent, on: :collection
+        get :edit_resident_dependent, on: :member
+        get :show_resident_dependent, on: :member
+      end
     end
   end
 
