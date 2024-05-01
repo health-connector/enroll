@@ -29,14 +29,14 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
 
     it "redirects to root with flash message" do
       sign_in(fake_user)
-      get :new, family_id: family.id
+      get :new, params: { family_id: family.id }
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Access not allowed for family_policy.new?, (Pundit policy)")
     end
 
     it "redirects to root with flash message" do
       sign_in(fake_user)
-      get :index, family_id: family.id
+      get :index, params: { family_id: family.id }
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Access not allowed for family_policy.index?, (Pundit policy)")
     end
@@ -52,7 +52,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       it "redirects to root with flash message" do
         sign_in(fake_user)
 
-        get action, id: family.family_members.last.id
+        get action, params: {id: family.family_members.last.id}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for family_policy.#{action}?, (Pundit policy)")
       end
@@ -70,7 +70,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     it "redirects to root with flash message" do
       sign_in(fake_user)
 
-      delete :destroy, id: family.family_members.last.id
+      delete :destroy, params: {id: family.family_members.last.id}
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Access not allowed for family_policy.destroy?, (Pundit policy)")
     end
