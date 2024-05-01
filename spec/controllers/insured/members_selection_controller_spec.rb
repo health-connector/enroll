@@ -55,7 +55,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
       it "redirects to the root path and displays an error message" do
         sign_in(fake_user)
 
-        post :create, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
+        post :create, params: {person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id}
 
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for family_policy.complete_plan_shopping?, (Pundit policy)")
@@ -65,7 +65,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
         it "redirects to the root path and displays an error message" do
           sign_in(fake_user)
 
-          get action, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
+          get action, params: {person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id}
 
           expect(response).to redirect_to(root_path)
           expect(flash[:error]).to eq("Access not allowed for family_policy.complete_plan_shopping?, (Pundit policy)")
