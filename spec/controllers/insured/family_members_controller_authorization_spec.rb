@@ -8,11 +8,11 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let!(:user) { FactoryGirl.create(:user) }
-  let!(:person) { FactoryGirl.create(:person) }
-  let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person) }
+  let!(:user) { FactoryBot.create(:user) }
+  let!(:person) { FactoryBot.create(:person) }
+  let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person) }
 
-  let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile)}
+  let(:employee_role) {FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile)}
   let(:census_employee) { create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
 
   before :each do
@@ -23,9 +23,9 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
   end
 
   context "logged in user failed authorization for index and new" do
-    let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-    let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-    let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+    let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+    let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+    let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
     it "redirects to root with flash message" do
       sign_in(fake_user)
@@ -45,9 +45,9 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
 
   context "logged in user failed authorization for edit and show" do
     shared_examples_for "logged in user has no authorization roles for family_members controller" do |action|
-      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+      let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
       it "redirects to root with flash message" do
         sign_in(fake_user)
@@ -63,9 +63,9 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
   end
 
   context "logged in user failed authorization for destroy" do
-    let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-    let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-    let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+    let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+    let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+    let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
     it "redirects to root with flash message" do
       sign_in(fake_user)

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe PeopleController, dbclean: :after_each do
-  let(:email) {FactoryGirl.build(:email)}
+  let(:email) {FactoryBot.build(:email)}
 
   let(:consumer_role){FactoryBot.build(:consumer_role)}
 

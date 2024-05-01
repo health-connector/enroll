@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
-  let!(:user) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-  let!(:person) { FactoryGirl.create(:person, user: user)}
+  let!(:user) { FactoryBot.create(:user, :with_hbx_staff_role) }
+  let!(:person) { FactoryBot.create(:person, user: user)}
   let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let(:organization_with_hbx_profile)  { site.owner_organization }
   let(:error_message) {"Security qestions display feature is not enabled. You are not allowed to create, edit, view or delete security questions."}

@@ -48,9 +48,9 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
     end
 
     context "when the logged-in user is not authorized to access the create, new, eligible_coverage_selection and fetch actions" do
-      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+      let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
       it "redirects to the root path and displays an error message" do
         sign_in(fake_user)

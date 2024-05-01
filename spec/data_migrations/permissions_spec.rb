@@ -42,9 +42,9 @@ describe DefinePermissions, dbclean: :after_each do
 
     context 'update can change username and email for super admin hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_can_change_username_and_email'}
-      let(:person) { FactoryGirl.create(:person) }
-      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
-      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
+      let(:person) { FactoryBot.create(:person) }
+      let(:permission) { FactoryBot.create(:permission, :super_admin) }
+      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_can_change_username_and_email
@@ -57,9 +57,9 @@ describe DefinePermissions, dbclean: :after_each do
 
     context 'update can view login history for super admin hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_view_login_history'}
-      let(:person) { FactoryGirl.create(:person) }
-      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
-      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
+      let(:person) { FactoryBot.create(:person) }
+      let(:permission) { FactoryBot.create(:permission, :super_admin) }
+      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_view_login_history

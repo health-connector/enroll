@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
-  let!(:user) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-  let!(:person) { FactoryGirl.create(:person, user: user)}
+  let!(:user) { FactoryBot.create(:user, :with_hbx_staff_role) }
+  let!(:person) { FactoryBot.create(:person, user: user)}
 
   before do
     allow(Settings).to receive_message_chain('aca.security_questions').and_return(true)

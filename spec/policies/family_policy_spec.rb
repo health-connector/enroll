@@ -144,10 +144,10 @@ end
 
 RSpec.describe FamilyPolicy, type: :policy do
   context 'user with permission' do
-    let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
-    let(:person) { FactoryGirl.create(:person, :with_employee_role)}
-    let(:user) { FactoryGirl.create(:user, person: person) }
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person) }
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile)}
+    let(:person) { FactoryBot.create(:person, :with_employee_role)}
+    let(:user) { FactoryBot.create(:user, person: person) }
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person) }
 
     before do
       allow(person).to receive(:user).and_return(user)
@@ -157,9 +157,9 @@ RSpec.describe FamilyPolicy, type: :policy do
     context 'user with hbx_staff_role roles' do
 
       shared_examples_for "logged in user has hbx admin role" do |policy_type|
-        let(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
-        let(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
-        let(:permission) { FactoryGirl.create(:permission, :super_admin) }
+        let(:admin_person) { FactoryBot.create(:person, :with_hbx_staff_role) }
+        let(:admin_user) { FactoryBot.create(:user, :with_hbx_staff_role, person: admin_person) }
+        let(:permission) { FactoryBot.create(:permission, :super_admin) }
         let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: permission.id) }
         let(:policy) { FamilyPolicy.new(admin_user, family)}
 

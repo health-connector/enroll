@@ -72,8 +72,8 @@ module BenefitSponsors
     end
 
     context '#can_download_document?' do
-      let(:er_staff_role) { FactoryGirl.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
-      let(:user) { FactoryGirl.create(:user, person: person) }
+      let(:er_staff_role) { FactoryBot.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
+      let(:user) { FactoryBot.create(:user, person: person) }
 
       context 'authorized employer staff' do
         before do
