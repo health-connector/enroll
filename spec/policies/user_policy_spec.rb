@@ -125,8 +125,8 @@ describe UserPolicy do
   end
 
   describe '.change_password?' do
-    let(:user) { instance_double(User) }
-    let(:target_user) { instance_double(User) }
+    let(:user) { instance_double(User, person: nil) }
+    let(:target_user) { instance_double(User, person: nil) }
 
     it "returns false if another user attempting password change" do
       subject = UserPolicy.new(user, target_user)
