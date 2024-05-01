@@ -7,6 +7,10 @@ module BenefitSponsors
       is_staff_role_for_employer?
     end
 
+    def can_download_document?
+      updateable?
+    end
+
     def show_pending?
       return false unless user.present?
       true

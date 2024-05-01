@@ -213,6 +213,10 @@ class ApplicationPolicy
     permission&.can_change_username_and_email
   end
 
+  def staff_view_login_history?
+    permission&.view_login_history
+  end
+
   def permission
     return @permission if defined? @permission
 

@@ -43,7 +43,7 @@
 	  "lengthMenu": [ 10, 25, 50, 100],
 	  "searchDelay" : 500,
           "ajax": {
-            url: "<%= family_datatable_broker_agencies_profile_path(id: @broker_agency_profile.id, :format => :json) %>",
+            url: "<%= benefit_sponsors.family_datatable_profiles_broker_agencies_broker_agency_profile_path(id: @broker_agency_profile.id, :format => :json) %>",
             type: "POST",
             data: function ( d ) {
               console.log("Broker-Family-dataTable datatable")

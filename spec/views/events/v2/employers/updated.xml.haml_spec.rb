@@ -45,6 +45,7 @@ RSpec.describe "events/v2/employer/updated.haml.erb" , dbclean: :after_each do
     include AcapiVocabularySpecHelpers
 
     before(:all) do
+      DatabaseCleaner.clean
       download_vocabularies
     end
 

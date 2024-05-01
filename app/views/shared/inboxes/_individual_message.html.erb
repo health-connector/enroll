@@ -6,7 +6,7 @@
   <td>
     <%= TimeKeeper.format_date(message.created_at) %>
     <td>
-      <%= message.try(:subject) %>
+      <%= sanitize(message.try(:subject)) %>
     </td>
     <%- if @folder != 'Deleted' %>
     <td class="  <%=pundit_class(Family, :updateable?)%>">
