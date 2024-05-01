@@ -20,6 +20,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.submit" => "Submit",
   "en.exchange.employer_applications.no_valid_pys" => "No valid plan years present for",
   "en.exchange.employer_applications.select_term_reason" => "Please select terminate reason",
+  "en.exchanges.security_questions.denied_access_message" => "Security qestions display feature is not enabled. You are not allowed to create, edit, view or delete security questions.",
   "en.exchange.employer_applications.reinstate.plan_year" => "Yes, Reinstate Plan Year",
   "en.exchange.employer_applications.reinstate.cancel" => "Cancel Reinstatement",
   "en.exchange.employer_applications.success_message" => "Plan Year Reinstated Successfully Effective",

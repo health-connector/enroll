@@ -123,4 +123,19 @@ describe UserPolicy do
       expect(subject.reset_password?).to be_truthy
     end
   end
+
+  describe '.change_password?' do
+    let(:user) { instance_double(User) }
+    let(:target_user) { instance_double(User) }
+
+    it "returns false if another user attempting password change" do
+      subject = UserPolicy.new(user, target_user)
+      expect(subject.change_password?).to be_falsey
+    end
+
+    it "returns true if current user attempting password change" do
+      subject = UserPolicy.new(user, user)
+      expect(subject.change_password?).to be_truthy
+    end
+  end
 end

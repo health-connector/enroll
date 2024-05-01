@@ -7,8 +7,12 @@ RSpec.describe Transcripts::PersonTranscript, type: :model do
 
   describe "instance methods" do
 
+    before :all do
+      DatabaseCleaner.clean
+    end
+
     let!(:source_record) {
-      Person.create({ 
+      Person.create({
         "hbx_id"=>"117966",
         "first_name"=>"Bruce",
         "last_name"=>"Jackson",
@@ -73,7 +77,7 @@ RSpec.describe Transcripts::PersonTranscript, type: :model do
 
     context "#compare" do
 
-      it 'should return differences' do 
+      it 'should return differences' do
         builder = Transcripts::PersonTranscript.new
         builder.find_or_build(other_record)
         person_transcript = builder.transcript

@@ -36,4 +36,21 @@ class UserPolicy < ApplicationPolicy
   def can_download_employer_attestation_doc?
     can_download_employees_template?
   end
+  def view?
+    user.present?
+  end
+
+  def new?
+    view?
+  end
+
+  def create?
+    view?
+  end
+
+  def change_password?
+    return true if user.present? && record.present? && record == user
+
+    false
+  end
 end
