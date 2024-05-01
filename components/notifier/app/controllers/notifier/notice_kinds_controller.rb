@@ -58,8 +58,8 @@ module Notifier
       notice_kind.generate_pdf_notice
 
       send_file "#{Rails.root}/tmp/#{notice_kind.title.titleize.gsub(/\s+/, '_')}.pdf",
-        :type => 'application/pdf',
-        :disposition => 'inline'
+                :type => 'application/pdf',
+                :disposition => 'inline'
     end
 
     def delete_notices
