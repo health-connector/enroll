@@ -2,7 +2,7 @@ module Notifier
   class NoticeKindsController < Notifier::ApplicationController
 
     before_action :check_hbx_staff_role
-    
+
     layout 'notifier/single_column'
 
     def index
@@ -37,7 +37,7 @@ module Notifier
         redirect_to notice_kinds_path
       else
         @errors = notice_kind.errors.messages
-        
+
         @notice_kinds = Notifier::NoticeKind.all
         @datatable = Effective::Datatables::NoticesDatatable.new
 
@@ -57,8 +57,8 @@ module Notifier
       notice_kind = Notifier::NoticeKind.find(params[:id])
       notice_kind.generate_pdf_notice
 
-      send_file "#{Rails.root}/tmp/#{notice_kind.title.titleize.gsub(/\s+/, '_')}.pdf", 
-        :type => 'application/pdf', 
+      send_file "#{Rails.root}/tmp/#{notice_kind.title.titleize.gsub(/\s+/, '_')}.pdf",
+        :type => 'application/pdf',
         :disposition => 'inline'
     end
 
@@ -74,7 +74,7 @@ module Notifier
     def download_notices
       # notices = Notifier::NoticeKind.where(:id.in => params['ids'])
 
-      send_data Notifier::NoticeKind.to_csv, 
+      send_data Notifier::NoticeKind.to_csv,
         :filename => "notices_#{TimeKeeper.date_of_record.strftime('%m_%d_%Y')}.csv",
         :disposition => 'attachment',
         :type => 'text/csv'
@@ -109,14 +109,9 @@ module Notifier
     end
 
     def get_tokens
-      builder = params['builder'] || 'Notifier::MergeDataModels::EmployerProfile'
-      token_builder = builder.constantize.new
-      tokens = token_builder.editor_tokens
-      # placeholders = token_builder.place_holders
-
       respond_to do |format|
         format.html
-        format.json { render json: {tokens: tokens} }
+        format.json { render json: {tokens: editor_tokens} }
       end
     end
 
@@ -139,6 +134,12 @@ module Notifier
 
     def notice_params
       params.require(:notice_kind).permit(:title, :description, :notice_number, :recipient, :event_name, {:template => [:raw_body]})
+    end
+
+    def editor_tokens
+      builder = params['builder'] || 'Notifier::MergeDataModels::EmployerProfile'
+      token_builder = builder.constantize.new
+      token_builder.editor_tokens
     end
   end
 end
