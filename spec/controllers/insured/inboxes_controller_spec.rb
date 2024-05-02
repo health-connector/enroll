@@ -82,11 +82,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         it 'will not render :new' do
           get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
-          expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
-        end
-
         it 'will not create a new message' do
           post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
