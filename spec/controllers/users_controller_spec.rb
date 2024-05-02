@@ -226,11 +226,11 @@ describe UsersController do
       let(:can_reset_password) { false }
       before do
         sign_in(admin)
-        put :confirm_reset_password, params: { id: user_id }, format: :js
+        put :confirm_reset_password, params: { id: user_id }
       end
       it { expect(user).not_to receive(:send_reset_password_instructions) }
       it { expect(assigns(:user)).to eq(user) }
-      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response).to redirect_to(root_url) }
     end
 
     context 'When user email not present then' do
