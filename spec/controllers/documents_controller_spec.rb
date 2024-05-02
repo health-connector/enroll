@@ -1,14 +1,27 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe DocumentsController, :type => :controller do
-  let(:user) { FactoryBot.create(:user) }
-  let(:person) { FactoryBot.create(:person, :with_consumer_role, :with_family) }
+RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller do
+  let(:person) { FactoryBot.create(:person, :with_hbx_staff_role, :with_consumer_role, :with_family) }
+  let(:user) {FactoryBot.create(:user, :with_hbx_staff_role, :person => person)}
+  let!(:permission) { FactoryBot.create(:permission, :super_admin) }
+  let!(:update_admin) { person.hbx_staff_role.update_attributes(permission_id: permission.id) }
   let(:consumer_role) {FactoryBot.build(:consumer_role)}
   let(:document) {FactoryBot.build(:vlp_document)}
   let(:family)  {FactoryBot.create(:family, :with_primary_family_member)}
   let(:hbx_enrollment) { FactoryBot.build(:hbx_enrollment) }
+
+  # broker role
+  let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: :shop) }
+  let(:broker_role) { FactoryBot.create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: :active) }
+  let!(:broker_role_user) {FactoryBot.create(:user, :person => broker_role.person, roles: ['broker_role'])}
+
+  # broker staff role
+  let(:broker_agency_staff_role) { FactoryBot.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: 'active')}
+  let!(:broker_agency_staff_user) {FactoryBot.create(:user, :person => broker_agency_staff_role.person, roles: ['broker_agency_staff_role'])}
 
   before :each do
     sign_in user
@@ -32,161 +45,100 @@ RSpec.describe DocumentsController, :type => :controller do
     end
   end
 
-  describe "PUT update" do
-    context "rejecting with comments" do
-      before :each do
-        person.consumer_role.vlp_documents = [document]
+
+  describe "GET authorized_download" do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:profile) { benefit_sponsorship.organization.profiles.first }
+    let(:employer_staff_person) { FactoryBot.create(:person) }
+    let(:employer_staff_user) { FactoryBot.create(:user, person: employer_staff_person) }
+    let(:er_staff_role) { FactoryBot.create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
+    let(:document) {profile.documents.create(identifier: "urn:opentest:terms:t1:test_storage:t3:bucket:test-test-id-verification-test#sample-key")}
+
+    context 'employer staff role' do
+      context 'for a user with POC role' do
+        before do
+          employer_staff_person.employer_staff_roles << er_staff_role
+          employer_staff_person.save!
+          sign_in employer_staff_user
+        end
+
+        it 'current user employer should be able to download' do
+          get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
+
+          expect(response).to be_successful
+        end
       end
 
-      it "should redirect to verification" do
-        put :update, params: {person_id: person.id, id: document.id}
-        expect(response).to redirect_to verification_insured_families_path
-      end
+      context 'for a user without POC role' do
+        before do
+          sign_in employer_staff_user
+        end
 
-      it "updates document status" do
-        put :update, params: {person_id: person.id, id: document.id, :person => { :vlp_document => {:comment => "hghghg"}}, :comment => true, :status => "ready"}
-        allow(family).to receive(:update_family_document_status!).and_return(true)
-        document.reload
-        expect(document.status).to eq("ready")
-      end
+        it 'current user employer should be able to download' do
+          get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
 
-      it "updates family vlp_documents_status" do
-        put :update, params: {person_id: person.id, id: document.id}
-        allow(family).to receive(:update_family_document_status!).and_return(true)
-      end
-    end
-
-    context "accepting without comments" do
-      before :each do
-        person.consumer_role.vlp_documents = [document]
-      end
-
-      it "should redirect to verification" do
-        put :update,params: { person_id: person.id, id: document.id}
-        expect(response).to redirect_to verification_insured_families_path
-      end
-
-      it "updates document status" do
-        put :update, params: {person_id: person.id, id: document.id, :status => "accept"}
-        allow(family).to receive(:update_family_document_status!).and_return(true)
-        document.reload
-        expect(document.status).to eq("accept")
-      end
-    end
-  end
-
-  describe 'POST Fed_Hub_Request' do
-    let(:consumer_role) { person.consumer_role }
-    let(:permission) { FactoryBot.create(:permission, :super_admin) }
-    let(:user) do
-      person = FactoryBot.create(:person, :with_hbx_staff_role)
-      user = FactoryBot.create(:user, person: person)
-      user.person.hbx_staff_role.update_attributes(permission_id: permission.id)
-      user
-    end
-    before :each do
-      request.env["HTTP_REFERER"] = "http://test.com"
-    end
-    context 'Call Hub for SSA verification' do
-      it 'should redirect if verification type is SSN or Citozenship' do
-        post :fed_hub_request, params: {verification_type: 'Social Security Number',person_id: person.id, id: document.id}
-        expect(response).to have_http_status(:redirect)
-        expect(flash[:success]).to eq('Request was sent to FedHub.')
-      end
-    end
-    context 'Call Hub for Residency verification' do
-      it 'should redirect if verification type is Residency' do
-        person.consumer_role.update_attributes(aasm_state: 'verification_outstanding')
-        post :fed_hub_request, params: {verification_type: 'DC Residency',person_id: person.id, id: document.id}
-        expect(response).to have_http_status(:redirect)
-        expect(flash[:success]).to eq('Request was sent to Local Residency.')
-      end
-    end
-  end
-
-  describe "PUT extend due date" do
-    before :each do
-      request.env["HTTP_REFERER"] = "http://test.com"
-      put :extend_due_date, params: {family_member_id: family.primary_applicant.id, verification_type: "Citizenship"}
-    end
-
-    it "should redirect to back" do
-      expect(response).to have_http_status(:redirect)
-    end
-  end
-  describe "PUT update_verification_type" do
-    before :each do
-      request.env["HTTP_REFERER"] = "http://test.com"
-    end
-
-    shared_examples_for "update verification type" do |type, reason, admin_action, updated_attr, result|
-      it "updates #{updated_attr} for #{type} to #{result} with #{admin_action} admin action" do
-        post :update_verification_type, params: { person_id: person.id,
-                                                  verification_type: type,
-                                                  verification_reason: reason,
-                                                  admin_action: admin_action}
-        person.reload
-        if updated_attr == "lawful_presence_update_reason"
-          expect(person.consumer_role.lawful_presence_update_reason["v_type"]).to eq(type)
-          expect(person.consumer_role.lawful_presence_update_reason["update_reason"]).to eq(result)
-        else
-
-          expect(person.consumer_role.send(updated_attr)).to eq(result)
+          expect(response).to have_http_status(:found)
+          expect(flash[:error]).to eq("Access not allowed for benefit_sponsors/employer_profile_policy.can_download_document?, (Pundit policy)")
         end
       end
     end
 
-    context "Social Security Number verification type" do
-      it_behaves_like "update verification type", "ssn_type", "E-Verified in Curam", "verify", "validate", true
-      it_behaves_like "update verification type", "Social Security Number", "E-Verified in Curam", "verify", "ssn_update_reason", "E-Verified in Curam"
-    end
+    context 'broker role' do
+      context 'with authorized account' do
+        before do
+          profile.broker_agency_accounts << BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id,
+                                                                                               writing_agent_id: broker_role.id,
+                                                                                               start_on: Time.now,
+                                                                                               is_active: true)
+          sign_in broker_role_user
+        end
 
-    context "American Indian Status verification type" do
-      before do
-        person.update_attributes(:tribal_id => "444444444")
+        it 'broker should be able to download' do
+          get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
+          expect(response).to be_successful
+        end
       end
-      it_behaves_like "update verification type", "American Indian Status", "Document in EnrollApp", "verify", "native_validation", "valid"
-      it_behaves_like "update verification type", "American Indian Status", "Document in EnrollApp", "verify", "native_update_reason", "Document in EnrollApp"
-    end
 
-    context "Citizenship verification type" do
-      it_behaves_like "update verification type", "Citizenship", "Document in EnrollApp", "verify", "lawful_presence_update_reason", "Document in EnrollApp"
-    end
+      context 'without authorized account' do
+        before do
+          sign_in broker_role_user
+        end
 
-    context "Immigration verification type" do
-      it_behaves_like "update verification type", "Immigration", "SAVE system", "verify", "lawful_presence_update_reason", "SAVE system"
-    end
-
-    it 'updates verification type if verification reason is expired' do
-      initial_value = person.consumer_role.lawful_presence_update_reason
-      params = { person_id: person.id, verification_type: 'Citizenship', verification_reason: 'Expired', admin_action: 'return_for_deficiency'}
-      put :update_verification_type, params: params
-      person.reload
-      updated_value = person.consumer_role.lawful_presence_update_reason
-
-      expect(person.consumer_role.lawful_presence_update_reason).to eq({"v_type" => "Citizenship", "update_reason" => "Expired"})
-      expect(initial_value).to_not eq(updated_value)
-    end
-
-    context "redirection" do
-      it "should redirect to back" do
-        post :update_verification_type, params: { person_id: person.id }
-        expect(response).to have_http_status(:redirect)
+        it 'broker should be able to download' do
+          get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
+          expect(response).to have_http_status(:found)
+          expect(flash[:error]).to eq("Access not allowed for benefit_sponsors/employer_profile_policy.can_download_document?, (Pundit policy)")
+        end
       end
     end
 
-    context "verification reason inputs" do
-      it "should not update verification attributes without verification reason" do
-        post :update_verification_type, params: { person_id: person.id,
-                                                  verification_type: "Citizenship",
-                                                  verification_reason: "",
-                                                  admin_action: "verify"}
-        person.reload
-        expect(person.consumer_role.lawful_presence_update_reason).to eq nil
+    context 'hbx staff role' do
+      context 'with permission to access' do
+        before do
+          sign_in user
+        end
+
+        it 'hbx staff should be able to download' do
+          get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
+          expect(response).to be_successful
+        end
       end
 
-      VlpDocument::VERIFICATION_REASONS.each do |reason|
-        it_behaves_like "update verification type", "Citizenship", reason, "verify", "lawful_presence_update_reason", reason
+      context 'without permission to access' do
+        let!(:permission) { FactoryBot.create(:permission, :hbx_csr_tier1, modify_employer: false) }
+        let!(:update_admin) { person.hbx_staff_role.update_attributes(permission_id: permission.id) }
+
+        before do
+          sign_in user
+        end
+
+        it 'hbx staff should be able to download' do
+          get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
+          expect(response).to have_http_status(:found)
+          expect(flash[:error]).to eq("Access not allowed for benefit_sponsors/employer_profile_policy.can_download_document?, (Pundit policy)")
+        end
       end
     end
   end

@@ -2,6 +2,8 @@
 
 module Insured
   class MembersSelectionController < ApplicationController
+    before_action :set_family, only: [:new, :eligible_coverage_selection, :fetch, :create]
+
     def new
       @organizer = Organizers::MembersSelectionPrevaricationAdapter.call(params: params.to_unsafe_h.symbolize_keys.except(:controller, :action), event: params[:event])
 
@@ -61,6 +63,12 @@ module Insured
     end
 
     private
+
+    def set_family
+      @person = Person.find(params[:person_id]) if params[:person_id]
+      @family = @person.primary_family
+      authorize @family, :complete_plan_shopping?
+    end
 
     def keep_existing_plan_cart
       shopping_enrollment = @organizer.shopping_enrollments.first

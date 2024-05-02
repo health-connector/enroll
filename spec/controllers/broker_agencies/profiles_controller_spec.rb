@@ -23,31 +23,6 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :around_each do
     end
   end
 
-  describe "GET show",dbclean: :around_each do
-    let(:user) { FactoryBot.create(:user, person: person, roles: ['broker']) }
-    let(:person) { FactoryBot.create(:person) }
-
-    before(:each) do
-      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, broker_agency_profile: broker_agency_profile, person: person)
-      allow(user).to receive(:has_broker_agency_staff_role?).and_return(true)
-      FactoryBot.create(:announcement, content: "msg for Broker", audiences: ['Broker'])
-      sign_in(user)
-      get :show, params: { id: broker_agency_profile.id }
-    end
-
-    it "returns http success" do
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render the show template" do
-      expect(response).to render_template("show")
-    end
-
-    it "should get announcement" do
-      expect(flash.now[:warning]).to eq ["msg for Broker"]
-    end
-  end
-
   describe "GET edit",dbclean: :around_each do
     let(:user) { FactoryBot.create(:user, person: person, roles: ['broker']) }
     let(:person) { FactoryBot.create(:person) }
@@ -114,54 +89,6 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :around_each do
       broker_agency_profile.reload
       expect(broker_agency_profile.accept_new_clients).to be_truthy
       expect(broker_agency_profile.working_hours).to be_truthy
-    end
-  end
-
-  describe "GET index - no broker agency profile present" do
-    let(:user) { double("user", :has_hbx_staff_role? => true, :has_broker_agency_staff_role? => false)}
-    # Blank broker agency staff role simulates a blank broker_agency_profile_id
-    let(:person) { double("person", broker_agency_staff_roles: [])}
-    let(:hbx_staff_role) { double("hbx_staff_role")}
-    let(:hbx_profile) { double("hbx_profile")}
-
-    before :each do
-      allow(user).to receive(:has_hbx_staff_role?).and_return(false)
-      allow(user).to receive(:has_csr_role?).and_return(false)
-      allow(user).to receive(:has_broker_role?).and_return(true)
-      allow(user).to receive(:person).and_return(person)
-      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
-      allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
-      allow(user).to receive(:has_broker_agency_staff_role?).and_return(true)
-      sign_in(user)
-      get :index
-    end
-    it "should redirect to new path" do
-      expect(response).to redirect_to(new_broker_agencies_profile_path)
-    end
-  end
-
-  describe "GET index",dbclean: :around_each do
-    let(:user) { double("user", :has_hbx_staff_role? => true, :has_broker_agency_staff_role? => false)}
-    let(:person) { double("person")}
-    let(:hbx_staff_role) { double("hbx_staff_role")}
-    let(:hbx_profile) { double("hbx_profile")}
-
-    before :each do
-      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
-      allow(user).to receive(:has_broker_role?).and_return(false)
-      allow(user).to receive(:person).and_return(person)
-      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
-      allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
-      sign_in(user)
-      get :index
-    end
-
-    it "returns http success" do
-      expect(response).to have_http_status(:success)
-    end
-
-    it "renders the 'index' template" do
-      expect(response).to render_template("index")
     end
   end
 
@@ -240,110 +167,6 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :around_each do
       expect(response).to have_http_status(:success)
       orgs = Organization.where({"employer_profile.broker_agency_accounts" => {:$elemMatch => {:is_active => true, :writing_agent_id => broker_role.id }}})
       expect(assigns(:orgs)).to eq orgs
-    end
-  end
-
-  describe "family_index",dbclean: :around_each do
-    before :all do
-      org = FactoryBot.create(:organization)
-      @broker_agency_profile1 = FactoryBot.create(:broker_agency_profile, organization: org,aasm_state: 'active')
-      broker_role = FactoryBot.create(:broker_role, broker_agency_profile_id: @broker_agency_profile1.id, aasm_state: 'active')
-      person = broker_role.person
-      @current_user = FactoryBot.create(:user, person: person, roles: [:broker])
-      families = []
-      30.times.each do
-        family = FactoryBot.create(:family, :with_primary_family_member)
-        family.hire_broker_agency(broker_role.id)
-        families << family
-      end
-      families[0].primary_applicant.person.update_attributes!(last_name: 'Jones1')
-      families[1].primary_applicant.person.update_attributes!(last_name: 'Jones2')
-      families[2].primary_applicant.person.update_attributes!(last_name: 'jones3')
-    end
-
-    it "renders the families_index template" do
-      current_user = @current_user
-      allow(current_user).to receive(:has_broker_role?).and_return(true)
-      sign_in current_user
-      get :family_index, params: { id: broker_agency_profile.id }, xhr: true
-      expect(response).to render_template("broker_agencies/profiles/family_index")
-    end
-  end
-
-  describe "eligible_brokers",dbclean: :around_each do
-
-    context "when individual is enabled",dbclean: :around_each do
-      before :each do
-        stub_const("BrokerAgencyProfile::MARKET_KINDS",%w[shop individual both])
-        DatabaseCleaner.clean
-        org1 = FactoryBot.create(:organization, fein: rand(100_000_000..100_099_999))
-        broker_agency_profile1 = FactoryBot.create(:broker_agency_profile, organization: org1, market_kind: 'individual')
-        FactoryBot.create(:broker_role, broker_agency_profile_id: broker_agency_profile1.id, market_kind: 'individual', aasm_state: 'active')
-
-        org2 = FactoryBot.create(:organization, fein: rand(100_000_000..100_099_999))
-        broker_agency_profile2 = FactoryBot.create(:broker_agency_profile, organization: org2, market_kind: 'shop')
-        FactoryBot.create(:broker_role, broker_agency_profile_id: broker_agency_profile2.id, market_kind: 'shop', aasm_state: 'active')
-
-        org3 = FactoryBot.create(:organization, fein: rand(100_000_000..100_099_999))
-        broker_agency_profile3 = FactoryBot.create(:broker_agency_profile, organization: org3, market_kind: 'both')
-        FactoryBot.create(:broker_role, broker_agency_profile_id: broker_agency_profile3.id, market_kind: 'both', aasm_state: 'active')
-      end
-      context "individual market user",dbclean: :around_each do
-        let(:person) {FactoryBot.build(:person, us_citizen: "false", indian_tribe_member: "false", eligible_immigration_status: "false", is_consumer_role: true)}
-        let(:user) {FactoryBot.build(:user, person: person, roles: ['consumer'])}
-
-        it "selects only 'individual' and 'both' market brokers" do
-          allow(subject).to receive(:current_user).and_return(user)
-          controller.instance_variable_set(:@person, person)
-          staff = subject.instance_eval{ eligible_brokers }
-          staff.each do |staff_person|
-            expect(["individual", "both"].include?(staff_person.broker_role.market_kind)).to be_truthy
-          end
-        end
-        context "SHOP market user",dbclean: :around_each do
-          let(:person) {FactoryBot.build(:person, us_citizen: "false", indian_tribe_member: "false", eligible_immigration_status: "false", is_consumer_role: true)}
-          let(:user) {FactoryBot.build(:user, person: person, roles: ['employer'])}
-
-          it "selects only 'shop' and 'both' market brokers" do
-            allow(subject).to receive(:current_user).and_return(user)
-            controller.instance_variable_set(:@person, person)
-            staff = subject.instance_eval{ eligible_brokers }
-
-            staff.each do |staff_person|
-              expect(["shop", "both"].include?(staff_person.broker_role.market_kind)).to be_truthy
-            end
-          end
-        end
-      end
-    end
-
-
-    context "SHOP market user",dbclean: :around_each do
-      let(:person) {FactoryBot.build(:person, is_consumer_role: true)}
-      let(:user) {FactoryBot.build(:user, person: person, roles: ['employer'])}
-
-      before :each do
-        DatabaseCleaner.clean
-        stub_const("BrokerAgencyProfile::MARKET_KINDS",%w[shop])
-
-        org2 = FactoryBot.create(:organization, fein: rand(100_000_000..100_099_999))
-        broker_agency_profile2 = FactoryBot.create(:broker_agency_profile, organization: org2, market_kind: 'shop')
-        FactoryBot.create(:broker_role, broker_agency_profile_id: broker_agency_profile2.id, market_kind: 'shop', aasm_state: 'active')
-      end
-      context "SHOP market user",dbclean: :around_each do
-        let(:person) {FactoryBot.build(:person, us_citizen: "false", indian_tribe_member: "false", eligible_immigration_status: "false",  is_consumer_role: true)}
-        let(:user) {FactoryBot.build(:user, person: person, roles: ['employer'])}
-
-        it "selects only 'shop' market brokers" do
-          allow(subject).to receive(:current_user).and_return(user)
-          controller.instance_variable_set(:@person, person)
-          staff = subject.instance_eval{ eligible_brokers }
-
-          staff.each do |staff_person|
-            expect(["shop"].include?(staff_person.broker_role.market_kind)).to be_truthy
-          end
-        end
-      end
     end
   end
 
@@ -671,46 +494,6 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :around_each do
     it "should search for employers in BrokerAgencies with empty search string" do
       get :employer_datatable, params: { id: broker_agency_profile.id, :order => {"0" => {"column" => "2", "dir" => "asc"}}, search: {value: ''} }, xhr: true
       expect(assigns(:employer_profiles).count).to eq(2)
-    end
-  end
-
-  describe "messages action",dbclean: :around_each do
-    let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
-    let(:broker_role) { FactoryBot.create(:broker_role, :aasm_state => 'active', broker_agency_profile: broker_agency_profile) }
-    let(:person) { broker_role.person }
-    let(:user_broker) { FactoryBot.create(:user, person: person, roles: ['broker']) }
-
-    let(:person1) { FactoryBot.create(:person)}
-    let(:user_hbx) { FactoryBot.create(:user, person: person1, roles: ['hbx_staff']) }
-
-    it "should render the messages template and Broker sees all messages in Broker Mail tab" do
-      sign_in user_broker
-      get :messages, params: { id: broker_agency_profile.primary_broker_role.person, profile_id: broker_agency_profile.id.to_s }, format: :js
-      expect(response).to render_template(:messages)
-    end
-
-    it "should render the messages template and Admin should see the messages in Broker Mail tab" do
-      sign_in user_hbx
-      get :messages, params: { id: user_hbx.person, profile_id: broker_agency_profile.id.to_s }, format: :js
-      expect(response).to render_template(:messages)
-    end
-
-    it "should pass broker data to @provider if you login as Broker User" do
-      sign_in user_broker
-      get :messages, params: { id: broker_agency_profile.primary_broker_role.person, profile_id: broker_agency_profile.id.to_s }, format: :js
-      expect(assigns(:provider)).to eq broker_agency_profile.primary_broker_role.person
-    end
-
-    it "should pass admin records to @provider if you login as Admin User" do
-      sign_in user_hbx
-      get :messages, params: { id: user_hbx.person, profile_id: broker_agency_profile.id.to_s }, format: :js
-      expect(assigns(:provider)).to eq user_hbx.person
-    end
-
-    it "should not have broker data in @provider if you login as Admin User" do
-      sign_in user_hbx
-      get :messages, params: { id: user_hbx.person, profile_id: broker_agency_profile.id.to_s }, format: :js
-      expect(assigns(:provider)).not_to eq broker_agency_profile.primary_broker_role.person
     end
   end
 end

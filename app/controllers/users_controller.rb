@@ -1,39 +1,24 @@
 class UsersController < ApplicationController
-  before_action :confirm_existing_password, only: [:change_password]
-  before_action :set_user, except: [:confirm_lock, :unsupportive_browser, :index, :show]
-
-  def index
-    redirect_to root_path
-  end
-
-  def show
-    redirect_to root_path
-  end
+  before_action :set_user, except: [:confirm_lock, :unsupportive_browser]
 
   def confirm_lock
+    authorize HbxProfile, :confirm_lock?
     params.permit!
-    authorize User, :lockable?
     @user_id  = params[:user_action_id]
   end
 
   def lockable
-    authorize User, :lockable?
+    authorize HbxProfile, :lockable?
     user.lock!
     redirect_to user_account_index_exchanges_hbx_profiles_url, notice: "User #{user.email} is successfully #{user.lockable_notice}."
-  rescue Pundit::NotAuthorizedError
-    redirect_to user_account_index_exchanges_hbx_profiles_url, alert: "You are not authorized for this action."
   end
 
   def reset_password
-    @user = User.find(params[:id])
-    authorize User, :reset_password?
-  rescue Pundit::NotAuthorizedError
-    redirect_to user_account_index_exchanges_hbx_profiles_url, alert: "You are not authorized for this action."
+    authorize HbxProfile, :reset_password?
   end
 
   def confirm_reset_password
-    @user = User.find(params[:id])
-    authorize User, :reset_password?
+    authorize HbxProfile, :confirm_reset_password?
     @error = nil
     validate_email if params[:user].present?
     if @error.nil?
@@ -42,11 +27,17 @@ class UsersController < ApplicationController
     else
       render file: 'users/reset_password.js.erb'
     end
-  rescue Pundit::NotAuthorizedError
-    redirect_to user_account_index_exchanges_hbx_profiles_url, alert: "You are not authorized for this action."
   end
 
   def change_password
+    authorize user, :change_password?
+
+    unless user.valid_password? params[:user][:password]
+      flash[:error] = "That password does not match the one we have stored"
+      redirect_to personal_insured_families_path
+      return false
+    end
+
     user.password = params[:user][:new_password]
     user.password_confirmation = params[:user][:password_confirmation]
     if user.save!
@@ -58,12 +49,13 @@ class UsersController < ApplicationController
   end
 
   def change_username_and_email
-    authorize User, :change_username_and_email?
+    authorize HbxProfile, :change_username_and_email?
     @user_id = params[:user_id]
   end
 
   def confirm_change_username_and_email
-    authorize User, :change_username_and_email?
+    authorize HbxProfile, :confirm_change_username_and_email?
+
     @element_to_replace_id = params[:family_actions_id]
     @email_taken = User.where(:email => params[:new_email].strip, :id.ne => @user.id).first if params[:new_email]
     @username_taken = User.where(:oim_id => params[:new_oim_id].strip, :id.ne => @user.id).first if params[:new_oim_id]
@@ -75,7 +67,7 @@ class UsersController < ApplicationController
       begin
         @user.modifier = current_user
         @user.save!
-      rescue StandardError
+      rescue => e
         @errors = @user.errors.messages
       end
     end
@@ -85,23 +77,16 @@ class UsersController < ApplicationController
     end
   end
 
-  def edit
-    @user = User.find(params[:id])
-  end
-
-  def update
-    @user = User.find(params[:id])
-    @user.update_attributes(email_update_params)
-  end
-
   def login_history
+    authorize HbxProfile, :login_history?
     @user_login_history = SessionIdHistory.for_user(user_id: user.id).order('created_at DESC').page(params[:page]).per(15)
   end
 
-  def unsupportive_browser; end
+  # Auth not required
+  def unsupportive_browser
+  end
 
   private
-
   helper_method :user
 
   def email_update_params
@@ -122,13 +107,5 @@ class UsersController < ApplicationController
 
   def set_user
     @user = User.find(params[:id])
-  end
-
-  def confirm_existing_password
-    return if user.valid_password? params[:user][:password]
-
-    flash[:error] = "That password does not match the one we have stored"
-    redirect_to personal_insured_families_path
-    false
   end
 end

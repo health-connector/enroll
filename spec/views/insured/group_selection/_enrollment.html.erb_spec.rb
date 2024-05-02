@@ -26,6 +26,7 @@ RSpec.describe "insured/group_selection/_enrollment.html.erb", dbclean: :after_e
     let(:mock_product) { double("Product", kind: "health") }
 
     before :each do
+      DatabaseCleaner.clean
       allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return false
       allow(hbx_enrollment).to receive(:may_terminate_coverage?).and_return true
       allow(hbx_enrollment).to receive(:is_shop?).and_return true

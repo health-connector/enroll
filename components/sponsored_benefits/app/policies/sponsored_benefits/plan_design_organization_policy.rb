@@ -10,6 +10,7 @@ module SponsoredBenefits
       person = user.person
 
       return true if broker_owns_plan_design_organization_via_broker_agency?(person)
+
       true if broker_staff_owns_plan_design_organization_via_broker_agency?(person)
     end
 

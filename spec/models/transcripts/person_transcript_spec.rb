@@ -9,34 +9,38 @@ RSpec.describe Transcripts::PersonTranscript, type: :model do
 
   describe "instance methods" do
 
-    let!(:source_record) do
-      Person.create({
-                      "hbx_id" => "117966",
-                      "first_name" => "Bruce",
-                      "last_name" => "Jackson",
-                      "dob" => Date.new(1975, 8, 1),
-                      "gender" => "male",
-                      "middle_name" => "",
-                      "ssn" => "671126612",
-                      "no_dc_address" => false,
-                      "addresses" => [{
-                        "kind" => "home",
-                        "address_1" => "3312 H St NW",
-                        "city" => "Washington",
-                        "state" => "DC",
-                        "zip" => "20002"
-                      }],
-                      "phones" => [{
-                        "area_code" => "202",
-                        "kind" => "mobile",
-                        "full_phone_number" => "2029867777",
-                        "number" => "9867777"
-                      }],
-                      "emails" => [{
-                        "kind" => "home", "address" => "bruce@gmail.com"
-                      }]
-                    })
+    before :all do
+      DatabaseCleaner.clean
     end
+
+    let!(:source_record) {
+      Person.create({
+        "hbx_id"=>"117966",
+        "first_name"=>"Bruce",
+        "last_name"=>"Jackson",
+        "dob"=> Date.new(1975, 8, 1),
+        "gender"=>"male",
+        "middle_name"=>"",
+        "ssn"=>"671126612",
+        "no_dc_address"=>false,
+        "addresses"=>[{
+          "kind"=>"home",
+          "address_1"=>"3312 H St NW",
+          "city"=>"Washington",
+          "state"=>"DC",
+          "zip"=>"20002"
+        }],
+        "phones"=>[{
+          "area_code"=>"202",
+          "kind"=>"mobile",
+          "full_phone_number"=>"2029867777",
+          "number"=>"9867777",
+        }],
+        "emails"=>[{
+          "kind"=>"home", "address"=>"bruce@gmail.com"
+        }]
+      })
+    }
 
     let(:other_record) do
       Person.new({"hbx_id" => "117966",

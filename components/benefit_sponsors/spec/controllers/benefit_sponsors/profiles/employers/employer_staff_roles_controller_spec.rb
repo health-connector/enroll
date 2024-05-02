@@ -2,6 +2,9 @@ require 'rails_helper'
 
 module BenefitSponsors
   RSpec.describe Profiles::Employers::EmployerStaffRolesController, type: :controller, dbclean: :after_each do
+    before :all do
+      DatabaseCleaner.clean
+    end
 
     routes { BenefitSponsors::Engine.routes }
     let!(:security_question)  { FactoryBot.create_default :security_question }
