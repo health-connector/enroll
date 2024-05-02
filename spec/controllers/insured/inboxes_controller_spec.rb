@@ -83,6 +83,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
           get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
           expect(response).to have_http_status(403)
+        end
         it 'will not create a new message' do
           post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
