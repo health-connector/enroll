@@ -573,13 +573,15 @@ module BenefitSponsors
       let!(:march_sponsors)                 do
         create_list(:benefit_sponsors_benefit_sponsorship, 3, :with_organization_cca_profile,
                     :with_initial_benefit_application, initial_application_state: initial_application_state,
-                                                       default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)), site: site, aasm_state: sponsorship_state)
+                                                       default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)), default_open_enrollment_period: (march_open_enrollment_begin_on..march_open_enrollment_end_on),
+                                                       site: site, aasm_state: sponsorship_state)
       end
 
       let!(:april_sponsors)                 do
         create_list(:benefit_sponsors_benefit_sponsorship, 2, :with_organization_cca_profile,
                     :with_initial_benefit_application, initial_application_state: initial_application_state,
-                                                       default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)), site: site, aasm_state: sponsorship_state)
+                                                       default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)), default_open_enrollment_period: (april_open_enrollment_begin_on..april_open_enrollment_end_on),
+                                                       site: site, aasm_state: sponsorship_state)
       end
 
       let!(:april_renewal_sponsors)         do
@@ -587,6 +589,7 @@ module BenefitSponsors
                     :with_renewal_benefit_application, initial_application_state: renewal_current_application_state,
                                                        renewal_application_state: renewal_application_state,
                                                        default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)), site: site,
+                                                       default_open_enrollment_period: (april_open_enrollment_begin_on..april_open_enrollment_end_on),
                                                        aasm_state: :active)
       end
 
