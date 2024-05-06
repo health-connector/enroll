@@ -66,12 +66,16 @@ module Notifier
       end
 
       context 'when raw_body have blocking elements in different formats' do
-        it 'makes record invalid' do
-          ["#{%x|env|}", "#{`env`}"].each do |element|
-          template.raw_body = 'raw body content with invalid elements ' + element # rubocop:disable Lint/InterpolationCheck
+        it 'makes record invalid with %x' do
+          template.raw_body = "raw body content with invalid elements #{%x|env|}" # rubocop:disable Style/CommandLiteral, Style/PercentLiteralDelimiters
           expect(subject.valid?).to eq false
           expect(subject.errors.full_messages).to eq ['Template is invalid']
-          end
+        end
+
+        it 'makes record invalid with backtick' do
+          template.raw_body = 'raw body content with invalid elements `env`'
+          expect(subject.valid?).to eq false
+          expect(subject.errors.full_messages).to eq ['Template is invalid']
         end
       end
     end
