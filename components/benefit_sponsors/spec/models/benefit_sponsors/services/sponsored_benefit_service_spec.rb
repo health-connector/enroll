@@ -72,7 +72,7 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
       end
     end
   end
-  
+
   describe "while creating a sponsored benefit" do
 
     let(:benefits_params) {
