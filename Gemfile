@@ -73,7 +73,7 @@ gem "transport_profiles", path: "components/transport_profiles"
 gem 'turbolinks', '2.5.3'
 gem 'uglifier', '>= 1.3.0', require: 'uglifier'
 gem 'virtus'
-gem 'wicked_pdf', '1.0.6'
+gem 'wicked_pdf', '2.1.0'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'webpacker'
 gem 'rubyXL'
