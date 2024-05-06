@@ -63,7 +63,12 @@ module BenefitSponsors
       end
 
       def sponsor_catalog_decorator_class
-        "BenefitSponsors::BenefitApplications::BenefitSponsorHealthCatalogDecorator".gsub("Health", kind.humanize).constantize
+        kind_to_class = {
+          :health => "BenefitSponsors::BenefitApplications::BenefitSponsorHealthCatalogDecorator",
+          :dental => "BenefitSponsors::BenefitApplications::BenefitSponsorDentalCatalogDecorator"
+        }
+
+        kind_to_class[kind.downcase].constantize
       end
 
       def find_sponsored_benefit(sponsored_benefit_id)
