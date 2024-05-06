@@ -1,4 +1,6 @@
 class DocumentsController < ApplicationController
+  include L10nHelper
+
   before_action :fetch_record, only: [:authorized_download]
   before_action :set_document, only: [:destroy]
   respond_to :html, :js
@@ -49,7 +51,8 @@ class DocumentsController < ApplicationController
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket}##{key}"
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
-      redirect_to :back, :flash => { :error => e.message }
+      Rails.logger.error { "Error while downloading: #{e}" }
+      redirect_to :back, :flash => { :error => l10n('exchange.download_failed') }
     end
   end
 
@@ -58,11 +61,12 @@ class DocumentsController < ApplicationController
     authorize @person, :can_download_sbc_documents?
 
     begin
-      sbc_document = fetch_product_sbc_document
+      sbc_document = fetch_product_sbc_document || fetch_plan_sbc_document
       uri = sbc_document.identifier
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
-      redirect_to :back, :flash => { :error => e.message }
+      Rails.logger.error { "Error while downloading: #{e}" }
+      redirect_to :back, :flash => { :error => l10n('exchange.download_failed') }
     end
   end
 
@@ -74,7 +78,8 @@ class DocumentsController < ApplicationController
       uri = attestation_document&.identifier
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
-      redirect_to :back, :flash => { :error => e.message }
+      Rails.logger.error { "Error while downloading: #{e}" }
+      redirect_to :back, :flash => { :error => l10n('exchange.download_failed') }
     end
   end
 
@@ -87,9 +92,17 @@ class DocumentsController < ApplicationController
   end
 
   def fetch_product_sbc_document
-    product_id = params[:product_id]
-    product = BenefitMarkets::Products::Product.find(product_id)
+    return unless params[:product_id]
+
+    product = BenefitMarkets::Products::Product.find(params[:product_id])
     product.sbc_document
+  end
+
+  def fetch_plan_sbc_document
+    return unless params[:plan_id]
+
+    plan = Plan.find(params[:plan_id])
+    plan.sbc_document
   end
 
   def fetch_employer_profile_attestation_document

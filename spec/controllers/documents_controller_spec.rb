@@ -278,6 +278,20 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
           get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to be_successful
         end
+
+        context 'with bqt' do
+          let(:plan) do
+            plan = FactoryGirl.create(:plan)
+            plan.create_sbc_document(identifier: "urn:opentest:terms:t1:test_storage:t3:bucket:test-test-id-verification-test#sample-plan-key")
+            plan.save
+            plan
+          end
+
+          it 'broker should be able to download when plan id given' do
+            get :product_sbc_download, { document_id: plan.sbc_document.id, plan_id: plan.id }
+            expect(response).to be_successful
+          end
+        end
       end
 
       context 'with inactive broker role' do
