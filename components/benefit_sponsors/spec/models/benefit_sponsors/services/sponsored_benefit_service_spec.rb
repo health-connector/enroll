@@ -49,6 +49,30 @@ RSpec.describe BenefitSponsors::Services::SponsoredBenefitService, dbclean: :aft
     }
   }
 
+  describe '#sponsor_catalog_decorator_class' do
+    context 'when kind is "health"' do
+      let(:attrs) do
+        {
+          benefit_package_id: benefit_package.id,
+          kind: :health
+        }
+      end
+      let(:subject) { BenefitSponsors::Services::SponsoredBenefitService.new(attrs) }
+
+      it 'returns the HealthCatalogDecorator class' do
+        expect(subject.sponsor_catalog_decorator_class).to eq(BenefitSponsors::BenefitApplications::BenefitSponsorHealthCatalogDecorator)
+      end
+    end
+
+    context 'when kind is "dental"' do
+      let(:subject) { BenefitSponsors::Services::SponsoredBenefitService.new(attrs) }
+
+      it 'returns the DentalCatalogDecorator class' do
+        expect(subject.sponsor_catalog_decorator_class).to eq(BenefitSponsors::BenefitApplications::BenefitSponsorDentalCatalogDecorator)
+      end
+    end
+  end
+  
   describe "while creating a sponsored benefit" do
 
     let(:benefits_params) {
