@@ -60,12 +60,12 @@ module Notifier
 
     def save_html
       File.open(Rails.root.join("tmp", "notice.html"), 'wb') do |file|
-        file << self.to_html({kind: 'pdf'})
+        file << sanitized_html_string
       end
     end
 
     def to_pdf
-      WickedPdf.new.pdf_from_string(self.to_html({kind: 'pdf'}), pdf_options)
+      WickedPdf.new.pdf_from_string(sanitized_html_string, pdf_options)
     end
 
     def generate_pdf_notice
@@ -261,6 +261,10 @@ module Notifier
 
       message = receiver.inbox.messages.build({ subject: subject, body: body, from: site_short_name })
       message.save!
+    end
+
+    def sanitized_html_string
+      Loofah.scrub_fragment(to_html({kind: 'pdf'}), :strip).to_s
     end
 
     def clear_tmp
