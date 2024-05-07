@@ -64,11 +64,11 @@ module BenefitSponsors
 
       def sponsor_catalog_decorator_class
         kind_to_class = {
-          :health => "BenefitSponsors::BenefitApplications::BenefitSponsorHealthCatalogDecorator",
-          :dental => "BenefitSponsors::BenefitApplications::BenefitSponsorDentalCatalogDecorator"
+          "health" => "BenefitSponsors::BenefitApplications::BenefitSponsorHealthCatalogDecorator",
+          "dental" => "BenefitSponsors::BenefitApplications::BenefitSponsorDentalCatalogDecorator"
         }
 
-        kind_to_class[kind.downcase].constantize
+        kind_to_class[kind.to_s.downcase].constantize
       end
 
       def find_sponsored_benefit(sponsored_benefit_id)
