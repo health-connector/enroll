@@ -4,6 +4,7 @@ module Notifier
     include Notifier::ApplicationHelper
     include ApplicationHelper
     include Notifier::ApplicationHelper
+    include PdfScrubberUtil
 
     def to_html(options = {})
       data_object = (resource.present? ? construct_notice_object : recipient.constantize.stubbed_object)
@@ -60,12 +61,12 @@ module Notifier
 
     def save_html
       File.open(Rails.root.join("tmp", "notice.html"), 'wb') do |file|
-        file << sanitized_html_string
+        file << sanitize_html_pdf_render
       end
     end
 
     def to_pdf
-      WickedPdf.new.pdf_from_string(sanitized_html_string, pdf_options)
+      WickedPdf.new.pdf_from_string(sanitize_html_pdf_render, pdf_options)
     end
 
     def generate_pdf_notice
@@ -263,8 +264,8 @@ module Notifier
       message.save!
     end
 
-    def sanitized_html_string
-      Loofah.scrub_fragment(to_html({kind: 'pdf'}), :strip).to_s
+    def sanitize_html_pdf_render
+      @sanitize_html_pdf_render ||= sanitize_pdf(to_html({kind: 'pdf'}))
     end
 
     def clear_tmp
