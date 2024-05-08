@@ -22,6 +22,13 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
   # broker staff role
   let(:broker_agency_staff_role) { FactoryGirl.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: 'active')}
   let!(:broker_agency_staff_user) {FactoryGirl.create(:user, :person => broker_agency_staff_role.person, roles: ['broker_agency_staff_role'])}
+
+  # employer staff role
+  let(:staff_role_status) { 'is_active' }
+  let(:employer_staff_role) { FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: staff_role_status, benefit_sponsor_employer_profile_id: abc_profile.id) }
+  let(:staff_person) { FactoryGirl.create(:person, employer_staff_roles:[employer_staff_role]) }
+  let!(:er_staff_role_user) {FactoryGirl.create(:user, :person => staff_person)}
+
   let(:admin_user) { user }
 
   before :each do
@@ -226,6 +233,53 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
     end
   end
 
+  describe "GET employer_attestation_document_download" do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+    let(:document) do
+      doc = FactoryGirl.create(:employer_attestation_document, identifier: "urn:opentest:terms:t1:test_storage:t3:bucket:test-test-id-verification-test#sample-key")
+      doc.employer_attestation.update_attributes(employer_profile: abc_profile)
+      doc
+    end
+
+    context 'employer staff role' do
+      before do
+        session[:person_id] = staff_person.id
+        sign_in er_staff_role_user
+      end
+
+      context 'with authorized account' do
+
+        it 'employer should be able to download' do
+          get :employer_attestation_document_download, { id: abc_profile.id, document_id: document.id }
+          expect(response).to be_successful
+        end
+      end
+
+      context 'with inactive employer staff role' do
+        let(:staff_role_status) { nil }
+
+        it 'employer should not be able to download' do
+          get :employer_attestation_document_download, { id: abc_profile.id, document_id: document.id }
+          expect(response).to have_http_status(:found)
+          expect(flash[:error]).to eq("Access not allowed for benefit_sponsors/employer_profile_policy.employer_attestation_document_download?, (Pundit policy)")
+        end
+      end
+
+      context 'staff role with a different employer' do
+        let(:organization) { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+        let(:profile) { organization.employer_profile }
+        let(:employer_staff_role) { FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: staff_role_status, benefit_sponsor_employer_profile_id: profile.id) }
+
+        it 'employer should not be able to download' do
+          get :employer_attestation_document_download, { id: abc_profile.id, document_id: document.id }
+          expect(response).to have_http_status(:found)
+          expect(flash[:error]).to eq("Access not allowed for benefit_sponsors/employer_profile_policy.employer_attestation_document_download?, (Pundit policy)")
+        end
+      end
+    end
+  end
+
   describe "GET product_sbc_download" do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup initial benefit application"
@@ -302,6 +356,31 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'broker should be able to download' do
           get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }, session: { person_id: employee_person.id }
+          expect(response).to have_http_status(:found)
+          expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
+        end
+      end
+    end
+
+    context 'employer staff role' do
+      before do
+        session[:person_id] = staff_person.id
+        sign_in er_staff_role_user
+      end
+
+      context 'with authorized account' do
+
+        it 'employer should be able to download' do
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
+          expect(response).to be_successful
+        end
+      end
+
+      context 'with inactive employer staff role' do
+        let(:staff_role_status) { nil }
+
+        it 'employer should not be able to download' do
+          get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to have_http_status(:found)
           expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
         end
