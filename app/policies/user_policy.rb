@@ -33,6 +33,10 @@ class UserPolicy < ApplicationPolicy
     false
   end
 
+  def can_download_sbc_documents?
+    can_download_employees_template?
+  end
+
   def view?
     user.present?
   end
