@@ -29,16 +29,6 @@ class PersonPolicy < ApplicationPolicy
     role.permission.modify_family
   end
 
-  def can_download_sbc_documents?
-    return true if shop_market_primary_family_member?
-    return true if shop_market_admin?
-    return true if record&.has_active_employer_staff_role?
-    return true if active_associated_shop_market_family_broker?
-    return true if active_associated_shop_market_general_agency?
-
-    false
-  end
-
   private
 
   def allowed_to_download?
