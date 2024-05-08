@@ -27,7 +27,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
   let(:staff_role_status) { 'is_active' }
   let(:employer_staff_role) { FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: staff_role_status, benefit_sponsor_employer_profile_id: abc_profile.id) }
   let(:staff_person) { FactoryGirl.create(:person, employer_staff_roles: [employer_staff_role]) }
-  let!(:er_staff_role_user) {FactoryGirl.create(:user, :person => staff_person)}
+  let(:er_staff_role_user) {FactoryGirl.create(:user, :person => staff_person)}
 
   let(:admin_user) { user }
 
