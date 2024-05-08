@@ -71,10 +71,14 @@ class DocumentsController < ApplicationController
   end
 
   def employer_attestation_document_download
-    authorize current_user, :can_download_employer_attestation_doc?
+    employer_profile = BenefitSponsors::Organizations::Organization.employer_profiles.where(
+      :"profiles._id" => BSON::ObjectId.from_string(params[:id])
+    ).first.employer_profile
+
+    authorize employer_profile, :employer_attestation_document_download?
 
     begin
-      attestation_document = fetch_employer_profile_attestation_document
+      attestation_document = fetch_employer_profile_attestation_document(employer_profile)
       uri = attestation_document&.identifier
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
@@ -105,11 +109,7 @@ class DocumentsController < ApplicationController
     plan.sbc_document
   end
 
-  def fetch_employer_profile_attestation_document
-    employer_profile = BenefitSponsors::Organizations::Organization.employer_profiles.where(
-      :"profiles._id" => BSON::ObjectId.from_string(params[:id])
-    ).first.employer_profile
-
+  def fetch_employer_profile_attestation_document(employer_profile)
     return unless employer_profile&.employer_attestation.present?
 
     employer_profile.employer_attestation.employer_attestation_documents.find(params[:document_id])
