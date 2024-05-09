@@ -118,34 +118,6 @@ module BenefitSponsors
           send_data Aws::S3Storage.find(@commission_statement.identifier) , options
         end
 
-        def employers
-        end
-
-        #TODO Implement when we move GeneralAgencyProfile in Engine.
-        def general_agency_index
-        end
-
-        def set_default_ga
-        end
-
-        def employer_datatable
-        end
-
-        def assign
-        end
-
-        def update_assign
-        end
-
-        def clear_assign_for_employer
-        end
-
-        def assign_history
-        end
-
-        def manage_employers
-        end
-
         def messages
           authorize self, :redirect_signup?
           @sent_box = true
@@ -157,9 +129,6 @@ module BenefitSponsors
           respond_to do |format|
             format.js {}
           end
-        end
-
-        def agency_messages
         end
 
         def inbox
@@ -203,14 +172,8 @@ module BenefitSponsors
           end
         end
 
-        def send_general_agency_assign_msg(general_agency, employer_profile, status)
-        end
-
         def eligible_brokers
           Person.where('broker_role.broker_agency_profile_id': {:$exists => true}).where(:'broker_role.aasm_state'=> 'active').any_in(:'broker_role.market_kind'=>[person_market_kind, "both"])
-        end
-
-        def update_ga_for_employers(broker_agency_profile, old_default_ga=nil)
         end
 
         def person_market_kind
@@ -219,12 +182,6 @@ module BenefitSponsors
           elsif @person.has_active_employee_role?
             "shop"
           end
-        end
-
-        def check_general_agency_profile_permissions_assign
-        end
-
-        def check_general_agency_profile_permissions_set_default
         end
 
         def get_commission_statements(documents)
