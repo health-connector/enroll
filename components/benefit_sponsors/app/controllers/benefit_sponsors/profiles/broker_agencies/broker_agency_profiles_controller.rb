@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_dependency "benefit_sponsors/application_controller"
 
 module BenefitSponsors
@@ -32,7 +34,7 @@ module BenefitSponsors
           "2" => "legal_name",
           "4" => "employer_profile.aasm_state",
           "5" => "employer_profile.plan_years.start_on"
-        }
+        }.freeze
 
         def index
           authorize BenefitSponsors::Organizations::BrokerAgencyProfile
@@ -55,14 +57,14 @@ module BenefitSponsors
           @staff = eligible_brokers
           @page_alphabets = page_alphabets(@staff, "last_name")
           page_no = cur_page_no(@page_alphabets.first)
-          if @q.nil?
-            @staff = @staff.where(last_name: /^#{page_no}/i)
-          else
-            @staff = @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
-          end
+          @staff = if @q.nil?
+                     @staff.where(last_name: /^#{page_no}/i)
+                   else
+                     @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
+                   end
         end
 
-        # TODO need to refactor for cases around SHOP broker agencies
+        # TODO: need to refactor for cases around SHOP broker agencies
         def family_datatable
           authorize @broker_agency_profile
           dt_query = extract_datatable_parameters
@@ -96,9 +98,7 @@ module BenefitSponsors
 
         def commission_statements
           profile_id = params.permit(:id)[:id]
-          if current_user&.has_broker_role?
-            profile_id ||= current_user.person.broker_role.benefit_sponsors_broker_agency_profile_id
-          end
+          profile_id ||= current_user.person.broker_role.benefit_sponsors_broker_agency_profile_id if current_user&.has_broker_role?
           load_broker_agency_profile(profile_id)
           authorize @broker_agency_profile, :redirect_signup?
           authorize @broker_agency_profile
@@ -180,12 +180,12 @@ module BenefitSponsors
           elsif current_user.has_broker_agency_staff_role?
             staff_role = current_user.person.broker_agency_staff_roles.first
             redirect_to profiles_broker_agencies_broker_agency_profile_path(
-                          id: staff_role.benefit_sponsors_broker_agency_profile_id
-                        )
+              id: staff_role.benefit_sponsors_broker_agency_profile_id
+            )
           else
             redirect_to benefit_sponsors.new_profiles_registration_path(
-                          profile_type: :broker_agency
-                        )
+              profile_type: :broker_agency
+            )
           end
         end
 
@@ -208,14 +208,12 @@ module BenefitSponsors
           commission_statements = []
           documents.each do |document|
             # grab only documents that are commission statements by checking the bucket in which they are placed
-            if document.identifier.include?("commission-statements")
-              commission_statements << document
-            end
+            commission_statements << document if document.identifier.include?("commission-statements")
           end
           commission_statements
         end
 
-        def collect_and_sort_commission_statements(sort_order = "ASC")
+        def collect_and_sort_commission_statements(_sort_order = "ASC")
           @statement_years =
             (
               Settings
