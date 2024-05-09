@@ -1,23 +1,10 @@
 module BenefitSponsors
   module Organizations
-    class BrokerAgencyProfilePolicy < ApplicationPolicy
-      # NOTE: this method is only used by the BrokerAgencyProfileStaffRolesController
-      def new?
-        access_to_broker_agency_profile?
-      end
-
+    class BrokerAgencyProfilePolicy < ::ApplicationPolicy
       def redirect_signup?
-        access_to_broker_agency_profile?
-      end
+        return false if user.blank?
 
-      def index?
-        return true if shop_market_admin?
-
-        false
-      end
-
-      def show?
-        access_to_broker_agency_profile?
+        user.has_hbx_staff_role? || user.has_broker_role?
       end
 
       def access_to_broker_agency_profile?
@@ -28,13 +15,23 @@ module BenefitSponsors
         false
       end
 
-      def set_default_ga?
+      def index?
+        return true if shop_market_admin?
+
+        false
+      end
+
+      # NOTE: this method is only used by the BrokerAgencyProfileStaffRolesController
+      def new?
+        access_to_broker_agency_profile?
+      end
+
+      def show?
         access_to_broker_agency_profile?
       end
 
       def staff_index?
         return true if shop_market_admin?
-        return true if account_holder&.has_consumer_role?
 
         false
       end
@@ -88,9 +85,9 @@ module BenefitSponsors
         broker_role = account_holder_person&.broker_role
         return false unless broker_role
 
-        broker_role&.benefit_sponsors_broker_agency_profile_id == record.id && broker_role&.active?
+        broker_role&.benefit_sponsors_broker_agency_profile_id == record.id &&
+          broker_role&.active?
       end
     end
   end
 end
-
