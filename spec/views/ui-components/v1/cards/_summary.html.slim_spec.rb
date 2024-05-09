@@ -36,10 +36,14 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
       :sbc_file => "THE SBC FILE.PDF",
       :is_standard_plan => true,
       :can_use_aptc? => true,
-      :sbc_document => Document.new({title: 'sbc_file_name', subject: "SBC",
-                                     :identifier=>"urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"})
+      :sbc_document => document
       ) }
   let(:mock_qhp_cost_share_variance) { instance_double(Products::QhpCostShareVariance, :qhp_service_visits => []) }
+
+  let(:document) do
+    Document.new({title: 'sbc_file_name', subject: "SBC",
+                  :identifier => "urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"})
+  end
 
   before :each do
     Caches::MongoidCache.release(CarrierProfile)
@@ -82,7 +86,10 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
     end
 
     it "should have a link to download the sbc pdf" do
-      expect(rendered).to have_selector("a[href='#{"/document/download/#{Settings.site.s3_prefix}-enroll-sbc-qa/7816ce0f-a138-42d5-89c5-25c5a3408b82?content_type=application/pdf&filename=APlanName.pdf&disposition=inline"}']")
+      expect(rendered).to have_selector(
+        "a[href='#{"/documents/#{document.id}/product_sbc_download?product_id=#{mock_product.id}&content_type=application/pdf&filename=APlanName.pdf"\
+        '&disposition=inline'}']"
+      )
     end
 
     it "should have a label 'Summary of Benefits and Coverage (SBC)'" do
