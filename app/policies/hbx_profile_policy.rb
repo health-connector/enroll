@@ -79,7 +79,9 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def index?
-    @user.has_role? :hbx_staff
+    return true if shop_market_admin?
+
+    false
   end
 
   def employer_index?
