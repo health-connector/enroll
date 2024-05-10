@@ -2,16 +2,8 @@ module BenefitSponsors
   module Inboxes
     class MessagesController < ApplicationController
       before_action :set_current_user
-      before_action :find_inbox_provider, except: [:msg_to_portal]
       before_action :find_message
       before_action :set_sent_box, only: [:show, :destroy], if: :is_broker?
-      before_action :find_profile, only: [:msg_to_portal]
-
-      def new
-      end
-
-      def create
-      end
 
       def show
         BenefitSponsors::Services::MessageService.for_show(@message, @current_user)
@@ -27,14 +19,6 @@ module BenefitSponsors
         if params[:url].present?
           @inbox_url = params[:url]
         end
-      end
-
-      def msg_to_portal
-        @inbox_provider = @profile
-        @inbox_provider_name = @inbox_provider.try(:legal_name)
-        @inbox_to_name = "HBX Admin"
-        log("#3969 and #3985 params: #{params.to_s}, request: #{request.env.inspect}", {:severity => "error"}) if @inbox_provider.blank?
-        @new_message = @inbox_provider.inbox.messages.build
       end
 
       private
@@ -68,12 +52,6 @@ module BenefitSponsors
 
       def find_message
         @message = @inbox_provider.inbox.messages.by_message_id(params["message_id"]).to_a.first
-      end
-
-      def set_inbox_and_assign_message
-      end
-
-      def successful_save_path
       end
     end
   end
