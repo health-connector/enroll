@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -9,20 +11,20 @@ module BenefitSponsors
     let!(:security_question)  { FactoryGirl.create_default :security_question }
 
     let!(:user_with_hbx_staff_role) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-    let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role )}
+    let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role)}
     let!(:person1) { FactoryGirl.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryGirl.create(:user, :broker, person: person1 ) }
+    let!(:user_with_broker_role) { FactoryGirl.create(:user, :broker, person: person1) }
 
     let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization_with_hbx_profile)  { site.owner_organization }
     let!(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
-    let!(:organization1)                 { 
+    let!(:organization1)                 do
       org = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)
       org.broker_agency_profile.primary_broker_role = person1.broker_role
       org.save
       org
-    }
+    end
     let!(:organization2)                 { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
     let(:broker_agency1)                 { organization1.broker_agency_profile }
     let(:broker_agency2)                 { organization2.broker_agency_profile }
@@ -43,7 +45,7 @@ module BenefitSponsors
       lambda { |org|
         person1.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
         allow(user_with_broker_role).to receive(:has_broker_agency_staff_role?).and_return(true)
-        role = person1.broker_agency_staff_roles.build(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
+        person1.broker_agency_staff_roles.build(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
         person1.save!
         sign_in(user_with_broker_role)
       }
@@ -52,7 +54,7 @@ module BenefitSponsors
     let(:initialize_and_login_broker_agency_staff) do
       lambda { |org|
         allow(user_with_broker_role).to receive(:has_broker_agency_staff_role?).and_return(true)
-        role = person1.broker_agency_staff_roles.build(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
+        person1.broker_agency_staff_roles.build(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
         person1.save!
         sign_in(user_with_broker_role)
       }
