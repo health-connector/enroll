@@ -10,18 +10,53 @@ module BenefitSponsors
 
     let!(:user_with_hbx_staff_role) { FactoryGirl.create(:user, :with_hbx_staff_role) }
     let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role )}
-    let!(:person01) { FactoryGirl.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryGirl.create(:user, person: person01 ) }
+    let!(:person1) { FactoryGirl.create(:person, :with_broker_role) }
+    let!(:user_with_broker_role) { FactoryGirl.create(:user, :broker, person: person1 ) }
 
     let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization_with_hbx_profile)  { site.owner_organization }
     let!(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
-    let(:bap_id) { organization.broker_agency_profile.id }
+    let!(:organization1)                 { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
+    let!(:organization2)                 { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
+    let(:broker_agency1)                 { organization1.broker_agency_profile }
+    let(:broker_agency2)                 { organization2.broker_agency_profile }
+
+    let(:bap_id) { organization1.broker_agency_profile.id }
+    let(:super_admin_permission) { FactoryGirl.create(:permission, :super_admin) }
+    let(:dev_permission) { FactoryGirl.create(:permission, :developer) }
+
+    let(:initialize_and_login_admin) do
+      lambda { |permission|
+        user_with_hbx_staff_role.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id, permission_id: permission.id)
+        user_with_hbx_staff_role.person.hbx_staff_role.save!
+        sign_in(user_with_hbx_staff_role)
+      }
+    end
+
+    let(:initialize_and_login_broker) do
+      lambda { |org|
+        person1.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
+        allow(org.broker_agency_profile).to receive(:primary_broker_role).and_return(person1.broker_role)
+        allow(user_with_broker_role).to receive(:has_broker_agency_staff_role?).and_return(true)
+        role = person1.broker_agency_staff_roles.build(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
+        person1.save!
+        sign_in(user_with_broker_role)
+      }
+    end
+
+    let(:initialize_and_login_broker_agency_staff) do
+      lambda { |org|
+        allow(user_with_broker_role).to receive(:has_broker_agency_staff_role?).and_return(true)
+        role = person1.broker_agency_staff_roles.build(benefit_sponsors_broker_agency_profile_id: org.broker_agency_profile.id, aasm_state: 'active')
+        person1.save!
+        sign_in(user_with_broker_role)
+      }
+    end
 
     before :each do
-      person01.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id)
-      allow(organization.broker_agency_profile).to receive(:primary_broker_role).and_return(person01.broker_role)
+      person1.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id)
+      allow(organization.broker_agency_profile).to receive(:primary_broker_role).and_return(person1.broker_role)
       user_with_hbx_staff_role.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id)
       user_with_hbx_staff_role.person.hbx_staff_role.save!
     end
@@ -58,7 +93,7 @@ module BenefitSponsors
       end
 
       context "index for user with broker_agency_staff_role(on failed pundit)" do
-        let!(:broker_agency_staff_role) { FactoryGirl.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id, person: person01) }
+        let!(:broker_agency_staff_role) { FactoryGirl.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id, person: person1) }
 
         before :each do
           user_with_broker_role.roles << "broker_agency_staff"
@@ -194,12 +229,12 @@ module BenefitSponsors
 
     describe "for broker_agency_profile's inbox" do
 
-      let(:unread_messages) { person01.inbox.unread_messages }
+      let(:unread_messages) { person1.inbox.unread_messages }
 
       context "with a valid message" do
         before :each do
           sign_in(user_with_hbx_staff_role)
-          xhr :get, :inbox, id: person01.id
+          xhr :get, :inbox, id: person1.id
         end
 
         it "should return success http status" do
@@ -211,7 +246,7 @@ module BenefitSponsors
         end
 
         it "should have inbox messages" do
-          person01.inbox.messages.first.update_attributes!(folder: 'inbox')
+          person1.inbox.messages.first.update_attributes!(folder: 'inbox')
           expect(unread_messages.count).to eql(1)
         end
       end
@@ -324,6 +359,278 @@ module BenefitSponsors
 
         it "should return success http status" do
           expect(response).to have_http_status(:success)
+        end
+      end
+    end
+
+    describe "#commission_statements" do
+      context "admin" do
+        context "with the correct permissions" do
+          before :each do
+            initialize_and_login_admin[super_admin_permission]
+            xhr :get, :commission_statements, id: bap_id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+
+          it "should render the commission_statements template" do
+            expect(response).to render_template("commission_statements")
+          end
+        end
+
+        context "with the incorrect permissions" do
+          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+
+          before :each do
+            initialize_and_login_admin[dev_permission]
+            xhr :get, :commission_statements, id: bap_id
+          end
+
+          it "should redirect to new of registration's controller for broker_agency" do
+            expect(response).to redirect_to(new_profiles_registration_path(profile_type: "broker_agency"))
+          end
+
+          it "should not render the commission_statements template" do
+            expect(response).to_not render_template("commission_statements")
+          end
+        end
+      end
+
+      context "broker" do
+        context 'in the agency' do
+          before :each do
+            initialize_and_login_broker[organization1]
+            xhr :get, :commission_statements, id: bap_id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+
+          it "should render the commission_statements template" do
+            expect(response).to render_template("commission_statements")
+          end
+        end
+
+        context 'not in the agency' do
+          before :each do
+            initialize_and_login_broker[organization2]
+            xhr :get, :commission_statements, id: bap_id
+          end
+
+          it "should redirect to the broker agency profile page path" do
+            profile_page = profiles_broker_agencies_broker_agency_profile_path(:id => broker_agency2.id)
+            expect(response).to redirect_to(profile_page)
+          end
+
+          it "should not render the commission_statements template" do
+            expect(response).to_not render_template("commission_statements")
+          end
+        end
+      end
+
+      context "broker staff" do
+        context 'in the agency' do
+          before :each do
+            initialize_and_login_broker_agency_staff[organization1]
+            xhr :get, :commission_statements, id: bap_id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+
+          it "should not render the commission_statements template" do
+            expect(response).to render_template("commission_statements")
+          end
+        end
+
+        context 'not in the agency' do
+          before :each do
+            initialize_and_login_broker_agency_staff[organization2]
+            xhr :get, :commission_statements, id: bap_id
+          end
+
+          it "should redirect to the broker agency profile page path" do
+            profile_page = profiles_broker_agencies_broker_agency_profile_path(:id => broker_agency2.id)
+            expect(response).to redirect_to(profile_page)
+          end
+
+          it "should not render the commission_statements template" do
+            expect(response).to_not render_template("commission_statements")
+          end
+        end
+      end
+    end
+
+    describe "#show_commission_statement" do
+      let(:document) { broker_agency1.documents.create(title: 'TEST', identifier: '38470295384759384752') }
+
+      before do
+        s3_object = instance_double(Aws::S3Storage)
+        allow(Aws::S3Storage).to receive(:find).with(document.identifier).and_return(s3_object)
+      end
+
+      context "admin" do
+        context "with the correct permissions" do
+          before :each do
+            initialize_and_login_admin[super_admin_permission]
+            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context "with the incorrect permissions" do
+          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+
+          before :each do
+            initialize_and_login_admin[dev_permission]
+            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should redirect to new of registration's controller for broker_agency" do
+            expect(response).to redirect_to(new_profiles_registration_path(profile_type: "broker_agency"))
+          end
+        end
+      end
+
+      context "broker" do
+        context 'in the agency' do
+          before :each do
+            initialize_and_login_broker[organization1]
+            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'not in the agency' do
+          before :each do
+            initialize_and_login_broker[organization2]
+            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should redirect to the broker agency profile page path" do
+            profile_page = profiles_broker_agencies_broker_agency_profile_path(:id => broker_agency2.id)
+            expect(response).to redirect_to(profile_page)
+          end
+        end
+      end
+
+      context "broker staff" do
+        context 'in the agency' do
+          before :each do
+            initialize_and_login_broker_agency_staff[organization1]
+            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'not in the agency' do
+          before :each do
+            initialize_and_login_broker_agency_staff[organization2]
+            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should redirect to the broker agency profile page path" do
+            profile_page = profiles_broker_agencies_broker_agency_profile_path(:id => broker_agency2.id)
+            expect(response).to redirect_to(profile_page)
+          end
+        end
+      end
+    end
+
+    describe "#download_commission_statement" do
+      let(:document) { broker_agency1.documents.create(title: 'TEST', identifier: '38470295384759384752') }
+
+      before do
+        s3_object = instance_double(Aws::S3Storage)
+        allow(Aws::S3Storage).to receive(:find).with(document.identifier).and_return(s3_object)
+      end
+
+      context "admin" do
+        context "with the correct permissions" do
+          before :each do
+            initialize_and_login_admin[super_admin_permission]
+            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context "with the incorrect permissions" do
+          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+
+          before :each do
+            initialize_and_login_admin[dev_permission]
+            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should redirect to new of registration's controller for broker_agency" do
+            expect(response).to redirect_to(new_profiles_registration_path(profile_type: "broker_agency"))
+          end
+        end
+      end
+
+      context "broker" do
+        context 'in the agency' do
+          before :each do
+            initialize_and_login_broker[organization1]
+            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'not in the agency' do
+          before :each do
+            initialize_and_login_broker[organization2]
+            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should redirect to the broker agency profile page path" do
+            profile_page = profiles_broker_agencies_broker_agency_profile_path(:id => broker_agency2.id)
+            expect(response).to redirect_to(profile_page)
+          end
+        end
+      end
+
+      context "broker staff" do
+        context 'in the agency' do
+          before :each do
+            initialize_and_login_broker_agency_staff[organization1]
+            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should return http success" do
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'not in the agency' do
+          before :each do
+            initialize_and_login_broker_agency_staff[organization2]
+            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+          end
+
+          it "should redirect to the broker agency profile page path" do
+            profile_page = profiles_broker_agencies_broker_agency_profile_path(:id => broker_agency2.id)
+            expect(response).to redirect_to(profile_page)
+          end
         end
       end
     end
