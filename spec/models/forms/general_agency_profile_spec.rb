@@ -216,6 +216,34 @@ describe Forms::GeneralAgencyProfile, ".match_or_create_person", :dbclean => :af
       expect(general_agency).to have_errors_on(:email)
       expect(general_agency.errors[:email]).to eq(["test@email is not valid"])
     end
+
+    it 'should have errors on invalid emails' do
+      invalid_emails = [
+        'invalid-email',
+        'user@123',
+        'user@domain',
+        'user@example.',
+        "test@email"
+      ]
+
+      invalid_emails.each do |email|
+        general_agency = Forms::GeneralAgencyProfile.new(attributes.merge({email: email}))
+        general_agency.valid?
+        expect(general_agency).to have_errors_on(:email)
+        expect(general_agency.errors[:email].join).to include("is not valid")
+      end
+    end
+
+    it "should not have errors on valid emails" do
+      valid_emails = %w[user@example.com john.doe@example.co.uk jane_doe123@example-domain.com user@subdomain.domain.com]
+
+      valid_emails.each do |email|
+        general_agency = Forms::GeneralAgencyProfile.new(attributes.merge({email: email}))
+        general_agency.valid?
+        expect(general_agency).to have_errors_on(:email)
+        expect(general_agency.errors[:email]).to eq([])
+      end
+    end
   end
 
   context 'when more than 1 person matched' do
