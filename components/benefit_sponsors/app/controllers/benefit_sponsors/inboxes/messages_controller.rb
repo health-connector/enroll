@@ -6,6 +6,13 @@ module BenefitSponsors
       before_action :set_sent_box, only: [:show, :destroy], if: :is_broker?
 
       def show
+        if is_broker?
+          authorize @inbox_provider, :show_inbox_message?, policy_class: BenefitSponsors::PersonPolicy
+        elsif @inbox_provider.instance_of?(Person)
+          authorize @inbox_provider, :can_read_inbox?, policy_class: BenefitSponsors::PersonPolicy
+        else
+          authorize @inbox_provider, :can_read_inbox?
+        end
         BenefitSponsors::Services::MessageService.for_show(@message, @current_user)
         respond_to do |format|
           format.html
@@ -14,6 +21,13 @@ module BenefitSponsors
       end
 
       def destroy
+        if is_broker?
+          authorize @inbox_provider, :destroy_inbox_message?, policy_class: BenefitSponsors::PersonPolicy
+        elsif @inbox_provider.instance_of?(Person)
+          authorize @inbox_provider, :can_read_inbox?, policy_class: BenefitSponsors::PersonPolicy
+        else
+          authorize @inbox_provider, :can_read_inbox?
+        end
         BenefitSponsors::Services::MessageService.for_destroy(@message)
         flash[:notice] = "Successfully deleted inbox message."
         if params[:url].present?
