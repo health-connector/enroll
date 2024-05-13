@@ -4,7 +4,7 @@ module BenefitSponsors
       def redirect_signup?
         return false if user.blank?
 
-        user.has_hbx_staff_role? || user.has_broker_role?
+        user.has_hbx_staff_role? || user.has_broker_role? || user.has_broker_agency_staff_role?
       end
 
       def access_to_broker_agency_profile?
@@ -21,6 +21,12 @@ module BenefitSponsors
         false
       end
 
+      def staff_index?
+        return true if shop_market_admin?
+
+        false
+      end
+
       # NOTE: this method is only used by the BrokerAgencyProfileStaffRolesController
       def new?
         access_to_broker_agency_profile?
@@ -28,12 +34,6 @@ module BenefitSponsors
 
       def show?
         access_to_broker_agency_profile?
-      end
-
-      def staff_index?
-        return true if shop_market_admin?
-
-        false
       end
 
       def family_index?
