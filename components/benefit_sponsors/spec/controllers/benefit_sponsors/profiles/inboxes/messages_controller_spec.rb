@@ -128,5 +128,70 @@ module BenefitSponsors
         end
       end
     end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+
+      context "show message" do
+        before do
+          sign_in fake_user
+          get :show, id: organization.employer_profile.id, message_id: inbox.messages.first.id
+        end
+
+        it "errors out with flash message" do
+          expect(flash[:error]).to eq('Access not allowed for can_read_inbox?, (Pundit policy)')
+        end
+      end
+
+      context "delete message" do
+        before do
+          sign_in fake_user
+          delete :destroy, id: organization.employer_profile.id, message_id: inbox.messages.first.id, format: :js
+        end
+
+        it "errors out with with flash message" do
+          expect(flash[:error]).to eq('Access not allowed for can_read_inbox?, (Pundit policy)')
+        end
+      end
+    end
+
+    context "inactive broker staff logged in" do
+      let(:broker_staff_user) { FactoryGirl.create(:user, person: broker_staff_person) }
+      let(:broker_staff_person) { FactoryGirl.create(:person) }
+      let(:broker_organization_2) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
+      let(:broker_agency_profile_2) { broker_organization_2.broker_agency_profile }
+      let(:broker_agency_id) { broker_agency_profile_2.id }
+      let(:broker_staff) do
+        FactoryGirl.create(
+          :broker_agency_staff_role,
+          person: broker_staff_person,
+          aasm_state: 'broker_agency_terminated',
+          benefit_sponsors_broker_agency_profile_id: broker_agency_id
+        )
+      end
+
+      context "show message" do
+        before do
+          sign_in broker_staff_user
+          get :show, id: organization.employer_profile.id, message_id: inbox.messages.first.id
+        end
+
+        it "errors out with flash message" do
+          expect(flash[:error]).to eq('Access not allowed for can_read_inbox?, (Pundit policy)')
+        end
+      end
+
+      context "delete message" do
+        before do
+          sign_in broker_staff_user
+          delete :destroy, id: organization.employer_profile.id, message_id: inbox.messages.first.id, format: :js
+        end
+
+        it "errors out with with flash message" do
+          expect(flash[:error]).to eq('Access not allowed for can_read_inbox?, (Pundit policy)')
+        end
+      end
+    end
   end
 end
