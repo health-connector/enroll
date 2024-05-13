@@ -42,15 +42,8 @@ module BenefitSponsors
     end
 
     def is_general_agency_staff_for_employer?(profile)
-      staff_roles = user.person.active_general_agency_staff_roles
-      if staff_roles.present?
-        ga_profiles = staff_roles.map(&:benefit_sponsors_general_agency_profile_id)
-        return false if profile.general_agency_accounts.blank?
-
-        profile.general_agency_accounts.any? {|acc|  ga_profiles.include?(acc.benefit_sponsrship_general_agency_profile_id)}
-      else
-        false
-      end
+      # TODO
+      false
     end
 
     def updateable?
@@ -80,7 +73,7 @@ module BenefitSponsors
     def can_read_inbox?
       return false if user.blank? || user.person.blank?
       return true if user.has_hbx_staff_role? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
-      return true if is_staff_role_for_employer?(record)
+      return true if is_staff_role_for_employer?
 
       false
     end

@@ -9,8 +9,9 @@ module BenefitSponsors
     let!(:site) {FactoryGirl.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, site_key: :cca)}
 
     let(:organization) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site)}
+    let!(:active_employer_staff_role) {FactoryGirl.create(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: organization.employer_profile.id)}
     let(:inbox) {FactoryGirl.create(:benefit_sponsors_inbox, :with_message, recipient: organization.employer_profile)}
-    let(:person) {FactoryGirl.create(:person)}
+    let(:person) {FactoryGirl.create(:person, employer_staff_roles: [active_employer_staff_role])}
     let(:user) {FactoryGirl.create(:user, :person => person)}
 
     let(:broker_organization) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
