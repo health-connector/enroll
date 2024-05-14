@@ -2,6 +2,7 @@ module Effective
   module Datatables
     class EmployerDatatable < Effective::MongoidDatatable
       include Config::AcaModelConcern
+      include SanitizeConcern
       datatable do
 
         bulk_actions_column(partial: 'datatables/employers/bulk_actions_column') do
@@ -11,7 +12,7 @@ module Effective
 
         table_column :legal_name, :proc => Proc.new { |row|
           @employer_profile = row.employer_profile
-          (link_to row.legal_name.titleize, employers_employer_profile_path(@employer_profile, :tab=>'home'))
+          (link_to sanitize(row.legal_name.titleize), employers_employer_profile_path(@employer_profile, :tab=>'home'))
 
           }, :sortable => false, :filter => false
         #table_column :hbx_id, :label => 'HBX ID', :proc => Proc.new { |row| truncate(row.id.to_s, length: 8, omission: '' ) }, :sortable => false, :filter => false
@@ -19,10 +20,10 @@ module Effective
         table_column :hbx_id, :label => 'HBX ID', :proc => Proc.new { |row| row.hbx_id }, :sortable => false, :filter => false
 #        table_column :eligibility, :proc => Proc.new { |row| eligibility_criteria(@employer_profile) }, :filter => false
         table_column :broker, :proc => Proc.new { |row|
-            @employer_profile.try(:active_broker_agency_legal_name).try(:titleize) #if row.employer_profile.broker_agency_profile.present?
+            sanitize(@employer_profile.try(:active_broker_agency_legal_name).try(:titleize)) #if row.employer_profile.broker_agency_profile.present?
           }, :filter => false
         table_column :general_agency, :proc => Proc.new { |row|
-          @employer_profile.try(:active_general_agency_legal_name).try(:titleize) #if row.employer_profile.active_general_agency_legal_name.present?
+          sanitize(@employer_profile.try(:active_general_agency_legal_name).try(:titleize)) #if row.employer_profile.active_general_agency_legal_name.present?
         }, :filter => false
         table_column :conversion, :proc => Proc.new { |row| boolean_to_glyph(@employer_profile.is_conversion?)}, :filter => {include_blank: false, :as => :select, :collection => ['All','Yes', 'No'], :selected => 'All'}
 
