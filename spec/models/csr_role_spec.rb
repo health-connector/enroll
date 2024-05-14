@@ -1,23 +1,25 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'aasm/rspec'
 
 describe CsrRole, type: :model, dbclean: :after_each do
- 
+
   let!(:person1) { FactoryGirl.create(:person, :with_csr_role, first_name: 'Jaxon', last_name: 'Perry') }
   let!(:person2) { FactoryGirl.create(:person, :with_csr_role, first_name: 'Quinn', last_name: 'Perry') }
-  
+
   describe "find_by_name" do
     let(:first_name) { 'Quinn' }
     let(:last_name) { 'Perry' }
     let(:cac_flag) { false }
 
-    let(:params) {
-        {
-            first_name: first_name,
-            last_name: last_name,
-            cac_flag: cac_flag
-        }
-    }
+    let(:params) do
+      {
+        first_name: first_name,
+        last_name: last_name,
+        cac_flag: cac_flag
+      }
+    end
 
     context "with string inputs" do
       it "should find matched person with csr role" do
