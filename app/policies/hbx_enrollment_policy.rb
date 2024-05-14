@@ -43,6 +43,14 @@ class HbxEnrollmentPolicy < ApplicationPolicy
     create?
   end
 
+  def waiver_receipt?
+    create?
+  end
+
+  def complete_plan_shopping?
+    create?
+  end
+
   private
 
   # # Returns the family associated with the current enrollment.

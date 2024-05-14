@@ -12,5 +12,6 @@ end
 executable_path = File.expand_path "#{File.dirname(Gem.bin_path('wkhtmltopdf-binary-edge'))}/../libexec/wkhtmltopdf-#{arch}"
 
 WickedPdf.config = {
-  exe_path: executable_path
+  exe_path: executable_path,
+  enable_local_file_access: false
 }

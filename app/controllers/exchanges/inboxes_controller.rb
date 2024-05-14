@@ -1,5 +1,7 @@
 class Exchanges::InboxesController < InboxesController
   def find_inbox_provider
+    authorize HbxProfile, :inbox?
+
     @inbox_provider = HbxProfile.find(params["id"])
     @inbox_provider_name = "System Admin"
   end
@@ -13,5 +15,4 @@ class Exchanges::InboxesController < InboxesController
     @sent_box = true
     super
   end
-
 end
