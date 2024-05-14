@@ -41,7 +41,7 @@ module BenefitSponsors
           @page_alphabets = page_alphabets(@staff, "last_name")
           page_no = cur_page_no(@page_alphabets.first)
           if @q.nil?
-            @staff = @staff.where(last_name: /^#{page_no.first}/i)
+            @staff = @staff.where(last_name: /^#{page_no&.first}/i)
           else
             @staff = @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
           end
