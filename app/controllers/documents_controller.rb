@@ -47,7 +47,7 @@ class DocumentsController < ApplicationController
 
     begin
       bucket = env_bucket_name("templates")
-      key = EnrollRegistry[:enroll_app].setting(:employees_template_key).item
+      key = EnrollRegistry[:enroll_app].setting(:census_employees_template_file).item
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket}##{key}"
       send_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e

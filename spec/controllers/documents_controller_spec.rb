@@ -314,7 +314,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         it 'current user without any role should not be able to download' do
           get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to have_http_status(:found)
-          expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for user_policy.can_download_sbc_documents?, (Pundit policy)")
         end
       end
     end
@@ -357,7 +357,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         it 'broker should be able to download' do
           get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }, session: { person_id: employee_person.id }
           expect(response).to have_http_status(:found)
-          expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for user_policy.can_download_sbc_documents?, (Pundit policy)")
         end
       end
     end
@@ -382,7 +382,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         it 'employer should not be able to download' do
           get :product_sbc_download, { document_id: product.sbc_document.id, product_id: product.id }
           expect(response).to have_http_status(:found)
-          expect(flash[:error]).to eq("Access not allowed for person_policy.can_download_sbc_documents?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for user_policy.can_download_sbc_documents?, (Pundit policy)")
         end
       end
     end
