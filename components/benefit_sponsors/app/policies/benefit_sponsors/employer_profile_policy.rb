@@ -1,5 +1,5 @@
 module BenefitSponsors
-  class EmployerProfilePolicy < ApplicationPolicy
+  class EmployerProfilePolicy < ::ApplicationPolicy
 
     def show?
       return false unless user.present?
@@ -74,6 +74,16 @@ module BenefitSponsors
       return false if user.blank? || user.person.blank?
       return true if user.has_hbx_staff_role? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
       return true if is_staff_role_for_employer?
+
+      false
+    end
+
+    def employer_attestation_document_download?
+      return false unless account_holder_person
+      return true if shop_market_admin?
+      return true if is_staff_role_for_employer?
+      return true if is_broker_for_employer?(record)
+      return true if is_general_agency_staff_for_employer?(record)
 
       false
     end

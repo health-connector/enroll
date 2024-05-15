@@ -67,7 +67,7 @@ module Insured
     def set_family
       @person = Person.find(params[:person_id]) if params[:person_id]
       @family = @person.primary_family
-      authorize @family, :complete_plan_shopping?
+      authorize @family, :member_selection_coverage?
     end
 
     def keep_existing_plan_cart
