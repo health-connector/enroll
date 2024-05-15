@@ -7,6 +7,10 @@ describe FetchCobraMembers, :dbclean => :after_each do
   include_context "setup shop families enrollments"
 
   context 'should not assign context' do
+    before :all do
+      DatabaseCleaner.clean
+    end
+
     it 'should return success' do
       context = described_class.call(market_kind: nil)
       expect(context.success?).to eq true
