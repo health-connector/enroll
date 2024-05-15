@@ -148,7 +148,7 @@ PATH
       roo (~> 2.1.0)
       slim (= 3.0.9)
       virtus (~> 1.0.5)
-      wicked_pdf (= 1.0.6)
+      wicked_pdf (= 2.1.0)
       wkhtmltopdf-binary-edge (~> 0.12.3.0)
 
 PATH
@@ -904,7 +904,8 @@ GEM
       rack-proxy (>= 0.6.1)
       railties (>= 4.2)
     websocket (1.2.10)
-    wicked_pdf (1.0.6)
+    wicked_pdf (2.1.0)
+      activesupport
     wkhtmltopdf-binary-edge (0.12.3.0)
     xpath (3.2.0)
       nokogiri (~> 1.8)
@@ -1043,7 +1044,7 @@ DEPENDENCIES
   webdrivers (~> 5.3.1)
   webmock
   webpacker
-  wicked_pdf (= 1.0.6)
+  wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
   yard (~> 0.9.5)
   yard-mongoid (~> 0.1.0)
