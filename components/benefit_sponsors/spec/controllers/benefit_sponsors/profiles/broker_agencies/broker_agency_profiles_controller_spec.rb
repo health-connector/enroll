@@ -174,6 +174,21 @@ module BenefitSponsors
         end
       end
 
+      context 'with special chars in input' do
+        before :each do
+          sign_in(user_with_hbx_staff_role)
+          xhr :get, :staff_index, id: bap_id, page: '^['
+        end
+
+        it "should return success http status" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should render staff_index template" do
+          expect(response).to render_template("benefit_sponsors/profiles/broker_agencies/broker_agency_profiles/staff_index")
+        end
+      end
+
       context "without a valid user" do
         let!(:user) { FactoryGirl.create(:user, roles: [], person: FactoryGirl.create(:person)) }
 
