@@ -212,7 +212,7 @@ module BenefitSponsors
 
       context 'with special chars in input' do
         before :each do
-          sign_in(user_with_hbx_staff_role)
+          initialize_and_login_admin[super_admin_permission]
           xhr :get, :staff_index, id: bap_id, page: '^['
         end
 
