@@ -58,10 +58,10 @@ module BenefitSponsors
           @page_alphabets = page_alphabets(@staff, "last_name")
           page_no = cur_page_no(@page_alphabets.first || 'a')
           @staff = if @q.nil?
-            @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
-          else
-            @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
-          end
+                     @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
+                   else
+                     @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
+                   end
         end
 
         # TODO: need to refactor for cases around SHOP broker agencies
