@@ -2,7 +2,7 @@ require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-describe Forms::BulkActionsForAdmin, ".cancel_enrollments" do
+describe Forms::BulkActionsForAdmin, ".cancel_enrollments", dbclean: :around_each do
 
   let(:params) { {
     :family_actions_id => "family_actions_5824903a7af880f17a000009",
