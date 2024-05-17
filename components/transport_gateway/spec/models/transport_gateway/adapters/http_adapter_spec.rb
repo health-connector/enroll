@@ -4,14 +4,14 @@ require 'net/http'
 module TransportGateway
   RSpec.describe Adapters::HttpAdapter, type: :model do
     let(:adapter)     { Adapters::HttpAdapter.new }
+    let(:host)        { "www.example.com"}
 
     before(:each) do
-      stub_request(:put, /www.example.com/).to_return(status: 200, body: "http stubbed response", headers: {})
+      stub_request(:put, /#{Regexp.escape(host)}/).to_return(status: 200, body: "http stubbed response", headers: {})
     end
 
     context "Post content to HTTP server resource" do
       let(:from)        { "foo@bar.com" }
-      let(:host)        { "www.example.com"}
       let(:path)        { "/path/to/resource" }
       let(:url)         { host + path }
       let(:text_string) { "madam in eden i'm adam" }
