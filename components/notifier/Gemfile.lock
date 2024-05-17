@@ -16,7 +16,7 @@ PATH
       roo (~> 2.1.0)
       slim (= 3.0.9)
       virtus (~> 1.0.5)
-      wicked_pdf (= 1.0.6)
+      wicked_pdf (= 2.1.0)
       wkhtmltopdf-binary-edge (~> 0.12.3.0)
 
 GEM
@@ -273,7 +273,7 @@ GEM
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
       equalizer (~> 0.0, >= 0.0.9)
-    wicked_pdf (1.0.6)
+    wicked_pdf (2.1.0)
     wkhtmltopdf-binary-edge (0.12.3.0)
     xpath (2.1.0)
       nokogiri (~> 1.3)

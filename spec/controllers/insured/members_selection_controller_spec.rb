@@ -58,7 +58,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
         post :create, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
 
         expect(response).to redirect_to(root_path)
-        expect(flash[:error]).to eq("Access not allowed for family_policy.complete_plan_shopping?, (Pundit policy)")
+        expect(flash[:error]).to eq("Access not allowed for family_policy.member_selection_coverage?, (Pundit policy)")
       end
 
       shared_examples_for "logged in user has no authorization roles for MembersSelectionController" do |action|
@@ -68,7 +68,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
           get action, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
 
           expect(response).to redirect_to(root_path)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.complete_plan_shopping?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.member_selection_coverage?, (Pundit policy)")
         end
       end
 
