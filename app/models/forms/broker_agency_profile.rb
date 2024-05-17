@@ -19,7 +19,7 @@ module Forms
 
     validates :email, :email => true, :allow_blank => false
 
-    validates_format_of :email, :with => /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/, message: "%{value} is not valid"
+    validates_format_of :email, :with => /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/, message: "%<value>s is not valid"
 
     validate :validate_duplicate_npn
     validate :validate_ach_record
