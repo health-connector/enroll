@@ -20,7 +20,12 @@ class CsrRole
 
     def find_by_name(first_name, last_name, cac_flag)
       staff = Person.where(:'csr_role.cac' => cac_flag)
-      staff.where(:$and => [{first_name: /^#{first_name}$/i},{last_name: /^#{last_name}$/i}])
+      staff.where(
+        :$and => [
+          { first_name: /^#{Regexp.escape(first_name)}$/i },
+          { last_name: /^#{Regexp.escape(last_name)}$/i }
+        ]
+      )
     end
 
     def find(id)
