@@ -11,7 +11,9 @@ describe "app/views/events/v2/employers/_benefit_group.xml.haml" , dbclean: :aft
 
   context "benefit_group xml" do
     context "reference plan" do
+
       before :each do
+        DatabaseCleaner.clean
         render :template => "events/v2/employers/_benefit_group.xml.haml", locals: {benefit_group: benefit_package,
                                                                                     elected_plans: [], relationship_benefits: [],sponsored_benefit:health_sponsored_benefit}
         @doc = Nokogiri::XML(rendered)
