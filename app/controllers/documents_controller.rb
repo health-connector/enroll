@@ -27,7 +27,7 @@ class DocumentsController < ApplicationController
       end
     end
     redirect_to verification_insured_families_path
-  rescue => e
+  rescue StandardError => e
     redirect_to(:back, :flash => {error: e.message})
   end
 
