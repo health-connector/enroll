@@ -7,7 +7,7 @@ Given 'There are preloaded security question on the system' do
 end
 
 Given(/^the user click on config drop down in the Admin Tab$/) do
-  find(:xpath, '//*[@id="myTab"]/li[13]/ul/li[4]/a/span[1]').click
+  find('.interaction-click-control-config').click
 end
 
 Then(/^user should able to see Secuity Questions$/) do
