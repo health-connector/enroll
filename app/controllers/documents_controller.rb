@@ -4,7 +4,7 @@ class DocumentsController < ApplicationController
   before_action :fetch_record, only: [:authorized_download]
   before_action :set_document, only: [:destroy]
   respond_to :html, :js
-  rescue_from ActionController::RedirectBackError, with: :redirect_to_default
+  rescue_from ActionController::Redirecting::UnsafeRedirectError, with: :redirect_to_default
 
   def authorized_download
     authorize @record, :can_download_document?
