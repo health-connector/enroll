@@ -41,7 +41,7 @@ RSpec.describe Exchanges::InboxesController do
       context "DELETE destroy" do
         it 'allows admin delete message' do
           sign_in admin_user
-          delete :destroy, :id => hbx_profile.id, :message_id => message.id, format: :js
+          delete :destroy, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to be_present
@@ -52,7 +52,7 @@ RSpec.describe Exchanges::InboxesController do
       context "GET show" do
         it 'allows admin to view message' do
           sign_in admin_user
-          get :show,  :id => hbx_profile.id, :message_id => message.id, format: :js
+          get :show,  params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(:success)
         end
@@ -69,7 +69,7 @@ RSpec.describe Exchanges::InboxesController do
       context "DELETE destroy" do
         it 'does not allow developer-admin to delete message' do
           sign_in admin_user
-          delete :destroy,  :id => hbx_profile.id, :message_id => message.id, format: :js
+          delete :destroy, params: {:id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(403)
           expect(flash[:error]).to be_present
@@ -80,7 +80,7 @@ RSpec.describe Exchanges::InboxesController do
       context "GET show" do
         it 'does not allow developer-admin to view message' do
           sign_in admin_user
-          get :show,  :id => hbx_profile.id, :message_id => message.id, format: :js
+          get :show, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(403)
           expect(message.message_read).to eq false
@@ -96,7 +96,7 @@ RSpec.describe Exchanges::InboxesController do
     context "DELETE destroy" do
       it 'does not allow user to delete message' do
         sign_in consumer_user
-        delete :destroy, :id => hbx_profile.id, :message_id => message.id, format: :js
+        delete :destroy, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(flash[:error]).to be_present
@@ -107,7 +107,7 @@ RSpec.describe Exchanges::InboxesController do
     context "GET show" do
       it 'does not allow user to view message' do
         sign_in consumer_user
-        get :show, :id => hbx_profile.id, :message_id => message.id, format: :js
+        get :show, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(message.message_read).to eq false
@@ -122,7 +122,7 @@ RSpec.describe Exchanges::InboxesController do
     context "DELETE destroy" do
       it 'does not allow user to delete message' do
         sign_in broker_user
-        delete :destroy, :id => hbx_profile.id, :message_id => message.id, format: :js
+        delete :destroy, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(flash[:error]).to be_present
@@ -133,7 +133,7 @@ RSpec.describe Exchanges::InboxesController do
     context "GET show" do
       it 'does not allow user to view message' do
         sign_in broker_user
-        get :show, :id => hbx_profile.id, :message_id => message.id, format: :js
+        get :show, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(message.message_read).to eq false
