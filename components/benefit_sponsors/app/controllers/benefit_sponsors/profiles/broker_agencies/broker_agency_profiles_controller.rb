@@ -56,9 +56,9 @@ module BenefitSponsors
           @q = params.permit(:q)[:q]
           @staff = eligible_brokers
           @page_alphabets = page_alphabets(@staff, "last_name")
-          page_no = cur_page_no(@page_alphabets.first)
+          page_no = cur_page_no(@page_alphabets.first || 'a')
           @staff = if @q.nil?
-                     @staff.where(last_name: /^#{Regexp.escape(page_no&.first)}/i)
+                     @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
                    else
                      @staff.where(last_name: /^#{Regexp.escape(@q)}/i)
                    end
