@@ -122,7 +122,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :continuous_show, params
+        get :continuous_show, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -185,7 +185,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :thankyou, params
+        get :thankyou, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -229,7 +229,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        post :checkout, params
+        post :checkout, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -267,7 +267,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :receipt, params
+        get :receipt, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -307,7 +307,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :waiver_thankyou, params
+        get :waiver_thankyou, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -382,7 +382,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        post :waiver_checkout, params
+        post :waiver_checkout, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -415,7 +415,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :waiver_receipt, params
+        get :waiver_receipt, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.waiver_receipt?, (Pundit policy)")
       end
