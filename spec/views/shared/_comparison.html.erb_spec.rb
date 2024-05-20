@@ -82,7 +82,6 @@ describe "shared/_comparison.html.erb", dbclean: :after_each do
 
     before :each do
       assign :coverage_kind, "health"
-      assign :market_kind, 'aca_shop'
       allow(product).to receive(:sbc_document).and_return double("Document", id: BSON::ObjectId.new, :identifier => "identifier")
       render "shared/comparison", :qhps => mock_qhps
     end

@@ -88,13 +88,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   let!(:user) { FactoryBot.create(:user, :person => ee_person)}
 
   describe "GET #continuous_show" do
-    context '#success' do
-      let!(:params) do
-        {"dental" => {"change_plan" => "", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-         "dental_offering" => "true", "event" => "shop_for_plans",
-         "health" => {"change_plan" => "", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"}, "health_offering" => "true"}
-      end
+    let!(:params) do
+      {"dental" => {"change_plan" => "", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+       "dental_offering" => "true", "event" => "shop_for_plans",
+       "health" => {"change_plan" => "", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"}, "health_offering" => "true"}
+    end
 
+    context '#success' do
       before do
         sign_in user
         get :continuous_show, params: params
@@ -111,6 +111,20 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       it "products present for shopping" do
         expect(assigns(:context).products.present?).to be_truthy
+      end
+    end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        get :continuous_show, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
     end
 
@@ -137,16 +151,16 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   end
 
   describe "GET #thankyou" do
-    context '#success' do
-      let!(:params) do
-        {"cart" => {"dental" => {"id" => dental_enrollment.id, "product_id" => all_dental_products.first.id},
-                    "health" => {"id" => health_enrollment.id, "product_id" => all_health_products.first.id}},
-         "dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-         "dental_offering" => "true", "event" => "shop_for_plans",
-         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-         "health_offering" => "true"}
-      end
+    let!(:params) do
+      {"cart" => {"dental" => {"id" => dental_enrollment.id, "product_id" => all_dental_products.first.id},
+                  "health" => {"id" => health_enrollment.id, "product_id" => all_health_products.first.id}},
+       "dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+       "dental_offering" => "true", "event" => "shop_for_plans",
+       "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+       "health_offering" => "true"}
+    end
 
+    context '#success' do
       before do
         sign_in user
         get :thankyou, params: params
@@ -162,21 +176,35 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         expect(assigns(:context).key?("dental")).to be_truthy
       end
     end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        get :thankyou, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
+      end
+    end
   end
 
   describe "GET #checkout" do
-    context '#success' do
-      let!(:params) do
-        { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
-                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
-                       "family_id" => family.id, "market_kind" => "employer_sponsored",
-                       "product_id" => all_dental_products.first.id, "use_family_deductable" => "true", "waivable" => "true"},
-          "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
-                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
-                       "family_id" => family.id, "market_kind" => "employer_sponsored",
-                       "product_id" => all_health_products.first.id, "use_family_deductable" => "true", "waivable" => "true"} }
-      end
+    let!(:params) do
+      { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
+                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                     "family_id" => family.id, "market_kind" => "employer_sponsored",
+                     "product_id" => all_dental_products.first.id, "use_family_deductable" => "true", "waivable" => "true"},
+        "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
+                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                     "family_id" => family.id, "market_kind" => "employer_sponsored",
+                     "product_id" => all_health_products.first.id, "use_family_deductable" => "true", "waivable" => "true"} }
+    end
 
+    context '#success' do
       before do
         sign_in user
         post :checkout, params: params
@@ -192,17 +220,31 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         expect(assigns(:context).key?("dental")).to be_truthy
       end
     end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        post :checkout, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
+      end
+    end
   end
 
   describe "GET #receipt" do
+    let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
+
+    let!(:params) do
+      {"dental" => {"can_select_coverage" => "true", "coverage_kind" => "dental", "employee_is_shopping_before_hire" => "false",
+                    "enrollment_id" => dental_enrollment.id, "event" => "make_changes_for_dental", "product_id" => dental_enrollment.product_id, "qle" => "false"}}
+    end
+
     context '#success' do
-      let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
-
-      let!(:params) do
-        {"dental" => {"can_select_coverage" => "true", "coverage_kind" => "dental", "employee_is_shopping_before_hire" => "false",
-                      "enrollment_id" => dental_enrollment.id, "event" => "make_changes_for_dental", "product_id" => dental_enrollment.product_id, "qle" => "false"}}
-      end
-
       before do
         sign_in user
         get :receipt, params: params
@@ -216,17 +258,31 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         expect(assigns(:context)).not_to be_nil
       end
     end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        get :receipt, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
+      end
+    end
   end
 
   describe "GET #waiver_thankyou" do
-    context '#success' do
-      let!(:params) do
-        {"dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-         "dental_offering" => "true", "event" => "shop_for_plans",
-         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
-         "health_offering" => "true"}
-      end
+    let!(:params) do
+      {"dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+       "dental_offering" => "true", "event" => "shop_for_plans",
+       "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+       "health_offering" => "true"}
+    end
 
+    context '#success' do
       before do
         sign_in user
         get :waiver_thankyou, params: params
@@ -240,6 +296,20 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         expect(assigns(:context)).not_to be_nil
         expect(assigns(:context).key?(:health)).to be_truthy
         expect(assigns(:context).key?(:dental)).to be_truthy
+      end
+    end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        get :waiver_thankyou, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
     end
 
@@ -276,18 +346,18 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   end
 
   describe "GET #waiver_checkout" do
-    context '#success' do
-      let!(:params) do
-        { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
-                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
-                       "family_id" => family.id, "market_kind" => "employer_sponsored",
-                       "product_id" => nil, "use_family_deductable" => "true", "waivable" => "true"},
-          "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
-                       "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
-                       "family_id" => family.id, "market_kind" => "employer_sponsored",
-                       "product_id" => nil, "use_family_deductable" => "true", "waivable" => "true"} }
-      end
+    let!(:params) do
+      { "dental" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => dental_enrollment.id,
+                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                     "family_id" => family.id, "market_kind" => "employer_sponsored",
+                     "product_id" => nil, "use_family_deductable" => "true", "waivable" => "true"},
+        "health" => {"employee_role_id" => employee_role, "enrollable" => "true", "enrollment_id" => health_enrollment.id,
+                     "enrollment_kind" => "open_enrollment", "event" => "shop_for_plans",
+                     "family_id" => family.id, "market_kind" => "employer_sponsored",
+                     "product_id" => nil, "use_family_deductable" => "true", "waivable" => "true"} }
+    end
 
+    context '#success' do
       before do
         sign_in user
         post :waiver_checkout, params: params
@@ -303,16 +373,30 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
         expect(assigns(:context).key?("dental")).to be_truthy
       end
     end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        post :waiver_checkout, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
+      end
+    end
   end
 
   describe "GET #waiver_receipt" do
+    let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
+
+    let!(:params) do
+      {"health" => {"waiver_enrollment": health_enrollment.id }, "dental" => {"waiver_enrollment": dental_enrollment.id}}
+    end
+
     context '#success' do
-      let!(:dental_enrollment_update) { dental_enrollment.update_attributes(aasm_state: "coverage_selected", product_id: all_dental_products.first.id)}
-
-      let!(:params) do
-        {"health" => {waiver_enrollment: health_enrollment.id }, "dental" => {waiver_enrollment: dental_enrollment.id}}
-      end
-
       before do
         sign_in user
         get :waiver_receipt, params: params
@@ -320,6 +404,20 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       it "returns http success" do
         expect(response).to have_http_status(:success)
+      end
+    end
+
+    context "logged in user has no authorization roles" do
+      let(:person) { create(:person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
+
+      it "redirects to root with flash message" do
+        session[:person_id] = person.id.to_s
+        sign_in fake_user
+
+        get :waiver_receipt, params
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.waiver_receipt?, (Pundit policy)")
       end
     end
   end

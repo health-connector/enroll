@@ -15,34 +15,37 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
 
   let(:mock_issuer_profile) { double("IssuerProfile", :dba => "a carrier name", :legal_name => "name") }
 
-  let(:mock_product) do
-    double("Product",
-           :active_year => 2018,
-           :title => "A Plan Name",
-           :carrier_profile_id => "a carrier profile id",
-           :issuer_profile => mock_issuer_profile,
-           :metal_level_kind => "Silver",
-           :product_type => "A plan type",
-           :nationwide => true,
-           :network_information => "This is a test",
-           :deductible => 0,
-           :total_premium => 0,
-           :total_employer_contribution => 0,
-           :total_employee_cost => 0,
-           :rx_formulary_url => "http://www.example.com",
-           :provider_directory_url => "http://www.example1.com",
-           :ehb => 0.988,
-           :hios_id => "89789DC0010006-01",
-           :id => "1234234234",
-           :kind => "health",
-           :health_plan_kind => "HMO",
-           :sbc_file => "THE SBC FILE.PDF",
-           :is_standard_plan => true,
-           :can_use_aptc? => true,
-           :sbc_document => Document.new({title: 'sbc_file_name', subject: "SBC",
-                                          :identifier => "urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"}))
-  end
+  let(:mock_product) { double("Product",
+      :active_year => 2018,
+      :title => "A Plan Name",
+      :carrier_profile_id => "a carrier profile id",
+      :issuer_profile => mock_issuer_profile,
+      :metal_level_kind => "Silver",
+      :product_type => "A plan type",
+      :nationwide => true,
+      :network_information => "This is a test",
+      :deductible => 0,
+      :total_premium => 0,
+      :total_employer_contribution => 0,
+      :total_employee_cost => 0,
+      :rx_formulary_url => "http://www.example.com",
+      :provider_directory_url => "http://www.example1.com",
+      :ehb => 0.988,
+      :hios_id => "89789DC0010006-01",
+      :id => "1234234234",
+      :kind => "health",
+      :health_plan_kind => "HMO",
+      :sbc_file => "THE SBC FILE.PDF",
+      :is_standard_plan => true,
+      :can_use_aptc? => true,
+      :sbc_document => document
+      ) }
   let(:mock_qhp_cost_share_variance) { instance_double(Products::QhpCostShareVariance, :qhp_service_visits => []) }
+
+  let(:document) do
+    Document.new({title: 'sbc_file_name', subject: "SBC",
+                  :identifier => "urn:openhbx:terms:v1:file_storage:s3:bucket:#{Settings.site.s3_prefix}-enroll-sbc-#{aws_env}#7816ce0f-a138-42d5-89c5-25c5a3408b82"})
+  end
 
   before :each do
     Caches::MongoidCache.release(CarrierProfile)
@@ -85,7 +88,10 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
     end
 
     it "should have a link to download the sbc pdf" do
-      expect(rendered).to have_selector("a[href='#{"/document/download/#{Settings.site.s3_prefix}-enroll-sbc-qa/7816ce0f-a138-42d5-89c5-25c5a3408b82?content_type=application/pdf&filename=APlanName.pdf&disposition=inline"}']")
+      expect(rendered).to have_selector(
+        "a[href='#{"/documents/#{document.id}/product_sbc_download?product_id=#{mock_product.id}&content_type=application/pdf&filename=APlanName.pdf"\
+        '&disposition=inline'}']"
+      )
     end
 
     it "should have a label 'Summary of Benefits and Coverage (SBC)'" do

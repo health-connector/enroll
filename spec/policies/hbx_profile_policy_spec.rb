@@ -9,6 +9,12 @@ describe HbxProfilePolicy do
   let(:assister_person) { FactoryBot.create(:person, :with_assister_role) }
   let(:csr_person) { FactoryBot.create(:person, :with_csr_role) }
   let(:employee_person) { FactoryBot.create(:person, :with_employee_role)}
+  let(:permission) { FactoryBot.create(:permission, modify_family: true)}
+  let(:hbx_staff_role) { hbx_staff_person.hbx_staff_role }
+
+  before do
+    allow(hbx_staff_role).to receive(:permission).and_return permission
+  end
 
   permissions :show? do
     it "grants access when hbx_staff" do

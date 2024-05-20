@@ -15,6 +15,14 @@ module Notifier
       "GeneralAgency" => "Notifier::MergeDataModels::GeneralAgency"
     }
 
+    MODEL_CLASS_MAPPING = {
+      "Notifier::MergeDataModels::EmployerProfile" => "Notifier::MergeDataModels::EmployerProfile",
+      "Notifier::MergeDataModels::EmployeeProfile" => "Notifier::MergeDataModels::EmployeeProfile",
+      "Notifier::MergeDataModels::BrokerProfile" => "Notifier::MergeDataModels::BrokerProfile",
+      "Notifier::MergeDataModels::BrokerAgencyProfile" => "Notifier::MergeDataModels::BrokerAgencyProfile",
+      "Notifier::MergeDataModels::GeneralAgency" => "Notifier::MergeDataModels::GeneralAgency"
+    }.freeze
+
     field :title, type: String
     field :description, type: String
     field :identifier, type: String
@@ -114,7 +122,7 @@ module Notifier
 
       event :archive, :after => :record_transition do
         transitions from: [:published],  to: :archived
-      end  
+      end
     end
 
     # Check if notice with same MPI indictor exists
@@ -133,7 +141,7 @@ module Notifier
     #       no_links: true,
     #       hard_wrap: true,
     #       disable_indented_code_blocks: true,
-    #       fenced_code_blocks: false,        
+    #       fenced_code_blocks: false,
     #     )
     # end
 
