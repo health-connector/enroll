@@ -140,4 +140,5 @@ RSpec.describe Exchanges::InboxesController do
       end
     end
   end
+  end
 end
