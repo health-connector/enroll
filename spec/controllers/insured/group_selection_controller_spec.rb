@@ -287,7 +287,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     let!(:hbx_enrollment_2) { FactoryGirl.create(:hbx_enrollment, household: family_2.active_household) }
 
     it "return http success and render when valid enrollment id given" do
-      sign_in
+      sign_in user
       get :terminate_selection, person_id: person.id
       get :terminate_confirm, person_id: person.id, hbx_enrollment_id: hbx_enrollment.id
       expect(response).to have_http_status(:success)
@@ -295,7 +295,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     end
 
     it "redirects when invalid enrollment id given" do
-      sign_in
+      sign_in user
       get :terminate_selection, person_id: person.id
       get :terminate_confirm, person_id: person.id, hbx_enrollment_id: hbx_enrollment_2.id
       expect(response).to have_http_status(:redirect)

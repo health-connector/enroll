@@ -131,6 +131,7 @@ class Insured::GroupSelectionController < ApplicationController
   end
 
   def terminate_confirm
+    authorize @family, :manage_family?
     @hbx_enrollment = @family.enrolled_hbx_enrollments.where(id: params.require(:hbx_enrollment_id)).first
     return if @hbx_enrollment.present?
 
