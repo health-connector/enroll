@@ -303,6 +303,7 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
     let(:coverage_end_on) {TimeKeeper.date_of_record.end_of_month}
 
     before do
+      TimeKeeper.set_date_of_record_unprotected!(Date.today)
       allow(HbxEnrollment).to receive(:find).with("hbx_id").and_return(hbx_enrollment)
       allow(hbx_enrollment).to receive(:employee_role_id).and_return(employee_role.id)
       allow(person).to receive(:primary_family).and_return(family)
