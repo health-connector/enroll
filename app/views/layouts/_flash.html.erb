@@ -8,19 +8,18 @@
           </div>
           <div class="flash-msg">
             <a class="close" data-dismiss="alert" href="#">×</a>
-            <%= raw message %>
+            <%= sanitize message %>
           </div>
         </div>
       <% else %>
         <div class="col-xs-12">
           <a class="close" data-dismiss="alert" href="#">×</a>
-          <%= raw message %>
+          <%= sanitize message %>
         </div>
       <% end %>
     </div>
   </div>
 </div>
-
 
 <style type="text/css">
   .info-div {
