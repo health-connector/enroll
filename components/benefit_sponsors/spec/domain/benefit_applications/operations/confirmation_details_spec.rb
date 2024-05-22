@@ -121,6 +121,10 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
 
       context 'with active enrollment' do
 
+        before :all do
+          DatabaseCleaner.clean
+        end
+
         it 'should return enrollment details' do
           employee_details = subject.call(params).value![:employee_details]
           expect(employee_details.map {|detail| detail[:enrollment_details] }.reject(&:empty?)).to eq [enrollment.hbx_id]
