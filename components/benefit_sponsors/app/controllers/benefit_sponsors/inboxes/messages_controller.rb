@@ -1,19 +1,35 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module Inboxes
-    class MessagesController < ApplicationController
+    # Needs to explictly inherit from BenefitSponsors::ApplicationController, or won't have access to authorize method
+    class MessagesController < BenefitSponsors::ApplicationController
       before_action :set_current_user
-      before_action :find_inbox_provider, except: [:msg_to_portal]
+      before_action :find_inbox_provider
       before_action :find_message
       before_action :set_sent_box, only: [:show, :destroy], if: :is_broker?
-      before_action :find_profile, only: [:msg_to_portal]
 
-      def new
-      end
-
-      def create
-      end
-
+      # Shows an inbox message.
+      # The id passed in is not the message id but the person id or profile id.
+      # The message id is passed in as message_id.
+      # The implementation is so that the messages of a BrokerAgencyProfile are attached to the person
+      # who is the primary broker of the agency and not the agency itself.
+      # This method checks if the user has the necessary permissions to view the message and then displays it.
+      # If a url is passed in the parameters, it is stored in the @inbox_url instance variable.
+      #
+      # @note This method is used in the show action of the messages controller.
+      # @note The authorization checks are performed using the BenefitSponsors::PersonPolicy policy.
+      #
+      # @return [HTML, JS] The inbox message is displayed in HTML format.
       def show
+        if is_broker?
+          ## TODO: Update pundit gem version to 2.0 or above, to call policy_class: BenefitSponsors::PersonPolicy.
+          BenefitSponsors::PersonPolicy.new(@current_user, @inbox_provider).show_inbox_message?
+        elsif @inbox_provider.instance_of?(Person)
+          BenefitSponsors::PersonPolicy.new(@current_user, @inbox_provider).can_read_inbox?
+        else
+          authorize @inbox_provider, :can_read_inbox?
+        end
         BenefitSponsors::Services::MessageService.for_show(@message, @current_user)
         respond_to do |format|
           format.html
@@ -21,20 +37,30 @@ module BenefitSponsors
         end
       end
 
+      # Destroys an inbox message.
+      # The id passed in is not the message id but the person id or profile id.
+      # The message id is passed in as message_id.
+      # The implementation is so that the messages of a BrokerAgencyProfile are attached to the person
+      # who is the primary broker of the agency and not the agency itself.
+      # This method checks if the user has the necessary permissions to destroy the message and then destroys it.
+      # A success message is displayed to the user after the message is destroyed.
+      # If a url is passed in the parameters, it is stored in the @inbox_url instance variable.
+      #
+      # @note This method is used in the destroy action of the messages controller.
+      # @note The authorization checks are performed using the BenefitSponsors::PersonPolicy policy.
       def destroy
+        if is_broker?
+          BenefitSponsors::PersonPolicy.new(@current_user, @inbox_provider).destroy_inbox_message?
+        elsif @inbox_provider.instance_of?(Person)
+          BenefitSponsors::PersonPolicy.new(@current_user, @inbox_provider).can_read_inbox?
+        else
+          authorize @inbox_provider, :can_read_inbox?
+        end
         BenefitSponsors::Services::MessageService.for_destroy(@message)
         flash[:notice] = "Successfully deleted inbox message."
         if params[:url].present?
           @inbox_url = params[:url]
         end
-      end
-
-      def msg_to_portal
-        @inbox_provider = @profile
-        @inbox_provider_name = @inbox_provider.try(:legal_name)
-        @inbox_to_name = "HBX Admin"
-        log("#3969 and #3985 params: #{params.to_s}, request: #{request.env.inspect}", {:severity => "error"}) if @inbox_provider.blank?
-        @new_message = @inbox_provider.inbox.messages.build
       end
 
       private
@@ -68,12 +94,6 @@ module BenefitSponsors
 
       def find_message
         @message = @inbox_provider.inbox.messages.by_message_id(params["message_id"]).to_a.first
-      end
-
-      def set_inbox_and_assign_message
-      end
-
-      def successful_save_path
       end
     end
   end

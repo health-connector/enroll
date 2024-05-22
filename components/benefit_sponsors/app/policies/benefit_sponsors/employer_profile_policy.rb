@@ -43,7 +43,7 @@ module BenefitSponsors
 
     def is_general_agency_staff_for_employer?(profile)
       # TODO
-      return false
+      false
     end
 
     def updateable?
@@ -68,6 +68,14 @@ module BenefitSponsors
       return false unless user.present?
 
       user.has_hbx_staff_role?
+    end
+
+    def can_read_inbox?
+      return false if user.blank? || user.person.blank?
+      return true if user.has_hbx_staff_role? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+      return true if is_staff_role_for_employer?
+
+      false
     end
 
     def employer_attestation_document_download?
