@@ -29,6 +29,15 @@ class PersonPolicy < ApplicationPolicy
     role.permission.modify_family
   end
 
+  def can_read_inbox?
+    person = user&.person
+    return false unless person
+    return true if person.hbx_staff_role
+    return true if person.broker_role || record&.broker_role
+
+    false
+  end
+
   private
 
   def allowed_to_download?
