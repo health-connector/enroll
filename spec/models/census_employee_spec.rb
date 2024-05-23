@@ -3098,5 +3098,13 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         end
       end
     end
+
+    context "download_census_employees_roster" do
+      it "should not export SSN column to the report" do
+        response = CensusEmployee.download_census_employees_roster(benefit_sponsorship.profile.id)
+        expect(response).is_a?(String)
+        expect(response).to_not include("SSN / TIN (Required for EE & enter without dashes)")
+      end
+    end
   end
 end
