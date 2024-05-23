@@ -50,7 +50,8 @@ class PersonPolicy < ApplicationPolicy
   def allowed_to_access?
     return true if shop_market_primary_family_member?
     return true if shop_market_admin?
-    return true if active_associated_shop_market_family_broker?
+    return true if family.present? && active_associated_shop_market_family_broker?
+    return true if active_associated_shop_market_person_broker?
 
     false
   end
@@ -101,4 +102,20 @@ class PersonPolicy < ApplicationPolicy
 
     nil
   end
+
+  # rubocop:disable Metrics/CyclomaticComplexity
+  def active_associated_shop_market_person_broker?
+    broker = account_holder_person&.broker_role
+    broker_staff_roles = account_holder_person&.broker_agency_staff_roles&.active
+    broker_agency_profile_id = record&.broker_role&.benefit_sponsors_broker_agency_profile_id
+
+    return false if broker.blank? && broker_staff_roles.blank?
+    return false unless broker&.active?
+    return true if broker.present? && (broker.benefit_sponsors_broker_agency_profile_id == broker_agency_profile_id)
+    return true if broker_staff_roles.present? && broker_staff_roles.pluck(:benefit_sponsors_broker_agency_profile_id).include?(broker_agency_profile_id)
+
+    false
+  end
+  # rubocop:enable Metrics/CyclomaticComplexity
+
 end
