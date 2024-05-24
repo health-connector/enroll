@@ -810,7 +810,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     let(:consumer_role2) { FactoryGirl.create(:consumer_role) }
     let(:person2) { FactoryGirl.create(:person) }
     let(:user2) { FactoryGirl.create(:user, person: person2, roles: ["hbx_staff"]) }
-    let(:file) { fixture_file_upload("#{Rails.root}/test/JavaScript.pdf", 'application/pdf')  }
+    let(:file) { fixture_file_upload("#{Rails.root}/spec/test_data/files/JavaScript.pdf", 'application/pdf')  }
     let(:temp_file) { double }
     let(:file_path) { File.dirname(__FILE__) }
     let(:bucket_name) { 'notices' }

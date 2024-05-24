@@ -9,8 +9,8 @@ RSpec.describe FileUploadHelper, type: :helper do
   end
 
   describe '#validate_file_upload' do
-    let(:valid_pdf) { fixture_file_upload("#{Rails.root}/test/JavaScript.pdf", 'application/pdf') }
-    let(:invalid_pdf) { fixture_file_upload("#{Rails.root}/test/uhic.jpg", 'image/jpeg') }
+    let(:valid_pdf) { fixture_file_upload("#{Rails.root}/spec/test_data/files/JavaScript.pdf", 'application/pdf') }
+    let(:invalid_pdf) { fixture_file_upload("#{Rails.root}/spec/test_data/files/uhic.jpg", 'image/jpeg') }
 
     context 'with a valid PDF file' do
       it 'returns true' do

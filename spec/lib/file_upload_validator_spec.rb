@@ -21,7 +21,7 @@ RSpec.describe FileUploadValidator, type: :validator do
 
   context 'with a valid PDF file' do
     before do
-      file = fixture_file_upload("#{Rails.root}/test/JavaScript.pdf", 'application/pdf')
+      file = fixture_file_upload("#{Rails.root}/spec/test_data/files/JavaScript.pdf", 'application/pdf')
       dummy.file = file
     end
 
@@ -32,7 +32,7 @@ RSpec.describe FileUploadValidator, type: :validator do
 
   context 'with an invalid file type' do
     before do
-      file = fixture_file_upload("#{Rails.root}/test/sample.docx", 'image/jpeg')
+      file = fixture_file_upload("#{Rails.root}/spec/test_data/files/sample.docx", 'image/jpeg')
       dummy.file = file
     end
 
