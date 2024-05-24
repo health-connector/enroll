@@ -51,6 +51,10 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
           state == "waiver" ? waiver_subject : enrolled_subject
         }
 
+        before :all do
+          DatabaseCleaner.clean
+        end
+
         it "should build a new #{coverage_kind} enrollment" do
           expect(enrollment.valid?).to be_truthy
           expect(enrollment.coverage_kind).to eq coverage_kind
@@ -79,11 +83,11 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
           let(:start_on) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
           let(:aasm_state) { :active }
 
-          let!(:ce) { 
+          let!(:ce) do
             census_employee = benefit_sponsorship.census_employees.non_business_owner.first
             census_employee.update(hired_on: TimeKeeper.date_of_record - 2.years)
             census_employee
-          }
+          end
 
           let(:waiver_subject) { enrollment_builder.build_new_waiver_enrollment(is_qle: false, optional_effective_on: nil, waiver_reason: "this is waiver reason") }
           let(:enrolled_subject) { enrollment_builder.build_new_enrollment(family_member_ids: family_member_ids, is_qle: false, optional_effective_on: nil) }
@@ -112,15 +116,15 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
           let(:coverage_kind) { coverage_kind }
           let(:hired_on) { TimeKeeper.date_of_record - 2.days }
 
-          let(:earliest_effective_on) { 
+          let(:earliest_effective_on) do
             hired_on.mday == 1 ? hired_on : hired_on.next_month.beginning_of_month
-          }
+          end
 
-          let!(:ce) { 
+          let!(:ce) do
             census_employee = benefit_sponsorship.census_employees.non_business_owner.first
             census_employee.update(hired_on: hired_on)
             census_employee
-          }
+          end
 
           let(:waiver_subject) { enrollment_builder.build_new_waiver_enrollment(is_qle: false, optional_effective_on: nil, waiver_reason: "this is waiver reason") }
           let(:enrolled_subject) { enrollment_builder.build_new_enrollment(family_member_ids: family_member_ids, is_qle: false, optional_effective_on: nil) }
@@ -254,11 +258,11 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
             let(:start_on) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
             let(:aasm_state) { :active }
 
-            let!(:ce) { 
+            let!(:ce) do
               census_employee = benefit_sponsorship.census_employees.non_business_owner.first
               census_employee.update(hired_on: TimeKeeper.date_of_record - 2.years)
               census_employee
-            }
+            end
 
             let(:waiver_subject) { enrollment_builder.build_change_waiver_enrollment(previous_enrollment: previous_enrollment, is_qle: is_qle?, optional_effective_on: nil, waiver_reason: "this is waiver reason") }
             let(:enrolled_subject) { enrollment_builder.build_change_enrollment(previous_enrollment: previous_enrollment, is_qle: is_qle?, optional_effective_on: nil, family_member_ids: family_member_ids) }
@@ -284,17 +288,17 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
 
             let(:hired_on) { TimeKeeper.date_of_record - 2.days }
 
-            let(:earliest_effective_on) { 
+            let(:earliest_effective_on) do
               hired_on.mday == 1 ? hired_on : hired_on.next_month.beginning_of_month
-            }
+            end
 
             let(:enrollment_effective_date) { earliest_effective_on }
 
-            let!(:ce) { 
+            let!(:ce) do
               census_employee = benefit_sponsorship.census_employees.non_business_owner.first
               census_employee.update(hired_on: hired_on)
               census_employee
-            }
+            end
 
             let(:waiver_subject) { enrollment_builder.build_change_waiver_enrollment(previous_enrollment: previous_enrollment, is_qle: is_qle?, optional_effective_on: nil, waiver_reason: "this is waiver reason") }
             let(:enrolled_subject) { enrollment_builder.build_change_enrollment(previous_enrollment: previous_enrollment, is_qle: is_qle?, optional_effective_on: nil, family_member_ids: family_member_ids) }
@@ -392,7 +396,7 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
             expect(enrollment.sponsored_benefit_package).to eq current_benefit_package
             expect(enrollment.sponsored_benefit).to eq current_benefit_package.sponsored_benefit_for(coverage_kind)
             expect(enrollment.waiver_reason).to eq "this is waiver reason" if state == "waiver"
-          end      
+          end
         end
       end
     end
