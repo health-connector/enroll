@@ -2,7 +2,7 @@
 
 # Custom validator for validating file uploads. This validator checks the content type, size, and file header of the uploaded file.
 class FileValidator < ActiveModel::EachValidator
-  
+
   # Expected headers for different file types. The header is the first few bytes of the file that uniquely identify the file type.
   FILE_HEADERS = {
     'application/pdf' => "%PDF".b, # Identifies PDF documents
@@ -11,7 +11,7 @@ class FileValidator < ActiveModel::EachValidator
     'image/gif' => "GIF".b, # First three bytes of a GIF image
     'application/vnd.ms-excel' => "\xD0\xCF\x11\xE0".b, # Signature for XLS files
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => "PK\x03\x04".b, # Signature for XLSX files
-    'text/csv' => nil, # Text files might not have a specific header to check
+    'text/csv' => nil # Text files might not have a specific header to check
   }.freeze
 
   def validate_each(record, attribute, value)
@@ -25,17 +25,13 @@ class FileValidator < ActiveModel::EachValidator
   def validate_content_type(record, attribute, value)
     allowed_types = options[:content_types].call(record) || []
 
-    unless allowed_types.include?(value.content_type)
-      record.errors.add(attribute, "must be one of: #{allowed_types.join(', ')}")
-    end
+    record.errors.add(attribute, "must be one of: #{allowed_types.join(', ')}") unless allowed_types.include?(value.content_type)
   end
 
   def validate_file_size(record, attribute, value)
     max_size = options[:size].call(record) || 5.megabytes
 
-    if value.size > max_size
-      record.errors.add(attribute, "should be less than #{max_size / 1.megabyte} MB")
-    end
+    record.errors.add(attribute, "should be less than #{max_size / 1.megabyte} MB") if value.size > max_size
   end
 
   def validate_file_header(record, attribute, value)
@@ -47,9 +43,7 @@ class FileValidator < ActiveModel::EachValidator
 
     value.open do |file|
       file_header = file.read(expected_header.length)
-      unless file_header == expected_header
-        record.errors.add(attribute, 'file header does not match the expected file type')
-      end
+      record.errors.add(attribute, 'file header does not match the expected file type') unless file_header == expected_header
     end
   end
 end

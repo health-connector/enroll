@@ -14,10 +14,10 @@ class FileUploadValidator
   attr_accessor :file_data, :allowed_content_types
 
   validates :file_data, file: {
-                                content_types: ->(record) { record.allowed_content_types },
-                                size: ->(record) { record.file_size_limit_in_mb.megabytes },
-                                headers: {validate: true}
-                              }
+    content_types: ->(record) { record.allowed_content_types },
+    size: ->(record) { record.file_size_limit_in_mb.megabytes },
+    headers: {validate: true}
+  }
 
   def initialize(file_data:, content_types:)
     @file_data = file_data
