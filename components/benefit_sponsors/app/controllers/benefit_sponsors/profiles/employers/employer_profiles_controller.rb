@@ -118,6 +118,10 @@ module BenefitSponsors
 
         def bulk_employee_upload
           authorize @employer_profile, :show?
+          if params[:file].present?
+            return unless validate_file_upload(params[:file], FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES)
+          end
+
           begin
             file = params.require(:file)
             @roster_upload_form = BenefitSponsors::Forms::RosterUploadForm.call(file, @employer_profile)

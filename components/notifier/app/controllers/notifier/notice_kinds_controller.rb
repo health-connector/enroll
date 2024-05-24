@@ -84,6 +84,10 @@ module Notifier
       notices = Roo::Spreadsheet.open(params[:file].tempfile.path)
       @errors = []
 
+      if params[:file]
+        return unless validate_file_upload(params[:file], FileUploadValidator::CSV_TYPES)
+      end
+
       notices.each do |notice_row|
         next if notice_row[0] == 'Notice Number'
 

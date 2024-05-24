@@ -11,16 +11,21 @@ class FileUploadValidator
   CSV_TYPES = %w[text/csv].freeze
   PDF_TYPE = ['application/pdf'].freeze
 
-  attr_accessor :file_data
-  attr_reader :allowed_content_types
+  attr_accessor :file_data, :allowed_content_types
 
-  MAX_FILE_SIZE_MB = EnrollRegistry[:upload_file_size_limit_in_mb].item.to_i
-  validates :file_data, file_size: { less_than_or_equal_to: MAX_FILE_SIZE_MB.megabytes },
-                        file_content_type: { allow: ->(validator) { validator.allowed_content_types }, mode: :strict }
+  validates :file_data, file: {
+                                content_types: ->(record) { record.allowed_content_types },
+                                size: ->(record) { record.file_size_limit_in_mb.megabytes },
+                                headers: {validate: true}
+                              }
 
   def initialize(file_data:, content_types:)
     @file_data = file_data
     @allowed_content_types = content_types
+  end
+
+  def file_size_limit_in_mb
+    EnrollRegistry[:upload_file_size_limit_in_mb].item.to_i
   end
 
   def human_readable_file_types
@@ -37,4 +42,19 @@ class FileUploadValidator
 
     @allowed_content_types.map { |type| mime_type_to_readable_name[type] || type.split('/').last.upcase }.join(', ')
   end
+
+  # def validate(file:, content_types:)
+  #   file_validator = self.new(
+  #     file_data: file,
+  #     content_types: content_types
+  #   )
+
+  #   return true if file_validator.valid?
+  #     flash[:error] = l10n(
+  #       "upload_doc_error",
+  #       file_types: file_validator.human_readable_file_types,
+  #       size_in_mb: EnrollRegistry[:upload_file_size_limit_in_mb].item
+  #     )
+  #     false # Return false to indicate failure
+  # end
 end
