@@ -17,7 +17,7 @@ module Notifier
     end
 
     def user_not_authorized(_exception)
-      flash[:error] = "You are not authorized to perform this action."
+      flash[:error] = t('exchange.not_authorized')
       respond_to do |format|
         format.json { render nothing: true, status: :forbidden }
         format.html { redirect_to(session[:custom_url] || request.referrer || main_app.root_path)}
