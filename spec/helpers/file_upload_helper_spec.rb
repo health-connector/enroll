@@ -8,21 +8,20 @@ RSpec.describe FileUploadHelper, type: :helper do
     allow(helper).to receive(:flash).and_return({})
   end
 
-  describe '#valid_file_upload?' do
+  describe '#validate_file_upload' do
     let(:valid_pdf) { fixture_file_upload("#{Rails.root}/test/JavaScript.pdf", 'application/pdf') }
     let(:invalid_pdf) { fixture_file_upload("#{Rails.root}/test/uhic.jpg", 'image/jpeg') }
 
     context 'with a valid PDF file' do
       it 'returns true' do
-        expect(helper.valid_file_upload?(valid_pdf, ['application/pdf'])).to be true
+        expect(helper.validate_file_upload(valid_pdf, ['application/pdf'])).to be true
       end
     end
 
     context 'with an invalid file type' do
       it 'returns false' do
-        expect(helper.valid_file_upload?(invalid_pdf, ['application/pdf'])).to be false
+        expect(helper.validate_file_upload(invalid_pdf, ['application/pdf'])).to be false
       end
     end
-
   end
 end

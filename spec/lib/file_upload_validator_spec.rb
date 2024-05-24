@@ -8,9 +8,11 @@ class DummyModel
   include ActiveModel::Model
   attr_accessor :file
 
-  # Dummy file attribute to mimic the ActiveModel behaviour
-  validates :file, file_size: { less_than: 10.megabytes },
-                   file_content_type: { allow: ['application/pdf'] }
+  validates :file, file:  {
+                            content_types: ->(record) { ['application/pdf'] },
+                            size: ->(record) { 10.megabytes },
+                            headers: {validate: true}
+                          }
 end
 
 RSpec.describe FileUploadValidator, type: :validator do
@@ -40,7 +42,7 @@ RSpec.describe FileUploadValidator, type: :validator do
 
     it 'returns a content type error message' do
       dummy.valid?
-      expect(dummy.errors[:file]).to include(match('file should be one of application/pdf'))
+      expect(dummy.errors[:file]).to include(match('must be one of: application/pdf'))
     end
   end
 
