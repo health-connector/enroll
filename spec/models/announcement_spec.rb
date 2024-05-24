@@ -125,6 +125,7 @@ describe Announcement, dbclean: :after_each do
       let(:person) { FactoryGirl.create(:person) }
       let(:user) { FactoryGirl.create(:user, person: person) }
       before :each do
+        DatabaseCleaner.clean
         Announcement.destroy_all
         Announcement::AUDIENCE_KINDS.each do |kind|
           FactoryGirl.create(:announcement, content: "msg for #{kind}", audiences: [kind])
