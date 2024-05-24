@@ -54,5 +54,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.admin_action_disabled_info" => "Admin Actions are disabled until %{disabled_until} as another action happened.",
   "en.exchange.employer_applications.swal_title" => "Please Hold!",
   "en.exchange.employer_applications.swal_text" => "Admin action is in-progress",
-  "en.exchange.download_failed" => "Failed to download."
+  "en.exchange.download_failed" => "Failed to download.",
+  "en.exchange.not_authorized" => "You are not authorized to perform this action."
 }.freeze
