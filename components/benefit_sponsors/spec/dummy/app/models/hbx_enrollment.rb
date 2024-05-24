@@ -48,7 +48,6 @@ class HbxEnrollment
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
 
-
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",
       "I have coverage through parent’s employer health plan",
@@ -458,7 +457,7 @@ class HbxEnrollment
     # cancel or term renewal application enrollments if waiver created under the active application
 
     if benefit_application.is_renewing? && (effective_on == sponsored_benefit_package.start_on) && employer_profile
-      predecessor_benefit_application = employer_profile.benefit_applications.published_benefit_applications_by_date(effective_on.prev_day).first
+      predecessor_benefit_application = employer_profile.benefit_applications.published_benefit_applications_by_date(employer_profile.active_benefit_sponsorship, effective_on.prev_day).first
       terminating_benefit_package_ids += predecessor_benefit_application.benefit_packages.pluck(:id) if predecessor_benefit_application.present?
     else
       future_benefit_application = employer_profile.find_plan_year_by_effective_date(benefit_application.effective_period.max.next_day)
@@ -503,7 +502,7 @@ class HbxEnrollment
     predecessor_benefit_packages = [sponsored_benefit_package.id]
 
     if effective_on == sponsored_benefit_package.start_on && sponsored_benefit_package.benefit_application.is_renewing? && employer_profile
-      predecessor_benefit_application = employer_profile.benefit_applications.published_benefit_applications_by_date(effective_on.prev_day).first
+      predecessor_benefit_application = employer_profile.benefit_applications.published_benefit_applications_by_date(employer_profile.active_benefit_sponsorship, effective_on.prev_day).first
       predecessor_benefit_packages = predecessor_benefit_application.benefit_packages.pluck(:id) if predecessor_benefit_application
     end
 

@@ -1,4 +1,10 @@
+# frozen_string_literal: true
+
+require_relative '../l10n_helper'
+
 module Config::AcaHelper
+  include ::L10nHelper
+
   def aca_state_abbreviation
     Settings.aca.state_abbreviation
   end
@@ -122,6 +128,32 @@ module Config::AcaHelper
     @offer_metal_level ||= Settings.aca.plan_options_available.include?("metal_level")
   end
 
+  def confirmation_action_title(confirmation_type)
+    case confirmation_type.to_s
+    when "reinstate"
+      l10n("exchange.employer_applications.reinstated_on")
+    when 'terminated', 'termination_pending'
+      l10n("exchange.employer_applications.terminated_on")
+    when 'canceled', 'retroactive_canceled'
+      l10n("exchange.employer_applications.canceled_on")
+    else
+      l10n("exchange.employer_applications.action_taken_on")
+    end
+  end
+
+  def confirmation_details_text(item)
+    states = ["termination_pending", "terminated", "reinstate", "canceled", "retroactive_canceled"]
+    text = item.state.to_s
+    return text.titleize unless states.include?(text)
+
+    confirmation_payload = {
+      employer_id: item.benefit_application.benefit_sponsorship.id,
+      employer_application_id: item.benefit_application.id,
+      sequence_id: item.sequence_id
+    }
+
+    link_to(text.titleize, confirmation_details_exchanges_employer_applications_path(confirmation_payload))
+  end
 
   def metal_levels_explained
     response = ""
@@ -254,10 +286,6 @@ module Config::AcaHelper
 
   def site_broker_claim_quoting_enabled?
    Settings.site.broker_claim_quoting_enabled
-  end
-
-  def calendar_is_enabled?
-    Settings.aca.calendar_enabled
   end
 
   def aca_address_query_county

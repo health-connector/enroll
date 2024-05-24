@@ -15,7 +15,7 @@
         </p>
 
         <p>
-          <%= link_to(main_app.document_download_path(env_bucket_name("templates"), aca_shop_market_census_employees_template_file) + "?contenttype=application/vnd.ms-excel&filename=#{aca_shop_market_census_employees_template_file}.xlsx", class: "download") do %>
+          <%= link_to(main_app.document_employees_template_download_path(content_type: 'application/vnd.ms-excel', filename: "#{aca_shop_market_census_employees_template_file}.xlsx"), class: "download") do %>
 
             <h4>
               Need the template?

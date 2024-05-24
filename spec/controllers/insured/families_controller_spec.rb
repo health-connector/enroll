@@ -181,6 +181,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family).to receive(:active_family_members).and_return(family_members)
         allow(family).to receive(:check_for_consumer_role).and_return nil
         allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
+        allow(controller).to receive(:authorize).and_return(true)
         sign_in user
         get :home
       end
@@ -224,6 +225,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family).to receive(:active_family_members).and_return(family_members)
         allow(family).to receive(:check_for_consumer_role).and_return true
         sign_in user
+        allow(controller).to receive(:authorize).and_return(true)
         get :home
       end
 
@@ -257,6 +259,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
           allow(person).to receive(:has_active_employee_role?).and_return(false)
           allow(person).to receive(:has_active_consumer_role?).and_return(true)
           allow(person).to receive(:active_employee_roles).and_return([])
+          allow(controller).to receive(:authorize).and_return(true)
           sign_in user
           get :home
         end
@@ -330,6 +333,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family2).to receive(:check_for_consumer_role).and_return true
         allow(controller).to receive(:update_changing_hbxs).and_return(true)
         allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
+        allow(controller).to receive(:authorize).and_return(true)
         sign_in user2
       end
 
@@ -379,6 +383,9 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   end
 
   describe "GET verification" do
+    before :each do
+      allow(controller).to receive(:authorize).and_return(true)
+    end
 
     it "should be success" do
       get :verification
@@ -397,93 +404,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
   end
 
-  describe "GET manage_family" do
-    let(:employee_roles) { double }
-    let(:employee_role) { [double("EmployeeRole")] }
-
-    before :each do
-      allow(person).to receive(:active_employee_roles).and_return([employee_role])
-      allow(family).to receive(:coverage_waived?).and_return(true)
-      allow(family).to receive(:active_family_members).and_return(family_members)
-    end
-
-    it "should be a success" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render manage family section" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family
-      expect(response).to render_template("manage_family")
-    end
-
-    it "should assign variables" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family
-      expect(assigns(:qualifying_life_events)).to be_an_instance_of(Array)
-      expect(assigns(:family_members)).to eq(family_members)
-    end
-
-    it "assigns variable to change QLE to IVL flow" do
-      allow(person).to receive(:has_multiple_roles?).and_return(true)
-      get :manage_family, market: "shop_market_events"
-      expect(assigns(:manually_picked_role)).to eq "shop_market_events"
-    end
-
-    it "assigns variable to change QLE to Employee flow" do
-      allow(person).to receive(:has_multiple_roles?).and_return(true)
-      get :manage_family, market: "individual_market_events"
-      expect(assigns(:manually_picked_role)).to eq "individual_market_events"
-    end
-
-    it "doesn't assign the variable to show different flow for QLE" do
-      allow(person).to receive(:has_multiple_roles?).and_return(false)
-      get :manage_family, market: "shop_market_events"
-      expect(assigns(:manually_picked_role)).to eq nil
-    end
-  end
-
-  describe "GET personal" do
-    before :each do
-      allow(family).to receive(:active_family_members).and_return(family_members)
-      sign_in user
-      get :personal
-    end
-
-    it "should be a success" do
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render person edit page" do
-      expect(response).to render_template("personal")
-    end
-
-    it "should assign variables" do
-      expect(assigns(:family_members)).to eq(family_members)
-    end
-  end
-
-  describe "GET inbox" do
-    before :each do
-      get :inbox
-    end
-
-    it "should be a success" do
-      expect(response).to have_http_status(:success)
-    end
-
-    it "should render inbox" do
-      expect(response).to render_template("inbox")
-    end
-
-    it "should assign variables" do
-      expect(assigns(:folder)).to eq("Inbox")
-    end
-  end
-
-
   describe "GET find_sep" do
     let(:user) { double(identity_verified?: true, idp_verified?: true) }
     let(:employee_roles) { double }
@@ -498,6 +418,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(user).to receive(:has_hbx_staff_role?).and_return(false)
       allow(person).to receive(:active_employee_roles).and_return(employee_role)
       allow(family).to receive_message_chain("special_enrollment_periods.where").and_return([special_enrollment_period])
+      allow(controller).to receive(:authorize).and_return(true)
       get :find_sep, hbx_enrollment_id: "2312121212", change_plan: "change_plan"
     end
 
@@ -537,6 +458,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       special_enrollment_period.save
       allow(person).to receive(:primary_family).and_return(@family)
       allow(person).to receive(:hbx_staff_role).and_return(nil)
+      allow(controller).to receive(:authorize).and_return(true)
     end
 
     context 'when its initial enrollment' do
@@ -567,6 +489,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
   describe "qle kinds" do
     before(:each) do
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
       @qle = FactoryGirl.create(:qualifying_life_event_kind)
       @family = FactoryGirl.build(:family, :with_primary_family_member)
@@ -628,6 +551,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   describe "GET check_qle_date", dbclean: :after_each do
 
     before(:each) do
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
       allow(person).to receive(:resident_role?).and_return(false)
     end
@@ -795,6 +719,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     let(:person) { FactoryGirl.create(:person) }
 
     before(:each) do
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
     end
 
@@ -830,6 +755,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       person2.consumer_role.gender = 'male'
       person2.save
       request.env["HTTP_REFERER"] = "/insured/families/upload_notice_form"
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user2)
     end
 
@@ -918,6 +844,202 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       end
     end
   end
+
+  context "GET manage_family, personal and inbox with auth", dbclean: :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
+
+    let!(:user) { FactoryGirl.create(:user) }
+    let!(:person1) { FactoryGirl.create(:person) }
+    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person1) }
+
+    let(:employee_role) {FactoryGirl.create(:employee_role, person: person1, employer_profile: abc_profile)}
+    let(:census_employee) { create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
+
+    before :each do
+      allow(user).to receive(:person).and_return person1
+      allow(person1).to receive(:primary_family).and_return family
+      allow(employee_role).to receive(:census_employee).and_return census_employee
+    end
+
+    context 'as a user not associated with the account' do
+      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+
+      before do
+        sign_in(fake_user)
+      end
+
+      it 'redirects the user to their own account on manage_family' do
+        get :manage_family, params: { family: family.id }
+
+        expect(response).to render_template("manage_family")
+        expect(assigns(:family)).to eq(fake_family)
+        expect(assigns(:qualifying_life_events)).to be_an_instance_of(Array)
+        expect(assigns(:family_members)).to eq(fake_family.family_members)
+      end
+
+      it 'redirects the user to their own account on personal' do
+        get :personal, params: { family: family.id }
+
+        expect(response).to render_template("personal")
+        expect(assigns(:family)).to eq(fake_family)
+      end
+
+      it 'redirects the user to their own account on inbox' do
+        get :inbox, params: { family: family.id }
+
+        expect(response).to render_template("inbox")
+        expect(assigns(:family)).to eq(fake_family)
+        expect(assigns(:folder)).to eq("Inbox")
+      end
+    end
+
+    context 'as an admin' do
+      let!(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
+      let!(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
+      let!(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: permission.id) }
+
+      before do
+        sign_in(admin_user)
+        session[:person_id] = person1.id
+      end
+
+      it 'should be a success on GET manage_family' do
+        get :manage_family, params: { family: family.id }
+
+        expect(response).to render_template("manage_family")
+        expect(assigns(:family)).to eq(family)
+        expect(assigns(:qualifying_life_events)).to be_an_instance_of(Array)
+      end
+
+      it 'should be a success on GET personal' do
+        get :personal, params: { family: family.id }
+
+        expect(response).to render_template("personal")
+        expect(assigns(:family)).to eq(family)
+      end
+
+      it 'should be a success on GET inbox' do
+        get :inbox, params: { family: family.id }
+
+        expect(response).to render_template("inbox")
+        expect(assigns(:family)).to eq(family)
+        expect(assigns(:folder)).to eq("Inbox")
+      end
+    end
+
+    context 'as broker' do
+      let(:site)  { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+      let(:employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_profile) { employer_organization.profiles.first }
+      let(:benefit_sponsorship) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, profile: employer_profile, benefit_market: site.benefit_markets.first) }
+      let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
+      let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
+      let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
+      let!(:broker_agency_account) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
+      let!(:person2) { FactoryGirl.create(:person) }
+      let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
+      let(:employee_role) { FactoryGirl.create(:employee_role, person: person2, employer_profile: employer_profile, census_employee: census_employee)}
+      let(:census_employee) { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
+
+      context 'associated with the family' do
+        before do
+          allow(employee_role).to receive(:census_employee).and_return census_employee
+          allow(person2).to receive(:active_employee_roles).and_return([employee_role])
+          allow(controller).to receive(:authorize).and_return(true)
+          sign_in(broker_user)
+          session[:person_id] = person2.id
+        end
+
+        it 'should be a success on GET manage_family' do
+          get :manage_family, params: { family: family2.id }
+
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("manage_family")
+          expect(assigns(:family)).to eq(family2)
+        end
+
+        it 'should be a success on GET personal' do
+          get :personal, params: { family: family2.id }
+
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("personal")
+          expect(assigns(:family)).to eq(family2)
+        end
+
+        it 'should be a success on GET inbox' do
+          get :inbox, params: { family: family2.id }
+
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("inbox")
+          expect(assigns(:family)).to eq(family2)
+        end
+      end
+
+      context 'not associated with the family' do
+        before do
+          session[:person_id] = person1.id
+          sign_in(broker_user)
+        end
+
+        it 'should not be a success on GET manage_family' do
+          get :manage_family, params: { family: family.id }
+
+          expect(response).to have_http_status(:redirect)
+          expect(response).to_not render_template("manage_family")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.manage_family?, (Pundit policy)")
+        end
+
+        it 'should not be a success on GET personal' do
+          get :personal, params: { family: family.id }
+
+          expect(response).to have_http_status(:redirect)
+          expect(response).to_not render_template("personal")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.personal?, (Pundit policy)")
+        end
+
+        it 'should not be a success on GET inbox' do
+          get :inbox, params: { family: family.id }
+
+          expect(response).to have_http_status(:redirect)
+          expect(response).to_not render_template("inbox")
+          expect(flash[:error]).to eq("Access not allowed for family_policy.inbox?, (Pundit policy)")
+        end
+      end
+    end
+  end
+
+  describe "logged in user has no roles" do
+    shared_examples_for "logged in user has no authorization roles for families controller" do |action|
+      it "redirects to root with flash message" do
+        person = FactoryGirl.create(:person, :with_family)
+        unauthorized_user = FactoryGirl.create(:user, :person => person)
+        sign_in(unauthorized_user)
+
+        get action
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Access not allowed for family_policy.#{action}?, (Pundit policy)")
+      end
+    end
+
+    it_behaves_like 'logged in user has no authorization roles for families controller', :home
+    it_behaves_like 'logged in user has no authorization roles for families controller', :manage_family
+    it_behaves_like 'logged in user has no authorization roles for families controller', :brokers
+    it_behaves_like 'logged in user has no authorization roles for families controller', :find_sep
+    it_behaves_like 'logged in user has no authorization roles for families controller', :personal
+    it_behaves_like 'logged in user has no authorization roles for families controller', :inbox
+    it_behaves_like 'logged in user has no authorization roles for families controller', :verification
+    it_behaves_like 'logged in user has no authorization roles for families controller', :upload_application
+    it_behaves_like 'logged in user has no authorization roles for families controller', :check_qle_date
+    it_behaves_like 'logged in user has no authorization roles for families controller', :purchase
+    it_behaves_like 'logged in user has no authorization roles for families controller', :upload_notice
+    it_behaves_like 'logged in user has no authorization roles for families controller', :upload_notice_form
+  end
 end
 
 RSpec.describe Insured::FamiliesController, dbclean: :after_each do
@@ -930,6 +1052,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(HbxEnrollment).to receive(:find).and_return hbx_enrollment
       allow(person).to receive(:primary_family).and_return(family)
       allow(hbx_enrollment).to receive(:reset_dates_on_previously_covered_members).and_return(true)
+      allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
       get :purchase, id: family.id, hbx_enrollment_id: hbx_enrollment.id, terminate: 'terminate'
     end

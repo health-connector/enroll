@@ -2,10 +2,14 @@ require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: :after_each do
+RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: :around_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup renewal application" do
     let(:renewal_state) { :enrollment_open }
+  end
+
+  before :all do
+    DatabaseCleaner.clean
   end
 
   let(:calendar_year) { TimeKeeper.date_of_record.year }
@@ -38,7 +42,7 @@ RSpec.describe Factories::EmploymentRelationshipFactory, type: :model, dbclean: 
     person = census_employee.employee_role.person
     employee_candidate = Forms::EmployeeCandidate.new(user_id: person.id)
     employment_relationship = Factories::EmploymentRelationshipFactory.new
-    employmentrelationship = employment_relationship.build(employee_candidate, census_employee)    
+    employmentrelationship = employment_relationship.build(employee_candidate, census_employee)
     expect(employmentrelationship.eligible_for_coverage_on).to eq census_employee.hired_on
     TimeKeeper.set_date_of_record_unprotected!(Date.today)
   end

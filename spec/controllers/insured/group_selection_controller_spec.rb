@@ -45,11 +45,6 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
     let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
     let(:blue_collar_benefit_group) {plan_year.benefit_groups[0]}
-    let!(:update_plan_year) {
-      plan_year.update_attributes(:"effective_period" => plan_year_start_on..plan_year_end_on, aasm_state: :enrollment_open)
-      plan_year.save!
-      plan_year.reload
-    }
     def blue_collar_benefit_group_assignment
       BenefitGroupAssignment.new(benefit_group: blue_collar_benefit_group, start_on: plan_year_start_on)
     end
@@ -70,7 +65,8 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
     let(:plan_year_start_on) {TimeKeeper.date_of_record.next_month.end_of_month + 1.day}
     let(:plan_year_end_on) {(plan_year_start_on + 1.month) - 1.day}
     let!(:update_plan_year) {
-      plan_year.update_attributes(:"effective_period" => plan_year_start_on..plan_year_end_on, aasm_state: :enrollment_open)
+      plan_year.benefit_application_items.create(:effective_period => plan_year_start_on..plan_year_end_on, state: :enrollment_open, sequence_id: 1)
+      plan_year.update_attributes!(aasm_state: :enrollment_open)
       plan_year.save!
       plan_year.reload
     }
@@ -286,12 +282,24 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
   end
 
   context "GET terminate_confirm" do
-    it "return http success and render" do
-      sign_in
-      allow(HbxEnrollment).to receive(:find).and_return(hbx_enrollment)
+    let!(:person_2) {FactoryGirl.create(:person, :with_consumer_role)}
+    let!(:family_2) {FactoryGirl.create(:family, :with_primary_family_member, :person => person_2)}
+    let!(:hbx_enrollment_2) { FactoryGirl.create(:hbx_enrollment, household: family_2.active_household) }
+
+    it "return http success and render when valid enrollment id given" do
+      sign_in user
+      get :terminate_selection, person_id: person.id
       get :terminate_confirm, person_id: person.id, hbx_enrollment_id: hbx_enrollment.id
       expect(response).to have_http_status(:success)
       expect(response).to render_template(:terminate_confirm)
+    end
+
+    it "redirects when invalid enrollment id given" do
+      sign_in user
+      get :terminate_selection, person_id: person.id
+      get :terminate_confirm, person_id: person.id, hbx_enrollment_id: hbx_enrollment_2.id
+      expect(response).to have_http_status(:redirect)
+      expect(response).to redirect_to(terminate_selection_insured_group_selections_path)
     end
   end
 

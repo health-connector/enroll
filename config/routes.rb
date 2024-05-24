@@ -10,24 +10,14 @@ Rails.application.routes.draw do
 
   devise_for :users, :controllers => { :registrations => "users/registrations", :sessions => 'users/sessions', :passwords => 'users/passwords' }
 
-  namespace :uis do
-    resources :bootstrap3_examples do
-      collection do
-        get :index
-        get :components
-        get :getting_started
-      end
-    end
-  end
-
   get 'check_time_until_logout' => 'session_timeout#check_time_until_logout', :constraints => { :only_ajax => true }
   get 'reset_user_clock' => 'session_timeout#reset_user_clock', :constraints => { :only_ajax => true }
   get 'unsupportive_browser' => 'users#unsupportive_browser'
 
   match "hbx_admin/about_us" => "hbx_admin#about_us", as: :about_us, via: :get
-  match "hbx_admin/update_aptc_csr" => "hbx_admin#update_aptc_csr", as: :update_aptc_csr, via: [:get, :post]
-  match "hbx_admin/edit_aptc_csr" => "hbx_admin#edit_aptc_csr", as: :edit_aptc_csr, via: [:get, :post], defaults: { format: 'js' }
-  match "hbx_admin/calculate_aptc_csr" => "hbx_admin#calculate_aptc_csr", as: :calculate_aptc_csr, via: :get
+  match "individual_market/hbx_admin/update_aptc_csr" => "individual_market/hbx_admin#update_aptc_csr", as: :update_aptc_csr, via: [:get, :post]
+  match "individual_market/hbx_admin/edit_aptc_csr" => "individual_market/hbx_admin#edit_aptc_csr", as: :edit_aptc_csr, via: [:get, :post], defaults: { format: 'js' }
+  match "individual_market/hbx_admin/calculate_aptc_csr" => "individual_market/hbx_admin#calculate_aptc_csr", as: :calculate_aptc_csr, via: :get
   post 'show_hints' => 'welcome#show_hints', :constraints => { :only_ajax => true }
 
   post 'submit_notice' => "hbx_admin#submit_notice", as: :submit_notice
@@ -51,9 +41,7 @@ Rails.application.routes.draw do
 
   resources :saml, only: [] do
     collection do
-      post :login
       get :logout
-      get :navigate_to_assistance
     end
   end
 
@@ -73,14 +61,6 @@ Rails.application.routes.draw do
       get :resume_resident_enrollment, on: :collection
       get :ridp_bypass, on: :collection
       get :find_sep, on: :collection
-    end
-
-    resources :scheduled_events do
-      collection do
-        get 'current_events'
-        get 'delete_current_event'
-        get 'list'
-      end
     end
 
     resources :hbx_profiles do
@@ -159,9 +139,12 @@ Rails.application.routes.draw do
     resources :employer_applications do
       put :terminate
       put :cancel
-      put :reinstate
+      get :application_history
       collection do
         get :get_term_reasons
+        put :reinstate
+        put :revise_end_date
+        get :confirmation_details
       end
     end
 
@@ -273,12 +256,7 @@ Rails.application.routes.draw do
 
     root 'families#home'
 
-    resources :family_members do
-      get :resident_index, on: :collection
-      get :new_resident_dependent, on: :collection
-      get :edit_resident_dependent, on: :member
-      get :show_resident_dependent, on: :member
-    end
+    resources :family_members
 
     resources :group_selections, controller: "group_selection", only: [:new, :create] do
       collection do
@@ -431,20 +409,12 @@ Rails.application.routes.draw do
 
   namespace :broker_agencies do
     root 'profiles#new'
-    resources :inboxes, only: [:new, :create, :show, :destroy] do
-      get :msg_to_portal
-    end
-    resources :profiles, only: [:new, :create, :show, :index, :edit, :update] do
-      get :inbox
 
+    resources :profiles, only: [:new, :create, :edit, :update] do
       collection do
-        get :family_index
         get :employers
-        get :messages
-        get :staff_index
         get :agency_messages
         get :assign_history
-        get  :commission_statements
       end
       member do
         if Settings.aca.general_agency_enabled
@@ -455,27 +425,11 @@ Rails.application.routes.draw do
         get :assign
         post :update_assign
         post :employer_datatable
-        post :family_datatable
         post :set_default_ga
-        get :download_commission_statement
-        get :show_commission_statement
       end
 
       resources :applicants
     end
-    resources :broker_roles, only: [:create] do
-      root 'broker_roles#new_broker'
-      collection do
-        get :new_broker
-        get :new_staff_member
-        get :new_broker_agency
-        get :search_broker_agency
-      end
-      member do
-        get :favorite
-      end
-    end
-
 
     resources :broker_roles do
 
@@ -573,21 +527,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :people do #TODO Delete
-    get 'select_employer'
-    get 'my_account'
-
-    collection do
-      post 'person_confirm'
-      post 'plan_details'
-      get 'check_qle_marriage_date'
-    end
-
-    member do
-      get 'get_member'
-    end
-
-  end
+  resources :people, only: [:index, :update]
 
   match 'families/home', to: 'insured/families#home', via:[:get], as: "family_account"
 
@@ -614,31 +554,19 @@ Rails.application.routes.draw do
       get :claim
     end
   end
-  resources :office_locations, only: [:new]
 
-  get "document/download/:bucket/:key" => "documents#download", as: :document_download
+  get "document/employees_template_download" => "documents#employees_template_download", as: :document_employees_template_download
   get "document/authorized_download/:model/:model_id/:relation/:relation_id" => "documents#authorized_download", as: :authorized_document_download
 
-  resources :documents, only: [ :new, :create, :destroy, :update] do
-    get :document_reader,on: :member
+  resources :documents, only: [:destroy] do
+    get :product_sbc_download
+    get :employer_attestation_document_download
     get :autocomplete_organization_legal_name, :on => :collection
     collection do
       put :change_person_aasm_state
       get :show_docs
-      put :update_verification_type
-      get :enrollment_verification
-      put :extend_due_date
-      get :fed_hub_request
-      post 'download_documents'
-      post 'delete_documents'
-      post :fed_hub_request
-    end
-
-    member do
-      get :download_employer_document
     end
   end
-
 
   # Temporary for Generic Form Template
   match 'templates/form-template', to: 'welcome#form_template', via: [:get, :post]
@@ -697,5 +625,28 @@ Rails.application.routes.draw do
   #   end
   #
   # You can have the root of your site routed with "root"
+
+  # individual market controllers and actions routing
+  if Settings.aca.market_kinds.include?("individual")
+    namespace :individual_market do
+      resources :documents, only: [] do
+        collection do
+          put :update_verification_type
+          get :enrollment_verification
+          put :extend_due_date
+          get :fed_hub_request
+          post :fed_hub_request
+        end
+      end
+
+      resources :family_members do
+        get :resident_index, on: :collection
+        get :new_resident_dependent, on: :collection
+        get :edit_resident_dependent, on: :member
+        get :show_resident_dependent, on: :member
+      end
+    end
+  end
+
   root 'welcome#index'
 end

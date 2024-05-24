@@ -532,18 +532,19 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
       let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
       let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min)}
-      let!(:initial_application2) do
-        BenefitSponsors::BenefitApplications::BenefitApplication.new(
+      let(:initial_application2) do
+        ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
           benefit_sponsor_catalog: benefit_sponsor_catalog2,
-          effective_period: effective_period,
-          aasm_state: :active,
           open_enrollment_period: open_enrollment_period,
+          aasm_state: :active,
           recorded_rating_area: rating_area,
           recorded_service_areas: service_areas2,
           fte_count: 5,
           pte_count: 0,
           msp_count: 0
         )
+        ben_app.benefit_application_items.build(effective_period: effective_period, sequence_id: 1, state: :active)
+        ben_app
       end
       let!(:product_package2) {initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
       let!(:current_benefit_package2) {create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
@@ -622,17 +623,21 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
     let!(:service_areas2) {benefit_sponsorship2.service_areas_on(effective_period.min)}
     let(:benefit_sponsor_catalog2) {benefit_sponsorship2.benefit_sponsor_catalog_for(effective_period.min)}
-    let(:initial_application2) {BenefitSponsors::BenefitApplications::BenefitApplication.new(
+    let(:initial_application2) do
+      ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
         benefit_sponsor_catalog: benefit_sponsor_catalog2,
-        effective_period: effective_period,
-        aasm_state: aasm_state,
         open_enrollment_period: open_enrollment_period,
+        aasm_state: aasm_state,
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas2,
         fte_count: 5,
         pte_count: 0,
         msp_count: 0
-    )}
+      )
+      ben_app.benefit_application_items.build(effective_period: effective_period, sequence_id: 1, state: aasm_state)
+      ben_app
+    end
+
     let(:product_package2) {initial_application.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == package_kind}}
     let(:current_benefit_package2) {build(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, benefit_application: initial_application2)}
 
@@ -2069,20 +2074,21 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     let!(:off_cycle_application) do
-      create(
+      ben_app = create(
         :benefit_sponsors_benefit_application,
         :with_benefit_sponsor_catalog,
         :with_benefit_package,
         passed_benefit_sponsor_catalog: off_cycle_benefit_sponsor_catalog,
-        benefit_sponsorship: benefit_sponsorship,
-        effective_period: effective_period,
         aasm_state: :enrollment_open,
+        benefit_sponsorship: benefit_sponsorship,
         recorded_rating_area: rating_area,
         recorded_service_areas: service_areas,
         fte_count: 5,
         pte_count: 0,
         msp_count: 0
       )
+      ben_app.benefit_application_items.create(effective_period: effective_period, sequence_id: 1, state: :enrollment_open)
+      ben_app
     end
 
     let(:off_cycle_benefit_package) { off_cycle_application.benefit_packages[0] }
@@ -2112,8 +2118,21 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
     before do
       updated_dates = initial_application.effective_period.min.to_date..terminated_on
-      initial_application.update_attributes!(:effective_period => updated_dates, :terminated_on => TimeKeeper.date_of_record, termination_kind: 'voluntary', termination_reason: 'voluntary')
+      initial_application.benefit_application_items.create(
+        effective_period: updated_dates,
+        action_type: :change,
+        action_kind: 'voluntary',
+        action_reason: 'voluntary',
+        state: :terminated,
+        sequence_id: 1
+      )
       initial_application.terminate_enrollment!
+      renewal_application.benefit_application_items.create(
+        effective_period: initial_application.effective_period,
+        action_type: :change,
+        state: :cancel,
+        sequence_id: 1
+      )
       renewal_application.cancel!
     end
 
@@ -2697,7 +2716,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           next if ba == myc_application
 
           updated_dates = benefit_application.effective_period.min.to_date..termination_date.to_date
-          ba.update_attributes!(:effective_period => updated_dates)
+          ba.benefit_application_items.create(effective_period: updated_dates, sequence_id: 1, state: :terminated)
           ba.terminate_enrollment!
         end
         benefit_sponsorship.benefit_applications << myc_application
@@ -3077,6 +3096,14 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
           # We are creating BGAs with start date and end date by default
           expect(new_assignment.end_on).to eq new_benefit_package.end_on
         end
+      end
+    end
+
+    context "download_census_employees_roster" do
+      it "should not export SSN column to the report" do
+        response = CensusEmployee.download_census_employees_roster(benefit_sponsorship.profile.id)
+        expect(response).is_a?(String)
+        expect(response).to_not include("SSN / TIN (Required for EE & enter without dashes)")
       end
     end
   end

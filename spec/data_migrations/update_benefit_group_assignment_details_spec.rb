@@ -40,7 +40,11 @@ describe ChangeEnrollmentDetails do
     let(:census_employee) { FactoryGirl.create(:benefit_sponsors_census_employee, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship) }
 
     before(:each) do
-      benefit_application.update_attributes(effective_period: effective_period)
+      benefit_application.benefit_application_items.create(
+        effective_period: effective_period,
+        sequence_id: 1,
+        state: benefit_application.aasm_state
+      )
       allow(ENV).to receive(:[]).with("ce_id").and_return(census_employee.id.to_s)
       allow(ENV).to receive(:[]).with("bga_id").and_return(benefit_group_assignment.id)
       allow(ENV).to receive(:[]).with("new_state").and_return "coverage_void"

@@ -8,7 +8,7 @@ BenefitSponsors::Engine.routes.draw do
     end
 
     namespace :broker_agencies do
-      resources :broker_agency_profiles, only: [:new, :create, :show, :index, :edit, :update] do
+      resources :broker_agency_profiles, only: [:new, :show, :index, :edit, :update] do
         collection do
           get :family_index
           get :messages
@@ -17,9 +17,6 @@ BenefitSponsors::Engine.routes.draw do
           get :commission_statements
         end
         member do
-          post :clear_assign_for_employer
-          get :assign
-          post :update_assign
           post :family_datatable
           get :inbox
           get :download_commission_statement
@@ -63,19 +60,8 @@ BenefitSponsors::Engine.routes.draw do
   end
 
   namespace :inboxes do
-    resources :messages, only: [:show, :destroy] do
-      get :msg_to_portal
-    end
+    resources :messages, only: [:show, :destroy]
   end
-
-  namespace :organizations do
-    resource :office_locations do
-      member do
-        get :new
-      end
-    end
-  end
-
 
   resources :benefit_sponsorships do
     resources :benefit_applications, controller: "benefit_applications/benefit_applications" do

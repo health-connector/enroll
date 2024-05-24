@@ -40,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/openhbx_cv2.git
-  revision: 41f3152d127b141f0c6a8351dc8bd057e758b976
+  revision: 4b6ace9d5a8202c0a115355e3166cdd6c3bb9bb7
   branch: trunk
   specs:
     openhbx_cv2 (0.0.1)
@@ -148,7 +148,7 @@ PATH
       roo (~> 2.1.0)
       slim (= 3.0.9)
       virtus (~> 1.0.5)
-      wicked_pdf (= 1.0.6)
+      wicked_pdf (= 2.1.0)
       wkhtmltopdf-binary-edge (~> 0.12.3.0)
 
 PATH
@@ -534,7 +534,7 @@ GEM
     jquery-turbolinks (2.1.0)
       railties (>= 3.1.0)
       turbolinks
-    jquery-ui-rails (6.0.1)
+    jquery-ui-rails (7.0.0)
       railties (>= 3.2.16)
     json (1.8.6)
     jsonapi-renderer (0.2.2)
@@ -904,7 +904,8 @@ GEM
       rack-proxy (>= 0.6.1)
       railties (>= 4.2)
     websocket (1.2.10)
-    wicked_pdf (1.0.6)
+    wicked_pdf (2.1.0)
+      activesupport
     wkhtmltopdf-binary-edge (0.12.3.0)
     xpath (3.2.0)
       nokogiri (~> 1.8)
@@ -969,7 +970,7 @@ DEPENDENCIES
   jquery-datatables-rails (= 3.4.0)
   jquery-rails (= 4.0.5)
   jquery-turbolinks
-  jquery-ui-rails
+  jquery-ui-rails (~> 7.0)
   kaminari (= 0.17.0)
   kostya-sigar (= 2.0.10)
   language_list (~> 1.1.0)
@@ -1043,7 +1044,7 @@ DEPENDENCIES
   webdrivers (~> 5.3.1)
   webmock
   webpacker
-  wicked_pdf (= 1.0.6)
+  wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
   yard (~> 0.9.5)
   yard-mongoid (~> 0.1.0)

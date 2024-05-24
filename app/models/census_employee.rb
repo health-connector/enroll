@@ -297,6 +297,18 @@ class CensusEmployee < CensusMember
     )
   }
 
+  scope :eligible_for_reinstate, lambda { |benefit_application, reinstate_on|
+    where(
+      :"benefit_group_assignments.benefit_package_id".in => benefit_application.benefit_packages.map(&:id),
+      :"$or" => [
+        {"employment_terminated_on" => nil},
+        {"employment_terminated_on" => {"$exists" => false}},
+        {"employment_terminated_on" => {"$gte" => reinstate_on}},
+        {"aasm_state" => {"$in" => ['cobra_linked', 'cobra_termination_pending']}}
+      ]
+    )
+  }
+
 
   def initialize(*args)
     super(*args)
@@ -973,7 +985,6 @@ class CensusEmployee < CensusMember
         "Middle Name or Initial (optional)",
         "Suffix (optional)",
         "Email Address",
-        "SSN / TIN (Required for EE & enter without dashes)",
         "Date of Birth (MM/DD/YYYY)",
         "Gender",
         "Date of Hire",
@@ -991,7 +1002,7 @@ class CensusEmployee < CensusMember
 
       CSV.generate(headers: true) do |csv|
         csv << (["#{Settings.site.long_name} Employee Census Template"] + 6.times.collect{ "" } + [] + 5.times.collect{ "" } + [])
-        csv << %w[employer_assigned_family_id employee_relationship last_name first_name middle_name name_sfx email ssn dob gender hire_date termination_date is_business_owner benefit_group plan_year kind address_1 address_2 city state zip]
+        csv << %w[employer_assigned_family_id employee_relationship last_name first_name middle_name name_sfx email dob gender hire_date termination_date is_business_owner benefit_group plan_year kind address_1 address_2 city state zip]
         csv << columns
         census_employees_query_criteria(employer_profile_id).each do |rec|
           is_active = rec["benefit_group_assignments"].present? ? rec["benefit_group_assignments"].any?{|bga| (bga["start_on"]..bga["end_on"]).cover?(TimeKeeper.date_of_record)} : false
@@ -1015,7 +1026,6 @@ class CensusEmployee < CensusMember
         rec["middle_name"],
         rec["name_sfx"],
         rec["email"].present? ? rec["email"]["address"] : nil,
-        SymmetricEncryption.decrypt(rec["encrypted_ssn"]),
         rec["dob"].present? ? rec["dob"].strftime("%m/%d/%Y") : nil,
         rec["gender"]
       ]

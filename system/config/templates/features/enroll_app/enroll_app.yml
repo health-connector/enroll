@@ -26,6 +26,10 @@ registry:
             item: "https://www.mahealthconnector.org/business/business-resource-center"
           - key: :nondiscrimination_notice_url
             item: "https://www.dchealthlink.com/nondiscrimination"
+          - key: :subdomain
+            item: 'mhc'
+          - key: :census_employees_template_file
+            item: 'Health Connector - Employee Census Template'
       - key: :employee_roster_updates
         is_enabled: true
       - key: :continuous_plan_shopping

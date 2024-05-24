@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
+describe BenefitGroupAssignment, type: :model, dbclean: :around_each do
   it { should validate_presence_of :benefit_package_id }
   it { should validate_presence_of :start_on }
   let(:site)                  { build(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
@@ -35,7 +35,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :after_each do
       :with_benefit_sponsor_catalog,
       :with_benefit_package,
       benefit_sponsorship: benefit_sponsorship,
-      effective_period: effective_period,
+      default_effective_period: effective_period,
       aasm_state: :active,
       recorded_rating_area: rating_area,
       recorded_service_areas: service_areas,

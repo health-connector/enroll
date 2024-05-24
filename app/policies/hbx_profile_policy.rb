@@ -79,7 +79,9 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def index?
-    @user.has_role? :hbx_staff
+    return true if shop_market_admin?
+
+    false
   end
 
   def employer_index?
@@ -160,6 +162,34 @@ class HbxProfilePolicy < ApplicationPolicy
     role = user_hbx_staff_role
     return false unless role
     role.permission.can_reinstate_enrollment
+  end
+
+  def confirm_lock?
+    staff_can_lock_unlock?
+  end
+
+  def lockable?
+    staff_can_lock_unlock?
+  end
+
+  def reset_password?
+    staff_can_reset_password?
+  end
+
+  def confirm_reset_password?
+    staff_can_reset_password?
+  end
+
+  def change_username_and_email?
+    staff_can_change_username_and_email?
+  end
+
+  def confirm_change_username_and_email?
+    staff_can_change_username_and_email?
+  end
+
+  def login_history?
+    staff_view_login_history?
   end
 
   private
