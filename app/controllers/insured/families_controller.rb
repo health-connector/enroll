@@ -220,6 +220,7 @@ class Insured::FamiliesController < FamiliesController
     end
 
     return unless validate_file_upload(params[:file], FileUploadValidator::PDF_TYPE)
+
     doc_uri = Aws::S3Storage.save(file_path, 'notices')
 
     if doc_uri.present?

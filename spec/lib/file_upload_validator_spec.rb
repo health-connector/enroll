@@ -8,11 +8,11 @@ class DummyModel
   include ActiveModel::Model
   attr_accessor :file
 
-  validates :file, file:  {
-                            content_types: ->(record) { ['application/pdf'] },
-                            size: ->(record) { 10.megabytes },
-                            headers: {validate: true}
-                          }
+  validates :file, file: {
+    content_types: ->(_record) { ['application/pdf'] },
+    size: ->(_record) { 10.megabytes },
+    headers: {validate: true}
+  }
 end
 
 RSpec.describe FileUploadValidator, type: :validator do

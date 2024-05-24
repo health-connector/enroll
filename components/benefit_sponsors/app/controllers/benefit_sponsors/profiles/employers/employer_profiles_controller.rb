@@ -118,9 +118,8 @@ module BenefitSponsors
 
         def bulk_employee_upload
           authorize @employer_profile, :show?
-          if params[:file].present?
-            return unless validate_file_upload(params[:file], FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES)
-          end
+
+          return if params[:file] && !validate_file_upload(params[:file], (FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES))
 
           begin
             file = params.require(:file)
