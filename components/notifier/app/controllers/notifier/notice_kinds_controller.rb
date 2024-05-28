@@ -1,33 +1,43 @@
 module Notifier
   class NoticeKindsController < Notifier::ApplicationController
 
-    before_action :check_hbx_staff_role
+    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
     layout 'notifier/single_column'
 
     def index
+      authorize ::Notifier::NoticeKind
+
       @notice_kinds = Notifier::NoticeKind.all
       @datatable = Effective::Datatables::NoticesDatatable.new
       @errors = []
     end
 
     def show
+      authorize ::Notifier::NoticeKind
+
       if params['id'] == 'upload_notices'
         redirect_to notice_kinds_path
       end
     end
 
     def new
+      authorize ::Notifier::NoticeKind
+
       @notice_kind = Notifier::NoticeKind.new
       @notice_kind.template = Notifier::Template.new
     end
 
     def edit
+      authorize ::Notifier::NoticeKind
+
       @notice_kind = Notifier::NoticeKind.find(params[:id])
       render :layout => 'notifier/application'
     end
 
     def create
+      authorize ::Notifier::NoticeKind
+
       template = Template.new(notice_params.delete('template'))
       notice_kind = NoticeKind.new(notice_params)
       notice_kind.template = template
@@ -46,6 +56,8 @@ module Notifier
     end
 
     def update
+      authorize ::Notifier::NoticeKind
+
       notice_kind = Notifier::NoticeKind.find(params['id'])
       notice_kind.update_attributes(notice_params)
 
@@ -54,6 +66,8 @@ module Notifier
     end
 
     def preview
+      authorize ::Notifier::NoticeKind
+
       notice_kind = Notifier::NoticeKind.find(params[:id])
       notice_kind.generate_pdf_notice
 
@@ -63,6 +77,8 @@ module Notifier
     end
 
     def delete_notices
+      authorize ::Notifier::NoticeKind
+
       Notifier::NoticeKind.where(:id.in => params['ids']).each do |notice|
         notice.delete
       end
@@ -72,7 +88,7 @@ module Notifier
     end
 
     def download_notices
-      # notices = Notifier::NoticeKind.where(:id.in => params['ids'])
+      authorize ::Notifier::NoticeKind
 
       send_data Notifier::NoticeKind.to_csv,
         :filename => "notices_#{TimeKeeper.date_of_record.strftime('%m_%d_%Y')}.csv",
@@ -81,6 +97,8 @@ module Notifier
     end
 
     def upload_notices
+      authorize ::Notifier::NoticeKind
+
       notices = Roo::Spreadsheet.open(params[:file].tempfile.path)
       @errors = []
 
@@ -114,6 +132,8 @@ module Notifier
     end
 
     def get_tokens
+      authorize ::Notifier::NoticeKind
+
       token_builder = builder_param.constantize.new
       tokens = token_builder.editor_tokens
       # placeholders = token_builder.place_holders
@@ -125,6 +145,7 @@ module Notifier
     end
 
     def get_placeholders
+      authorize ::Notifier::NoticeKind
       placeholders = Notifier::MergeDataModels::EmployerProfile.new.place_holders
 
       respond_to do |format|
@@ -134,12 +155,6 @@ module Notifier
     end
 
     private
-
-    def check_hbx_staff_role
-      if current_user.blank? || !current_user.has_hbx_staff_role?
-        redirect_to main_app.root_path, :flash => { :error => "You must be an HBX staff member" }
-      end
-    end
 
     def notice_params
       params.require(:notice_kind).permit(:title, :description, :notice_number, :recipient, :event_name, {:template => [:raw_body]})
