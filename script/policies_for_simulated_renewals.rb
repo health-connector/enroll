@@ -20,7 +20,7 @@ BenefitMarkets::Products::Product.all.each do |product|
   product_cache[product.id] = product
 end
 
-def benefit_applications_in_aasm_state(_aasm_states, start_on_date)
+def find_renewed_sponsorships(start_on_date)
   BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
     :benefit_applications =>
       { :$elemMatch =>

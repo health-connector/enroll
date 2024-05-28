@@ -15,36 +15,37 @@ end
 start_on_date = window.end.next_month.beginning_of_month.to_time.utc.beginning_of_day
 
 def find_renewed_sponsorships(start_date)
-  BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where({
-    "benefit_applications" => {
-      "$elemMatch" => {
-        "effective_period.min" => start_date,
-        # "predecessor_id" => {"$ne" => nil},
-        "aasm_state" => {"$in" => [
-          :enrollment_open,
-          :enrollment_closed,
-          :enrollment_eligible,
-          :active
-        ]}
-      }
-    }
-  })
+  BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
+    :benefit_applications =>
+      { :$elemMatch =>
+        {
+          :"benefit_application_items.0.effective_period.min" => start_date,
+          :aasm_state.in => [
+                              :enrollment_open,
+                              :enrollment_closed,
+                              :enrollment_eligible,
+                              :enrollment_extended,
+                              :active
+                            ]
+        }}
+  )
 end
 
 def find_renewable_benefit_applications(start_date, already_renewed_ids)
-  BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where({
-    "benefit_applications" => {
-      "$elemMatch" => {
-        "effective_period.min" => start_date,
-        "predecessor_id" => {"$ne" => nil},
-        "aasm_state" => {"$in" => [
-          :draft,
-          :approved
-        ]}
-      }
-    },
+  BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
+    :benefit_applications =>
+      { :$elemMatch =>
+        {
+          :"benefit_application_items.0.effective_period.min" => start_date,
+          "predecessor_id" => {"$ne" => nil},
+          :aasm_state.in => [
+                              :draft,
+                              :approved
+                            ]
+        }
+      },
     "_id" => {"$nin" => already_renewed_ids}
-  })
+  )
 end
 
 benefit_applications = []
