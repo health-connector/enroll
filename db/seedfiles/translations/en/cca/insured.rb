@@ -440,5 +440,6 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.address_updated' => "You have updated your home address and may qualify for a special enrollment period.",
   :'en.insured.shop_with_sep' => "Shop with special enrollment period",
   :'en.insured.family_member_added' => "A family member has been added to your profile, the new member will not be automatically added to your coverage. You may qualify for a special enrollment period.",
-  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period."
+  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period.",
+  :'en.upload_doc_error' => "Unable to upload file. Acceptable file types - %{file_types} and ensure it does not exceed %{size_in_mb} MB."
 }.freeze
