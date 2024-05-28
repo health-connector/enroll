@@ -22,7 +22,8 @@ class Insured::EmployeeRolesController < ApplicationController
 
   def match
     @no_save_button = true
-    @person_params = params.require(:person).merge({user_id: current_user.id})
+    session[:invalid_match_attempts] ||= 0
+    @person_params = params.require(:person).merge({user_id: current_user.id, invalid_match_attempts: session[:invalid_match_attempts]})
     @employee_candidate = Forms::EmployeeCandidate.new(@person_params)
     @person = @employee_candidate
     if @employee_candidate.valid?
@@ -30,6 +31,8 @@ class Insured::EmployeeRolesController < ApplicationController
       if @found_census_employees.empty?
         full_name = @person_params[:first_name] + " " + @person_params[:last_name]
         # @person = Factories::EnrollmentFactory.construct_consumer_role(params.permit!, current_user)
+        @employee_candidate.validate_and_lock_account
+        session[:invalid_match_attempts] += 1
 
         respond_to do |format|
           format.html { render 'no_match' }
@@ -43,6 +46,9 @@ class Insured::EmployeeRolesController < ApplicationController
         end
       end
     else
+      @employee_candidate.validate_and_lock_account
+      session[:invalid_match_attempts] += 1
+
       respond_to do |format|
         format.html { render 'search' }
       end
