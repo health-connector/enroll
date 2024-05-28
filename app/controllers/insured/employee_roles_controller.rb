@@ -94,7 +94,7 @@ class Insured::EmployeeRolesController < ApplicationController
       @family = @person.primary_family
       build_nested_models
     end
-    
+
     notifier = BenefitSponsors::Services::NoticeService.new
     notifier.deliver(recipient: @employee_role, event_object: @employee_role.census_employee, notice_event: "employee_matches_employer_rooster", notice_params: {})
   end
