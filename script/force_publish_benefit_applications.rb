@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Renew everybody who needs to be renewed
 
 date = Date.today
@@ -42,13 +44,10 @@ def find_renewable_benefit_applications(start_date, already_renewed_ids)
                               :draft,
                               :approved
                             ]
-        }
-      },
+        }},
     "_id" => {"$nin" => already_renewed_ids}
   )
 end
-
-benefit_applications = []
 
 force_renewal_eligible = find_renewable_benefit_applications(
   start_on_date,
@@ -57,12 +56,11 @@ force_renewal_eligible = find_renewable_benefit_applications(
 
 force_renewal_eligible.each do |bs|
   selected_application = bs.benefit_applications.detect do |ba|
-    (!ba.predecessor_id.blank?) &&
-      (ba.start_on == start_on_date)
+    !ba.predecessor_id.blank? && (ba.start_on == start_on_date)
   end
   begin
     selected_application.simulate_provisional_renewal! if selected_application.may_simulate_provisional_renewal?
-  rescue Exception => e
+  rescue StandardError => e
     puts "Could not force publish #{selected_application.benefit_sponsorship.organization.legal_name} because of #{e.inspect}"
     next
   end
