@@ -69,7 +69,9 @@ module SponsoredBenefits
     end
 
     def bulk_employee_upload
-      return if params[:file] && !validate_file_upload(params[:file],(FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES))
+      if params[:file] && !validate_file_upload(params[:file],(FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES))
+        return redirect_to(:back)
+      end
 
       @census_employee_import = SponsoredBenefits::Forms::PlanDesignCensusEmployeeImport.new({file: params.require(:file), proposal: @plan_design_proposal})
 

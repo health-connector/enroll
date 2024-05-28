@@ -119,7 +119,10 @@ module BenefitSponsors
         def bulk_employee_upload
           authorize @employer_profile, :show?
 
-          return if params[:file] && !validate_file_upload(params[:file], (FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES))
+          if params[:file] && !validate_file_upload(params[:file], (FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES))
+            render :partial => (@roster_upload_form.redirection_url || default_url)
+            return
+          end
 
           begin
             file = params.require(:file)

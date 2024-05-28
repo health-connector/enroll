@@ -41,7 +41,7 @@ class FileValidator < ActiveModel::EachValidator
     expected_header = FILE_HEADERS[value.content_type]
     return if expected_header.nil? # Skip validation for file types without unique headers, such as text/csv
 
-    value.open do |file|
+    value.open.tap do |file|
       file_header = file.read(expected_header.length)
       record.errors.add(attribute, 'file header does not match the expected file type') unless file_header == expected_header
     end
