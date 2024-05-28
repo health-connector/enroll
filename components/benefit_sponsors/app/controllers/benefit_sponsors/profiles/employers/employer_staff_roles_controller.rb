@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module Profiles
     module Employers
@@ -7,6 +9,8 @@ module BenefitSponsors
 
         def new
           @staff = BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.for_new
+          authorize current_user, :new?
+
           respond_to do |format|
             format.html
             format.js
@@ -67,6 +71,3 @@ module BenefitSponsors
     end
   end
 end
-
-
-
