@@ -104,6 +104,18 @@ namespace :permissions do
   DefinePermissions.define_task :hbx_admin_view_login_history => :environment
 end
 
+#RAILS_ENV=production bundle exec rake permissions:hbx_admin_can_view_notice_templates
+namespace :permissions do
+  desc 'hbx admin can view notice templates'
+  DefinePermissions.define_task :hbx_admin_can_view_notice_templates => :environment
+end
+
+#RAILS_ENV=production bundle exec rake permissions:hbx_admin_can_edit_notice_templates
+namespace :permissions do
+  desc 'hbx admin can edit notice templates'
+  DefinePermissions.define_task :hbx_admin_can_edit_notice_templates => :environment
+end
+
 #rake permissions:initial_hbx
 #rake permissions:migrate_hbx
 #rake permissions:hbx_admin_can_update_ssn

@@ -34,6 +34,8 @@ class Permission
   field :can_update_enrollment_end_date, type: Boolean, default: false
   field :can_reinstate_enrollment, type: Boolean, default: false
   field :can_change_username_and_email, type: Boolean, default: false
+  field :can_view_notice_templates, type: Boolean, default: false
+  field :can_edit_notice_templates, type: Boolean, default: false
 
   class << self
     def hbx_staff
