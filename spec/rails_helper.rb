@@ -71,6 +71,7 @@ RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
   config.include FederalHolidaysHelper
   config.include Config::AcaModelConcern
+  config.include ActionDispatch::TestProcess
 
   config.infer_spec_type_from_file_location!
 
