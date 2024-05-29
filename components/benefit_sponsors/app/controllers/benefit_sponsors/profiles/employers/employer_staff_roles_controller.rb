@@ -9,7 +9,7 @@ module BenefitSponsors
 
         def new
           @staff = BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.for_new
-          authorize current_user, :new?
+          authorize current_user, :esr_new?
 
           respond_to do |format|
             format.html
