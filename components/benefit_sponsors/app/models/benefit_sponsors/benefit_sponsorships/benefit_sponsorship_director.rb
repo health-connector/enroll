@@ -12,6 +12,7 @@ module BenefitSponsors
       business_policy_name = policy_name(event)
 
       benefit_sponsorships.no_timeout.each do |benefit_sponsorship|
+        @logger.info "Event (#{event}) process started for Employer #{benefit_sponsorship.legal_name}(#{benefit_sponsorship.fein})"
         begin
           business_policy = business_policy_for(benefit_sponsorship, business_policy_name)
           sponsor_service_for(benefit_sponsorship).execute(benefit_sponsorship, event, business_policy)
@@ -20,6 +21,7 @@ module BenefitSponsors
           @logger.error e.message
           @logger.error e.backtrace.join("\n")
         end
+        @logger.info "Event (#{event}) process ended"
       end
     end
 
