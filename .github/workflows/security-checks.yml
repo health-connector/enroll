@@ -8,7 +8,7 @@ jobs:
   bearer:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
         - uses: ruby/setup-ruby@v1
           with:
             bundler-cache: true
@@ -35,31 +35,19 @@ jobs:
   brakeman:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
-        - uses: artplan1/brakeman-action@v1.2.1
+        - uses: actions/checkout@v4
+        - name: Brakeman code scanning
           continue-on-error: true
+          uses: standardnotes/brakeman-action@v1.0.0
           with:
-            flags: "--color --no-exit-on-warn --no-exit-on-error"
-
-        # - uses: ruby/setup-ruby@v1
-        #   with:
-        #     bundler-cache: true
-        # - name: install brakeman
-        #   run: |
-        #     gem install brakeman
-        # - name: run brakeman
-        #   run: |
-        #     brakeman --format html --output brakeman.html
-        # - name: upload brakeman failure report
-        #   uses: actions/upload-artifact@v3
-        #   if: failure()
-        #   with:
-        #     name: Security Reports
-        #     path: brakeman.html
+            options: "--color -q  -o /dev/stdout -o output.markdown"
+        - name: Write to Job Summary
+          run: cat output.markdown >> $GITHUB_STEP_SUMMARY
+  
   bundler-audit:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
         - uses: ruby/setup-ruby@v1
           with:
             bundler-cache: true
@@ -76,3 +64,6 @@ jobs:
           with:
             name: Security Reports
             path: bundler_audit.txt
+        - name: Write to Job Summary
+          run: cat bundler_audit.txt >> $GITHUB_STEP_SUMMARY
+    
