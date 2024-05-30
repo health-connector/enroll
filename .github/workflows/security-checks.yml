@@ -36,6 +36,9 @@ jobs:
           with:
             name: Security Reports
             path: bearer.html
+        - name: Write to Job Summary
+          run: cat bearer.html >> $GITHUB_STEP_SUMMARY
+  
   brakeman:
       runs-on: ubuntu-latest
       steps:
@@ -52,9 +55,9 @@ jobs:
         #     flags: "--help"
         - name: Brakeman code scanning
           continue-on-error: true
-          run: docker run -v "$(pwd)":/code presidentbeef/brakeman --color -o /dev/stdout -o output.markdown
+          run: docker run -v "$(pwd)":/code presidentbeef/brakeman --color -o /dev/stdout -o output.text
         - name: Write to Job Summary
-          run: cat output.markdown >> $GITHUB_STEP_SUMMARY
+          run: cat output.text >> $GITHUB_STEP_SUMMARY
   
   bundler-audit:
       runs-on: ubuntu-latest
