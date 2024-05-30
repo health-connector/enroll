@@ -35,21 +35,25 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - uses: ruby/setup-ruby@v1
+        - uses: artplan1/brakeman-action@v1.2.1
           with:
-            bundler-cache: true
-        - name: install brakeman
-          run: |
-            gem install brakeman
-        - name: run brakeman
-          run: |
-            brakeman --format html --output brakeman.html
-        - name: upload brakeman failure report
-          uses: actions/upload-artifact@v3
-          if: failure()
-          with:
-            name: Security Reports
-            path: brakeman.html
+            flags: "--color"
+
+        # - uses: ruby/setup-ruby@v1
+        #   with:
+        #     bundler-cache: true
+        # - name: install brakeman
+        #   run: |
+        #     gem install brakeman
+        # - name: run brakeman
+        #   run: |
+        #     brakeman --format html --output brakeman.html
+        # - name: upload brakeman failure report
+        #   uses: actions/upload-artifact@v3
+        #   if: failure()
+        #   with:
+        #     name: Security Reports
+        #     path: brakeman.html
   bundler-audit:
       runs-on: ubuntu-latest
       steps:
