@@ -324,7 +324,6 @@ Rails.application.routes.draw do
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
     end
-    resources :inboxes, only: [:new, :create, :show, :destroy]
     resources :employer_profiles do
       get 'new'
       get 'my_account'
