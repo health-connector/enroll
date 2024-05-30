@@ -38,14 +38,14 @@ jobs:
         - uses: actions/checkout@v4
         - name: Brakeman code scanning
           continue-on-error: true
-          uses: standardnotes/brakeman-action@v1.0.0
+          uses: artplan1/brakeman-action@v1.2.1
           with:
-            options: " --output output.markdown"
+            flags: " --output output.markdown"
         - name: Brakeman code scanning
           continue-on-error: true
-          uses: standardnotes/brakeman-action@v1.0.0
+          uses: artplan1/brakeman-action@v1.2.1
           with:
-            options: "--help"
+            flags: " --help"
         - name: Write to Job Summary
           run: cat output.markdown >> $GITHUB_STEP_SUMMARY
   
