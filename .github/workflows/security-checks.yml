@@ -40,7 +40,12 @@ jobs:
           continue-on-error: true
           uses: standardnotes/brakeman-action@v1.0.0
           with:
-            options: "--color -q  -o /dev/stdout -o output.markdown"
+            options: "--color -o /dev/stdout -o output.markdown"
+        - name: Brakeman code scanning
+          continue-on-error: true
+          uses: standardnotes/brakeman-action@v1.0.0
+          with:
+            options: "--help"
         - name: Write to Job Summary
           run: cat output.markdown >> $GITHUB_STEP_SUMMARY
   
