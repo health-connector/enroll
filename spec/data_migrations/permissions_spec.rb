@@ -55,7 +55,7 @@ describe DefinePermissions, dbclean: :after_each do
     context 'update can view login history for super admin hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_view_login_history'}
       let(:person) { FactoryGirl.create(:person) }
-      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let(:permission) { Permission.super_admin }
       let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
 
       before do
@@ -64,6 +64,36 @@ describe DefinePermissions, dbclean: :after_each do
 
       it "updates hbx_admin_view_login_history to true" do
         expect(permission.reload.view_login_history).to be true
+      end
+    end
+
+    context 'update can view login history for hbx staff role', dbclean: :before_each do
+      let(:given_task_name) {':hbx_admin_can_view_notice_templates'}
+      let(:person) { FactoryGirl.create(:person) }
+      let(:permission) { Permission.hbx_staff }
+      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id) }
+
+      before do
+        subject.hbx_admin_can_view_notice_templates
+      end
+
+      it "updates hbx_admin_can_view_notice_templates to true" do
+        expect(permission.reload.can_view_notice_templates).to be true
+      end
+    end
+
+    context 'update can edit login history for hbx staff role', dbclean: :before_each do
+      let(:given_task_name) {':hbx_admin_can_edit_notice_templates'}
+      let(:person) { FactoryGirl.create(:person) }
+      let(:permission) { Permission.hbx_staff }
+      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id) }
+
+      before do
+        subject.hbx_admin_can_edit_notice_templates
+      end
+
+      it "updates hbx_admin_can_edit_notice_templates to true" do
+        expect(permission.reload.can_edit_notice_templates).to be true
       end
     end
 
