@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: '0 5 * * *'
 
+concurrency:
+  group: qb-${{ github.ref }}
+  cancel-in-progress: true #This is temporary to avoid trunk GHA collisions  
+
 jobs:
   bearer:
       runs-on: ubuntu-latest
@@ -40,12 +44,12 @@ jobs:
           continue-on-error: true
           uses: artplan1/brakeman-action@v1.2.1
           with:
-            flags: " --output output.markdown"
+            flags: "--color --output output.markdown"
         - name: Brakeman code scanning
           continue-on-error: true
           uses: artplan1/brakeman-action@v1.2.1
           with:
-            flags: " --help"
+            flags: "--help"
         - name: Write to Job Summary
           run: cat output.markdown >> $GITHUB_STEP_SUMMARY
   
