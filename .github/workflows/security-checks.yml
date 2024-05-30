@@ -27,12 +27,12 @@ jobs:
           run: |
             bearer scan --quiet --config-file ./bearer.yml .
         - name: build bearer report
-          if: failure()
+          # if: failure()
           run: |
             bearer scan --quiet --config-file ./bearer.yml --format html --output bearer.html .
         - name: upload bearer failure report
           uses: actions/upload-artifact@v4
-          if: failure()
+          # if: failure()
           with:
             name: Security Reports
             path: bearer.html
@@ -55,9 +55,15 @@ jobs:
         #     flags: "--help"
         - name: Brakeman code scanning
           continue-on-error: true
-          run: docker run -v "$(pwd)":/code presidentbeef/brakeman --color -o /dev/stdout -o output.text
+          run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o output.markdown
+        - name: upload Brakeman failure report
+          uses: actions/upload-artifact@v4
+          # if: failure()
+          with:
+            name: Security Reports
+            path: bundler_audit.txt
         - name: Write to Job Summary
-          run: cat output.text >> $GITHUB_STEP_SUMMARY
+          run: cat output.markdown >> $GITHUB_STEP_SUMMARY
   
   bundler-audit:
       runs-on: ubuntu-latest
@@ -74,8 +80,8 @@ jobs:
           run: |
             bundle-audit --output=bundler_audit.txt
         - name: upload bundler-audit failure report
-          uses: actions/upload-artifact@v3
-          if: failure()
+          uses: actions/upload-artifact@v4
+          # if: failure()
           with:
             name: Security Reports
             path: bundler_audit.txt
