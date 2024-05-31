@@ -1,6 +1,7 @@
 name: Security Checks
 on:
-  push:
+  workflow_dispatch:
+  # push:
   schedule:
     - cron: '0 5 * * *'
 
@@ -77,8 +78,12 @@ jobs:
             path: bundler_audit.txt
         - name: Write to Job Summary
           run: |
-            echo "Critical:" ; cat bundler_audit.txt | grep Critical | wc -l >> $GITHUB_STEP_SUMMARY
-            echo "High:" ; cat bundler_audit.txt | grep High | wc -l >> $GITHUB_STEP_SUMMARY
-            echo "Medium:" ; cat bundler_audit.txt | grep Medium | wc -l >> $GITHUB_STEP_SUMMARY
-            echo "Low:" ; cat bundler_audit.txt | grep Low | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Critical:" >> $GITHUB_STEP_SUMMARY 
+            cat bundler_audit.txt | grep Critical | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "High:" >> $GITHUB_STEP_SUMMARY 
+            cat bundler_audit.txt | grep High | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Medium:" >> $GITHUB_STEP_SUMMARY
+            cat bundler_audit.txt | grep Medium | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Low:" >> $GITHUB_STEP_SUMMARY
+            cat bundler_audit.txt | grep Low | wc -l >> $GITHUB_STEP_SUMMARY
     
