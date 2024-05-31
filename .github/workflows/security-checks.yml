@@ -76,5 +76,9 @@ jobs:
             name: Bundler Report
             path: bundler_audit.txt
         - name: Write to Job Summary
-          run: cat bundler_audit.txt >> $GITHUB_STEP_SUMMARY
+          run: |
+            echo "Critical:" ; cat bundler_audit.txt | grep Critical | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "High:" ; cat bundler_audit.txt | grep High | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Medium:" ; cat bundler_audit.txt | grep Medium | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Low:" ; cat bundler_audit.txt | grep Low | wc -l >> $GITHUB_STEP_SUMMARY
     
