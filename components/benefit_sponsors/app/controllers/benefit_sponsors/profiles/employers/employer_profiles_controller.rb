@@ -109,6 +109,8 @@ module BenefitSponsors
         end
 
         def show_invoice
+          authorize @employer_profile, :show?
+
           options = {}
           options[:filename] = @invoice.title
           options[:type] = 'application/pdf'
@@ -150,6 +152,8 @@ module BenefitSponsors
         end
 
         def download_invoice
+          authorize @employer_profile, :show?
+
           options={}
           options[:content_type] = @invoice.type
           options[:filename] = @invoice.title
@@ -162,6 +166,8 @@ module BenefitSponsors
         end
 
         def estimate_cost
+          authorize @employer_profile, :show?
+
           find_benefit_package
           estimate_hash = {}
           if @benefit_package.present?
