@@ -57,4 +57,13 @@ class UserPolicy < ApplicationPolicy
 
     false
   end
+
+  def may_use_broker_tools?
+    return false unless account_holder_person
+    return true if shop_market_admin?
+    return true if account_holder_person.broker_role&.active?
+    return true if account_holder_person.broker_agency_staff_roles&.active.present?
+
+    false
+  end
 end

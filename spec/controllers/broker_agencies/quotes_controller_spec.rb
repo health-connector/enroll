@@ -12,14 +12,11 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
   let(:quote_member_attributes){FactoryBot.attributes_for(:quote_member)}
 
   before do
+    person.broker_role.aasm_state = 'active'
     sign_in user
   end
 
   describe "Create"  do
-    before do
-      allow(user).to receive_message_chain(:person,:broker_role,:id){person.broker_role.id}
-      allow(user).to receive(:has_broker_role?){true}
-    end
     context "with valid quote params" do
       it "should save quote" do
         expect do
