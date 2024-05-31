@@ -25,19 +25,19 @@ jobs:
         - name: run bearer
           continue-on-error: true
           run: |
-            bearer scan --quiet --config-file ./bearer.yml .
+            bearer scan --quiet --config-file ./bearer.yml . 
         - name: build bearer report
-          # if: failure()
+          # if: failure() #enable when all criticals issues are fixed
           run: |
-            bearer scan --quiet --config-file ./bearer.yml --format html --output bearer.html .
+            bearer scan --quiet --config-file ./bearer.yml . > bearer_full.txt
         - name: upload bearer failure report
           uses: actions/upload-artifact@v4
-          # if: failure()
+          # if: failure() #enable when all criticals issues are fixed
           with:
             name: Bearer Report
-            path: bearer.html
+            path: bearer_full.txt
         - name: Write to Job Summary
-          run: cat bearer.html >> $GITHUB_STEP_SUMMARY
+          run: grep -A 10 '=====================================' bearer_full.txt >> $GITHUB_STEP_SUMMARY
   
   brakeman:
       runs-on: ubuntu-latest
