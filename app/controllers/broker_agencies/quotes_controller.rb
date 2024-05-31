@@ -45,9 +45,6 @@ class BrokerAgencies::QuotesController < ApplicationController
     @benefit_groups = @q.quote_benefit_groups
     @quote_benefit_group = (params[:benefit_group_id] && @q.quote_benefit_groups.find(params[:benefit_group_id])) || @benefit_groups.first
 
-    #active_year = Date.today.year
-    @coverage_kind = "health"
-    @section = !params[:section].present?
     @index = params[:row].to_i
 
     @health_plans = Plan.shop_health_plans @q.plan_year
@@ -59,20 +56,16 @@ class BrokerAgencies::QuotesController < ApplicationController
     @dental_plans_count = @dental_plans.count
 
     @bp_hash = {'employee':50, 'spouse': 0, 'domestic_partner': 0, 'child_under_26': 0, 'child_26_and_over': 0}
-    @benefit_pcts_json = @bp_hash.to_json
     @quote_criteria = []
 
     @quote_benefit_group.quote_relationship_benefits.each{|bp| @bp_hash[bp.relationship] = bp.premium_pct}
-    roster_premiums = @quote_benefit_group.roster_cost_all_plans
-    @roster_premiums_json = roster_premiums.to_json
-    dental_roster_premiums =  @quote_benefit_group.roster_cost_all_plans('dental')
-    @dental_roster_premiums = dental_roster_premiums.to_json
+    @roster_premiums_json = @quote_benefit_group.roster_cost_all_plans.to_json
+    @dental_roster_premiums = @quote_benefit_group.roster_cost_all_plans('dental').to_json
     @quote_criteria = @quote_benefit_group.criteria_for_ui
-    @benefit_pcts_json = @bp_hash.to_json
-    unless @section
+    return unless params[:section].present?
+
     respond_to do |format|
-        format.js
-    end
+      format.js
     end
   end
 
