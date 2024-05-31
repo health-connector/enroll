@@ -34,7 +34,7 @@ jobs:
           uses: actions/upload-artifact@v4
           # if: failure()
           with:
-            name: Security Reports
+            name: Bearer Report
             path: bearer.html
         - name: Write to Job Summary
           run: cat bearer.html >> $GITHUB_STEP_SUMMARY
@@ -43,16 +43,6 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
-        # - name: Brakeman code scanning
-        #   continue-on-error: true
-        #   uses: artplan1/brakeman-action@v1.2.1
-        #   with:
-        #     flags: "--color -o /dev/stdout -o output.markdown"
-        # - name: Brakeman code scanning
-        #   continue-on-error: true
-        #   uses: artplan1/brakeman-action@v1.2.1
-        #   with:
-        #     flags: "--help"
         - name: Brakeman code scanning
           continue-on-error: true
           run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o output.markdown
@@ -60,8 +50,8 @@ jobs:
           uses: actions/upload-artifact@v4
           # if: failure()
           with:
-            name: Security Reports
-            path: bundler_audit.txt
+            name: Brakeman Report
+            path: output.markdown
         - name: Write to Job Summary
           run: cat output.markdown >> $GITHUB_STEP_SUMMARY
   
@@ -83,7 +73,7 @@ jobs:
           uses: actions/upload-artifact@v4
           # if: failure()
           with:
-            name: Security Reports
+            name: Bundler Report
             path: bundler_audit.txt
         - name: Write to Job Summary
           run: cat bundler_audit.txt >> $GITHUB_STEP_SUMMARY
