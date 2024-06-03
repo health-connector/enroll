@@ -53,7 +53,7 @@ namespace :assets do
         with rails_env: fetch(:rails_env) do
           execute :rake, "assets:clobber"
           execute :rake, "assets:precompile"
-          execute :rake, %Q(seed:translations["db/seedfiles/english_translations_seed.rb"])
+          execute :rake, %(seed:translations["db/seedfiles/english_translations_seed.rb"])
         end
       end
     end
