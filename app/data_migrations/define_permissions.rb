@@ -182,4 +182,16 @@ class DefinePermissions < MigrationTask
   def hbx_admin_view_login_history
     Permission.super_admin.update_attributes!(view_login_history: true)
   end
+
+  def hbx_admin_can_view_notice_templates
+    Permission.super_admin.update_attributes!(can_view_notice_templates: true)
+    Permission.hbx_staff.update_attributes!(can_view_notice_templates: true)
+    Permission.hbx_tier3.update_attributes!(can_view_notice_templates: true)
+  end
+
+  def hbx_admin_can_edit_notice_templates
+    Permission.super_admin.update_attributes!(can_edit_notice_templates: true)
+    Permission.hbx_staff.update_attributes!(can_edit_notice_templates: true)
+    Permission.hbx_tier3.update_attributes!(can_edit_notice_templates: true)
+  end
 end

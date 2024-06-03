@@ -50,7 +50,7 @@ module EffectiveDatatablesHelper
 
     datatable.view ||= self
 
-    datatable.charts.map { |name, _| render_datatable_chart(datatable, name) }.join.html_safe
+    datatable.charts.map { |name, _| render_datatable_chart(datatable, name) }.join
   end
 
   def render_datatable_chart(datatable, name)

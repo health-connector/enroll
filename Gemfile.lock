@@ -531,7 +531,7 @@ GEM
     jquery-turbolinks (2.1.0)
       railties (>= 3.1.0)
       turbolinks
-    jquery-ui-rails (6.0.1)
+    jquery-ui-rails (7.0.0)
       railties (>= 3.2.16)
     json (2.5.1)
     jsonapi-renderer (0.2.2)
@@ -1017,7 +1017,7 @@ DEPENDENCIES
   jquery-datatables-rails (= 3.4.0)
   jquery-rails (~> 4.3)
   jquery-turbolinks
-  jquery-ui-rails
+  jquery-ui-rails (~> 7.0)
   kaminari (= 0.17.0)
   kaminari-actionview
   kaminari-mongoid

@@ -85,7 +85,7 @@ Then(/^.+ uploads an attestation document/) do
     $('#modal-wrapper div.employee-upload input[type=file]').attr("style", "display: block;");
     JSCODE
     wait_for_ajax
-    attach_file("file", "#{Rails.root}/test/JavaScript.pdf")
+    attach_file("file", "#{Rails.root}/spec/test_data/files/JavaScript.pdf")
     execute_script(<<-JSCODE)
     $('#modal-wrapper div.employee-upload input[type=submit]').css({"visibility": "visible", "display": "inline-block"});
     JSCODE
@@ -971,7 +971,7 @@ Then(/^.+ fill the document form$/) do
 
   find(:xpath,"//*[@id='modal-wrapper']/div/form/label").click
   within '.upload_document' do
-    attach_file('file', "#{Rails.root}/test/JavaScript.pdf")
+    attach_file("file", "#{Rails.root}/spec/test_data/files/JavaScript.pdf")
   end
   Capybara.ignore_hidden_elements = true
 end

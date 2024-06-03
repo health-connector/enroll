@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'acapi'
   s.add_dependency 'config'
   s.add_dependency 'money-rails', '~> 1.10.0'
+  s.add_dependency 'pundit'
 
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'shoulda-matchers'
