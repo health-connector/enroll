@@ -213,7 +213,7 @@ module BenefitSponsors
       context 'with special chars in input' do
         before :each do
           initialize_and_login_admin[super_admin_permission]
-          get :staff_index, params: { id: bap_id, page: '^[' }
+          get :staff_index, params: { id: bap_id, page: '^[' }, xhr: true
         end
 
         it "should return success http status" do
@@ -675,7 +675,7 @@ module BenefitSponsors
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            get :messages, id: bap_id, xhr: true
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
