@@ -301,16 +301,16 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
     it "return http success and render when valid enrollment id given" do
       sign_in user
-      get :terminate_selection, person_id: person.id
-      get :terminate_confirm, person_id: person.id, hbx_enrollment_id: hbx_enrollment.id
+      get :terminate_selection, params: { person_id: person.id }
+      get :terminate_confirm, params: { person_id: person.id, hbx_enrollment_id: hbx_enrollment.id }
       expect(response).to have_http_status(:success)
       expect(response).to render_template(:terminate_confirm)
     end
 
     it "redirects when invalid enrollment id given" do
       sign_in user
-      get :terminate_selection, person_id: person.id
-      get :terminate_confirm, person_id: person.id, hbx_enrollment_id: hbx_enrollment_2.id
+      get :terminate_selection, params: { person_id: person.id }
+      get :terminate_confirm, params: { person_id: person.id, hbx_enrollment_id: hbx_enrollment_2.id }
       expect(response).to have_http_status(:redirect)
       expect(response).to redirect_to(terminate_selection_insured_group_selections_path)
     end

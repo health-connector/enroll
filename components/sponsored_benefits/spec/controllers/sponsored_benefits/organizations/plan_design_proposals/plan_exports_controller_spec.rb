@@ -25,7 +25,7 @@ module SponsoredBenefits
         plan_design_census_employee
         benefit_application.benefit_sponsorship.update_attributes(initial_enrollment_period: enrollment_period)
         sign_in user
-        post :create, { plan_design_proposal_id: plan_design_proposal.id, benefit_group: { kind: :health } }
+        post :create, params: { plan_design_proposal_id: plan_design_proposal.id, benefit_group: { kind: :health } }
       end
 
       it "should be success" do

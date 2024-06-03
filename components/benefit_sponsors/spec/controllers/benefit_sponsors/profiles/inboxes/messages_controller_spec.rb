@@ -136,7 +136,7 @@ module BenefitSponsors
       context "show message" do
         before do
           sign_in fake_user
-          get :show, id: organization.employer_profile.id, message_id: inbox.messages.first.id
+          get :show, params: { id: organization.employer_profile.id, message_id: inbox.messages.first.id }
         end
 
         it "errors out with flash message" do
@@ -147,7 +147,7 @@ module BenefitSponsors
       context "delete message" do
         before do
           sign_in fake_user
-          delete :destroy, id: organization.employer_profile.id, message_id: inbox.messages.first.id, format: :js
+          delete :destroy, params: { id: organization.employer_profile.id, message_id: inbox.messages.first.id }, format: :js
         end
 
         it "errors out with with flash message" do
@@ -174,7 +174,7 @@ module BenefitSponsors
       context "show message" do
         before do
           sign_in broker_staff_user
-          get :show, id: organization.employer_profile.id, message_id: inbox.messages.first.id
+          get :show, params: { id: organization.employer_profile.id, message_id: inbox.messages.first.id }
         end
 
         it "errors out with flash message" do
@@ -185,7 +185,7 @@ module BenefitSponsors
       context "delete message" do
         before do
           sign_in broker_staff_user
-          delete :destroy, id: organization.employer_profile.id, message_id: inbox.messages.first.id, format: :js
+          delete :destroy, params: { id: organization.employer_profile.id, message_id: inbox.messages.first.id }, format: :js
         end
 
         it "errors out with with flash message" do

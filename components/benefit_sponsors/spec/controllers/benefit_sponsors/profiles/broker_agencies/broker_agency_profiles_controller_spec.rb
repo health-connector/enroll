@@ -213,7 +213,7 @@ module BenefitSponsors
       context 'with special chars in input' do
         before :each do
           initialize_and_login_admin[super_admin_permission]
-          xhr :get, :staff_index, id: bap_id, page: '^['
+          get :staff_index, params: { id: bap_id, page: '^[' }
         end
 
         it "should return success http status" do
@@ -385,7 +385,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -402,7 +402,7 @@ module BenefitSponsors
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -419,7 +419,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -435,7 +435,7 @@ module BenefitSponsors
           before :each do
 
             initialize_and_login_broker[organization2]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -453,7 +453,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -468,7 +468,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -495,7 +495,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -508,7 +508,7 @@ module BenefitSponsors
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -521,7 +521,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -532,7 +532,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker[organization2]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -546,7 +546,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -557,7 +557,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -580,7 +580,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -593,7 +593,7 @@ module BenefitSponsors
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -606,7 +606,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -617,7 +617,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker[organization2]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -631,7 +631,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -642,7 +642,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -658,7 +658,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -675,7 +675,7 @@ module BenefitSponsors
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :messages, id: bap_id
+            get :messages, id: bap_id, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -692,7 +692,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -707,7 +707,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker[organization2]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the profile page of their broker agency" do
@@ -725,7 +725,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -740,7 +740,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the profile page of their broker agency" do
