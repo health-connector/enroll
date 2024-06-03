@@ -62,7 +62,8 @@ module TransportGateway
                 expect(progname).to eq "transport_gateway"
                 expect(block.call).to eq "Started send of message:\n#{message_inspected_string}"
               end
-              stub_request(:put, /www.example.com/).to_return(status: 200, body: "http stubbed response", headers: {})
+
+              stub_request(:put, /#{Regexp.escape(target_host)}/).to_return(status: 200, body: "http stubbed response", headers: {})
             end
 
             let (:gateway) { Gateway.new(credential_provider, logger) }
