@@ -67,7 +67,10 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.name' => "Name",
   :'en.relation' => "Relation",
   :'en.self' => "Self",
+  :'en.insured.employee_roles.unsuccessful_match_attempts' => "Incorrect information entered, please check your entry for errors",
+  :'en.insured.employee_roles.unsuccessful_match_attempts_exceeded' => "Maximum number of attempts have been made, for additional assistance, please contact %{contact_center_name}: %{contact_center_phone_number}.",
   :'en.insured.families.add_or_remove_family_html' => "You have added/removed a family member to your profile. <br>You may qualify for a special enrollment period.",
+  :'en.insured.employee_roles.matched_other_account' => "%{first_name} %{last_name} is already affiliated with another account",
   :'en.date_label' => "Date",
   :'en.add_member' => "Add New Member to Family",
   :'en.add_member_header' => "Adding a Member to Your Family",
@@ -322,6 +325,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.confirmation' => "Confirmation",
   :'en.insured.group_selection.terminate_confirm.terminate_this_plan_do_you_wish_proceed' => "Terminating this plan will terminate coverage for all members of your family. Do you wish to proceed? Y/N.",
   :'en.insured.group_selection.terminate_confirm.terminate_confirm_note_html' => "<strong>Note:</strong>Federal law allows your plan(s) to require that you make your request for termination no less than 14 days before the date you want your coverage to end. This requirement was included in the notice that you received from %{site_short_name} after you enrolled in your plan.",
+  :'en.insured.group_selection.terminate_confirm.error' => "Invalid Enrollment ID provided.",
   :'en.enter_the_date_of_termination' => "Enter the date of termination",
   :'en.terminate' => "Terminate",
   :'en.insured.interactive_identity.failed_validation_html' => "<h4>To keep your data secure, we are required to verify your identity electronically using the credit reporting agency Experian. Unfortunately, Experian was unable to confirm your identity based on the information you provided. You have two options for completing your application:</h4><br />1. Complete your application at the DC Health Benefit Exchange Authority. Please call (202) 715-7576 to set up an appointment.<br /><br /> 2. Complete a paper application form, scan it, and email it to info@dchealthlink.com. Click here for the paper application form. Be sure to fill out all the required information so that we can process your application as soon as possible.<br />",
@@ -439,5 +443,6 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.insured.address_updated' => "You have updated your home address and may qualify for a special enrollment period.",
   :'en.insured.shop_with_sep' => "Shop with special enrollment period",
   :'en.insured.family_member_added' => "A family member has been added to your profile, the new member will not be automatically added to your coverage. You may qualify for a special enrollment period.",
-  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period."
+  :'en.insured.family_member_removed' => "A family member has been removed from your profile. This will not automatically remove them from any active coverage. You may qualify for a special enrollment period.",
+  :'en.upload_doc_error' => "Unable to upload file. Acceptable file types - %{file_types} and ensure it does not exceed %{size_in_mb} MB."
 }.freeze

@@ -41,9 +41,7 @@ Rails.application.routes.draw do
 
   resources :saml, only: [] do
     collection do
-      post :login
       get :logout
-      get :navigate_to_assistance
     end
   end
 
@@ -63,14 +61,6 @@ Rails.application.routes.draw do
       get :resume_resident_enrollment, on: :collection
       get :ridp_bypass, on: :collection
       get :find_sep, on: :collection
-    end
-
-    resources :scheduled_events do
-      collection do
-        get 'current_events'
-        get 'delete_current_event'
-        get 'list'
-      end
     end
 
     resources :hbx_profiles do

@@ -121,5 +121,37 @@ describe PersonPolicy do
     end
 
   end
-end
 
+  context "for broker login" do
+    let(:site) { FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let(:broker_organization) { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, site: site) }
+    let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization, market_kind: 'shop', legal_name: 'Legal Name1') }
+    let!(:broker_role) { FactoryGirl.create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: :active) }
+    let!(:broker_role_user) {FactoryGirl.create(:user, :person => broker_role.person, roles: ['broker_role'])}
+    let(:broker_role_person) {broker_role.person}
+
+    let(:broker_organization_2) { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, site: site) }
+    let(:broker_agency_profile_2) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization_2, market_kind: 'shop', legal_name: 'Legal Name2') }
+    let!(:broker_role_2) { FactoryGirl.create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile_2.id, aasm_state: :active) }
+    let!(:broker_role_user_2) {FactoryGirl.create(:user, :person => broker_role_2.person, roles: ['broker_role'])}
+
+    context 'with broker role' do
+
+      context 'authorized broker' do
+        let(:policy) {PersonPolicy.new(broker_role_user, broker_role_person)}
+
+        it 'broker should be able to update' do
+          expect(policy.can_download_document?).to be true
+        end
+      end
+
+      context 'unauthorized broker' do
+        let(:policy) {PersonPolicy.new(broker_role_user_2, broker_role_person)}
+
+        it 'broker should not be able to update' do
+          expect(policy.can_download_document?).to be false
+        end
+      end
+    end
+  end
+end
