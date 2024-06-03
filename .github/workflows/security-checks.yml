@@ -1,7 +1,7 @@
 name: Security Checks
 on:
   workflow_dispatch:
-  # push:
+  push:
   schedule:
     - cron: '0 5 * * *'
 
