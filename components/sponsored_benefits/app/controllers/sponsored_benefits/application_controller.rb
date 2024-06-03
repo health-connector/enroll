@@ -2,8 +2,10 @@
 
 module SponsoredBenefits
   class ApplicationController < ActionController::Base
-    before_action :set_broker_agency_profile_from_user
+    include ::L10nHelper
+    include ::FileUploadHelper
 
+    before_action :set_broker_agency_profile_from_user
     rescue_from ActionController::InvalidAuthenticityToken, :with => :bad_token_due_to_session_expired
 
     private

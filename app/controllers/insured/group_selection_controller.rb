@@ -1,5 +1,6 @@
 class Insured::GroupSelectionController < ApplicationController
   include Insured::GroupSelectionHelper
+  include L10nHelper
 
   before_action :initialize_common_vars, only: [:new, :create, :terminate_selection]
   # before_action :set_vars_for_market, only: [:new]
@@ -130,7 +131,12 @@ class Insured::GroupSelectionController < ApplicationController
   end
 
   def terminate_confirm
-    @hbx_enrollment = HbxEnrollment.find(params.require(:hbx_enrollment_id))
+    authorize @family, :manage_family?
+    @hbx_enrollment = @family.enrolled_hbx_enrollments.where(id: params.require(:hbx_enrollment_id)).first
+    return if @hbx_enrollment.present?
+
+    flash[:error] = l10n('insured.group_selection.terminate_confirm.error')
+    redirect_to terminate_selection_insured_group_selections_path
   end
 
   def terminate

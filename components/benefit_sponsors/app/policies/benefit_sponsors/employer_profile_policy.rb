@@ -43,7 +43,7 @@ module BenefitSponsors
 
     def is_general_agency_staff_for_employer?(profile)
       # TODO
-      return false
+      false
     end
 
     def updateable?
