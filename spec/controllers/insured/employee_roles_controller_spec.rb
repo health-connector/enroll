@@ -298,7 +298,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       let(:found_census_employees) { [] }
 
       it "renders the 'search' template" do
-        post :match, {person: person_parameters}
+        post :match, params: { person: person_parameters}
 
         expect(response).to have_http_status(:success)
         expect(response).to render_template("search")
@@ -316,7 +316,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         let(:invalid_person_parameters){{"dob" => "", "ssn" => "111"}}
 
         it "renders the 'no_match' template" do
-          post :match, {person: person_parameters}
+          post :match, params: {person: person_parameters}
 
           expect(response).to have_http_status(:success)
           expect(response).to render_template("no_match")
@@ -329,7 +329,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
           max_attempts_to_try = EnrollRegistry[:employee_match_max_attempts].item.to_i + 1
 
           max_attempts_to_try.times do
-            post :match, {person: person_parameters}
+            post :match, params: {person: person_parameters}
           end
 
           expect(session[:invalid_match_attempts]).to eq(max_attempts_to_try)
@@ -340,7 +340,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         it "does not lock account with very few attempts when FF enabled" do
           allow(EnrollRegistry[:lock_account_for_unsuccessful_match_attempts].feature).to receive(:is_enabled).and_return(true)
           2.times do
-            post :match, {person: person_parameters}
+            post :match, params: {person: person_parameters}
           end
 
           expect(session[:invalid_match_attempts]).to eq(2)
@@ -352,7 +352,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         it "does not lock user account with many attempts when FF is disabled" do
           allow(EnrollRegistry[:lock_account_for_unsuccessful_match_attempts].feature).to receive(:is_enabled).and_return(false)
           20.times do
-            post :match, {person: person_parameters}
+            post :match, params: {person: person_parameters}
           end
 
           expect(user.reload.locked_at).to eq(nil)
@@ -368,7 +368,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
             expect(user.reload.locked_at).to eq(nil)
 
             20.times do
-              post :match, {person: invalid_person_parameters}
+              post :match, params: {person: invalid_person_parameters}
             end
 
             expect(user.reload.locked_at).to_not eq(nil)
@@ -378,7 +378,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
           it "renders the match template and does not lock account when bruteforce is not attempted" do
             2.times do
-              post :match, {person: invalid_person_parameters}
+              post :match, params: {person: invalid_person_parameters}
             end
 
             expect(user.reload.locked_at).to eq(nil)
@@ -389,7 +389,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
           it "renders the match template when FF is disabled" do
             allow(EnrollRegistry[:lock_account_for_unsuccessful_match_attempts].feature).to receive(:is_enabled).and_return(false)
             20.times do
-              post :match, {person: invalid_person_parameters}
+              post :match, params: {person: invalid_person_parameters}
             end
 
             expect(response).to render_template("search")
