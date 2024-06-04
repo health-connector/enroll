@@ -375,13 +375,6 @@ Rails.application.routes.draw do
 
       end
 
-      resources :broker_agency, only: [:index, :show, :create] do
-        collection do
-          get :active_broker
-        end
-        get :terminate
-      end
-
       resources :census_employees, only: [:new, :create, :edit, :update, :show] do
         get :delink
         get :terminate
