@@ -228,7 +228,7 @@ module BenefitSponsors
       context 'with special chars in input' do
         before :each do
           initialize_and_login_admin[super_admin_permission]
-          xhr :get, :staff_index, id: bap_id, page: '^['
+          get :staff_index, params: { id: bap_id, page: '^[' }, xhr: true
         end
 
         it "should return success http status" do
