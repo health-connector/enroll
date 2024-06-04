@@ -15,6 +15,7 @@ FactoryBot.define do
     can_reset_password { false }
 
     trait :hbx_staff do
+      name 'hbx_staff'
       can_complete_resident_application { true }
       can_add_sep { true }
       view_the_configuration_tab { false }

@@ -677,15 +677,17 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
 
       it 'returns true if the latest action is under 24 hours' do
+        month = date.next_day.day == 1 ? date.next_month.month : date.month
         benefit_applications = [benefit_application]
-        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, date.month, date.day + 1, 4, 47, 49))
+        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, month, date.next_day.day, 4, 47, 49))
         result = helper.is_latest_action_under_24_hours(benefit_applications)
         expect(result).to be(true)
       end
 
       it 'returns false if the latest action is over 24 hours' do
+        month = date.next_day.day == 1 ? date.next_month.month : date.month
         benefit_applications = [benefit_application]
-        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, date.month, date.day + 1, 4, 47, 50))
+        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, month, date.next_day.day, 4, 47, 50))
         result = helper.is_latest_action_under_24_hours(benefit_applications)
         expect(result).to be(false)
       end

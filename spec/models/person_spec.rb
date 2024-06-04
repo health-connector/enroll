@@ -1096,6 +1096,42 @@ describe Person, :dbclean => :after_each do
         expect(@result).to eq person1
       end
     end
+
+    context 'querying persons with secure regular expression' do
+      let(:dob) { '1990-05-01' }
+      let(:person_params) {{first_name: 'John', last_name: 'Doe', dob: dob}}
+
+      it 'queries persons with sanitized user input' do
+        FactoryBot.create(:person, person_params)
+
+        first_name = 'John'
+        last_name = 'Doe'
+
+        result = Person.where(
+          first_name: /\A#{Regexp.escape(first_name)}\z/i,
+          last_name: /\A#{Regexp.escape(last_name)}\z/i,
+          dob: dob
+        ).last
+
+        expect(result.first_name).to eq('John')
+        expect(result.last_name).to eq('Doe')
+      end
+
+      it 'handles bad injected strings in first_name and last_name' do
+        FactoryBot.create(:person, person_params)
+        bad_first_name = 'John.+'
+        bad_last_name = 'Doe.*'
+
+        result = Person.where(
+          first_name: /\A#{Regexp.escape(bad_first_name)}\z/i,
+          last_name: /\A#{Regexp.escape(bad_last_name)}\z/i,
+          dob: dob
+        ).last
+
+        expect(result).to eq(nil)
+      end
+    end
+
   end
 
   describe ".deactivate_employer_staff_role" do
