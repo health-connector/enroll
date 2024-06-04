@@ -736,8 +736,15 @@ class Person
     # Adds employer staff role to person
     # Returns status and message if failed
     # Returns status and person if successful
-    def add_employer_staff_role(first_name, last_name, dob, _email, employer_profile)
-      person = Person.where(first_name: /^#{first_name}$/i, last_name: /^#{last_name}$/i, dob: dob)
+    def add_employer_staff_role(first_name, last_name, dob, email, employer_profile)
+      escaped_first_name = Regexp.escape(first_name)
+      escaped_last_name = Regexp.escape(last_name)
+
+      person = Person.where(
+        first_name: /\A#{escaped_first_name}\z/i,
+        last_name: /\A#{escaped_last_name}\z/i,
+        dob: dob
+      )
 
       return false, 'Person count too high, please contact HBX Admin' if person.count > 1
       return false, 'Person does not exist on the HBX Exchange' if person.count == 0

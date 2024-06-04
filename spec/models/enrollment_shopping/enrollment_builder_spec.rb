@@ -53,6 +53,10 @@ RSpec.describe EnrollmentShopping::EnrollmentBuilder, dbclean: :after_each do
           state == "waiver" ? waiver_subject : enrolled_subject
         end
 
+        before :all do
+          DatabaseCleaner.clean
+        end
+
         it "should build a new #{coverage_kind} enrollment" do
           expect(enrollment.valid?).to be_truthy
           expect(enrollment.coverage_kind).to eq coverage_kind

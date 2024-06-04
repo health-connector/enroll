@@ -737,7 +737,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     let(:consumer_role2) { FactoryBot.create(:consumer_role) }
     let(:person2) { FactoryBot.create(:person) }
     let(:user2) { FactoryBot.create(:user, person: person2, roles: ["hbx_staff"]) }
-    let(:file) { double }
+    let(:file) { fixture_file_upload("#{Rails.root}/spec/test_data/files/JavaScript.pdf", 'application/pdf')  }
     let(:temp_file) { double }
     let(:file_path) { File.dirname(__FILE__) }
     let(:bucket_name) { 'notices' }
@@ -746,8 +746,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     before(:each) do
       @controller = Insured::FamiliesController.new
-      allow(file).to receive(:original_filename).and_return("some-filename")
-      allow(file).to receive(:tempfile).and_return(temp_file)
       allow(temp_file).to receive(:path)
       allow(@controller).to receive(:set_family)
       @controller.instance_variable_set(:@person, person2)

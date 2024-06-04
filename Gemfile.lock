@@ -117,6 +117,7 @@ PATH
       money-rails (~> 1.10.0)
       mongoid (~> 7.0.2)
       non-stupid-digest-assets
+      pundit
       rails (~> 5.2.8.1)
       redcarpet (~> 3.4.0)
       roo (~> 2.1.0)
@@ -531,7 +532,7 @@ GEM
     jquery-turbolinks (2.1.0)
       railties (>= 3.1.0)
       turbolinks
-    jquery-ui-rails (6.0.1)
+    jquery-ui-rails (7.0.0)
       railties (>= 3.2.16)
     json (2.5.1)
     jsonapi-renderer (0.2.2)
@@ -550,6 +551,7 @@ GEM
     language_list (1.1.0)
     launchy (2.5.2)
       addressable (~> 2.8)
+    libv8-node (16.19.0.1-arm64-darwin)
     libv8-node (16.19.0.1-x86_64-darwin)
     libv8-node (16.19.0.1-x86_64-linux)
     loofah (2.19.1)
@@ -629,6 +631,8 @@ GEM
     net-ssh (4.2.0)
     newrelic_rpm (9.7.1)
     nio4r (2.7.0)
+    nokogiri (1.13.10-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.13.10-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.13.10-x86_64-linux)
@@ -962,6 +966,7 @@ GEM
     zeitwerk (2.6.13)
 
 PLATFORMS
+  arm64-darwin-23
   ruby
   x86_64-darwin-21
   x86_64-linux
@@ -1018,7 +1023,7 @@ DEPENDENCIES
   jquery-datatables-rails (= 3.4.0)
   jquery-rails (~> 4.3)
   jquery-turbolinks
-  jquery-ui-rails
+  jquery-ui-rails (~> 7.0)
   kaminari (= 0.17.0)
   kaminari-actionview
   kaminari-mongoid
@@ -1104,4 +1109,4 @@ RUBY VERSION
    ruby 2.7.6p219
 
 BUNDLED WITH
-   2.3.26
+   2.4.22

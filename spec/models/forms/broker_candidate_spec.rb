@@ -41,11 +41,31 @@ describe Forms::BrokerCandidate do
 
   context 'when email address invalid' do
 
-    it 'should have error on email' do
-      broker = Forms::BrokerCandidate.new(attributes.merge({email: "test@email"}))
-      broker.valid?
-      expect(broker).to have_errors_on(:email)
-      expect(broker.errors[:email]).to eq(["test@email is not valid"])
+    it 'should have errors on invalid emails' do
+      invalid_emails = [
+        'invalid-email',
+        'user@123',
+        'user@domain',
+        'user@example.',
+        "test@email"
+      ]
+
+      invalid_emails.each do |email|
+        broker = Forms::BrokerCandidate.new(attributes.merge({email: email}))
+        broker.valid?
+        expect(broker).to have_errors_on(:email)
+        expect(broker.errors[:email].join).to include("is not valid")
+      end
+    end
+
+    it "should not have errors on valid emails" do
+      valid_emails = %w[user@example.com john.doe@example.co.uk jane_doe123@example-domain.com user@subdomain.domain.com]
+
+      valid_emails.each do |email|
+        broker = Forms::BrokerCandidate.new(attributes.merge({email: email}))
+        broker.valid?
+        expect(broker.errors[:email]).to eq([])
+      end
     end
   end
 

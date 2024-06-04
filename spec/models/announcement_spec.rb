@@ -127,6 +127,7 @@ describe Announcement, dbclean: :after_each do
       let(:person) { FactoryBot.create(:person) }
       let(:user) { FactoryBot.create(:user, person: person) }
       before :each do
+        DatabaseCleaner.clean
         Announcement.destroy_all
         Announcement::AUDIENCE_KINDS.each do |kind|
           FactoryBot.create(:announcement, content: "msg for #{kind}", audiences: [kind])

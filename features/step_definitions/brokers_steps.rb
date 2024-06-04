@@ -288,7 +288,7 @@ Then(/^.* creates and publishes a plan year$/) do
      $('#modal-wrapper div.employee-upload input[type=file]').attr("style", "display: block;");
     JSCODE
     wait_for_ajax
-    attach_file("file", "#{Rails.root}/test/JavaScript.pdf")
+    attach_file("file", "#{Rails.root}/spec/test_data/files/JavaScript.pdf")
     execute_script(<<-JSCODE)
      $('#modal-wrapper div.employee-upload input[type=submit]').css({"visibility": "visible", "display": "inline-block"});
     JSCODE

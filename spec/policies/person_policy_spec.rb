@@ -73,50 +73,37 @@ describe PersonPolicy do
       expect(policy.updateable?).to be false
     end
   end
-end
 
-context 'with broker role' do
-  Permission.all.delete
+  context "for broker login" do
+    let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let(:broker_organization) { FactoryBot.build(:benefit_sponsors_organizations_general_organization, site: site) }
+    let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization, market_kind: 'shop', legal_name: 'Legal Name1') }
+    let!(:broker_role) { FactoryBot.create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: :active) }
+    let!(:broker_role_user) {FactoryBot.create(:user, :person => broker_role.person, roles: ['broker_role'])}
+    let(:broker_role_person) {broker_role.person}
 
-  let(:consumer_role) do
-    FactoryBot.create(:consumer_role)
+    let(:broker_organization_2) { FactoryBot.build(:benefit_sponsors_organizations_general_organization, site: site) }
+    let(:broker_agency_profile_2) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization_2, market_kind: 'shop', legal_name: 'Legal Name2') }
+    let!(:broker_role_2) { FactoryBot.create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile_2.id, aasm_state: :active) }
+    let!(:broker_role_user_2) {FactoryBot.create(:user, :person => broker_role_2.person, roles: ['broker_role'])}
+
+    context 'with broker role' do
+
+      context 'authorized broker' do
+        let(:policy) {PersonPolicy.new(broker_role_user, broker_role_person)}
+
+        it 'broker should be able to update' do
+          expect(policy.can_download_document?).to be true
+        end
+      end
+
+      context 'unauthorized broker' do
+        let(:policy) {PersonPolicy.new(broker_role_user_2, broker_role_person)}
+
+        it 'broker should not be able to update' do
+          expect(policy.can_download_document?).to be false
+        end
+      end
+    end
   end
-
-  let(:person) do
-    pers = consumer_role.person
-    pers.user = user
-    pers.save!
-    pers
-  end
-
-  let(:broker_agency_profile) do
-    FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile)
-  end
-
-  let(:user) do
-    FactoryBot.create(:user)
-  end
-
-  let(:existing_broker_staff_role) do
-    person.broker_agency_staff_roles.first
-  end
-
-  let(:broker_role) do
-    role = BrokerRole.new(
-      :broker_agency_profile => broker_agency_profile,
-      :aasm_state => "applicant",
-      :npn => "123456789",
-      :provider_kind => "broker"
-    )
-    person.broker_role = role
-    person.save!
-    person.broker_role
-  end
-
-  let(:policy){PersonPolicy.new(user,person)}
-
-  it 'broker should be able to update' do
-    expect(policy.can_update?).to be true
-  end
-
 end
