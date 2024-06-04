@@ -368,8 +368,6 @@ module ApplicationHelper
     case(provider.model_name.name)
     when "Person"
       insured_inbox_path(provider, message_id: message.id)
-    when "EmployerProfile"
-      employers_inbox_path(provider, message_id: message.id)
     when "BrokerAgencyProfile"
       benefit_sponsors.inboxes_message_path(provider, message_id: message.id)
     when "HbxProfile"
