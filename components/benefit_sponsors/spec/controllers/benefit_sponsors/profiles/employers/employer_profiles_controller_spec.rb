@@ -168,9 +168,9 @@ module BenefitSponsors
         end
 
         it "denies access to the estimate_cost for the current user" do
-          post :estimate_cost, employer_profile_id: employer_profile.id, benefit_package_id: BSON::ObjectId.new
+          post :estimate_cost, params: { employer_profile_id: employer_profile.id, benefit_package_id: BSON::ObjectId.new }
 
-          expect(flash[:error]).to eq("Access not allowed for show?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for estimate_cost?, (Pundit policy)")
         end
       end
 
@@ -181,9 +181,9 @@ module BenefitSponsors
         end
 
         it "denies access to the estimate_cost for the broker" do
-          post :estimate_cost, employer_profile_id: employer_profile.id, benefit_package_id: BSON::ObjectId.new
+          post :estimate_cost, params: { employer_profile_id: employer_profile.id, benefit_package_id: BSON::ObjectId.new }
 
-          expect(flash[:error]).to eq("Access not allowed for show?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for estimate_cost?, (Pundit policy)")
         end
       end
     end
@@ -204,18 +204,18 @@ module BenefitSponsors
         employer_profile.save!
       end
 
-      shared_examples_for "logged in user has no authorization roles for EmployerProfilesController" do |action|
+      shared_examples_for "logged in user has no authorization roles for EmployerProfilesController" do |action, action_type|
         it "displays an error message" do
           sign_in employer_staff_user
 
-          get action, invoice_id: initial_invoice.id, id: employer_profile.id
+          get action, params: {invoice_id: initial_invoice.id, id: employer_profile.id}
 
-          expect(flash[:error]).to eq("Access not allowed for show?, (Pundit policy)")
+          expect(flash[:error]).to eq("Access not allowed for #{action_type}, (Pundit policy)")
         end
       end
 
-      it_behaves_like 'logged in user has no authorization roles for EmployerProfilesController', :download_invoice
-      it_behaves_like 'logged in user has no authorization roles for EmployerProfilesController', :show_invoice
+      it_behaves_like 'logged in user has no authorization roles for EmployerProfilesController', :download_invoice, "download_invoice?"
+      it_behaves_like 'logged in user has no authorization roles for EmployerProfilesController', :show_invoice, "show_invoice?"
     end
 
     describe "GET run_eligibility_check" do
