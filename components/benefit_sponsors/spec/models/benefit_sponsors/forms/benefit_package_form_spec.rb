@@ -13,7 +13,7 @@ module BenefitSponsors
     let(:default_effective_period){ current_effective_date..current_effective_date.next_year.prev_day }
     let(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
 
-    let(:organization)          { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let(:organization)          { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:employer_profile)      { organization.employer_profile }
     let(:employer_attestation)  { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
     let(:benefit_sponsorship) do
@@ -22,14 +22,14 @@ module BenefitSponsors
       sponsorship
     end
     let(:benefit_application)   {
-      application = FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: default_effective_period)
+      application = FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship, default_effective_period: default_effective_period)
       application.benefit_sponsor_catalog.save!
       application
     }
     let!(:product_package_kind)     { :single_issuer }
     let!(:product_package)          { benefit_market_catalog.product_packages.where(package_kind: product_package_kind).first }
     let!(:product)                  { product_package.products.first }
-    let!(:issuer_profile)           { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site }
+    let!(:issuer_profile)           { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site }
     let!(:benefit_market_catalog_current) do
       BenefitMarkets::BenefitMarketCatalog.where("application_period.min" => current_effective_date.beginning_of_year).first ||
         create(
@@ -191,7 +191,7 @@ module BenefitSponsors
       include_context 'valid params'
 
       let(:benefit_application_id)  { benefit_application.id.to_s }
-      let!(:benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
+      let!(:benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
       let(:params_for_edit)  {
         {
           "id" => benefit_package.id.to_s,
@@ -216,7 +216,7 @@ module BenefitSponsors
       include_context 'valid params'
 
       let(:contribution_levels)    { benefit_package.sponsored_benefits[0].sponsor_contribution.contribution_levels }
-      let!(:benefit_package) { FactoryGirl.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
+      let!(:benefit_package) { FactoryBot.create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application, product_package: product_package) }
 
       subject { BenefitSponsors::Forms::BenefitPackageForm.for_update benefit_package_params.merge({:id => benefit_package.id.to_s}) }
 

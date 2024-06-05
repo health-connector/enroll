@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).on('ready turbolinks:load', function () {
   var employers = $("[id^=employee_role_id_]");
   employers.on("change", function(){
     var person_id = $("#person_id").val();

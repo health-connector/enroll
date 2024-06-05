@@ -48,15 +48,15 @@ module BenefitSponsors
 
         def create
           authorize @employer_profile
-
           begin
-            @broker_management_form = BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm.for_create(params)
+            @broker_management_form = BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm.for_create(sanitized_params)
             @broker_management_form.save
             flash[:notice] = "Your broker has been notified of your selection and should contact you shortly. You can always call or email them directly. If this is not the broker you want to use, select 'Change Broker'."
             redirect_to profiles_employers_employer_profile_path(@employer_profile, tab: 'brokers')
-          rescue StandardError => _e
+          rescue => e
             error_msgs = @broker_management_form.errors.map(&:full_messages) if @broker_management_form.errors
-            redirect_to(:back, :flash => {error: error_msgs})
+            Rails.logger.warn("Unable to create broker. Error Messages: #{error_msgs}, Error: #{e}")
+            redirect_back(fallback_location: main_app.root_path, :flash => {error: error_msgs})
           end
         end
 
@@ -64,7 +64,7 @@ module BenefitSponsors
           authorize @employer_profile
 
           begin
-            @broker_management_form = BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm.for_terminate(params)
+            @broker_management_form = BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm.for_terminate(sanitize_terminate_params)
 
             if @broker_management_form.terminate && @broker_management_form.direct_terminate
               flash[:notice] = "Broker terminated successfully."
@@ -80,6 +80,16 @@ module BenefitSponsors
         end
 
         private
+
+        def sanitized_params
+          params.permit(:broker_agency_id,
+                        :broker_role_id,
+                        :employer_profile_id)
+        end
+
+        def sanitize_terminate_params
+          params.permit(:direct_terminate, :termination_date, :employer_profile_id, :broker_agency_id)
+        end
 
         def find_employer
           @employer_profile = find_profile(params["employer_profile_id"])

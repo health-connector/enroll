@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe RatingArea, type: :model, dbclean: :after_each do
@@ -69,7 +71,7 @@ RSpec.describe RatingArea, type: :model, dbclean: :after_each do
         let!(:same_county_second_zip) { create(:rating_area, county_name: "County", zip_code: "10020") }
 
         it "returns an array of zip codes" do
-          expect(subject.find_zip_codes_for(county_name: 'County')).to match_array(%w(10010 10020))
+          expect(subject.find_zip_codes_for(county_name: 'County')).to match_array(%w[10010 10020])
         end
 
         it "returns an empty array if nothing found" do

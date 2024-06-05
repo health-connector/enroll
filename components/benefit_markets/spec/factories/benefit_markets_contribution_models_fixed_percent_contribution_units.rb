@@ -1,8 +1,10 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :benefit_markets_contribution_models_fixed_percent_contribution_unit, class: 'BenefitMarkets::ContributionModels::FixedPercentContributionUnit' do
 
     transient do
-      member_relationship_operator :>=
+      member_relationship_operator { :>= }
     end
 
     trait :with_member_relationship_maps do

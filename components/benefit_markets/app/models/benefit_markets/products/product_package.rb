@@ -181,7 +181,7 @@ module BenefitMarkets
 
     def products_for_plan_option_choice(product_option_choice)
       if package_kind == :metal_level
-        products.by_metal_level_kind(product_option_choice)
+        products.by_metal_level_kind(product_option_choice.to_sym)
       elsif package_kind == :multi_product
         products
       else

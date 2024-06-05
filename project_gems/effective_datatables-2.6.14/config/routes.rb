@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   mount EffectiveDatatables::Engine => '/', :as => 'effective_datatables'
 end

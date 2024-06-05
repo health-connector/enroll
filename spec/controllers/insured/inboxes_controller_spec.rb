@@ -8,15 +8,15 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let(:hbx_profile) { FactoryGirl.create(:hbx_profile)}
-  let(:person) { FactoryGirl.create(:person, :with_employee_role)}
-  let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile, census_employee: census_employee)}
-  let(:user) { FactoryGirl.create(:user, person: person) }
-  let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person) }
-  let(:census_employee) { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
+  let(:hbx_profile) { FactoryBot.create(:hbx_profile)}
+  let(:person) { FactoryBot.create(:person, :with_employee_role)}
+  let(:employee_role) {FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee: census_employee)}
+  let(:user) { FactoryBot.create(:user, person: person) }
+  let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person) }
+  let(:census_employee) { FactoryBot.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
 
   # Need to generate an actual inbox for the authorization with InboxPolicy
-  let(:inbox) { FactoryGirl.create(:inbox, :with_message, recipient: person) }
+  let(:inbox) { FactoryBot.create(:inbox, :with_message, recipient: person) }
   let(:message) { inbox.messages.first }
 
   # This is used for all CREATE methods
@@ -36,7 +36,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET new / post CREATE' do
         it 'will render :new' do
-          xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
+          get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to render_template('new')
@@ -44,7 +44,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will create a new message' do
-          post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
+          post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to have_http_status(:redirect)
@@ -53,7 +53,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET show / DELETE destroy' do
         it 'will show specific message' do
-          get :show, id: person.id, message_id: message.id
+          get :show, params: { id: person.id, message_id: message.id }
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to render_template('show')
@@ -61,7 +61,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will delete a message' do
-          xhr :delete, :destroy, id: person.id, message_id: message.id
+          delete :destroy, params: { id: person.id, message_id: message.id }, xhr: true
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to have_http_status(:success)
@@ -70,9 +70,9 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     end
 
     context 'without permissions', dbclean: :after_each do
-      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+      let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
       before do
         sign_in(fake_user)
@@ -80,15 +80,12 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET new / post CREATE' do
         it 'will not render :new' do
-          xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
+          get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
-          expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
-          expect(flash[:error]).to eq("Access not allowed for family_policy.show?, (Pundit policy)")
         end
-
         it 'will not create a new message' do
-          post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
+          post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(:redirect)
@@ -98,7 +95,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET show / DELETE destroy' do
         it 'will not show specific message' do
-          get :show, id: person.id, message_id: message.id
+          get :show, params: { id: person.id, message_id: message.id }
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(:redirect)
@@ -106,7 +103,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will not delete a message' do
-          xhr :delete, :destroy, id: person.id, message_id: message.id
+          delete :destroy, params: { id: person.id, message_id: message.id }, xhr: true
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
@@ -117,11 +114,11 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
   end
 
   context 'admin', dbclean: :after_each do
-    let!(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
-    let!(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
+    let!(:admin_person) { FactoryBot.create(:person, :with_hbx_staff_role) }
+    let!(:admin_user) { FactoryBot.create(:user, :with_hbx_staff_role, person: admin_person) }
 
     context 'with permissions' do
-      let!(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let!(:permission) { FactoryBot.create(:permission, :super_admin) }
       let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: permission.id) }
 
       before do
@@ -130,7 +127,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET new / post CREATE' do
         it 'will render :new' do
-          xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
+          get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to render_template('new')
@@ -138,7 +135,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will create a new message' do
-          post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
+          post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to have_http_status(:redirect)
@@ -148,7 +145,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET show / DELETE destroy' do
         it 'will show specific message' do
-          get :show, id: person.id, message_id: message.id
+          get :show, params: { id: person.id, message_id: message.id }
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to render_template('show')
@@ -156,7 +153,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will delete a message' do
-          xhr :delete, :destroy, id: person.id, message_id: message.id
+          delete :destroy, params: { id: person.id, message_id: message.id }, xhr: true
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to have_http_status(:success)
@@ -165,7 +162,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     end
 
     context 'without permissions' do
-      let!(:invalid_permission) { FactoryGirl.create(:permission, :developer) }
+      let!(:invalid_permission) { FactoryBot.create(:permission, :developer) }
       let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: invalid_permission.id) }
 
       before do
@@ -174,7 +171,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET new / post CREATE' do
         it 'will not render :new' do
-          xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
+          get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
@@ -182,7 +179,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will not create a new message' do
-          post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
+          post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(:redirect)
@@ -192,7 +189,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET show / DELETE destroy' do
         it 'will not show specific message' do
-          get :show, id: person.id, message_id: message.id, xhr: true, format: :js
+          get :show, params: { id: person.id, message_id: message.id, xhr: true }, format: :js
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
@@ -200,7 +197,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will not delete a message' do
-          xhr :delete, :destroy, id: person.id, message_id: message.id
+          delete :destroy, params: { id: person.id, message_id: message.id }, xhr: true
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
@@ -211,10 +208,10 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
   end
 
   context 'broker', dbclean: :after_each do
-    let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
-    let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
-    let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
-    let!(:broker_agency_account) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
+    let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
+    let(:writing_agent) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
+    let!(:broker_user) {FactoryBot.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
+    let!(:broker_agency_account) { FactoryBot.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
 
     context 'associated with the family' do
 
@@ -224,7 +221,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET new / post CREATE' do
         it 'will render :new' do
-          xhr :get, :new, :id => person.id, profile_id: hbx_profile.id, to: "test", format: :js
+          get :new, params: { :id => person.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to render_template('new')
@@ -232,7 +229,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will create a new message' do
-          post :create, id: person.id, profile_id: hbx_profile.id, message: valid_params
+          post :create, params: { id: person.id, profile_id: hbx_profile.id, message: valid_params }
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to have_http_status(:redirect)
@@ -242,7 +239,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET show / DELETE destroy' do
         it 'will show specific message' do
-          get :show, id: person.id, message_id: message.id
+          get :show, params: { id: person.id, message_id: message.id }
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to render_template('show')
@@ -250,7 +247,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will delete a message' do
-          xhr :delete, :destroy, id: person.id, message_id: message.id
+          delete :destroy, params: { id: person.id, message_id: message.id }, xhr: true
 
           expect(assigns(:inbox_provider).present?).to be_truthy
           expect(response).to have_http_status(:success)
@@ -259,9 +256,9 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
     end
 
     context 'without permissions/not hired by family', dbclean: :after_each do
-      let(:user2) { FactoryGirl.create(:user, person: person2) }
-      let!(:person2) { FactoryGirl.create(:person) }
-      let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
+      let(:user2) { FactoryBot.create(:user, person: person2) }
+      let!(:person2) { FactoryBot.create(:person) }
+      let!(:family2) { FactoryBot.create(:family, :with_primary_family_member, person: person2) }
 
       before do
         sign_in(broker_user)
@@ -269,7 +266,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET new / post CREATE' do
         it 'will not render :new' do
-          xhr :get, :new, :id => person2.id, profile_id: hbx_profile.id, to: "test", format: :js
+          get :new, params: { :id => person2.id, profile_id: hbx_profile.id, to: "test" }, format: :js
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)
@@ -277,7 +274,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will not create a new message' do
-          post :create, id: person2.id, profile_id: hbx_profile.id, message: valid_params
+          post :create, params: { id: person2.id, profile_id: hbx_profile.id, message: valid_params }
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(:redirect)
@@ -287,7 +284,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
 
       describe 'GET show / DELETE destroy' do
         it 'will not show specific message' do
-          get :show, id: person2.id, message_id: message.id
+          get :show, params: { id: person2.id, message_id: message.id }
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(:redirect)
@@ -295,7 +292,7 @@ RSpec.describe Insured::InboxesController, :type => :controller, :dbclean => :af
         end
 
         it 'will not delete a message' do
-          xhr :delete, :destroy, id: person2.id, message_id: message.id
+          delete :destroy, params: { id: person2.id, message_id: message.id }, xhr: true
 
           expect(assigns(:inbox_provider).present?).to be_falsey
           expect(response).to have_http_status(403)

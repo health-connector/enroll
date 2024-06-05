@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Before do |scenario|
   @count = 0
   case scenario
@@ -13,10 +15,8 @@ Before do |scenario|
 end
 
 module Screenshots
-  def screenshot(name, options={})
-    if ENV['SCREENSHOTS'] == 'true' or options[:force]
-      page.save_screenshot "tmp/#{@feature_name}/#{@scenario_name}/#{@count += 1} - #{name}.png", full: true
-    end
+  def screenshot(name, options = {})
+    page.save_screenshot "tmp/#{@feature_name}/#{@scenario_name}/#{@count += 1} - #{name}.png", full: true if (ENV['SCREENSHOTS'] == 'true') || options[:force]
   end
 end
 

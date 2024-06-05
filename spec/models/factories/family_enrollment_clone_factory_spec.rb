@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -29,7 +31,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   let!(:active_benefit_group_assignment) { build(:benefit_group_assignment, benefit_group_id: nil, benefit_package_id: sponsored_benefit_package.id, start_on: sponsored_benefit_package.start_on, end_on: coverage_terminated_on)}
   let!(:renewal_benefit_group_assignment) { build(:benefit_group_assignment, benefit_group_id: nil, start_on: renewal_benefit_package.start_on, benefit_package_id: renewal_benefit_package.id, end_on: renewal_benefit_package.end_on)}
   let!(:ce) do
-    FactoryGirl.create(
+    FactoryBot.create(
       :census_employee,
       :owner,
       benefit_sponsorship: benefit_sponsorship,
@@ -40,49 +42,48 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
   end
   let!(:ce_update){ce.update_attributes(aasm_state: 'cobra_linked', cobra_begin_date: coverage_terminated_on.next_day, coverage_terminated_on: coverage_terminated_on)}
 
-  let!(:family) {
+  let!(:family) do
     employee_role.person.update_attributes(dob: ce.dob, ssn: ce.ssn)
     employee_role.update_attributes(census_employee: ce)
     person = employee_role.person
     ce.update_attributes({employee_role: employee_role})
     family_rec = Family.find_or_build_from_employee_role(employee_role)
-    hbx_enrollment_mem = FactoryGirl.build(
+    hbx_enrollment_mem = FactoryBot.build(
       :hbx_enrollment_member,
       eligibility_date: Time.now,
       applicant_id: person.primary_family.family_members.first.id,
       coverage_start_on: sponsored_benefit_package.start_on
     )
 
-     FactoryGirl.create(:hbx_enrollment,
-      household: person.primary_family.active_household,
-      coverage_kind: "health",
-      effective_on: sponsored_benefit_package.start_on,
-      enrollment_kind: "open_enrollment",
-      kind: "employer_sponsored",
-      submitted_at: sponsored_benefit_package.start_on - 20.days,
-      sponsored_benefit_package_id: sponsored_benefit_package.id,
-      sponsored_benefit_id:sponsored_benefit.id,
-      rating_area: rating_area,
-      product: product,
-      employee_role_id: person.active_employee_roles.first.id,
-      benefit_group_assignment_id: active_benefit_group_assignment.id,
-      aasm_state: 'coverage_terminated',
-      external_enrollment: external_enrollment,
-      hbx_enrollment_members:[hbx_enrollment_mem]
-      )
+    FactoryBot.create(:hbx_enrollment,
+                      household: person.primary_family.active_household,
+                      coverage_kind: "health",
+                      effective_on: sponsored_benefit_package.start_on,
+                      enrollment_kind: "open_enrollment",
+                      kind: "employer_sponsored",
+                      submitted_at: sponsored_benefit_package.start_on - 20.days,
+                      sponsored_benefit_package_id: sponsored_benefit_package.id,
+                      sponsored_benefit_id: sponsored_benefit.id,
+                      rating_area: rating_area,
+                      product: product,
+                      employee_role_id: person.active_employee_roles.first.id,
+                      benefit_group_assignment_id: active_benefit_group_assignment.id,
+                      aasm_state: 'coverage_terminated',
+                      external_enrollment: external_enrollment,
+                      hbx_enrollment_members: [hbx_enrollment_mem])
 
     family_rec.reload
-  }
+  end
 
   let!(:clone_enrollment){family.enrollments.select{|e| e.kind == "employer_sponsored"}.first}
 
-  let(:generate_cobra_enrollment) {
+  let(:generate_cobra_enrollment) do
     factory = Factories::FamilyEnrollmentCloneFactory.new
     factory.family = family
     factory.census_employee = ce
     factory.enrollment = clone_enrollment
     factory.clone_for_cobra
-  }
+  end
 
   before do
     allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(100.0)
@@ -112,7 +113,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
 
     it "the effective_on of cobra enrollment should greater than start_on of plan_year" do
       generate_cobra_enrollment
-      cobra_enrollment = family.enrollments.detect {|e| e.is_cobra_status?}
+      cobra_enrollment = family.enrollments.detect(&:is_cobra_status?)
       expect(cobra_enrollment.effective_on).to be >= cobra_enrollment.sponsored_benefit_package.benefit_application.start_on
       expect(cobra_enrollment.external_enrollment).to be_falsey
     end
@@ -141,7 +142,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
 
     it 'should generate external cobra enrollment' do
       generate_cobra_enrollment
-      cobra_enrollment = family.enrollments.detect {|e| e.is_cobra_status?}
+      cobra_enrollment = family.enrollments.detect(&:is_cobra_status?)
       expect(cobra_enrollment.external_enrollment).to be_truthy
       expect(cobra_enrollment.coverage_selected?).to be_truthy
       expect(cobra_enrollment.effective_on).to eq coverage_terminated_on.next_day
@@ -149,7 +150,7 @@ RSpec.describe Factories::FamilyEnrollmentCloneFactory, :type => :model, dbclean
 
     it 'cobra enrollment member coverage_start_on should cloned enrollment effective_on' do
       generate_cobra_enrollment
-      cobra_enrollment = family.enrollments.detect {|e| e.is_cobra_status?}
+      cobra_enrollment = family.enrollments.detect(&:is_cobra_status?)
       expect(cobra_enrollment.hbx_enrollment_members.first.coverage_start_on).to eq clone_enrollment.effective_on
     end
 

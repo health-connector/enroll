@@ -206,7 +206,7 @@ class Insured::FamiliesController < FamiliesController
       @terminate_reason = params[:terminate_reason] || ''
       render :layout => 'application'
     else
-      redirect_to :back
+      redirect_back fallback_location: main_app.root_path
     end
   end
 
@@ -215,7 +215,7 @@ class Insured::FamiliesController < FamiliesController
     authorize @family, :upload_notice?
     if !params[:file] || !params[:subject]
       flash[:error] = "File or Subject not provided"
-      redirect_to(:back)
+      redirect_back fallback_location: main_app.root_path
       return
     end
 
@@ -238,7 +238,7 @@ class Insured::FamiliesController < FamiliesController
       flash[:error] = "Could not save file."
     end
 
-    redirect_to(:back)
+    redirect_back fallback_location: main_app.root_path
     return
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "shared/plan_shoppings/_select_plan_button.html.erb" do

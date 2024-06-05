@@ -1,6 +1,6 @@
 module BenefitSponsors
   module SponsoredBenefits
-    class DentalSponsoredBenefit < SponsoredBenefit
+    class DentalSponsoredBenefit < BenefitSponsors::SponsoredBenefits::SponsoredBenefit
 
     end
   end

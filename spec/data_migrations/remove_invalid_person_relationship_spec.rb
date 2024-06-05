@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_incorrect_person_relationship")
 
@@ -14,19 +16,19 @@ describe RemoveIncorrectPersonRelationship, dbclean: :after_each do
 
   describe "destroying person relationships" do
 
-    let(:person) { FactoryGirl.create(:person)}
+    let(:person) { FactoryBot.create(:person)}
 
     before(:each) do
       person.person_relationships << PersonRelationship.new(kind: "child", relative_id: person.id)
       person.save!
-      allow(ENV).to receive(:[]).with("hbx_id").and_return(person.hbx_id)
-      allow(ENV).to receive(:[]).with("_id").and_return(person.person_relationships.first.id)
     end
 
     it "should destroy the person relationship" do
-      subject.migrate
-      person.reload
-      expect(person.person_relationships.size).to eq 0
+      ClimateControl.modify hbx_id: person.hbx_id, _id: person.person_relationships.first.id do
+        subject.migrate
+        person.reload
+        expect(person.person_relationships.size).to eq 0
+      end
     end
   end
 end

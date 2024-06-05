@@ -1,5 +1,4 @@
 module BenefitMarketWorld
-
   def benefit_market
     @benefit_market ||= site.benefit_markets.first
   end
@@ -21,19 +20,19 @@ module BenefitMarketWorld
   end
 
   def rating_area
-    @rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year)
+    @rating_area ||= FactoryBot.create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year)
   end
 
   def renewal_rating_area(effective_date = renewal_effective_date)
-    @renewal_rating_area ||= FactoryGirl.create(:benefit_markets_locations_rating_area, active_year: effective_date.year)
+    @renewal_rating_area ||= FactoryBot.create(:benefit_markets_locations_rating_area, active_year: effective_date.year)
   end
 
   def service_area
-    @service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip.id], active_year: current_effective_date.year)
+    @service_area ||= FactoryBot.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip.id], active_year: current_effective_date.year)
   end
 
   def renewal_service_area
-    @renewal_service_area ||= FactoryGirl.create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: renewal_effective_date.year)
+    @renewal_service_area ||= FactoryBot.create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: renewal_effective_date.year)
   end
 
   def product_kinds(product_kinds = nil)
@@ -45,26 +44,25 @@ module BenefitMarketWorld
   end
 
   def county_zip
-    @county_zip ||= FactoryGirl.create(:benefit_markets_locations_county_zip,
-      county_name: 'Middlesex',
-      zip: '01754',
-      state: 'MA'
-    )
+    @county_zip ||= FactoryBot.create(:benefit_markets_locations_county_zip,
+                                      county_name: 'Middlesex',
+                                      zip: '01754',
+                                      state: 'MA')
   end
 
-  def issuer_profile(carrier=:default)
-    @issuer_profile[carrier] ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
+  def issuer_profile(carrier = :default)
+    @issuer_profile[carrier] ||= FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
-  def dental_issuer_profile(carrier=:default)
-    @dental_issuer_profile[carrier] ||= FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
+  def dental_issuer_profile(carrier = :default)
+    @dental_issuer_profile[carrier] ||= FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, carrier, assigned_site: site)
   end
 
   def qualifying_life_events
     @qualifying_life_events ||= [
       :effective_on_event_date,
       :effective_on_first_of_month
-    ].map { |event_trait| FactoryGirl.create(:qualifying_life_event_kind, event_trait, market_kind: "shop", post_event_sep_in_days: 90) }
+    ].map { |event_trait| FactoryBot.create(:qualifying_life_event_kind, event_trait, market_kind: "shop", post_event_sep_in_days: 90) }
   end
 
   def set_initial_application_dates(status)
@@ -135,12 +133,12 @@ module BenefitMarketWorld
 
   def dental_products
     create_list(:benefit_markets_products_dental_products_dental_product,
-        5,
-        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-        product_package_kinds: [:single_product],
-        service_area: service_area,
-        issuer_profile_id: dental_issuer_profile.id,
-        metal_level_kind: :dental)
+                5,
+                application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+                product_package_kinds: [:single_product],
+                service_area: service_area,
+                issuer_profile_id: dental_issuer_profile.id,
+                metal_level_kind: :dental)
   end
 
   def generate_initial_catalog_products_for(coverage_kinds)
@@ -149,14 +147,14 @@ module BenefitMarketWorld
     dental_products if coverage_kinds.include?(:dental)
     BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
       qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id)
-      csr = FactoryGirl.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
+      csr = FactoryBot.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
       qhp.qhp_cost_share_variances << csr
-      qhp_d = FactoryGirl.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
+      qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
       csr.qhp_deductibles << qhp_d
       qhp.save!
       csr.save!
       qhp_d.save!
-      doc = FactoryGirl.build(:document, identifier: '1:1#1')
+      doc = FactoryBot.build(:document, identifier: '1:1#1')
       hp.sbc_document = doc
       hp.save!
       doc.save!
@@ -178,16 +176,16 @@ module BenefitMarketWorld
   end
 
   def renewal_dental_products
-     create_list(:benefit_markets_products_dental_products_dental_product,
-        5,
-        :with_renewal_product,
-        application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
-        product_package_kinds: [:single_product],
-        service_area: service_area,
-        renewal_service_area: renewal_service_area,
-        issuer_profile_id: dental_issuer_profile.id,
-        #renewal_issuer_profile_id: dental_issuer_profile.id,
-        metal_level_kind: :dental)
+    create_list(:benefit_markets_products_dental_products_dental_product,
+                5,
+                :with_renewal_product,
+                application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year),
+                product_package_kinds: [:single_product],
+                service_area: service_area,
+                renewal_service_area: renewal_service_area,
+                issuer_profile_id: dental_issuer_profile.id,
+                #renewal_issuer_profile_id: dental_issuer_profile.id,
+                metal_level_kind: :dental)
   end
 
   def generate_renewal_catalog_products_for(coverage_kinds)
@@ -199,7 +197,7 @@ module BenefitMarketWorld
 
   def create_benefit_market_catalog_for(effective_date)
     @benefit_market_catalog =
-      benefit_market.benefit_market_catalog_for(effective_date).presence || FactoryGirl.create(
+      benefit_market.benefit_market_catalog_for(effective_date).presence || FactoryBot.create(
         :benefit_markets_benefit_market_catalog,
         :with_product_packages,
         benefit_market: benefit_market,

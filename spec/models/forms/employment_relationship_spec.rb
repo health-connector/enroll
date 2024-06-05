@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Forms::EmploymentRelationship do
@@ -6,16 +8,18 @@ describe Forms::EmploymentRelationship do
     let(:hired_on_date) { double }
     let(:eligible_for_coverage_date) { double }
 
-    subject { Forms::EmploymentRelationship.new({
-      :employer_name => employer_name,
-      :hired_on => hired_on_date,
-      :eligible_for_coverage_on => eligible_for_coverage_date
-    }) }
+    subject do
+      Forms::EmploymentRelationship.new({
+                                          :employer_name => employer_name,
+                                          :hired_on => hired_on_date,
+                                          :eligible_for_coverage_on => eligible_for_coverage_date
+                                        })
+    end
 
     it "should have the correct display data" do
-       expect(subject.employer_name).to eq employer_name
-       expect(subject.hired_on).to eq hired_on_date
-       expect(subject.eligible_for_coverage_on).to eq eligible_for_coverage_date
+      expect(subject.employer_name).to eq employer_name
+      expect(subject.hired_on).to eq hired_on_date
+      expect(subject.eligible_for_coverage_on).to eq eligible_for_coverage_date
     end
   end
 
@@ -36,29 +40,31 @@ describe Forms::EmploymentRelationship do
   end
 
   describe "given additional data needed by the employee_role factory" do
-    let(:first_name) { "first" } 
-    let(:last_name) { "last" } 
-    let(:middle_name) { "middle" } 
-    let(:name_pfx) { "pfx" } 
-    let(:name_sfx) { "sfx" } 
+    let(:first_name) { "first" }
+    let(:last_name) { "last" }
+    let(:middle_name) { "middle" }
+    let(:name_pfx) { "pfx" }
+    let(:name_sfx) { "sfx" }
     let(:gender) { double }
 
-    subject { Forms::EmploymentRelationship.new({
-      :first_name => first_name,
-      :last_name => last_name,
-      :middle_name => middle_name,
-      :name_sfx => name_sfx,
-      :name_pfx => name_pfx,
-      :gender => gender
-    }) }
+    subject do
+      Forms::EmploymentRelationship.new({
+                                          :first_name => first_name,
+                                          :last_name => last_name,
+                                          :middle_name => middle_name,
+                                          :name_sfx => name_sfx,
+                                          :name_pfx => name_pfx,
+                                          :gender => gender
+                                        })
+    end
 
     it "should provide names and gender" do
-       expect(subject.first_name).to eq first_name
-       expect(subject.last_name).to eq last_name
-       expect(subject.middle_name).to eq middle_name
-       expect(subject.name_pfx).to eq name_pfx
-       expect(subject.name_sfx).to eq name_sfx
-       expect(subject.gender).to eq gender
+      expect(subject.first_name).to eq first_name
+      expect(subject.last_name).to eq last_name
+      expect(subject.middle_name).to eq middle_name
+      expect(subject.name_pfx).to eq name_pfx
+      expect(subject.name_sfx).to eq name_sfx
+      expect(subject.gender).to eq gender
     end
   end
 end

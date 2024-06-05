@@ -75,7 +75,7 @@ class Employers::EmployerAttestationsController < ApplicationController
        raise "Sorry! You are not authorized to download this document."
       end
     rescue => e
-      redirect_to(:back, :flash => {error: e.message})
+      redirect_back(fallback_location: root_path, :flash => {error: e.message})
     end
   end
 

@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe "broker_agencies/profiles/_families.html.erb"  do |variable|
+RSpec.describe "broker_agencies/profiles/_families.html.erb"  do |_variable|
   before :each do
     stub_template "_families_table_for_broker.html.erb" => ''
     @page_alphabets = ['XXX', 'YYY']
-    @broker_agency_profile = FactoryGirl.create(:broker_agency_profile)
-    render template: "broker_agencies/profiles/_families.html.erb" 
+    @broker_agency_profile = FactoryBot.create(:broker_agency_profile)
+    render template: "broker_agencies/profiles/_families.html.erb"
   end
 
   it 'should have title Families' do

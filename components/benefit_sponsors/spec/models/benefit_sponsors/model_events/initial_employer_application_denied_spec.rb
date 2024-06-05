@@ -6,7 +6,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
   let(:notice_event) { "initial_employer_application_denied" }
   let(:start_on) { TimeKeeper.date_of_record.next_month.beginning_of_month}
   let!(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
   let!(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
@@ -14,13 +14,12 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerApplicationDenied',
     sponsorship
   end
   let!(:model_instance) do
-    FactoryGirl.create(:benefit_sponsors_benefit_application,
+    FactoryBot.create(:benefit_sponsors_benefit_application,
                        :with_benefit_package,
                        :benefit_sponsorship => benefit_sponsorship,
                        :aasm_state => 'enrollment_closed',
                        :default_effective_period => start_on..(start_on + 1.year) - 1.day)
   end
-
 
   describe "ModelEvent" do
     context "when initial employer application is denied" do

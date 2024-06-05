@@ -1,10 +1,14 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
-  include Config::SiteHelper
+
 RSpec.describe UserMailer do
+  include Config::SiteHelper
+
   describe 'generic_notice_alert' do
-    let(:hbx_id) { rand(10000 )}
+    let(:hbx_id) { rand(10_000)}
     let(:file){ Rails.root.join("spec","mailers","user_mailer_spec.rb").to_s }
-    let(:email){UserMailer.generic_notice_alert('john', hbx_id, 'john@dc.gov' , {"file_name" => file})}
+    let(:email){UserMailer.generic_notice_alert('john', hbx_id, 'john@dc.gov', {"file_name" => file})}
 
     it 'should not allow a reply' do
       expect(email.from).to match(["no-reply@individual.#{site_domain_name}"])

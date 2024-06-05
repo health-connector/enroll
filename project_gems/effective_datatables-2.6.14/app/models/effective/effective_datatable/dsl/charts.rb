@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 module Effective
   module EffectiveDatatable
     module Dsl
       module Charts
         # Instance Methods inside the charts do .. end block
         def chart(name, type, options = {}, &block)
-
           options[:title] ||= (options[:label] || name.to_s.titleize)
           options[:legend] = 'none' if options[:legend] == false
 

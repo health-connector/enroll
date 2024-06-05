@@ -5,7 +5,7 @@ RSpec.describe BenefitSponsors::Observers::BenefitApplicationObserver, dbclean: 
   let(:nonpayment_model_event) { "benefit_coverage_period_terminated_nonpayment" }
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month}
   let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
   let!(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
@@ -13,7 +13,7 @@ RSpec.describe BenefitSponsors::Observers::BenefitApplicationObserver, dbclean: 
     sponsorship
   end
   let!(:model_instance) do
-    FactoryGirl.create(:benefit_sponsors_benefit_application,
+    FactoryBot.create(:benefit_sponsors_benefit_application,
                        :with_benefit_package,
                        :benefit_sponsorship => benefit_sponsorship,
                        :aasm_state => 'active',

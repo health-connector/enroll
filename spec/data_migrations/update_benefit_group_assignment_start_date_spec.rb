@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_benefit_group_assignment_start_date")
 
@@ -15,15 +17,14 @@ describe UpdateBenefitGroupAssignmentStartDate, dbclean: :after_each do
   describe "update benefit group assignment start date" do
 
 
-    let!(:benefit_group) { FactoryGirl.create(:benefit_group, plan_year: plan_year)}
-    let(:plan_year) { FactoryGirl.create(:plan_year) }
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
-    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment,household: family.active_household)}
-    let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_group, hbx_enrollment: hbx_enrollment, start_on: TimeKeeper.date_of_record - 5.years)}
-    let(:census_employee) { FactoryGirl.create(:census_employee, employer_profile_id: plan_year.employer_profile.id)}
+    let!(:benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year)}
+    let(:plan_year) { FactoryBot.create(:plan_year) }
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
+    let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment,household: family.active_household)}
+    let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_group, hbx_enrollment: hbx_enrollment, start_on: TimeKeeper.date_of_record - 5.years)}
+    let(:census_employee) { FactoryBot.create(:census_employee, employer_profile_id: plan_year.employer_profile.id)}
 
     before(:each) do
-      allow(ENV).to receive(:[]).with("fein").and_return(plan_year.employer_profile.parent.fein)
       allow(benefit_group_assignment).to receive(:plan_year).and_return(plan_year)
       benefit_group_assignments = [benefit_group_assignment]
       allow(CensusEmployee).to receive(:find).and_return(census_employee)

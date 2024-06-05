@@ -1,6 +1,6 @@
 class InvitationsController < ApplicationController
-  before_filter :require_login_and_allow_new_account
-  
+  before_action :require_login_and_allow_new_account
+
   def claim
     @invitation = Invitation.find(params[:id])
 
@@ -24,7 +24,7 @@ class InvitationsController < ApplicationController
     redirect_to general_agencies_profile_path(ga_profile)
   end
 
-  def redirect_to_employee_match(census_employee)
+  def redirect_to_employee_match(_census_employee)
     redirect_to welcome_insured_employee_index_path
   end
 
@@ -41,9 +41,10 @@ class InvitationsController < ApplicationController
   end
 
   def require_login_and_allow_new_account
-    if current_user.nil?
-      session[:portal] = url_for(params)
-      redirect_to new_user_registration_url(:invitation_id => params[:id])
-    end
+    params_hash = params.permit(:id, :person_id).to_h
+    return unless current_user.nil?
+
+    session[:portal] = url_for(params_hash)
+    redirect_to new_user_registration_url(:invitation_id => params_hash[:id])
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^the HBX admin is on the User Accounts page$/) do
   visit '/exchanges/hbx_profiles'
   click_link 'User Accounts'
@@ -5,7 +7,7 @@ Given(/^the HBX admin is on the User Accounts page$/) do
 end
 
 When(/^the HBX admin searches for the given user$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first.oim_id
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first.oim_id
   find("input[type='search']").set(user)
   expect(page).to have_content('Showing 1 to 1 of 1 entries')
 end
@@ -48,15 +50,15 @@ When(/^the HBX admin updates the email and username for the user$/) do
 end
 
 When(/^the HBX admin updates the username with a username already in use$/) do
-  @user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first
-  FactoryGirl.create(:person, user: @user)
+  @user = User.where(:roles.in => ["employer_staff"], locked_at: nil).first
+  FactoryBot.create(:person, user: @user)
   find('#inputNewUsername').set(@user.oim_id)
   find("input[type='submit']").click
 end
 
 When(/^the HBX admin updates the email with a email already in use$/) do
-  @user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first
-  FactoryGirl.create(:person, user: @user)
+  @user = User.where(:roles.in => ["employer_staff"], locked_at: nil).first
+  FactoryBot.create(:person, user: @user)
   find('#inputNewEmail').set(@user.email)
   find("input[type='submit']").click
 end
@@ -73,15 +75,15 @@ Then(/^the error message will contain the First Name, Last Name, and HBX ID of t
 end
 
 When(/^the HBX admin updates the email and username with a email and username already in use$/) do
-  @user = User.where(:'roles'.in => ["employer_staff"], locked_at: nil).first
-  FactoryGirl.create(:person, user: @user)
+  @user = User.where(:roles.in => ["employer_staff"], locked_at: nil).first
+  FactoryBot.create(:person, user: @user)
   find('#inputNewEmail').set(@user.email)
   find('#inputNewUsername').set(@user.oim_id)
   find("input[type='submit']").click
 end
 
 When(/^the users username and email appear in the form fields$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
   expect(find_field('new_oim_id').value).to eq user.oim_id
   expect(find_field('new_email').value).to eq user.email
 end
@@ -96,27 +98,27 @@ Then(/^the text in the username and email address fields will be cleared$/) do
 end
 
 When(/^the HBX admin searches for the given user by first name$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set(person.first_name)
 end
 
 When(/^the HBX admin searches for the given user by last name$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set(person.last_name)
 end
 
 When(/^the HBX admin searches for the given user by full name$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
+  person = FactoryBot.create(:person, user: user)
   find("input[type='search']").set("#{person.first_name} #{person.last_name}")
 end
 
 When(/^the HBX admin searches for the given user by hbx id$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
-  person = FactoryGirl.create(:person, user: user)
-  find("input[type='search']").set("#{person.hbx_id}")
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
+  person = FactoryBot.create(:person, user: user)
+  find("input[type='search']").set(person.hbx_id.to_s)
 end
 
 Then(/^the HBX admin should see the user in the search results$/) do
@@ -124,11 +126,11 @@ Then(/^the HBX admin should see the user in the search results$/) do
 end
 
 When(/^the HBX admin searches for the given user by username$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
   find("input[type='search']").set(user.oim_id)
 end
 
 When(/^the HBX admin searches for the given user by email$/) do
-  user = User.where(:'roles'.in => ["employee"], locked_at: nil).first
+  user = User.where(:roles.in => ["employee"], locked_at: nil).first
   find("input[type='search']").set(user.email)
 end

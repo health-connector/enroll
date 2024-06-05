@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), "..", "..", "lib/mongoid_migration_task")
 
-class ModifyBenefitApplication< MongoidMigrationTask
+class ModifyBenefitApplication < MongoidMigrationTask
 
   def migrate
     action = ENV['action'].to_s
@@ -71,7 +71,7 @@ class ModifyBenefitApplication< MongoidMigrationTask
     new_start_date = Date.strptime(ENV['new_start_date'], "%m/%d/%Y")
     new_end_date = Date.strptime(ENV['new_end_date'], "%m/%d/%Y")
     oe_start_on = new_start_date.prev_month
-    oe_end_on = oe_start_on+19.days
+    oe_end_on = oe_start_on + 19.days
     raise 'new_end_date must be greater than new_start_date' if new_start_date >= new_end_date
     benefit_application = benefit_applications.where(:"benefit_application_items.effective_period.min" => effective_date, :aasm_state => :draft).first
     if benefit_application.present?

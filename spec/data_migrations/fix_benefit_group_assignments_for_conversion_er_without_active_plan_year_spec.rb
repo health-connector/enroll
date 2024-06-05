@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "fix_benefit_group_assignments_for_conversion_er_without_active_plan_year")
 

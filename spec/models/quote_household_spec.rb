@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe QuoteHousehold, type: :model do
 
-  let(:quote){ create :quote ,:with_two_households_and_members }
-  let(:quote_benefit_group_1){create :quote_benefit_group, title: "Group1" , quote: quote}
+  let(:quote){ create :quote,:with_two_households_and_members }
+  let(:quote_benefit_group_1){create :quote_benefit_group, title: "Group1", quote: quote}
   let(:quote_benefit_group_2){create :quote_benefit_group, title: "Group2", quote: quote}
   let(:quote_member_employee){build :quote_member, employee_relationship: "employee"}
 
@@ -32,14 +34,14 @@ RSpec.describe QuoteHousehold, type: :model do
 
   context "employee?" do
     it "should return true when employee is present" do
-      quote.quote_households.first.quote_members << FactoryGirl.build(:quote_member, employee_relationship: "spouse")
+      quote.quote_households.first.quote_members << FactoryBot.build(:quote_member, employee_relationship: "spouse")
       expect(quote.quote_households.first.spouse?).to be true
     end
   end
 
   context "children?" do
     it "should return true when child is present" do
-      quote.quote_households.first.quote_members << FactoryGirl.build(:quote_member, employee_relationship: "child_under_26")
+      quote.quote_households.first.quote_members << FactoryBot.build(:quote_member, employee_relationship: "child_under_26")
       expect(quote.quote_households.first.children?).to be true
     end
     it "should return false when there is no child" do
@@ -49,7 +51,7 @@ RSpec.describe QuoteHousehold, type: :model do
 
   context "spouse?" do
     it "should return true when spouse is present" do
-      quote.quote_households.first.quote_members << FactoryGirl.build(:quote_member, employee_relationship: "spouse")
+      quote.quote_households.first.quote_members << FactoryBot.build(:quote_member, employee_relationship: "spouse")
       expect(quote.quote_households.first.spouse?).to be true
     end
     it "should return false when there is no spouse" do
@@ -59,7 +61,7 @@ RSpec.describe QuoteHousehold, type: :model do
 
   context "employee" do
     it "should return employee" do
-      quote.quote_households.first.quote_members= [quote_member_employee]
+      quote.quote_households.first.quote_members = [quote_member_employee]
       expect(quote.quote_households.first.employee).to eq quote_member_employee
     end
   end

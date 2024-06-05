@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "CcaBrokerAgencyProfilesMigration" do
@@ -5,7 +7,7 @@ describe "CcaBrokerAgencyProfilesMigration" do
   before :all do
     DatabaseCleaner.clean
 
-    Dir[Rails.root.join('db', 'migrate', '*_cca_broker_agency_profiles_migration.rb')].each do |f|
+    Dir[Rails.root.join('db', 'migrate', '*_cca_broker_agency_profiles_migration.rb')].sort.each do |f|
       @path = f
       require f
     end
@@ -14,27 +16,26 @@ describe "CcaBrokerAgencyProfilesMigration" do
   describe ".up" do
 
     before :all do
-      FactoryGirl.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, site_key: :cca)
+      FactoryBot.create(:benefit_sponsors_site, :with_owner_exempt_organization, :with_benefit_market, site_key: :cca)
 
-      organization = FactoryGirl.create(:broker)
-      document3 = FactoryGirl.build(:document)
-      document4 = FactoryGirl.build(:document)
+      organization = FactoryBot.create(:broker)
+      document3 = FactoryBot.build(:document)
       broker_agency_profile = organization.broker_agency_profile
 
-      FactoryGirl.create(:message1, inbox: broker_agency_profile.inbox)
+      FactoryBot.create(:message1, inbox: broker_agency_profile.inbox)
       broker_agency_profile.inbox.messages.first.update_attributes(body: "<br>Your notice is now available in your employer profile under the Billing tab. For more information, please download your <a href=/document/authorized_download/BrokerAgencyProfile/#{broker_agency_profile.id}/documents/#{document3.id}?content_type=application/pdf&filename=MonthlyInvoiceAvailableNotice.pdf&disposition=inline target='_blank'>MonthlyInvoiceAvailableNotice</a>")
 
-      FactoryGirl.create(:broker_agency_staff_role, broker_agency_profile: broker_agency_profile, benefit_sponsors_broker_agency_profile_id: "123456")
-      FactoryGirl.create(:broker_role, broker_agency_profile_id: broker_agency_profile.id)
+      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile: broker_agency_profile, benefit_sponsors_broker_agency_profile_id: "123456")
+      FactoryBot.create(:broker_role, broker_agency_profile_id: broker_agency_profile.id)
 
-      organization1 = FactoryGirl.create(:organization, legal_name: "Delta Dental")
-      FactoryGirl.create(:carrier_profile, organization: organization1)
+      organization1 = FactoryBot.create(:organization, legal_name: "Delta Dental")
+      FactoryBot.create(:carrier_profile, organization: organization1)
 
-      employer_profile = FactoryGirl.create(:employer_profile)
+      employer_profile = FactoryBot.create(:employer_profile)
       # employer_profile.organization.home_page = nil
-      FactoryGirl.create(:inbox, :with_message, recipient: employer_profile)
-      FactoryGirl.create(:employer_staff_role, employer_profile_id: employer_profile.id)
-      FactoryGirl.create(:employee_role, employer_profile: employer_profile)
+      FactoryBot.create(:inbox, :with_message, recipient: employer_profile)
+      FactoryBot.create(:employer_staff_role, employer_profile_id: employer_profile.id)
+      FactoryBot.create(:employee_role, employer_profile: employer_profile)
       BenefitSponsors::Organizations::Organization.employer_profiles.delete_all
 
       @migrated_organizations = BenefitSponsors::Organizations::Organization.broker_agency_profiles
@@ -45,7 +46,7 @@ describe "CcaBrokerAgencyProfilesMigration" do
     end
 
     it "should match total migrated organizations with employer profiles" do
-      silence_stream(STDOUT) do
+      silence_warnings do
         Mongoid::Migrator.run(:up, @migrations_paths, @test_version.to_i)
       end
 
@@ -78,7 +79,7 @@ describe "CcaBrokerAgencyProfilesMigration" do
       expect(migrated_address).to have_attributes(created_at: old_address.created_at,
                                                   updated_at: old_address.updated_at, kind: old_address.kind, address_1: old_address.address_1,
                                                   address_2: old_address.address_2, address_3: old_address.address_3, city: old_address.city,
-                                                  county: (old_address.county ? old_address.county : ''), state: old_address.state, location_state_code: old_address.location_state_code,
+                                                  county: (old_address.county || ''), state: old_address.state, location_state_code: old_address.location_state_code,
                                                   full_text: old_address.full_text, zip: old_address.zip, country_name: old_address.country_name)
     end
 
@@ -118,5 +119,6 @@ describe "CcaBrokerAgencyProfilesMigration" do
 
   after(:all) do
     FileUtils.rm_rf(Dir["#{Rails.root}//hbx_report//cca_broker_profile_migration_*"])
+    DatabaseCleaner.clean
   end
 end

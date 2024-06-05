@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        node: [9.x]
+        node: [12.x]
         mongodb-version: ["3.6"]
         command_configs:
           - name: rubocop

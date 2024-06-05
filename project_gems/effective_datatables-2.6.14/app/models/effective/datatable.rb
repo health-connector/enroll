@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   class Datatable
     attr_accessor :display_records, :view, :attributes
@@ -21,9 +23,10 @@ module Effective
     include Effective::EffectiveDatatable::Rendering
 
     def initialize(*args)
-      if args.present? && args.first != nil
-        raise "#{self.class.name}.new() can only be initialized with a Hash like arguments" unless args.first.kind_of?(Hash)
-        args.first.each { |k, v| self.attributes[k] = v }
+      if args.present? && !args.first.nil?
+        raise "#{self.class.name}.new() can only be initialized with a Hash like arguments" unless args.first.is_a?(Hash)
+
+        args.first.each { |k, v| attributes[k] = v }
       end
 
       if respond_to?(:initialize_scopes)  # There was at least one scope defined in the scopes do .. end block
@@ -41,44 +44,41 @@ module Effective
         initialize_chart_options
       end
 
-      unless active_record_collection? || array_collection?
-        raise "Unsupported collection type. Should be ActiveRecord class, ActiveRecord relation, or an Array of Arrays [[1, 'something'], [2, 'something else']]"
+      raise "Unsupported collection type. Should be ActiveRecord class, ActiveRecord relation, or an Array of Arrays [[1, 'something'], [2, 'something else']]" unless active_record_collection? || array_collection?
+
+      if @default_order.present? && !table_columns.key?(begin
+        @default_order.keys.first
+      rescue StandardError
+        nil
+      end)
+        raise "default_order :#{begin
+          @default_order.keys.first
+        rescue StandardError
+          'nil'
+        end} must exist as a table_column or array_column"
       end
-
-      if @default_order.present? && !table_columns.key?((@default_order.keys.first rescue nil))
-        raise "default_order :#{(@default_order.keys.first rescue 'nil')} must exist as a table_column or array_column"
-      end
     end
 
-    def table_columns
-      @table_columns
-    end
-
-    def scopes
-      @scopes
-    end
-
-    def charts
-      @charts
-    end
-
-    def aggregates
-      @aggregates
-    end
+    attr_reader :table_columns, :scopes, :charts, :aggregates
 
     # Any attributes set on initialize will be echoed back and available to the class
     def attributes
       @attributes ||= HashWithIndifferentAccess.new
     end
 
-    def to_key; []; end # Searching & Filters
+    # Searching & Filters
+    def to_key
+      []
+    end
 
     # Instance method.  In Rails 4.2 this needs to be defined on the instance, before it was on the class
-    def model_name # Searching & Filters
+# Searching & Filters
+    def model_name
       @model_name ||= ActiveModel::Name.new(self.class)
     end
 
-    def self.model_name # Searching & Filters
+# Searching & Filters
+    def self.model_name
       @model_name ||= ActiveModel::Name.new(self)
     end
 
@@ -94,7 +94,7 @@ module Effective
       @collection_class ||= (collection.respond_to?(:klass) ? collection.klass : self.class)
     end
 
-    def to_json
+    def to_json(*_args)
       raise 'Effective::Datatable to_json called with a nil view.  Please call render_datatable(@datatable) or @datatable.view = view before this method' unless view.present?
 
       @json ||= begin
@@ -129,15 +129,13 @@ module Effective
 
       # 'Just work' with attributes
       @view.class.send(:attr_accessor, :attributes)
-      @view.attributes = self.attributes
+      @view.attributes = attributes
 
       # Delegate any methods defined on the datatable directly to our view
       @view.class.send(:attr_accessor, :effective_datatable)
       @view.effective_datatable = self
 
-      unless @view.respond_to?(:bulk_action)
-        @view.class.send(:include, Effective::EffectiveDatatable::Dsl::BulkActions)
-      end
+      @view.class.send(:include, Effective::EffectiveDatatable::Dsl::BulkActions) unless @view.respond_to?(:bulk_action)
 
       Effective::EffectiveDatatable::Helpers.instance_methods(false).each do |helper_method|
         @view.class_eval { delegate helper_method, to: :@effective_datatable }
@@ -175,13 +173,14 @@ module Effective
     def global_search_string
       global_search_options = params[:search]
       return nil if global_search_options.blank?
+
       global_search_options[:value]
     end
 
     protected
 
     def params
-      view.try(:params) || HashWithIndifferentAccess.new()
+      view.try(:params) || HashWithIndifferentAccess.new
     end
 
     def table_tool
@@ -196,11 +195,15 @@ module Effective
     # Check if collection has an order() clause and warn about it
     # Usually that will make the table results look weird.
     def active_record_collection?
-      @active_record_collection ||= (collection.ancestors.include?(ActiveRecord::Base) rescue false)
+      @active_record_collection ||= begin
+        collection.ancestors.include?(ActiveRecord::Base)
+      rescue StandardError
+        false
+      end
     end
 
     def array_collection?
-      collection.kind_of?(Array) && collection.first.kind_of?(Array)
+      collection.is_a?(Array) && collection.first.is_a?(Array)
     end
 
     # Not every ActiveRecord query will work when calling the simple .count
@@ -210,7 +213,11 @@ module Effective
     # Grouped Queries:
     #   User.all.group(:email).count will return a Hash
     def active_record_collection_size(collection)
-      count = (collection.size rescue nil)
+      count = begin
+        collection.size
+      rescue StandardError
+        nil
+      end
       case count
       when Integer
         count
@@ -219,9 +226,17 @@ module Effective
       else
         if collection.klass.connection.respond_to?(:unprepared_statement)
           collection_sql = collection.klass.connection.unprepared_statement { collection.to_sql }
-          (collection.klass.connection.exec_query("SELECT COUNT(*) FROM (#{collection_sql}) AS datatables_total_count").rows[0][0] rescue 1)
+          begin
+            collection.klass.connection.exec_query("SELECT COUNT(*) FROM (#{collection_sql}) AS datatables_total_count").rows[0][0]
+          rescue StandardError
+            1
+          end
         else
-          (collection.klass.connection.exec_query("SELECT COUNT(*) FROM (#{collection.to_sql}) AS datatables_total_count").rows[0][0] rescue 1)
+          begin
+            collection.klass.connection.exec_query("SELECT COUNT(*) FROM (#{collection.to_sql}) AS datatables_total_count").rows[0][0]
+          rescue StandardError
+            1
+          end
         end.to_i
       end
     end

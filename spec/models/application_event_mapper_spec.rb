@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe ApplicationEventMapper do
@@ -58,7 +60,7 @@ describe ApplicationEventMapper do
       subject { ApplicationEventMapper.map_event_name(resource_mapping, transition_event_name) }
 
       it "provides the mapping to #benefit_coverage_initial_binder_paid" do
-      expect(subject).to eq "acapi.info.events.employer.benefit_coverage_initial_binder_paid"
+        expect(subject).to eq "acapi.info.events.employer.benefit_coverage_initial_binder_paid"
       end
     end
 
@@ -89,7 +91,7 @@ describe ApplicationEventMapper do
     subject { ApplicationEventMapper.lookup_resource_mapping(event_name) }
 
     it "provides the correct class to search" do
-      expect(subject.mapped_class).to eq Integer 
+      expect(subject.mapped_class).to eq Integer
     end
 
     it "provides the correct key to use" do

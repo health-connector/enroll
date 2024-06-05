@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "add_and_remove_enrollment_member")
 
@@ -13,23 +15,27 @@ describe AddAndRemoveEnrollmentMember, dbclean: :after_each do
   end
 
   describe "changing plan year's state" do
-    let(:family) { FactoryGirl.build(:family, :with_primary_family_member_and_dependent)}
+    let(:family) { FactoryBot.build(:family, :with_primary_family_member_and_dependent)}
     let(:primary) { family.primary_family_member }
     let(:dependents) { family.dependents }
-    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: family.active_household)}
+    let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household)}
     let(:date) { DateTime.now - 10.days }
-    let(:subscriber) { FactoryGirl.create(:hbx_enrollment_member, :hbx_enrollment => hbx_enrollment, eligibility_date: date, coverage_start_on: date, applicant_id: primary.id) }
-    let(:hbx_en_member1) { FactoryGirl.create(:hbx_enrollment_member,
-                                              :id => "111",
-                                              :hbx_enrollment => hbx_enrollment,
-                                              eligibility_date: date,
-                                              coverage_start_on: date,
-                                              applicant_id: dependents.first.id) }
+    let(:subscriber) { FactoryBot.create(:hbx_enrollment_member, :hbx_enrollment => hbx_enrollment, eligibility_date: date, coverage_start_on: date, applicant_id: primary.id) }
+    let(:hbx_en_member1) do
+      FactoryBot.create(:hbx_enrollment_member,
+                        :id => "111",
+                        :hbx_enrollment => hbx_enrollment,
+                        eligibility_date: date,
+                        coverage_start_on: date,
+                        applicant_id: dependents.first.id)
+    end
 
-    let(:new_member) { HbxEnrollmentMember.new({ :id => "222",
-                                                 :applicant_id => dependents.last.id,
-                                                 :eligibility_date => date,
-                                                 :coverage_start_on => date}) }
+    let(:new_member) do
+      HbxEnrollmentMember.new({ :id => "222",
+                                :applicant_id => dependents.last.id,
+                                :eligibility_date => date,
+                                :coverage_start_on => date})
+    end
 
     shared_examples_for "update members for hbx_enrollment" do |remove_id, add_id, result_count, has_member, no_member|
       before :each do
@@ -39,8 +45,8 @@ describe AddAndRemoveEnrollmentMember, dbclean: :after_each do
         allow(subject).to receive(:get_person_to_remove_input).and_return(hbx_enrollment.hbx_enrollment_members.where(id: remove_id).first)
         allow(subject).to receive(:get_person_to_add_input).and_return(hbx_enrollment.hbx_enrollment_members.where(id: add_id).first)
         allow(subject).to receive(:get_enrollment_family).and_return(family)
-        allow(subject).to receive(:delete_enrollment_member).and_return(hbx_enrollment.hbx_enrollment_members.where(id: remove_id).first.try(:delete)) unless (remove_id == 'skip' || remove_id == nil)
-        allow(subject).to receive(:add_enrollment_member).and_return(hbx_enrollment.hbx_enrollment_members.push(new_member)) unless (add_id == 'skip' || add_id == nil)
+        allow(subject).to receive(:delete_enrollment_member).and_return(hbx_enrollment.hbx_enrollment_members.where(id: remove_id).first.try(:delete)) unless ['skip', nil].include?(remove_id)
+        allow(subject).to receive(:add_enrollment_member).and_return(hbx_enrollment.hbx_enrollment_members.push(new_member)) unless ['skip', nil].include?(add_id)
         subject.migrate
       end
 

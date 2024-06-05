@@ -1,0 +1,15 @@
+<div class="content landing">
+  <%= render partial: "./ui-components/v1/navs/primary_nav", :active_tab => "home-tab" %>
+  <div class="home">
+    <%= render 'shared/tab_panel' %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var userAccountsElements = document.getElementsByClassName("interaction-click-control-user-accounts");
+    if (userAccountsElements.length > 0) {
+      userAccountsElements[0].click();
+    }
+  });
+</script>

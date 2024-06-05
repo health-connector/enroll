@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe UserMailer do
   describe 'generic_consumer_welcome' do
-    let(:hbx_id) { rand(10000 )}
+    let(:hbx_id) { rand(10_000)}
     let(:email){UserMailer.generic_consumer_welcome('john', hbx_id, 'john@dc.gov')}
 
     it 'should not allow a reply' do

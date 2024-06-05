@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 class ParentDoc
@@ -11,7 +13,7 @@ class ChildDoc
 
   embedded_in :parent_doc
   embeds_many :grand_child_docs
-end  
+end
 
 class GrandChildDoc
   include Mongoid::Document
@@ -19,23 +21,25 @@ class GrandChildDoc
   embedded_in :child_doc
   field :name_column, type: String
   field :date_column, type: Date
-end  
+end
 
 describe "Mongoid without bugs on deeply nested documents" do
-  let(:parent_doc) { ParentDoc.new({
-    :child_docs => [
-      ChildDoc.new({
-        :grand_child_docs => [
-               GrandChildDoc.new(:date_column => original_date_value),
-               GrandChildDoc.new(:date_column => original_date_value)
-        ]
-      })
-    ]
-  })}
+  let(:parent_doc) do
+    ParentDoc.new({
+                    :child_docs => [
+                        ChildDoc.new({
+                                       :grand_child_docs => [
+                                              GrandChildDoc.new(:date_column => original_date_value),
+                                              GrandChildDoc.new(:date_column => original_date_value)
+                                       ]
+                                     })
+                      ]
+                  })
+  end
 
-  let(:original_date_value) {
+  let(:original_date_value) do
     Date.new(2007, 7, 15)
-  }
+  end
 
   let(:date_val) { Date.new(2010, 3, 24) }
 

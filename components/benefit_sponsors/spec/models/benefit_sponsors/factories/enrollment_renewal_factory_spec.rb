@@ -46,7 +46,7 @@ module BenefitSponsors
     let(:sponsored_benefit) { current_benefit_package.sponsored_benefit_for(coverage_kind) }
 
     let!(:enrollment) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :hbx_enrollment,
         household: shop_family.latest_household,
         coverage_kind: coverage_kind,

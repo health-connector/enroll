@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe CompositeTierContribution, "given nothing" do
@@ -8,7 +10,7 @@ describe CompositeTierContribution, "given nothing" do
   end
 
   it "has errors on composite_rating_tier" do
-    expect(validation_errors.has_key?(:composite_rating_tier)).to be_truthy
+    expect(validation_errors.key?(:composite_rating_tier)).to be_truthy
   end
 end
 
@@ -23,24 +25,24 @@ describe CompositeTierContribution, "with validations" do
   it "rejects a composite_rating_tier that is not one of the correct names" do
     subject.composite_rating_tier = "dslajfkldsjflkejf"
     subject.valid?
-    expect(subject.errors.has_key?(:composite_rating_tier)).to be_truthy
+    expect(subject.errors.key?(:composite_rating_tier)).to be_truthy
   end
 
   it "rejects an employer_contribution percent > 100" do
     subject.employer_contribution_percent = 100.01
     subject.valid?
-    expect(subject.errors.has_key?(:employer_contribution_percent)).to be_truthy
+    expect(subject.errors.key?(:employer_contribution_percent)).to be_truthy
   end
 
   it "rejects an employer_contribution percent < 0" do
     subject.employer_contribution_percent = -0.01
     subject.valid?
-    expect(subject.errors.has_key?(:employer_contribution_percent)).to be_truthy
+    expect(subject.errors.key?(:employer_contribution_percent)).to be_truthy
   end
 
   it "accepts an employer_contribution percent == 100" do
     subject.employer_contribution_percent = 100.00
     subject.valid?
-    expect(subject.errors.has_key?(:employer_contribution_percent)).to be_falsey
+    expect(subject.errors.key?(:employer_contribution_percent)).to be_falsey
   end
 end
