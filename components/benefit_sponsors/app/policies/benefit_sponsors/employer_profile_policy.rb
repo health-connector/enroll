@@ -78,6 +78,28 @@ module BenefitSponsors
       false
     end
 
+    def index?
+      return false unless account_holder_person
+      return true if shop_market_admin?
+      return true if is_staff_role_for_employer?
+      return true if is_broker_for_employer?(record)
+      return true if is_general_agency_staff_for_employer?(record)
+
+      false
+    end
+
+    def create?
+      index?
+    end
+
+    def terminate?
+      index?
+    end
+
+    def active_broker?
+      index?
+    end
+
     def employer_attestation_document_download?
       return false unless account_holder_person
       return true if shop_market_admin?
