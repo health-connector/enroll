@@ -60,13 +60,10 @@ class BrokerAgencies::QuotesController < ApplicationController
     @quote_criteria = []
 
     @quote_benefit_group.quote_relationship_benefits.each{|bp| @bp_hash[bp.relationship] = bp.premium_pct}
-    roster_premiums = @quote_benefit_group.roster_cost_all_plans
-    @roster_premiums_json = roster_premiums.to_json
-    dental_roster_premiums =  @quote_benefit_group.roster_cost_all_plans('dental')
-    @dental_roster_premiums = dental_roster_premiums.to_json
+    @roster_premiums_json = @quote_benefit_group.roster_cost_all_plans.to_json
+    @dental_roster_premiums = @quote_benefit_group.roster_cost_all_plans('dental').to_json
     @quote_criteria = @quote_benefit_group.criteria_for_ui
-    @benefit_pcts_json = @bp_hash.to_json
-    unless @section
+    return unless params[:section].present?
     respond_to do |format|
         format.js
     end

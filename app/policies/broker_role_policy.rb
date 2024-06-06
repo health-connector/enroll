@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BrokerRolePolicy < ApplicationPolicy
 
   def build_employee_roster?
@@ -64,9 +66,11 @@ class BrokerRolePolicy < ApplicationPolicy
     show?
   end
 
+  # rubocop:disable Naming/AccessorMethodName
   def get_quote_info?
     show?
   end
+  # rubocop:enable Naming/AccessorMethodName
 
   def health_cost_comparison?
     show?
