@@ -67,7 +67,6 @@ class BrokerAgencies::QuotesController < ApplicationController
     respond_to do |format|
         format.js
     end
-    end
   end
 
   def health_cost_comparison
