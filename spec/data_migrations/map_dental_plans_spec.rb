@@ -3,7 +3,7 @@
 require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'map_dental_plans')
 
-describe MapDentalPlans do
+describe MapDentalPlans, dbclean: :after_each do
   let(:given_task_name) { 'map_dental_plans' }
   subject { MapDentalPlans.new(given_task_name, double(:current_scope => nil)) }
 
