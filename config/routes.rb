@@ -324,7 +324,7 @@ Rails.application.routes.draw do
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
     end
-    resources :inboxes, only: [:new, :create, :show, :destroy]
+
     resources :employer_profiles do
       get 'new'
       get 'my_account'
@@ -373,13 +373,6 @@ Rails.application.routes.draw do
         get 'employee_costs', on: :collection
         get 'reference_plan_summary', on: :collection
 
-      end
-
-      resources :broker_agency, only: [:index, :show, :create] do
-        collection do
-          get :active_broker
-        end
-        get :terminate
       end
 
       resources :census_employees, only: [:new, :create, :edit, :update, :show] do
