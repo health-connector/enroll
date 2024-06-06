@@ -7,6 +7,22 @@ module BenefitSponsors
       is_staff_role_for_employer?
     end
 
+    def show_invoice?
+      show?
+    end
+
+    def download_invoice?
+      show?
+    end
+
+    def estimate_cost?
+      show?
+    end
+
+    def bulk_employee_upload?
+      show?
+    end
+
     def can_download_document?
       updateable?
     end

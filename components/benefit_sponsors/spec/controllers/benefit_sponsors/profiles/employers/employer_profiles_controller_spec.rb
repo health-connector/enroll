@@ -1,7 +1,23 @@
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 module BenefitSponsors
   RSpec.describe Profiles::Employers::EmployerProfilesController, type: :controller, dbclean: :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:profile) { benefit_sponsorship.organization.profiles.first }
+    let(:employer_staff_person) { create(:person) }
+    let(:employer_staff_user) { create(:user, person: employer_staff_person) }
+    let(:er_staff_role) { create(:benefit_sponsor_employer_staff_role, benefit_sponsor_employer_profile_id: benefit_sponsorship.organization.employer_profile.id) }
+    let(:broker_agency_profile) { create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: :shop) }
+    let(:broker_role) { create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: :active) }
+    let!(:broker_role_user) { create(:user, person: broker_role.person, roles: ['broker_role']) }
+
+    # broker staff role
+    let(:broker_agency_staff_role) { create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, aasm_state: 'active') }
+    let!(:broker_agency_staff_user) { create(:user, person: broker_agency_staff_role.person, roles: ['broker_agency_staff_role']) }
 
     routes { BenefitSponsors::Engine.routes }
     let!(:security_question)  { FactoryBot.create_default :security_question }
@@ -134,15 +150,72 @@ module BenefitSponsors
     describe "POST estimate_cost" do
       let!(:employees) { FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)}
 
-      before do
-        sign_in user
-        post :estimate_cost, params: { employer_profile_id: benefit_sponsor.profiles.first.id, benefit_package_id: BSON::ObjectId.new }
-        allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+      context "with an active user" do
+        before do
+          sign_in user
+          post :estimate_cost, params: { employer_profile_id: benefit_sponsor.profiles.first.id, benefit_package_id: BSON::ObjectId.new }
+          allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+        end
+
+        it "should return http success" do
+          expect(response).to have_http_status(:success)
+        end
       end
 
-      it "should return http success" do
-        expect(response).to have_http_status(:success)
+      context "without POC role" do
+        before do
+          sign_in employer_staff_user
+        end
+
+        it "denies access to the estimate_cost for the current user" do
+          post :estimate_cost, params: { employer_profile_id: employer_profile.id, benefit_package_id: BSON::ObjectId.new }
+
+          expect(flash[:error]).to eq("Access not allowed for estimate_cost?, (Pundit policy)")
+        end
       end
+
+      context "with an inactive broker role" do
+        before do
+          broker_role.update!(aasm_state: 'inactive')
+          sign_in broker_role_user
+        end
+
+        it "denies access to the estimate_cost for the broker" do
+          post :estimate_cost, params: { employer_profile_id: employer_profile.id, benefit_package_id: BSON::ObjectId.new }
+
+          expect(flash[:error]).to eq("Access not allowed for estimate_cost?, (Pundit policy)")
+        end
+      end
+    end
+
+    describe "GET download_invoice and show_invoice" do
+      let(:initial_invoice) do
+        employer_profile.documents.new({ title: "SomeTitle",
+                                         date: TimeKeeper.date_of_record,
+                                         creator: "hbx_staff",
+                                         subject: "initial_invoice",
+                                         identifier: "urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key",
+                                         format: "file_content_type"})
+      end
+
+      before do
+        initial_invoice.save!
+        employer_profile.documents << initial_invoice
+        employer_profile.save!
+      end
+
+      shared_examples_for "logged in user has no authorization roles for EmployerProfilesController" do |action, action_type|
+        it "displays an error message" do
+          sign_in employer_staff_user
+
+          get action, params: {invoice_id: initial_invoice.id, id: employer_profile.id}
+
+          expect(flash[:error]).to eq("Access not allowed for #{action_type}, (Pundit policy)")
+        end
+      end
+
+      it_behaves_like 'logged in user has no authorization roles for EmployerProfilesController', :download_invoice, "download_invoice?"
+      it_behaves_like 'logged in user has no authorization roles for EmployerProfilesController', :show_invoice, "show_invoice?"
     end
 
     describe "GET run_eligibility_check" do
