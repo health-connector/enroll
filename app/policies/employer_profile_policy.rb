@@ -86,7 +86,9 @@ class EmployerProfilePolicy < ApplicationPolicy
   end
 
   def updateable?
-    return true unless role = user.person && user.person.hbx_staff_role
+    role = user&.person&.hbx_staff_role
+    return true unless role.present?
+
     role.permission.modify_employer
   end
 
