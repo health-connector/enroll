@@ -25,11 +25,11 @@ jobs:
             sudo apt-get install bearer
         - name: run bearer
           run: |
-            bearer scan --quiet --config-file --diff ./bearer.yml . 
+            bearer scan --quiet --config-file --diff . 
         - name: build bearer report
           if: failure() 
           run: |
-            bearer scan --quiet --config-file --diff ./bearer.yml .  > bearer_full.txt
+            bearer scan --quiet --config-file --diff .  > bearer_full.txt
         - name: upload bearer failure report
           uses: actions/upload-artifact@v4
           if: failure() 
@@ -43,8 +43,17 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
+        - name: "Download artifact"
+            run: |
+              OTHER_REPO="health-connector/enroll"
+              WF_NAME="security-code-scan-daily.yml"
+              ARTIFACT_NAME="brakeman-json-report"
+              RUN_ID=`gh run --repo ${OTHER_REPO} list --workflow ${WF_NAME} --json databaseId --jq .[0].databaseId`
+              gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         - name: Brakeman code scanning
-          run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o brakeman_output.text
+          run: docker run -v "$(pwd)":/code presidentbeef/brakeman --compare daily_run.json -o /dev/stdout -o brakeman_output.text
         - name: upload Brakeman failure report
           uses: actions/upload-artifact@v4
           if: failure()

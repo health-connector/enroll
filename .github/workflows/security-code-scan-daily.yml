@@ -33,7 +33,7 @@ jobs:
         - name: upload bearer failure report
           uses: actions/upload-artifact@v4
           with:
-            name: Bearer Report
+            name: bearer-report
             path: bearer_full.txt
         - name: Write to Job Summary
           run: grep -A 10 '=====================================' bearer_full.txt >> $GITHUB_STEP_SUMMARY
@@ -48,12 +48,12 @@ jobs:
         - name: upload Brakeman failure report
           uses: actions/upload-artifact@v4
           with:
-            name: Brakeman Text Report
+            name: brakeman-text-report
             path: brakeman.text
         - name: upload Brakeman failure report
           uses: actions/upload-artifact@v4
           with:
-            name: Brakeman Json Report
+            name: brakeman-json-report
             path: daily_run.json
         - name: Write to Job Summary
           run: cat brakeman.text >> $GITHUB_STEP_SUMMARY
