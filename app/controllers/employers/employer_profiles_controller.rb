@@ -20,6 +20,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def link_from_quote
+    authorize @employer_profile
     claim_code = params[:claim_code].upcase
     import_roster = params[:import_roster] == "yes" ? true : false
 
@@ -57,6 +58,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def match
+    authorize @employer_profile
     @employer_candidate = Forms::EmployerCandidate.new(params.require(:employer_profile))
     if @employer_candidate.valid?
       found_employer = @employer_candidate.match_employer
@@ -120,6 +122,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def generate_sic_tree
+    authorize @employer_profile
     sic_tree = SicCode.generate_sic_array
     render :json => sic_tree
   end
@@ -131,6 +134,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
     #save duplicate office locations as json in case we need to refresh
     @organization_dup = @organization.office_locations.as_json
     @employer_profile = @organization.employer_profile
+    authorize @employer_profile
     @employer = @employer_profile.match_employer(current_user)
     if (current_user.has_employer_staff_role? && @employer_profile.staff_roles.include?(current_user.person)) || current_user.person.agent?
       @organization.assign_attributes(organization_profile_params)
@@ -161,6 +165,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def inbox
+    authorize @employer_profile
     @folder = params[:folder] || 'Inbox'
     @sent_box = false
     respond_to do |format|
@@ -170,11 +175,13 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def consumer_override
+    authorize @employer_profile
     session[:person_id] = params['person_id']
     redirect_to family_account_path
   end
 
   def export_census_employees
+    authorize @employer_profile
     respond_to do |format|
       format.csv { send_data CensusEmployee.download_census_employees_roster(@employer_profile.id), filename: "#{@employer_profile.legal_name.parameterize.underscore}_census_employees_#{TimeKeeper.date_of_record}.csv" }
     end
@@ -185,12 +192,14 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
 
   def generate_checkbook_urls
+    authorize @employer_profile
     @employer_profile.generate_checkbook_notices
     flash[:notice] = "Custom Plan Match instructions are being generated.  Check your secure Messages inbox shortly."
     redirect_to action: :show, :tab => :employees
   end
 
   def download_invoice
+    authorize @employer_profile
     options={}
     options[:content_type] = @invoice.type
     options[:filename] = @invoice.title
@@ -198,6 +207,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def bulk_employee_upload
+    authorize @employer_profile
     file = params.require(:file)
     @census_employee_import = CensusEmployeeImport.new({file:file, employer_profile:@employer_profile})
     begin
@@ -219,10 +229,12 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def redirect_to_first_allowed
+    authorize @employer_profile
     redirect_to employers_employer_profile_path(:id => current_user.person.employer_staff_roles.first.employer_profile_id)
   end
 
   def new_document # Should be in ER attestations controller
+    authorize @employer_profile
     @document = @employer_profile.documents.new
     respond_to do |format|
       format.js #{ render "new_document" }
@@ -230,12 +242,14 @@ class Employers::EmployerProfilesController < Employers::EmployersController
   end
 
   def upload_document # Should be in ER attestations controller
+    authorize @employer_profile
     @employer_profile.upload_document(file_path(params[:file]),file_name(params[:file]),params[:subject],params[:file].size)
     redirect_to employers_employer_profile_path(:id => @employer_profile) + '?tab=documents'
   end
 
   def download_documents # Should be in ER attestations controller
     @employer_profile = EmployerProfile.find(params[:id])
+    authorize @employer_profile
     #begin
       doc = @employer_profile.documents.find(params[:ids][0])
     send_file doc.identifier, file_name: doc.title,content_type:doc.format
@@ -251,6 +265,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
 
   def delete_documents
     @employer_profile = EmployerProfile.find(params[:id])
+    authorize @employer_profile
     begin
       @employer_profile.documents.any_in(:_id =>params[:ids]).destroy_all
       render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
