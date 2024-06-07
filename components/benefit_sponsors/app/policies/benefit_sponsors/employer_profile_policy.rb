@@ -3,7 +3,8 @@ module BenefitSponsors
 
     def show?
       return false unless user.present?
-      return true if user.has_hbx_staff_role? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+      return true if shop_market_admin? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+
       is_staff_role_for_employer?
     end
 
@@ -43,6 +44,54 @@ module BenefitSponsors
     end
 
     def inbox?
+      show?
+    end
+
+    def new?
+      show?
+    end
+
+    def create?
+      show?
+    end
+
+    def edit?
+      show?
+    end
+
+    def update?
+      show?
+    end
+
+    def cobra?
+      show?
+    end
+
+    def confirm_effective_date?
+      show?
+    end
+
+    def cobra_reinstate?
+      show?
+    end
+
+    def delink?
+      show?
+    end
+
+    def benefit_group?
+      show?
+    end
+
+    def change_expected_selection?
+      show?
+    end
+
+    def terminate?
+      show?
+    end
+
+    def rehire?
       show?
     end
 
