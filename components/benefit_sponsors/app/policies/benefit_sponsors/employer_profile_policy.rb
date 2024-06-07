@@ -51,10 +51,6 @@ module BenefitSponsors
       show?
     end
 
-    def create?
-      show?
-    end
-
     def edit?
       show?
     end
@@ -84,10 +80,6 @@ module BenefitSponsors
     end
 
     def change_expected_selection?
-      show?
-    end
-
-    def terminate?
       show?
     end
 
