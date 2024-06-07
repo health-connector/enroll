@@ -24,16 +24,15 @@ jobs:
             sudo apt-get update
             sudo apt-get install bearer
         - name: run bearer
-          continue-on-error: true
           run: |
-            bearer scan --quiet --config-file ./bearer.yml . 
+            bearer scan --quiet --config-file --diff ./bearer.yml . 
         - name: build bearer report
-          # if: failure() #enable when all criticals issues are fixed
+          if: failure() 
           run: |
-            bearer scan --quiet --config-file ./bearer.yml . > bearer_full.txt
+            bearer scan --quiet --config-file --diff ./bearer.yml .  > bearer_full.txt
         - name: upload bearer failure report
           uses: actions/upload-artifact@v4
-          # if: failure() #enable when all criticals issues are fixed
+          if: failure() 
           with:
             name: Bearer Report
             path: bearer_full.txt
@@ -45,14 +44,15 @@ jobs:
       steps:
         - uses: actions/checkout@v4
         - name: Brakeman code scanning
-          continue-on-error: true
-          run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o output.markdown
+          run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o brakeman_output.text
         - name: upload Brakeman failure report
           uses: actions/upload-artifact@v4
-          # if: failure()
+          if: failure()
           with:
             name: Brakeman Report
-            path: output.markdown
+            path: brakeman_output.text
         - name: Write to Job Summary
-          run: cat output.markdown >> $GITHUB_STEP_SUMMARY
+          if: failure()
+          run: cat brakeman_output.text >> $GITHUB_STEP_SUMMARY
+
 

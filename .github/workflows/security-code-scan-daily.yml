@@ -1,0 +1,61 @@
+name: Security Checks
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: '0 5 * * *'
+
+concurrency:
+  group: qb-${{ github.ref }}
+  cancel-in-progress: true #This is temporary to avoid trunk GHA collisions  
+
+jobs:
+  bearer:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: ruby/setup-ruby@v1
+          with:
+            bundler-cache: true
+        - name: install bearer
+          run: |
+            sudo apt-get install apt-transport-https
+            echo "deb [trusted=yes] https://apt.fury.io/bearer/ /" | sudo tee -a /etc/apt/sources.list.d/fury.list
+            sudo apt-get update
+            sudo apt-get install bearer
+        - name: run bearer
+          continue-on-error: true
+          run: |
+            bearer scan --quiet --config-file ./bearer.yml . 
+        - name: build bearer report
+          run: |
+            bearer scan --quiet --config-file ./bearer.yml .  > bearer_full.txt
+        - name: upload bearer failure report
+          uses: actions/upload-artifact@v4
+          with:
+            name: Bearer Report
+            path: bearer_full.txt
+        - name: Write to Job Summary
+          run: grep -A 10 '=====================================' bearer_full.txt >> $GITHUB_STEP_SUMMARY
+  
+  brakeman:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Brakeman code scanning
+          continue-on-error: true
+          run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o brakeman.text -o daily_run.json
+        - name: upload Brakeman failure report
+          uses: actions/upload-artifact@v4
+          with:
+            name: Brakeman Text Report
+            path: brakeman.text
+        - name: upload Brakeman failure report
+          uses: actions/upload-artifact@v4
+          with:
+            name: Brakeman Json Report
+            path: daily_run.json
+        - name: Write to Job Summary
+          run: cat brakeman.text >> $GITHUB_STEP_SUMMARY
+
+
