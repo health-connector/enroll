@@ -1,26 +1,26 @@
 class EmployerProfilePolicy < ApplicationPolicy
   def bulk_employee_upload?
-    updateable?
+    has_modify_permissions?
   end
 
   def consumer_override?
-    updateable?
+    has_modify_permissions?
   end
 
   def delete_documents?
-    updateable?
+    has_modify_permissions?
   end
 
   def download_documents?
-    updateable?
+    has_modify_permissions?
   end
 
   def download_invoice?
-    updateable?
+    has_modify_permissions?
   end
 
   def export_census_employees?
-    updateable?
+    has_modify_permissions?
   end
 
   def fire_general_agency?
@@ -37,19 +37,19 @@ class EmployerProfilePolicy < ApplicationPolicy
   end
 
   def generate_checkbook_urls?
-    updateable?
+    has_modify_permissions?
   end
 
   def generate_sic_tree?
-    updateable?
+    has_modify_permissions?
   end
 
   def inbox?
-    updateable?
+    has_modify_permissions?
   end
 
   def link_from_quote?
-    updateable?
+    has_modify_permissions?
   end
 
   def list_enrollments?
@@ -60,15 +60,15 @@ class EmployerProfilePolicy < ApplicationPolicy
   end
 
   def match?
-    updateable?
+    has_modify_permissions?
   end
 
   def new_document?
-    updateable?
+    has_modify_permissions?
   end
 
   def redirect_to_first_allowed?
-    updateable?
+    has_modify_permissions?
   end
 
   def revert_application?
@@ -78,14 +78,19 @@ class EmployerProfilePolicy < ApplicationPolicy
   end
 
   def update?
-    updateable?
+    has_modify_permissions?
   end
 
   def upload_document?
-    updateable?
+    has_modify_permissions?
   end
 
   def updateable?
+    return true unless role = user.person && user.person.hbx_staff_role
+    role.permission.modify_employer
+  end
+
+  def has_modify_permissions?
     return false if user.blank? || user.person.blank?
     return true if  (user.has_hbx_staff_role? && can_modify_employer?) || is_broker_for_employer?(record)
 
