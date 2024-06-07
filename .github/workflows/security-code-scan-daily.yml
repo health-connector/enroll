@@ -1,4 +1,4 @@
-name: Security Checks
+name: Security Checks (daily code-scan)
 on:
   workflow_dispatch:
   push:

@@ -1,4 +1,4 @@
-name: Security Checks
+name: Security Checks (pr)
 on:
   workflow_dispatch:
   push:
