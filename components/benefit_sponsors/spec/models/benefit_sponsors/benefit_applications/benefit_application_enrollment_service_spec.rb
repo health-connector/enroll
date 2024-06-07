@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
@@ -40,7 +42,7 @@ module BenefitSponsors
           subject.renew_application
           benefit_sponsorship.reload
 
-          renewal_application = benefit_sponsorship.benefit_applications.detect{|application| application.is_renewing?}
+          renewal_application = benefit_sponsorship.benefit_applications.detect(&:is_renewing?)
           expect(renewal_application).not_to be_nil
 
           expect(renewal_application.start_on.to_date).to eq current_effective_date.next_year
@@ -673,7 +675,7 @@ module BenefitSponsors
       context "when employer open enrollment extended" do
 
         let(:open_enrollment_close) { TimeKeeper.date_of_record + 2.days }
-        let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year, 8, 1) }        
+        let(:current_effective_date) { Date.new(TimeKeeper.date_of_record.year, 8, 1) }
         let(:benefit_sponsorship_state) { :applicant }
 
         include_context "setup initial benefit application" do
@@ -970,7 +972,7 @@ module BenefitSponsors
         context 'with end of the month date' do
           before do
             start_on = TimeKeeper.date_of_record.beginning_of_month - 6.months
-            end_on = (TimeKeeper.date_of_record.end_of_month + 4.months ).end_of_month
+            end_on = (TimeKeeper.date_of_record.end_of_month + 4.months).end_of_month
             initial_application.reload
             initial_application.benefit_application_items.create(effective_period: start_on..end_on, state: :termination_pending, action_kind: 'voluntary', action_reason: 'Company went out of business/bankrupt', sequence_id: 1)
             ba = initial_application
@@ -1030,13 +1032,13 @@ module BenefitSponsors
         TimeKeeper.set_date_of_record_unprotected!(Date.today)
       end
 
-      context 'when application is ineligible' do 
+      context 'when application is ineligible' do
         let(:aasm_state) { :enrollment_ineligible }
         let(:benefit_sponsorship_state) { :applicant }
         let(:today) { current_effective_date - 7.days }
         let(:oe_end_date) { current_effective_date - 5.days }
 
-        it 'should extend open enrollment' do 
+        it 'should extend open enrollment' do
           expect(initial_application.aasm_state).to eq :enrollment_ineligible
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
           subject.extend_open_enrollment(oe_end_date)
@@ -1053,7 +1055,7 @@ module BenefitSponsors
         let(:today) { current_effective_date + 2.days }
         let(:oe_end_date) { current_effective_date + 5.days }
 
-        it 'should extend open enrollment' do 
+        it 'should extend open enrollment' do
           expect(initial_application.aasm_state).to eq :canceled
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
           subject.extend_open_enrollment(oe_end_date)
@@ -1070,7 +1072,7 @@ module BenefitSponsors
         let(:today) { current_effective_date - 8.days }
         let(:oe_end_date) { current_effective_date - 5.days }
 
-        it 'should extend open enrollment' do 
+        it 'should extend open enrollment' do
           expect(initial_application.aasm_state).to eq :enrollment_closed
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
           subject.extend_open_enrollment(oe_end_date)
@@ -1087,7 +1089,7 @@ module BenefitSponsors
         let(:today) { current_effective_date - 13.days }
         let(:oe_end_date) { current_effective_date - 5.days }
 
-        it 'should extend open enrollment' do 
+        it 'should extend open enrollment' do
           expect(initial_application.aasm_state).to eq :enrollment_open
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
           subject.extend_open_enrollment(oe_end_date)
@@ -1107,39 +1109,42 @@ module BenefitSponsors
       let(:health_sb) { current_bp.sponsored_benefit_for(:health) }
       let(:dental_sb) { current_bp.sponsored_benefit_for(:dental) }
       let(:benefit_package) { initial_application.benefit_packages.first }
-      let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
-      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-      let(:census_employee) { FactoryGirl.create(:census_employee,
-        employer_profile: benefit_sponsorship.profile,
-        benefit_sponsorship: benefit_sponsorship,
-        benefit_group_assignments: [benefit_group_assignment]
-      )}
-      let(:person){ FactoryGirl.create(:person, :with_family)}
+      let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let(:person){ FactoryBot.create(:person, :with_family)}
       let(:family) {person.primary_family}
 
-      let!(:hbx_enrollment) {  FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                        household: family.active_household,
-                        aasm_state: "coverage_selected",
-                        effective_on: initial_application.start_on,
-                        rating_area_id: initial_application.recorded_rating_area_id,
-                        coverage_kind: "health",
-                        sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                        sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                        benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                        employee_role_id: employee_role.id)
-      }
+      let!(:hbx_enrollment) do
+        FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                          household: family.active_household,
+                          aasm_state: "coverage_selected",
+                          effective_on: initial_application.start_on,
+                          rating_area_id: initial_application.recorded_rating_area_id,
+                          coverage_kind: "health",
+                          sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                          sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                          benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                          employee_role_id: employee_role.id)
+      end
 
-      let!(:dental_hbx_enrollment) {  FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                        household: family.active_household,
-                        aasm_state: "coverage_selected",
-                        effective_on: initial_application.start_on,
-                        rating_area_id: initial_application.recorded_rating_area_id,
-                        coverage_kind: "dental",
-                        sponsored_benefit_id: initial_application.benefit_packages.first.dental_sponsored_benefit.id,
-                        sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                        benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                        employee_role_id: employee_role.id)
-      }
+      let!(:dental_hbx_enrollment) do
+        FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                          household: family.active_household,
+                          aasm_state: "coverage_selected",
+                          effective_on: initial_application.start_on,
+                          rating_area_id: initial_application.recorded_rating_area_id,
+                          coverage_kind: "dental",
+                          sponsored_benefit_id: initial_application.benefit_packages.first.dental_sponsored_benefit.id,
+                          sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                          benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                          employee_role_id: employee_role.id)
+      end
 
       let!(:enrollment_service) { BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(initial_application) }
       let!(:enrollments) { enrollment_service.hbx_enrollments_by_month(initial_application.start_on) }

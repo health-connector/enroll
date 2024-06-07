@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Importers::ConversionEmployeeCreate, type: :model do
-  let (:required_fields)  { [] }
-  let (:optional_fields)  { [] }
+  let(:required_fields)  { [] }
+  let(:optional_fields)  { [] }
 
   describe "syntax validation" do
     context "unable to recognize file as CSV or Excel" do
@@ -23,8 +25,8 @@ RSpec.describe Importers::ConversionEmployeeCreate, type: :model do
 
         context "and row has correct number of cells" do
           context "and a required field is nil" do
-              it "adds a 'nil required field' error to the instance"
-              it "adds the error to the instance's error[:base] array"
+            it "adds a 'nil required field' error to the instance"
+            it "adds the error to the instance's error[:base] array"
           end
 
           context "and all required fields have values" do

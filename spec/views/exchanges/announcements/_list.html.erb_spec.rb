@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "exchanges/announcements/_list.html.erb" do
-  let(:person) { FactoryGirl.create(:person) }
-  let(:user) { FactoryGirl.create(:user, :person => person) }
-  let(:announcement) { FactoryGirl.create(:announcement) }
+  let(:person) { FactoryBot.create(:person) }
+  let(:user) { FactoryBot.create(:user, :person => person) }
+  let(:announcement) { FactoryBot.create(:announcement) }
   before :each do
     sign_in user
     assign(:announcements, [announcement])
@@ -22,5 +24,5 @@ describe "exchanges/announcements/_list.html.erb" do
   it "display detail of announcement" do
     expect(rendered).to have_text(/#{announcement.content}/)
   end
-end    
+end
 

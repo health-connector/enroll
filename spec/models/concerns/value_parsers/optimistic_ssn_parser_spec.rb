@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 class MyTestIncludedSsnParserClass
   attr_reader :ssn
+
   include ValueParsers::OptimisticSsnParser.on(:ssn)
 end
 
@@ -18,15 +21,15 @@ describe ValueParsers::OptimisticSsnParser do
     0.546 => nil,
     "\t 123.546" => "000000123",
     "\tD\s 123.546    " => "000000123",
-    123000000.005 => "123000000",
+    123_000_000.005 => "123000000",
     "12300  0000 \t.000" => "123000000",
     "q*(&@$asdkljfd&*(" => nil
-  }
+  }.freeze
 
   subject { MyTestIncludedSsnParserClass.new }
- 
-  TEST_VALUES.each_pair do |k, v| 
-    it "parses a value of #{k.to_s} of type #{k.class.inspect} to the #{v.inspect}" do
+
+  TEST_VALUES.each_pair do |k, v|
+    it "parses a value of #{k} of type #{k.class.inspect} to the #{v.inspect}" do
       subject.ssn = k
       expect(subject.ssn).to eq v
     end

@@ -1,29 +1,31 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CensusDependent, :type => :model do
   it { should validate_presence_of :employee_relationship }
 
-  let(:first_name) { "Lynyrd" }   
-  let(:middle_name) { "R" }   
-  let(:last_name) { "Skynyrd" }   
-  let(:name_sfx) { "PhD" }   
+  let(:first_name) { "Lynyrd" }
+  let(:middle_name) { "R" }
+  let(:last_name) { "Skynyrd" }
+  let(:name_sfx) { "PhD" }
   let(:dob) { Date.today }
   let(:ssn) { "230987654" }
   let(:gender) { "male" }
   let(:employee_relationship) { "spouse" }
 
-  let(:dependent) {
+  let(:dependent) do
     CensusDependent.new(
-        first_name: first_name,
-        middle_name: middle_name,
-        last_name: last_name,
-        name_sfx: name_sfx,
-        ssn: ssn,
-        dob: dob,
-        gender: gender,
-        employee_relationship: employee_relationship
-      )
-  }
+      first_name: first_name,
+      middle_name: middle_name,
+      last_name: last_name,
+      name_sfx: name_sfx,
+      ssn: ssn,
+      dob: dob,
+      gender: gender,
+      employee_relationship: employee_relationship
+    )
+  end
 
   it 'properly instantiates the class' do
     expect(dependent.first_name).to eq first_name

@@ -1,27 +1,33 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::RenewalEmployerIneligibilityNotice do
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
   let!(:employer_profile){ create :employer_profile}
   let!(:person){ create :person}
-  let!(:plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'active' ) }
-  let!(:active_benefit_group) { FactoryGirl.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
-  let!(:renewal_plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: start_on + 1.year, :aasm_state => 'renewing_enrolling') }
-  let!(:renewal_benefit_group) { FactoryGirl.create(:benefit_group, plan_year: renewal_plan_year, title: "Benefits #{renewal_plan_year.start_on.year}") }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Renewal Group Ineligible to Obtain Coverage',
-                            :notice_template => 'notices/shop_employer_notices/19_renewal_employer_ineligibility_notice',
-                            :notice_builder => 'ShopEmployerNotices::RenewalEmployerIneligibilityNotice',
-                            :event_name => 'renewal_employer_ineligibility_notice',
-                            :mpi_indicator => 'MPI_SHOP19',
-                            :title => "Group Ineligible to Obtain Coverage"})
-                          }
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'active') }
+  let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
+  let!(:renewal_plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on + 1.year, :aasm_state => 'renewing_enrolling') }
+  let!(:renewal_benefit_group) { FactoryBot.create(:benefit_group, plan_year: renewal_plan_year, title: "Benefits #{renewal_plan_year.start_on.year}") }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Renewal Group Ineligible to Obtain Coverage',
+             :notice_template => 'notices/shop_employer_notices/19_renewal_employer_ineligibility_notice',
+             :notice_builder => 'ShopEmployerNotices::RenewalEmployerIneligibilityNotice',
+             :event_name => 'renewal_employer_ineligibility_notice',
+             :mpi_indicator => 'MPI_SHOP19',
+             :title => "Group Ineligible to Obtain Coverage"
+           })
+  end
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   describe "New" do
     before do
@@ -82,10 +88,10 @@ RSpec.describe ShopEmployerNotices::RenewalEmployerIneligibilityNotice do
     end
 
     it "should return plan year warnings" do
-      if renewal_plan_year.start_on.yday != 1
-        expect(@employer_notice.notice.plan_year.warnings).to eq ["At least two-thirds of your eligible employees enrolled in your group health coverage or waive due to having other coverage."]
-      else
+      if renewal_plan_year.start_on.yday == 1
         expect(@employer_notice.notice.plan_year.warnings).to eq []
+      else
+        expect(@employer_notice.notice.plan_year.warnings).to eq ["At least two-thirds of your eligible employees enrolled in your group health coverage or waive due to having other coverage."]
       end
     end
   end

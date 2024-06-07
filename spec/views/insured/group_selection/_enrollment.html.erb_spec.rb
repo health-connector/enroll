@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -14,14 +16,14 @@ RSpec.describe "insured/group_selection/_enrollment.html.erb", dbclean: :after_e
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup initial benefit application"
 
-    let(:person) {FactoryGirl.create(:person)}
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let(:employee_role) { FactoryGirl.build_stubbed(:employee_role) }
-    let(:census_employee) { FactoryGirl.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile ) }
+    let(:person) {FactoryBot.create(:person)}
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
+    let(:employee_role) { FactoryBot.build_stubbed(:employee_role) }
+    let(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile) }
     let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
     let(:active_household) {family.active_household}
-    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: active_household )}
-    let(:mock_product) { double("Product", kind: "health" ) }
+    let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: active_household)}
+    let(:mock_product) { double("Product", kind: "health") }
 
     before :each do
       DatabaseCleaner.clean
@@ -56,13 +58,13 @@ RSpec.describe "insured/group_selection/_enrollment.html.erb", dbclean: :after_e
     end
 
     it "should show the DCHL ID as hbx_enrollment.hbx_id" do
-      expect(rendered).to match /DCHL ID/
-      expect(rendered).to match /#{hbx_enrollment.hbx_id}/
+      expect(rendered).to match(/DCHL ID/)
+      expect(rendered).to match(/#{hbx_enrollment.hbx_id}/)
     end
 
     it "should show the correct Premium" do
       dollar_amount = number_to_currency(SpecHelperClassesForViews::InsuredFamiliesHelperSlugHostClass.current_premium(hbx_enrollment), precision: 2)
-      expect(rendered).to match /Premium/
+      expect(rendered).to match(/Premium/)
       expect(rendered).to include dollar_amount
     end
 
@@ -73,9 +75,9 @@ RSpec.describe "insured/group_selection/_enrollment.html.erb", dbclean: :after_e
 
   if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     context 'Enrollment termination' do
-      let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-      let(:hbx_enrollment) { FactoryGirl.build(:hbx_enrollment, :with_enrollment_members, household: family.active_household, kind: kind)}
-      let(:person) { FactoryGirl.build(:person) }
+      let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
+      let(:hbx_enrollment) { FactoryBot.build(:hbx_enrollment, :with_enrollment_members, household: family.active_household, kind: kind)}
+      let(:person) { FactoryBot.build(:person) }
 
       before :each do
         allow(hbx_enrollment).to receive(:can_complete_shopping?).and_return false

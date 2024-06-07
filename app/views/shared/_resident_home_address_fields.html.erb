@@ -104,7 +104,7 @@
 <% end %>
 
 <script>
-$(document).ready(function () {
+$(document).on('ready turbolinks:load', function () {
   $('#state_id').change(function(){
     if (!$("#no_dc_address").is(':checked') && $(this).val() != 'DC') {alert('You have selected a Non DC state, please check No DC Address')}
   });

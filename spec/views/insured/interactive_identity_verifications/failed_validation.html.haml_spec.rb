@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe "insured/interactive_identity_verifications/failed_validation" do
   let(:mock_response) { instance_double("IdentityVerification::InteractiveVerificationResponse", :transaction_id => "the_transaction_id") }
-  let(:current_user) {FactoryGirl.create(:user)}
+  let(:current_user) {FactoryBot.create(:user)}
   before :each do
     allow(view).to receive(:policy_helper).and_return(double('FamilyPolicy', updateable?: true))
     sign_in current_user

@@ -5,6 +5,7 @@ class GeneralAgencyAccount
   include AASM
 
   embedded_in :employer_profile
+  embedded_in :benefit_sponsorship, class_name: "::BenefitSponsors::BenefitSponsorships::BenefitSponsorship"
 
   # Begin date of relationship
   field :start_on, type: DateTime

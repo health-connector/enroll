@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CensusMember, :dbclean => :after_each do
@@ -5,8 +7,8 @@ RSpec.describe CensusMember, :dbclean => :after_each do
   it { should validate_presence_of :last_name }
   it { should validate_presence_of :dob }
 
-  let(:employer_profile)  { FactoryGirl.create(:employer_profile) }
-  let(:census_employee) { FactoryGirl.create(:census_employee, employer_profile: employer_profile) }
+  let(:employer_profile)  { FactoryBot.create(:employer_profile) }
+  let(:census_employee) { FactoryBot.create(:census_employee, employer_profile: employer_profile) }
 
   it "sets gender" do
     census_employee.gender = "MALE"
@@ -49,7 +51,7 @@ RSpec.describe CensusMember, :dbclean => :after_each do
       census_employee.date_of_birth = dob.strftime("%Y-%m-%d")
       expect(census_employee.save).to be_falsey
       expect(census_employee.errors[:dob].any?).to be_truthy
-      expect(census_employee.errors[:dob].to_s).to match /future date: #{dob.to_s} is invalid date of birth/
+      expect(census_employee.errors[:dob].to_s).to match(/future date: #{dob} is invalid date of birth/)
     end
   end
 

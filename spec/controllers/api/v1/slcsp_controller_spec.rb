@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Api::V1::SlcspController do
@@ -12,8 +14,9 @@ describe Api::V1::SlcspController do
       allow_any_instance_of(Api::V1::SlcspController).to receive(:find_slcsp).with(anything).and_return(plan)
       allow_any_instance_of(ActionController::Rendering).to receive(:render).and_return(response_xml)
 
-      post :plan, {:format => "xml"}
-      expect(response.status).to eq(200)
+      post :plan, :format => "xml"
+      expect(assigns(:plan)).to eq(plan)
+      assert_response :success
     end
   end
 
@@ -22,7 +25,7 @@ describe Api::V1::SlcspController do
       allow(HappyMapper).to receive(:parse).with(anything).and_raise(Exception.new)
       allow_any_instance_of(Api::V1::SlcspController).to receive(:find_slcsp).with(anything).and_return(plan)
 
-      post :plan, {:format => "xml"}
+      post :plan, params: {:format => "xml"}
       expect(response.status).to eq(422)
     end
   end

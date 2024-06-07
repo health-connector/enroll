@@ -7,6 +7,22 @@ module BenefitSponsors
       is_staff_role_for_employer?
     end
 
+    def show_invoice?
+      show?
+    end
+
+    def download_invoice?
+      show?
+    end
+
+    def estimate_cost?
+      show?
+    end
+
+    def bulk_employee_upload?
+      show?
+    end
+
     def can_download_document?
       updateable?
     end
@@ -76,6 +92,28 @@ module BenefitSponsors
       return true if is_staff_role_for_employer?
 
       false
+    end
+
+    def index?
+      return false unless account_holder_person
+      return true if shop_market_admin?
+      return true if is_staff_role_for_employer?
+      return true if is_broker_for_employer?(record)
+      return true if is_general_agency_staff_for_employer?(record)
+
+      false
+    end
+
+    def create?
+      index?
+    end
+
+    def terminate?
+      index?
+    end
+
+    def active_broker?
+      index?
     end
 
     def employer_attestation_document_download?

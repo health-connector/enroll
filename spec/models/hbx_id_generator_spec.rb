@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe HbxIdGenerator do
@@ -17,9 +19,9 @@ describe HbxIdGenerator do
 
   describe "with an amqp source" do
     let(:generator) { HbxIdGenerator::AmqpSource }
-    let(:amqp_response) {
-     {:body => ("[" + sequence_number + "]")}
-    }
+    let(:amqp_response) do
+      {:body => "[#{sequence_number}]"}
+    end
 
     before(:each) do
       allow(Acapi::Requestor).to receive(:request).with("sequence.next", {:sequence_name => sequence_name}, 2).and_return(amqp_response)

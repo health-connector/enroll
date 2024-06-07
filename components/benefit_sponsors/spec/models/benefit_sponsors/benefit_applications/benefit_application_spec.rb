@@ -7,9 +7,9 @@ module BenefitSponsors
   RSpec.describe BenefitApplications::BenefitApplication, type: :model, :dbclean => :after_each do
     let(:site) { ::BenefitSponsors::SiteSpecHelpers.create_cca_site_with_hbx_profile_and_benefit_market }
     let(:benefit_market)          { site.benefit_markets.first }
-    let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
     let(:benefit_sponsorship)    { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
-    let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
+    let(:benefit_sponsor_catalog) { FactoryBot.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
 
     let(:rating_area)  { create_default(:benefit_markets_locations_rating_area) }
     let(:service_area) { create_default(:benefit_markets_locations_service_area) }
@@ -30,7 +30,7 @@ module BenefitSponsors
     let!(:benefit_market_catalog_prev_year)   { create(:benefit_markets_benefit_market_catalog, :with_product_packages, issuer_profile: issuer_profile, benefit_market: benefit_market, application_period: application_period_prev_year) }
 
     let(:benefit_sponsor_catalog_2) do
-      FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog,
+      FactoryBot.create(:benefit_markets_benefit_sponsor_catalog,
                          service_areas: [service_area],
                          effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
                          open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
@@ -144,7 +144,7 @@ module BenefitSponsors
     end
 
     describe "Extending an open_enrollment_period", :dbclean => :after_each do
-      let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
       let(:benefit_application)     { described_class.new(valid_params) }
 
@@ -246,11 +246,11 @@ module BenefitSponsors
       let(:april_open_enrollment_end_on)    { april_open_enrollment_begin_on + 9.days }
 
       let(:march_sponsors)                 do
-        FactoryGirl.create_list(:benefit_sponsors_benefit_application, 3,
+        FactoryBot.create_list(:benefit_sponsors_benefit_application, 3,
                                 default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
       end
       let(:april_sponsors)                 do
-        FactoryGirl.create_list(:benefit_sponsors_benefit_application, 2,
+        FactoryBot.create_list(:benefit_sponsors_benefit_application, 2,
                                 default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
       end
 
@@ -297,9 +297,9 @@ module BenefitSponsors
       # context "with an application in renewing status" do
       #   let(:last_year)                       { this_year - 1 }
       #   let(:last_march_effective_date)       { Date.new(last_year,3,1) }
-      #   let!(:initial_application)            { FactoryGirl.create(:benefit_sponsors_benefit_application,
+      #   let!(:initial_application)            { FactoryBot.create(:benefit_sponsors_benefit_application,
       #                                           effective_period: (last_march_effective_date..(last_march_effective_date + 1.year - 1.day)) )}
-      #   let!(:renewal_application)            { FactoryGirl.create(:benefit_sponsors_benefit_application,
+      #   let!(:renewal_application)            { FactoryBot.create(:benefit_sponsors_benefit_application,
       #                                           effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)),
       #                                           predecessor_application: initial_application)}
 
@@ -314,7 +314,7 @@ module BenefitSponsors
     end
 
     describe "Transitioning a BenefitApplication through Plan Design states" do
-      let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
       let(:benefit_application)     { described_class.new(valid_params) }
 
@@ -562,7 +562,7 @@ module BenefitSponsors
         let(:benefit_group_assignment) { build(:benefit_group_assignment, start_on: benefit_package.start_on, benefit_group_id: nil, benefit_package_id: benefit_package.id)}
         let!(:census_employee) { create(:census_employee, employer_profile_id: nil, benefit_sponsors_employer_profile_id: employer_profile.id, benefit_sponsorship: benefit_sponsorship, :benefit_group_assignments => [benefit_group_assignment]) }
         let!(:census_employees) do
-          FactoryGirl.create_list(:census_employee, 4, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, :benefit_group_assignments => [benefit_group_assignment], benefit_group: benefit_package)
+          FactoryBot.create_list(:census_employee, 4, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, :benefit_group_assignments => [benefit_group_assignment], benefit_group: benefit_package)
         end
 
         let(:renewal_application) do
@@ -570,8 +570,7 @@ module BenefitSponsors
           application.save
           application
         end
-        let(:renewal_bga) {create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee)}
-
+        let(:renewal_bga) { create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: census_employee) }
 
         it "should generate renewal application" do
           expect(renewal_application.predecessor).to eq initial_application
@@ -938,7 +937,7 @@ module BenefitSponsors
     end
 
     describe "after_create actions" do
-      let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
       let(:benefit_application)     { described_class.new(valid_params) }
 
@@ -1178,10 +1177,10 @@ module BenefitSponsors
         end
 
         context "benefit_applications not in expired state" do
-          let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+          let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
           let(:benefit_sponsorship)     { BenefitSponsors::BenefitSponsorships::BenefitSponsorship.new(profile: employer_organization.employer_profile) }
           let!(:employer_profile) {benefit_sponsorship.profile}
-          let(:benefit_sponsor_catalog) { FactoryGirl.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
+          let(:benefit_sponsor_catalog) { FactoryBot.create(:benefit_markets_benefit_sponsor_catalog, service_areas: [service_area]) }
           let!(:initial_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, default_effective_period: effective_period, benefit_sponsorship: benefit_sponsorship, aasm_state: :active) }
           let!(:second_application) { create(:benefit_sponsors_benefit_application, benefit_sponsor_catalog: benefit_sponsor_catalog, default_effective_period: effective_period, benefit_sponsorship: benefit_sponsorship, aasm_state: :expired) }
 

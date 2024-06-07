@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice', dbclean: :after_each do
@@ -6,33 +8,34 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
   let(:notice_event) { "renewal_employer_ineligibility_notice" }
   let(:start_on) { TimeKeeper.date_of_record.next_month.beginning_of_month}
   let!(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let!(:organization)     { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
   let!(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
     sponsorship.save
     sponsorship
   end
-  let!(:model_instance) { FactoryGirl.create(:benefit_sponsors_benefit_application,
-    :with_benefit_package,
-    :benefit_sponsorship => benefit_sponsorship,
-    :aasm_state => 'enrollment_closed'
-  )}
-  let!(:person){ FactoryGirl.create(:person, :with_family)}
+  let!(:model_instance) do
+    FactoryBot.create(:benefit_sponsors_benefit_application,
+                      :with_benefit_package,
+                      :benefit_sponsorship => benefit_sponsorship,
+                      :aasm_state => 'enrollment_closed')
+  end
+  let!(:person){ FactoryBot.create(:person, :with_family)}
   let!(:family) {person.primary_family}
-  let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
-  let!(:census_employee)  { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile ) }
+  let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, census_employee_id: census_employee.id)}
+  let!(:census_employee)  { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: employer_profile) }
 
 
   before do
     allow(model_instance).to receive(:is_renewing?).and_return(true)
-    census_employee.update_attributes(:employee_role_id => employee_role.id )
+    census_employee.update_attributes(:employee_role_id => employee_role.id)
   end
 
   describe "ModelEvent" do
     context "when initial employer application is denied" do
       it "should trigger model event" do
-        model_instance.class.observer_peers.keys.each do |observer|
+        model_instance.class.observer_peers.each_key do |observer|
           expect(observer).to receive(:notifications_send) do |model_event|
             expect(model_event).to be_an_instance_of(ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :application_denied, :klass_instance => model_instance, :options => {})
@@ -70,7 +73,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
 
   describe "NoticeBuilder" do
 
-    let(:data_elements) {
+    let(:data_elements) do
       [
           "employer_profile.notice_date",
           "employer_profile.employer_name",
@@ -80,15 +83,17 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
           "employer_profile.benefit_application.enrollment_errors",
           "employer_profile.broker_present?"
       ]
-    }
+    end
 
     let(:recipient) { "Notifier::MergeDataModels::EmployerProfile" }
     let(:template)  { Notifier::Template.new(data_elements: data_elements) }
 
-    let(:payload)   { {
+    let(:payload)   do
+      {
         "event_object_kind" => "BenefitSponsors::BenefitApplications::BenefitApplication",
         "event_object_id" => model_instance.id
-    } }
+      }
+    end
     let(:merge_model) { subject.construct_notice_object }
 
     context "when notice event received" do
@@ -113,7 +118,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
         expect(merge_model.employer_name).to eq employer_profile.legal_name
       end
 
-       it "should return renewal plan_year open_enrollment_end_date" do
+      it "should return renewal plan_year open_enrollment_end_date" do
         expect(merge_model.benefit_application.renewal_py_oe_end_date).to eq model_instance.open_enrollment_end_on.strftime('%m/%d/%Y')
       end
 
@@ -127,7 +132,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
 
       it "should return enrollment errors" do
         enrollment_errors = []
-      enrollment_policy = BenefitSponsors::BenefitApplications::AcaShopEnrollmentEligibilityPolicy.new
+        enrollment_policy = BenefitSponsors::BenefitApplications::AcaShopEnrollmentEligibilityPolicy.new
         policy = enrollment_policy.business_policies_for(model_instance, :end_open_enrollment)
         unless policy.is_satisfied?(model_instance)
           policy.fail_results.each do |k, _|
@@ -138,8 +143,8 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerIneligibilityNotice
               enrollment_errors << "At least one non-owner employee enrolled in health coverage."
             end
           end
-      end
-        expect(merge_model.benefit_application.enrollment_errors).to eq (enrollment_errors.join(' AND/OR '))
+        end
+        expect(merge_model.benefit_application.enrollment_errors).to eq(enrollment_errors.join(' AND/OR '))
       end
     end
   end

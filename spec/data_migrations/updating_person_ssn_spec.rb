@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "updating_person_ssn")
 describe ChangeFein do
@@ -10,21 +12,15 @@ describe ChangeFein do
     end
   end
   describe "change person ssn" do
-    let(:person1){ FactoryGirl.create(:person,ssn:"787878787")}
-
-    before(:each) do
-      allow(ENV).to receive(:[]).with("hbx_id_1").and_return(person1.hbx_id)
-      allow(ENV).to receive(:[]).with("person_ssn").and_return(person1.ssn)
-    end
-    after(:each) do
-      DatabaseCleaner.clean
-    end
+    let(:person1){ FactoryBot.create(:person,ssn: "787878787")}
 
     it "should change person ssn" do
-      ssn=person1.ssn
-      subject.migrate
-      person1.reload
-      expect(person1.ssn).to eq ssn
+      ClimateControl.modify hbx_id_1: person1.hbx_id, person_ssn: person1.ssn do
+        ssn = person1.ssn
+        subject.migrate
+        person1.reload
+        expect(person1.ssn).to eq ssn
+      end
     end
   end
 end

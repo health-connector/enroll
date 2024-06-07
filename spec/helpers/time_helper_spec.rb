@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -8,12 +10,12 @@ RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
 
   let(:employer_profile) { abc_profile }
   let(:plan_year) { initial_application }
-  let(:person) { FactoryGirl.create(:person) }
-  let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: employer_profile)}
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
-  let(:enrollment) {FactoryGirl.create(:hbx_enrollment, household: family.active_household)}
-  let(:individual_family) { FactoryGirl.create(:family, :with_primary_family_member)}
-  let(:individual_enrollment) {FactoryGirl.create(:hbx_enrollment, :individual_unassisted, household: individual_family.active_household)}
+  let(:person) { FactoryBot.create(:person) }
+  let(:employee_role) {FactoryBot.create(:employee_role, person: person, employer_profile: employer_profile)}
+  let(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
+  let(:enrollment) {FactoryBot.create(:hbx_enrollment, household: family.active_household)}
+  let(:individual_family) { FactoryBot.create(:family, :with_primary_family_member)}
+  let(:individual_enrollment) {FactoryBot.create(:hbx_enrollment, :individual_unassisted, household: individual_family.active_household)}
 
   before :all do
     TimeKeeper.set_date_of_record_unprotected!(Date.today)
@@ -33,7 +35,7 @@ RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
   end
 
   describe "set latest date for terminating enrollment" do
-    context "for enrollment in shop market"do
+    context "for enrollment in shop market" do
       it "sets the latest date able to terminate an enrollment to be 1 year less 1 day from the enrollment start date" do
         enrollment.effective_on = (TimeKeeper.date_of_record - 7.days)
         #latest_date = Date.new(enrollment.effective_on.year, 12, 31)
@@ -42,7 +44,7 @@ RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
       end
     end
 
-    context "for enrollment in individual market"do
+    context "for enrollment in individual market" do
       it "sets the latest date able to terminate an enrollment to be the last day of the calendar year in which the enrollment starts" do
         individual_enrollment.effective_on = (TimeKeeper.date_of_record - 7.days)
         latest_date = Date.new(individual_enrollment.effective_on.year, 12, 31)
@@ -70,8 +72,8 @@ RSpec.describe TimeHelper, :type => :helper, dbclean: :after_each do
   end
 
   describe "SET optional_effective_on date on a SEP" do
-    let(:person_with_consumer_role) { FactoryGirl.create(:person, :with_consumer_role) }
-    let(:person_with_employee_role) { FactoryGirl.create(:person, :with_employee_role) }
+    let(:person_with_consumer_role) { FactoryBot.create(:person, :with_consumer_role) }
+    let(:person_with_employee_role) { FactoryBot.create(:person, :with_employee_role) }
 
     context "for shop market" do
       before do

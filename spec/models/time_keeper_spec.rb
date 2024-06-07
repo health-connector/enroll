@@ -1,24 +1,22 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module TkNotifyWrapper
   class ExpectedLogCallInvoked < StandardError; end
 
   class SimpleWrapper < SimpleDelegator
-    def initialize(obj)
-      super(obj)
-    end
 
-    def expect_event(e, pay)
-      @event = e
+
+    def expect_event(event, pay)
+      @event = event
       @payload = pay
     end
 
     def instrument(event, payload)
-      if (event == @event && payload == @payload)
-        raise ExpectedLogCallInvoked.new
-      else
-        super(event,payload)
-      end
+      raise ExpectedLogCallInvoked if event == @event && payload == @payload
+
+      super(event,payload)
     end
   end
 end
@@ -74,7 +72,7 @@ RSpec.describe TimeKeeper, type: :model do
     end
 
     context "and new date is one day later than current date_of_record" do
-      let!(:hbx_profile) { FactoryGirl.create(:hbx_profile) }
+      let!(:hbx_profile) { FactoryBot.create(:hbx_profile) }
       it "should advance the date" do
         expect(TimeKeeper.set_date_of_record(next_day)).to eq next_day
       end

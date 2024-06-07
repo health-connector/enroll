@@ -8,10 +8,10 @@ services:
       dockerfile: Dockerfile
       args:
         BUNDLER_VERSION_OVERRIDE: '2.0.1'
-        NODE_VERSION: '9.11.2'
+        NODE_VERSION: '12.2.12'
         # NODE_VERSION: '14'
-        RUBY_VARIANT: '2.6-bullseye'        
-        RVM_OVERRIDE: '2.6.5'
+        RUBY_VARIANT: '2.7.6-bullseye'        
+        RVM_OVERRIDE: '2.7.6'
 
     volumes:
       - /var/run/docker.sock:/var/run/docker-host.sock 

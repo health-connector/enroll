@@ -1,61 +1,67 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :hbx_enrollment do
-    household
-    kind "employer_sponsored"
-    elected_premium_credit 0
-    applied_premium_credit 0
-    effective_on {1.month.ago.to_date}
-    terminated_on nil
-    waiver_reason "this is the reason"
+    household { family.households.first }
+    kind { "employer_sponsored" }
+    elected_premium_credit { 0 }
+    applied_premium_credit { 0 }
+    effective_on { 1.month.ago.to_date }
+    terminated_on { nil }
+    waiver_reason { "this is the reason" }
     # broker_agency_id nil
     # writing_agent_id nil
-    submitted_at {2.months.ago}
-    aasm_state "coverage_selected"
+    submitted_at { 2.months.ago }
+    aasm_state { "coverage_selected" }
     aasm_state_date {effective_on}
-    updated_by "factory"
-    is_active true
-    enrollment_kind "open_enrollment"
+    updated_by { "factory" }
+    is_active { true }
+    enrollment_kind { "open_enrollment" }
     # hbx_enrollment_members
     # comments
 
     transient do
-      enrollment_members []
-      active_year TimeKeeper.date_of_record.year
+      enrollment_members { [] }
+      active_year { TimeKeeper.date_of_record.year }
     end
 
     plan { create(:plan, :with_rating_factors, :with_premium_tables, active_year: active_year) }
 
     trait :with_enrollment_members do
-      hbx_enrollment_members { enrollment_members.map{|member| FactoryGirl.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: self.effective_on, eligibility_date: self.effective_on) }}
+      hbx_enrollment_members do
+        enrollment_members.map do |member|
+          FactoryBot.build(:hbx_enrollment_member, applicant_id: member.id, hbx_enrollment: self, is_subscriber: member.is_primary_applicant, coverage_start_on: effective_on, eligibility_date: effective_on)
+        end
+      end
     end
 
     trait :with_dental_coverage_kind do
       association :plan, factory: [:plan, :with_dental_coverage]
-      coverage_kind "dental"
+      coverage_kind { "dental" }
     end
 
     trait :individual_unassisted do
-      kind "individual"
-      elected_premium_credit 0
-      applied_premium_credit 0
-      aasm_state "coverage_selected"
+      kind { "individual" }
+      elected_premium_credit { 0 }
+      applied_premium_credit { 0 }
+      aasm_state { "coverage_selected" }
     end
 
     trait :individual_assisted do
-      kind "individual"
-      elected_premium_credit 150
-      applied_premium_credit 110
-      aasm_state "coverage_selected"
+      kind { "individual" }
+      elected_premium_credit { 150 }
+      applied_premium_credit { 110 }
+      aasm_state { "coverage_selected" }
     end
 
     trait :shop do
-      kind "employer_sponsored"
-      aasm_state "coverage_selected"
+      kind { "employer_sponsored" }
+      aasm_state { "coverage_selected" }
     end
 
     trait :cobra_shop do
-      kind "employer_sponsored_cobra"
-      aasm_state "coverage_selected"
+      kind { "employer_sponsored_cobra" }
+      aasm_state { "coverage_selected" }
     end
 
     trait :health_plan do
@@ -79,25 +85,25 @@ FactoryGirl.define do
     end
 
     trait :with_product do
-      product {  FactoryGirl.create(:benefit_markets_products_product) }
+      product {  FactoryBot.create(:benefit_markets_products_product) }
     end
 
     trait :coverage_selected do
-      aasm_state "coverage_selected"
+      aasm_state { "coverage_selected" }
     end
 
     trait :open_enrollment do
-      enrollment_kind  "open_enrollment"
+      enrollment_kind  { "open_enrollment" }
     end
 
     trait :special_enrollment do
-      enrollment_kind special_enrollment
+      enrollment_kind { special_enrollment }
     end
 
     trait :terminated do
-      aasm_state "coverage_terminated"
-      terminated_on Time.now.last_month.end_of_month
-      termination_submitted_on TimeKeeper.date_of_record
+      aasm_state { "coverage_terminated" }
+      terminated_on { Time.now.last_month.end_of_month }
+      termination_submitted_on { TimeKeeper.date_of_record }
     end
 
     trait :older_effective_date do
@@ -119,23 +125,24 @@ FactoryGirl.define do
     factory :individual_qhp_enrollment_may1,  traits: [:individual_unassisted, :newer_effective_date, :with_enrollment_members]
   end
 
-  FactoryGirl.define do
+  FactoryBot.define do
     factory(:individual_market_health_enrollment, class: HbxEnrollment) do
       transient do
-        primary_person { FactoryGirl.create(:person, :with_consumer_role) }
+        primary_person { FactoryBot.create(:person, :with_consumer_role) }
       end
 
-      family_members { [
-                         FactoryGirl.create(:family_member, family: self, is_primary_applicant: true, is_active: true, person: primary_person)
-      ] }
+      family_members do
+        [
+                         FactoryBot.create(:family_member, family: self, is_primary_applicant: true, is_active: true, person: primary_person)
+      ]
+      end
 
-      hbx_enrollment_members { [
+      hbx_enrollment_members do
+        []
+      end
 
 
-      ] }
-
-
-      after :create do |f, evaluator|
+      after :create do |f, _evaluator|
         f.households.first.add_household_coverage_member(f.family_members.first)
       end
     end

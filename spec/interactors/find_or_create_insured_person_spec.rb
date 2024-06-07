@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe FindOrCreateInsuredPerson, :dbclean => :after_each do
@@ -10,25 +12,26 @@ describe FindOrCreateInsuredPerson, :dbclean => :after_each do
 
   context "given a person who does not exist" do
     let(:new_person) { double }
-    let(:context_arguments) {
+    let(:context_arguments) do
       { :first_name => first_name,
-      :last_name => last_name,
-      :dob => dob }
-    }
+        :last_name => last_name,
+        :dob => dob }
+    end
 
     before :each do
       allow(Person).to receive(:match_by_id_info).with(ssn: nil, dob: dob, first_name: first_name, last_name: last_name).and_return([])
       allow(Person).to receive(:create).with(
         user: nil,
         name_pfx: nil,
-        first_name: first_name, 
+        first_name: first_name,
         middle_name: nil,
         last_name: last_name,
         name_sfx: nil,
         ssn: nil,
         no_ssn: nil,
         dob: dob,
-        gender: nil).and_return(new_person)
+        gender: nil
+      ).and_return(new_person)
     end
 
     it "should create that person and return them" do
@@ -42,11 +45,11 @@ describe FindOrCreateInsuredPerson, :dbclean => :after_each do
 
   context "given a person who does exist" do
     let(:found_person) { double(ssn: ssn, save: true) }
-    let(:context_arguments) {
+    let(:context_arguments) do
       { :first_name => first_name,
         :last_name => last_name,
         :dob => dob }
-    }
+    end
 
     before :each do
       allow(Person).to receive(:match_by_id_info).with(ssn: nil, dob: dob, first_name: first_name, last_name: last_name).and_return([found_person])
@@ -63,13 +66,12 @@ describe FindOrCreateInsuredPerson, :dbclean => :after_each do
 
   context "given a person who does not exist but SSN is already taken" do
     let(:found_person) { double(ssn: ssn, save: true) }
-    let(:context_arguments) {
+    let(:context_arguments) do
       { :first_name => first_name,
         :last_name => last_name,
         :dob => dob,
-        :ssn => ssn
-      }
-    }
+        :ssn => ssn}
+    end
 
     before :each do
       allow(Person).to receive(:match_by_id_info).with(ssn: ssn, dob: dob, first_name: first_name, last_name: last_name).and_return([])

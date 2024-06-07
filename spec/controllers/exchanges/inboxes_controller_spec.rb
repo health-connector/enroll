@@ -1,31 +1,38 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Exchanges::InboxesController do
-  let(:hbx_profile) { FactoryGirl.create(:hbx_profile) }
-  let(:message) do
-    FactoryGirl.create(
-      :message,
-      inbox: hbx_profile.inbox,
-      folder: "sent",
-      sender_id: hbx_profile.id,
-      parent_message_id: hbx_profile.id,
-      from: 'Plan Shopping Web Portal',
-      to: "Hbx Profile Mailbox",
-      subject: "Account link for message.",
-      body: "<a href=''>Link to access message</a>  <br>"
-    )
-  end
+  context "GET show / DELETE destroy" do
+    let(:user) { double("User") }
+    let(:person) { double("Person") }
+    let(:inbox) { double("Inbox") }
+    let(:inbox_provider){double(id: double("id"),full_name: double("inbox_provider"))}
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile) }
+    let(:message) do
+      FactoryBot.create(
+        :message,
+        inbox: hbx_profile.inbox,
+        folder: "sent",
+        sender_id: hbx_profile.id,
+        parent_message_id: hbx_profile.id,
+        from: 'Plan Shopping Web Portal',
+        to: "Hbx Profile Mailbox",
+        subject: "Account link for message.",
+        body: "<a href=''>Link to access message</a>  <br>"
+      )
+    end
 
   before :each do
     message
   end
 
   context 'admin' do
-    let(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
-    let(:admin_user) { FactoryGirl.create(:user, person: admin_person) }
+    let(:admin_person) { FactoryBot.create(:person, :with_hbx_staff_role) }
+    let(:admin_user) { FactoryBot.create(:user, person: admin_person) }
 
     context 'with the correct permissions' do
-      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let(:permission) { FactoryBot.create(:permission, :super_admin) }
 
       before do
         admin_person.hbx_staff_role.update(permission_id: permission.id)
@@ -34,7 +41,7 @@ RSpec.describe Exchanges::InboxesController do
       context "DELETE destroy" do
         it 'allows admin delete message' do
           sign_in admin_user
-          delete :destroy, :id => hbx_profile.id, :message_id => message.id, format: :js
+          delete :destroy, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to be_present
@@ -45,7 +52,7 @@ RSpec.describe Exchanges::InboxesController do
       context "GET show" do
         it 'allows admin to view message' do
           sign_in admin_user
-          get :show,  :id => hbx_profile.id, :message_id => message.id, format: :js
+          get :show,  params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(:success)
         end
@@ -53,7 +60,7 @@ RSpec.describe Exchanges::InboxesController do
     end
 
     context 'with the incorrect permissions' do
-      let(:permission) { FactoryGirl.create(:permission, :developer) }
+      let(:permission) { FactoryBot.create(:permission, :developer) }
 
       before do
         admin_person.hbx_staff_role.update(permission_id: permission.id)
@@ -62,7 +69,7 @@ RSpec.describe Exchanges::InboxesController do
       context "DELETE destroy" do
         it 'does not allow developer-admin to delete message' do
           sign_in admin_user
-          delete :destroy,  :id => hbx_profile.id, :message_id => message.id, format: :js
+          delete :destroy, params: {:id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(403)
           expect(flash[:error]).to be_present
@@ -73,7 +80,7 @@ RSpec.describe Exchanges::InboxesController do
       context "GET show" do
         it 'does not allow developer-admin to view message' do
           sign_in admin_user
-          get :show,  :id => hbx_profile.id, :message_id => message.id, format: :js
+          get :show, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
           expect(response).to have_http_status(403)
           expect(message.message_read).to eq false
@@ -83,13 +90,13 @@ RSpec.describe Exchanges::InboxesController do
   end
 
   context 'consumer role' do
-    let(:consumer_person) { FactoryGirl.create(:person, :with_consumer_role) }
-    let(:consumer_user) { FactoryGirl.create(:user, person: consumer_person) }
+    let(:consumer_person) { FactoryBot.create(:person, :with_consumer_role) }
+    let(:consumer_user) { FactoryBot.create(:user, person: consumer_person) }
 
     context "DELETE destroy" do
       it 'does not allow user to delete message' do
         sign_in consumer_user
-        delete :destroy, :id => hbx_profile.id, :message_id => message.id, format: :js
+        delete :destroy, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(flash[:error]).to be_present
@@ -100,7 +107,7 @@ RSpec.describe Exchanges::InboxesController do
     context "GET show" do
       it 'does not allow user to view message' do
         sign_in consumer_user
-        get :show, :id => hbx_profile.id, :message_id => message.id, format: :js
+        get :show, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(message.message_read).to eq false
@@ -109,13 +116,13 @@ RSpec.describe Exchanges::InboxesController do
   end
 
   context 'broker role' do
-    let(:broker_person) { FactoryGirl.create(:person, :with_broker_role) }
-    let(:broker_user) { FactoryGirl.create(:user, person: broker_person) }
+    let(:broker_person) { FactoryBot.create(:person, :with_broker_role) }
+    let(:broker_user) { FactoryBot.create(:user, person: broker_person) }
 
     context "DELETE destroy" do
       it 'does not allow user to delete message' do
         sign_in broker_user
-        delete :destroy, :id => hbx_profile.id, :message_id => message.id, format: :js
+        delete :destroy, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(flash[:error]).to be_present
@@ -126,11 +133,12 @@ RSpec.describe Exchanges::InboxesController do
     context "GET show" do
       it 'does not allow user to view message' do
         sign_in broker_user
-        get :show, :id => hbx_profile.id, :message_id => message.id, format: :js
+        get :show, params: { :id => hbx_profile.id, :message_id => message.id }, format: :js
 
         expect(response).to have_http_status(403)
         expect(message.message_read).to eq false
       end
     end
+  end
   end
 end

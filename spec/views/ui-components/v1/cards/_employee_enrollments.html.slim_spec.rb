@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -6,7 +8,7 @@ RSpec.describe "employee_enrollments.html.slim.rb", :type => :view, dbclean: :af
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let(:census_employees) { FactoryGirl.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
+  let(:census_employees) { FactoryBot.create(:census_employee, :with_active_assignment, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package) }
 
   describe "employer profile home page" do
 
@@ -17,8 +19,8 @@ RSpec.describe "employee_enrollments.html.slim.rb", :type => :view, dbclean: :af
     end
 
     it "should return proper message in tooltip when there is benefit application" do
-      expect(rendered).to match /At least 75 percent of your eligible employees must enroll or waive coverage during the open enrollment period in order to establish your Health Benefits Program. One of your enrollees must also be a non-owner/
-      expect(rendered).to match /Employee Enrollments and Waivers/
+      expect(rendered).to match(/At least 75 percent of your eligible employees must enroll or waive coverage during the open enrollment period in order to establish your Health Benefits Program. One of your enrollees must also be a non-owner/)
+      expect(rendered).to match(/Employee Enrollments and Waivers/)
     end
   end
 end

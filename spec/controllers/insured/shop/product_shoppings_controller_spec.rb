@@ -50,42 +50,42 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
   let!(:product_kinds)  { [:health, :dental] }
 
   let!(:health_enrollment) do
-    FactoryGirl.create(:hbx_enrollment,
-                       household: family.latest_household,
-                       coverage_kind: 'health',
-                       effective_on: initial_application.start_on,
-                       enrollment_kind: "open_enrollment",
-                       kind: 'employer_sponsored',
-                       submitted_at: TimeKeeper.date_of_record,
-                       benefit_sponsorship_id: benefit_sponsorship.id,
-                       sponsored_benefit_package_id: current_benefit_package.id,
-                       sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
-                       employee_role_id: employee_role.id,
-                       benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                       rating_area_id: initial_application.recorded_rating_area_id,
-                       aasm_state: 'shopping')
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.latest_household,
+                      coverage_kind: 'health',
+                      effective_on: initial_application.start_on,
+                      enrollment_kind: "open_enrollment",
+                      kind: 'employer_sponsored',
+                      submitted_at: TimeKeeper.date_of_record,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: current_benefit_package.id,
+                      sponsored_benefit_id: current_benefit_package.sponsored_benefits[0].id,
+                      employee_role_id: employee_role.id,
+                      benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                      rating_area_id: initial_application.recorded_rating_area_id,
+                      aasm_state: 'shopping')
   end
 
   let!(:dental_enrollment) do
-    FactoryGirl.create(:hbx_enrollment,
-                       household: family.latest_household,
-                       coverage_kind: 'dental',
-                       effective_on: initial_application.start_on,
-                       enrollment_kind: "open_enrollment",
-                       kind: 'employer_sponsored',
-                       submitted_at: TimeKeeper.date_of_record,
-                       benefit_sponsorship_id: benefit_sponsorship.id,
-                       sponsored_benefit_package_id: current_benefit_package.id,
-                       sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
-                       employee_role_id: employee_role.id,
-                       benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
-                       rating_area_id: initial_application.recorded_rating_area_id,
-                       aasm_state: 'shopping')
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.latest_household,
+                      coverage_kind: 'dental',
+                      effective_on: initial_application.start_on,
+                      enrollment_kind: "open_enrollment",
+                      kind: 'employer_sponsored',
+                      submitted_at: TimeKeeper.date_of_record,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: current_benefit_package.id,
+                      sponsored_benefit_id: current_benefit_package.sponsored_benefits[1].id,
+                      employee_role_id: employee_role.id,
+                      benefit_group_assignment_id: census_employee.active_benefit_group_assignment.id,
+                      rating_area_id: initial_application.recorded_rating_area_id,
+                      aasm_state: 'shopping')
 
 
   end
 
-  let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+  let!(:user) { FactoryBot.create(:user, :person => ee_person)}
 
   describe "GET #continuous_show" do
     let!(:params) do
@@ -97,7 +97,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        get :continuous_show, params
+        get :continuous_show, params: params
       end
 
       it "returns http success" do
@@ -116,13 +116,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :continuous_show, params
+        get :continuous_show, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -137,7 +137,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
       before do
         sign_in user
-        get :continuous_show, params
+        get :continuous_show, params: params
       end
 
       it "redirects to family_account page" do
@@ -163,7 +163,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        get :thankyou, params
+        get :thankyou, params: params
       end
 
       it "returns http success" do
@@ -179,13 +179,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :thankyou, params
+        get :thankyou, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -207,7 +207,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        post :checkout, params
+        post :checkout, params: params
       end
 
       it "redirect to receipt page" do
@@ -223,13 +223,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        post :checkout, params
+        post :checkout, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -247,7 +247,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        get :receipt, params
+        get :receipt, params: params
       end
 
       it "returns http success" do
@@ -261,13 +261,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :receipt, params
+        get :receipt, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -285,7 +285,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        get :waiver_thankyou, params
+        get :waiver_thankyou, params: params
       end
 
       it "returns http success" do
@@ -301,13 +301,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :waiver_thankyou, params
+        get :waiver_thankyou, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -324,11 +324,11 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       before do
         request.env["HTTP_REFERER"] = '/'
         sign_in user
-        get :waiver_thankyou, params
+        get :waiver_thankyou, params: params
       end
 
       context 'with admin user' do
-        let!(:user) { FactoryGirl.create(:user, :hbx_staff, person: ee_person)}
+        let!(:user) { FactoryBot.create(:user, :hbx_staff, person: ee_person)}
 
         it "returns http success" do
           expect(response).to have_http_status(:success)
@@ -336,7 +336,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       end
 
       context 'without admin user' do
-        let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+        let!(:user) { FactoryBot.create(:user, :person => ee_person)}
 
         it "returns http success" do
           expect(response).to have_http_status(:redirect)
@@ -360,7 +360,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        post :waiver_checkout, params
+        post :waiver_checkout, params: params
       end
 
       it "redirect to receipt page" do
@@ -376,13 +376,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        post :waiver_checkout, params
+        post :waiver_checkout, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.complete_plan_shopping?, (Pundit policy)")
       end
@@ -399,7 +399,7 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
     context '#success' do
       before do
         sign_in user
-        get :waiver_receipt, params
+        get :waiver_receipt, params: params
       end
 
       it "returns http success" do
@@ -409,13 +409,13 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
 
     context "logged in user has no authorization roles" do
       let(:person) { create(:person) }
-      let(:fake_user) { FactoryGirl.create(:user, :person => person) }
+      let(:fake_user) { FactoryBot.create(:user, :person => person) }
 
       it "redirects to root with flash message" do
         session[:person_id] = person.id.to_s
         sign_in fake_user
 
-        get :waiver_receipt, params
+        get :waiver_receipt, params: params
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for hbx_enrollment_policy.waiver_receipt?, (Pundit policy)")
       end

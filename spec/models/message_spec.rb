@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Message, :type => :model do
 
-  let (:subject) {"marsha, marsha, marsha"}
-  let (:body) {"she gets all the attention!"}
+  let(:subject) {"marsha, marsha, marsha"}
+  let(:body) {"she gets all the attention!"}
 
   describe ".new" do
     let(:valid_params) do

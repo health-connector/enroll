@@ -52,6 +52,10 @@ class UserPolicy < ApplicationPolicy
     view?
   end
 
+  def esr_new?
+    can_download_employees_template?
+  end
+
   def change_password?
     return true if user.present? && record.present? && record == user
 

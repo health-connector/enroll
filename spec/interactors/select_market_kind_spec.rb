@@ -11,7 +11,7 @@ describe SelectMarketKind, :dbclean => :after_each do
     include_context "setup employees with benefits"
 
     let!(:ce) { benefit_sponsorship.census_employees.first }
-    let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+    let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
     let!(:employee_role) do
       ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
       ee_person.employee_roles.first
@@ -36,7 +36,7 @@ describe SelectMarketKind, :dbclean => :after_each do
   end
 
   context "when a person without employee_role exist" do
-    let!(:person) {FactoryGirl.create(:person)}
+    let!(:person) {FactoryBot.create(:person)}
 
     subject do
       described_class.call(person: person, params: {})

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/_signup_progress.html.erb" do
@@ -7,6 +9,6 @@ describe "shared/_signup_progress.html.erb" do
   end
 
   it "should have li option for Plan Selection" do
-   expect(rendered).to have_selector("li", text: "Plan Selection")
+    expect(rendered).to have_selector("li", text: "Plan Selection")
   end
 end

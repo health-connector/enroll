@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MailSpecHelper
   shared_context "MailSpecHelper" do
     def refresh_mailbox
