@@ -44,12 +44,12 @@ jobs:
       steps:
         - uses: actions/checkout@v4
         - name: "Download artifact"
-            run: |
-              OTHER_REPO="health-connector/enroll"
-              WF_NAME="security-code-scan-daily.yml"
-              ARTIFACT_NAME="brakeman-json-report"
-              RUN_ID=`gh run --repo ${OTHER_REPO} list --workflow ${WF_NAME} --json databaseId --jq .[0].databaseId`
-              gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
+          run: |
+            OTHER_REPO="health-connector/enroll"
+            WF_NAME="security-code-scan-daily.yml"
+            ARTIFACT_NAME="brakeman-json-report"
+            RUN_ID=`gh run --repo ${OTHER_REPO} list --workflow ${WF_NAME} --json databaseId --jq .[0].databaseId`
+            gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         - name: Brakeman code scanning

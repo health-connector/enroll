@@ -23,14 +23,11 @@ jobs:
             echo "deb [trusted=yes] https://apt.fury.io/bearer/ /" | sudo tee -a /etc/apt/sources.list.d/fury.list
             sudo apt-get update
             sudo apt-get install bearer
-        - name: run bearer
+        - name: build bearer report
           continue-on-error: true
           run: |
-            bearer scan --quiet --config-file ./bearer.yml . 
-        - name: build bearer report
-          run: |
             bearer scan --quiet --config-file ./bearer.yml .  > bearer_full.txt
-        - name: upload bearer failure report
+        - name: upload bearer report
           uses: actions/upload-artifact@v4
           with:
             name: bearer-report
@@ -45,12 +42,12 @@ jobs:
         - name: Brakeman code scanning
           continue-on-error: true
           run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o brakeman.text -o daily_run.json
-        - name: upload Brakeman failure report
+        - name: upload Brakeman report
           uses: actions/upload-artifact@v4
           with:
             name: brakeman-text-report
             path: brakeman.text
-        - name: upload Brakeman failure report
+        - name: upload Brakeman report
           uses: actions/upload-artifact@v4
           with:
             name: brakeman-json-report
