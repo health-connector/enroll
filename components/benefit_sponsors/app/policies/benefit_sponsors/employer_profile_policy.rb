@@ -63,7 +63,7 @@ module BenefitSponsors
     end
 
     def delete_attestation_documents?
-      shop_market_admin?
+      show?
     end
 
     def verify_attestation?
