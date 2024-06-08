@@ -304,12 +304,6 @@ Rails.application.routes.draw do
 
     resources :premium_statements, :only => [:show]
 
-    resources :employer_staff_roles, :only => [:create, :destroy] do
-      member do
-        get :approve
-      end
-    end
-
     #TODO REFACTOR
     resources :people do
       collection do
@@ -373,13 +367,6 @@ Rails.application.routes.draw do
         get 'employee_costs', on: :collection
         get 'reference_plan_summary', on: :collection
 
-      end
-
-      resources :broker_agency, only: [:index, :show, :create] do
-        collection do
-          get :active_broker
-        end
-        get :terminate
       end
 
       resources :census_employees, only: [:new, :create, :edit, :update, :show] do
