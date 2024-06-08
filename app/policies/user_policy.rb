@@ -40,6 +40,10 @@ class UserPolicy < ApplicationPolicy
     can_download_employees_template?
   end
 
+  def employer_attestation_new?
+    can_download_employees_template?
+  end
+
   def view?
     user.present?
   end
