@@ -46,6 +46,31 @@ module BenefitSponsors
       show?
     end
 
+    def employer_attestation_create?
+      show?
+    end
+
+    def employer_attestation_edit?
+      shop_market_admin?
+    end
+
+    def employer_attestation_update?
+      shop_market_admin?
+    end
+
+    def authorized_download?
+      shop_market_admin?
+    end
+
+    def delete_attestation_documents?
+      show?
+    end
+
+    def verify_attestation?
+      shop_market_admin?
+    end
+
+
     def is_staff_role_for_employer?
       active_staff_roles = user.person.employer_staff_roles.active
       active_staff_roles.any? {|role| role.benefit_sponsor_employer_profile_id == record.id }
