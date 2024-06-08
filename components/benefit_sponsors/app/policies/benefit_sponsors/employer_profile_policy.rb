@@ -141,6 +141,10 @@ module BenefitSponsors
       index?
     end
 
+    def new_document?
+      index?
+    end
+
     def employer_attestation_document_download?
       return false unless account_holder_person
       return true if shop_market_admin?
