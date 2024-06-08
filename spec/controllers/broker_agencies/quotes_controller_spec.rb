@@ -12,14 +12,11 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
   let(:quote_member_attributes){FactoryBot.attributes_for(:quote_member)}
 
   before do
+    person.broker_role.aasm_state = 'active'
     sign_in user
   end
 
   describe "Create"  do
-    before do
-      allow(user).to receive_message_chain(:person,:broker_role,:id){person.broker_role.id}
-      allow(user).to receive(:has_broker_role?){true}
-    end
     context "with valid quote params" do
       it "should save quote" do
         expect do
@@ -54,6 +51,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
         expect(assigns(:quote)).to be_a(Quote)
         expect(assigns(:quote).quote_households.size).to eq 1
         expect(assigns(:quote).quote_households.first.quote_members.first.first_name).to eq quote_member_attributes[:first_name]
+      end
+    end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
       end
     end
   end
@@ -110,6 +119,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
         expect(response).to redirect_to(edit_broker_agencies_broker_role_quote_path(person.broker_role.id,@quote.id))
       end
     end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
+    end
   end
 
   describe "Delete" do
@@ -146,6 +167,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
         expect(@quote.quote_households.first.quote_members).to eq []
       end
     end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
+    end
   end
 
   describe "GET new" do
@@ -154,6 +187,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
       get :new, params: {  broker_role_id: person.broker_role.id }
       expect(response).to have_http_status(302)
     end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
+    end
   end
 
   describe "GET my_quotes" do
@@ -161,6 +206,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
     it "returns http success" do
       get :my_quotes, params: {  broker_role_id: person.broker_role.id }
       expect(response).to have_http_status(:success)
+    end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
     end
   end
 
@@ -173,6 +230,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
     it "returns http success" do
       get :edit, params: {  broker_role_id: person.broker_role.id, id: quote }
       expect(response).to have_http_status(:success)
+    end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
     end
   end
 
@@ -197,6 +266,17 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
       post :publish_quote, params: {  broker_role_id: "person.broker_role.id", id: quote }
     end
 
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
+    end
   end
 
   describe "Creating New Quote " do
@@ -231,6 +311,18 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
       end
       it "should redirect to next step and publish" do
         expect(response).to redirect_to(broker_agencies_broker_role_quote_path(person.broker_role.id,@quote.id))
+      end
+    end
+
+    context "without valid broker role" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "should redirect user" do
+        post :create, params: { broker_role_id: person.broker_role.id, quote: quote_attributes }
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
       end
     end
   end
