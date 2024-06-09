@@ -6,7 +6,7 @@ on:
     - cron: '0 5 * * *'
 
 concurrency:
-  group: qb-${{ github.ref }}
+  group: qb-${{ github.ref }}-code-scan-daily
   cancel-in-progress: true #This is temporary to avoid trunk GHA collisions  
 
 jobs:
