@@ -34,7 +34,7 @@ jobs:
           uses: actions/upload-artifact@v4
           if: failure() 
           with:
-            name: Bearer Report
+            name: bearer-pr-report
             path: bearer_full.txt
         - name: Write to Job Summary
           run: grep -A 10 '=====================================' bearer_full.txt >> $GITHUB_STEP_SUMMARY
@@ -58,7 +58,7 @@ jobs:
           uses: actions/upload-artifact@v4
           if: failure()
           with:
-            name: Brakeman Report
+            name: brakeman-pr-report
             path: brakeman_output.text
         - name: Write to Job Summary
           if: failure()
