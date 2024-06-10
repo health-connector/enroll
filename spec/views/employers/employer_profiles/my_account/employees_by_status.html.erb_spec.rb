@@ -15,6 +15,9 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
   let(:hbx_enrollment) {FactoryBot.create(:hbx_enrollment, household: primary_family.active_household)}
 
   let(:user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person) }
+  let(:person) { FactoryBot.create(:person)}
+  let(:permission) { FactoryBot.create(:permission, :hbx_staff) }
+  let!(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id)}
 
   let(:benefit_group) { BenefitGroup.new }
 

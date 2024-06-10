@@ -60,6 +60,9 @@ module BenefitSponsors
 
     context 'for a user with admin role' do
       let(:user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person) }
+      let(:person) { FactoryBot.create(:person)}
+      let(:permission) { FactoryBot.create(:permission, :hbx_staff) }
+      let!(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id)}
 
       shared_examples_for 'should permit for a user with hbx staff role' do |policy_type|
         it 'should permit for admin role' do
