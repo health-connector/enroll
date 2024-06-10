@@ -50,6 +50,8 @@ jobs:
           run: |
             ls -lha
             gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
         - name: "Download artifact"
           run: |
             OTHER_REPO="health-connector/enroll"
