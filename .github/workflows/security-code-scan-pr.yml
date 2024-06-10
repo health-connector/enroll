@@ -48,7 +48,7 @@ jobs:
         - uses: actions/checkout@v4
         - name: hardcoded values
           run: |
-            gh run --repo health-connector/enroll download `gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'` -n brakeman-json-report
+            gh run --repo health-connector/enroll download 9450335146 -n brakeman-json-report
             ls -lha
           env:
             GITHUB_TOKEN: ${{ github.token }}
