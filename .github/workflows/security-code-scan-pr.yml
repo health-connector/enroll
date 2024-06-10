@@ -47,9 +47,10 @@ jobs:
           run: |
             GH_RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
             echo $GH_RUN_ID
+            GH_RUN_ID_2=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
+            echo $GH_RUN_ID_2
             gh run --repo health-connector/enroll download $GH_RUN_ID -n brakeman-json-report
             # gh run --repo health-connector/enroll download 9450335146 -n brakeman-json-report
-            ls -lha
           env:
             GITHUB_TOKEN: ${{ github.token }}
         # - name: "Download artifact"
