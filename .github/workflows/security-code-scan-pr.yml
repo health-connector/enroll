@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: qb-${{ github.ref }}-pr-security
-  cancel-in-progress: true #This is temporary to avoid trunk GHA collisions  
+  cancel-in-progress: true
 
 jobs:
   bearer:
@@ -43,16 +43,6 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
-        # - name: download daily run artifact
-        #   run: |
-        #     GH_RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
-        #     echo $GH_RUN_ID
-        #     GH_RUN_ID_2=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
-        #     echo $GH_RUN_ID_2
-        #     gh run --repo health-connector/enroll download $GH_RUN_ID -n brakeman-json-report
-        #     # gh run --repo health-connector/enroll download 9450335146 -n brakeman-json-report
-        #   env:
-        #     GITHUB_TOKEN: ${{ github.token }}
         - name: "Download artifact"
           run: |
             OTHER_REPO="health-connector/enroll"

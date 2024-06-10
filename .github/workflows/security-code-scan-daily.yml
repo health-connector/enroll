@@ -6,7 +6,7 @@ on:
 
 concurrency:
   group: qb-${{ github.ref }}-code-scan-daily
-  cancel-in-progress: true #This is temporary to avoid trunk GHA collisions  
+  cancel-in-progress: true  
 
 jobs:
   bearer:
