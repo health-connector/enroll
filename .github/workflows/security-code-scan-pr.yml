@@ -43,25 +43,25 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
-        - name: download daily run artifact
-          run: |
-            GH_RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
-            echo $GH_RUN_ID
-            GH_RUN_ID_2=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
-            echo $GH_RUN_ID_2
-            gh run --repo health-connector/enroll download $GH_RUN_ID -n brakeman-json-report
-            # gh run --repo health-connector/enroll download 9450335146 -n brakeman-json-report
-          env:
-            GITHUB_TOKEN: ${{ github.token }}
-        # - name: "Download artifact"
+        # - name: download daily run artifact
         #   run: |
-        #     OTHER_REPO="health-connector/enroll"
-        #     WF_NAME="security-code-scan-daily.yml"
-        #     ARTIFACT_NAME="brakeman-json-report"
-        #     RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
-        #     gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
+        #     GH_RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
+        #     echo $GH_RUN_ID
+        #     GH_RUN_ID_2=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
+        #     echo $GH_RUN_ID_2
+        #     gh run --repo health-connector/enroll download $GH_RUN_ID -n brakeman-json-report
+        #     # gh run --repo health-connector/enroll download 9450335146 -n brakeman-json-report
         #   env:
         #     GITHUB_TOKEN: ${{ github.token }}
+        - name: "Download artifact"
+          run: |
+            OTHER_REPO="health-connector/enroll"
+            WF_NAME="security-code-scan-daily.yml"
+            ARTIFACT_NAME="brakeman-json-report"
+            RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
+            gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
         - name: Brakeman code scanning
           run: docker run -v "$(pwd)":/code presidentbeef/brakeman --compare daily_run.json -o /dev/stdout -o brakeman_output.text
         - name: upload Brakeman failure report
