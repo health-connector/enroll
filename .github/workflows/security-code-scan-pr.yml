@@ -46,6 +46,10 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
+        - name: print values
+          run: |
+            ls -lha
+            gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'
         - name: "Download artifact"
           run: |
             OTHER_REPO="health-connector/enroll"
@@ -55,10 +59,6 @@ jobs:
             gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        - name: print values
-          run: |
-            ls -lha
-            gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'
         - name: Brakeman code scanning
           run: docker run -v "$(pwd)":/code presidentbeef/brakeman --compare daily_run.json -o /dev/stdout -o brakeman_output.text
         - name: upload Brakeman failure report
