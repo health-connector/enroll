@@ -39,6 +39,7 @@ jobs:
             name: bearer-pr-report
             path: bearer_full.txt
         - name: Write to Job Summary
+          if: failure() 
           run: grep -A 10 '=====================================' bearer_full.txt >> $GITHUB_STEP_SUMMARY
   
   brakeman:
@@ -50,7 +51,7 @@ jobs:
             OTHER_REPO="health-connector/enroll"
             WF_NAME="security-code-scan-daily.yml"
             ARTIFACT_NAME="brakeman-json-report"
-            RUN_ID=`gh run --repo ${OTHER_REPO} list --workflow ${WF_NAME} --json databaseId --jq .[0].databaseId`
+            RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
             gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
