@@ -60,7 +60,7 @@ jobs:
             RUN_ID=`gh run --repo health-connector/enroll list --workflow security-code-scan-daily.yml --json databaseId --jq '.[0].databaseId'`
             gh run --repo ${OTHER_REPO} download ${RUN_ID} -n ${ARTIFACT_NAME}
           env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ github.token }}
         - name: Brakeman code scanning
           run: docker run -v "$(pwd)":/code presidentbeef/brakeman --compare daily_run.json -o /dev/stdout -o brakeman_output.text
         - name: upload Brakeman failure report
