@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 5.2.8.1"
+  s.add_dependency "rails", "~> 6.0.6.1"
   s.add_dependency "slim", "3.0.9"
-  s.add_dependency "mongoid", "~> 7.0.2"
+  s.add_dependency "mongoid", "~> 7.5.4"
   s.add_dependency "virtus", "~> 1.0.5"
   s.add_dependency "redcarpet", "~> 3.4.0"
   s.add_dependency "wkhtmltopdf-binary-edge", "~> 0.12.3.0"
@@ -35,11 +35,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'money-rails', '~> 1.10.0'
   s.add_dependency 'pundit'
 
-  s.add_development_dependency 'rspec-rails'
+  s.add_development_dependency 'rspec-rails', '~> 5.0.1'
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'rspec'
-  s.add_development_dependency 'database_cleaner'
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'factory_bot_rails'
+  s.add_development_dependency 'database_cleaner-mongoid', '~> 2.0'
 
 end
