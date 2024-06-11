@@ -444,5 +444,6 @@ INSURED_TRANSLATIONS = {
   :'en.plans_for' => "Plans:",
   :'en.effective_date_for' => "Effective Date:",
   :'en.insured.email_text' => "EMAIL *",
-  :'en.insured.select_kind_text' => "SELECT KIND *"
+  :'en.insured.select_kind_text' => "SELECT KIND *",
+  :'en.upload_doc_error' => "Unable to upload file. Acceptable file types - %{file_types} and ensure it does not exceed %{size_in_mb} MB."
 }.freeze
