@@ -7,7 +7,6 @@ Feature: Update FEIN
     And there is an employer ABC Widgets
     And there is an employer Xfinity Enterprise
 
-  @wip
   Scenario Outline: HBX Staff with Super Admin enters FEIN without 9 digits
     Given that a user with a HBX staff role with Super Admin subrole exists and is logged in
     And the user is on the Employer Index of the Admin Dashboard

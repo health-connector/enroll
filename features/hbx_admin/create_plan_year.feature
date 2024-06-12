@@ -51,7 +51,6 @@ Feature: Create Benefit Application by admin UI
         | Enrollment Ineligible | enrollment_ineligible | Enrollment Ineligible             | Successfully created a draft plan year |
         | Active                | active                | Termination Pending               | Successfully created a draft plan year |
 
-  @wip
   Scenario: Creating New Plan Year while application is in termination_pending aasm_state
     And initial employer ABC Widgets has active benefit application
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
@@ -86,5 +85,5 @@ Feature: Create Benefit Application by admin UI
     And employer clicked on gold metal level
     Then employer should see create plan year button disabled
     And employer selected 100 contribution percent for the application
-    Then employer should see your estimated montly cost
+    Then employer should see employer estimated montly cost
     And employer should see that the create plan year is true
