@@ -9,8 +9,8 @@
                 br
                   h2.no-buffer.open-enr-date-line-height
                     strong.default-orange
-                      - if (@current_plan_year.open_enrollment_end_on.to_date - Time.now.to_date).to_i >= 0
-                        = (@current_plan_year.open_enrollment_end_on.to_date - Time.now.to_date).to_i
+                      - if (@current_plan_year.open_enrollment_end_on.to_date - TimeKeeper.date_of_record).to_i >= 0
+                        = (@current_plan_year.open_enrollment_end_on.to_date - TimeKeeper.date_of_record).to_i
                       - else
                         | 0
                   span.default-orange
