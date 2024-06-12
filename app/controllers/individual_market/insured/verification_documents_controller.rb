@@ -1,4 +1,4 @@
-class Insured::VerificationDocumentsController < ApplicationController
+class IndividualMarket::Insured::VerificationDocumentsController < ApplicationController
   include ApplicationHelper
 
   before_action :get_family
