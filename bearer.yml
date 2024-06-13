@@ -26,5 +26,5 @@ scan:
     scanner:
         - sast
         - secrets
-    skip-path: []
+    skip-path: [vendor/bundle, node_modules, .git, .github, .vscode, .idea, .gitlab, .gitignore, .gitattributes, .gitmodules, .gitkeep, .gitlab-ci.yml, .travis.yml, .circleci, .circleci.yml, .github/workflows]
     skip-test: true
