@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/ClassLength
 module Employers
-  class EmployerProfilesController < ApplicationController
+  class EmployerProfilesController < ::ApplicationController
     include ::Config::AcaConcern
 
     before_action :redirect_new_model, only: [:show, :welcome, :index, :new, :show_profile, :edit, :generate_sic_tree, :create]
@@ -21,6 +21,10 @@ module Employers
 
     def redirect_new_model
       redirect_to "/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor"
+    end
+
+    def redirect_to_new
+      redirect_to new_employers_employer_profile_path
     end
 
     def link_from_quote
