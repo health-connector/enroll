@@ -1,4 +1,4 @@
-class Employers::EmployerProfilesController < Employers::EmployersController
+class Employers::EmployerProfilesController < ApplicationController
   include ::Config::AcaConcern
 
   before_action :redirect_new_model, only: [:show, :welcome, :index, :new, :show_profile, :edit, :generate_sic_tree, :create]
