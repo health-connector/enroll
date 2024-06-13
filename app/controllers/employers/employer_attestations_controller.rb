@@ -1,15 +1,16 @@
 class Employers::EmployerAttestationsController < ApplicationController
 
   before_action :find_employer, except: [:new]
-  before_action :check_hbx_staff_role, only: [:update, :edit, :accept, :reject]
 
   def edit
+    authorize @employer_profile, :employer_attestation_edit?
     @documents = []
     @documents = @employer_profile.employer_attestation.employer_attestation_documents if @employer_profile.employer_attestation.present?
     @element_to_replace_id = params[:employer_actions_id]
   end
 
   def new
+    authorize current_user, :employer_attestation_new?
     @document = Document.new
     respond_to do |format|
       format.js
@@ -17,11 +18,13 @@ class Employers::EmployerAttestationsController < ApplicationController
   end
 
   def verify_attestation
+    authorize @employer_profile
     attestation = @employer_profile.employer_attestation
     @document = attestation.employer_attestation_documents.find(params[:employer_attestation_id])
   end
 
   def create
+    authorize @employer_profile, :employer_attestation_create?
     @errors = []
     if params[:file]
       file = params[:file]
@@ -52,6 +55,7 @@ class Employers::EmployerAttestationsController < ApplicationController
   end
 
   def update
+    authorize @employer_profile, :employer_attestation_update?
     attestation = @employer_profile.employer_attestation
     document = attestation.employer_attestation_documents.find(params[:employer_attestation_id])
 
@@ -66,6 +70,7 @@ class Employers::EmployerAttestationsController < ApplicationController
   end
 
   def authorized_download
+    authorize @employer_profile
     begin
       documents = @employer_profile.employer_attestation.employer_attestation_documents
       if authorized_to_download?
@@ -80,6 +85,7 @@ class Employers::EmployerAttestationsController < ApplicationController
   end
 
   def delete_attestation_documents
+    authorize @employer_profile
     begin
       @employer_profile.employer_attestation.employer_attestation_documents.where(:id =>params[:employer_attestation_id],:aasm_state => "submitted").destroy_all
       @employer_profile.employer_attestation.revert! if @employer_profile.employer_attestation.may_revert?
@@ -115,11 +121,5 @@ class Employers::EmployerAttestationsController < ApplicationController
       @employer_profile ||= ::BenefitSponsors::Organizations::Organization.where(:legal_name => params["document"]["creator"]).first.employer_profile
     end
     render file: 'public/404.html', status: 404 if @employer_profile.blank?
-  end
-
-  def check_hbx_staff_role
-    if !current_user.has_hbx_staff_role?
-      redirect_to root_path, :flash => { :error => "You must be an HBX staff member" }
-    end
   end
 end

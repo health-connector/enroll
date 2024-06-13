@@ -32,9 +32,10 @@ module BenefitSponsors
     let!(:user_with_hbx_staff_role) { FactoryBot.create(:user, :with_hbx_staff_role) }
     let!(:person) { FactoryBot.create(:person, user: user_with_hbx_staff_role) }
     let(:broker_management_form_class) { BenefitSponsors::Organizations::OrganizationForms::BrokerManagementForm }
+    let(:permission) { FactoryBot.create(:permission, :hbx_staff)}
 
     before :each do
-      user_with_hbx_staff_role.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id)
+      user_with_hbx_staff_role.person.build_hbx_staff_role(hbx_profile_id: organization_with_hbx_profile.hbx_profile.id, permission_id: permission.id)
       user_with_hbx_staff_role.person.hbx_staff_role.save!
 
       benefit_sponsorship.save!
@@ -76,6 +77,18 @@ module BenefitSponsors
 
         it 'should assign employer_profile variable' do
           expect(assigns(:employer_profile)).to eq employer_profile
+        end
+      end
+
+      context 'without permissions' do
+        before do
+          allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: false))
+          sign_in(user_with_hbx_staff_role)
+          get :index, params: { employer_profile_id: employer_profile.id }, xhr: true
+        end
+
+        it 'should show not allowed flash' do
+          expect(flash[:error]).to eq "Access not allowed for index?, (Pundit policy)"
         end
       end
 
@@ -226,7 +239,7 @@ module BenefitSponsors
       context 'for assigning a new broker' do
 
         before(:each) do
-          allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_employer: true))
+          allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: true))
           sign_in(user_with_hbx_staff_role)
           @request.env['HTTP_REFERER'] = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id.to_s}?tab=brokers"
           post :create, params: { employer_profile_id: employer_profile.id, broker_role_id: broker_role1.id, broker_agency_id: broker_agency_profile1.id }
@@ -258,9 +271,22 @@ module BenefitSponsors
       end
     end
 
+    context 'without permissions' do
+      before do
+        allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: false))
+        sign_in(user_with_hbx_staff_role)
+        @request.env['HTTP_REFERER'] = "/benefit_sponsors/profiles/employers/employer_profiles/#{employer_profile.id}?tab=brokers"
+        post :create, params: { employer_profile_id: employer_profile.id, broker_role_id: broker_role1.id, broker_agency_id: broker_agency_profile1.id }
+      end
+
+      it 'should show not allowed flash' do
+        expect(flash[:error]).to eq "Access not allowed for create?, (Pundit policy)"
+      end
+    end
+
     describe "for terminate with invalid plan design organization" do
       before :each do
-        allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_employer: true))
+        allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: true))
         employer_profile.hire_broker_agency(broker_agency_profile1)
         sign_in(user_with_hbx_staff_role)
         params = {employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: '', termination_date: ""}
@@ -275,14 +301,15 @@ module BenefitSponsors
     end
 
     describe 'for terminate' do
-      before :each do
-        allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_employer: true))
-        employer_profile.hire_broker_agency(broker_agency_profile1)
-        sign_in(user_with_hbx_staff_role)
-        get :terminate, params: { employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: broker_agency_profile1.id, termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y') }
-      end
 
       context 'for terminating an exisiting broker' do
+        before do
+          allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: true))
+          employer_profile.hire_broker_agency(broker_agency_profile1)
+          sign_in(user_with_hbx_staff_role)
+          get :terminate, params: { employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: broker_agency_profile1.id, termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y') }
+        end
+
         it 'should initialize broker management form' do
           expect(assigns(:broker_management_form).class).to eq broker_management_form_class
         end
@@ -305,6 +332,19 @@ module BenefitSponsors
 
         it 'should assign broker_agency_profile variable' do
           expect(assigns(:broker_agency_profile)).to eq broker_agency_profile1
+        end
+      end
+
+      context 'without permissions' do
+        before do
+          allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: false))
+          employer_profile.hire_broker_agency(broker_agency_profile1)
+          sign_in(user_with_hbx_staff_role)
+          get :terminate, params: { employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: broker_agency_profile1.id, termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y') }
+        end
+
+        it 'should show not allowed flash' do
+          expect(flash[:error]).to eq "Access not allowed for terminate?, (Pundit policy)"
         end
       end
     end
