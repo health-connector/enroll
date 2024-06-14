@@ -291,6 +291,10 @@ module Observers
        if new_model_event.event_key == :employee_notice_for_employee_terminated_from_roster
         deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "employee_notice_for_employee_terminated_from_roster")
        end
+
+       if new_model_event.event_key == :notify_employee_of_renewing_employer_ineligibility
+          deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "notify_employee_of_renewing_employer_ineligibility")
+        end
       end
     end
 
