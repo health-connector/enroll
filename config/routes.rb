@@ -108,7 +108,7 @@ Rails.application.routes.draw do
         get :show_sep_history
         get :view_terminated_hbx_enrollments
         get :view_enrollment_to_update_end_date
-        post :update_enrollment_termianted_on_date
+        post :update_enrollment_terminated_on_date
         get :calendar_index
         get :user_account_index
         get :get_user_info
@@ -163,14 +163,6 @@ Rails.application.routes.draw do
 
     resources :broker_applicants
     resources :security_questions
-
-    # get 'hbx_profiles', to: 'hbx_profiles#welcome'
-    # get 'hbx_profiles/:id', to: 'hbx_profiles#show', as: "my_account"
-    # get 'hbx_profiles/new'
-    # get 'hbx_profiles/create'
-    # get 'hbx_profiles/update'
-    # get 'hbx_profiles/broker_agency_index'
-    # get 'hbx_profiles/insured_index'
   end
 
   namespace :insured do

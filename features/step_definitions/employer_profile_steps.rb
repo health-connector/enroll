@@ -271,7 +271,8 @@ Given /(\w+) has HBXAdmin privileges/ do |name|
                     send_broker_agency_message: true, approve_broker: true, approve_ga: true,
                     modify_admin_tabs: true, view_admin_tabs: true)
   role.update_attributes(permission_id: Permission.hbx_staff.id)
-
+  person.user.roles = ["hbx_staff"]
+  person.user.save
 end
 
 Given /a FEIN for an existing company/ do

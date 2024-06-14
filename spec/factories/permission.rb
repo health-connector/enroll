@@ -16,7 +16,7 @@ FactoryGirl.define do
       name 'hbx_staff'
       can_complete_resident_application true
       can_add_sep true
-      view_the_configuration_tab false 
+      view_the_configuration_tab false
       can_submit_time_travel_request false
     end
 
@@ -34,7 +34,7 @@ FactoryGirl.define do
       approve_ga false
       modify_admin_tabs false
       view_admin_tabs  true
-      view_the_configuration_tab false 
+      view_the_configuration_tab false
       can_submit_time_travel_request false
     end
 
@@ -48,7 +48,7 @@ FactoryGirl.define do
       approve_ga false
       modify_admin_tabs false
       view_admin_tabs  false
-      view_the_configuration_tab false 
+      view_the_configuration_tab false
       can_submit_time_travel_request false
     end
 
@@ -62,7 +62,7 @@ FactoryGirl.define do
       approve_ga false
       modify_admin_tabs false
       view_admin_tabs false
-      view_the_configuration_tab false 
+      view_the_configuration_tab false
       can_submit_time_travel_request false
     end
 
@@ -76,7 +76,7 @@ FactoryGirl.define do
       approve_ga false
       modify_admin_tabs false
       view_admin_tabs  false
-      view_the_configuration_tab false 
+      view_the_configuration_tab false
       can_submit_time_travel_request false
     end
 
@@ -123,7 +123,7 @@ FactoryGirl.define do
       can_force_publish true
       can_update_enrollment_end_date true
       can_reinstate_enrollment true
-      view_the_configuration_tab true 
+      view_the_configuration_tab true
       can_submit_time_travel_request false
       can_change_username_and_email true
       view_login_history true
