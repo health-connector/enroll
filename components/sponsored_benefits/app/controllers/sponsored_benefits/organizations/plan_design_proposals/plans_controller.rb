@@ -14,7 +14,12 @@ module SponsoredBenefits
           when "sole_source"
             offering_query.sole_source_offered_health_plans(params[:carrier_id], params[:active_year])
           end
-        @plans = @plans.select{|a| a.premium_tables.by_date(params[:quote_effective_date].to_date).present? }
+        begin
+          @plans = @plans.select{|a| a.premium_tables.by_date(params[:quote_effective_date].to_date).present? }
+        rescue StandardError => e
+          Rails.logger.error(e.to_s)
+          flash[:notice] = "Unable to find valid plans for your effective date. Please contact customer service at #{Settings.contact_center.phone_number}."
+        end
         @search_options = ::Plan.search_options(@plans)
         @search_option_titles = {
                 'plan_type': 'HMO / PPO',
