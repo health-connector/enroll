@@ -164,6 +164,7 @@ module Insured
     end
 
     def is_employer_disabled?(employee_role)
+      #99512 changes
       if EnrollRegistry.feature_enabled?(:continuous_plan_shopping) && @organizer.present?
         market_kind = @organizer.market_kind
         hbx_enrollment = @organizer.previous_hbx_enrollment
@@ -180,6 +181,7 @@ module Insured
     end
 
     def is_employer_checked?(employee_role)
+      #99512 changes
       if EnrollRegistry.feature_enabled?(:continuous_plan_shopping) && @organizer.present?
         market_kind = @organizer.mc_market_kind
         shopping_role = @organizer.employee_role
