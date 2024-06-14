@@ -20,6 +20,8 @@ module BenefitSponsors
           set_ie_flash_by_announcement unless is_employer_profile?
         end
 
+        render 'new' unless profile_type.present?
+
         respond_to do |format|
           format.html
           format.js
