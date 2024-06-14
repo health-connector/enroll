@@ -95,6 +95,7 @@ gem 'haml-rails', '~> 1.0'
 gem 'sassc',                    '~> 2.0'
 gem 'sass-rails',               '~> 5'
 gem 'config',                   '~> 2.0'
+gem 'rack-cors'
 
 gem 'next_rails'
 
