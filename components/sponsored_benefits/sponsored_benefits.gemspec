@@ -16,9 +16,9 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 5.2.8.1"
+  s.add_dependency "rails", "~> 6.0.6.1"
   s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", "~> 7.0.2"
+  s.add_dependency "mongoid", "~> 7.5.4"
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
@@ -34,9 +34,9 @@ Gem::Specification.new do |s|
 
   s.test_files = Dir["spec/**/*"]
 
-  s.add_development_dependency "rspec-rails"
+  s.add_development_dependency "rspec-rails", '5.0.1'
   s.add_development_dependency 'shoulda-matchers'
-  s.add_development_dependency 'database_cleaner'
+  s.add_development_dependency 'database_cleaner-mongoid', '~> 2.0'
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'factory_bot_rails',         '~> 4'
   s.add_development_dependency 'forgery'

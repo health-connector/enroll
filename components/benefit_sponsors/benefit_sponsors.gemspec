@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 5.2.8.1"
+  s.add_dependency "rails", "~> 6.0.6.1"
   s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", "~> 7.0.2"
+  s.add_dependency "mongoid", "~> 7.5.4"
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config'
@@ -50,7 +50,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "mongoid-rspec"
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'rubocop-rspec',             '~> 1.31'
-  s.add_development_dependency 'database_cleaner'
+  s.add_development_dependency 'database_cleaner-mongoid'
   s.add_development_dependency 'capybara', '2.6.2'
   s.add_development_dependency 'factory_bot_rails',         '~> 4'
   s.add_development_dependency 'test-prof', '0.5.0'
