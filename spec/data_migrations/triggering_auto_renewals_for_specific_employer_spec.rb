@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "triggering_auto_renewals_for_specific_employer")
 
@@ -15,28 +17,31 @@ describe TriggeringAutoRenewalsForSpecificEmployer, dbclean: :after_each do
 
     describe "generating auto-renewals for census employees", dbclean: :after_each do
 
-      let(:organization) { FactoryGirl.create :organization, :with_active_and_renewal_plan_years}
-      let(:census_employee) { FactoryGirl.create :census_employee, employer_profile: organization.employer_profile, dob: TimeKeeper.date_of_record - 30.years, first_name: person.first_name, last_name: person.last_name }
-      let(:employee_role) { FactoryGirl.create(:employee_role, person: person, census_employee: census_employee, employer_profile: organization.employer_profile)}
-      let(:person) { FactoryGirl.create(:person)}
-      let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person)}
+      let(:organization) { FactoryBot.create :organization, :with_active_and_renewal_plan_years}
+      let(:census_employee) { FactoryBot.create :census_employee, employer_profile: organization.employer_profile, dob: TimeKeeper.date_of_record - 30.years, first_name: person.first_name, last_name: person.last_name }
+      let(:employee_role) { FactoryBot.create(:employee_role, person: person, census_employee: census_employee, employer_profile: organization.employer_profile)}
+      let(:person) { FactoryBot.create(:person)}
+      let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
+
+      around do |example|
+        ClimateControl.modify fein: organization.fein do
+          example.run
+        end
+      end
 
       before do
-        census_employee.update_attributes(:employee_role =>  employee_role, :employee_role_id =>  employee_role.id)
+        census_employee.update_attributes(:employee_role => employee_role, :employee_role_id => employee_role.id)
         census_employee.update_attribute(:ssn, census_employee.employee_role.person.ssn)
         new_date = TimeKeeper.date_of_record.beginning_of_month + 11.days
         TimeKeeper.set_date_of_record_unprotected!(new_date)
         start_on = Date.new(2016,1,1) # we can fix it better some-time later
         organization.employer_profile.plan_years.where(aasm_state: "active").first.update_attributes(start_on: start_on,
-          :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month,
-          :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks
-          )
-        start_on = start_on + 1.year
+                                                                                                     :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month,
+                                                                                                     :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks)
+        start_on += 1.year
         organization.employer_profile.plan_years.where(aasm_state: "renewing_enrolling").first.update_attributes(start_on: start_on,
-          :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month,
-          :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks
-          )
-        allow(ENV).to receive(:[]).with("fein").and_return(organization.fein)
+                                                                                                                 :end_on => start_on + 1.year - 1.day, :open_enrollment_start_on => (start_on - 30).beginning_of_month,
+                                                                                                                 :open_enrollment_end_on => (start_on - 30).beginning_of_month + 1.weeks)
       end
 
       after :all do
@@ -45,9 +50,9 @@ describe TriggeringAutoRenewalsForSpecificEmployer, dbclean: :after_each do
 
       context "triggering a new enrollment", dbclean: :after_each do
 
-        let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, household: family.active_household, effective_on: Date.new(2016,1,1), plan: plan)}
-        let(:renewal_plan) { FactoryGirl.create(:plan)}
-        let(:plan) { FactoryGirl.create(:plan, :with_premium_tables, :renewal_plan_id => renewal_plan.id)}
+        let!(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household, effective_on: Date.new(2016,1,1), plan: plan)}
+        let(:renewal_plan) { FactoryBot.create(:plan)}
+        let(:plan) { FactoryBot.create(:plan, :with_premium_tables, :renewal_plan_id => renewal_plan.id)}
         before :each do
           hbx_enrollment.update_attributes(:benefit_group_id => organization.employer_profile.plan_years.where(aasm_state: "active").first.benefit_groups.first.id, :benefit_group_assignment => census_employee.active_benefit_group_assignment)
           census_employee.renewal_benefit_group_assignment.benefit_group.elected_plan_ids << hbx_enrollment.plan.renewal_plan_id

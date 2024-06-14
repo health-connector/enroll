@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe ::Importers::ConversionEmployeeSet do
@@ -7,18 +9,25 @@ describe ::Importers::ConversionEmployeeSet do
   let(:record_warnings) { { } }
   let(:config) { YAML.load_file("#{Rails.root}/conversions.yml") }
 
-  subject { ::Importers::ConversionEmployeeSet.new(file_name, out_stream, config["conversions"]["employee_date"], config["conversions"]["number_of_dependents"] ) }
+  subject { ::Importers::ConversionEmployeeSet.new(file_name, out_stream, config["conversions"]["employee_date"], config["conversions"]["number_of_dependents"]) }
   before :each do
     allow(::Importers::ConversionEmployeeAction).to receive(:new).with(employee_data).and_return(employee_record)
     subject.import!
-    out_stream.rewind    
+    out_stream.rewind
   end
 
   describe "provided a file in xlsx format" do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employees", "sample_conversion_employees.xlsx") }
 
     let(:employee_data) do
-      {:default_hire_date=> config["conversions"]["employee_date"], :action=>"Add", :employer_name=>"CCD Care Inc", :fein=>"202187000", :benefit_begin_date=>"07/01/2015", :subscriber_ssn=>"219000368", :subscriber_dob=>"06/14/1962", :subscriber_gender=>"FEMALE", :subscriber_name_first=>"Totally", :subscriber_name_middle=>"An", :subscriber_name_last=>"Employee", :subscriber_address_1=>"5807 Cotton Tail Lane", :subscriber_city=>"Riverdale", :subscriber_state=>"MD", :subscriber_zip=>"20737", :dep_1_ssn=>"213000000", :dep_1_dob=>"08/02/2009", :dep_1_gender=>"MALE", :dep_1_name_first=>"Totally", :dep_1_name_middle=>"A", :dep_1_name_last=>"Kid", :dep_1_relationship=>"Child", :dep_2_dob=>"03/14/2011", :dep_2_gender=>"FEMALE", :dep_2_name_first=>"ThisIs", :dep_2_name_middle=>"Somebodys", :dep_2_name_last=>"Daughter", :dep_2_relationship=>"Child"}
+      {
+        :default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000",
+        :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962", :subscriber_gender => "FEMALE",
+        :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane",
+        :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009",
+        :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child",
+        :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"
+      }
     end
 
     let(:base_output_result) do
@@ -29,7 +38,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported,\"\"\n") 
+        expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end
 
@@ -38,7 +47,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_errors) { {"some_errors" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
       end
     end
 
@@ -47,7 +56,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_warnings) { {"some_warnings" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
       end
     end
   end
@@ -56,7 +65,14 @@ describe ::Importers::ConversionEmployeeSet do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employees", "sample_conversion_employees.csv") }
 
     let(:employee_data) do
-      {:default_hire_date=>config["conversions"]["employee_date"], :action=>"Add", :employer_name=>"CCD Care Inc", :fein=>"202187000", :benefit_begin_date=>"07/01/2015", :subscriber_ssn=>"219000368", :subscriber_dob=>"06/14/1962", :subscriber_gender=>"FEMALE", :subscriber_name_first=>"Totally", :subscriber_name_middle=>"An", :subscriber_name_last=>"Employee", :subscriber_address_1=>"5807 Cotton Tail Lane", :subscriber_city=>"Riverdale", :subscriber_state=>"MD", :subscriber_zip=>"20737", :dep_1_ssn=>"213000000", :dep_1_dob=>"08/02/2009", :dep_1_gender=>"MALE", :dep_1_name_first=>"Totally", :dep_1_name_middle=>"A", :dep_1_name_last=>"Kid", :dep_1_relationship=>"Child", :dep_2_dob=>"03/14/2011", :dep_2_gender=>"FEMALE", :dep_2_name_first=>"ThisIs", :dep_2_name_middle=>"Somebodys", :dep_2_name_last=>"Daughter", :dep_2_relationship=>"Child"}
+      {
+        :default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000",
+        :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962", :subscriber_gender => "FEMALE",
+        :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane",
+        :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009",
+        :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child",
+        :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"
+      }
     end
 
     let(:base_output_result) do
@@ -67,7 +83,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported,\"\"\n") 
+        expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end
 
@@ -76,7 +92,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_errors) { {"some_errors" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
       end
     end
 
@@ -85,7 +101,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_warnings) { {"some_warnings" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
       end
     end
   end

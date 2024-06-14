@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Quote, type: :model, dbclean: :after_each do
   let(:valid_quote_params) {attributes_for(:quote)}
   let(:subject) {create :quote, :with_household_and_members}
-  context "Validations" do ()
+  context "Validations" do
     it { is_expected.to validate_uniqueness_of(:claim_code).case_insensitive }
   end
 
@@ -54,7 +56,7 @@ RSpec.describe Quote, type: :model, dbclean: :after_each do
       end
 
       it 'should have quote name based on original plus (1)' do
-        expect(@copy.quote_name).to eq subject.quote_name + '(1)'
+        expect(@copy.quote_name).to eq "#{subject.quote_name}(1)"
       end
 
       it 'there should be two quotes' do
@@ -68,10 +70,10 @@ RSpec.describe Quote, type: :model, dbclean: :after_each do
         @copied = @copy.clone
       end
       it 'should append  (1) to the quote_name for first copy' do
-        expect(@copy.quote_name).to eq subject.quote_name + '(1)'
+        expect(@copy.quote_name).to eq "#{subject.quote_name}(1)"
       end
       it 'should append (2) to the quote name for the second copy' do
-        expect(@copied.quote_name).to eq subject.quote_name + '(2)'
+        expect(@copied.quote_name).to eq "#{subject.quote_name}(2)"
       end
       it 'should append one to the highest quote name suffix' do
         @copy.update_attributes(quote_name: 'wags(10)')

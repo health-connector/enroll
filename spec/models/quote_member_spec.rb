@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe QuoteMember, type: :model do
@@ -7,7 +9,7 @@ RSpec.describe QuoteMember, type: :model do
     it { is_expected.to validate_inclusion_of(:employee_relationship).to_allow(QuoteMember::EMPLOYEE_RELATIONSHIP_KINDS) }
   end
 
-  context "#age_on" do 
+  context "#age_on" do
     it "should return age on a given date" do
       expect(quote_member.age_on(15.years.ago)).to eq 14
     end

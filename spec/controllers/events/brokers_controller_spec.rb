@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Events::BrokersController do
@@ -16,8 +18,9 @@ describe Events::BrokersController do
       allow(Person).to receive(:by_broker_role_npn).with(broker_id).and_return(found_brokers)
       allow(controller).to receive(:render_to_string).with(
         "events/brokers/created", {:formats => ["xml"], :locals => {
-         :individual => broker
-        }}).and_return(rendered_template)
+          :individual => broker
+        }}
+      ).and_return(rendered_template)
     end
 
     describe "for an existing broker" do
@@ -25,12 +28,12 @@ describe Events::BrokersController do
 
       it "should send out a message to the bus with the rendered broker object" do
         expect(exchange).to receive(:publish).with(rendered_template, {
-          :routing_key => reply_to_key,
-          :headers => {
-            :broker_id => broker_id,
-            :return_status => "200"
-          }       
-        })
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :broker_id => broker_id,
+                                                       :return_status => "200"
+                                                     }
+                                                   })
         controller.resource(connection, di, props, "")
       end
     end
@@ -40,12 +43,12 @@ describe Events::BrokersController do
 
       it "should send out a message to the bus with no broker object" do
         expect(exchange).to receive(:publish).with("", {
-          :routing_key => reply_to_key,
-          :headers => {
-            :broker_id => broker_id,
-            :return_status => "404"
-          }       
-        })
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :broker_id => broker_id,
+                                                       :return_status => "404"
+                                                     }
+                                                   })
         controller.resource(connection, di, props, "")
       end
     end

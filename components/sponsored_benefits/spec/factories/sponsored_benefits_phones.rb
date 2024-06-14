@@ -1,21 +1,23 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :sponsored_benefits_phone, class: 'SponsoredBenefits::Locations::Phone' do
-    kind 'home'
+    kind { 'home' }
     # sequence(:area_code, WrappingSequence.new(100, 999)) { |n| "#{n}"}
-    area_code 202
-    sequence(:number, 1111111) { |n| "#{n}"}
-    sequence(:extension) { |n| "#{n}"}
+    area_code { 202 }
+    sequence(:number, 1_111_111, &:to_s)
+    sequence(:extension, &:to_s)
 
     trait :without_kind do
-      kind ' '
+      kind { ' ' }
     end
 
     trait :without_area_code do
-      area_code ' '
+      area_code { ' ' }
     end
 
     trait :without_number do
-      number ' '
+      number { ' ' }
     end
 
     factory :sponsored_benefits_invalid_phone, traits: [:without_kind, :without_area_code, :without_number]

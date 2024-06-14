@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "employers/plan_years/plan_selection/_plan_details.html.erb" do
 
-  let(:employer_profile){
+  let(:employer_profile) do
     instance_double(
       "EmployerProfile",
       legal_name: "legal name llc"
-      )
-  }
+    )
+  end
 
   def new_plan
     double(
@@ -84,18 +86,18 @@ RSpec.describe "employers/plan_years/plan_selection/_plan_details.html.erb" do
     end
 
     it "should have view plan summary link" do
-      expect(rendered).to match /View Plan Summary/
+      expect(rendered).to match(/View Plan Summary/)
     end
 
     it "should have health plan summary info" do
-      expect(rendered).to match /#{ @plan.plan_type}/i
-      expect(rendered).to match /#{ @plan.metal_level_kind}/i
+      expect(rendered).to match(/#{@plan.plan_type}/i)
+      expect(rendered).to match(/#{@plan.metal_level_kind}/i)
     end
 
     it "should have note during plan selection" do
       expect(rendered).to have_css("span.glyphicon.glyphicon-info-sign")
-      expect(rendered).to have_selector('p', text:"Note: Your final monthly cost is based on")
-      expect(rendered).to match /Note: Your final monthly cost is based on final employee enrollment./
+      expect(rendered).to have_selector('p', text: "Note: Your final monthly cost is based on")
+      expect(rendered).to match(/Note: Your final monthly cost is based on final employee enrollment./)
     end
   end
 
@@ -107,8 +109,8 @@ RSpec.describe "employers/plan_years/plan_selection/_plan_details.html.erb" do
     end
 
     it "should have health plan summary info" do
-      expect(rendered).to match /#{@plan.plan_type}/i
-      expect(rendered).to match /#{@plan.metal_level_kind}/i
+      expect(rendered).to match(/#{@plan.plan_type}/i)
+      expect(rendered).to match(/#{@plan.metal_level_kind}/i)
     end
   end
 end

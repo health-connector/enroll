@@ -42,7 +42,7 @@ module SponsoredBenefits
           @max_employee_cost = @service.monthly_max_employee_cost
           @qhps = ::Products::QhpCostShareVariance.find_qhp_cost_share_variances(plan_array(@plan), plan_design_proposal.effective_date.year, "Health")
         end
-        render pdf: 'plan_review_export',
+        render pdf: 'plan_review_export', dpi: 72,
                template: 'sponsored_benefits/organizations/plan_design_proposals/plan_reviews/show.html.erb',
                disposition: 'attachment'
       end

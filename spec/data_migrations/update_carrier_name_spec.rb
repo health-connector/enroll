@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_carrier_name")
 
@@ -13,20 +15,17 @@ describe UpdateCarrierName, dbclean: :after_each do
   end
 
   describe "update carrier legal name" do
-    let(:organization)  { FactoryGirl.create(:organization)}
+    let(:carrier_profile)  { FactoryBot.create(:carrier_profile, abbrev: "abcxyz")}
     let(:new_legal_name) { "New Legal Name" }
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("fein").and_return(organization.fein)
-      allow(ENV).to receive(:[]).with("name").and_return(new_legal_name)
-    end
-
-    it "allow dependent ssn's to be updated to nil" do
-      organization
-      subject.migrate
+    it "should update carrier name in old model" do
+      organization = carrier_profile.organization
+      ClimateControl.modify fein: organization.fein, name: new_legal_name do
+        subject.migrate
+      end
       organization.reload
       expect(organization.legal_name).to match(new_legal_name)
     end
-
   end
+
 end

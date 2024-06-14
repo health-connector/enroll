@@ -1,5 +1,7 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :plan_design_benefit_sponsorship, class: 'SponsoredBenefits::BenefitSponsorships::BenefitSponsorship' do
-    benefit_market 'aca_shop_cca'
+    benefit_market { 'aca_shop_cca' }
   end
 end

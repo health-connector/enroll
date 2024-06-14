@@ -16,7 +16,7 @@ Feature: As a renewing employer I should not be able to set contribution percent
     And employer clicked on edit plan year button
     Then employer should see form for benefit application and benefit package
     And employer updated <contribution_percent> contribution percent for the application
-    Then employer should see your estimated montly cost
+    Then employer should see employer estimated montly cost
     And employer should see that the create plan year is <plan_year_btn_enabled>
 
     Examples:

@@ -85,7 +85,7 @@ class UsersController < ApplicationController
   # Auth not required
   def unsupportive_browser
   end
-  
+
   private
   helper_method :user
 
@@ -94,11 +94,11 @@ class UsersController < ApplicationController
   end
 
   def validate_email
-     @error = if params[:user][:email].blank?
+    @error = if params[:user][:email].blank?
                'Please enter a valid email'
              elsif params[:user].present? && !@user.update_attributes(email_update_params)
-                @user.errors.full_messages.join.gsub('(optional) ', '')
-              end
+               @user.errors.full_messages.join.gsub('(optional) ', '')
+             end
   end
 
   def user

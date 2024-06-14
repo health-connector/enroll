@@ -1,21 +1,23 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "shared/plan_shoppings/_plan_visit_types.html.erb" do
 
-  let(:qhp_service_visit_1){
+  let(:qhp_service_visit_1) do
     Products::QhpServiceVisit.new(
       visit_type: "visit_1",
       copay_in_network_tier_1: "30 copay",
       co_insurance_in_network_tier_1: "10% coinsurance"
-      )
-  }
-  let(:qhp_service_visit_2){
+    )
+  end
+  let(:qhp_service_visit_2) do
     Products::QhpServiceVisit.new(
       visit_type: "visit_2",
       copay_in_network_tier_1: "45 copay",
       co_insurance_in_network_tier_1: "20% coinsurance"
-      )
-  }
+    )
+  end
   let(:qhp){ Products::QhpCostShareVariance.new(qhp_service_visits: [qhp_service_visit_1, qhp_service_visit_2]) }
 
   let(:visit_types){ ["visit_1", "visit_2"] }

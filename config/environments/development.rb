@@ -20,6 +20,8 @@ Rails.application.configure do
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
+  config.action_mailer.perform_caching = false
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
   config.webpacker.check_yarn_integrity = false
@@ -31,6 +33,9 @@ Rails.application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = false
+
+  # Suppress logger output for asset requests.
+  config.assets.quiet = true
 
   # Asset digests allow you to set far-future HTTP expiration dates on all assets,
   # yet still be able to expire them through the digest params.
@@ -50,6 +55,10 @@ Rails.application.configure do
     :host => "127.0.0.1",
     :port => 3000
   }
+
+  # Use an evented file watcher to asynchronously detect changes in source code,
+  # routes, locales, etc. This feature depends on the listen gem.
+  # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   #Environment URL stub
   config.checkbook_services_base_url = Settings.checkbook_services.base_url

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_plan_years_with_dental_offerings")
 
@@ -16,66 +18,57 @@ describe UpdatePlanYearsWithDentalOfferings do
 
     let(:effective_on) { TimeKeeper.date_of_record.end_of_month.next_day }
 
-    let!(:renewal_plan) { FactoryGirl.create(:plan, market: 'shop', metal_level: 'gold', active_year: effective_on.year, hios_id: "11111111122302-01", csr_variant_id: "01", coverage_kind: 'health') }
-    let!(:plan) { FactoryGirl.create(:plan, market: 'shop', metal_level: 'gold', active_year: effective_on.year - 1, hios_id: "11111111122302-01", csr_variant_id: "01", renewal_plan_id: renewal_plan.id, coverage_kind: 'health') }
+    let!(:renewal_plan) { FactoryBot.create(:plan, market: 'shop', metal_level: 'gold', active_year: effective_on.year, hios_id: "11111111122302-01", csr_variant_id: "01", coverage_kind: 'health') }
+    let!(:plan) { FactoryBot.create(:plan, market: 'shop', metal_level: 'gold', active_year: effective_on.year - 1, hios_id: "11111111122302-01", csr_variant_id: "01", renewal_plan_id: renewal_plan.id, coverage_kind: 'health') }
 
-    let!(:dental_renewal_plan) { FactoryGirl.create(:plan, market: 'shop', metal_level: 'dental', active_year: effective_on.year, hios_id: "91111111122302", coverage_kind: 'dental', dental_level: 'high') }
-    let!(:dental_plan) { FactoryGirl.create(:plan, market: 'shop', metal_level: 'dental', active_year: effective_on.year - 1, hios_id: "91111111122302",  renewal_plan_id: dental_renewal_plan.id, coverage_kind: 'dental', dental_level: 'high') }
+    let!(:dental_renewal_plan) { FactoryBot.create(:plan, market: 'shop', metal_level: 'dental', active_year: effective_on.year, hios_id: "91111111122302", coverage_kind: 'dental', dental_level: 'high') }
+    let!(:dental_plan) { FactoryBot.create(:plan, market: 'shop', metal_level: 'dental', active_year: effective_on.year - 1, hios_id: "91111111122302",  renewal_plan_id: dental_renewal_plan.id, coverage_kind: 'dental', dental_level: 'high') }
 
-    let(:renewing_employer) {
-      FactoryGirl.create(:employer_with_renewing_planyear, start_on: effective_on, 
-        renewal_plan_year_state: 'renewing_enrolling',
-        reference_plan_id: plan.id,
-        renewal_reference_plan_id: renewal_plan.id,
-        dental_reference_plan_id: dental_plan.id, 
-        with_dental: true
-        )
-    }
+    let(:renewing_employer) do
+      FactoryBot.create(:employer_with_renewing_planyear, start_on: effective_on,
+                                                          renewal_plan_year_state: 'renewing_enrolling',
+                                                          reference_plan_id: plan.id,
+                                                          renewal_reference_plan_id: renewal_plan.id,
+                                                          dental_reference_plan_id: dental_plan.id,
+                                                          with_dental: true)
+    end
 
     let(:benefit_group) { renewing_employer.active_plan_year.benefit_groups.first }
     let(:renewal_benefit_group) { renewing_employer.renewing_plan_year.benefit_groups.first }
 
-    let(:renewing_employees) {
-      FactoryGirl.create_list(:census_employee_with_active_and_renewal_assignment, 1, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer, 
-        benefit_group: benefit_group, renewal_benefit_group: renewal_benefit_group)
-    }
+    let(:renewing_employees) do
+      FactoryBot.create_list(:census_employee_with_active_and_renewal_assignment, 1, :old_case, hired_on: (TimeKeeper.date_of_record - 2.years), employer_profile: renewing_employer,
+                                                                                                benefit_group: benefit_group, renewal_benefit_group: renewal_benefit_group)
+    end
 
     let(:ce) { renewing_employees[0] }
-    let(:employee) {
-      employee_role = FactoryGirl.create(:employee_role, person: person, census_employee: ce, employer_profile: renewing_employer)
+    let(:employee) do
+      employee_role = FactoryBot.create(:employee_role, person: person, census_employee: ce, employer_profile: renewing_employer)
       ce.update_attributes({employee_role: employee_role})
       employee_role
-    }
+    end
 
-    let!(:person) { 
-      FactoryGirl.create(:person, last_name: ce.last_name, first_name: ce.first_name, dob: ce.dob)
-    }
+    let!(:person) do
+      FactoryBot.create(:person, last_name: ce.last_name, first_name: ce.first_name, dob: ce.dob)
+    end
 
-    let!(:family) { FactoryGirl.create(:family, :with_family_members, person: person, people: [person]) }
+    let!(:family) { FactoryBot.create(:family, :with_family_members, person: person, people: [person]) }
 
     context 'dental plan year and renewals missing' do
 
-      let!(:dental_enrollment) {
-        FactoryGirl.create(:hbx_enrollment,:with_enrollment_members,
-          enrollment_members: family.family_members,
-          household: family.active_household,
-          coverage_kind: 'dental',
-          effective_on: effective_on.prev_year,
-          enrollment_kind: 'open_enrollment',
-          kind: "employer_sponsored",
-          benefit_group_id: benefit_group.id,
-          employee_role_id: employee.id,
-          benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
-          plan_id: dental_plan.id,
-          aasm_state: 'coverage_selected'
-          )
-      }
-
-      before do
-        allow(Person).to receive(:where).and_return([person])
-        allow(ENV).to receive(:[]).with('calender_month').and_return effective_on.month
-        allow(ENV).to receive(:[]).with('calender_year').and_return effective_on.year
-        allow(person).to receive(:primary_family).and_return(family)
+      let!(:dental_enrollment) do
+        FactoryBot.create(:hbx_enrollment,:with_enrollment_members,
+                          enrollment_members: family.family_members,
+                          household: family.active_household,
+                          coverage_kind: 'dental',
+                          effective_on: effective_on.prev_year,
+                          enrollment_kind: 'open_enrollment',
+                          kind: "employer_sponsored",
+                          benefit_group_id: benefit_group.id,
+                          employee_role_id: employee.id,
+                          benefit_group_assignment_id: ce.active_benefit_group_assignment.id,
+                          plan_id: dental_plan.id,
+                          aasm_state: 'coverage_selected')
       end
 
       # it "should add dental offerings to plan year" do

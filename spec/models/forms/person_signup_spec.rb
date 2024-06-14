@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Forms::PersonSignup, "validations" do
 
-  subject {
+  subject do
     Forms::PersonSignup.new
-  }
+  end
 
-  context 'when firstname, lastname, dob, email are blank' do 
+  context 'when firstname, lastname, dob, email are blank' do
 
     before :each do
       subject.valid?
@@ -33,22 +35,24 @@ end
 
 describe Forms::PersonSignup, ".match_or_create_person" do
 
-  let(:person_attributes) { {
-    first_name: "steve",
-    last_name: "smith",
-    email: "example@email.com",
-    dob: "1974-10-10"
-  }.merge(other_attributes)}
+  let(:person_attributes) do
+    {
+      first_name: "steve",
+      last_name: "smith",
+      email: "example@email.com",
+      dob: "1974-10-10"
+    }.merge(other_attributes)
+  end
 
   let(:other_attributes) { {} }
 
-  subject {
+  subject do
     Forms::PersonSignup.new(person_attributes)
-  }
+  end
 
-  context 'when more than 1 person matched' do 
+  context 'when more than 1 person matched' do
     before :each do
-      2.times { FactoryGirl.create(:person, first_name: "steve", last_name: "smith", dob: "10/10/1974") }
+      2.times { FactoryBot.create(:person, first_name: "steve", last_name: "smith", dob: "10/10/1974") }
     end
 
     it "should raise an exception" do
@@ -56,11 +60,11 @@ describe Forms::PersonSignup, ".match_or_create_person" do
     end
   end
 
-  context 'when person with same information already present in the system' do 
+  context 'when person with same information already present in the system' do
     let(:other_attributes) { {first_name: "james"}}
 
-     before :each do
-      FactoryGirl.create(:person, first_name: "james", last_name: "smith", dob: "10/10/1974")
+    before :each do
+      FactoryBot.create(:person, first_name: "james", last_name: "smith", dob: "10/10/1974")
       subject.match_or_create_person
     end
 
@@ -70,15 +74,17 @@ describe Forms::PersonSignup, ".match_or_create_person" do
     end
   end
 
-  context 'when person not matched in the system' do 
-    let(:person_attributes) { {
-      first_name: "joe",
-      last_name: "smith",
-      email: "example@email.com",
-      dob: "1978-10-10"
-      }}
+  context 'when person not matched in the system' do
+    let(:person_attributes) do
+      {
+        first_name: "joe",
+        last_name: "smith",
+        email: "example@email.com",
+        dob: "1978-10-10"
+      }
+    end
 
-    before :each do 
+    before :each do
       subject.match_or_create_person
     end
 

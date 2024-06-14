@@ -4,7 +4,7 @@ module SponsoredBenefits
       include Concerns::AcaRatingAreaConfigConcern
       
       field  :sic_code, type: String
-      embeds_one  :employer_attestation
+      embeds_one  :employer_attestation, class_name: '::EmployerAttestation'
       embedded_in :plan_design_proposal, class_name: "SponsoredBenefits::Organizations::PlanDesignProposal"
 
       after_initialize :initialize_benefit_sponsorship

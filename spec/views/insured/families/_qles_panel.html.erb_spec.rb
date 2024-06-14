@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_qles_panel.html.erb" do
   context 'update authorized' do
-  before :each do
+    before :each do
 
-    allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: true))
+      allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: true))
 
-    10.times.each {FactoryGirl.create(:qualifying_life_event_kind)}
-    assign(:qualifying_life_events, QualifyingLifeEventKind.all)
-    assign(:person, FactoryGirl.create(:person))
-    render "insured/families/qles_panel"
-  end
+      10.times.each {FactoryBot.create(:qualifying_life_event_kind)}
+      assign(:qualifying_life_events, QualifyingLifeEventKind.all)
+      assign(:person, FactoryBot.create(:person))
+      render "insured/families/qles_panel"
+    end
 
     it "should display the title" do
       expect(rendered).to have_selector('h4', text: 'Have life changes?')
@@ -43,16 +45,16 @@ RSpec.describe "insured/families/_qles_panel.html.erb" do
   context 'update not authorized' do
     before :each do
 
-     allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: false))
+      allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: false))
 
-    10.times.each {FactoryGirl.create(:qualifying_life_event_kind)}
-    assign(:qualifying_life_events, QualifyingLifeEventKind.all)
-    assign(:person, FactoryGirl.create(:person))
-    render "insured/families/qles_panel"
-  end
+      10.times.each {FactoryBot.create(:qualifying_life_event_kind)}
+      assign(:qualifying_life_events, QualifyingLifeEventKind.all)
+      assign(:person, FactoryBot.create(:person))
+      render "insured/families/qles_panel"
+    end
 
     it "should have links blocked" do
-        expect(rendered).to have_selector('.blocking')
+      expect(rendered).to have_selector('.blocking')
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FormWorld
   def fill_in_admin_create_plan_year_form
     first_element = find("#baStartDate > option:nth-child(2)").text
@@ -56,7 +58,7 @@ module FormWorld
 
     fill_in 'agency_staff_roles_attributes_0_first_name', :with => 'John'
     fill_in 'agency_staff_roles_attributes_0_last_name', :with => 'Doe'
-    fill_in 'inputDOB', :with =>  "08/13/1979"
+    fill_in 'inputDOB', :with => "08/13/1979"
     fill_in 'agency_staff_roles_attributes_0_email', :with => 'tronics@example.com'
     fill_in 'agency_staff_roles_attributes_0_area_code', :with => '202'
     phone_number1.set '5551212'

@@ -52,7 +52,9 @@ module BenefitSponsors
         broker_agency_profile = BenefitSponsors::Organizations::BrokerAgencyProfile.find(get_bson_id(broker_agency_profile_id))
         @employer_profile.broker_role_id = broker_role_id
         @employer_profile.hire_broker_agency(broker_agency_profile)
+        Rails.logger.info("*** saving @employer_profile")
         @employer_profile.save!
+        Rails.logger.info("*** completed saving @employer_profile")
         send_notification(broker_role_id)
       end
 

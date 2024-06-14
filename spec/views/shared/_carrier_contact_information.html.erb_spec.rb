@@ -1,16 +1,17 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_information.html.erb", dbclean: :after_each do
-  let(:plan) {
+  let(:plan) do
     double('Product',
-      id: "122455",
-      issuer_profile: issuer_profile
-      )
-  }
+           id: "122455",
+           issuer_profile: issuer_profile)
+  end
 
-  let(:issuer_profile){
+  let(:issuer_profile) do
     double("IssuerProfile")
-  }
+  end
 
   context 'for BMC HealthNet Plan' do
     before :each do
@@ -82,7 +83,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("1-888-333-4742")
       expect(rendered).to match("send secure email after login to member account")
-      expect(rendered).to match("Monday, Tuesday, & Thursday from 8:00 a.m. to 6:00 p.m.; Wednesday from 10:00 a.m. to 6:00 p.m.; and Friday from 8:00 a.m. to 5:30 p.m")
+      expect(rendered).to match("Monday, Tuesday, &amp; Thursday from 8:00 a.m. to 6:00 p.m.; Wednesday from 10:00 a.m. to 6:00 p.m.; and Friday from 8:00 a.m. to 5:30 p.m")
     end
   end
 

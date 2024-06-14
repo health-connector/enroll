@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe HandleCoverageSelected do
@@ -51,12 +53,12 @@ describe HandleCoverageSelected do
   end
 
   describe "given a SHOP policy with multiple members" do
-     let(:hbx_enrollment) { instance_double(HbxEnrollment, :is_shop? => true, :hbx_enrollment_members => enrollment_members, :hbx_id => the_hbx_id, :is_shop_sep? => purchased_in_sep) }
+    let(:hbx_enrollment) { instance_double(HbxEnrollment, :is_shop? => true, :hbx_enrollment_members => enrollment_members, :hbx_id => the_hbx_id, :is_shop_sep? => purchased_in_sep) }
 
-     let(:enrollment_member_1) { instance_double(HbxEnrollmentMember) }
-     let(:enrollment_member_2) { instance_double(HbxEnrollmentMember) }
+    let(:enrollment_member_1) { instance_double(HbxEnrollmentMember) }
+    let(:enrollment_member_2) { instance_double(HbxEnrollmentMember) }
 
-     let(:enrollment_members) { [enrollment_member_1, enrollment_member_2] }
+    let(:enrollment_members) { [enrollment_member_1, enrollment_member_2] }
 
     describe "for open enrollment selection" do
       let(:purchased_in_sep) { false }

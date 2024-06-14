@@ -33,7 +33,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
   describe '#claim', dbclean: :after_each do
 
     let(:site) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :benefit_sponsors_site,
         :with_benefit_market,
         :with_benefit_market_catalog_and_product_packages,
@@ -45,15 +45,16 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     let(:owner_profile) { broker_agency_profile }
 
     let(:plan_design_organization) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :sponsored_benefits_plan_design_organization,
         owner_profile_id: owner_profile.id,
-        sponsor_profile_id: sponsor_profile.id
+        sponsor_profile_id: sponsor_profile.id,
+        broker_agency_profile_id: broker_agency_profile.id
       )
     end
 
     let(:plan_design_proposal) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :plan_design_proposal,
         :with_profile,
         plan_design_organization: plan_design_organization
@@ -65,7 +66,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     end
 
     let(:broker_agency_profile) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :benefit_sponsors_organizations_general_organization,
         :with_broker_agency_profile,
         site: site
@@ -79,7 +80,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     let(:prospect_benefit_sponsorship) { prospect_proposal_profile.benefit_sponsorships.first}
 
     let(:benefit_application) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :plan_design_benefit_application,
         :with_benefit_group,
         effective_period: current_effective_date..current_effective_date.next_year.prev_day,
@@ -92,7 +93,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     let(:reference_plan_for_benefit_group) do
       p_package = product_package('single_plan', :health)
       product = p_package.products[0]
-      plan = FactoryGirl.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: current_effective_date.year, hios_id: product.hios_id)
+      plan = FactoryBot.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: current_effective_date.year, hios_id: product.hios_id)
       plan
     end
 
@@ -108,7 +109,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     let(:sponsor_profile) { organization.employer_profile }
 
     let(:organization) do
-      org = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, "with_aca_shop_#{Settings.site.key}_employer_profile".to_sym, site: site)
+      org = FactoryBot.create(:benefit_sponsors_organizations_general_organization, "with_aca_shop_#{Settings.site.key}_employer_profile".to_sym, site: site)
       bs = org.employer_profile.add_benefit_sponsorship
       bs.save
       org
@@ -150,7 +151,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     end
 
     before :each do
-      get :claim, employer_profile_id: organization.employer_profile.id, claim_code: published_plan_design_proposal.claim_code
+      get :claim, params: { employer_profile_id: organization.employer_profile.id, claim_code: published_plan_design_proposal.claim_code}
     end
 
     it 'should claim the code successfully' do

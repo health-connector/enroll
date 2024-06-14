@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   module EffectiveDatatable
     module Dsl
@@ -6,6 +8,7 @@ module Effective
         def scope(name, default, options = {}, &block)
           if block_given?
             raise "You cannot use partial: ... with the block syntax" if options[:partial]
+
             options[:block] = block
           end
 

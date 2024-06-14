@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/_sep_shop_for_plans_progress.html.haml" do
-  let(:plan) { FactoryGirl.build(:plan) }
+  let(:plan) { FactoryBot.build(:plan) }
   let(:enrollment) { double(id: 'hbx_id') }
-  let(:person) { FactoryGirl.create(:person)}
+  let(:person) { FactoryBot.create(:person)}
 
   context "step 1" do
     before :each do
@@ -16,7 +18,7 @@ describe "shared/_sep_shop_for_plans_progress.html.haml" do
     end
 
     it "should have 33% complete" do
-      expect(rendered).to match /33% Complete/
+      expect(rendered).to match(/33% Complete/)
     end
   end
 
@@ -31,7 +33,7 @@ describe "shared/_sep_shop_for_plans_progress.html.haml" do
     end
 
     it "should have 66% complete" do
-      expect(rendered).to match /66% Complete/
+      expect(rendered).to match(/66% Complete/)
     end
 
     it "should have li option for plan selection" do
@@ -60,7 +62,7 @@ describe "shared/_sep_shop_for_plans_progress.html.haml" do
     end
 
     it "should have previous option" do
-      expect(rendered).to match /PREVIOUS/
+      expect(rendered).to match(/PREVIOUS/)
     end
   end
 

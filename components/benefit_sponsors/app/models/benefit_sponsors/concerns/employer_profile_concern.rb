@@ -142,7 +142,6 @@ module BenefitSponsors
       end
 
       def hire_broker_agency(new_broker_agency, start_on = today)
-        ::SponsoredBenefits::Organizations::BrokerAgencyProfile.assign_employer(broker_agency: new_broker_agency, employer: self, office_locations: office_locations) if parent
         start_on = start_on.to_date.beginning_of_day
         if active_broker_agency_account.present?
           terminate_on = (start_on - 1.day).end_of_day
@@ -152,6 +151,7 @@ module BenefitSponsors
 
         organization.employer_profile.active_benefit_sponsorship.broker_agency_accounts.create(broker_agency_profile: new_broker_agency, writing_agent_id: broker_role_id, start_on: start_on).save!
         @broker_agency_profile = new_broker_agency
+        ::SponsoredBenefits::Organizations::BrokerAgencyProfile.assign_employer(broker_agency: new_broker_agency, employer: self, office_locations: office_locations) if parent
       end
 
       def fire_broker_agency(terminate_on = today)

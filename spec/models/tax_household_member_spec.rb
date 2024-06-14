@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe TaxHouseholdMember, type: :model do
-  let!(:person) {FactoryGirl.create(:person, :with_family, dob: Date.new(1999, 02, 20))}
-  let!(:household) {FactoryGirl.create(:household, family: person.primary_family)}
-  let!(:tax_household) {FactoryGirl.create(:tax_household, household: household)}
+  let!(:person) {FactoryBot.create(:person, :with_family, dob: Date.new(1999, 0o2, 20))}
+  let!(:household) {FactoryBot.create(:household, family: person.primary_family)}
+  let!(:tax_household) {FactoryBot.create(:tax_household, household: household)}
   let!(:tax_household_member1) {tax_household.tax_household_members.build(applicant_id: person.primary_family.family_members.first.id)}
   let!(:eligibility_kinds1) {{"is_ia_eligible" => "true", "is_medicaid_chip_eligible" => "true"}}
   let!(:eligibility_kinds2) {{"is_ia_eligible" => "true", "is_medicaid_chip_eligible" => "false"}}
@@ -29,20 +31,20 @@ RSpec.describe TaxHouseholdMember, type: :model do
   context "age_on_effective_date" do
     it "should return current age for coverage start on month is equal to dob month" do
       tax_household_member1.person.update_attributes(dob: Date.new(1999, TimeKeeper.date_of_record.month, TimeKeeper.date_of_record.day))
-      age = TimeKeeper.date_of_record.year-person.dob.year
+      age = TimeKeeper.date_of_record.year - person.dob.year
       expect(tax_household_member1.age_on_effective_date).to eq age
     end
 
     it "should return age-1 for coverage start on month is less than dob month" do
       tax_household_member1.person.update_attributes(dob: Date.new(1999, TimeKeeper.date_of_record.month, TimeKeeper.date_of_record.day) + 1.day)
-      age = TimeKeeper.date_of_record.year-person.dob.year
-      expect(tax_household_member1.age_on_effective_date).to eq age-1
+      age = TimeKeeper.date_of_record.year - person.dob.year
+      expect(tax_household_member1.age_on_effective_date).to eq age - 1
     end
 
     it "should return age-1 for coverage start on day is less to dob day" do
       tax_household_member1.person.update_attributes(dob: Date.new(1999, TimeKeeper.date_of_record.month, TimeKeeper.date_of_record.day) + 1.month)
-      age = TimeKeeper.date_of_record.year-person.dob.year
-      expect(tax_household_member1.age_on_effective_date).to eq age-1
+      age = TimeKeeper.date_of_record.year - person.dob.year
+      expect(tax_household_member1.age_on_effective_date).to eq age - 1
     end
   end
 end

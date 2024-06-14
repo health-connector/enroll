@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -6,22 +8,24 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  # let(:person) {FactoryGirl.create(:person)}
+  # let(:person) {FactoryBot.create(:person)}
   let(:person) { family.primary_person }
-  let(:user) { FactoryGirl.create(:user, person: person) }
-  let(:family){ FactoryGirl.create(:family, :with_primary_family_member_and_dependent) }
+  let(:user) { FactoryBot.create(:user, person: person) }
+  let(:family){ FactoryBot.create(:family, :with_primary_family_member_and_dependent) }
   let(:household){ family.active_household }
-  let(:hbx_enrollment){ FactoryGirl.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                                           household: household,
-                                           hbx_enrollment_members: [hbx_enrollment_member],
-                                           coverage_kind: "health",
-                                           external_enrollment: false,
-                                           sponsored_benefit_id: sponsored_benefit.id,
-                                           rating_area_id: rating_area.id)}
+  let(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                      household: household,
+                                                      hbx_enrollment_members: [hbx_enrollment_member],
+                                                      coverage_kind: "health",
+                                                      external_enrollment: false,
+                                                      sponsored_benefit_id: sponsored_benefit.id,
+                                                      rating_area_id: rating_area.id)
+  end
   let(:benefit_group) { current_benefit_package }
-  let!(:census_employee) { FactoryGirl.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
+  let!(:census_employee) { FactoryBot.create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile, benefit_group: current_benefit_package) }
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-  let!(:employee_role) { FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
+  let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile, census_employee_id: census_employee.id) }
   let(:rate_schedule_date) {TimeKeeper.date_of_record}
   let(:dental_sponsored_benefit) { true }
   let(:product_kinds) { [:health, :dental] }
@@ -55,7 +59,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     ).first
   end
   let(:hbx_enrollment_member) do
-    FactoryGirl.build(
+    FactoryBot.build(
       :hbx_enrollment_member,
       is_subscriber: true,
       applicant_id: family.primary_family_member.id,
@@ -65,7 +69,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   end
 
   let(:shop_health_enrollment) do
-    FactoryGirl.create(
+    FactoryBot.create(
       :hbx_enrollment,
       :with_enrollment_members,
       household: family.active_household,
@@ -78,24 +82,27 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     )
   end
 
-  let(:shop_dental_enrollment) { FactoryGirl.create(:hbx_enrollment,
-    household: family.active_household,
-    product: dental_product,
-    sponsored_benefit_id: package.dental_sponsored_benefit.id,
-    benefit_sponsorship_id: benefit_sponsorship.id,
-    sponsored_benefit_package_id: package.id,
-    rating_area_id: rating_area.id
-  )}
+  let(:shop_dental_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      product: dental_product,
+                      sponsored_benefit_id: package.dental_sponsored_benefit.id,
+                      benefit_sponsorship_id: benefit_sponsorship.id,
+                      sponsored_benefit_package_id: package.id,
+                      rating_area_id: rating_area.id)
+  end
 
-  let(:ivl_health_enrollment) { FactoryGirl.create(:hbx_enrollment,
-    household: family.active_household,
-    coverage_kind: "health"
-  )}
+  let(:ivl_health_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      coverage_kind: "health")
+  end
 
-  let(:ivl_dental_enrollment) { FactoryGirl.create(:hbx_enrollment,
-    household: family.active_household,
-    coverage_kind: "dental"
-  )}
+  let(:ivl_dental_enrollment) do
+    FactoryBot.create(:hbx_enrollment,
+                      household: family.active_household,
+                      coverage_kind: "dental")
+  end
 
   before do
     ::BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
@@ -107,13 +114,13 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     it "should not throw error if qhps blank" do
       allow_any_instance_of(Products::QhpController).to receive(:find_qhp_cost_share_variances).and_return([])
       sign_in(user)
-      get :comparison, standard_component_ids: ["11111111111111-01", "11111111111111-02"], hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"
+      get :comparison, params: {standard_component_ids: ["11111111111111-01", "11111111111111-02"], hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"}
       expect(response).to have_http_status(:success)
     end
 
     it "should return comparison of multiple plans" do
-      sign_in(user)      
-      get :comparison, standard_component_ids: ["11111111111111-01", "11111111111111-02"], hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"
+      sign_in(user)
+      get :comparison, params: {standard_component_ids: ["11111111111111-01", "11111111111111-02"], hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"}
       expect(response).to have_http_status(:success)
     end
   end
@@ -133,7 +140,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
       allow(qhp_cost_share_variance).to receive(:hios_plan_and_variant_id=)
       sign_in(user)
       shop_health_enrollment.update_attributes!(plan_id: nil)
-      get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"
+      get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"}
       expect(response).to have_http_status(:success)
       expect(assigns(:market_kind)).to eq "employer_sponsored"
       expect(assigns(:coverage_kind)).to eq "health"
@@ -141,7 +148,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
 
     it "should return summary of a plan for shop and coverage_kind as health" do
       sign_in(user)
-      get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"
+      get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: shop_health_enrollment.id, active_year: shop_health_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "health"}
       expect(response).to have_http_status(:success)
       expect(assigns(:market_kind)).to eq "employer_sponsored"
       expect(assigns(:coverage_kind)).to eq "health"
@@ -150,7 +157,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     it "should return summary of a plan for shop and coverage_kind as dental" do
       allow(qhp_cost_share_variance).to receive(:hios_plan_and_variant_id=)
       sign_in(user)
-      get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: shop_dental_enrollment.id, active_year: shop_dental_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "dental"
+      get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: shop_dental_enrollment.id, active_year: shop_dental_enrollment.effective_on.year, market_kind: "shop", coverage_kind: "dental"}
       expect(response).to have_http_status(:success)
       expect(assigns(:market_kind)).to eq "employer_sponsored"
       expect(assigns(:coverage_kind)).to eq "dental"
@@ -160,7 +167,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
       it "should return dental plan if hbx_enrollment does not have plan object" do
         allow(qhp_cost_share_variance).to receive(:hios_plan_and_variant_id=)
         sign_in(user)
-        get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: ivl_health_enrollment.id, active_year: ivl_health_enrollment.effective_on.year, market_kind: "individual", coverage_kind: "dental"
+        get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: ivl_health_enrollment.id, active_year: ivl_health_enrollment.effective_on.year, market_kind: "individual", coverage_kind: "dental"}
         expect(response).to have_http_status(:success)
         expect(assigns(:market_kind)).to eq "individual"
         expect(assigns(:coverage_kind)).to eq "dental"
@@ -168,7 +175,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
 
       it "should return summary of a plan for ivl and coverage_kind: health" do
         sign_in(user)
-        get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: ivl_health_enrollment.id, active_year: ivl_health_enrollment.effective_on.year, market_kind: "individual", coverage_kind: "health"
+        get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: ivl_health_enrollment.id, active_year: ivl_health_enrollment.effective_on.year, market_kind: "individual", coverage_kind: "health"}
         expect(response).to have_http_status(:success)
         expect(assigns(:market_kind)).to eq "individual"
         expect(assigns(:coverage_kind)).to eq "health"
@@ -179,7 +186,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
       it "should return summary of a plan for ivl and coverage_kind: dental" do
         allow(qhp_cost_share_variance).to receive(:hios_plan_and_variant_id=)
         sign_in(user)
-        get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: ivl_health_enrollment.id, active_year: ivl_health_enrollment.effective_on.year, market_kind: "individual", coverage_kind: "dental"
+        get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: ivl_health_enrollment.id, active_year: ivl_health_enrollment.effective_on.year, market_kind: "individual", coverage_kind: "dental"}
         expect(response).to have_http_status(:success)
         expect(assigns(:market_kind)).to eq "individual"
         expect(assigns(:coverage_kind)).to eq "dental"
@@ -197,7 +204,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
 
     it "should fail when bad data" do
       sign_in(user)
-      get :summary, standard_component_id: "11111100001111-01", hbx_enrollment_id: '999', active_year: "2015", market_kind: "shop", coverage_kind: "health"
+      get :summary, params: {standard_component_id: "11111100001111-01", hbx_enrollment_id: '999', active_year: "2015", market_kind: "shop", coverage_kind: "health"}
       expect(response).to have_http_status(500)
     end
   end
@@ -235,7 +242,7 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
     if individual_market_is_enabled?
       it "should return comparison of a plan" do
         sign_in(user)
-        get :comparison, standard_component_ids: ["11111100001111-01", "11111100001111-02"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'
+        get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-02"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
         expect(response).to have_http_status(:success)
         expect(assigns(:qhps).count).to eq 2
       end
@@ -247,13 +254,13 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
         end
 
         it "should return uniq plans when same plan" do
-          get :comparison, standard_component_ids: ["11111100001111-01", "11111100001111-01"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'
+          get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-01"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
           expect(response).to be_success
           expect(assigns(:qhps).count).to eq 2
         end
 
         it "should return uniq plans when 2" do
-          get :comparison, standard_component_ids: ["11111100001111-01", "11111100001111-02"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'
+          get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-02"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
           expect(response).to be_success
           expect(assigns(:qhps).count).to eq 2
         end

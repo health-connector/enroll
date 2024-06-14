@@ -10,8 +10,8 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
   include_context "setup employees with benefits"
 
   let!(:ce) { benefit_sponsorship.census_employees.first }
-  let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
-  let!(:user) { FactoryGirl.create(:user, :person => ee_person)}
+  let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+  let!(:user) { FactoryBot.create(:user, :person => ee_person)}
   let!(:employee_role) do
     ee_person.employee_roles.first.update_attributes!(employer_profile: abc_profile)
     ee_person.employee_roles.first
@@ -31,31 +31,31 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
   context "GET new" do
     context "with one member family and no dental offering" do
       it "return http success" do
-        get :new, person_id: ee_person.id, employee_role_id: employee_role.id
+        get :new, params: {person_id: ee_person.id, employee_role_id: employee_role.id}
         expect(response).to have_http_status(:success)
       end
     end
 
     context "with two member family" do
-      let!(:dependent) { FactoryGirl.create(:person) }
-      let!(:family_member) { FactoryGirl.create(:family_member, family: family,person: dependent)}
+      let!(:dependent) { FactoryBot.create(:person) }
+      let!(:family_member) { FactoryBot.create(:family_member, family: family,person: dependent)}
       let!(:coverage_household_member) { coverage_household.coverage_household_members.new(:family_member_id => family_member.id) }
 
       it "return http success" do
-        get :new, person_id: ee_person.id, employee_role_id: employee_role.id
+        get :new, params: {person_id: ee_person.id, employee_role_id: employee_role.id}
         expect(response).to have_http_status(:success)
       end
     end
 
     context "when the logged-in user is not authorized to access the create, new, eligible_coverage_selection and fetch actions" do
-      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+      let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
       it "redirects to the root path and displays an error message" do
         sign_in(fake_user)
 
-        post :create, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
+        post :create, params: {person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id}
 
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Access not allowed for family_policy.member_selection_coverage?, (Pundit policy)")
@@ -65,7 +65,7 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
         it "redirects to the root path and displays an error message" do
           sign_in(fake_user)
 
-          get action, person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id
+          get action, params: {person_id: ee_person.id, employee_role_id: employee_role.id, family_id: family.id}
 
           expect(response).to redirect_to(root_path)
           expect(flash[:error]).to eq("Access not allowed for family_policy.member_selection_coverage?, (Pundit policy)")

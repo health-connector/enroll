@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "app/views/events/v2/addresses/_address.xml.haml" do

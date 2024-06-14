@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'active_support/time'
 
@@ -122,7 +124,7 @@ end
 
   context "yearwise deductions computation" do
 
-    it "should compute the deductions hash"# do
+    it "should compute the deductions hash" # do
 =begin
       deduction_hash = @financial_statement.compute_yearwise(@financial_statement.deductions)
 
@@ -131,7 +133,7 @@ end
 =end
   end
 
-  it "should check for benifits in current year"# do
+  it "should check for benifits in current year" # do
 =begin
     expect(@financial_statement.is_receiving_benefit?).to be_truthy
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then(/^Hbx Admin should see an New DC Resident Application link$/) do
   find_link('New DC Resident Application').visible?
 end
@@ -32,7 +34,7 @@ Then(/HBX Admin should see a form to enter personal information$/) do
 
   fill_in "person_addresses_attributes_0_address_1", :with => "4900 USAA BLVD"
   fill_in "person_addresses_attributes_0_address_2", :with => "212"
-  fill_in "person_addresses_attributes_0_city", :with=> "Washington"
+  fill_in "person_addresses_attributes_0_city", :with => "Washington"
   find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
   find(:xpath, '//*[@id="address_info"]/div/div[3]/div[2]/div/div[3]/div/ul/li[10]').click
   fill_in "person[addresses_attributes][0][zip]", :with => "20002"
@@ -47,14 +49,14 @@ Then(/^Hbx Admin should see text Household Info$/) do
 end
 
 Then(/^Hbx Admin should see text Special Enrollment Period$/) do
-  FactoryGirl.create(:qualifying_life_event_kind, market_kind: "individual")
+  FactoryBot.create(:qualifying_life_event_kind, market_kind: "individual")
   expect(page).to have_content('Special Enrollment Period')
   expect(page).to have_content('TOP LIFE CHANGES')
   expect(page).to have_content('Married')
 end
 
 When(/Hbx Admin click the "(.*?)" in qle carousel/) do |qle_event|
-  click_link "#{qle_event}"
+  click_link qle_event.to_s
 end
 
 When(/Hbx Admin select a past qle date/) do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::PeopleController do
@@ -11,13 +13,13 @@ RSpec.describe Employers::PeopleController do
       get :search
       expect(response).to have_http_status(:success)
       expect(response).to render_template("search")
-      expect(assigns(:person).class).to eq (Forms::EmployeeCandidate)
+      expect(assigns(:person).class).to eq(Forms::EmployeeCandidate)
     end
   end
 
   describe "POST create" do
     let(:user) { double("user") }
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
+    let!(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING").permit(:first_name,:user_id) }
     let(:phones) {double(:select => double("select")) }
     let(:addresses) {double(:select => double("select")) }
     let(:emails) {double(:select => double("select")) }
@@ -26,7 +28,7 @@ RSpec.describe Employers::PeopleController do
     before(:each) do
       allow(user).to receive(:person).and_return(person)
       sign_in(user)
-      post :create, person: person_parameters
+      post :create, params: { person: person_parameters }
     end
 
     context "it should create person when create person button is clicked" do
@@ -46,7 +48,7 @@ RSpec.describe Employers::PeopleController do
     let(:addresses) {double(:select => double("select")) }
     let(:emails) {double(:select => double("select")) }
     let(:person) { double(:phones => phones, :addresses => addresses, :emails => emails)}
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
+    let!(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING").permit(:first_name,:user_id) }
     let(:more_params){{:create_person => "create", person: person_parameters}}
     let(:found_person) { [] }
     let(:mock_employee_candidate) { instance_double("Forms::EmployeeCandidate", :valid? => validation_result) }
@@ -59,7 +61,7 @@ RSpec.describe Employers::PeopleController do
       sign_in(user)
       allow(Forms::EmployeeCandidate).to receive(:new).with(person_parameters.merge({user_id: user_id})).and_return(mock_employee_candidate)
       allow(mock_employee_candidate).to receive(:match_person).and_return(found_person)
-      post :match, more_params
+      post :match, params: more_params
     end
 
     context "it should create person when create person button is clicked" do
@@ -75,7 +77,7 @@ RSpec.describe Employers::PeopleController do
   describe "POST match" do
     let(:user) { double(id: user_id) }
     let(:user_id) { "SOMDFINKETHING_ID" }
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING" } }
+    let!(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING").permit(:first_name,:user_id) }
     let(:found_person) { [] }
     let(:mock_employee_candidate) { instance_double("Forms::EmployeeCandidate", :valid? => validation_result) }
 
@@ -83,7 +85,7 @@ RSpec.describe Employers::PeopleController do
       sign_in(user)
       allow(Forms::EmployeeCandidate).to receive(:new).with(person_parameters.merge({user_id: user_id})).and_return(mock_employee_candidate)
       allow(mock_employee_candidate).to receive(:match_person).and_return(found_person)
-      post :match, :person => person_parameters
+      post :match, params: { :person => person_parameters }
     end
 
     context "given invalid parameters" do
@@ -110,7 +112,7 @@ RSpec.describe Employers::PeopleController do
 
     context "given valid parameters render 'match' template" do
       let(:validation_result) { true }
-      let(:found_person) { FactoryGirl.create(:person) }
+      let(:found_person) { FactoryBot.create(:person) }
 
       it "renders the 'match' template" do
         expect(response).to have_http_status(:success)
@@ -121,23 +123,26 @@ RSpec.describe Employers::PeopleController do
   end
 
   describe "POST update" do
-    let(:person_parameters) { { :first_name => "SOMDFINKETHING", :last_name => "SOME"} }
-    let(:person) { double(:phones => double(:each => double("each")),
-      :addresses => double(:each => double("each")),
-      :emails => double(:each => double("each"))
-     ) }
+    let(:person_parameters) { ActionController::Parameters.new(:first_name => "SOMDFINKETHING", :last_name => "SOME").permit(:first_name,:user_id) }
+    let(:person) do
+      double(:phones => double(:each => double("each")),
+             :addresses => double(:each => double("each")),
+             :emails => double(:each => double("each")))
+    end
     let(:person_id){ "1234"}
     let(:address_attributes) { double(:address => ["address"])}
     let(:phone_attributes) { double(:phone => ["phone"])}
     let(:email_attributes) { double(:email => ["email"])}
-    let(:valid_params){ {
-      id: person_id,
-      person: person_parameters.
-      deep_merge(addresses_attributes: {0 => {"id" => address_attributes}}).
-      deep_merge(phones_attributes: {0 => {"id" => phone_attributes}}).
-      deep_merge(emails_attributes: {0 => {"id" => email_attributes}})
-      } }
-    let(:user) { FactoryGirl.create(:user) }
+    let(:valid_params) do
+      {
+        id: person_id,
+        person: person_parameters.to_h
+                                 .deep_merge(addresses_attributes: {0 => {"id" => address_attributes}})
+                                 .deep_merge(phones_attributes: {0 => {"id" => phone_attributes}})
+                                 .deep_merge(emails_attributes: {0 => {"id" => email_attributes}})
+      }
+    end
+    let(:user) { FactoryBot.create(:user) }
 
     before(:each) do
       sign_in(user)
@@ -145,7 +150,7 @@ RSpec.describe Employers::PeopleController do
       allow(person).to receive(:employer_contact).and_return("test")
       allow(person).to receive(:updated_by=).and_return("test")
       allow(person).to receive(:update_attributes).and_return(save_result)
-      put :update, valid_params
+      put :update, params: valid_params
     end
 
     context "given valid person parameters" do

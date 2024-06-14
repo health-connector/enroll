@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 When(/^the user navigates to the DOCUMENTS tab$/) do
   visit verification_insured_families_path
@@ -23,12 +24,12 @@ When(/^the user clicks on the MEDICAID & TAX CREDITS button$/) do
   switch_to_window { find('.btn', text: 'Medicaid & Tax Credits').click }
 end
 
-Then(/^EA sets a flag in IAM to direct the consumer to the curam\/ drupal login$/) do
+Then(%r{^EA sets a flag in IAM to direct the consumer to the curam/ drupal login$}) do
   expect(page).to have_content('info@dchealthlink.com')
 end
 
 When(/^selects a Person account and navigates to Verification page$/) do
-  @person = FactoryGirl.create(:person, :with_consumer_role)
+  @person = FactoryBot.create(:person, :with_consumer_role)
   visit verification_insured_families_path
 end
 
@@ -41,6 +42,6 @@ When(/^the user visits messages page$/) do
 end
 
 When(/^selects a Person account and navigates to Messages page$/) do
-  @person = FactoryGirl.create(:person, :with_consumer_role)
+  @person = FactoryBot.create(:person, :with_consumer_role)
   visit inbox_insured_families_path
 end

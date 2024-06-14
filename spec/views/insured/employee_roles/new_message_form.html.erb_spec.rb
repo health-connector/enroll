@@ -1,21 +1,22 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/employee_roles/_new_message_form.html.erb" do
-  let(:broker){
+  let(:broker) do
     instance_double("Broker",
-      person: person
-      )
-  }
+                    person: person)
+  end
 
-  let(:person){
+  let(:person) do
     instance_double("Person",
-      full_name: "my full name")
-  }
+                    full_name: "my full name")
+  end
 
-  let(:hbx_enrollment){
+  let(:hbx_enrollment) do
     instance_double("HbxEnrollment",
-      id: double("id"))
-  }
+                    id: double("id"))
+  end
 
   context "when not waived" do
     before :each do

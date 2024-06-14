@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_book_mark_url_for_employee_role")
 
@@ -14,18 +16,14 @@ describe UpdateBookMarkUrlForEmployeerole, dbclean: :after_each do
 
   describe "update bookmark url" do
 
-    let!(:employee_role) { FactoryGirl.create(:employee_role, bookmark_url: "https://enroll.dchealthlink.com")}
-
-    before(:each) do
-      allow(ENV).to receive(:[]).with("employee_role_id").and_return(employee_role.id.to_s)
-      allow(ENV).to receive(:[]).with("bookmark_url").and_return("https://enroll.dchealthlink.com/families/home")    
-    end
+    let(:person) { FactoryBot.create(:person, :with_ssn, :with_employee_role)}
+    let(:employee_role) {person.employee_roles.first}
 
     it "should update bookmark url associated with employee role" do
-      expect(employee_role.bookmark_url).to eq "https://enroll.dchealthlink.com"
-      subject.migrate
-      employee_role.reload
-      expect(employee_role.bookmark_url).to eq "https://enroll.dchealthlink.com/families/home"
+      ClimateControl.modify employee_role_id: employee_role.id.to_s, bookmark_url: "https://enroll.dchealthlink.com/families/home" do
+        subject.migrate
+      end
+      expect(employee_role.reload.bookmark_url).to eq "https://enroll.dchealthlink.com/families/home"
     end
   end
 end

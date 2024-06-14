@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
-  let!(:user) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-  let!(:person) { FactoryGirl.create(:person, user: user)}
+  let!(:user) { FactoryBot.create(:user, :with_hbx_staff_role) }
+  let!(:person) { FactoryBot.create(:person, user: user)}
 
   before do
     allow(Settings).to receive_message_chain('aca.security_questions').and_return(true)
@@ -44,7 +44,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'GET #edit' do
     context 'security questions feature is disabled' do
       it 'redirects to root with flash message' do
-        get :edit, id: 'random_id'
+        get :edit, params: {id: 'random_id'}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq('Access not allowed for security_question_policy.edit?, (Pundit policy)')
       end
@@ -54,7 +54,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'PATCH #update' do
     context 'security questions feature is disabled' do
       it 'redirects to root with flash message' do
-        patch :update, id: 'random_id'
+        patch :update, params: { id: 'random_id'}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq('Access not allowed for security_question_policy.update?, (Pundit policy)')
       end
@@ -64,7 +64,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'DELETE #destroy' do
     context 'security questions feature is disabled' do
       it 'redirects to root with flash message' do
-        delete :destroy, id: 'random_id'
+        delete :destroy, params: {id: 'random_id'}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq('Access not allowed for security_question_policy.destroy?, (Pundit policy)')
       end

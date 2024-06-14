@@ -1,19 +1,21 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "_benefit_groups.html.slim", :type => :view, dbclean: :after_each do
 
   describe "rendering the widget on benefit group page template" do
 
-    let!(:sponsorship) {FactoryGirl.build :benefit_sponsors_benefit_sponsorship, :with_organization_cca_profile, :with_initial_benefit_application}
+    let!(:sponsorship) {FactoryBot.build :benefit_sponsors_benefit_sponsorship, :with_organization_cca_profile, :with_initial_benefit_application}
     let(:benefit_group) {sponsorship.benefit_applications.first.benefit_packages.first}
     let!(:service) {instance_double("BenefitSponsors::Services::SponsoredBenefitCostEstimationService")}
-    let(:estimator) {
+    let(:estimator) do
       {
-          :estimated_total_cost => 619.00,
-          :estimated_enrollee_minimum => 75.00,
-          :estimated_enrollee_maximum => 60.00
+        :estimated_total_cost => 619.00,
+        :estimated_enrollee_minimum => 75.00,
+        :estimated_enrollee_maximum => 60.00
       }
-    }
+    end
     let!(:issuer_profile) {BenefitSponsors::Organizations::IssuerProfile.new}
 
     before :each do
