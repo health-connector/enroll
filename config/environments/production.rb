@@ -85,6 +85,8 @@ Rails.application.configure do
 
   # Send deprecation notices to registered listeners.
   config.active_support.deprecation = :notify
+  # Log disallowed deprecations.
+  config.active_support.disallowed_deprecation = :log
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = Logger::SimpleJsonFormatter.new
@@ -98,6 +100,7 @@ Rails.application.configure do
 
   #Queue adapter
   config.active_job.queue_adapter = :resque
+  config.action_mailer.perform_caching = false
 
   Mongoid.logger.level = Logger::ERROR
   Mongo::Logger.logger.level = Logger::ERROR
