@@ -1,7 +1,6 @@
 name: Security Checks (daily code-scan)
 on:
   workflow_dispatch:
-  push:
   schedule:
     - cron: '0 5 * * *'
 
