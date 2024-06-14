@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'active_model_serializers'
   s.add_dependency 'virtus', '1.0.5'
   s.add_dependency 'i18n', '0.9.5'
-  s.add_dependency 'nokogiri', '1.13.10'
   s.add_dependency 'mini_portile2', '~> 2.8.0'
   s.add_dependency 'dry-types'
   s.add_dependency 'dry-validation'

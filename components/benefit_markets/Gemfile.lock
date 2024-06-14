@@ -31,7 +31,6 @@ PATH
       i18n (= 0.9.5)
       mini_portile2 (~> 2.8.0)
       mongoid (~> 7.5.4)
-      nokogiri (= 1.13.10)
       pundit (~> 1.0.1)
       rails (~> 6.0.6.1)
       slim (~> 3.0.9)
@@ -187,7 +186,7 @@ GEM
       dry-schema (~> 1.11, >= 1.11.0)
       zeitwerk (~> 2.6)
     equalizer (0.0.11)
-    erubi (1.12.0)
+    erubi (1.13.0)
     factory_bot (4.11.1)
       activesupport (>= 3.0.0)
     factory_bot_rails (4.11.1)
@@ -240,12 +239,11 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.3)
-    nokogiri (1.13.10)
-      mini_portile2 (~> 2.8.0)
+    nokogiri (1.15.6-arm64-darwin)
       racc (~> 1.4)
     ox (2.14.18)
     parallel (1.25.1)
-    parser (3.3.2.0)
+    parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
     public_suffix (5.0.5)
@@ -278,8 +276,9 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.5.0)
-      loofah (~> 2.19, >= 2.19.1)
+    rails-html-sanitizer (1.6.0)
+      loofah (~> 2.21)
+      nokogiri (~> 1.14)
     railties (6.0.6.1)
       actionpack (= 6.0.6.1)
       activesupport (= 6.0.6.1)
@@ -289,11 +288,11 @@ GEM
     rainbow (3.1.1)
     rake (13.2.1)
     regexp_parser (2.9.2)
-    rexml (3.2.9)
+    rexml (3.3.0)
       strscan
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.0)
+    rspec-expectations (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-mocks (3.13.1)
@@ -360,7 +359,7 @@ GEM
     zeitwerk (2.6.15)
 
 PLATFORMS
-  ruby
+  arm64-darwin-23
 
 DEPENDENCIES
   benefit_markets!
@@ -376,4 +375,4 @@ DEPENDENCIES
   shoulda-matchers
 
 BUNDLED WITH
-   2.1.4
+   2.4.22

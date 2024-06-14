@@ -64,7 +64,6 @@ PATH
       non-stupid-digest-assets
       pundit
       rails (~> 6.0.6.1)
-      redcarpet (~> 3.4.0)
       roo (~> 2.1.0)
       slim (= 3.0.9)
       virtus (~> 1.0.5)
@@ -300,14 +299,14 @@ GEM
       dry-schema (~> 1.11, >= 1.11.0)
       zeitwerk (~> 2.6)
     equalizer (0.0.11)
-    erubi (1.12.0)
+    erubi (1.13.0)
     execjs (2.9.1)
     factory_bot (4.11.1)
       activesupport (>= 3.0.0)
     factory_bot_rails (4.11.1)
       factory_bot (~> 4.11.1)
       railties (>= 3.0.0)
-    ffi (1.17.0)
+    ffi (1.17.0-arm64-darwin)
     forgery (0.8.1)
     globalid (1.1.0)
       activesupport (>= 5.0)
@@ -402,15 +401,14 @@ GEM
       net-protocol
     netrc (0.11.0)
     nio4r (2.7.3)
-    nokogiri (1.13.10)
-      mini_portile2 (~> 2.8.0)
+    nokogiri (1.13.10-arm64-darwin)
       racc (~> 1.4)
     non-stupid-digest-assets (1.0.11)
       sprockets (>= 2.0)
     orm_adapter (0.5.0)
     ox (2.14.18)
     parallel (1.25.1)
-    parser (3.3.2.0)
+    parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
     public_suffix (5.0.5)
@@ -454,7 +452,6 @@ GEM
       thor (>= 0.20.3, < 2.0)
     rainbow (3.1.1)
     rake (13.2.1)
-    redcarpet (3.4.0)
     regexp_parser (2.9.2)
     responders (3.1.1)
       actionpack (>= 5.2)
@@ -464,14 +461,14 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rexml (3.2.9)
+    rexml (3.3.0)
       strscan
     roo (2.1.1)
       nokogiri (~> 1)
       rubyzip (~> 1.1, < 2.0.0)
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.0)
+    rspec-expectations (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-mocks (3.13.1)
@@ -562,7 +559,7 @@ GEM
     zeitwerk (2.6.15)
 
 PLATFORMS
-  ruby
+  arm64-darwin-23
 
 DEPENDENCIES
   benefit_markets!
@@ -586,4 +583,4 @@ DEPENDENCIES
   test-prof (= 0.5.0)
 
 BUNDLED WITH
-   2.1.4
+   2.4.22
