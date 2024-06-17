@@ -6,8 +6,11 @@ RSpec.describe Exchanges::AgentsController do
   render_views
   let(:person_user) { FactoryBot.create(:person, user: current_user)}
   let(:current_user){FactoryBot.create(:user)}
+  let(:flash_error_message) { "You must be an Agent: CSR, CAC, IPA or a Broker" }
+
   describe 'Agent Controller behavior' do
-    let(:signed_in?){ true }
+    let(:signed_in?) { true }
+
     before :each do
       allow(current_user).to receive(:person).and_return(person_user)
       allow(current_user).to receive(:roles).and_return ['csr']
@@ -36,6 +39,35 @@ RSpec.describe Exchanges::AgentsController do
       expect(response).to have_http_status(:redirect)
     end
   end
+
+  describe 'Authorization failures' do
+    before :each do
+      sign_in current_user
+      allow(current_user).to receive(:roles).and_return([])
+    end
+
+    shared_examples 'an unauthorized access' do |action, params|
+      it "redirects and shows error for unauthorized #{action} access" do
+        get action, params: params
+
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(flash_error_message)
+      end
+    end
+
+    it_behaves_like 'an unauthorized access', :home, {}
+    it_behaves_like 'an unauthorized access', :begin_employee_enrollment, {}
+    it_behaves_like 'an unauthorized access', :begin_consumer_enrollment, {}
+    it_behaves_like 'an unauthorized access', :show, {}
+
+    it 'redirects and shows error for unauthorized inbox access' do
+      get :inbox, params: { id: person_user.id }
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:error]).to eq(flash_error_message)
+    end
+  end
+
 
   describe "resume enrollment method behavior", dbclean: :after_each do
     let!(:consumer_role) { FactoryBot.create(:consumer_role, bookmark_url: nil, person: person_user) }
