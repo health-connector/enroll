@@ -151,7 +151,6 @@ Rails.application.routes.draw do
     resources :agents do
       collection do
         get :home
-        get :begin_consumer_enrollment
         get :begin_employee_enrollment
         get :resume_enrollment
         get :show
@@ -631,6 +630,14 @@ Rails.application.routes.draw do
         get :new_resident_dependent, on: :collection
         get :edit_resident_dependent, on: :member
         get :show_resident_dependent, on: :member
+      end
+
+      namespace :exchanges do
+        resources :agents do
+          collection do
+            get :begin_consumer_enrollment
+          end
+        end
       end
     end
   end

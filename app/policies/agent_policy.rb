@@ -18,10 +18,6 @@ class AgentPolicy < ApplicationPolicy
     agent?
   end
 
-  def begin_consumer_enrollment?
-    agent?
-  end
-
   private
 
   # Checks if the current user has any agent-related role.

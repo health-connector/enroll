@@ -43,15 +43,6 @@ module Exchanges
       redirect_to search_insured_employee_index_path
     end
 
-    def begin_consumer_enrollment
-      authorize :agent
-
-      update_last_portal_visited
-      session[:person_id] = nil
-      session[:original_application_type] = params['original_application_type']
-      redirect_to search_insured_consumer_role_index_path
-    end
-
     def resume_enrollment
       if @person.resident_role&.bookmark_url
         redirect_to bookmark_url_path(@person.resident_role.bookmark_url)

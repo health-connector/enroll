@@ -57,7 +57,6 @@ RSpec.describe Exchanges::AgentsController do
 
     it_behaves_like 'an unauthorized access', :home, {}
     it_behaves_like 'an unauthorized access', :begin_employee_enrollment, {}
-    it_behaves_like 'an unauthorized access', :begin_consumer_enrollment, {}
     it_behaves_like 'an unauthorized access', :show, {}
 
     it 'redirects and shows error for unauthorized inbox access' do
