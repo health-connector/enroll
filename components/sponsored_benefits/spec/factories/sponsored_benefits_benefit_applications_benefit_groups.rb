@@ -9,6 +9,7 @@ FactoryBot.define do
     plan_option_kind { "single_plan" }
     description { "my first benefit group" }
     effective_on_offset { 0 }
+    _type { 'SponsoredBenefits::BenefitApplications::BenefitGroup' }
     benefit_application { { class: "SponsoredBenefits::BenefitApplications::BenefitApplication" } }
 
     relationship_benefits do

@@ -17,7 +17,7 @@ class TaxHousehold
   increments :hbx_assigned_id, seed: 9999
 
   field :allocated_aptc, type: Money, default: 0.00
-  field :is_eligibility_determined, type: Boolean, default: false
+  field :is_eligibility_determined, type: Mongoid::Boolean, default: false
 
   field :effective_starting_on, type: Date
   field :effective_ending_on, type: Date
@@ -28,7 +28,7 @@ class TaxHousehold
 
   embeds_many :eligibility_determinations, cascade_callbacks: true
 
-  scope :tax_household_with_year, ->(year) { where( effective_starting_on: (Date.new(year)..Date.new(year).end_of_year)) }
+  scope :tax_household_with_year, ->(year) { where( effective_starting_on: Date.new(year)..Date.new(year).end_of_year) }
   scope :active_tax_household, ->{ where(effective_ending_on: nil) }
 
   def latest_eligibility_determination

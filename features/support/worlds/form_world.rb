@@ -26,7 +26,7 @@ module FormWorld
           yaml_str = File.read(f_name)
           data = YAML.load(yaml_str)
           data.new_record = true
-          data_as_json = data.as_json
+          data_as_json = data.serializable_hash
           sic_code_json_precache << data_as_json
           ::SicCode.collection.insert_one(data_as_json)
         end

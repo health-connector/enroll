@@ -18,7 +18,7 @@ class BrokerAgencyAccount
 
   # Broker writing_agent credited for enrollment and transmitted on 834
   field :writing_agent_id, type: BSON::ObjectId
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   validates_presence_of :start_on, :broker_agency_profile_id, :is_active
 

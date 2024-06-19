@@ -20,7 +20,7 @@ describe Events::VlpVerificationRequestsController do
       end
       allow(Time).to receive(:now).and_return(mock_now)
       expect(controller).to receive(:render_to_string).with(
-        "events/lawful_presence/vlp_verification_request", {:formats => ["xml"], :locals => {
+        "events/lawful_presence/vlp_verification_request", {:formats => [:xml], :locals => {
           :individual => person,
           :coverage_start_date => coverage_start_date
         }}

@@ -9,8 +9,8 @@ class PremiumCredit
   field :start_on, type: Date
   field :end_on, type: Date
 
-  field :is_voided, type: Boolean, default: false
-  field :is_corrected, type: Boolean, default: false
+  field :is_voided, type: Mongoid::Boolean, default: false
+  field :is_corrected, type: Mongoid::Boolean, default: false
 
   def slcsp=(new_slcsp)
     raise ArgumentError.new("expected Plan class") unless new_slcsp.is_a? Plan

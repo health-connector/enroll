@@ -42,7 +42,7 @@ module BenefitSponsors
             benefit_sponsorship_id: benefit_sponsorship._id,
             effective_date: effective_date,
             benefit_application_kind: application_type(effective_date, benefit_sponsorship),
-            service_areas: service_areas_entities.as_json
+            service_areas: service_areas_entities.serializable_hash
           }
 
           Success(params)
@@ -51,7 +51,7 @@ module BenefitSponsors
         def get_service_areas_entities(effective_date, benefit_sponsorship_entity)
           benefit_sponsorship = find_benefit_sponsorship(benefit_sponsorship_entity._id)
           service_areas = benefit_sponsorship.service_areas_on(effective_date).collect do |service_area|
-            result = BenefitMarkets::Operations::ServiceAreas::Create.new.call(service_area_params: service_area.as_json)
+            result = BenefitMarkets::Operations::ServiceAreas::Create.new.call(service_area_params: service_area.serializable_hash)
             result.value! if result.success?
           end.compact
 

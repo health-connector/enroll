@@ -10,7 +10,7 @@ module Notifier
     field :transmit_at, type: Time
     field :expires_at, type: Time
 
-    field :destroy_on_complete, type: Boolean, default: true
+    field :destroy_on_complete, type: Mongoid::Boolean, default: true
 
     # when this job started processing
     field :started_at, type: Time

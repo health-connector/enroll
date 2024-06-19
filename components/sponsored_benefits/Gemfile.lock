@@ -334,7 +334,7 @@ DEPENDENCIES
   database_cleaner-mongoid (~> 2.0)
   factory_bot_rails (~> 4)
   forgery
-  rails-controller-testing
+  rails-controller-testing (~> 1.0, >= 1.0.5)
   resource_registry!
   rspec-benchmark
   rspec-rails (= 5.0.1)

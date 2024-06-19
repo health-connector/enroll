@@ -17,7 +17,7 @@ module SponsoredBenefits
       field :end_on, type: Date
       field :coverage_end_on, type: Date
       field :aasm_state, type: String, default: "initialized"
-      field :is_active, type: Boolean, default: true
+      field :is_active, type: Mongoid::Boolean, default: true
       field :activated_at, type: DateTime
 
       embeds_many :workflow_state_transitions, as: :transitional

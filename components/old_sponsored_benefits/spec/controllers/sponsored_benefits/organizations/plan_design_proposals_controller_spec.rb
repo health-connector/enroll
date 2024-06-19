@@ -88,28 +88,28 @@ module SponsoredBenefits
     describe "GET #index" do
       it "returns a success response" do
         xhr :get, :index, { plan_design_organization_id: plan_design_organization.id }, valid_session
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
     describe "GET #show" do
       it "returns a success response" do
         get :show, { id: plan_design_proposal.to_param }, valid_session
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
     describe "GET #new" do
       it "returns a success response" do
         get :new, { plan_design_organization_id: plan_design_organization.id }, valid_session
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
     describe "GET #edit" do
       it "returns a success response" do
         get :edit, { id: plan_design_proposal.to_param, plan_design_organization_id: plan_design_organization.id }, valid_session
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
@@ -130,7 +130,7 @@ module SponsoredBenefits
       context "with invalid params" do
         it "returns a success response (i.e. to display the 'new' template)" do
           xhr :post, :create, { plan_design_organization_id: plan_design_organization.to_param, forms_plan_design_proposal: invalid_attributes}, valid_session
-          expect(response).to be_success
+          expect(response).to be_successful
         end
       end
     end
@@ -159,7 +159,7 @@ module SponsoredBenefits
     #     it "returns a success response (i.e. to display the 'edit' template)" do
     #       plan_design_proposal = Organizations::PlanDesignProposal.create! valid_attributes
     #       put :update, {:id => plan_design_proposal.to_param, :organizations_plan_design_proposal => invalid_attributes}, valid_session
-    #       expect(response).to be_success
+    #       expect(response).to be_successful
     #     end
     #   end
     # end

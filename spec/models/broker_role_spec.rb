@@ -5,9 +5,9 @@ require 'rails_helper'
 describe BrokerRole, dbclean: :after_each do
 
   let(:address) {FactoryBot.build(:address)}
-  let(:saved_person) {FactoryBot.create(:person, addresses: [address])}
-  let(:person0) {FactoryBot.create(:person)}
-  let(:person1) {FactoryBot.create(:person)}
+  let(:saved_person) {FactoryBot.create(:person, :with_work_email, addresses: [address])}
+  let(:person0) {FactoryBot.create(:person, :with_work_email)}
+  let(:person1) {FactoryBot.create(:person, :with_work_email)}
   let(:npn0) {"7775566"}
   let(:npn1) {"48484848"}
   let(:provider_kind)  {"broker"}
@@ -82,7 +82,7 @@ describe BrokerRole, dbclean: :after_each do
       let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
       let(:employer_profile) { FactoryBot.create(:employer_profile, aasm_state: "registered") }
       let!(:organization) { employer_profile.organization }
-      let(:person) { FactoryBot.create(:person)}
+      let(:person) { FactoryBot.create(:person, :with_work_email)}
       let(:family) { FactoryBot.create(:family, :with_primary_family_member,person: person) }
 
       before :each do
@@ -119,7 +119,7 @@ describe BrokerRole, dbclean: :after_each do
     end
 
     context "a broker registers" do
-      let(:person)  { FactoryBot.build(:person) }
+      let(:person)  { FactoryBot.build(:person, :with_work_email) }
       let(:registered_broker_role) { BrokerRole.new(person: person, npn: "2323334", provider_kind: "broker") }
 
       it "should initialize to applicant state" do
@@ -295,7 +295,7 @@ describe BrokerRole, dbclean: :after_each do
       # expect(person0.build_broker_role(npn: npn0, provider_kind: provider_kind, address: address).save).to eq true
     end
     context '#email returns work email' do
-      person0 = FactoryBot.create(:person)
+      person0 = FactoryBot.create(:person, :with_work_email)
       provider_kind = 'broker'
 
       b1 = BrokerRole.create(person: person0, npn: rand(10_000_000..10_009_999), provider_kind: provider_kind, broker_agency_profile: @ba)
@@ -310,7 +310,7 @@ describe BrokerRole, dbclean: :after_each do
     end
     context '#phone returns broker office phone or agency office phone or work phone' do
       # broker will not be able to add any work phone.
-      person0 = FactoryBot.create(:person)
+      person0 = FactoryBot.create(:person, :with_work_email)
       provider_kind = 'broker'
 
       it 'should return broker agency profile phone' do

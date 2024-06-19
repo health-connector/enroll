@@ -72,11 +72,11 @@ class Person
 
   # Sub-model in-common attributes
   field :date_of_death, type: Date
-  field :dob_check, type: Boolean
+  field :dob_check, type: Mongoid::Boolean
 
-  field :is_incarcerated, type: Boolean
+  field :is_incarcerated, type: Mongoid::Boolean
 
-  field :is_disabled, type: Boolean
+  field :is_disabled, type: Mongoid::Boolean
   field :ethnicity, type: Array
   field :race, type: String
   field :tribal_id, type: String
@@ -84,13 +84,13 @@ class Person
   field :is_tobacco_user, type: String, default: "unknown"
   field :language_code, type: String
 
-  field :no_dc_address, type: Boolean, default: false
+  field :no_dc_address, type: Mongoid::Boolean, default: false
   field :no_dc_address_reason, type: String, default: ""
 
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :updated_by, type: String
   field :no_ssn, type: String #ConsumerRole TODO TODOJF
-  field :is_physically_disabled, type: Boolean
+  field :is_physically_disabled, type: Mongoid::Boolean
 
   delegate :is_applying_coverage, to: :consumer_role, allow_nil: true
 

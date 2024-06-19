@@ -14,7 +14,7 @@ class EmployeeRole
   field :employment_status, type: String
   field :hired_on, type: Date
   field :terminated_on, type: Date
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :bookmark_url, type: String, default: nil
   field :contact_method, type: String, default: "Paper and Electronic communications"
   field :language_preference, type: String, default: "English"

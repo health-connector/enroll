@@ -84,7 +84,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
         it 'current user employer should be able to download' do
           get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
 
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -114,7 +114,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'broker should be able to download' do
           get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -139,7 +139,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'hbx staff should be able to download' do
           get :authorized_download, params: { model: "BenefitSponsors::Organizations::AcaShopCcaEmployerProfile", model_id: profile.id, relation: "documents", relation_id: document.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -180,7 +180,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'current user employer should be able to download' do
           get :employees_template_download
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -210,7 +210,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'broker should be able to download' do
           get :employees_template_download
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -236,7 +236,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'hbx staff should be able to download' do
           get :employees_template_download
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
     end
@@ -261,7 +261,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'employer should be able to download' do
           get :employer_attestation_document_download, params: { id: abc_profile.id, document_id: document.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -310,7 +310,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
           sign_in employee_user
 
           get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -339,7 +339,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'broker should be able to download' do
           get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
 
         context 'with bqt' do
@@ -352,7 +352,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
           it 'broker should be able to download when plan id given' do
             get :product_sbc_download, params: { document_id: plan.sbc_document.id, plan_id: plan.id }
-            expect(response).to be_successful
+            expect(response).to be_successfulful
           end
         end
       end
@@ -381,7 +381,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'employer should be able to download' do
           get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
 
@@ -404,7 +404,7 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
 
         it 'hbx staff should be able to download' do
           get :product_sbc_download, params: { document_id: product.sbc_document.id, product_id: product.id }
-          expect(response).to be_successful
+          expect(response).to be_successfulful
         end
       end
     end

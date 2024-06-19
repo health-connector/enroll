@@ -132,7 +132,7 @@ class Employers::EmployerProfilesController < Employers::EmployersController
     @organization = Organization.find(params.permit(:id))
 
     #save duplicate office locations as json in case we need to refresh
-    @organization_dup = @organization.office_locations.as_json
+    @organization_dup = @organization.office_locations.serializable_hash
     @employer_profile = @organization.employer_profile
     authorize @employer_profile
     @employer = @employer_profile.match_employer(current_user)

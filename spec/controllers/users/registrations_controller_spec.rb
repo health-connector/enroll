@@ -18,7 +18,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
       it "should redirect to saml recovery page if user matches" do
         post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(flash[:alert]).to eq "An account with this username ( #{email} ) already exists. <a href=\"#{SamlInformation.account_recovery_url}\">Click here</a> if you've forgotten your password."
       end
     end
@@ -63,7 +63,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
       it "should re-render the page" do
         post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).not_to redirect_to(root_path)
       end
     end
@@ -85,7 +85,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
         end
 
         it "should be a success" do
-          expect(response).to be_success
+          expect(response).to be_successful
         end
       end
 

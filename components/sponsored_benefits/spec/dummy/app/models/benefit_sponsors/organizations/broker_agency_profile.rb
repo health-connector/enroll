@@ -20,8 +20,8 @@ module BenefitSponsors
       field :default_general_agency_profile_id, type: BSON::ObjectId
 
       field :languages_spoken, type: Array, default: ["en"] # TODO
-      field :working_hours, type: Boolean, default: false
-      field :accept_new_clients, type: Boolean
+      field :working_hours, type: Mongoid::Boolean, default: false
+      field :accept_new_clients, type: Mongoid::Boolean
 
       field :ach_routing_number, type: String
       field :ach_account_number, type: String

@@ -30,12 +30,12 @@ class Plan
 
   field :renewal_plan_id, type: BSON::ObjectId
   field :cat_age_off_renewal_plan_id, type: BSON::ObjectId
-  field :is_standard_plan, type: Boolean, default: false
+  field :is_standard_plan, type: Mongoid::Boolean, default: false
 
   field :minimum_age, type: Integer, default: 0
   field :maximum_age, type: Integer, default: 120
 
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :updated_by, type: String
 
   # TODO deprecate after migrating SBCs for years prior to 2016
@@ -55,8 +55,8 @@ class Plan
 
   field :network_information, type: String
 
-  field :nationwide, type: Boolean # Nationwide
-  field :dc_in_network, type: Boolean # DC In-Network or not
+  field :nationwide, type: Mongoid::Boolean # Nationwide
+  field :dc_in_network, type: Mongoid::Boolean # DC In-Network or not
 
   # Fields for provider direcotry and rx formulary url
   field :provider_directory_url, type: String
@@ -67,12 +67,12 @@ class Plan
   field :carrier_special_plan_identifier, type: String
 
   #field can be used for filtering
-  field :frozen_plan_year, type: Boolean
+  field :frozen_plan_year, type: Mongoid::Boolean
 
   # Fields for checking respective carrier is offering or not
-  field :is_horizontal, type: Boolean, default: -> { true }
-  field :is_vertical, type: Boolean, default: -> { true }
-  field :is_sole_source, type: Boolean, default: -> { true }
+  field :is_horizontal, type: Mongoid::Boolean, default: -> { true }
+  field :is_vertical, type: Mongoid::Boolean, default: -> { true }
+  field :is_sole_source, type: Mongoid::Boolean, default: -> { true }
 
   # In MongoDB, the order of fields in an index should be:
   #   First: fields queried for exact values, in an order that most quickly reduces set

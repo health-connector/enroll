@@ -15,7 +15,7 @@ class Household
   field :effective_starting_on, type: Date
   field :effective_ending_on, type: Date
   field :submitted_at, type: DateTime
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   embeds_many :hbx_enrollments
   embeds_many :tax_households

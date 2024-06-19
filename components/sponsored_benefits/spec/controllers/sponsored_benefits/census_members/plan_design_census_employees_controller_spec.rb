@@ -41,7 +41,7 @@ module SponsoredBenefits
       it "returns a success response" do
         sign_in user_with_broker_role
         get :index, params: { plan_design_proposal_id: plan_design_proposal.id }
-        expect(response).to be_successful
+        expect(response).to be_successfulful
       end
     end
 
@@ -57,7 +57,7 @@ module SponsoredBenefits
       it "returns a success response" do
         sign_in user_with_broker_role
         get :show, params: {plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param}
-        expect(response).to be_successful
+        expect(response).to be_successfulful
       end
     end
 
@@ -74,7 +74,7 @@ module SponsoredBenefits
         sign_in user_with_broker_role
         get :new, xhr: true, params: {plan_design_proposal_id: plan_design_proposal.id}
         expect(assigns(:census_employee)).to be_a(SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee)
-        expect(response).to be_successful
+        expect(response).to be_successfulful
         expect(response).to render_template('new')
       end
 
@@ -83,7 +83,7 @@ module SponsoredBenefits
           sign_in user_with_broker_role
           get :new, xhr: true, params: { plan_design_proposal_id: plan_design_proposal.id, modal: "upload"}
           expect(assigns(:census_employee)).to be_a(SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee)
-          expect(response).to be_successful
+          expect(response).to be_successfulful
           expect(response).to render_template('upload_employees')
         end
       end
@@ -102,7 +102,7 @@ module SponsoredBenefits
         sign_in user_with_broker_role
         get :edit, xhr: true, params: {plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param}
         expect(assigns(:census_employee)).to eq plan_design_census_employee
-        expect(response).to be_successful
+        expect(response).to be_successfulful
         expect(response).to render_template('edit')
       end
     end
@@ -216,7 +216,7 @@ module SponsoredBenefits
             put :update, xhr: true, params: {plan_design_proposal_id: praposal.id.to_s, :id => census_employee.id.to_s, :census_members_plan_design_census_employee => new_attributes.merge(census_dependents_attributes: census_dependents_attributes)}
             census_employee.reload
             expect(census_employee.census_dependents.size).to eq 2
-            expect(response).to be_successful
+            expect(response).to be_successfulful
             expect(response).to render_template('update')
           end
         end

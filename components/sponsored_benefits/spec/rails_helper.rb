@@ -6,7 +6,7 @@ require 'spec_helper'
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 require 'shoulda/matchers'
-require 'database_cleaner'
+require 'database_cleaner/mongoid'
 require 'capybara/rails'
 require 'capybara/rspec'
 require 'factory_bot_rails'
@@ -53,6 +53,7 @@ RSpec.configure do |config|
   #
   # The different available types are documented in the features, such as in
   # https://relishapp.com/rspec/rspec-rails/docs
+  DatabaseCleaner.strategy = :deletion
   config.infer_spec_type_from_file_location!
 
   # Filter lines from Rails gems in backtraces.

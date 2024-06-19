@@ -255,13 +255,13 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
 
         it "should return uniq plans when same plan" do
           get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-01"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(assigns(:qhps).count).to eq 2
         end
 
         it "should return uniq plans when 2" do
           get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-02"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(assigns(:qhps).count).to eq 2
         end
       end
