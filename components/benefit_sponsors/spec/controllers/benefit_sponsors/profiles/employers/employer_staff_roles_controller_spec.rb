@@ -75,7 +75,7 @@ module BenefitSponsors
           it "allows the current user to access the new form" do
             get :new, xhr: true
 
-            expect(response).to be_successfulful
+            expect(response).to be_successful
           end
         end
 
@@ -102,7 +102,7 @@ module BenefitSponsors
           it "allows the broker to access the new form" do
             get :new, xhr: true
 
-            expect(response).to be_successfulful
+            expect(response).to be_successful
           end
         end
 

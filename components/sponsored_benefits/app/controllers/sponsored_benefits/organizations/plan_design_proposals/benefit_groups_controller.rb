@@ -3,7 +3,7 @@ module SponsoredBenefits
     class PlanDesignProposals::BenefitGroupsController < ApplicationController
 
       def create
-        plan_design_form.for_create(benefit_group_params.serializable_hash.with_indifferent_access)
+        plan_design_form.for_create(benefit_group_params.as_json.with_indifferent_access)
 
         if plan_design_proposal.save
           if params['redirect_page'] == "estimated_employer_costs"

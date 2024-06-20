@@ -42,7 +42,7 @@ module BenefitSponsors
             benefit_sponsorship_id: benefit_sponsorship._id,
             effective_date: effective_date,
             benefit_application_kind: application_type(effective_date, benefit_sponsorship),
-            service_areas: service_areas_entities.serializable_hash
+            service_areas: service_areas_entities.as_json
           }
 
           Success(params)

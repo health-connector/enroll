@@ -53,7 +53,7 @@ module BenefitSponsors
 
         def get_service_areas_entities(benefit_sponsorship, effective_date)
           benefit_sponsorship.service_areas_on(effective_date).collect do |service_area|
-            BenefitMarkets::Operations::ServiceAreas::Create.new.call(service_area_params: service_area.serializable_hash)
+            BenefitMarkets::Operations::ServiceAreas::Create.new.call(service_area_params: service_area.as_json)
           end
         end
 

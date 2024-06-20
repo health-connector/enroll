@@ -94,7 +94,7 @@ module SponsoredBenefits
       def dental_benefit_params
         {
           dental_reference_plan_id: benefit_group_params[:reference_plan_id],
-          dental_relationship_benefits: benefit_group_params[:relationship_benefits_attributes]&.serializable_hash&.with_indifferent_access,
+          dental_relationship_benefits: benefit_group_params[:relationship_benefits_attributes]&.as_json&.with_indifferent_access,
           dental_plan_option_kind: benefit_group_params[:plan_option_kind]
         }
       end
