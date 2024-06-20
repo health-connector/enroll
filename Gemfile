@@ -87,7 +87,7 @@ gem 'holidays', '~> 8.6'
 #arm64 mac support
 gem 'ffi', '1.14.0'
 gem 'kostya-sigar', '2.0.10'
-gem 'mini_racer', '0.6.4'
+# gem 'mini_racer', '0.6.4'
 gem 'bigdecimal', '1.3.5'
 gem 'loofah', '~>2.19.1'
 gem 'dry-container', '0.9'
