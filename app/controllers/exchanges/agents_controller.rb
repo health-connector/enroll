@@ -66,7 +66,7 @@ module Exchanges
     end
 
     def show
-      authorize :agent
+      authorize :agent, :message_show?
 
       update_last_portal_visited
     end
