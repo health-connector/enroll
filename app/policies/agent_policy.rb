@@ -14,10 +14,6 @@ class AgentPolicy < ApplicationPolicy
     agent?
   end
 
-  def destroy?
-    show?
-  end
-
   def begin_employee_enrollment?
     agent?
   end
