@@ -3,11 +3,11 @@
 #AgentPolicy
 class AgentPolicy < ApplicationPolicy
   def home?
-    agent?
+    agent_basic_access?
   end
 
   def inbox?
-    agent?
+    agent_basic_access?
   end
 
   def show?
@@ -36,6 +36,22 @@ class AgentPolicy < ApplicationPolicy
     return true if account_holder_person.assister_role
     return true if account_holder_person.hbx_staff_role
     return true if account_holder_person.broker_role&.active?
+
+    false
+  end
+
+  # Checks if the current user has basic access roles for home and inbox.
+  #
+  # The user is considered to have basic access if they have any of the following roles:
+  # - CSR
+  # - Assister
+  #
+  # @return [Boolean] Returns true if the user has a basic access role, false otherwise.
+  # @note This method is used to determine whether the current user is authorized to access home and inbox functionalities.
+  def agent_basic_access?
+    return false unless account_holder_person
+    return true if account_holder_person.csr_role
+    return true if account_holder_person.assister_role
 
     false
   end
