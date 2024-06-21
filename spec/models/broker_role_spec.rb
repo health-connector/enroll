@@ -295,7 +295,7 @@ describe BrokerRole, dbclean: :after_each do
       # expect(person0.build_broker_role(npn: npn0, provider_kind: provider_kind, address: address).save).to eq true
     end
     context '#email returns work email' do
-      person0 = FactoryBot.create(:person, :with_work_email)
+      person0 = FactoryBot.create(:person)
       provider_kind = 'broker'
 
       b1 = BrokerRole.create(person: person0, npn: rand(10_000_000..10_009_999), provider_kind: provider_kind, broker_agency_profile: @ba)

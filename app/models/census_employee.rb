@@ -30,7 +30,7 @@ class CensusEmployee < CensusMember
   EMPLOYEE_TERMINATED_EVENT_NAME = "acapi.info.events.census_employee.terminated"
   EMPLOYEE_COBRA_TERMINATED_EVENT_NAME = "acapi.info.events.census_employee.cobra_terminated"
 
-  field :is_business_owner, type: Mongoid::Boolean, default: false
+  field :is_business_owner, type: Boolean, default: false
   field :hired_on, type: Date
   field :employment_terminated_on, type: Date
   field :coverage_terminated_on, type: Date

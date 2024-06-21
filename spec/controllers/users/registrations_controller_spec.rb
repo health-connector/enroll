@@ -97,7 +97,7 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
         end
 
         it "should render an error" do
-          expect(response).to_not be_success
+          expect(response).to_not be_successful
         end
       end
     end

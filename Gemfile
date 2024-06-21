@@ -153,7 +153,7 @@ group :test do
   gem 'cucumber-rails', '2.0', :require => false
   gem 'database_cleaner-mongoid', '~> 2.0', '>= 2.0.1'
   gem 'fakeredis', :require => 'fakeredis/rspec'
-  gem 'mongoid-rspec', '~> 4'
+  gem 'mongoid-rspec', '4.1.0'
   gem 'rspec-instafail'
   gem 'rspec-benchmark'
   gem 'ruby-progressbar', '~> 1.7'
