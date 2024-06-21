@@ -10,6 +10,10 @@ class AgentPolicy < ApplicationPolicy
     agent_basic_access?
   end
 
+  def destroy?
+    agent_basic_access?
+  end
+
   def show?
     agent?
   end
