@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "~> 6.0.6.1"
   s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", "~> 7.5.4"
+  s.add_dependency "mongoid", "7.3.5"
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config'
