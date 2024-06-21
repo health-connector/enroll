@@ -15,6 +15,10 @@ class AgentPolicy < ApplicationPolicy
   end
 
   def show?
+    agent_basic_access?
+  end
+
+  def message_show?
     agent?
   end
 
