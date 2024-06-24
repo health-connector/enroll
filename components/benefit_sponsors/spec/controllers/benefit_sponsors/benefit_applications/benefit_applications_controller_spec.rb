@@ -210,7 +210,7 @@ module BenefitSponsors
 
       it "should return true during late rates scenario" do
         get :late_rates_check, params: { :start_on_date => effective_period_start_on.prev_year.strftime('%m/%d/%Y'), benefit_sponsorship_id: "123" }
-        expect(response.body).to eq true
+        expect(response.body).to eq "true"
       end
     end
 
