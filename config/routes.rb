@@ -194,8 +194,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :interactive_identity_verifications, only: [:create, :new, :update]
-
     resources :inboxes, only: [:new, :create, :show, :destroy]
     resources :families, only: [:show] do
       get 'new'
@@ -631,6 +629,10 @@ Rails.application.routes.draw do
         get :new_resident_dependent, on: :collection
         get :edit_resident_dependent, on: :member
         get :show_resident_dependent, on: :member
+      end
+
+      namespace :insured do
+        resources :interactive_identity_verifications, only: [:create, :new, :update]
       end
     end
   end
