@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module IndividualMarket
   module Insured
     class InteractiveIdentityVerificationsController < ApplicationController
@@ -10,15 +12,13 @@ module IndividualMarket
           format.html do
             if service_response.blank?
               render "service_unavailable"
+            elsif service_response.failed?
+              @step = 'start'
+              @verification_response = service_response
+              render "failed_validation"
             else
-              if service_response.failed?
-                @step = 'start'
-                @verification_response = service_response
-                render "failed_validation"
-              else
-                @interactive_verification = service_response.to_model
-                render :new
-              end
+              @interactive_verification = service_response.to_model
+              render :new
             end
           end
         end
@@ -33,14 +33,12 @@ module IndividualMarket
               service_response = service.respond_to_questions(render_question_responses(@interactive_verification))
               if service_response.blank?
                 render "service_unavailable"
+              elsif service_response.successful?
+                process_successful_interactive_verification(service_response)
               else
-                if service_response.successful?
-                  process_successful_interactive_verification(service_response)
-                else
-                  @step = 'questions'
-                  @verification_response = service_response
-                  render "failed_validation"
-                end
+                @step = 'questions'
+                @verification_response = service_response
+                render "failed_validation"
               end
             else
               render "new"
@@ -54,18 +52,16 @@ module IndividualMarket
 
         respond_to do |format|
           format.html do
-              service = ::IdentityVerification::InteractiveVerificationService.new
-              service_response = service.check_override(render_verification_override(@transaction_id))
-              if service_response.blank?
-                render "service_unavailable"
-              else
-                if service_response.successful?
-                  process_successful_interactive_verification(service_response)
-                else
-                  @verification_response = service_response
-                  render "failed_validation"
-                end
-              end
+            service = ::IdentityVerification::InteractiveVerificationService.new
+            service_response = service.check_override(render_verification_override(@transaction_id))
+            if service_response.blank?
+              render "service_unavailable"
+            elsif service_response.successful?
+              process_successful_interactive_verification(service_response)
+            else
+              @verification_response = service_response
+              render "failed_validation"
+            end
           end
         end
       end
@@ -75,7 +71,7 @@ module IndividualMarket
       def process_successful_interactive_verification(service_response)
         consumer_role = @person.consumer_role
         consumer_user = @person.user
-        #TODO TREY KEVIN JIM There is no user when CSR creates enroooment
+        #TODO: TREY KEVIN JIM There is no user when CSR creates enroooment
         if consumer_user
           consumer_user.identity_final_decision_code = User::INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE
           consumer_user.identity_response_code = User::INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE
