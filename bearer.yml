@@ -1,0 +1,30 @@
+disable-version-check: false
+log-level: info
+report:
+    fail-on-severity: critical,high,medium
+    format: ""
+    no-color: false
+    output: ""
+    report: security
+    severity: critical,high,medium,low,warning
+rule:
+    disable-default-rules: false
+    only-rule: []
+    skip-rule: []
+scan:
+    context: ""
+    data_subject_mapping: ""
+    disable-domain-resolution: true
+    domain-resolution-timeout: 3s
+    exit-code: -1
+    external-rule-dir: []
+    force: false
+    hide_progress_bar: false
+    internal-domains: []
+    parallel: 0
+    quiet: false
+    scanner:
+        - sast
+        - secrets
+    skip-path: [vendor/bundle, node_modules, .git, .github, .vscode, .idea, .gitlab, .gitignore, .gitattributes, .gitmodules, .gitkeep, .gitlab-ci.yml, .travis.yml, .circleci, .circleci.yml, .github/workflows]
+    skip-test: true
