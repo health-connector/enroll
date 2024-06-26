@@ -190,8 +190,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :interactive_identity_verifications, only: [:create, :new, :update]
-
     resources :inboxes, only: [:new, :create, :show, :destroy]
     resources :families, only: [:show] do
       get 'new'
@@ -631,6 +629,8 @@ Rails.application.routes.draw do
         get 'verification_documents/upload', to: 'verification_documents#upload'
         post 'verification_documents/upload', to: 'verification_documents#upload'
         get 'verification_documents/download/:key', to: 'verification_documents#download'
+
+        resources :interactive_identity_verifications, only: [:create, :new, :update]
       end
     end
   end
