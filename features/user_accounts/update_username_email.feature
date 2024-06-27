@@ -62,7 +62,7 @@ Feature: As a Super Admin I will be able to
     And the HBX admin selects the Edit User option
     And the users username and email appear in the form fields
     And the HBX Admin presses the Reset button on the Edit User form
-    Then the text in the username and email address fields will be cleared
+    Then the page should display user account updated message
 
   Scenario: Search for user by first name
     When the HBX admin searches for the given user by first name

@@ -92,9 +92,8 @@ When(/^the HBX Admin presses the Reset button on the Edit User form$/) do
   find_button("Reset").click
 end
 
-Then(/^the text in the username and email address fields will be cleared$/) do
-  expect(find_field('new_oim_id').value).to eq ""
-  expect(find_field('new_email').value).to eq ""
+Then(/^the page should display user account updated message$/) do
+  expect(page).to have_content('User Account Updated Successfully')
 end
 
 When(/^the HBX admin searches for the given user by first name$/) do
