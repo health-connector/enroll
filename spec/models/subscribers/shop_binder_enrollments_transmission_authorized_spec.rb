@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Subscribers::ShopBinderEnrollmentsTransmissionAuthorized, "with an event subscription" do
@@ -14,12 +16,12 @@ describe Subscribers::ShopBinderEnrollmentsTransmissionAuthorized, "given no eff
 
   it "broadcasts an error message" do
     expect(subject).to receive(:notify).with("acapi.error.events.employer.binder_enrollments_transmission_authorized.invalid_effective_on_date",
-                                               {
-    :fein => nil,
-    :employer_id => nil,
-    :effective_on => nil,
-    :return_status => "422"
-    })
+                                             {
+                                               :fein => nil,
+                                               :employer_id => nil,
+                                               :effective_on => nil,
+                                               :return_status => "422"
+                                             })
     subject.call(nil, nil, nil, nil, {})
   end
 end
@@ -40,11 +42,11 @@ describe Subscribers::ShopBinderEnrollmentsTransmissionAuthorized, "given an emp
     it "broadcasts an error message" do
       expect(subject).to receive(:notify).with("acapi.error.events.employer.binder_enrollments_transmission_authorized.employer_not_found",
                                                {
-        :fein => nil,
-        :effective_on => effective_on,
-        :employer_id => employer_id,
-        :return_status => "422"
-      })
+                                                 :fein => nil,
+                                                 :effective_on => effective_on,
+                                                 :employer_id => employer_id,
+                                                 :return_status => "422"
+                                               })
       subject.call(nil, nil, nil, nil, { :employer_id => employer_id, :effective_on => effective_on })
     end
   end
@@ -63,10 +65,10 @@ describe Subscribers::ShopBinderEnrollmentsTransmissionAuthorized, "given an emp
 
     it "transmits the new enrollments for the employer" do
       expect(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.coverage_selected", {
-        :hbx_enrollment_id => enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
-        :reply_to => glue_event_queue_name
-      })
+                                                 :hbx_enrollment_id => enrollment_id,
+                                                 :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
+                                                 :reply_to => glue_event_queue_name
+                                               })
       subject.call(nil, nil, nil, nil, { :employer_id => employer_id, :effective_on => effective_on})
     end
   end
@@ -89,11 +91,11 @@ describe Subscribers::ShopBinderEnrollmentsTransmissionAuthorized, "given an emp
     it "broadcasts an error message" do
       expect(subject).to receive(:notify).with("acapi.error.events.employer.binder_enrollments_transmission_authorized.employer_not_found",
                                                {
-        :effective_on => effective_on,
-        :fein => employer_fein,
-        :employer_id => nil,
-        :return_status => "422"
-      })
+                                                 :effective_on => effective_on,
+                                                 :fein => employer_fein,
+                                                 :employer_id => nil,
+                                                 :return_status => "422"
+                                               })
       subject.call(nil, nil, nil, nil, { :fein => employer_fein, :effective_on => effective_on})
     end
   end
@@ -111,10 +113,10 @@ describe Subscribers::ShopBinderEnrollmentsTransmissionAuthorized, "given an emp
 
     it "transmits the new enrollments for the employer" do
       expect(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.coverage_selected", {
-        :hbx_enrollment_id => enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
-        :reply_to => glue_event_queue_name
-      })
+                                                 :hbx_enrollment_id => enrollment_id,
+                                                 :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
+                                                 :reply_to => glue_event_queue_name
+                                               })
       subject.call(nil, nil, nil, nil, { :fein => employer_fein, :effective_on => effective_on})
     end
   end

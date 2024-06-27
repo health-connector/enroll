@@ -1,7 +1,14 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-if ("Notifier::Engine".constantize rescue nil)
-  Dir[Rails.root.join("components/notifier/spec/**/*_spec.rb")].each do |f|
+if begin
+  "Notifier::Engine".constantize
+rescue StandardError
+  puts "Error - #{e.message}"
+  nil
+end
+  Dir[Rails.root.join("components/notifier/spec/**/*_spec.rb")].sort.each do |f|
     require f
   end
 end

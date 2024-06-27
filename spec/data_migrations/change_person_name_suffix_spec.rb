@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_person_name_suffix")
 
@@ -11,15 +13,15 @@ describe ChangePersonNameSuffix, dbclean: :after_each do
     end
   end
   describe "changing person's name suffix" do
-    let(:person) { FactoryGirl.create(:person, name_sfx: "Jr")}
-    let(:csv_row) { CSV::Row.new(["HBX ID","Potential Correct Suffix"],[person.hbx_id,"Jr."]) }
+    let(:person) { FactoryBot.create(:person, name_sfx: "Jr")}
+    let(:csv_row) { CSV::Row.new(["HBX ID","Potential Correct Suffix"],[person.hbx_id,"Jr"]) }
 
     it "should change the person's name suffix" do
       suffix = person.name_sfx
       expect(person.name_sfx).to eq suffix
       subject.process_row(csv_row)
       person.reload
-      expect(person.name_sfx).to eq "Jr."
+      expect(person.name_sfx).to eq "Jr"
     end
   end
 end

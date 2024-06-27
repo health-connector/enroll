@@ -1,28 +1,33 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployeeNotices::NotifyRenewalEmployeesDentalCarriersExitingShop, :dbclean => :after_each do
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
-  let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment,household: family.active_household, plan_id: plan.id, benefit_group_id: benefit_group.id, employee_role_id: employee_role.id)}
-  let(:person) { FactoryGirl.create(:person)}
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+  let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
+  let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment,household: family.active_household, plan_id: plan.id, benefit_group_id: benefit_group.id, employee_role_id: employee_role.id)}
+  let(:person) { FactoryBot.create(:person)}
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
   let(:employer_profile_id) { employer_profile.id }
-  let(:employee_role) {FactoryGirl.create(:employee_role, person: person, employer_profile: employer_profile)}
-  let(:census_employee) { FactoryGirl.create(:census_employee, employee_role_id: employee_role.id, employer_profile_id: employer_profile.id) }
-  let(:organization) {FactoryGirl.create(:organization, legal_name: "Delta Dental")}
-  let(:carrier_profile) {FactoryGirl.create(:carrier_profile, organization: organization)}
-  let(:plan) {FactoryGirl.create(:plan, :with_dental_coverage, carrier_profile: carrier_profile, market: "shop")}
-  let(:plan_year) {FactoryGirl.create(:plan_year, employer_profile: employer_profile)}
-  let(:benefit_group)     { FactoryGirl.create(:benefit_group, plan_year: plan_year)}
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Renewal EEs Dental Carriers are Exiting SHOP market notice',
-                            :notice_template => 'notices/shop_employee_notices/notify_renewal_employees_dental_carriers_exiting_shop',
-                            :notice_builder => 'ShopEmployeeNotices::NotifyRenewalEmployeesDentalCarriersExitingShop',
-                            :event_name => 'notify_renewal_employees_dental_carriers_exiting_shop',
-                            :mpi_indicator => 'SHOP_D092',
-                            :title => "Dental Carrier Exit from DC Health Link’s Small Business Marketplace"})
-                          }
+  let(:employee_role) {FactoryBot.create(:employee_role, person: person, employer_profile: employer_profile)}
+  let(:census_employee) { FactoryBot.create(:census_employee, employee_role_id: employee_role.id, employer_profile_id: employer_profile.id) }
+  let(:organization) {FactoryBot.create(:organization, legal_name: "Delta Dental")}
+  let(:carrier_profile) {FactoryBot.create(:carrier_profile, organization: organization)}
+  let(:plan) {FactoryBot.create(:plan, :with_dental_coverage, carrier_profile: carrier_profile, market: "shop")}
+  let(:plan_year) {FactoryBot.create(:plan_year, employer_profile: employer_profile)}
+  let(:benefit_group)     { FactoryBot.create(:benefit_group, plan_year: plan_year)}
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Renewal EEs Dental Carriers are Exiting SHOP market notice',
+             :notice_template => 'notices/shop_employee_notices/notify_renewal_employees_dental_carriers_exiting_shop',
+             :notice_builder => 'ShopEmployeeNotices::NotifyRenewalEmployeesDentalCarriersExitingShop',
+             :event_name => 'notify_renewal_employees_dental_carriers_exiting_shop',
+             :mpi_indicator => 'SHOP_D092',
+             :title => "Dental Carrier Exit from DC Health Link’s Small Business Marketplace"
+           })
+  end
 
-  let(:valid_params) {{
+  let(:valid_params) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
@@ -30,7 +35,8 @@ RSpec.describe ShopEmployeeNotices::NotifyRenewalEmployeesDentalCarriersExitingS
       :options => {
         :hbx_enrollment => hbx_enrollment.hbx_id.to_s
       }
-  }}
+    }
+  end
 
   before do
     @employee_notice = ShopEmployeeNotices::NotifyRenewalEmployeesDentalCarriersExitingShop.new(census_employee, valid_params)
@@ -54,15 +60,15 @@ RSpec.describe ShopEmployeeNotices::NotifyRenewalEmployeesDentalCarriersExitingS
   end
 
   describe "Build" do
-    before do 
+    before do
       @employee_notice.build
     end
 
     it "should build notice with primary full name" do
       expect(@employee_notice.notice.primary_fullname).to eq person.full_name.titleize
     end
-    
-    #ToDo Fix in DC new model after udpdating the notice builder
+
+    #TODO: Fix in DC new model after udpdating the notice builder
     xit "should build notice with organization name" do
       expect(@employee_notice.notice.employer_name).to eq employer_profile.organization.legal_name
     end

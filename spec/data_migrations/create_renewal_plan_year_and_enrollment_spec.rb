@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 require File.join(Rails.root, "app", "data_migrations", "create_renewal_plan_year_and_enrollment")
@@ -44,16 +46,19 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
     let(:active_household) {family.active_household}
     let(:sponsored_benefit) {current_benefit_package.sponsored_benefits.first}
     let(:reference_product) {sponsored_benefit.reference_product}
-    let(:hbx_enrollment_member){ FactoryGirl.build(:hbx_enrollment_member, is_subscriber:true, coverage_start_on: current_benefit_package.start_on, eligibility_date: current_benefit_package.start_on, applicant_id: family.family_members.first.id) }
-    let(:enrollment) { FactoryGirl.create(:hbx_enrollment, hbx_enrollment_members:[hbx_enrollment_member],product: reference_product, sponsored_benefit_package_id: current_benefit_package.id, effective_on:initial_application.effective_period.min, household:family.active_household,benefit_group_assignment_id: benefit_group_assignment.id, employee_role_id:employee_role.id, benefit_sponsorship_id:benefit_sponsorship.id)}
-    let!(:issuer_profile)  { FactoryGirl.create(:benefit_sponsors_organizations_issuer_profile) }
+    let(:hbx_enrollment_member){ FactoryBot.build(:hbx_enrollment_member, is_subscriber: true, coverage_start_on: current_benefit_package.start_on, eligibility_date: current_benefit_package.start_on, applicant_id: family.family_members.first.id) }
+    let(:enrollment) do
+      FactoryBot.create(:hbx_enrollment, hbx_enrollment_members: [hbx_enrollment_member],product: reference_product, sponsored_benefit_package_id: current_benefit_package.id, effective_on: initial_application.effective_period.min,
+                                         household: family.active_household,benefit_group_assignment_id: benefit_group_assignment.id, employee_role_id: employee_role.id, benefit_sponsorship_id: benefit_sponsorship.id)
+    end
+    let!(:issuer_profile)  { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile) }
     # let!(:update_reference_product) {reference_product.update_attributes(issuer_profile_id:issuer_profile.id)}
 
     before(:each) do
       person = family.primary_applicant.person
       person.employee_roles = [employee_role]
       person.employee_roles.map(&:save)
-      active_household.hbx_enrollments =[enrollment]
+      active_household.hbx_enrollments = [enrollment]
       active_household.save!
     end
 
@@ -62,16 +67,19 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
       before(:each) do
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:age_bounding).and_return(20)
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(15)
-        allow(ENV).to receive(:[]).with("fein").and_return(abc_organization.fein)
-        allow(ENV).to receive(:[]).with("action").and_return("renewal_plan_year")
       end
 
       it "should create renewing draft plan year" do
-        expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]
-        subject.migrate
-        abc_organization.reload
-        expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active,:draft]
-        expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ['coverage_selected']
+        ClimateControl.modify(
+          fein: abc_organization.fein,
+          action: "renewal_plan_year"
+        ) do
+          expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]
+          subject.migrate
+          abc_organization.reload
+          expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active,:draft]
+          expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ['coverage_selected']
+        end
       end
     end
 
@@ -80,15 +88,18 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
       before(:each) do
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:age_bounding).and_return(20)
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(15)
-        allow(ENV).to receive(:[]).with("start_on").and_return(initial_application.effective_period.min)
-        allow(ENV).to receive(:[]).with("action").and_return("trigger_renewal_py_for_employers")
       end
 
       it "should create renewing plan year" do
-        expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]
-        subject.migrate
-        abc_organization.reload
-        expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active, :draft]
+        ClimateControl.modify(
+          start_on: initial_application.effective_period.min.to_s,
+          action: "trigger_renewal_py_for_employers"
+        ) do
+          expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]
+          subject.migrate
+          abc_organization.reload
+          expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active, :draft]
+        end
       end
     end
 
@@ -99,20 +110,23 @@ describe CreateRenewalPlanYearAndEnrollment, dbclean: :after_each do
         allow_any_instance_of(BenefitSponsors::Factories::EnrollmentRenewalFactory).to receive(:has_renewal_product?).and_return(true)
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:age_bounding).and_return(20)
         allow(::BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate).and_return(15)
-        allow(ENV).to receive(:[]).with("fein").and_return(abc_organization.fein)
-        allow(ENV).to receive(:[]).with("action").and_return("renewal_plan_year_passive_renewal")
         ::BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
         ::BenefitMarkets::Products::ProductFactorCache.initialize_factor_cache!
       end
 
       it "should create renewing plan year and passive enrollments" do
-        expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]
-        expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ['coverage_selected']
-        subject.migrate
-        abc_organization.reload
-        family.reload
-        expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active, :enrollment_open]
-        expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ['coverage_selected','auto_renewing']
+        ClimateControl.modify(
+          fein: abc_organization.fein,
+          action: "renewal_plan_year_passive_renewal"
+        ) do
+          expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active]
+          expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ['coverage_selected']
+          subject.migrate
+          abc_organization.reload
+          family.reload
+          expect(abc_organization.employer_profile.benefit_applications.map(&:aasm_state)).to eq [:active, :enrollment_open]
+          expect(family.active_household.hbx_enrollments.map(&:aasm_state)).to eq ['coverage_selected','auto_renewing']
+        end
       end
     end
   end

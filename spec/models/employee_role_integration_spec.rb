@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -8,13 +10,13 @@ describe EmployeeRole, dbclean: :after_each do
     let(:aasm_state) { :draft }
   end
 
-  let(:person) {FactoryGirl.create(:person, :with_family)}
+  let(:person) {FactoryBot.create(:person, :with_family)}
 
   context "employer with two draft plan years exist" do
     let(:plan_year_b) { initial_application }
     let(:start_on) { plan_year_b.effective_period.max + 1.day}
     let(:plan_year_a) do
-      FactoryGirl.create(
+      FactoryBot.create(
         :benefit_sponsors_benefit_application,
         :with_benefit_sponsor_catalog,
         :with_benefit_package,
@@ -33,14 +35,14 @@ describe EmployeeRole, dbclean: :after_each do
       end
 
       context "and we have an employee on the roster" do
-        let(:census_employee) { FactoryGirl.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
+        let(:census_employee) { FactoryBot.create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
 
         context "and a new employee role is created" do
-          let(:employee_role) {FactoryGirl.create(:employee_role, person: person, census_employee_id: census_employee.id, employer_profile: abc_profile)}
+          let(:employee_role) {FactoryBot.create(:employee_role, person: person, census_employee_id: census_employee.id, employer_profile: abc_profile)}
 
           context "and the employee is assigned to both benefit groups" do
-            let(:benefit_group_assignment_a) { FactoryGirl.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: benefit_group_a) }
-            let(:benefit_group_assignment_b) { FactoryGirl.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: benefit_group_b) }
+            let(:benefit_group_assignment_a) { FactoryBot.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: benefit_group_a) }
+            let(:benefit_group_assignment_b) { FactoryBot.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: benefit_group_b) }
 
             context "and the first plan year is published" do
               before do

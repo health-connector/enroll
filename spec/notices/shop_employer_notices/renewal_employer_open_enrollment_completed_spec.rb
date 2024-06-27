@@ -1,27 +1,33 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::RenewalEmployerOpenEnrollmentCompleted, dbclean: :after_each do
   let(:employer_profile){ create :employer_profile}
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
   let(:person){ create :person}
-  let!(:plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'active' ) }
-  let!(:active_benefit_group) { FactoryGirl.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
-  let!(:renewal_plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: start_on + 1.year, :aasm_state => 'renewing_enrolled' ) }
-  let!(:renewal_benefit_group) { FactoryGirl.create(:benefit_group, plan_year: renewal_plan_year, title: "Benefits #{renewal_plan_year.start_on.year}") }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Renewal Employee Open Employee Completed',
-                            :notice_template => 'notices/shop_employer_notices/renewal_employer_open_enrollment_completed',
-                            :notice_builder => 'ShopEmployerNotices::RenewalEmployerOpenEnrollmentCompleted',
-                            :event_name => 'renewal_employer_open_enrollment_completed',
-                            :mpi_indicator => 'SHOP_D018',
-                            :title => "Group Open Enrollment Successfully Completed"})
-                          }
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'active') }
+  let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
+  let!(:renewal_plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on + 1.year, :aasm_state => 'renewing_enrolled') }
+  let!(:renewal_benefit_group) { FactoryBot.create(:benefit_group, plan_year: renewal_plan_year, title: "Benefits #{renewal_plan_year.start_on.year}") }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Renewal Employee Open Employee Completed',
+             :notice_template => 'notices/shop_employer_notices/renewal_employer_open_enrollment_completed',
+             :notice_builder => 'ShopEmployerNotices::RenewalEmployerOpenEnrollmentCompleted',
+             :event_name => 'renewal_employer_open_enrollment_completed',
+             :mpi_indicator => 'SHOP_D018',
+             :title => "Group Open Enrollment Successfully Completed"
+           })
+  end
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   describe "New" do
     before do
@@ -67,15 +73,15 @@ RSpec.describe ShopEmployerNotices::RenewalEmployerOpenEnrollmentCompleted, dbcl
     end
 
     it "should render renewal_employer_open_enrollment_completed" do
-       expect(@employer_notice.template).to eq "notices/shop_employer_notices/renewal_employer_open_enrollment_completed"
-      end
-   
-       it "should generate pdf" do
-         @employer_notice.build
-         @employer_notice.append_data
-         @employer_notice.generate_pdf_notice
-         expect(File.exist?(@employer_notice.notice_path)).to be true
-      end
+      expect(@employer_notice.template).to eq "notices/shop_employer_notices/renewal_employer_open_enrollment_completed"
+    end
+
+    it "should generate pdf" do
+      @employer_notice.build
+      @employer_notice.append_data
+      @employer_notice.generate_pdf_notice
+      expect(File.exist?(@employer_notice.notice_path)).to be true
+    end
   end
 
 end

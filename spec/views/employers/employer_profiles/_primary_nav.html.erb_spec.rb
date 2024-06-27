@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/_primary_nav AS BROKER AGENCY STAFF" do
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:person) { FactoryGirl.create(:person, :first_name=>'fred', :last_name=>'flintstone'  )}
-  let(:current_user) { FactoryGirl.create(:user, :roles => ['broker_agency_staff'], :person => person) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:person) { FactoryBot.create(:person, :first_name => 'fred', :last_name => 'flintstone')}
+  let(:current_user) { FactoryBot.create(:user, :roles => ['broker_agency_staff'], :person => person) }
   before :each do
     @employer_profile = employer_profile
     sign_in current_user
     current_user.person.broker_role = BrokerRole.new
     current_user.person.broker_role.provider_kind = 'broker'
-    current_user.person.broker_role.npn = rand(100000)
+    current_user.person.broker_role.npn = rand(100_000)
     current_user.person.broker_role.broker_agency_profile_id = 99
     current_user.person.broker_role.save!
     allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true, list_enrollments?: true))
@@ -35,26 +37,26 @@ RSpec.describe "employers/employer_profiles/_primary_nav AS BROKER AGENCY STAFF"
 end
 
 RSpec.describe "employers/employer_profiles/_primary_nav AS BROKER of employer" do
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:person) { FactoryGirl.create(:person, :first_name=>'fred', :last_name=>'flintstone'  )}
-  let(:current_user) { FactoryGirl.create(:user, :roles => ['broker'], :person => person) }
-  let(:broker_agency_profile) { FactoryGirl.create(:broker_agency_profile) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:person) { FactoryBot.create(:person, :first_name => 'fred', :last_name => 'flintstone')}
+  let(:current_user) { FactoryBot.create(:user, :roles => ['broker'], :person => person) }
+  let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
 
   before :each do
     @employer_profile = employer_profile
     sign_in current_user
     broker_role = current_user.person.broker_role = BrokerRole.new
     current_user.person.broker_role.provider_kind = 'broker'
-    current_user.person.broker_role.npn = rand(100000)
+    current_user.person.broker_role.npn = rand(100_000)
     current_user.person.broker_role.save!
 
-    broker_agency_profile = FactoryGirl.create(:broker_agency_profile,
-                                                primary_broker_role_id: broker_role.id)
+    broker_agency_profile = FactoryBot.create(:broker_agency_profile,
+                                              primary_broker_role_id: broker_role.id)
     @employer_profile.broker_agency_accounts.build(
-                                                   broker_agency_profile: broker_agency_profile,
-                                                   writing_agent_id: broker_role.id,
-                                                   start_on: TimeKeeper.date_of_record - 30.days
-                                                  )
+      broker_agency_profile: broker_agency_profile,
+      writing_agent_id: broker_role.id,
+      start_on: TimeKeeper.date_of_record - 30.days
+    )
     allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true, list_enrollments?: true))
   end
   it "should display the standard tabs for Employer [broker and employer control]" do
@@ -80,15 +82,15 @@ RSpec.describe "employers/employer_profiles/_primary_nav AS BROKER of employer" 
 end
 
 RSpec.describe "employers/employer_profiles/_primary_nav AS BROKER - NOT of employer" do
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:person) { FactoryGirl.create(:person, :first_name=>'fred', :last_name=>'flintstone'  )}
-  let(:current_user) { FactoryGirl.create(:user, :roles => ['broker'], :person => person) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:person) { FactoryBot.create(:person, :first_name => 'fred', :last_name => 'flintstone')}
+  let(:current_user) { FactoryBot.create(:user, :roles => ['broker'], :person => person) }
   before :each do
     @employer_profile = employer_profile
     sign_in current_user
     current_user.person.broker_role = BrokerRole.new
     current_user.person.broker_role.provider_kind = 'broker'
-    current_user.person.broker_role.npn = rand(100000)
+    current_user.person.broker_role.npn = rand(100_000)
     current_user.person.broker_role.broker_agency_profile_id = 99
     current_user.person.broker_role.save!
     allow(view).to receive(:policy_helper).and_return(double("EmployerProfilePolicy", updateable?: true, list_enrollments?: true))
@@ -113,14 +115,14 @@ RSpec.describe "employers/employer_profiles/_primary_nav AS BROKER - NOT of empl
 end
 
 RSpec.describe "employers/employer_profiles/_primary_nav AS GeneralAgency" do
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:person) { FactoryGirl.create(:person, :first_name=>'fred', :last_name=>'flintstone'  )}
-  let(:current_user) { FactoryGirl.create(:user, :roles => ['general_agency_staff'], :person => person) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:person) { FactoryBot.create(:person, :first_name => 'fred', :last_name => 'flintstone')}
+  let(:current_user) { FactoryBot.create(:user, :roles => ['general_agency_staff'], :person => person) }
   before :each do
-    general_agency = FactoryGirl.create :general_agency, legal_name: 'Zooxy', general_agency_traits: :with_staff
+    general_agency = FactoryBot.create :general_agency, legal_name: 'Zooxy', general_agency_traits: :with_staff
     staff = general_agency.general_agency_profile.general_agency_staff_roles.last
     staff.person.emails.last.update(kind: 'work')
-    user = FactoryGirl.create(:user, :roles => ['general_agency_staff'], :person => staff.person)
+    user = FactoryBot.create(:user, :roles => ['general_agency_staff'], :person => staff.person)
 
     @employer_profile = employer_profile
     sign_in user
@@ -147,9 +149,9 @@ RSpec.describe "employers/employer_profiles/_primary_nav AS GeneralAgency" do
 end
 
 RSpec.describe "employers/employer_profiles/_primary_nav AS EMPLOYER" do
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:person) { FactoryGirl.create(:person) }
-  let(:current_user) { FactoryGirl.create(:user, :roles => [], :person => person) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:person) { FactoryBot.create(:person) }
+  let(:current_user) { FactoryBot.create(:user, :roles => [], :person => person) }
   before :each do
     @employer_profile = employer_profile
     sign_in current_user

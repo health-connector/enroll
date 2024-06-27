@@ -1,9 +1,11 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :benefit_sponsors_organizations_exempt_organization, class: 'BenefitSponsors::Organizations::ExemptOrganization' do
-    site          BenefitSponsors::Site.new
-    legal_name    "Health Agency Authority"
-    dba           "Health Insurance Depot"
-    entity_kind   :health_insurance_exchange
+    site          { BenefitSponsors::Site.new }
+    legal_name    { "Health Agency Authority" }
+    dba           { "Health Insurance Depot" }
+    entity_kind   { :health_insurance_exchange }
 
     # office_locations do
     #   [ build(:benefit_sponsors_locations_office_location, :primary) ]

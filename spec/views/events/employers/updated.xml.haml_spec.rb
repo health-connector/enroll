@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require File.join(Rails.root, "spec", "support", "acapi_vocabulary_spec_helpers")
 
@@ -22,11 +24,12 @@ RSpec.describe "events/employers/updated.haml.erb" do
       download_vocabularies
     end
 
-    let(:plan_year) { PlanYear.new(:aasm_state => "published", :created_at => DateTime.now, 
-                                  :start_on => DateTime.now,
-                                  :open_enrollment_start_on => DateTime.now, 
-                                  :open_enrollment_end_on => DateTime.now) 
-                    }
+    let(:plan_year) do
+      PlanYear.new(:aasm_state => "published", :created_at => DateTime.now,
+                   :start_on => DateTime.now,
+                   :open_enrollment_start_on => DateTime.now,
+                   :open_enrollment_end_on => DateTime.now)
+    end
     let(:employer) { EmployerProfile.new(:organization => organization, :plan_years => [plan_year], :entity_kind => entity_kind) }
 
     before :each do
@@ -44,10 +47,12 @@ RSpec.describe "events/employers/updated.haml.erb" do
 
     context "with dental plans" do
 
-      let(:benefit_group) {bg = FactoryGirl.create(:benefit_group, plan_year: plan_year);
-                          bg.elected_dental_plans = [FactoryGirl.create(:plan, name: "new dental plan", coverage_kind: 'dental',
-                                                 dental_level: 'high')];
-                          bg}
+      let(:benefit_group) do
+        bg = FactoryBot.create(:benefit_group, plan_year: plan_year)
+        bg.elected_dental_plans = [FactoryBot.create(:plan, name: "new dental plan", coverage_kind: 'dental',
+                                                            dental_level: 'high')]
+        bg
+      end
 
       context "is_offering_dental? is true" do
         it "shows the dental plan in output" do
@@ -62,7 +67,7 @@ RSpec.describe "events/employers/updated.haml.erb" do
       context "is_offering_dental? is false" do
         it "does not show the dental plan in output" do
           benefit_group.dental_reference_plan_id = nil
-          benefit_group.save!
+          # benefit_group.save!
           render :template => "events/employers/updated", :locals => {:employer => employer}
           expect(rendered).not_to include "new dental plan"
         end
@@ -70,7 +75,7 @@ RSpec.describe "events/employers/updated.haml.erb" do
     end
 
     context "person of contact" do
-      let(:staff) {FactoryGirl.create(:person)}
+      let(:staff) {FactoryBot.create(:person)}
 
       before do
         allow(employer).to receive(:staff_roles).and_return([staff])
@@ -93,8 +98,8 @@ RSpec.describe "events/employers/updated.haml.erb" do
         download_vocabularies
       end
 
-      let(:employer) { FactoryGirl.build_stubbed :generative_employer_profile }
-      let(:staff) { FactoryGirl.create(:person, :with_work_email, :with_work_phone)}
+      let(:employer) { FactoryBot.build_stubbed :generative_employer_profile }
+      let(:staff) { FactoryBot.create(:person, :with_work_email, :with_work_phone)}
 
       before :each do
         allow(employer).to receive(:staff_roles).and_return([staff])

@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 # These are Class level methods.
 
 module Effective
   module EffectiveDatatable
     module Dsl
-
       def datatable(&block)
         define_method('initialize_datatable') { instance_exec(&block) }
       end
@@ -15,7 +16,6 @@ module Effective
       def charts(&block)
         define_method('initialize_charts') { instance_exec(&block) }
       end
-
     end
   end
 end

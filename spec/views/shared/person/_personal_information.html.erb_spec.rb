@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/person/_personal_information.html.erb" do
-  let(:person) { FactoryGirl.build(:person) }
+  let(:person) { FactoryBot.build(:person) }
 
   before :each do
     helper = Object.new.extend ActionView::Helpers::FormHelper

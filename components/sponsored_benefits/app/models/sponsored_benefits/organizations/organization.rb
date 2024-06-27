@@ -69,8 +69,6 @@ module SponsoredBenefits
       scope :employer_by_hbx_id,                  ->( employer_id ){ where(hbx_id: employer_id, "employer_profile" => { "$exists" => true }) }
       scope :by_broker_agency_profile,            ->( broker_agency_profile_id ) { where(:'employer_profile.broker_agency_accounts' => {:$elemMatch => { is_active: true, broker_agency_profile_id: broker_agency_profile_id } }) }
       scope :by_broker_role,                      ->( broker_role_id ){ where(:'employer_profile.broker_agency_accounts' => {:$elemMatch => { is_active: true, writing_agent_id: broker_role_id                   } }) }
-      scope :approved_broker_agencies,            ->{ where("broker_agency_profile.aasm_state" => 'is_approved') }
-      scope :broker_agencies_by_market_kind,      ->( market_kind ) { any_in("broker_agency_profile.market_kind" => market_kind) }
       scope :all_employers_by_plan_year_start_on, ->( start_on ){ unscoped.where(:"employer_profile.plan_years.start_on" => start_on)  if start_on.present? }
       scope :plan_year_start_on_or_after,         ->( start_on ){ where(:"employer_profile.plan_years.start_on".gte => start_on) if start_on.present? }
       scope :by_general_agency_profile,           ->( general_agency_profile_id ) { where(:'employer_profile.general_agency_accounts' => {:$elemMatch => { aasm_state: "active", general_agency_profile_id: general_agency_profile_id } }) }
@@ -322,43 +320,6 @@ module SponsoredBenefits
           end
 
           query_params
-        end
-
-        def search_agencies_by_criteria(search_params)
-          query_params = build_query_params(search_params)
-          if query_params.any?
-            self.approved_broker_agencies.broker_agencies_by_market_kind(['both', 'shop']).where({ "$and" => build_query_params(search_params) })
-          else
-            self.approved_broker_agencies.broker_agencies_by_market_kind(['both', 'shop'])
-          end
-        end
-
-        def broker_agencies_with_matching_agency_or_broker(search_params)
-          if search_params[:q].present?
-            orgs2 = self.approved_broker_agencies.broker_agencies_by_market_kind(['both', 'shop']).where({
-              "broker_agency_profile._id" => {
-                "$in" => BrokerRole.agencies_with_matching_broker(search_params[:q])
-              }
-            })
-
-            brokers = BrokerRole.brokers_matching_search_criteria(search_params[:q])
-            if brokers.any?
-              search_params.delete(:q)
-              if search_params.empty?
-                return filter_brokers_by_agencies(orgs2, brokers)
-              else
-                agencies_matching_advanced_criteria = orgs2.where({ "$and" => build_query_params(search_params) })
-                return filter_brokers_by_agencies(agencies_matching_advanced_criteria, brokers)
-              end
-            end
-          end
-
-          self.search_agencies_by_criteria(search_params)
-        end
-
-        def filter_brokers_by_agencies(agencies, brokers)
-          agency_ids = agencies.map{|org| org.broker_agency_profile.id}
-          brokers.select{ |broker| agency_ids.include?(broker.broker_role.broker_agency_profile_id) }
         end
       end
     end

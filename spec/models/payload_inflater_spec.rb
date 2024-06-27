@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe PayloadInflater, "given a payload which is not deflated" do
@@ -10,7 +12,7 @@ end
 
 describe PayloadInflater, "given a payload which is deflated" do
   let(:original_payload) { "some string or whatever" }
-  let(:deflated_payload) do 
+  let(:deflated_payload) do
     buffer = StringIO.new
     gzw = Zlib::GzipWriter.new(buffer, Zlib::BEST_COMPRESSION)
     gzw.write(original_payload)

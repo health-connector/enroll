@@ -88,15 +88,17 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def binder_paid
-    if params[:ids]
-      begin
-        ::BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.set_binder_paid(params[:ids])
-        flash["notice"] = "Successfully submitted the selected employer(s) for binder paid."
-        render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
-      rescue => e
-        render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
-      end
+    return unless params[:ids]
+
+    begin
+      ::BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService.set_binder_paid(params[:ids])
+      flash["notice"] = "Successfully submitted the selected employer(s) for binder paid."
+      render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
+    rescue StandardError => e
+      Rails.logger.error(e.message)
+      render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
     end
+
     # Removed redirect because of Datatables. Send Results to Datatable Status
     #redirect_to exchanges_hbx_profiles_root_path
   end
@@ -108,7 +110,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     start_on = @employer_profile.show_plan_year.start_on.strftime("%Y%m%d")
     end_on = @employer_profile.show_plan_year.end_on.strftime("%Y%m%d")
     @xml_submit_time = @employer_profile.xml_transmitted_timestamp
-    v2_xml_generator =  V2GroupXmlGenerator.new([@fein], start_on, end_on)
+    v2_xml_generator = V2GroupXmlGenerator.new([@fein], start_on, end_on)
     send_data v2_xml_generator.generate_xmls
   end
 
@@ -128,7 +130,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def generate_invoice
-    @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:"_id".in => params[:ids])
+    @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
     @organizations = @benfit_sponsorships.map(&:organization)
     @employer_profiles = @organizations.flat_map(&:employer_profile)
     @employer_profiles.each do |employer_profile|
@@ -138,9 +140,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     flash["notice"] = "Successfully submitted the selected employer(s) for invoice generation."
     #redirect_to exchanges_hbx_profiles_root_path
 
-     respond_to do |format|
-       format.js
-     end
+    respond_to do |format|
+      format.js
+    end
   end
 
   def edit_force_publish
@@ -148,8 +150,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     @benefit_application = @benefit_sponsorship.benefit_applications.draft_state.last
 
     respond_to do |format|
-     format.js
-   end
+      format.js
+    end
   end
 
   def force_publish
@@ -157,9 +159,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @benefit_application   = @benefit_sponsorship.benefit_applications.draft_state.last
     if @benefit_application.present?
       @service = BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
-      if @service.may_force_submit_application? || params[:publish_with_warnings] == 'true'
-        @service.force_submit_application
-      end
+      @service.force_submit_application if @service.may_force_submit_application? || params[:publish_with_warnings] == 'true'
     end
 
     respond_to do |format|
@@ -184,50 +184,48 @@ class Exchanges::HbxProfilesController < ApplicationController
     # copy the link and open in new tab
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
     @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
-      respond_to do |format|
-       format.html { redirect_to(last_visited_url) }
-       format.js
-      end
+    respond_to do |format|
+      format.html { redirect_to(last_visited_url) }
+      format.js
+    end
   end
 
-def employer_poc
-
-    # Dynamic Filter values for upcoming 30, 60, 90 days renewals
+  def employer_poc
+      # Dynamic Filter values for upcoming 30, 60, 90 days renewals
     @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
     @next_60_day = @next_30_day.next_month
     @next_90_day = @next_60_day.next_month
 
     @datatable = Effective::Datatables::EmployerDatatable.new
     render '/exchanges/hbx_profiles/employer_poc'
- #   respond_to do |format|
-  #    format.html
-   #   format.js
-   # end
+   #   respond_to do |format|
+    #    format.html
+     #   format.js
+     # end
   end
-
 
   def staff_index
     @q = params.permit(:q)[:q]
     @staff = Person.where(:$or => [{csr_role: {:$exists => true}}, {assister_role: {:$exists => true}}])
     @page_alphabets = page_alphabets(@staff, "last_name")
     page_no = cur_page_no(@page_alphabets.first)
-    if @q.nil?
-      @staff = @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
-    else
-      @staff = @staff.where(last_name: @q)
-    end
+    @staff = if @q.nil?
+               page_no.present? ? @staff.where(last_name: /^#{Regexp.escape(page_no)}/i) : []
+             else
+               @staff.where(last_name: @q)
+             end
   end
 
   def assister_index
     @q = params.permit(:q)[:q]
-    @staff = Person.where(assister_role: {:$exists =>true})
+    @staff = Person.where(assister_role: {:$exists => true})
     @page_alphabets = page_alphabets(@staff, "last_name")
     page_no = cur_page_no(@page_alphabets.first)
-    if @q.nil?
-      @staff = @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
-    else
-      @staff = @staff.where(last_name: @q)
-    end
+    @staff = if @q.nil?
+               @staff.where(last_name: /^#{Regexp.escape(page_no)}/i)
+             else
+               @staff.where(last_name: @q)
+             end
   end
 
   def find_email(agent, role)
@@ -247,18 +245,16 @@ def employer_poc
         agent = match.first
         role = cac_flag ? 'Certified Applicant Counselor' : 'Customer Service Representative'
       end
+    elsif params[:broker].present?
+      agent = Person.find(params[:broker])
+      broker_role_id = agent.broker_role.id
+      consumer = Person.find(params[:person])
+      family = consumer.primary_family
+      family.hire_broker_agency(broker_role_id)
+      role = 'Broker'
     else
-      if params[:broker].present?
-        agent = Person.find(params[:broker])
-        broker_role_id = agent.broker_role.id
-        consumer = Person.find(params[:person])
-        family = consumer.primary_family
-        family.hire_broker_agency(broker_role_id)
-        role = 'Broker'
-      else
-        agent = Person.find(params[:assister])
-        role = 'In-Person Assister'
-      end
+      agent = Person.find(params[:assister])
+      role = 'In-Person Assister'
     end
     if role
       status_text = 'Message sent to ' + role + ' ' + agent.full_name + ' <br>'
@@ -280,13 +276,13 @@ def employer_poc
     @q = params.permit(:q)[:q]
     page_string = params.permit(:families_page)[:families_page]
     page_no = page_string.blank? ? nil : page_string.to_i
-    unless @q.present?
-      @families = Family.page page_no
-      @total = Family.count
-    else
+    if @q.present?
       total_families = Person.search(@q).map(&:families).flatten.uniq
       @total = total_families.count
       @families = Kaminari.paginate_array(total_families).page page_no
+    else
+      @families = Family.page page_no
+      @total = Family.count
     end
     respond_to do |format|
       format.html { render "insured/families/index" }
@@ -303,6 +299,10 @@ def employer_poc
   def user_account_index
     authorize HbxProfile, :can_access_user_account_tab?
     @datatable = Effective::Datatables::UserAccountDatatable.new
+    respond_to do |format|
+      format.js
+      format.html { render '/exchanges/hbx_profiles/user_account_index_datatable.html.erb' }
+    end
   end
 
   def outstanding_verification_dt
@@ -333,10 +333,10 @@ def employer_poc
       @employer_actions = true
       @people = Person.where(:id => { "$in" => (params[:people_id] || []) })
       @organization = if params.key?(:employers_action_id)
-        EmployerProfile.find(@element_to_replace_id.split("_").last).organization
-      else
-        Organization.find(@element_to_replace_id.split("_").last)
-      end
+                        EmployerProfile.find(@element_to_replace_id.split("_").last).organization
+                      else
+                        Organization.find(@element_to_replace_id.split("_").last)
+                      end
     end
   end
 
@@ -356,12 +356,12 @@ def employer_poc
   end
 
   def add_new_sep
-    if params[:qle_id].present?
-      @element_to_replace_id = params[:family_actions_id]
-      createSep
-      respond_to do |format|
-        format.js { render :file => "sep/approval/add_sep_result.js.erb", name: @name }
-      end
+    return unless params[:qle_id].present?
+
+    @element_to_replace_id = params[:family_actions_id]
+    createSep
+    respond_to do |format|
+      format.js { render :file => "sep/approval/add_sep_result.js.erb", name: @name }
     end
   end
 
@@ -374,7 +374,7 @@ def employer_poc
   end
 
   def update_cancel_enrollment
-    params_parser = ::Forms::BulkActionsForAdmin.new(params)
+    params_parser = ::Forms::BulkActionsForAdmin.new(params.permit(uniq_cancel_params).to_h)
     @result = params_parser.result
     @row = params_parser.row
     @family_id = params_parser.family_id
@@ -390,11 +390,10 @@ def employer_poc
     respond_to do |format|
       format.js { render "datatables/terminate_enrollment" }
     end
-
   end
 
   def update_terminate_enrollment
-    params_parser = ::Forms::BulkActionsForAdmin.new(params)
+    params_parser = ::Forms::BulkActionsForAdmin.new(params.permit(uniq_terminate_params).to_h)
     @result = params_parser.result
     @row = params_parser.row
     @family_id = params_parser.family_id
@@ -412,16 +411,16 @@ def employer_poc
     @dup_enr_ids = fetch_duplicate_enrollment_ids(@coverage_ended_enrollments).map(&:to_s)
   end
 
-   def update_enrollment_termianted_on_date
+  def update_enrollment_termianted_on_date
     begin
       enrollment = HbxEnrollment.find(params[:enrollment_id])
       @row = params[:family_actions_id]
       termination_date = Date.strptime(params["new_termination_date"], "%m/%d/%Y")
-      if enrollment.present? && enrollment.reterm_enrollment_with_earlier_date(termination_date, params["edi_required"].present?)
-        message = {notice: "Enrollment Updated Successfully."}
-      else
-        message = {notice: "Unable to find/update Enrollment."}
-      end
+      message = if enrollment.present? && enrollment.reterm_enrollment_with_earlier_date(termination_date, params["edi_required"].present?)
+                  {notice: "Enrollment Updated Successfully."}
+                else
+                  {notice: "Unable to find/update Enrollment."}
+                end
     rescue Exception => e
       message = {error: e.to_s}
     end
@@ -429,7 +428,6 @@ def employer_poc
   end
 
   def broker_agency_index
-
     @datatable = Effective::Datatables::BrokerAgencyDatatable.new
 
     #@q = params.permit(:q)[:q]
@@ -492,20 +490,19 @@ def employer_poc
     all_organizations = Organization.retrieve_employers_eligible_for_binder_paid
 
     organizations = if dt_query.search_string.blank?
-      all_organizations
-    else
-      org_ids = Organization.search(dt_query.search_string).pluck(:id)
-      all_organizations.where({
-        "id" => {"$in" => org_ids}
-      })
-    end
+                      all_organizations
+                    else
+                      org_ids = Organization.search(dt_query.search_string).pluck(:id)
+                      all_organizations.where({
+                                                "id" => {"$in" => org_ids}
+                                              })
+                    end
 
     @draw = dt_query.draw
     @total_records = all_organizations.count
     @records_filtered = organizations.count
     @organizations = organizations.skip(dt_query.skip).limit(dt_query.take)
     render
-
   end
 
   def product_index
@@ -531,13 +528,11 @@ def employer_poc
 
   def reinstate_enrollment
     enrollment = HbxEnrollment.find(params[:enrollment_id])
-     if enrollment.present?
+    if enrollment.present?
       begin
         reinstated_enrollment = enrollment.reinstate(edi: params['edi_required'].present?)
         if reinstated_enrollment.present?
-          if params['comments'].present?
-            reinstated_enrollment.comments.create(:content => params[:comments], :user => current_user.id)
-          end
+          reinstated_enrollment.comments.create(:content => params[:comments], :user => current_user.id) if params['comments'].present?
           message = {notice: "Enrollment Reinstated successfully."}
         end
       rescue Exception => e
@@ -546,7 +541,7 @@ def employer_poc
     else
       message = {notice: "Unable to find Enrollment."}
     end
-    
+
     redirect_to exchanges_hbx_profiles_root_path, flash: message
   end
 
@@ -569,7 +564,7 @@ def employer_poc
   end
 
   def update_dob_ssn
-    authorize  Family, :can_update_ssn?
+    authorize Family, :can_update_ssn?
     @element_to_replace_id = params[:person][:family_actions_id]
     @person = Person.find(params[:person][:pid]) if !params[:person].blank? && !params[:person][:pid].blank?
     @ssn_match = Person.find_by_ssn(params[:person][:ssn]) unless params[:person][:ssn].blank?
@@ -616,8 +611,7 @@ def employer_poc
   end
 
   # GET /exchanges/hbx_profiles/1/edit
-  def edit
-  end
+  def edit; end
 
 # FIXME: I have removed all writes to the HBX Profile models as we
 #        don't seem to have functionality that requires them nor
@@ -673,11 +667,11 @@ def employer_poc
 
   def set_date
     authorize HbxProfile, :modify_admin_tabs?
-    forms_time_keeper = Forms::TimeKeeper.new(params[:forms_time_keeper])
+    forms_time_keeper = Forms::TimeKeeper.new(timekeeper_params.to_h)
     begin
       forms_time_keeper.set_date_of_record(forms_time_keeper.forms_date_of_record)
       flash[:notice] = "Date of record set to " + TimeKeeper.date_of_record.strftime("%m/%d/%Y")
-    rescue Exception=>e
+    rescue StandardError => e
       flash[:error] = "Failed to set date of record, " + e.message
     end
     redirect_to exchanges_hbx_profiles_root_path
@@ -685,19 +679,20 @@ def employer_poc
 
   # Enrollments for APTC / CSR
   def aptc_csr_family_index
-    raise NotAuthorizedError if !current_user.has_hbx_staff_role?
+    raise NotAuthorizedError unless current_user.has_hbx_staff_role?
+
     @q = params.permit(:q)[:q]
     page_string = params.permit(:families_page)[:families_page]
     page_no = page_string.blank? ? nil : page_string.to_i
-    unless @q.present?
-      @families = Family.all_active_assistance_receiving_for_current_year.page page_no
-      @total = Family.all_active_assistance_receiving_for_current_year.count
-    else
+    if @q.present?
       person_ids = Person.search(@q).map(&:_id)
 
       total_families = Family.all_active_assistance_receiving_for_current_year.in("family_members.person_id" => person_ids).entries
       @total = total_families.count
       @families = Kaminari.paginate_array(total_families).page page_no
+    else
+      @families = Family.all_active_assistance_receiving_for_current_year.page page_no
+      @total = Family.all_active_assistance_receiving_for_current_year.count
     end
     respond_to do |format|
       #format.html { render "insured/families/aptc_csr_listing" }
@@ -711,14 +706,25 @@ def employer_poc
 
     begin
       setting_record.update(value: setting_params[:value]) if setting_record.present?
-    rescue Exception=>e
+    rescue StandardError => e
       flash[:error] = "Failed to update setting, " + e.message
     end
     redirect_to exchanges_hbx_profiles_root_path
-
   end
 
-private
+  private
+
+  def uniq_terminate_params
+    params.keys.map { |key| key.match(/terminate_hbx_.*/) || key.match(/termination_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
+  end
+
+  def timekeeper_params
+    params.require(:forms_time_keeper).permit(:date_of_record)
+  end
+
+  def uniq_cancel_params
+    params.keys.map { |key| key.match(/cancel_hbx_.*/) || key.match(/cancel_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
+  end
 
   def group_enrollments_by_year_and_market(all_enrollments)
     current_year = TimeKeeper.date_of_record.year
@@ -761,8 +767,7 @@ private
     return [] if product_ids.uniq.count == product_ids.count
 
     dup_enrs = duplicate_enrs_by_market_year(market_enrollments)
-    dup_enr_arrays = dup_enrs.flatten.compact.count > 1 ? dup_enrs.flatten.compact : []
-    dup_enr_arrays
+    dup_enrs.flatten.compact.count > 1 ? dup_enrs.flatten.compact : []
   end
 
   def fetch_duplicate_enrollment_ids(enrollments)
@@ -802,9 +807,9 @@ private
   end
 
   def can_submit_time_travel_request?
-    unless authorize HbxProfile, :can_submit_time_travel_request?
-      redirect_to root_path, :flash => { :error => "Access not allowed" }
-    end
+    return if authorize HbxProfile, :can_submit_time_travel_request?
+
+    redirect_to root_path, :flash => { :error => "Access not allowed" }
   end
 
   def view_admin_tabs?
@@ -822,18 +827,18 @@ private
       last_name = insured.last_name
       name = insured.full_name
       insured_email = insured.emails.last.try(:address) || insured.try(:user).try(:email)
-      root = 'http://' + request.env["HTTP_HOST"]+'/exchanges/agents/resume_enrollment?person_id=' + params[:person] +'&original_application_type:'
+      root = "http://#{request.env['HTTP_HOST']}/exchanges/agents/resume_enrollment?person_id=#{params[:person]}&original_application_type:"
       body =
         "Please contact #{insured.first_name} #{insured.last_name}. <br> " +
         "Plan shopping help has been requested by #{insured_email}<br>" +
-        "<a href='" + root+"phone'>Assist Customer</a>  <br>"
+        "<a href='" + root + "phone'>Assist Customer</a>  <br>"
     else
       first_name = params[:first_name]
       last_name = params[:last_name]
       name = first_name.to_s + ' ' + last_name.to_s
       insured_email = params[:email]
       body =  "Please contact #{first_name} #{last_name}. <br>" +
-        "Plan shopping help has been requested by #{insured_email}<br>"
+              "Plan shopping help has been requested by #{insured_email}<br>"
     end
     hbx_profile = HbxProfile.find_by_state_abbreviation(aca_state_abbreviation)
     message_params = {
@@ -842,14 +847,14 @@ private
       from: 'Plan Shopping Web Portal',
       to: "Agent Mailbox",
       subject: "Please contact #{first_name} #{last_name}. ",
-      body: body,
-      }
+      body: body
+    }
     create_secure_message message_params, hbx_profile, :sent
     create_secure_message message_params, agent, :inbox
     result = UserMailer.new_client_notification(find_email(agent,role), first_name, name, role, insured_email, params[:person].present?)
     result.deliver_now
     puts result.to_s if Rails.env.development?
-   end
+  end
 
   def find_hbx_profile
     @profile = current_user.person.try(:hbx_staff_role).try(:hbx_profile)
@@ -870,21 +875,21 @@ private
   end
 
   def check_hbx_staff_role
-    unless current_user.has_hbx_staff_role?
-      redirect_to root_path, :flash => { :error => "You must be an HBX staff member" }
-    end
+    return if current_user.has_hbx_staff_role?
+
+    redirect_to root_path, :flash => { :error => "You must be an HBX staff member" }
   end
 
   def view_the_configuration_tab?
-    unless authorize HbxProfile, :view_the_configuration_tab?
-      redirect_to root_path, :flash => { :error => "Access not allowed" }
-    end
+    return if authorize HbxProfile, :view_the_configuration_tab?
+
+    redirect_to root_path, :flash => { :error => "Access not allowed" }
   end
 
   def check_csr_or_hbx_staff
-    unless current_user.has_hbx_staff_role? || (current_user.person.csr_role && !current_user.person.csr_role.cac)
-      redirect_to root_path, :flash => { :error => "You must be an HBX staff member or a CSR" }
-    end
+    return if current_user.has_hbx_staff_role? || (current_user.person.csr_role && !current_user.person.csr_role.cac)
+
+    redirect_to root_path, :flash => { :error => "You must be an HBX staff member or a CSR" }
   end
 
   def authorize_for_instance

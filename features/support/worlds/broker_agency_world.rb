@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module BrokerAgencyWorld
   def broker_organization
-    @broker_organization ||= FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site)
+    @broker_organization ||= FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site)
   end
 
   def broker_agency_organization(legal_name = nil, *traits)
@@ -10,7 +12,7 @@ module BrokerAgencyWorld
 
     if legal_name.blank?
       if @broker_agency_profiles.empty?
-        @broker_agency_profiles[:default] ||= FactoryGirl.create(
+        @broker_agency_profiles[:default] ||= FactoryBot.create(
           :benefit_sponsors_organizations_general_organization,
           *traits,
           attributes.merge(site: site)
@@ -19,7 +21,7 @@ module BrokerAgencyWorld
         @broker_agency_profiles.values.first
       end
     else
-      @broker_agency_profiles[legal_name] ||= FactoryGirl.create(
+      @broker_agency_profiles[legal_name] ||= FactoryBot.create(
         :benefit_sponsors_organizations_general_organization,
         *traits,
         attributes.merge(site: site)
@@ -36,7 +38,7 @@ module BrokerAgencyWorld
     return @brokers[broker_name] if @brokers[broker_name]
 
     broker_agency_profile = broker_agency_profile(legal_name)
-    person = FactoryGirl.create(:person, :with_work_email, first_name: broker_name.split(/\s/)[0], last_name: broker_name.split(/\s/)[1])
+    person = FactoryBot.create(:person, :with_work_email, first_name: broker_name.split(/\s/)[0], last_name: broker_name.split(/\s/)[1])
     @brokers[broker_name] = create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: person)
     person.broker_agency_staff_roles << build(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id)
     @broker_agency_staff = create(:user, person: person, email: people[broker_name][:email], password: people[broker_name][:password], password_confirmation: people[broker_name][:password], roles: ['broker'])
@@ -45,7 +47,7 @@ module BrokerAgencyWorld
   end
 
   def broker_agency_account
-    @broker_agency_account ||= FactoryGirl.build(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile)
+    @broker_agency_account ||= FactoryBot.build(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile)
   end
 
   def assign_person_to_broker_agency(broker_agency_profile, broker_role)
@@ -54,7 +56,7 @@ module BrokerAgencyWorld
   end
 
   def broker_role
-    @broker_role = FactoryGirl.build(:broker_role)
+    @broker_role = FactoryBot.build(:broker_role)
   end
 
   def assign_broker_agency_account(broker_name, broker_agency_name)
@@ -66,7 +68,7 @@ module BrokerAgencyWorld
 
   def plan_design_organization(employer_name, broker_agency_name = nil)
     sponsor = employer_profile(employer_name)
-    @plan_design_organization ||= FactoryGirl.create(
+    @plan_design_organization ||= FactoryBot.create(
       :sponsored_benefits_plan_design_organization,
       owner_profile_id: broker_agency_profile(broker_agency_name).id,
       sponsor_profile_id: sponsor.id,
@@ -79,7 +81,7 @@ module BrokerAgencyWorld
 
   def new_broker(*traits)
     attributes = traits.extract_options!
-    @new_broker ||= FactoryGirl.create(
+    @new_broker ||= FactoryBot.create(
       :benefit_sponsors_organizations_general_organization,
       :with_broker_agency_profile,
       attributes.merge(site: site)

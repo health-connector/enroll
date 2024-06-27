@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-RSpec.describe "employers/employer_profiles/my_account/_enrollment_progress_bar.html.erb" do
+RSpec.describe "employers/employer_profiles/my_account/_enrollment_progress_bar.html.erb", dbclean: :after_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application" do
     let(:aasm_state) { :enrollment_open }

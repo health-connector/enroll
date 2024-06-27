@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake'
 
 describe 'load_rate_reference:update_rating_areas' do

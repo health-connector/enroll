@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EmployerWorld
   include ActionView::Helpers::NumberHelper
   def employer(legal_name, *traits)
@@ -6,10 +8,10 @@ module EmployerWorld
     @organization ||= {}
 
     if @organization[legal_name].blank?
-      organization = FactoryGirl.create(
+      organization = FactoryBot.create(
         :benefit_sponsors_organizations_general_organization, *traits,
         attributes.merge(site: site)
-        )
+      )
 
       @employer_profile = organization.employer_profile
       @organization[legal_name] = organization
@@ -23,7 +25,7 @@ module EmployerWorld
   end
 
   def registering_employer
-    @registering_organization ||= FactoryGirl.build(
+    @registering_employer ||= FactoryBot.build(
       :benefit_sponsors_organizations_general_organization,
       :with_aca_shop_cca_employer_profile,
       site: site
@@ -49,12 +51,12 @@ end
 
 And(/^(.*?) employer has a staff role$/) do |legal_name|
   employer_profile = employer_profile(legal_name)
-  employer_staff_role = FactoryGirl.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
-  person = FactoryGirl.create(:person, employer_staff_roles: [employer_staff_role])
-  @staff_role ||= FactoryGirl.create(:user, :person => person)
+  employer_staff_role = FactoryBot.build(:benefit_sponsor_employer_staff_role, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)
+  person = FactoryBot.create(:person, employer_staff_roles: [employer_staff_role])
+  @staff_role ||= FactoryBot.create(:user, :person => person)
 end
 
-And(/^(.*?) employer terminates employees$/) do |legal_name|
+And(/^(.*?) employer terminates employees$/) do |_legal_name|
   termination_date = TimeKeeper.date_of_record - 1.day
   @census_employees.each do |employee|
     employee.terminate_employment(termination_date)
@@ -78,5 +80,5 @@ end
 Given(/^an employer (.*?) exists with statements and premium payments$/) do |legal_name|
   employer legal_name, legal_name: legal_name, dba: legal_name
   benefit_sponsorship = benefit_sponsorship(employer(legal_name))
-  @benefit_sponsorship_account = FactoryGirl.create(:benefit_sponsors_benefit_sponsorships_benefit_sponsorship_account, :with_financial_transactions, :with_current_statement_activities, benefit_sponsorship: benefit_sponsorship)
+  @benefit_sponsorship_account = FactoryBot.create(:benefit_sponsors_benefit_sponsorships_benefit_sponsorship_account, :with_financial_transactions, :with_current_statement_activities, benefit_sponsorship: benefit_sponsorship)
 end

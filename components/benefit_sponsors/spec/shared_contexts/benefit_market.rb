@@ -25,7 +25,7 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
     create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year + 1)
   }
 
-  let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+  let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:health_products) do
     create_list(
       :benefit_markets_products_health_products_health_product,

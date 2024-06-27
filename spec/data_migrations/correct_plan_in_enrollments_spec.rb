@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "correct_plan_in_enrollment")
 
-describe CorrectPlanInEnrollment do
+describe CorrectPlanInEnrollment, dbclean: :after_each do
 
   let(:given_task_name) { "correct_plan_in_enrollment" }
   subject { CorrectPlanInEnrollment.new(given_task_name, double(:current_scope => nil)) }
@@ -13,10 +15,10 @@ describe CorrectPlanInEnrollment do
   end
 
   describe "fix_enrollment" do
-    
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member)}
-    let(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, :individual_unassisted, :with_enrollment_members, household: family.active_household) }
-    let(:incorrect_plan) { FactoryGirl.create(:plan, hios_id: hbx_enrollment.plan.hios_id, active_year: hbx_enrollment.plan.active_year - 1 ) }
+
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
+    let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, :individual_unassisted, :with_enrollment_members, household: family.active_household) }
+    let(:incorrect_plan) { FactoryBot.create(:plan, hios_id: hbx_enrollment.plan.hios_id, active_year: hbx_enrollment.plan.active_year - 1) }
     let(:correct_plan) { hbx_enrollment.plan }
 
     before(:each) do

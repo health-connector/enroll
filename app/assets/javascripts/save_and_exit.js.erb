@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).on('ready page:load turbolinks:load', function () {
    $(document).on('click', '.interaction-click-control-save---exit', function(){
    	    if ($('.employee_roles #new_person_wrapper').length) {
    	       $('#exit_after_method').val('true');
@@ -12,7 +12,3 @@ $(document).ready(function () {
    	    }
    })
 });
-
-
-
-

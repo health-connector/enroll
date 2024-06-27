@@ -1,21 +1,24 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "define_permissions")
 
 describe DefinePermissions, dbclean: :after_each do
   subject { DefinePermissions.new(given_task_name, double(:current_scope => nil))}
-  let(:roles) {%w{hbx_staff hbx_read_only hbx_csr_supervisor hbx_tier3 hbx_csr_tier2 hbx_csr_tier1 developer super_admin} }
+  let(:roles) {%w[hbx_staff hbx_read_only hbx_csr_supervisor hbx_tier3 hbx_csr_tier2 hbx_csr_tier1 developer super_admin] }
+
   describe 'create permissions' do
     let(:given_task_name) {':initial_hbx'}
 
     before do
       Person.all.delete
-      person= FactoryGirl.create(:person)
-      role = FactoryGirl.create(:hbx_staff_role, person: person)
+      person = FactoryBot.create(:person)
+      FactoryBot.create(:hbx_staff_role, person: person)
       subject.initial_hbx
     end
+
     it "creates permissions" do
       expect(Permission.all.to_a.size).to eq(8)
-      #expect(Person.first.hbx_staff_role.subrole).to eq 'hbx_staff'
       expect(Permission.all.map(&:name)).to match_array roles
     end
 
@@ -25,9 +28,9 @@ describe DefinePermissions, dbclean: :after_each do
       before do
         User.all.delete
         Person.all.delete
-        person = FactoryGirl.create(:person)
-        permission = FactoryGirl.create(:permission, :hbx_staff)
-        role = FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id)
+        person = FactoryBot.create(:person)
+        permission = FactoryBot.create(:permission, :hbx_staff)
+        FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id)
         subject.hbx_admin_can_complete_resident_application
       end
 
@@ -39,9 +42,9 @@ describe DefinePermissions, dbclean: :after_each do
 
     context 'update can change username and email for super admin hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_can_change_username_and_email'}
-      let(:person) { FactoryGirl.create(:person) }
-      let(:permission) { FactoryGirl.create(:permission, :super_admin) }
-      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
+      let(:person) { FactoryBot.create(:person) }
+      let(:permission) { FactoryBot.create(:permission, :super_admin) }
+      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_can_change_username_and_email
@@ -54,9 +57,9 @@ describe DefinePermissions, dbclean: :after_each do
 
     context 'update can view login history for super admin hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_view_login_history'}
-      let(:person) { FactoryGirl.create(:person) }
+      let(:person) { FactoryBot.create(:person) }
       let(:permission) { Permission.super_admin }
-      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
+      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_view_login_history
@@ -69,9 +72,9 @@ describe DefinePermissions, dbclean: :after_each do
 
     context 'update can view login history for hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_can_view_notice_templates'}
-      let(:person) { FactoryGirl.create(:person) }
+      let(:person) { FactoryBot.create(:person) }
       let(:permission) { Permission.hbx_staff }
-      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id) }
+      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_can_view_notice_templates
@@ -84,9 +87,9 @@ describe DefinePermissions, dbclean: :after_each do
 
     context 'update can edit login history for hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_can_edit_notice_templates'}
-      let(:person) { FactoryGirl.create(:person) }
+      let(:person) { FactoryBot.create(:person) }
       let(:permission) { Permission.hbx_staff }
-      let(:role) { FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id) }
+      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_can_edit_notice_templates
@@ -103,20 +106,20 @@ describe DefinePermissions, dbclean: :after_each do
       before do
         User.all.delete
         Person.all.delete
-        @hbx_staff_person = FactoryGirl.create(:person)
-        @super_admin = FactoryGirl.create(:person)
-        @hbx_tier3 = FactoryGirl.create(:person)
-        @hbx_read_only_person = FactoryGirl.create(:person)
-        @hbx_csr_supervisor_person = FactoryGirl.create(:person)
-        @hbx_csr_tier1_person = FactoryGirl.create(:person)
-        @hbx_csr_tier2_person = FactoryGirl.create(:person)
-        hbx_staff_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_staff_person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
-        hbx_read_only_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_read_only_person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
-        hbx_csr_supervisor_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_supervisor_person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
-        hbx_csr_tier1_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_tier1_person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
-        hbx_csr_tier2_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_tier2_person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
-        super_admin = FactoryGirl.create(:hbx_staff_role, person: @super_admin, subrole: "super_admin", permission_id: Permission.super_admin.id)
-        hbx_tier3 = FactoryGirl.create(:hbx_staff_role, person: @hbx_tier3, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+        @hbx_staff_person = FactoryBot.create(:person)
+        @super_admin = FactoryBot.create(:person)
+        @hbx_tier3 = FactoryBot.create(:person)
+        @hbx_read_only_person = FactoryBot.create(:person)
+        @hbx_csr_supervisor_person = FactoryBot.create(:person)
+        @hbx_csr_tier1_person = FactoryBot.create(:person)
+        @hbx_csr_tier2_person = FactoryBot.create(:person)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_staff_person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_read_only_person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_csr_supervisor_person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_csr_tier1_person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_csr_tier2_person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+        FactoryBot.create(:hbx_staff_role, person: @super_admin, subrole: "super_admin", permission_id: Permission.super_admin.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_tier3, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
         subject.hbx_admin_can_view_username_and_email
       end
 
@@ -144,8 +147,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx super admin" do
         let(:hbx_super_admin) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
           end
         end
 
@@ -166,8 +169,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -188,8 +191,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx read only" do
         let(:hbx_read_only) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
           end
         end
 
@@ -210,8 +213,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr supervisor" do
         let(:hbx_csr_supervisor) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
           end
         end
 
@@ -232,8 +235,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier1" do
         let(:hbx_csr_tier1) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
           end
         end
 
@@ -254,8 +257,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier2" do
         let(:hbx_csr_tier2) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
           end
         end
 
@@ -276,8 +279,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx tier3" do
         let(:hbx_tier3) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
           end
         end
 
@@ -298,8 +301,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -320,8 +323,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:developer) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
           end
         end
 
@@ -351,8 +354,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx super admin" do
         let(:hbx_super_admin) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
           end
         end
 
@@ -373,8 +376,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -395,8 +398,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx read only" do
         let(:hbx_read_only) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
           end
         end
 
@@ -417,8 +420,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr supervisor" do
         let(:hbx_csr_supervisor) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
           end
         end
 
@@ -439,8 +442,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier1" do
         let(:hbx_csr_tier1) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
           end
         end
 
@@ -461,8 +464,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier2" do
         let(:hbx_csr_tier2) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
           end
         end
 
@@ -483,8 +486,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx tier3" do
         let(:hbx_tier3) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
           end
         end
 
@@ -505,8 +508,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx developer" do
         let(:developer) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
           end
         end
 
@@ -532,16 +535,16 @@ describe DefinePermissions, dbclean: :after_each do
       before do
         User.all.delete
         Person.all.delete
-        @hbx_staff_person = FactoryGirl.create(:person)
-        @super_admin = FactoryGirl.create(:person)
-        @hbx_tier3 = FactoryGirl.create(:person)
-        @hbx_read_only_person = FactoryGirl.create(:person)
-        @hbx_csr_supervisor_person = FactoryGirl.create(:person)
-        hbx_staff_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_staff_person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
-        hbx_read_only_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_read_only_person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
-        hbx_csr_supervisor_role = FactoryGirl.create(:hbx_staff_role, person: @hbx_csr_supervisor_person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
-        super_admin = FactoryGirl.create(:hbx_staff_role, person: @super_admin, subrole: "super_admin", permission_id: Permission.super_admin.id)
-        hbx_tier3 = FactoryGirl.create(:hbx_staff_role, person: @hbx_tier3, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+        @hbx_staff_person = FactoryBot.create(:person)
+        @super_admin = FactoryBot.create(:person)
+        @hbx_tier3 = FactoryBot.create(:person)
+        @hbx_read_only_person = FactoryBot.create(:person)
+        @hbx_csr_supervisor_person = FactoryBot.create(:person)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_staff_person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_read_only_person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_csr_supervisor_person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+        FactoryBot.create(:hbx_staff_role, person: @super_admin, subrole: "super_admin", permission_id: Permission.super_admin.id)
+        FactoryBot.create(:hbx_staff_role, person: @hbx_tier3, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
         subject.hbx_admin_can_add_sep
       end
 
@@ -567,8 +570,8 @@ describe DefinePermissions, dbclean: :after_each do
       end
       context "of an hbx tier3" do
         let(:hbx_tier3) do
-          FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
           end
         end
 
@@ -578,11 +581,11 @@ describe DefinePermissions, dbclean: :after_each do
 
         context 'after the rake task is run' do
           before do
-          subject.hbx_admin_can_extend_open_enrollment
+            subject.hbx_admin_can_extend_open_enrollment
           end
 
           it 'returns true' do
-          expect(hbx_tier3.hbx_staff_role.permission.can_extend_open_enrollment).to be true
+            expect(hbx_tier3.hbx_staff_role.permission.can_extend_open_enrollment).to be true
           end
         end
       end
@@ -598,8 +601,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx super admin" do
         let(:hbx_super_admin) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
           end
         end
 
@@ -620,8 +623,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -642,8 +645,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx read only" do
         let(:hbx_read_only) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
           end
         end
 
@@ -664,8 +667,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr supervisor" do
         let(:hbx_csr_supervisor) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
           end
         end
 
@@ -686,8 +689,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier1" do
         let(:hbx_csr_tier1) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
           end
         end
 
@@ -708,8 +711,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier2" do
         let(:hbx_csr_tier2) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
           end
         end
 
@@ -730,8 +733,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx tier3" do
         let(:hbx_tier3) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
           end
         end
 
@@ -752,8 +755,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -774,8 +777,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of a developer" do
         let(:developer) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
           end
         end
 
@@ -805,8 +808,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx super admin" do
         let(:hbx_super_admin) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
           end
         end
 
@@ -829,8 +832,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -853,8 +856,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx read only" do
         let(:hbx_read_only) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
           end
         end
 
@@ -877,8 +880,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr supervisor" do
         let(:hbx_csr_supervisor) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
           end
         end
 
@@ -901,8 +904,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier1" do
         let(:hbx_csr_tier1) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
           end
         end
 
@@ -925,8 +928,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier2" do
         let(:hbx_csr_tier2) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
           end
         end
 
@@ -949,8 +952,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx tier3" do
         let(:hbx_tier3) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
           end
         end
 
@@ -973,8 +976,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of a developer" do
         let(:developer) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
           end
         end
 
@@ -1006,8 +1009,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx super admin" do
         let(:hbx_super_admin) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
           end
         end
 
@@ -1022,8 +1025,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx staff" do
         let(:hbx_staff) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_staff", permission_id: Permission.hbx_staff.id)
           end
         end
 
@@ -1044,8 +1047,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx read only" do
         let(:hbx_read_only) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_read_only", permission_id: Permission.hbx_read_only.id)
           end
         end
 
@@ -1066,8 +1069,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr supervisor" do
         let(:hbx_csr_supervisor) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_supervisor", permission_id: Permission.hbx_csr_supervisor.id)
           end
         end
 
@@ -1088,8 +1091,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier1" do
         let(:hbx_csr_tier1) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier1", permission_id: Permission.hbx_csr_tier1.id)
           end
         end
 
@@ -1110,8 +1113,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx csr tier2" do
         let(:hbx_csr_tier2) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_csr_tier2", permission_id: Permission.hbx_csr_tier2.id)
           end
         end
 
@@ -1132,8 +1135,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of an hbx tier3" do
         let(:hbx_tier3) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
           end
         end
 
@@ -1148,8 +1151,8 @@ describe DefinePermissions, dbclean: :after_each do
 
       context "of a developer" do
         let(:developer) do
-          FactoryGirl.create(:person).tap do |person|
-            FactoryGirl.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "developer", permission_id: Permission.developer.id)
           end
         end
 
@@ -1175,14 +1178,14 @@ describe DefinePermissions, dbclean: :after_each do
     before do
       User.all.delete
       Person.all.delete
-      allow(Permission).to receive_message_chain('hbx_staff.id'){FactoryGirl.create(:permission, :hbx_staff).id}
-      allow(Permission).to receive_message_chain('hbx_read_only.id'){FactoryGirl.create(:permission, :hbx_read_only).id}
-      allow(Permission).to receive_message_chain('hbx_csr_supervisor.id'){FactoryGirl.create(:permission, :hbx_csr_supervisor).id}
-      allow(Permission).to receive_message_chain('hbx_csr_tier2.id'){FactoryGirl.create(:permission,  :hbx_csr_tier2).id}
-      allow(Permission).to receive_message_chain('hbx_csr_tier1.id'){FactoryGirl.create(:permission,  :hbx_csr_tier1).id}
-      allow(Permission).to receive_message_chain('developer.id'){FactoryGirl.create(:permission,  :developer).id}
-      allow(Permission).to receive_message_chain('hbx_tier3.id'){FactoryGirl.create(:permission,  :hbx_tier3).id}
-      allow(Permission).to receive_message_chain('super_admin.id'){FactoryGirl.create(:permission,  :super_admin).id}
+      allow(Permission).to receive_message_chain('hbx_staff.id'){FactoryBot.create(:permission, :hbx_staff).id}
+      allow(Permission).to receive_message_chain('hbx_read_only.id'){FactoryBot.create(:permission, :hbx_read_only).id}
+      allow(Permission).to receive_message_chain('hbx_csr_supervisor.id'){FactoryBot.create(:permission, :hbx_csr_supervisor).id}
+      allow(Permission).to receive_message_chain('hbx_csr_tier2.id'){FactoryBot.create(:permission,  :hbx_csr_tier2).id}
+      allow(Permission).to receive_message_chain('hbx_csr_tier1.id'){FactoryBot.create(:permission,  :hbx_csr_tier1).id}
+      allow(Permission).to receive_message_chain('developer.id'){FactoryBot.create(:permission,  :developer).id}
+      allow(Permission).to receive_message_chain('hbx_tier3.id'){FactoryBot.create(:permission,  :hbx_tier3).id}
+      allow(Permission).to receive_message_chain('super_admin.id'){FactoryBot.create(:permission,  :super_admin).id}
       subject.build_test_roles
     end
     it "creates permissions" do

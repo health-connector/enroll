@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/employee_roles/privacy.html.erb" do
-  let(:person) {FactoryGirl.create(:person)}
-  
+  let(:person) {FactoryBot.create(:person)}
+
   before :each do
     assign(:person, person)
     render template: "insured/employee_roles/privacy.html.erb"

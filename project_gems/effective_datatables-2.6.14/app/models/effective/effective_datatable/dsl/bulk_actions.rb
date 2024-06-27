@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Effective
   module EffectiveDatatable
     module Dsl
@@ -15,7 +17,6 @@ module Effective
         def bulk_action_content(&block)
           concat block.call
         end
-
       end
     end
   end

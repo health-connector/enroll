@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CensusEmployeeImport, dbclean: :after_each, :type => :model do
 
   let(:tempfile) { double("", path: 'spec/test_data/census_employee_import/DCHL Employee Census.xlsx') }
-  let(:file) {
+  let(:file) do
     double("", :tempfile => tempfile)
-  }
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-  let(:sheet) {
+  end
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:sheet) do
     Roo::Spreadsheet.open(file.tempfile.path).sheet(0)
-  }
-  let(:subject) {
+  end
+  let(:subject) do
     CensusEmployeeImport.new({file: file, employer_profile: employer_profile})
-  }
+  end
 
   context "initialize without employer_role and file" do
     it "throws exception" do
-      expect { CensusEmployeeImport.new() }.to raise_error(ArgumentError)
+      expect { CensusEmployeeImport.new }.to raise_error(ArgumentError)
     end
   end
 
@@ -64,16 +66,16 @@ RSpec.describe CensusEmployeeImport, dbclean: :after_each, :type => :model do
   context "relationship field is empty" do
 
     let(:tempfile) { double("", path: 'spec/test_data/census_employee_import/DCHL Employee Census 2.xlsx') }
-    let(:file) {
+    let(:file) do
       double("", :tempfile => tempfile)
-    }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-    let(:sheet) {
+    end
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
+    let(:sheet) do
       Roo::Spreadsheet.open(file.tempfile.path).sheet(0)
-    }
-    let(:subject) {
+    end
+    let(:subject) do
       CensusEmployeeImport.new({file: file, employer_profile: employer_profile})
-    }
+    end
 
     it "should not add the 2nd employee/dependent (as relationship is missing)" do
       expect(subject.save).to be_falsey
@@ -91,8 +93,8 @@ RSpec.describe CensusEmployeeImport, dbclean: :after_each, :type => :model do
   context "terminate employee" do
     let(:tempfile) { double("", path: 'spec/test_data/census_employee_import/DCHL Employee Census 3.xlsx') }
     let(:file) { double("", :tempfile => tempfile) }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile) }
-    let(:census_employee) { FactoryGirl.create(:census_employee, {ssn: "111111111", dob: Date.new(1987, 12, 12), employer_profile: employer_profile}) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile) }
+    let(:census_employee) { FactoryBot.create(:census_employee, {ssn: "111111111", dob: Date.new(1987, 12, 12), employer_profile: employer_profile}) }
 
     context "employee does not exist" do
       it "should fail" do

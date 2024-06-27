@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Subscribers::ShopRenewalTransmissionAuthorized, "with an event subscription" do
@@ -14,12 +16,12 @@ describe Subscribers::ShopRenewalTransmissionAuthorized, "given no effective dat
 
   it "broadcasts an error message" do
     expect(subject).to receive(:notify).with("acapi.error.events.employer.renewal_transmission_authorized.invalid_effective_on_date",
-                                               {
-    :fein => nil,
-    :employer_id => nil,
-    :effective_on => nil,
-    :return_status => "422"
-    })
+                                             {
+                                               :fein => nil,
+                                               :employer_id => nil,
+                                               :effective_on => nil,
+                                               :return_status => "422"
+                                             })
     subject.call(nil, nil, nil, nil, {})
   end
 end
@@ -40,11 +42,11 @@ describe Subscribers::ShopRenewalTransmissionAuthorized, "given an employer hbx 
     it "broadcasts an error message" do
       expect(subject).to receive(:notify).with("acapi.error.events.employer.renewal_transmission_authorized.employer_not_found",
                                                {
-        :fein => nil,
-        :effective_on => effective_on,
-        :employer_id => employer_id,
-        :return_status => "422"
-      })
+                                                 :fein => nil,
+                                                 :effective_on => effective_on,
+                                                 :employer_id => employer_id,
+                                                 :return_status => "422"
+                                               })
       subject.call(nil, nil, nil, nil, { :employer_id => employer_id, :effective_on => effective_on })
     end
   end
@@ -63,23 +65,23 @@ describe Subscribers::ShopRenewalTransmissionAuthorized, "given an employer hbx 
       allow(Queries::NamedPolicyQueries).to receive(:shop_monthly_terminations).with([employer_fein], effective_date).and_return(terminated_enrollment_ids)
       allow(Queries::NamedEnrollmentQueries).to receive(:renewal_gate_lifted_enrollments).with(employer_org, effective_date).and_return(enrollment_ids)
       allow(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {
-        :hbx_enrollment_id => terminated_enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
-        :reply_to => glue_event_queue_name
-      })
+                                                :hbx_enrollment_id => terminated_enrollment_id,
+                                                :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
+                                                :reply_to => glue_event_queue_name
+                                              })
       allow(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.coverage_selected", {
-        :hbx_enrollment_id => enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
-        :reply_to => glue_event_queue_name
-      })
+                                                :hbx_enrollment_id => enrollment_id,
+                                                :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
+                                                :reply_to => glue_event_queue_name
+                                              })
     end
 
     it "transmits the renewed enrollments for the employer" do
       expect(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.coverage_selected", {
-        :hbx_enrollment_id => enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
-        :reply_to => glue_event_queue_name
-      })
+                                                 :hbx_enrollment_id => enrollment_id,
+                                                 :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
+                                                 :reply_to => glue_event_queue_name
+                                               })
       subject.call(nil, nil, nil, nil, { :employer_id => employer_id, :effective_on => effective_on})
     end
 =begin
@@ -113,11 +115,11 @@ describe Subscribers::ShopRenewalTransmissionAuthorized, "given an employer fein
     it "broadcasts an error message" do
       expect(subject).to receive(:notify).with("acapi.error.events.employer.renewal_transmission_authorized.employer_not_found",
                                                {
-        :effective_on => effective_on,
-        :fein => employer_fein,
-        :employer_id => nil,
-        :return_status => "422"
-      })
+                                                 :effective_on => effective_on,
+                                                 :fein => employer_fein,
+                                                 :employer_id => nil,
+                                                 :return_status => "422"
+                                               })
       subject.call(nil, nil, nil, nil, { :fein => employer_fein, :effective_on => effective_on})
     end
   end
@@ -135,23 +137,23 @@ describe Subscribers::ShopRenewalTransmissionAuthorized, "given an employer fein
       allow(Queries::NamedPolicyQueries).to receive(:shop_monthly_terminations).with([employer_fein], effective_date).and_return(terminated_enrollment_ids)
       allow(Queries::NamedEnrollmentQueries).to receive(:renewal_gate_lifted_enrollments).with(employer_org, effective_date).and_return(enrollment_ids)
       allow(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated", {
-        :hbx_enrollment_id => terminated_enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
-        :reply_to => glue_event_queue_name
-      })
+                                                :hbx_enrollment_id => terminated_enrollment_id,
+                                                :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
+                                                :reply_to => glue_event_queue_name
+                                              })
       allow(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.coverage_selected", {
-        :hbx_enrollment_id => enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
-        :reply_to => glue_event_queue_name
-      })
+                                                :hbx_enrollment_id => enrollment_id,
+                                                :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
+                                                :reply_to => glue_event_queue_name
+                                              })
     end
 
     it "transmits the new enrollments for the employer" do
       expect(subject).to receive(:notify).with("acapi.info.events.hbx_enrollment.coverage_selected", {
-        :hbx_enrollment_id => enrollment_id,
-        :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
-        :reply_to => glue_event_queue_name
-      })
+                                                 :hbx_enrollment_id => enrollment_id,
+                                                 :enrollment_action_uri => "urn:openhbx:terms:v1:enrollment#initial",
+                                                 :reply_to => glue_event_queue_name
+                                               })
       subject.call(nil, nil, nil, nil, { :fein => employer_fein, :effective_on => effective_on})
     end
 

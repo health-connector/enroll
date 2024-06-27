@@ -40,6 +40,10 @@ class UserPolicy < ApplicationPolicy
     can_download_employees_template?
   end
 
+  def employer_attestation_new?
+    can_download_employees_template?
+  end
+
   def view?
     user.present?
   end
@@ -50,6 +54,10 @@ class UserPolicy < ApplicationPolicy
 
   def create?
     view?
+  end
+
+  def esr_new?
+    can_download_employees_template?
   end
 
   def change_password?

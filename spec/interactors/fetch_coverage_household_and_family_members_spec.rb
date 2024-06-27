@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe FetchCoverageHouseholdAndFamilyMembers, :dbclean => :after_each do
   context "when a person with family exist" do
-    let(:person) {FactoryGirl.create(:person, :with_family)}
+    let(:person) {FactoryBot.create(:person, :with_family)}
 
     it "should fetch primary family" do
       context = described_class.call(primary_family: person.primary_family)
@@ -14,7 +14,7 @@ describe FetchCoverageHouseholdAndFamilyMembers, :dbclean => :after_each do
   end
 
   context "when a family without coverage_households exist" do
-    let(:person) {FactoryGirl.create(:person, :with_family)}
+    let(:person) {FactoryBot.create(:person, :with_family)}
     let(:family) {person.primary_family}
     let(:active_household) {family.active_household}
 

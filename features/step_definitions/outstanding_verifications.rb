@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 Given(/^oustanding verfications users exists$/) do
-  person = FactoryGirl.create(:person, :with_consumer_role)
+  person = FactoryBot.create(:person, :with_consumer_role)
   @person_name = person.full_name
-  family = FactoryGirl.create(:family, :with_primary_family_member, person: person)
-  enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, household: family.active_household, aasm_state: "enrolled_contingent", kind: "individual", effective_on: TimeKeeper.date_of_record.beginning_of_year)
-  families = Family.by_enrollment_individual_market.where(:'households.hbx_enrollments.aasm_state' => "enrolled_contingent")
+  family = FactoryBot.create(:family, :with_primary_family_member, person: person)
+  FactoryBot.create(:hbx_enrollment, :with_enrollment_members, household: family.active_household, aasm_state: "enrolled_contingent", kind: "individual", effective_on: TimeKeeper.date_of_record.beginning_of_year)
+  Family.by_enrollment_individual_market.where(:'households.hbx_enrollments.aasm_state' => "enrolled_contingent")
 end
 
 When(/^Admin clicks Outstanding Verifications$/) do
@@ -43,6 +45,6 @@ end
 Then(/^the Admin is directed to that user's My DC Health Link page$/) do
   page.find(:xpath, "//table[contains(@class, 'effective-datatable')]/tbody/tr/td[1]/a").click
   expect(page).to have_content("My DC Health Link")
-  expect(page).to have_content("#{@person_name}")
+  expect(page).to have_content(@person_name.to_s)
 end
 

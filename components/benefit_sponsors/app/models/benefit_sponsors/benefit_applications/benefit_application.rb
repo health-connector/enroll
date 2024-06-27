@@ -95,7 +95,8 @@ module BenefitSponsors
     delegate :benefit_market, to: :benefit_sponsorship
 
     embeds_many :benefit_packages,
-                class_name: "::BenefitSponsors::BenefitPackages::BenefitPackage"
+                class_name: "::BenefitSponsors::BenefitPackages::BenefitPackage",
+                inverse_of: :benefit_application
 
     embeds_many :benefit_application_items,
                 class_name: "::BenefitSponsors::BenefitApplications::BenefitApplicationItem", cascade_callbacks: true

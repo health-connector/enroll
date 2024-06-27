@@ -23,7 +23,7 @@ Feature: Add Plan Year For Employer
     And employer clicked on gold metal level
     Then employer should see create plan year button disabled
     And employer selected <contribution_percent> contribution percent for the application
-    Then employer should see your estimated montly cost
+    Then employer should see employer estimated montly cost
     And employer clicked on create plan year button
     Then employer should see a draft benefit application
 
@@ -47,7 +47,7 @@ Feature: Add Plan Year For Employer
     And employer clicked on gold metal level
     Then employer should see create plan year button disabled
     And employer selected <contribution_percent> contribution percent for the application
-    Then employer should see your estimated montly cost
+    Then employer should see employer estimated montly cost
     And employer should see that the create plan year is <plan_year_btn_enabled>
 
     Examples:

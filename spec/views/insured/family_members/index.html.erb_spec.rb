@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/family_members/index.html.erb" do
-  let(:person) { FactoryGirl.create(:person) }
-  let(:user) { FactoryGirl.create(:user, person: person) }
+  let(:person) { FactoryBot.create(:person) }
+  let(:user) { FactoryBot.create(:user, person: person) }
   let(:family) { Family.new }
   let(:family_member) { family.family_members.new }
   let(:dependent) { Forms::FamilyMember.new(family_id: family.id) }
-  let(:employee_role) { FactoryGirl.build(:employee_role) }
-  let(:consumer_role) { FactoryGirl.build(:consumer_role) }
+  let(:employee_role) { FactoryBot.build(:employee_role) }
+  let(:consumer_role) { FactoryBot.build(:consumer_role) }
 
   before :each do
     sign_in user
@@ -34,7 +36,7 @@ describe "insured/family_members/index.html.erb" do
     end
 
     it "should call signup_progress" do
-      expect(rendered).to match /Employer/
+      expect(rendered).to match(/Employer/)
     end
   end
 
@@ -47,7 +49,7 @@ describe "insured/family_members/index.html.erb" do
     end
 
     it "should call individual_progress" do
-      expect(rendered).to match /Verify Identity/
+      expect(rendered).to match(/Verify Identity/)
       expect(rendered).to have_selector("a[href='/insured/families/find_sep?consumer_role_id=#{consumer_role.id}']", text: 'Continue')
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Transcripts::PersonTranscript, type: :model do
@@ -40,40 +42,39 @@ RSpec.describe Transcripts::PersonTranscript, type: :model do
       })
     }
 
-    let(:other_record) {
-      Person.new({"hbx_id"=>"117966",
-        "first_name"=>"Bruce",
-        "last_name"=>"Jackson",
-        "dob"=> Date.new(1975, 6, 1),
-        "gender"=>"male",
-        "middle_name"=>"",
-        "ssn"=>"671126610",
-        "no_dc_address"=>false,
-        "addresses"=>[{
-          "kind"=>"home",
-          "address_1"=>"3312 Gosnell Rd",
-          "city"=>"Vienna",
-          "state"=>"VA",
-          "zip"=>"22180"
-          },
-          {
-            "kind"=>"work",
-            "address_1"=>"609 L St NW",
-            "city"=>"Washington",
-            "state"=>"DC",
-            "zip"=>"20002"
-        }],
-        "phones"=>[{
-          "area_code"=>"202",
-          "kind"=>"home",
-          "full_phone_number"=>"2029866677",
-          "number"=>"9866677"
-          }],
-        "emails"=>[{
-          "kind"=>"home", "address"=>"bruce@gmail.com"
-        }]
-      })
-    }
+    let(:other_record) do
+      Person.new({"hbx_id" => "117966",
+                  "first_name" => "Bruce",
+                  "last_name" => "Jackson",
+                  "dob" => Date.new(1975, 6, 1),
+                  "gender" => "male",
+                  "middle_name" => "",
+                  "ssn" => "671126610",
+                  "no_dc_address" => false,
+                  "addresses" => [{
+                    "kind" => "home",
+                    "address_1" => "3312 Gosnell Rd",
+                    "city" => "Vienna",
+                    "state" => "VA",
+                    "zip" => "22180"
+                  },
+                                  {
+                                    "kind" => "work",
+                                    "address_1" => "609 L St NW",
+                                    "city" => "Washington",
+                                    "state" => "DC",
+                                    "zip" => "20002"
+                                  }],
+                  "phones" => [{
+                    "area_code" => "202",
+                    "kind" => "home",
+                    "full_phone_number" => "2029866677",
+                    "number" => "9866677"
+                  }],
+                  "emails" => [{
+                    "kind" => "home", "address" => "bruce@gmail.com"
+                  }]})
+    end
 
     context "#compare" do
 

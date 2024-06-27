@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/employee_roles/match.html.haml" do
-  let(:person) {FactoryGirl.create(:person)}
-  let(:user) {FactoryGirl.create(:user, :person=>person)}
-  let(:person_params){{"dob"=>person.id, "first_name"=>person.first_name,"gender"=>person.gender,"last_name"=>person.last_name,"middle_name"=>"","name_sfx"=>"","ssn"=>person.ssn,"user_id"=>person.id}}
+  let(:person) {FactoryBot.create(:person)}
+  let(:user) {FactoryBot.create(:user, :person => person)}
+  let(:person_params){{"dob" => person.id, "first_name" => person.first_name,"gender" => person.gender,"last_name" => person.last_name,"middle_name" => "","name_sfx" => "","ssn" => person.ssn,"user_id" => person.id}}
   let(:count) { Settings.aca.market_kinds.include?("individual") ? 3 : 2 }
 
   before :each do

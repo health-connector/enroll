@@ -1,25 +1,31 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::InitialEmployerOpenEnrollmentCompleted do
   let(:employer_profile){ create :employer_profile}
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
   let(:person){ create :person}
-  let!(:plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'enrolling' ) }
-  let!(:active_benefit_group) { FactoryGirl.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Initial Employee Open Enrollment Successfully Completed',
-                            :notice_template => 'notices/shop_employer_notices/17_initial_employer_open_enrollment_completed',
-                            :notice_builder => 'ShopEmployerNotices::InitialEmployerOpenEnrollmentCompleted',
-                            :event_name => 'initial_employer_open_enrollment_completed',
-                            :mpi_indicator => 'MPI_SHOP17',
-                            :title => "Open Enrollment Completed"})
-                          }
-    let(:valid_parmas) {{
-        :subject => application_event.title,
-        :mpi_indicator => application_event.mpi_indicator,
-        :event_name => application_event.event_name,
-        :template => application_event.notice_template
-    }}
+  let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'enrolling') }
+  let!(:active_benefit_group) { FactoryBot.create(:benefit_group, plan_year: plan_year, title: "Benefits #{plan_year.start_on.year}") }
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Initial Employee Open Enrollment Successfully Completed',
+             :notice_template => 'notices/shop_employer_notices/17_initial_employer_open_enrollment_completed',
+             :notice_builder => 'ShopEmployerNotices::InitialEmployerOpenEnrollmentCompleted',
+             :event_name => 'initial_employer_open_enrollment_completed',
+             :mpi_indicator => 'MPI_SHOP17',
+             :title => "Open Enrollment Completed"
+           })
+  end
+  let(:valid_parmas) do
+    {
+      :subject => application_event.title,
+      :mpi_indicator => application_event.mpi_indicator,
+      :event_name => application_event.event_name,
+      :template => application_event.notice_template
+    }
+  end
 
   describe "New" do
     before do

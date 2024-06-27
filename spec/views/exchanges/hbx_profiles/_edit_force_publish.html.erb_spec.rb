@@ -1,26 +1,28 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 RSpec.describe "/hbx_profiles/_edit_force_publish", :dbclean => :around_each do
   let(:site) do
-    FactoryGirl.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
+    FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
   end
   let(:organization) do
-    FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, :with_aca_shop_cca_employer_profile_initial_application, site: site)
+    FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, :with_aca_shop_cca_employer_profile_initial_application, site: site)
   end
   let(:person) do
-    FactoryGirl.create(:person, :with_hbx_staff_role).tap do |person|
-      FactoryGirl.create(:permission, :super_admin).tap do |permission|
+    FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+      FactoryBot.create(:permission, :super_admin).tap do |permission|
         person.hbx_staff_role.update_attributes(permission_id: permission.id)
         person
       end
     end
   end
   let(:user) do
-    FactoryGirl.create(:user, person: person)
+    FactoryBot.create(:user, person: person)
   end
   let(:benefit_sponsorship) do
     organization.benefit_sponsorships.first
   end
-  let(:params) { {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{organization.employer_profile.id.to_s}" } }
+  let(:params) { {id: benefit_sponsorship.id.to_s, employer_actions_id: "employer_actions_#{organization.employer_profile.id}" } }
 
   before :each do
     assign :organization, organization

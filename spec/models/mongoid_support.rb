@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe MongoidSupport do
@@ -8,7 +10,7 @@ describe MongoidSupport do
 
     it "should allow me to assign an unsaved person" do
       subject.person = person
-      expect(subject.person).to eq person 
+      expect(subject.person).to eq person
     end
 
     it "nilling the underlying attribute should nil the association" do

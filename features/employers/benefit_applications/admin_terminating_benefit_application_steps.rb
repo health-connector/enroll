@@ -27,18 +27,18 @@ end
 When(/^the user enters (mid_month|any_day|last_day) and other details for (voluntary|non-payment) termination$/) do |termination_date, termination_type|
   if termination_type == 'voluntary'
     find(:xpath, '//input[@id="term_actions_voluntary"]').click
-    find('.term_action_radios select').find(:xpath, 'option[2]').select_option
   else
     find(:xpath, '//input[@id="term_actions_nonpayment"]').click
-    find('.term_action_radios select').find(:xpath, 'option[2]').select_option
   end
+  find('.term_action_radios select').find(:xpath, 'option[2]').select_option
 
 
-  if termination_date == 'mid_month'
+  case termination_date
+  when 'mid_month'
     fill_in "Select Term Date", with: TimeKeeper.date_of_record.end_of_month.prev_day.strftime('%m/%d/%Y').to_s
-  elsif termination_date == 'any_day'
+  when 'any_day'
     fill_in "Select Term Date", with: TimeKeeper.date_of_record.end_of_month.strftime('%m/%d/%Y').to_s
-  elsif termination_date == 'last_day'
+  when 'last_day'
     fill_in "Select Term Date", with: @new_application.end_on.to_s
   end
   find('h1', :text => 'Employers', wait: 10).click

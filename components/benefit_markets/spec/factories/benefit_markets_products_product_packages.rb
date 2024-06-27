@@ -1,4 +1,6 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :benefit_markets_products_product_package, class: 'BenefitMarkets::Products::ProductPackage' do
 
     application_period do
@@ -7,20 +9,20 @@ FactoryGirl.define do
       start_on..end_on
     end
 
-    benefit_kind          :aca_shop
-    product_kind          :health
-    package_kind          :single_issuer
+    benefit_kind          { :aca_shop }
+    product_kind          { :health }
+    package_kind          { :single_issuer }
 
-    title                 "2018 Single Issuer Health Products"
+    title                 { "#{TimeKeeper.date_of_record.year} Single Issuer Health Products" }
 
     contribution_model { create(:benefit_markets_contribution_models_contribution_model) }
     contribution_models { [create(:benefit_markets_contribution_models_contribution_model), create(:benefit_markets_contribution_models_contribution_model, key: :fifty_percent_sponsor_fixed_percent_contribution_model)] }
     pricing_model { create(:benefit_markets_pricing_models_pricing_model, product_kind: product_kind, package_kind: package_kind) }
 
     transient do
-      number_of_products 2
-      county_zip_id nil
-      service_area nil
+      number_of_products { 2 }
+      county_zip_id { nil }
+      service_area { nil }
       issuer_profile { nil }
     end
 
@@ -38,7 +40,7 @@ FactoryGirl.define do
             evaluator.number_of_products,
             benefit_market_kind: product_package.benefit_kind,
             application_period: product_package.application_period,
-            product_package_kinds: [ product_package.package_kind ],
+            product_package_kinds: [product_package.package_kind],
             service_area: service_area,
             issuer_profile_id: evaluator.issuer_profile.try(:id),
             metal_level_kind: :gold
@@ -52,7 +54,7 @@ FactoryGirl.define do
             evaluator.number_of_products,
             benefit_market_kind: product_package.benefit_kind,
             application_period: product_package.application_period,
-            product_package_kinds: [ product_package.package_kind ],
+            product_package_kinds: [product_package.package_kind],
             service_area: service_area,
             issuer_profile_id: evaluator.issuer_profile.try(:id),
             metal_level_kind: :dental

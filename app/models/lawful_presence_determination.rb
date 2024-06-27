@@ -23,7 +23,8 @@ class LawfulPresenceDetermination
   field :aasm_state, type: String
   embeds_many :workflow_state_transitions, as: :transitional
 
-  track_history   :on => [:vlp_verified_at,
+  track_history   :modifier_field_optional => true,
+                  :on => [:vlp_verified_at,
                           :vlp_authority,
                           :citizen_status,
                           :citizenship_result,
