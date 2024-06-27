@@ -1,12 +1,14 @@
-FactoryGirl.define do
-  factory :benefit_sponsors_organizations_aca_shop_dc_employer_profile, class: 'BenefitSponsors::Organizations::AcaShopDcEmployerProfile' do
-    organization { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_site) }
+# frozen_string_literal: true
 
-    is_benefit_sponsorship_eligible true
+FactoryBot.define do
+  factory :benefit_sponsors_organizations_aca_shop_dc_employer_profile, class: 'BenefitSponsors::Organizations::AcaShopDcEmployerProfile' do
+    organization { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_site) }
+
+    is_benefit_sponsorship_eligible { true }
 
     transient do
-      site nil
-      office_locations_count 1
+      site { nil }
+      office_locations_count { 1 }
     end
 
     #before(:build) do |profile, evaluator|
@@ -21,7 +23,7 @@ FactoryGirl.define do
     end
 
     trait :with_benefit_sponsorship do
-      after :build do |profile, evaluator|
+      after :build do |profile, _evaluator|
         profile.add_benefit_sponsorship
       end
     end

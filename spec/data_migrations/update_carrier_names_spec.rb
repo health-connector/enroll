@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_carrier_names")
 
@@ -12,7 +14,7 @@ describe UpdateCarrierNames, dbclean: :after_each do
   end
 
   describe "changing organization's legal name" do
-    let(:organization) { FactoryGirl.create(:organization, fein: "042864973", legal_name: "Health New England, Inc.")}
+    let(:organization) { FactoryBot.create(:organization, fein: "042864973", legal_name: "Health New England, Inc.")}
 
     it "should update legal name for health new england" do
       expect(organization.legal_name).to eq "Health New England, Inc."

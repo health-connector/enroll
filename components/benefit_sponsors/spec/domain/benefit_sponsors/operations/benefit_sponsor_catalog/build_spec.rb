@@ -12,7 +12,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitSponsorCatalog::Build, dbclea
 
   describe 'for organization with no applications' do
 
-    let!(:abc_organization)         { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+    let!(:abc_organization)         { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
 
     let!(:benefit_market_catalog)   { current_benefit_market_catalog }
 

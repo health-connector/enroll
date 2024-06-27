@@ -1,21 +1,23 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/home.html.erb" do
-  let(:current_user) {FactoryGirl.create(:user)} #let(:person) { FactoryGirl.create(:person, :with_family ) }
-  let(:person) {FactoryGirl.create(:person, :with_employee_role, :with_family)} #let(:person) { FactoryGirl.create(:person, :with_family ) }
-  let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
-  let(:current_user) {FactoryGirl.create(:user,person:person)}
+  let(:current_user) {FactoryBot.create(:user)} #let(:person) { FactoryBot.create(:person, :with_family ) }
+  let(:person) {FactoryBot.create(:person, :with_employee_role, :with_family)} #let(:person) { FactoryBot.create(:person, :with_family ) }
+  let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
+  let(:current_user) {FactoryBot.create(:user,person: person)}
 
-  let(:qle_first_of_month) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_first_of_month, ) }
-  let(:sep){
+  let(:qle_first_of_month) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month) }
+  let(:sep) do
     sep = family.special_enrollment_periods.new
     sep.effective_on_kind = 'first_of_month'
-    sep.qualifying_life_event_kind= qle_first_of_month
+    sep.qualifying_life_event_kind = qle_first_of_month
     sep.qualifying_life_event_kind_id = qle_first_of_month.id
-    sep.qle_on= Date.new(TimeKeeper.date_of_record.year, 04, 14)
+    sep.qle_on = Date.new(TimeKeeper.date_of_record.year, 0o4, 14)
     sep.admin_flag = true
     sep
-  }
+  end
 
   before :each do
     stub_template "insured/families/_right_column.html.erb" => ''

@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe Insured::FamiliesHelper, :type => :helper do
 
   describe "#plan_shopping_dependent_text" do
-    let(:person) { FactoryGirl.build_stubbed(:person)}
-    let(:family) { FactoryGirl.build_stubbed(:family, :with_primary_family_member, person: person) }
-    let(:household) { FactoryGirl.build_stubbed(:household, family: family) }
-    let(:hbx_enrollment) { FactoryGirl.build_stubbed(:hbx_enrollment, household: household, hbx_enrollment_members: [hbx_enrollment_member, hbx_enrollment_member_two]) }
-    let(:hbx_enrollment_member) { FactoryGirl.build_stubbed(:hbx_enrollment_member) }
-    let(:hbx_enrollment_member_two) { FactoryGirl.build_stubbed(:hbx_enrollment_member, is_subscriber: false) }
+    let(:person) { FactoryBot.build_stubbed(:person)}
+    let(:family) { FactoryBot.build_stubbed(:family, :with_primary_family_member, person: person) }
+    let(:household) { FactoryBot.build_stubbed(:household, family: family) }
+    let(:hbx_enrollment) { FactoryBot.build_stubbed(:hbx_enrollment, household: household, hbx_enrollment_members: [hbx_enrollment_member, hbx_enrollment_member_two]) }
+    let(:hbx_enrollment_member) { FactoryBot.build_stubbed(:hbx_enrollment_member) }
+    let(:hbx_enrollment_member_two) { FactoryBot.build_stubbed(:hbx_enrollment_member, is_subscriber: false) }
 
     it "it should return subscribers full name in span with dependent-text class" do
       allow(hbx_enrollment_member_two).to receive(:is_subscriber).and_return(true)
@@ -34,14 +36,14 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
     it "it should return options" do
       date = TimeKeeper.date_of_record
       options = helper.generate_options_for_effective_on_kinds(['date_of_event', 'fixed_first_of_next_month'], TimeKeeper.date_of_record)
-      expect(options).to eq [[date.to_s, 'date_of_event'], [(date.end_of_month+1.day).to_s, 'fixed_first_of_next_month']]
+      expect(options).to eq [[date.to_s, 'date_of_event'], [(date.end_of_month + 1.day).to_s, 'fixed_first_of_next_month']]
     end
   end
 
   describe "#render_plan_type_details", dbclean: :after_each do
-    let(:dental_plan_2015){FactoryGirl.create(:plan_template,:shop_dental, active_year: 2015, metal_level: "dental")}
-    let(:dental_plan_2016){FactoryGirl.create(:plan_template,:shop_dental, active_year: 2016, metal_level: "dental", dental_level: "high")}
-    let(:health_plan_2016){FactoryGirl.create(:plan_template,:shop_health, active_year: 2016, metal_level: "silver")}
+    let(:dental_plan_2015){FactoryBot.create(:plan_template,:shop_dental, active_year: 2015, metal_level: "dental")}
+    let(:dental_plan_2016){FactoryBot.create(:plan_template,:shop_dental, active_year: 2016, metal_level: "dental", dental_level: "high")}
+    let(:health_plan_2016){FactoryBot.create(:plan_template,:shop_health, active_year: 2016, metal_level: "silver")}
 
     it "should return dental plan with dental_level = high for 2016 plan" do
       expect(helper.render_plan_type_details(dental_plan_2016)).to eq "<span class=\"dental-icon\">High</span>"
@@ -57,10 +59,10 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
   end
 
   describe "#show_employer_panel", dbclean: :after_each do
-    let(:person) {FactoryGirl.build(:person)}
-    let(:employee_role) {FactoryGirl.build(:employee_role)}
-    let(:census_employee) {FactoryGirl.build(:census_employee)}
-    let(:person_with_employee_role) {FactoryGirl.create(:person, :with_employee_role)}
+    let(:person) {FactoryBot.build(:person)}
+    let(:employee_role) {FactoryBot.build(:employee_role)}
+    let(:census_employee) {FactoryBot.build(:census_employee)}
+    let(:person_with_employee_role) {FactoryBot.create(:person, :with_employee_role)}
 
     it "should return false without employee_role" do
       expect(helper.newhire_enrollment_eligible?(nil)).to eq false
@@ -100,8 +102,8 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
   end
 
   describe "has_writing_agent?" do
-    let(:employee_role) { FactoryGirl.build(:employee_role) }
-    let(:person) { FactoryGirl.build(:person) }
+    let(:employee_role) { FactoryBot.build(:employee_role) }
+    let(:person) { FactoryBot.build(:person) }
 
     it "should return false when employee_role is passwed with out writing_agent" do
       expect(helper.has_writing_agent?(employee_role)).to eq false
@@ -119,11 +121,11 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
   end
 
   describe "display_aasm_state?" do
-    let(:person) { FactoryGirl.build_stubbed(:person)}
-    let(:family) { FactoryGirl.build_stubbed(:family, :with_primary_family_member, person: person) }
-    let(:household) { FactoryGirl.build_stubbed(:household, family: family) }
-    let(:hbx_enrollment) { FactoryGirl.build_stubbed(:hbx_enrollment, household: household, hbx_enrollment_members: [hbx_enrollment_member]) }
-    let(:hbx_enrollment_member) { FactoryGirl.build_stubbed(:hbx_enrollment_member) }
+    let(:person) { FactoryBot.build_stubbed(:person)}
+    let(:family) { FactoryBot.build_stubbed(:family, :with_primary_family_member, person: person) }
+    let(:household) { FactoryBot.build_stubbed(:household, family: family) }
+    let(:hbx_enrollment) { FactoryBot.build_stubbed(:hbx_enrollment, household: household, hbx_enrollment_members: [hbx_enrollment_member]) }
+    let(:hbx_enrollment_member) { FactoryBot.build_stubbed(:hbx_enrollment_member) }
     states = ["coverage_selected", "coverage_canceled", "coverage_terminated", "shopping", "inactive", "unverified", "coverage_enrolled", "auto_renewing", "any_state"]
     show_for_ivl = ["coverage_selected", "coverage_canceled", "coverage_terminated", "auto_renewing", "renewing_coverage_selected"]
 
@@ -153,31 +155,31 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
   end
 
   describe "ShopForPlan using SEP", dbclean: :after_each do
-    let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 04, 14)}
-    let(:person) {FactoryGirl.create(:person, :with_employee_role, :with_family)}
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
-    let(:qle_first_of_month) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_first_of_month ) }
-    let(:qle_with_date_options_available) { FactoryGirl.create(:qualifying_life_event_kind, :effective_on_first_of_month, date_options_available: true ) }
-    let(:sep_without_date_options) {
+    let(:qle_on) {Date.new(TimeKeeper.date_of_record.year, 0o4, 14)}
+    let(:person) {FactoryBot.create(:person, :with_employee_role, :with_family)}
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
+    let(:qle_first_of_month) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month) }
+    let(:qle_with_date_options_available) { FactoryBot.create(:qualifying_life_event_kind, :effective_on_first_of_month, date_options_available: true) }
+    let(:sep_without_date_options) do
       sep = family.special_enrollment_periods.new
       sep.effective_on_kind = 'first_of_month'
-      sep.qualifying_life_event_kind= qle_first_of_month
+      sep.qualifying_life_event_kind = qle_first_of_month
       sep.qualifying_life_event_kind_id = qle_first_of_month.id
-      sep.qle_on= Date.new(TimeKeeper.date_of_record.year, 04, 14)
+      sep.qle_on = Date.new(TimeKeeper.date_of_record.year, 0o4, 14)
       sep.admin_flag = true
       sep
-    }
+    end
 
-    let(:sep_with_date_options) {
+    let(:sep_with_date_options) do
       sep = family.special_enrollment_periods.new
       sep.effective_on_kind = 'first_of_month'
-      sep.qualifying_life_event_kind= qle_first_of_month
+      sep.qualifying_life_event_kind = qle_first_of_month
       sep.qualifying_life_event_kind_id = qle_with_date_options_available.id
       sep.qle_on = qle_on
-      sep.optional_effective_on = [qle_on+5.days, qle_on+6.days, qle_on+7.days]
+      sep.optional_effective_on = [qle_on + 5.days, qle_on + 6.days, qle_on + 7.days]
       sep.admin_flag = true
       sep
-    }
+    end
     context "when building ShopForPlan link" do
       it "should have class 'existing-sep-item' for a SEP with date options QLE and optional_effective_on populated " do
         expect(helper.build_link_for_sep_type(sep_with_date_options)).to include "class=\"existing-sep-item\""
@@ -224,25 +226,25 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
   end
 
   describe "show_download_tax_documents_button?", dbclean: :after_each do
-    let(:person) { FactoryGirl.create(:person)}
+    let(:person) { FactoryBot.create(:person)}
 
     before do
       helper.instance_variable_set(:@person, person)
     end
 
     context "as consumer" do
-      let(:consumer_role) {FactoryGirl.build(:consumer_role)}
+      let(:consumer_role) {FactoryBot.build(:consumer_role)}
       context "had a SSN" do
         before do
           person.consumer_role = consumer_role
-            person.ssn = '123456789'
+          person.ssn = '123456789'
         end
         it "should display the download tax documents button" do
-         expect(helper.show_download_tax_documents_button?).to eq true
+          expect(helper.show_download_tax_documents_button?).to eq true
         end
 
         context "current user is hbx staff" do
-          let(:current_user) { FactoryGirl.build(:hbx_staff)}
+          let(:current_user) { FactoryBot.build(:hbx_staff)}
           it "should display the download tax documents button" do
             expect(helper.show_download_tax_documents_button?).to eq true
           end
@@ -262,8 +264,8 @@ RSpec.describe Insured::FamiliesHelper, :type => :helper do
     end
 
     context "as employee and has no consumer role", dbclean: :after_each do
-      let(:person) { FactoryGirl.create(:person)}
-      let(:employee_role) {FactoryGirl.build(:employee_role)}
+      let(:person) { FactoryBot.create(:person)}
+      let(:employee_role) {FactoryBot.build(:employee_role)}
 
       before do
         person.employee_roles = [employee_role]

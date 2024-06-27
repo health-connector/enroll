@@ -8,30 +8,30 @@ module BenefitSponsors
   RSpec.describe Profiles::BrokerAgencies::BrokerAgencyProfilesController, type: :controller, dbclean: :after_each do
 
     routes { BenefitSponsors::Engine.routes }
-    let!(:security_question)  { FactoryGirl.create_default :security_question }
+    let!(:security_question)  { FactoryBot.create_default :security_question }
 
-    let!(:user_with_hbx_staff_role) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-    let!(:person) { FactoryGirl.create(:person, user: user_with_hbx_staff_role)}
-    let!(:person1) { FactoryGirl.create(:person, :with_broker_role) }
-    let!(:user_with_broker_role) { FactoryGirl.create(:user, :broker, person: person1) }
+    let!(:user_with_hbx_staff_role) { FactoryBot.create(:user, :with_hbx_staff_role) }
+    let!(:person) { FactoryBot.create(:person, user: user_with_hbx_staff_role) }
+    let!(:person1) { FactoryBot.create(:person, :with_broker_role) }
+    let!(:user_with_broker_role) { FactoryBot.create(:user, person: person1) }
 
     let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:organization_with_hbx_profile)  { site.owner_organization }
-    let!(:organization)                  { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
+    let!(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
 
     let!(:organization1)                 do
-      org = FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)
+      org = FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)
       org.broker_agency_profile.primary_broker_role = person1.broker_role
       org.save
       org
     end
-    let!(:organization2)                 { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
+    let!(:organization2)                 { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site) }
     let(:broker_agency1)                 { organization1.broker_agency_profile }
     let(:broker_agency2)                 { organization2.broker_agency_profile }
 
     let(:bap_id) { organization1.broker_agency_profile.id }
-    let(:super_admin_permission) { FactoryGirl.create(:permission, :super_admin) }
-    let(:dev_permission) { FactoryGirl.create(:permission, :developer) }
+    let(:super_admin_permission) { FactoryBot.create(:permission, :super_admin) }
+    let(:dev_permission) { FactoryBot.create(:permission, :developer) }
 
     let(:initialize_and_login_admin) do
       lambda { |permission|
@@ -93,7 +93,7 @@ module BenefitSponsors
       end
 
       context "index for user with broker_agency_staff_role(on failed pundit)" do
-        # let!(:broker_agency_staff_role) { FactoryGirl.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id, person: person1) }
+        # let!(:broker_agency_staff_role) { FactoryBot.create(:broker_agency_staff_role, benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id, person: person1) }
 
         before :each do
           # user_with_broker_role.roles << "broker_agency_staff"
@@ -118,7 +118,7 @@ module BenefitSponsors
         before :each do
           initialize_and_login_admin[super_admin_permission]
           allow(controller).to receive(:set_flash_by_announcement).and_return(true)
-          get :show, id: bap_id
+          get :show, params: { id: bap_id }
         end
 
         it "should return http success" do
@@ -132,7 +132,7 @@ module BenefitSponsors
 
       context "for show with a broker_agency_profile_id and without a user" do
         before :each do
-          get :show, id: bap_id
+          get :show, params: { id: bap_id }
         end
 
         it "should not return success http status" do
@@ -145,13 +145,13 @@ module BenefitSponsors
       end
 
       context 'for show with other broker_agency_profile_id and with a correct user' do
-        let!(:organization1) {FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
+        let!(:organization1) {FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, site: site)}
         let(:bap_id1) {organization1.broker_agency_profile.id}
 
         before :each do
           sign_in(user_with_broker_role)
           allow(controller).to receive(:set_flash_by_announcement).and_return(true)
-          get :show, id: bap_id1
+          get :show, params: { id: bap_id1 }
         end
 
         it 'should not return success http status' do
@@ -164,7 +164,7 @@ module BenefitSponsors
       context "with a valid user and with broker_agency_profile_id(on successful pundit)" do
         before :each do
           initialize_and_login_admin[super_admin_permission]
-          xhr :get, :family_index, id: bap_id
+          get :family_index, params: { id: bap_id }, xhr: true
         end
 
         it "should render family_index template" do
@@ -177,11 +177,11 @@ module BenefitSponsors
       end
 
       context "with an invalid user and with broker_agency_profile_id(on falied pundit)" do
-        let!(:user_without_person) { FactoryGirl.create(:user, :with_hbx_staff_role) }
+        let!(:user_without_person) { FactoryBot.create(:user, :with_hbx_staff_role) }
 
         before :each do
           sign_in(user_without_person)
-          xhr :get, :family_index, id: bap_id
+          get :family_index, params: { id: bap_id }, xhr: true
         end
 
         it "should redirect to new of registration's controller for broker_agency" do
@@ -198,7 +198,7 @@ module BenefitSponsors
       context "with a valid user" do
         before :each do
           initialize_and_login_admin[super_admin_permission]
-          xhr :get, :staff_index, id: bap_id
+          get :staff_index, params: { id: bap_id }, xhr: true
         end
 
         it "should return success http status" do
@@ -213,7 +213,22 @@ module BenefitSponsors
       context 'with special chars in input' do
         before :each do
           initialize_and_login_admin[super_admin_permission]
-          xhr :get, :staff_index, id: bap_id, page: '^['
+          get :staff_index, params: { id: bap_id, page: '^[' }, xhr: true
+        end
+
+        it "should return success http status" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should render staff_index template" do
+          expect(response).to render_template("benefit_sponsors/profiles/broker_agencies/broker_agency_profiles/staff_index")
+        end
+      end
+
+      context 'with special chars in input' do
+        before :each do
+          initialize_and_login_admin[super_admin_permission]
+          get :staff_index, params: { id: bap_id, page: '^[' }, xhr: true
         end
 
         it "should return success http status" do
@@ -226,11 +241,11 @@ module BenefitSponsors
       end
 
       context "without a valid user" do
-        let!(:user) { FactoryGirl.create(:user, roles: [], person: FactoryGirl.create(:person)) }
+        let!(:user) { FactoryBot.create(:user, roles: [], person: FactoryBot.create(:person)) }
 
         before :each do
           sign_in(user)
-          xhr :get, :staff_index, id: bap_id
+          get :staff_index, params: { id: bap_id }, xhr: true
         end
 
         it "should not return success http status" do
@@ -251,7 +266,7 @@ module BenefitSponsors
         before :each do
           person1.broker_role.update_attributes!(benefit_sponsors_broker_agency_profile_id: organization.broker_agency_profile.id)
           initialize_and_login_admin[super_admin_permission]
-          xhr :get, :inbox, id: person1.id
+          get :inbox, params: { id: person1.id }, xhr: true
         end
 
         it "should return success http status" do
@@ -274,10 +289,10 @@ module BenefitSponsors
       include_context "setup initial benefit application"
       include_context "setup employees with benefits"
 
-      let!(:broker_agency_accounts) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: organization.profiles.first, benefit_sponsorship: benefit_sponsorship) }
-      let!(:user) { FactoryGirl.create(:user, roles: [], person: FactoryGirl.create(:person)) }
+      let!(:broker_agency_accounts) { FactoryBot.create(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: organization.profiles.first, benefit_sponsorship: benefit_sponsorship) }
+      let!(:user) { FactoryBot.create(:user, roles: [], person: FactoryBot.create(:person)) }
       let!(:ce) { benefit_sponsorship.census_employees.first }
-      let!(:ee_person) { FactoryGirl.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
+      let!(:ee_person) { FactoryBot.create(:person, :with_employee_role, :with_family, first_name: ce.first_name, last_name: ce.last_name, dob: ce.dob, ssn: ce.ssn, gender: ce.gender) }
 
       context "should return sucess and family" do
         before :each do
@@ -289,7 +304,7 @@ module BenefitSponsors
           dt_query = DataTablesInQuery.new("1", 0, 10, "")
           initialize_and_login_admin[super_admin_permission]
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -305,7 +320,7 @@ module BenefitSponsors
       context "should not return sucess" do
         before :each do
           sign_in(user)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
         end
 
         it "should not return sucess http status" do
@@ -324,7 +339,7 @@ module BenefitSponsors
           dt_query = DataTablesInQuery.new("1", 0, 10, "")
           initialize_and_login_admin[super_admin_permission]
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(nil, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -343,7 +358,7 @@ module BenefitSponsors
           initialize_and_login_admin[super_admin_permission]
           Person.create_indexes
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new(ee_person.first_name, organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -366,7 +381,7 @@ module BenefitSponsors
           Person.create_indexes
           initialize_and_login_admin[super_admin_permission]
           allow(controller).to receive(:extract_datatable_parameters).and_return(dt_query)
-          xhr :get, :family_datatable, id: bap_id
+          get :family_datatable, params: { id: bap_id }, xhr: true
           @query = ::BenefitSponsors::Queries::BrokerFamiliesQuery.new("test", organization.profiles.first.id, organization.profiles.first.market_kind)
         end
 
@@ -385,7 +400,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -398,11 +413,11 @@ module BenefitSponsors
         end
 
         context "with the incorrect permissions" do
-          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+          let!(:permission) { FactoryBot.create(:permission, :developer) }
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -419,7 +434,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -435,7 +450,7 @@ module BenefitSponsors
           before :each do
 
             initialize_and_login_broker[organization2]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -453,7 +468,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -468,7 +483,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :commission_statements, id: bap_id
+            get :commission_statements, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -495,7 +510,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -504,11 +519,11 @@ module BenefitSponsors
         end
 
         context "with the incorrect permissions" do
-          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+          let!(:permission) { FactoryBot.create(:permission, :developer) }
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -521,7 +536,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -532,7 +547,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker[organization2]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -546,7 +561,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -557,7 +572,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :show_commission_statement, id: bap_id, statement_id: document.id
+            get :show_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -580,7 +595,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -589,11 +604,11 @@ module BenefitSponsors
         end
 
         context "with the incorrect permissions" do
-          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+          let!(:permission) { FactoryBot.create(:permission, :developer) }
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -606,7 +621,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -617,7 +632,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker[organization2]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -631,7 +646,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should return http success" do
@@ -642,7 +657,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :download_commission_statement, id: bap_id, statement_id: document.id
+            get :download_commission_statement, params: { id: bap_id, statement_id: document.id }, xhr: true
           end
 
           it "should redirect to the broker agency profile page path" do
@@ -658,7 +673,7 @@ module BenefitSponsors
         context "with the correct permissions" do
           before :each do
             initialize_and_login_admin[super_admin_permission]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -671,11 +686,11 @@ module BenefitSponsors
         end
 
         context "with the incorrect permissions" do
-          let!(:permission) { FactoryGirl.create(:permission, :developer) }
+          let!(:permission) { FactoryBot.create(:permission, :developer) }
 
           before :each do
             initialize_and_login_admin[dev_permission]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to new of registration's controller for broker_agency" do
@@ -692,7 +707,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker[organization1]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -707,7 +722,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker[organization2]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the profile page of their broker agency" do
@@ -725,7 +740,7 @@ module BenefitSponsors
         context 'in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization1]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should return http success" do
@@ -740,7 +755,7 @@ module BenefitSponsors
         context 'not in the agency' do
           before :each do
             initialize_and_login_broker_agency_staff[organization2]
-            xhr :get, :messages, id: bap_id
+            get :messages, params: { id: bap_id }, xhr: true
           end
 
           it "should redirect to the profile page of their broker agency" do

@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   context "set_current_user with no person" do
-    let(:user) { FactoryGirl.create(:user, person: person) }
-    let(:person) { FactoryGirl.create(:person) }
+    let(:user) { FactoryBot.create(:user, person: person) }
+    let(:person) { FactoryBot.create(:person) }
 
     before :each do
       sign_in user
@@ -28,7 +30,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
   context "set_current_user  as agent" do
     let(:user) { double("User", last_portal_visited: "test.com", id: 77, email: 'x@y.com', person: person) }
-    let(:person) { FactoryGirl.create(:person) }
+    let(:person) { FactoryBot.create(:person) }
 
     it "should raise the error on invalid person_id" do
       allow(session).to receive(:[]).and_return(33)
@@ -41,18 +43,18 @@ end
 RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
   let(:hbx_enrollments) { double("HbxEnrollment") }
-  let(:user) { FactoryGirl.create(:user) }
-  let(:person) { double("Person", id: "test", addresses: [], no_dc_address: false, no_dc_address_reason: "" , has_active_consumer_role?: false, has_active_employee_role?: true) }
+  let(:user) { FactoryBot.create(:user) }
+  let(:person) { double("Person", id: "test", addresses: [], no_dc_address: false, no_dc_address_reason: "", has_active_consumer_role?: false, has_active_employee_role?: true) }
   let(:family) { instance_double(Family, active_household: household, :model_name => "Family") }
   let(:household) { double("HouseHold", hbx_enrollments: hbx_enrollments) }
   let(:addresses) { [double] }
   let(:family_members) { [double("FamilyMember")] }
-  let(:census_employee) { FactoryGirl.create(:census_employee)}
+  let(:census_employee) { FactoryBot.create(:census_employee)}
   let(:employee_roles) { [double("EmployeeRole", :census_employee => census_employee)] }
-  let(:resident_role) { FactoryGirl.create(:resident_role) }
+  let(:resident_role) { FactoryBot.create(:resident_role) }
   let(:consumer_role) { double("ConsumerRole", bookmark_url: "/families/home") }
   # let(:coverage_wavied) { double("CoverageWavied") }
-  let(:qle) { FactoryGirl.create(:qualifying_life_event_kind, pre_event_sep_in_days: 30, post_event_sep_in_days: 0) }
+  let(:qle) { FactoryBot.create(:qualifying_life_event_kind, pre_event_sep_in_days: 30, post_event_sep_in_days: 0) }
   let(:sep) { double("SpecialEnrollmentPeriod") }
 
 
@@ -136,7 +138,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     context "#init_qle" do
       before :each do
         @controller = Insured::FamiliesController.new
-        @qle = FactoryGirl.create(:qualifying_life_event_kind)
+        @qle = FactoryBot.create(:qualifying_life_event_kind)
         allow(@controller).to receive(:set_family)
         @controller.instance_variable_set(:@person, person)
         allow(person).to receive(:user).and_return(user)
@@ -156,24 +158,24 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       it "should return qles" do
         allow(@controller).to receive(:params).and_return({})
-        expect(@controller.instance_eval { init_qualifying_life_events }).to eq ([@qle])
+        expect(@controller.instance_eval { init_qualifying_life_events }).to eq([@qle])
       end
 
 
       it "should return qles" do
         allow(@controller).to receive(:params).and_return({market: "individual_market_events"})
-        expect(@controller.instance_eval { init_qualifying_life_events }).to eq ([])
+        expect(@controller.instance_eval { init_qualifying_life_events }).to eq([])
       end
     end
 
     context "for SHOP market", dbclean: :after_each do
 
       let(:employee_roles) { double }
-      let(:employee_role) { FactoryGirl.create(:employee_role, bookmark_url: "/families/home") }
-      let(:census_employee) { FactoryGirl.create(:census_employee, employee_role_id: employee_role.id) }
+      let(:employee_role) { FactoryBot.create(:employee_role, bookmark_url: "/families/home") }
+      let(:census_employee) { FactoryBot.create(:census_employee, employee_role_id: employee_role.id) }
 
       before :each do
-        FactoryGirl.create(:announcement, content: "msg for Employee", audiences: ['Employee'])
+        FactoryBot.create(:announcement, content: "msg for Employee", audiences: ['Employee'])
         allow(person).to receive(:has_active_employee_role?).and_return(true)
         allow(person).to receive(:active_employee_roles).and_return([employee_role])
         allow(person).to receive(:employee_roles).and_return([employee_role])
@@ -210,7 +212,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     context "for IVL market" do
-      let(:user) { FactoryGirl.create(:user) }
+      let(:user) { FactoryBot.create(:user) }
       let(:employee_roles) { double }
 
       before :each do
@@ -249,7 +251,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       context "who has not passed ridp" do
         let(:user) { double(identity_verified?: false, last_portal_visited: '', idp_verified?: false) }
-        let(:user) { FactoryGirl.create(:user) }
+        let(:user) { FactoryBot.create(:user) }
 
         before do
           allow(user).to receive(:idp_verified?).and_return false
@@ -272,7 +274,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context "for both ivl and shop", dbclean: :after_each do
       include_context "setup benefit market with market catalogs and product packages"
-      let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+      let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
       let!(:benefit_market_catalog) do
         create(
           :benefit_markets_benefit_market_catalog,
@@ -291,30 +293,30 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       include_context "setup initial benefit application"
 
       let!(:enrollments) {double}
-      let!(:person2) {FactoryGirl.create(:person, :with_consumer_role)}
-      let!(:user2) {FactoryGirl.create(:user, person: person2)}
-      let!(:family2) {FactoryGirl.create(:family, :with_primary_family_member, person: person2)}
+      let!(:person2) {FactoryBot.create(:person, :with_consumer_role)}
+      let!(:user2) {FactoryBot.create(:user, person: person2)}
+      let!(:family2) {FactoryBot.create(:family, :with_primary_family_member, person: person2)}
       let!(:household) {family2.active_household}
-      let!(:employee_role) {FactoryGirl.create(:employee_role, person: person2, employer_profile: abc_profile, bookmark_url: "/families/home")}
-      let!(:employee_role2) {FactoryGirl.create(:employee_role, person: person2, bookmark_url: "/families/home")}
-      let!(:census_employee) {FactoryGirl.create(:census_employee, employee_role_id: employee_role2.id)}
+      let!(:employee_role) {FactoryBot.create(:employee_role, person: person2, employer_profile: abc_profile, bookmark_url: "/families/home")}
+      let!(:employee_role2) {FactoryBot.create(:employee_role, person: person2, bookmark_url: "/families/home")}
+      let!(:census_employee) {FactoryBot.create(:census_employee, employee_role_id: employee_role2.id)}
       let(:family_access_policy) {instance_double(FamilyPolicy, :show? => true)}
       let(:display_hbx) do
-        FactoryGirl.create(:hbx_enrollment,
-                           household: family2.latest_household,
-                           coverage_kind: 'health',
-                           effective_on: TimeKeeper.datetime_of_record,
-                           enrollment_kind: 'open_enrollment',
-                           kind: 'individual',
-                           aasm_state: 'coverage_selected')
+        FactoryBot.create(:hbx_enrollment,
+                          household: family2.latest_household,
+                          coverage_kind: 'health',
+                          effective_on: TimeKeeper.datetime_of_record,
+                          enrollment_kind: 'open_enrollment',
+                          kind: 'individual',
+                          aasm_state: 'coverage_selected')
       end
 
       let(:waived_hbx) do
-        FactoryGirl.create(:hbx_enrollment,
-                           household: family2.active_household,
-                           kind: 'employer_sponsored',
-                           effective_on: TimeKeeper.date_of_record,
-                           aasm_state: 'inactive')
+        FactoryBot.create(:hbx_enrollment,
+                          household: family2.active_household,
+                          kind: 'employer_sponsored',
+                          effective_on: TimeKeeper.date_of_record,
+                          aasm_state: 'inactive')
       end
 
       before :each do
@@ -419,7 +421,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(person).to receive(:active_employee_roles).and_return(employee_role)
       allow(family).to receive_message_chain("special_enrollment_periods.where").and_return([special_enrollment_period])
       allow(controller).to receive(:authorize).and_return(true)
-      get :find_sep, hbx_enrollment_id: "2312121212", change_plan: "change_plan"
+      get :find_sep, params: { hbx_enrollment_id: "2312121212", change_plan: "change_plan" }
     end
 
     it "should be a redirect to edit insured person" do
@@ -449,8 +451,8 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     before :each do
       EnrollRegistry[:continuous_plan_shopping].feature.stub(:is_enabled).and_return(false)
       date = TimeKeeper.date_of_record - 10.days
-      @qle = FactoryGirl.create(:qualifying_life_event_kind, :effective_on_event_date)
-      @family = FactoryGirl.build(:family, :with_primary_family_member)
+      @qle = FactoryBot.create(:qualifying_life_event_kind, :effective_on_event_date)
+      @family = FactoryBot.build(:family, :with_primary_family_member)
       special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: date)
       special_enrollment_period.selected_effective_on = date.strftime('%m/%d/%Y')
       special_enrollment_period.qualifying_life_event_kind = @qle
@@ -463,7 +465,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context 'when its initial enrollment' do
       before :each do
-        post :record_sep, qle_id: @qle.id, qle_date: Date.today
+        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today }
       end
 
       it "should redirect" do
@@ -477,7 +479,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       before :each do
         allow(@family).to receive(:enrolled_hbx_enrollments).and_return([double])
-        post :record_sep, qle_id: @qle.id, qle_date: Date.today
+        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today }
       end
 
       it "should redirect with change_plan parameter" do
@@ -491,15 +493,15 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     before(:each) do
       allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
-      @qle = FactoryGirl.create(:qualifying_life_event_kind)
-      @family = FactoryGirl.build(:family, :with_primary_family_member)
+      @qle = FactoryBot.create(:qualifying_life_event_kind)
+      @family = FactoryBot.build(:family, :with_primary_family_member)
       allow(person).to receive(:primary_family).and_return(@family)
       allow(person).to receive(:resident_role?).and_return(false)
     end
 
     context "#check_marriage_reason" do
       it "renders the check_marriage reason template" do
-        xhr :get, 'check_marriage_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_marriage_reason', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(response).to render_template(:check_marriage_reason)
         expect(assigns(:qle_date_calc)).to eq assigns(:qle_date) - Settings.aca.qle.with_in_sixty_days.days
@@ -508,20 +510,20 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context "#check_move_reason" do
       it "renders the 'check_move_reason' template" do
-        xhr :get, 'check_move_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_move_reason', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(response).to render_template(:check_move_reason)
         expect(assigns(:qle_date_calc)).to eq assigns(:qle_date) - Settings.aca.qle.with_in_sixty_days.days
       end
 
       it "returns qualified_date as true" do
-        xhr :get, 'check_move_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_move_reason', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(assigns['qualified_date']).to eq(true)
       end
 
       it "returns qualified_date as false" do
-        xhr :get, 'check_move_reason', :date_val => (TimeKeeper.date_of_record + 31.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_move_reason', params: { :date_val => (TimeKeeper.date_of_record + 31.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(assigns['qualified_date']).to eq(false)
       end
@@ -529,19 +531,19 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context "#check_insurance_reason" do
       it "renders the 'check_insurance_reason' template" do
-        xhr :get, 'check_insurance_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_insurance_reason', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(response).to render_template(:check_insurance_reason)
       end
 
       it "returns qualified_date as true" do
-        xhr :get, 'check_insurance_reason', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_insurance_reason', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(assigns['qualified_date']).to eq(true)
       end
 
       it "returns qualified_date as false" do
-        xhr :get, 'check_insurance_reason', :date_val => (TimeKeeper.date_of_record + 31.days).strftime("%m/%d/%Y"), :qle_id => @qle.id, :format => 'js'
+        get 'check_insurance_reason', params: { :date_val => (TimeKeeper.date_of_record + 31.days).strftime("%m/%d/%Y"), :qle_id => @qle.id}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(assigns['qualified_date']).to eq(false)
       end
@@ -557,13 +559,13 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     it "renders the 'check_qle_date' template" do
-      xhr :get, 'check_qle_date', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :format => 'js'
+      get 'check_qle_date', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y")}, xhr: true, :format => 'js'
       expect(response).to have_http_status(:success)
     end
 
     describe "with valid params" do
       it "returns qualified_date as true" do
-        xhr :get, 'check_qle_date', :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y"), :format => 'js'
+        get 'check_qle_date', params: { :date_val => (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y")}, xhr: true, :format => 'js'
         expect(response).to have_http_status(:success)
         expect(assigns['qualified_date']).to eq(true)
       end
@@ -572,12 +574,12 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     describe "with invalid params" do
 
       it "returns qualified_date as false for invalid future date" do
-        xhr :get, 'check_qle_date', {:date_val => (TimeKeeper.date_of_record + 31.days).strftime("%m/%d/%Y"), :format => 'js'}
+        get 'check_qle_date', params: { :date_val => (TimeKeeper.date_of_record + 31.days).strftime("%m/%d/%Y")}, xhr: true, :format => 'js'
         expect(assigns['qualified_date']).to eq(false)
       end
 
       it "returns qualified_date as false for invalid past date" do
-        xhr :get, 'check_qle_date', {:date_val => (TimeKeeper.date_of_record - 61.days).strftime("%m/%d/%Y"), :format => 'js'}
+        get 'check_qle_date', params: { :date_val => (TimeKeeper.date_of_record - 61.days).strftime("%m/%d/%Y")}, xhr: true, :format => 'js'
         expect(assigns['qualified_date']).to eq(false)
       end
     end
@@ -587,23 +589,23 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(person).to receive(:user).and_return(user)
         allow(person).to receive(:has_active_employee_role?).and_return(true)
         allow(person).to receive(:has_active_consumer_role?).and_return(true)
-        @qle = FactoryGirl.create(:qualifying_life_event_kind)
-        @family = FactoryGirl.build(:family, :with_primary_family_member)
+        @qle = FactoryBot.create(:qualifying_life_event_kind)
+        @family = FactoryBot.build(:family, :with_primary_family_member)
         allow(person).to receive(:primary_family).and_return(@family)
       end
 
       it "future_qualified_date return true/false when qle market kind is shop" do
         date = TimeKeeper.date_of_record.strftime("%m/%d/%Y")
-        xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
+        get :check_qle_date, params: { date_val: date, qle_id: qle.id}, xhr: true, format: :js
         expect(response).to have_http_status(:success)
         expect(assigns(:future_qualified_date)).to eq(false)
       end
 
       it "future_qualified_date should return nil when qle market kind is indiviual" do
-        qle = FactoryGirl.build(:qualifying_life_event_kind, market_kind: "individual")
+        qle = FactoryBot.build(:qualifying_life_event_kind, market_kind: "individual")
         allow(QualifyingLifeEventKind).to receive(:find).and_return(qle)
         date = TimeKeeper.date_of_record.strftime("%m/%d/%Y")
-        xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
+        get :check_qle_date, params: { date_val: date, qle_id: qle.id}, xhr: true, format: :js
         expect(response).to have_http_status(:success)
         expect(assigns(:qualified_date)).to eq true
         expect(assigns(:future_qualified_date)).to eq(nil)
@@ -616,11 +618,11 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
 
-      let!(:user) { FactoryGirl.create(:user) }
-      let!(:person1) { FactoryGirl.create(:person) }
-      let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person1) }
+      let!(:user) { FactoryBot.create(:user) }
+      let!(:person1) { FactoryBot.create(:person) }
+      let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person1) }
 
-      let(:employee_role) {FactoryGirl.create(:employee_role, person: person1, employer_profile: abc_profile)}
+      let(:employee_role) {FactoryBot.create(:employee_role, person: person1, employer_profile: abc_profile)}
       let(:census_employee) { create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
 
       before :each do
@@ -632,7 +634,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       context "normal qle event" do
         it "should return true" do
           date = TimeKeeper.date_of_record.strftime("%m/%d/%Y")
-          xhr :get, :check_qle_date, date_val: date, format: :js
+          get :check_qle_date, params: { date_val: date}, xhr: true, format: :js
           expect(response).to have_http_status(:success)
           expect(assigns(:qualified_date)).to eq true
         end
@@ -640,7 +642,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         it "should return false" do
           sign_in user
           date = (TimeKeeper.date_of_record + 40.days).strftime("%m/%d/%Y")
-          xhr :get, :check_qle_date, date_val: date, format: :js
+          get :check_qle_date, params: { date_val: date}, xhr: true, format: :js
           expect(response).to have_http_status(:success)
           expect(assigns(:qualified_date)).to eq false
         end
@@ -655,21 +657,21 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
         it "should return true" do
           date = (TimeKeeper.date_of_record + 8.days).strftime("%m/%d/%Y")
-          xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
+          get :check_qle_date, params: { date_val: date, qle_id: qle.id}, xhr: true, format: :js
           expect(response).to have_http_status(:success)
           expect(assigns(:qualified_date)).to eq true
         end
 
         it "should return false" do
           date = (TimeKeeper.date_of_record - 8.days).strftime("%m/%d/%Y")
-          xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
+          get :check_qle_date, params: { date_val: date, qle_id: qle.id}, xhr: true, format: :js
           expect(response).to have_http_status(:success)
           expect(assigns(:qualified_date)).to eq false
         end
 
         it "should return false and also notify sep request denied" do
           date = TimeKeeper.date_of_record.prev_month.strftime("%m/%d/%Y")
-          xhr :get, :check_qle_date, qle_id: qle.id, date_val: date, qle_title: qle.title, qle_reporting_deadline: date, qle_event_on: date, format: :js
+          get :check_qle_date, params: { qle_id: qle.id, date_val: date, qle_title: qle.title, qle_reporting_deadline: date, qle_event_on: date}, xhr: true, format: :js
           expect(assigns(:qualified_date)).to eq false
 
           expect(subject.notifier).to receive(:notify) do |event_name, payload|
@@ -689,7 +691,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
           allow(QualifyingLifeEventKind).to receive(:find).and_return(qle)
           allow(qle).to receive(:is_dependent_loss_of_coverage?).and_return(true)
           allow(qle).to receive(:employee_gaining_medicare).and_return(effective_on_options)
-          xhr :get, :check_qle_date, date_val: date, qle_id: qle.id, format: :js
+          get :check_qle_date, params: { date_val: date, qle_id: qle.id}, xhr: true, format: :js
           expect(response).to have_http_status(:success)
           expect(assigns(:effective_on_options)).to eq effective_on_options
         end
@@ -697,14 +699,14 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     context "delete delete_consumer_broker" do
-      let(:family) {FactoryGirl.build(:family)}
+      let(:family) {FactoryBot.build(:family)}
       before :each do
         allow(person).to receive(:hbx_staff_role).and_return(double('hbx_staff_role', permission: double('permission',modify_family: true)))
         family.broker_agency_accounts = [
-          FactoryGirl.build(:broker_agency_account, family: family, employer_profile: nil)
+          FactoryBot.build(:broker_agency_account, family: family, employer_profile: nil)
         ]
         allow(Family).to receive(:find).and_return family
-        delete :delete_consumer_broker , :id => family.id
+        delete :delete_consumer_broker, params: { :id => family.id }
       end
 
       it "should delete consumer broker" do
@@ -715,8 +717,8 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   end
 
   describe "GET upload_notice_form", dbclean: :after_each do
-    let(:user) { FactoryGirl.create(:user, person: person, roles: ["hbx_staff"]) }
-    let(:person) { FactoryGirl.create(:person) }
+    let(:user) { FactoryBot.create(:user, person: person, roles: ["hbx_staff"]) }
+    let(:person) { FactoryBot.create(:person) }
 
     before(:each) do
       allow(controller).to receive(:authorize).and_return(true)
@@ -724,7 +726,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     it "displays the upload_notice_form view" do
-      xhr :get, :upload_notice_form
+      get :upload_notice_form, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template(:upload_notice_form)
     end
@@ -732,9 +734,9 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
   describe "GET upload_notice", dbclean: :after_each do
 
-    let(:consumer_role2) { FactoryGirl.create(:consumer_role) }
-    let(:person2) { FactoryGirl.create(:person) }
-    let(:user2) { FactoryGirl.create(:user, person: person2, roles: ["hbx_staff"]) }
+    let(:consumer_role2) { FactoryBot.create(:consumer_role) }
+    let(:person2) { FactoryBot.create(:person) }
+    let(:user2) { FactoryBot.create(:user, person: person2, roles: ["hbx_staff"]) }
     let(:file) { fixture_file_upload("#{Rails.root}/spec/test_data/files/JavaScript.pdf", 'application/pdf')  }
     let(:temp_file) { double }
     let(:file_path) { File.dirname(__FILE__) }
@@ -760,7 +762,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     it "when successful displays 'File Saved'" do
-      post :upload_notice, {:file => file, :subject=> subject}
+      post :upload_notice, params: { :file => file, :subject => subject}
       expect(flash[:notice]).to eq("File Saved")
       expect(response).to have_http_status(:found)
       expect(response).to redirect_to request.env["HTTP_REFERER"]
@@ -775,8 +777,10 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context "notice_upload_secure_message" do
 
-      let(:notice) {Document.new({ title: "file_name", creator: "hbx_staff", subject: "notice", identifier: "urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key",
-                                   format: "file_content_type" })}
+      let(:notice) do
+        Document.new({ title: "file_name", creator: "hbx_staff", subject: "notice", identifier: "urn:openhbx:terms:v1:file_storage:s3:bucket:#bucket_name#key",
+                       format: "file_content_type" })
+      end
 
       before do
         allow(@controller).to receive(:authorized_document_download_path).with("Person", person2.id, "documents", notice.id).and_return("/path/")
@@ -784,7 +788,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       end
 
       it "adds a message to person inbox" do
-        expect(person2.inbox.messages.count).to eq (2) #1 welcome message, 1 upload notification
+        expect(person2.inbox.messages.count).to eq(2) #1 welcome message, 1 upload notification
       end
     end
 
@@ -813,7 +817,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       end
 
       context "person has a employee role" do
-        let(:employee_role2) { FactoryGirl.create(:employee_role) }
+        let(:employee_role2) { FactoryBot.create(:employee_role) }
 
         before do
           person2.consumer_role = nil
@@ -851,11 +855,11 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     let(:current_effective_date) { TimeKeeper.date_of_record.beginning_of_month }
 
-    let!(:user) { FactoryGirl.create(:user) }
-    let!(:person1) { FactoryGirl.create(:person) }
-    let!(:family) { FactoryGirl.create(:family, :with_primary_family_member, person: person1) }
+    let!(:user) { FactoryBot.create(:user) }
+    let!(:person1) { FactoryBot.create(:person) }
+    let!(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person1) }
 
-    let(:employee_role) {FactoryGirl.create(:employee_role, person: person1, employer_profile: abc_profile)}
+    let(:employee_role) {FactoryBot.create(:employee_role, person: person1, employer_profile: abc_profile)}
     let(:census_employee) { create(:census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
 
     before :each do
@@ -865,9 +869,9 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     context 'as a user not associated with the account' do
-      let(:fake_person) { FactoryGirl.create(:person, :with_employee_role) }
-      let(:fake_user) { FactoryGirl.create(:user, person: fake_person) }
-      let!(:fake_family) { FactoryGirl.create(:family, :with_primary_family_member, person: fake_person) }
+      let(:fake_person) { FactoryBot.create(:person, :with_employee_role) }
+      let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+      let!(:fake_family) { FactoryBot.create(:family, :with_primary_family_member, person: fake_person) }
 
       before do
         sign_in(fake_user)
@@ -899,9 +903,9 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
     end
 
     context 'as an admin' do
-      let!(:admin_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
-      let!(:admin_user) { FactoryGirl.create(:user, :with_hbx_staff_role, person: admin_person) }
-      let!(:permission) { FactoryGirl.create(:permission, :super_admin) }
+      let!(:admin_person) { FactoryBot.create(:person, :with_hbx_staff_role) }
+      let!(:admin_user) { FactoryBot.create(:user, :with_hbx_staff_role, person: admin_person) }
+      let!(:permission) { FactoryBot.create(:permission, :super_admin) }
       let!(:update_admin) { admin_person.hbx_staff_role.update_attributes(permission_id: permission.id) }
 
       before do
@@ -935,17 +939,17 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context 'as broker' do
       let(:site)  { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let(:employer_organization)   { FactoryGirl.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile) { employer_organization.profiles.first }
-      let(:benefit_sponsorship) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, profile: employer_profile, benefit_market: site.benefit_markets.first) }
-      let(:broker_agency_profile) { FactoryGirl.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
-      let(:writing_agent) { FactoryGirl.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
-      let!(:broker_user) {FactoryGirl.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
-      let!(:broker_agency_account) { FactoryGirl.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
-      let!(:person2) { FactoryGirl.create(:person) }
-      let!(:family2) { FactoryGirl.create(:family, :with_primary_family_member, person: person2) }
-      let(:employee_role) { FactoryGirl.create(:employee_role, person: person2, employer_profile: employer_profile, census_employee: census_employee)}
-      let(:census_employee) { FactoryGirl.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
+      let(:benefit_sponsorship) { FactoryBot.create(:benefit_sponsors_benefit_sponsorship, profile: employer_profile, benefit_market: site.benefit_markets.first) }
+      let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, market_kind: 'shop', legal_name: 'Legal Name1', assigned_site: site) }
+      let(:writing_agent) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
+      let!(:broker_user) {FactoryBot.create(:user, :person => writing_agent.person, roles: ['broker_role', 'broker_agency_staff_role'])}
+      let!(:broker_agency_account) { FactoryBot.create(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship, broker_agency_profile: broker_agency_profile) }
+      let!(:person2) { FactoryBot.create(:person) }
+      let!(:family2) { FactoryBot.create(:family, :with_primary_family_member, person: person2) }
+      let(:employee_role) { FactoryBot.create(:employee_role, person: person2, employer_profile: employer_profile, census_employee: census_employee)}
+      let(:census_employee) { FactoryBot.create(:census_employee, :with_enrolled_census_employee, benefit_sponsorship_id: benefit_sponsorship.id) }
 
       context 'associated with the family' do
         before do
@@ -1017,8 +1021,8 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   describe "logged in user has no roles" do
     shared_examples_for "logged in user has no authorization roles for families controller" do |action|
       it "redirects to root with flash message" do
-        person = FactoryGirl.create(:person, :with_family)
-        unauthorized_user = FactoryGirl.create(:user, :person => person)
+        person = FactoryBot.create(:person, :with_family)
+        unauthorized_user = FactoryBot.create(:user, :person => person)
         sign_in(unauthorized_user)
 
         get action
@@ -1045,16 +1049,16 @@ end
 RSpec.describe Insured::FamiliesController, dbclean: :after_each do
   describe "GET purchase" do
     let(:hbx_enrollment) { HbxEnrollment.new }
-    let(:family) { FactoryGirl.create(:family, :with_primary_family_member) }
-    let(:person) { FactoryGirl.create(:person) }
-    let(:user) { FactoryGirl.create(:user, person: person) }
+    let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
+    let(:person) { FactoryBot.create(:person) }
+    let(:user) { FactoryBot.create(:user, person: person) }
     before :each do
       allow(HbxEnrollment).to receive(:find).and_return hbx_enrollment
       allow(person).to receive(:primary_family).and_return(family)
       allow(hbx_enrollment).to receive(:reset_dates_on_previously_covered_members).and_return(true)
       allow(controller).to receive(:authorize).and_return(true)
       sign_in(user)
-      get :purchase, id: family.id, hbx_enrollment_id: hbx_enrollment.id, terminate: 'terminate'
+      get :purchase, params: { id: family.id, hbx_enrollment_id: hbx_enrollment.id, terminate: 'terminate' }
     end
 
     it "should get hbx_enrollment" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe HbxEnrollmentMember, dbclean: :around_each do
@@ -5,6 +7,7 @@ describe HbxEnrollmentMember, dbclean: :around_each do
     include_context "BradyWorkAfterAll"
 
     attr_reader :household, :coverage_household, :enrollment, :family_member_ids
+
     before :each do
       create_brady_census_families
       @household = mikes_family.households.first
@@ -76,7 +79,7 @@ describe HbxEnrollmentMember, dbclean: :around_each do
 
   context "given a family member" do
     let(:person) { double }
-    let(:family_member) { instance_double(FamilyMember, :person => person ) }
+    let(:family_member) { instance_double(FamilyMember, :person => person) }
     subject { HbxEnrollmentMember.new }
 
     before :each do

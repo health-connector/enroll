@@ -1,28 +1,31 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ShopEmployerNotices::GroupAdvanceTerminationConfirmation do
   let(:employer_profile){ create :employer_profile}
   let(:start_on) { TimeKeeper.date_of_record.beginning_of_month + 1.month - 1.year}
   let(:person){ create :person}
-  let!(:plan_year) { FactoryGirl.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'terminated', :fte_count => 55) }
+  let!(:plan_year) { FactoryBot.create(:plan_year, employer_profile: employer_profile, start_on: start_on, :aasm_state => 'terminated', :fte_count => 55) }
   let(:application_event) do
     double("ApplicationEventKind",
-      {
-        name: 'Confirmation notice to employer after group termination',
-        notice_template: 'notices/shop_employer_notices/group_advance_termination_confirmation',
-        notice_builder: 'ShopEmployerNotices::GroupAdvanceTerminationConfirmation',
-        mpi_indicator: 'MPI_D043',
-        event_name: 'group_advance_termination_confirmation',
-        title: 'Notice Confirmation for Group termination due to ER advance request'
-      }
-    )
+           {
+             name: 'Confirmation notice to employer after group termination',
+             notice_template: 'notices/shop_employer_notices/group_advance_termination_confirmation',
+             notice_builder: 'ShopEmployerNotices::GroupAdvanceTerminationConfirmation',
+             mpi_indicator: 'MPI_D043',
+             event_name: 'group_advance_termination_confirmation',
+             title: 'Notice Confirmation for Group termination due to ER advance request'
+           })
   end
-  let(:valid_parmas) {{
+  let(:valid_parmas) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
       :template => application_event.notice_template
-  }}
+    }
+  end
 
   describe "New" do
     before do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "insured/families/_consumer_broker.html.erb" do
@@ -6,9 +8,9 @@ RSpec.describe "insured/families/_consumer_broker.html.erb" do
 
 
 
-  let(:family1) { FactoryGirl.create(:family, :with_primary_family_member)}
-  let(:broker_agency_profile){FactoryGirl.create(:broker_agency_profile)}
-  let(:broker_agency_account){FactoryGirl.create(:broker_agency_account,is_active:true)}
+  let(:family1) { FactoryBot.create(:family, :with_primary_family_member)}
+  let(:broker_agency_profile){FactoryBot.create(:broker_agency_profile)}
+  let(:broker_agency_account){FactoryBot.create(:broker_agency_account,is_active: true)}
 
 
 
@@ -26,12 +28,12 @@ RSpec.describe "insured/families/_consumer_broker.html.erb" do
 
     it "should render the partial" do
       render partial: 'insured/families/consumer_broker.html.erb', locals: { title: nil}
-      expect(rendered).to match /Your Broker/
+      expect(rendered).to match(/Your Broker/)
     end
 
     it "the partial should have Assignment Date" do
       render partial: 'insured/families/consumer_broker.html.erb', locals: { title: nil}
-      expect(rendered).to match /Assignment Date/
+      expect(rendered).to match(/Assignment Date/)
     end
   end
 end

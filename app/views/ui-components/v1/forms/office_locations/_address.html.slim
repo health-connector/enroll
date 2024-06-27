@@ -47,10 +47,9 @@ javascript:
   function checkKind(element) {
     checkOLKind(element)
   }
-  
-  $(function() {
+
+  document.addEventListener('DOMContentLoaded', function () {
     var element = document.getElementById('kindSelect');
     var value = element.value;
     checkKind(element, value)
   });
-  

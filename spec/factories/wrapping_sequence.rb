@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WrappingSequence
 
   def initialize(start_at, wrap_after)
@@ -7,11 +9,11 @@ class WrappingSequence
   end
 
   def next
-    if @value == @wrap_max
-      @value = @start_at
-    else
-      @value = @value + 1
-    end
+    @value = if @value == @wrap_max
+               @start_at
+             else
+               @value + 1
+             end
   end
 
   def peek

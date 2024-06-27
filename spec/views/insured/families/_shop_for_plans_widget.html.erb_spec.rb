@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -13,9 +15,9 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
   let(:plan_year) { initial_application }
   let(:census_employee)  { create(:benefit_sponsors_census_employee, benefit_sponsorship: benefit_sponsorship, employer_profile: abc_profile) }
   let(:hbx_enrollments) {double}
-  let(:hbx_profile) { FactoryGirl.create(:hbx_profile) }
-  let(:current_user) { FactoryGirl.create(:user)}
-
+  let(:hbx_profile) { FactoryBot.create(:hbx_profile) }
+  # let(:current_user) { FactoryBot.create(:user, :with_hbx_staff_role, person: person) }
+  let(:current_user) { FactoryBot.create(:user)}
 
   context "with hbx_enrollments" do
     if aca_state_abbreviation == "DC"
@@ -40,7 +42,7 @@ RSpec.describe "insured/families/_shop_for_plans_widget.html.erb",dbclean: :arou
 
       it "should have image" do
         expect(rendered).to have_selector("img")
-        expect(rendered).to match /shop_for_plan/
+        expect(rendered).to match(/shop_for_plan/)
       end
 
       it "should have link with change_plan" do

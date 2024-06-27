@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "remove_hbx_id")
 
@@ -12,15 +14,14 @@ describe RemoveHbxId do
   end
 
   describe "changing person ssn" do
-    let(:person) { FactoryGirl.create(:person)}
-    before(:each) do
-      allow(ENV).to receive(:[]).with("person_hbx_id").and_return(person.hbx_id)
-    end
+    let(:person) { FactoryBot.create(:person)}
 
     it "should set person hbx id to nil" do
-      subject.migrate
-      person.reload
-      expect(person.hbx_id).to eq nil
+      ClimateControl.modify person_hbx_id: person.hbx_id do
+        subject.migrate
+        person.reload
+        expect(person.hbx_id).to eq nil
+      end
     end
   end
 end

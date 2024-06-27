@@ -15,6 +15,12 @@ module SponsoredBenefits
           SponsoredBenefits::Organizations::PlanDesignOrganization.find_by_owner(id).first
         end
 
+        def office_locations(profile)
+          return profile.office_locations if profile.respond_to?('office_locations')
+
+          profile.organization.office_locations
+        end
+
         def find_or_initialize_broker_profile(profile)
           organization = SponsoredBenefits::Organizations::Organization.find_or_initialize_by(fein: profile.fein)
           unless organization.persisted?
@@ -22,8 +28,8 @@ module SponsoredBenefits
               hbx_id: profile.hbx_id,
               legal_name: profile.legal_name,
               dba: profile.dba,
-              office_locations: profile.office_locations,
-              broker_agency_profile: SponsoredBenefits::Organizations::BrokerAgencyProfile.new # Prospect
+              office_locations: office_locations(profile).map(&:attributes),
+              broker_agency_profile: new # Prospect
             })
           end
           organization
@@ -31,26 +37,25 @@ module SponsoredBenefits
 
         def assign_employer(broker_agency:, employer:, office_locations:)
           broker_profile = find_or_initialize_broker_profile(broker_agency).broker_agency_profile
+          broker_profile.save unless broker_profile.persisted?
 
           plan_design_organization = SponsoredBenefits::Organizations::PlanDesignOrganization.find_by_owner_and_sponsor(broker_agency.id, employer.id)
 
           if plan_design_organization
             plan_design_organization.update_attributes!({
               has_active_broker_relationship: true,
-              office_locations: office_locations,
+              office_locations: office_locations(employer).map(&:attributes)
             })
           else
-            broker_profile.plan_design_organizations.new({
+            broker_profile.plan_design_organizations.create({
               owner_profile_id: broker_agency._id,
               sponsor_profile_id: employer._id,
-              office_locations: office_locations,
+              office_locations: office_locations(employer).map(&:attributes),
               fein: employer.fein,
               legal_name: employer.legal_name,
               has_active_broker_relationship: true,
               sic_code: employer.sic_code,
             })
-
-            broker_profile.save!
           end
         end
 

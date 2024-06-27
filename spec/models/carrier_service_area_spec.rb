@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CarrierServiceArea, type: :model, dbclean: :after_each do
@@ -71,5 +73,5 @@ RSpec.describe CarrierServiceArea, type: :model, dbclean: :after_each do
         end
       end
     end
-  end ## End class method tests
+  end
 end

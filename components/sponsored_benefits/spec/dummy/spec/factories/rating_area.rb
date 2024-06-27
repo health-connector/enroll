@@ -1,4 +1,6 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :rating_area do
     zip_code '10010'
     county_name 'Hampstead'

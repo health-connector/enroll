@@ -27,78 +27,77 @@ module SponsoredBenefits
       end
 
       private
-        helper_method :plan_design_form, :plan_design_organization, :plan_design_proposal, :sponsorship, :visit_types
 
-        def plan_design_proposal
-          @plan_design_proposal ||= SponsoredBenefits::Organizations::PlanDesignProposal.find(params[:plan_design_proposal_id])
-        end
+      helper_method :plan_design_form, :plan_design_organization, :plan_design_proposal, :sponsorship, :visit_types
 
-        def plan_design_organization
-          @plan_design_organization ||= plan_design_proposal.plan_design_organization
-        end
+      def plan_design_proposal
+        @plan_design_proposal ||= SponsoredBenefits::Organizations::PlanDesignProposal.find(params[:plan_design_proposal_id])
+      end
 
-        def sponsorship
-          @sponsorship ||= plan_design_proposal.profile.benefit_sponsorships.first
-        end
+      def plan_design_organization
+        @plan_design_organization ||= plan_design_proposal.plan_design_organization
+      end
 
-        def find_or_build_benefit_group
-          @benefit_group = sponsorship.benefit_applications.first.benefit_groups.first
+      def sponsorship
+        @sponsorship ||= plan_design_proposal.profile.benefit_sponsorships.first
+      end
 
-          if @benefit_group.present?
-            if kind == 'dental'
-              @benefit_group.dental_relationship_benefits = []
-              @benefit_group.assign_attributes(dental_benefit_params)
-              @benefit_group.elected_dental_plans = @benefit_group.elected_dental_plans_by_option_kind
-            else
-              @old_relationship_benefits = @benefit_group.relationship_benefits if @benefit_group.relationship_benefits.present?
-              @benefit_group.relationship_benefits = []
-              @benefit_group.assign_attributes(benefit_group_params)
-            end
+      def find_or_build_benefit_group
+        @benefit_group = sponsorship.benefit_applications.first.benefit_groups.first
+
+        if @benefit_group.present?
+          if kind == 'dental'
+            @benefit_group.dental_relationship_benefits = []
+            @benefit_group.assign_attributes(dental_benefit_params)
+            @benefit_group.elected_dental_plans = @benefit_group.elected_dental_plans_by_option_kind
+          else
+            @old_relationship_benefits = @benefit_group.relationship_benefits if @benefit_group.relationship_benefits.present?
+            @benefit_group.relationship_benefits = []
+            @benefit_group.assign_attributes(benefit_group_params)
           end
-
-          if @benefit_group.blank? && benefit_group_params.present?
-            @benefit_group = sponsorship.benefit_applications.first.benefit_groups.build(benefit_group_params)
-          end
-
-          @benefit_group.elected_plans = @benefit_group.elected_plans_by_option_kind.to_a
         end
 
-        def plan_array(plan)
-           ::Plan.where(:_id => { '$in': [plan.id] } ).map(&:hios_id)
-        end
+        @benefit_group = sponsorship.benefit_applications.first.benefit_groups.build(benefit_group_params) if @benefit_group.blank? && benefit_group_params.present?
 
-        def plan_design_form
-          SponsoredBenefits::Forms::PlanDesignProposal.new(organization: plan_design_organization, proposal_id: params[:plan_design_proposal_id])
-        end
+        @benefit_group.elected_plans = @benefit_group.elected_plans_by_option_kind.to_a
+      end
 
-        def visit_types
-          @visit_types ||= ::Products::Qhp::VISIT_TYPES
-        end
+      def plan_array(plan)
+        ::Plan.where(:_id => { '$in': [plan.id] }).map(&:hios_id)
+      end
 
-        def sbc_included
-          params[:sbc_included] == 'true'
-        end
+      def plan_design_form
+        SponsoredBenefits::Forms::PlanDesignProposal.new(organization: plan_design_organization, proposal_id: params[:plan_design_proposal_id])
+      end
 
-        def kind
-          params.require(:benefit_group).require(:kind)
-        end
+      def visit_types
+        @visit_types ||= ::Products::Qhp::VISIT_TYPES
+      end
 
-        def benefit_group_params
-          params.require(:benefit_group).permit(
-                      :reference_plan_id,
-                      :plan_option_kind,
-                      relationship_benefits_attributes: [:relationship, :premium_pct, :offered],
-                      composite_tier_contributions_attributes: [:composite_rating_tier, :employer_contribution_percent, :offered]
-          )
-        end
+      def sbc_included
+        params[:sbc_included] == 'true'
+      end
 
-        def dental_benefit_params
-          {
-            dental_reference_plan_id: benefit_group_params[:reference_plan_id],
-            dental_relationship_benefits: benefit_group_params[:relationship_benefits_attributes],
-            dental_plan_option_kind:  benefit_group_params[:plan_option_kind]
-          }
-        end
+      def kind
+        params.require(:benefit_group).require(:kind)
+      end
+
+      def benefit_group_params
+        params.require(:benefit_group).permit(
+          :reference_plan_id,
+          :plan_option_kind,
+          relationship_benefits_attributes: [:relationship, :premium_pct, :offered],
+          composite_tier_contributions_attributes: [:composite_rating_tier, :employer_contribution_percent, :offered]
+        )
+      end
+
+      def dental_benefit_params
+        {
+          dental_reference_plan_id: benefit_group_params[:reference_plan_id],
+          dental_relationship_benefits: benefit_group_params[:relationship_benefits_attributes]&.as_json&.with_indifferent_access,
+          dental_plan_option_kind: benefit_group_params[:plan_option_kind]
+        }
+      end
     end
   end
 end

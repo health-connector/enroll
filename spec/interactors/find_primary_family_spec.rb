@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe FindPrimaryFamily, :dbclean => :after_each do
   context "when a person with family exist" do
-    let(:person) {FactoryGirl.create(:person, :with_family)}
+    let(:person) {FactoryBot.create(:person, :with_family)}
 
     it "should fetch primary family" do
       context = described_class.call(person: person)
@@ -13,7 +13,7 @@ describe FindPrimaryFamily, :dbclean => :after_each do
   end
 
   context "when a person without family exist" do
-    let(:person) {FactoryGirl.create(:person)}
+    let(:person) {FactoryBot.create(:person)}
 
     it "should not fetch primary family" do
       context = described_class.call(person: person)

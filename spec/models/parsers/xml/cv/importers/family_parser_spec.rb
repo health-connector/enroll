@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Parsers::Xml::Cv::Importers::FamilyParser do
@@ -20,7 +22,7 @@ describe Parsers::Xml::Cv::Importers::FamilyParser do
         expect(family.family_members.class).to eq Array
         expect(family.family_members.length).to eq 2
       end
-      
+
       it "should get is_primary_applicant by family_members" do
         family_member = subject.get_family_object.family_members.first
         expect(family_member.is_primary_applicant).to eq true

@@ -1,31 +1,35 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each do
 
   describe "Employer Helper Module" do
-    let(:employee_role) {FactoryGirl.create(:employee_role, person: person)}
-    let(:person) {FactoryGirl.create(:person, :with_ssn)}
-    let(:primary_family) {FactoryGirl.create(:family, :with_primary_family_member, person: person)}
-    let(:benefit_sponsorship) {FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_initial_benefit_application)}
+    let(:employee_role) {FactoryBot.create(:employee_role, person: person)}
+    let(:person) {FactoryBot.create(:person, :with_ssn)}
+    let(:primary_family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
+    let(:benefit_sponsorship) {FactoryBot.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_initial_benefit_application)}
     let(:benefit_package) {benefit_sponsorship.benefit_applications.first.benefit_packages.first}
-    let(:census_employee) {FactoryGirl.build(:benefit_sponsors_census_employee, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship)}
-    let(:benefit_group_assignment) {FactoryGirl.create(:benefit_group_assignment, benefit_package_id: benefit_package.id, census_employee: census_employee, start_on: benefit_package.start_on, end_on: benefit_package.end_on)}
-    let(:health_plan) {FactoryGirl.create(:plan, coverage_kind: "health")}
-    let(:dental_plan) {FactoryGirl.create(:plan, coverage_kind: "dental", dental_level: "high")}
-    let(:health_enrollment) {FactoryGirl.create(:hbx_enrollment,
-                                                household: primary_family.latest_household,
-                                                employee_role_id: employee_role.id,
-                                                coverage_kind: "health",
-                                                benefit_group_id: benefit_package.id,
-                                                plan: health_plan
-    )}
-    let(:dental_enrollment) {FactoryGirl.create(:hbx_enrollment,
-                                                household: primary_family.latest_household,
-                                                employee_role_id: employee_role.id,
-                                                coverage_kind: "dental",
-                                                benefit_group_id: benefit_package.id,
-                                                plan: dental_plan
-    )}
+    let(:census_employee) {FactoryBot.build(:benefit_sponsors_census_employee, employer_profile: benefit_sponsorship.profile, benefit_sponsorship: benefit_sponsorship)}
+    let(:benefit_group_assignment) {FactoryBot.create(:benefit_group_assignment, benefit_package_id: benefit_package.id, census_employee: census_employee, start_on: benefit_package.start_on, end_on: benefit_package.end_on)}
+    let(:health_plan) {FactoryBot.create(:plan, coverage_kind: "health")}
+    let(:dental_plan) {FactoryBot.create(:plan, coverage_kind: "dental", dental_level: "high")}
+    let(:health_enrollment) do
+      FactoryBot.create(:hbx_enrollment,
+                        household: primary_family.latest_household,
+                        employee_role_id: employee_role.id,
+                        coverage_kind: "health",
+                        benefit_group_id: benefit_package.id,
+                        plan: health_plan)
+    end
+    let(:dental_enrollment) do
+      FactoryBot.create(:hbx_enrollment,
+                        household: primary_family.latest_household,
+                        employee_role_id: employee_role.id,
+                        coverage_kind: "dental",
+                        benefit_group_id: benefit_package.id,
+                        plan: dental_plan)
+    end
 
 
     describe "census employee terminated and rehired states" do
@@ -56,11 +60,11 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
         end
 
         context "and the terminated employee is rehired" do
-          let!(:census_employee) {
-            ce = FactoryGirl.create(:census_employee, employee_role_id: employee_role.id)
+          let!(:census_employee) do
+            ce = FactoryBot.create(:census_employee, employee_role_id: employee_role.id)
             ce.terminate_employment!(TimeKeeper.date_of_record - 45.days)
             ce
-          }
+          end
           let!(:rehired_census_employee) {census_employee.replicate_for_rehire}
 
           it "should return true for rehired state" do
@@ -263,41 +267,55 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
 
     describe "fetch benefit Group Assignments using" do
       context ".get_benefit_groups_for_census_employee" do
-        let(:health_plan) {FactoryGirl.create(:plan,
-                                              :with_premium_tables,
-                                              coverage_kind: "health",
-                                              active_year: TimeKeeper.date_of_record.year)}
+        let(:health_plan) do
+          FactoryBot.create(:plan,
+                            :with_premium_tables,
+                            coverage_kind: "health",
+                            active_year: TimeKeeper.date_of_record.year)
+        end
 
-        let(:expired_plan_year) {FactoryGirl.build(:plan_year,
-                                                   start_on: TimeKeeper.date_of_record.beginning_of_month - 1.year,
-                                                   end_on: TimeKeeper.date_of_record.beginning_of_month - 1.day,
-                                                   aasm_state: 'expired')}
+        let(:expired_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.beginning_of_month - 1.year,
+                           end_on: TimeKeeper.date_of_record.beginning_of_month - 1.day,
+                           aasm_state: 'expired')
+        end
 
-        let(:active_plan_year) {FactoryGirl.build(:plan_year,
-                                                  start_on: TimeKeeper.date_of_record.beginning_of_month,
-                                                  end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
-                                                  aasm_state: 'active')}
+        let(:active_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'active')
+        end
 
-        let(:draft_plan_year) {FactoryGirl.build(:plan_year,
-                                                 start_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
-                                                 end_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
-                                                 aasm_state: 'draft')}
+        let(:draft_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'draft')
+        end
 
-        let(:published_plan_year) {FactoryGirl.build(:plan_year,
-                                                     start_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
-                                                     end_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
-                                                     aasm_state: 'published')}
+        let(:published_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'published')
+        end
 
-        let(:published_plan_year_with_terminated_on) {FactoryGirl.build(:plan_year,
-                                                                        start_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
-                                                                        end_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
-                                                                        terminated_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
-                                                                        aasm_state: 'published')}
+        let(:published_plan_year_with_terminated_on) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
+                           terminated_on: TimeKeeper.date_of_record.next_month.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'published')
+        end
 
-        let(:renewing_plan_year) {FactoryGirl.build(:plan_year,
-                                                    start_on: TimeKeeper.date_of_record.beginning_of_month,
-                                                    end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
-                                                    aasm_state: 'renewing_draft')}
+        let(:renewing_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'renewing_draft')
+        end
 
 
         let(:relationship_benefits) do
@@ -308,20 +326,22 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
           ]
         end
 
-        let!(:employer_profile) {FactoryGirl.create(:employer_profile,
-                                                    plan_years: [expired_plan_year, active_plan_year, draft_plan_year])}
+        let!(:employer_profile) do
+          FactoryBot.create(:employer_profile,
+                            plan_years: [expired_plan_year, active_plan_year, draft_plan_year])
+        end
 
-        let!(:employer_profile_1) {FactoryGirl.create(:employer_profile)}
+        let!(:employer_profile_1) {FactoryBot.create(:employer_profile)}
 
         before do
           [expired_plan_year, active_plan_year, draft_plan_year, renewing_plan_year, published_plan_year].each do |py|
             bg = py.benefit_groups.build({
-                                             title: 'DC benefits',
-                                             plan_option_kind: "single_plan",
-                                             effective_on_kind: 'first_of_month',
-                                             effective_on_offset: 0,
-                                             relationship_benefits: relationship_benefits,
-                                             reference_plan_id: health_plan.id,
+                                           title: 'DC benefits',
+                                           plan_option_kind: "single_plan",
+                                           effective_on_kind: 'first_of_month',
+                                           effective_on_offset: 0,
+                                           relationship_benefits: relationship_benefits,
+                                           reference_plan_id: health_plan.id
                                          })
             bg.elected_plans = [health_plan]
             bg.save!
@@ -382,8 +402,10 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
         end
 
         context 'for renewing employer' do
-          let!(:employer_profile) {FactoryGirl.create(:employer_profile,
-                                                      plan_years: [expired_plan_year, active_plan_year, draft_plan_year, renewing_plan_year])}
+          let!(:employer_profile) do
+            FactoryBot.create(:employer_profile,
+                              plan_years: [expired_plan_year, active_plan_year, draft_plan_year, renewing_plan_year])
+          end
 
           it 'should return both renewing and current benefit groups' do
             current_benefit_groups, renewal_benefit_groups = helper.get_benefit_groups_for_census_employee
@@ -395,8 +417,10 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
         end
 
         context "for new initial employer" do
-          let!(:employer_profile) {FactoryGirl.create(:employer_profile,
-                                                      plan_years: [draft_plan_year, published_plan_year])}
+          let!(:employer_profile) do
+            FactoryBot.create(:employer_profile,
+                              plan_years: [draft_plan_year, published_plan_year])
+          end
 
           it 'should return upcoming draft and published plan year benefit groups' do
             current_benefit_groups, renewal_benefit_groups = helper.get_benefit_groups_for_census_employee
@@ -410,20 +434,24 @@ RSpec.describe Employers::EmployerHelper, :type => :helper, dbclean: :after_each
 
     describe "Rehire and cobra scenarios" do
       context "show_cobra_fields?" do
-        let(:active_plan_year) {FactoryGirl.build(:plan_year,
-                                                  start_on: TimeKeeper.date_of_record.beginning_of_month,
-                                                  end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
-                                                  aasm_state: 'active')}
-        let(:renewing_plan_year) {FactoryGirl.build(:plan_year,
-                                                    start_on: TimeKeeper.date_of_record.beginning_of_month,
-                                                    end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
-                                                    aasm_state: 'renewing_draft')}
+        let(:active_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'active')
+        end
+        let(:renewing_plan_year) do
+          FactoryBot.build(:plan_year,
+                           start_on: TimeKeeper.date_of_record.beginning_of_month,
+                           end_on: TimeKeeper.date_of_record.beginning_of_month + 1.year - 1.day,
+                           aasm_state: 'renewing_draft')
+        end
 
-        let(:employer_profile_with_active_plan_year) {FactoryGirl.create(:employer_profile, plan_years: [active_plan_year])}
-        let(:employer_profile_with_renewing_plan_year) {FactoryGirl.create(:employer_profile, plan_years: [active_plan_year, renewing_plan_year])}
-        let(:conversion_employer_profile_with_renewing_plan_year) {FactoryGirl.create(:employer_profile, profile_source: 'conversion', plan_years: [active_plan_year, renewing_plan_year])}
-        let(:employer_profile) {FactoryGirl.create(:employer_profile)}
-        let(:user) {FactoryGirl.create(:user)}
+        let(:employer_profile_with_active_plan_year) {FactoryBot.create(:employer_profile, plan_years: [active_plan_year])}
+        let(:employer_profile_with_renewing_plan_year) {FactoryBot.create(:employer_profile, plan_years: [active_plan_year, renewing_plan_year])}
+        let(:conversion_employer_profile_with_renewing_plan_year) {FactoryBot.create(:employer_profile, profile_source: 'conversion', plan_years: [active_plan_year, renewing_plan_year])}
+        let(:employer_profile) {FactoryBot.create(:employer_profile)}
+        let(:user) {FactoryBot.create(:user)}
 
         it "should return true when admin" do
           allow(user).to receive(:has_hbx_staff_role?).and_return true

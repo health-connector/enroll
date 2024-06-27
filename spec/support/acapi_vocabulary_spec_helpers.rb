@@ -4,29 +4,29 @@ require 'open-uri'
 
 module AcapiVocabularySpecHelpers
   ACAPI_SCHEMA_FILE_LIST = %w[
-assistance.xsd
-common.xsd
-config.xsd
-credits.xsd
-dms.xsd
-document_storage.xsd
-edi.xsd
-edi_process.xsd
-individual.xsd
-links.xsd
-organization.xsd
-paynow.xsd
-plan.xsd
-policy.xsd
-premium.xsd
-verification_services.xsd
-vocabulary.xsd
-verification_services.xsd
+    assistance.xsd
+    common.xsd
+    config.xsd
+    credits.xsd
+    dms.xsd
+    document_storage.xsd
+    edi.xsd
+    edi_process.xsd
+    individual.xsd
+    links.xsd
+    organization.xsd
+    paynow.xsd
+    plan.xsd
+    policy.xsd
+    premium.xsd
+    verification_services.xsd
+    vocabulary.xsd
+    verification_services.xsd
   ].freeze
 
   def download_vocabularies
     schema_directory = File.join(Rails.root, "spec", "vocabularies")
-    Dir.mkdir(schema_directory) unless File.exist?(schema_directory)
+    FileUtils.mkdir_p(schema_directory)
     ACAPI_SCHEMA_FILE_LIST.each do |item|
       download_schema_file(item, schema_directory)
     end

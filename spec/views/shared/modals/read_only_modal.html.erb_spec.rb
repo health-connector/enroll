@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "shared/read_only_modal.html.erb with all options" do
@@ -11,5 +13,5 @@ describe "shared/read_only_modal.html.erb with all options" do
     expect(rendered).to have_selector(".fa", text: "")
     expect(rendered).to have_selector("p", text: "test modal body text")
   end
-  
+
 end

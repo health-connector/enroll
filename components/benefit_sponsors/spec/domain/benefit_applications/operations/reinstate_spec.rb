@@ -126,7 +126,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       let(:sponsored_benefit) { current_benefit_package.sponsored_benefit_for(:health) }
 
       let!(:enrollment) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :hbx_enrollment,
           household: family.latest_household,
           coverage_kind: :health,
@@ -339,7 +339,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       let(:reinstate_on) { benefit_application.start_on }
 
       let!(:enrollment) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :hbx_enrollment,
           household: family.latest_household,
           coverage_kind: :health,
@@ -465,7 +465,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
     context "without overlapping application" do
       let(:new_start_on) { benefit_application.initial_effective_period.max.to_date.next_day }
       let!(:draft_application) do
-        FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
+        FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
                            passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
                            open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
                            recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,
@@ -488,7 +488,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
     context "with overlapping application" do
       let!(:draft_application) do
-        FactoryGirl.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
+        FactoryBot.create(:benefit_sponsors_benefit_application, :with_benefit_sponsor_catalog, :with_benefit_package,
                            passed_benefit_sponsor_catalog: benefit_sponsor_catalog, benefit_sponsorship: benefit_sponsorship,
                            open_enrollment_period: benefit_application.open_enrollment_period, recorded_rating_area: rating_area,
                            recorded_service_areas: service_areas, package_kind: package_kind, dental_package_kind: dental_package_kind,

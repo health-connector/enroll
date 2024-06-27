@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EmployerAttestationDocument, dbclean: :after_each do
 
   context ".submit_review" do
 
-    let(:document) { FactoryGirl.create(:employer_attestation_document) }
+    let(:document) { FactoryBot.create(:employer_attestation_document) }
     let(:employer_profile) { document.employer_profile }
     let(:attestation) { document.employer_attestation }
 
@@ -28,7 +30,7 @@ describe EmployerAttestationDocument, dbclean: :after_each do
         expect(document.rejected?).to be_truthy
         expect(document.reason_for_rejection).to eq reject_reason
         expect(document.employer_attestation.denied?).to be_truthy
-      end 
+      end
     end
 
     context '.info_needed' do
@@ -43,12 +45,12 @@ describe EmployerAttestationDocument, dbclean: :after_each do
         expect(document.employer_attestation.pending?).to be_truthy
       end
     end
-    
+
     context 'admin approves second attestation document' do
       context 'where attestation is in denied state' do
         before :each do
           attestation.update_attributes!(aasm_state: 'denied')
-          FactoryGirl.create(:employer_attestation_document, employer_attestation: attestation)
+          FactoryBot.create(:employer_attestation_document, employer_attestation: attestation)
           attestation.reload
         end
 
@@ -60,7 +62,7 @@ describe EmployerAttestationDocument, dbclean: :after_each do
       context 'where attestation is in approved state' do
         before :each do
           attestation.update_attributes!(aasm_state: 'approved')
-          FactoryGirl.create(:employer_attestation_document, employer_attestation: attestation)
+          FactoryBot.create(:employer_attestation_document, employer_attestation: attestation)
         end
 
         it 'should not change attestation status' do

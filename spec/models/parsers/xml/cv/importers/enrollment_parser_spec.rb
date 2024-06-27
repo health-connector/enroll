@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Parsers::Xml::Cv::Importers::EnrollmentParser do
@@ -90,7 +92,7 @@ describe Parsers::Xml::Cv::Importers::EnrollmentParser do
 
     it "should get applied_aptc_amount" do
       enrollment = subject.get_enrollment_object
-      expect(enrollment.applied_aptc_amount).to eq Money.new(19465)
+      expect(enrollment.applied_aptc_amount).to eq Money.new(19_465)
     end
   end
 end

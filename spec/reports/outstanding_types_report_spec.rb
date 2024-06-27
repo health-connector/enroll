@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require "rails_helper"
 require File.join(Rails.root, "app", "reports", "outstanding_types_report")
@@ -11,7 +13,7 @@ describe OutstandingTypesReport do
   end
 
   after do
-    File.delete(@file) if File.exist?(@file)
+    File.delete(@file)
   end
 
   it "creates csv file" do
@@ -21,7 +23,7 @@ describe OutstandingTypesReport do
 
   it "returns correct fields" do
     CSV.foreach(@file, :headers => true) do |csv|
-      expect(csv).to eq field_names = %w( SUBSCRIBER_ID MEMBER_ID FIRST_NAME LAST_NAME VERIFICATION_TYPE TRANSITION OUTSTANDING DUE_DATE IVL_ENROLLMENT SHOP_ENROLLMENT)
+      expect(csv).to eq %w[SUBSCRIBER_ID MEMBER_ID FIRST_NAME LAST_NAME VERIFICATION_TYPE TRANSITION OUTSTANDING DUE_DATE IVL_ENROLLMENT SHOP_ENROLLMENT]
     end
   end
 end

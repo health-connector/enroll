@@ -1,4 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
+
+class DummySessionClass
+  include SessionConcern
+end
 
 RSpec.describe ApplicationController do
   controller(Employers::EmployerProfilesController) do
@@ -36,10 +42,10 @@ RSpec.describe ApplicationController do
   end
 
   context "when signed in with new user" do
-    let(:user) { FactoryGirl.create("user") }
+    let(:user) { FactoryBot.create("user") }
 
     it "should return the root url in dev environment" do
-      expect( controller.send(:after_sign_out_path_for, user) ).to eq logout_saml_index_path
+      expect(controller.send(:after_sign_out_path_for, user)).to eq logout_saml_index_path
     end
 
     context "when user has active enrollments but no security question responses" do
@@ -78,67 +84,67 @@ RSpec.describe ApplicationController do
   end
 
   context "authenticate_user_from_token!" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { FactoryBot.create(:user) }
 
     it "should get signed in flash notice" do
       allow(controller).to receive(:authentication_not_required?).and_return true
-      get :index, user_token: user.authentication_token
+      get :index, params: {user_token: user.authentication_token}
       expect(flash[:notice]).to eq "Signed in Successfully."
     end
   end
 
   context "session[person_id] is nil" do
-      let(:person) {FactoryGirl.create(:person);}
-      let(:user) { FactoryGirl.create(:user, :person=>person); }
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
 
+    before do
+      sign_in(user)
+      allow(person).to receive(:agent?).and_return(true)
+      allow(subject).to receive(:redirect_to).with(String)
+      @request.session['person_id'] = nil
+    end
+
+    context "agent role" do
       before do
-        sign_in(user)
-        allow(person).to receive(:agent?).and_return(true)
-        allow(subject).to receive(:redirect_to).with(String)
-        @request.session['person_id'] = nil
+        user.roles << 'csr'
       end
 
-      context "agent role" do
-        before do
-          user.roles << 'csr'
-        end
-
-        it "writes a log message by default" do
-          #expect(subject).to receive(:log) do |msg, severity|
-            #expect(severity[:severity]).to eq('error')
-            #expect(msg[:user_id]).to match(user.id)
-            #expect(msg[:oim_id]).to match(user.oim_id)
-            #end
-          subject.instance_eval{set_current_person}
-        end
-        it "does not write a log message if @person is not required" do
-          expect(subject).not_to receive(:log)
-          subject.instance_eval{set_current_person(required: false)}
-        end
+      it "writes a log message by default" do
+        #expect(subject).to receive(:log) do |msg, severity|
+          #expect(severity[:severity]).to eq('error')
+          #expect(msg[:user_id]).to match(user.id)
+          #expect(msg[:oim_id]).to match(user.oim_id)
+          #end
+        subject.instance_eval{set_current_person}
       end
+      it "does not write a log message if @person is not required" do
+        expect(subject).not_to receive(:log)
+        subject.instance_eval{set_current_person(required: false)}
+      end
+    end
   end
   context "session[person_id] is nil" do
-      let(:person) {FactoryGirl.create(:person);}
-      let(:user) { FactoryGirl.create(:user, :person=>person); }
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
 
-      before do
-        sign_in(user)
-        allow(person).to receive(:agent?).and_return(false)
-        allow(subject).to receive(:redirect_to).with(String)
-        @request.session['person_id'] = nil
-      end
+    before do
+      sign_in(user)
+      allow(person).to receive(:agent?).and_return(false)
+      allow(subject).to receive(:redirect_to).with(String)
+      @request.session['person_id'] = nil
+    end
 
-      context "non agent role" do
-        it "does not write a log message if @person is not required" do
-          expect(subject).not_to receive(:log)
-          subject.instance_eval{set_current_person(required: false)}
-        end
+    context "non agent role" do
+      it "does not write a log message if @person is not required" do
+        expect(subject).not_to receive(:log)
+        subject.instance_eval{set_current_person(required: false)}
       end
+    end
   end
 
   context "require_login" do
-    let(:person) {FactoryGirl.create(:person);}
-    let(:user) { FactoryGirl.create(:user, :person=>person); }
+    let(:person) {FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
 
     before do
       sign_in(user)
@@ -160,8 +166,8 @@ RSpec.describe ApplicationController do
   end
 
   context "page_alphabets" do
-    let(:person) { FactoryGirl.create(:person); }
-    let(:user) { FactoryGirl.create(:user, :person => person); }
+    let(:person) { FactoryBot.create(:person); }
+    let(:user) { FactoryBot.create(:user, :person => person); }
     let(:alphabet_array) { Person.distinct('last_name').collect { |word| word.first.upcase }.uniq.sort }
 
     before do

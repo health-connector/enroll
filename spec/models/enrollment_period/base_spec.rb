@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EnrollmentPeriod::Base, :type => :model do
@@ -5,13 +7,13 @@ RSpec.describe EnrollmentPeriod::Base, :type => :model do
   let(:start_on)  { Date.current }
   let(:end_on)    { Date.current + 30.days }
 
-  let(:valid_params){
+  let(:valid_params) do
     {
       title: title,
       start_on: start_on,
-      end_on: end_on,
+      end_on: end_on
     }
-  }
+  end
 
   context "when initialized" do
     context "with no start_on" do

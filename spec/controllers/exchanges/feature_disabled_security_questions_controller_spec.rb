@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
-  let!(:user) { FactoryGirl.create(:user, :with_hbx_staff_role) }
-  let!(:person) { FactoryGirl.create(:person, user: user)}
+  let!(:user) { FactoryBot.create(:user, :with_hbx_staff_role) }
+  let!(:person) { FactoryBot.create(:person, user: user)}
   let!(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let(:organization_with_hbx_profile)  { site.owner_organization }
   let(:error_message) {"Security qestions display feature is not enabled. You are not allowed to create, edit, view or delete security questions."}
@@ -50,7 +50,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'GET #edit' do
     context 'security questions feature is disabled' do
       it 'redirects to root with flash message' do
-        get :edit, id: 'random_id'
+        get :edit, params: {id: 'random_id'}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq(error_message)
       end
@@ -60,7 +60,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'PATCH #update' do
     context 'security questions feature is disabled' do
       it 'redirects to root with flash message' do
-        patch :update, id: 'random_id'
+        patch :update, params: {id: 'random_id'}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq(error_message)
       end
@@ -70,7 +70,7 @@ RSpec.describe Exchanges::SecurityQuestionsController, dbclean: :after_each do
   describe 'DELETE #destroy' do
     context 'security questions feature is disabled' do
       it 'redirects to root with flash message' do
-        delete :destroy, id: 'random_id'
+        delete :destroy, params: {id: 'random_id'}
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq(error_message)
       end

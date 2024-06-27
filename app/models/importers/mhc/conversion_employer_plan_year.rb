@@ -37,7 +37,7 @@ module Importers::Mhc
     end
 
     def plan_selection=(val)
-      @plan_selection = val.to_s.parameterize('_')
+      @plan_selection = val.to_s.parameterize(separator: '_')
     end
 
     def carrier=(val)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -19,7 +21,7 @@ module BenefitSponsors
     let(:params) do
       {
         title: title,
-        probation_period_kind: probation_period_kind,
+        probation_period_kind: probation_period_kind
       }
     end
 
@@ -167,7 +169,7 @@ module BenefitSponsors
           expect(renewal_benefit_package.title).to eq current_benefit_package.title + "(#{renewal_benefit_package.start_on.year})"
           expect(renewal_benefit_package.description).to eq current_benefit_package.description
           expect(renewal_benefit_package.probation_period_kind).to eq current_benefit_package.probation_period_kind
-          expect(renewal_benefit_package.is_default).to eq  current_benefit_package.is_default
+          expect(renewal_benefit_package.is_default).to eq current_benefit_package.is_default
         end
 
         it "should renew sponsored benefits" do
@@ -456,27 +458,27 @@ module BenefitSponsors
       let(:roster_size) { 5 }
       let(:enrollment_kinds) { ['health'] }
       let!(:census_employees) { create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: bs, employer_profile: bs.profile, benefit_group: cbp) }
-      let!(:person) { FactoryGirl.create(:person) }
-      let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, person: person)}
-      let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person)}
+      let!(:person) { FactoryBot.create(:person) }
+      let!(:family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
+      let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person)}
       let!(:census_employee) { census_employees.first }
-      let(:active_bga) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee, is_active: true)}
-      let(:renewal_bga) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee, is_active: false)}
+      let(:active_bga) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee, is_active: true)}
+      let(:renewal_bga) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee, is_active: false)}
 
       let!(:census_update) do
         census_employee.benefit_group_assignments = [active_bga, renewal_bga]
         census_employee.save!
       end
       let(:hbx_enrollment) do
-        FactoryGirl.create(:hbx_enrollment, :shop,
-                           household: family.active_household,
-                           product: cbp.sponsored_benefits.first.reference_product,
-                           coverage_kind: :health,
-                           effective_on: predecessor_application.start_on,
-                           employee_role_id: census_employee.employee_role.id,
-                           sponsored_benefit_package_id: cbp.id,
-                           benefit_sponsorship: bs,
-                           benefit_group_assignment: active_bga)
+        FactoryBot.create(:hbx_enrollment, :shop,
+                          household: family.active_household,
+                          product: cbp.sponsored_benefits.first.reference_product,
+                          coverage_kind: :health,
+                          effective_on: predecessor_application.start_on,
+                          employee_role_id: census_employee.employee_role.id,
+                          sponsored_benefit_package_id: cbp.id,
+                          benefit_sponsorship: bs,
+                          benefit_group_assignment: active_bga)
       end
 
 
@@ -558,10 +560,10 @@ module BenefitSponsors
       let(:reference_product) { current_benefit_package.sponsored_benefits[0].reference_product }
       let(:current_enrolled_product) { product_package.products[2] }
 
-      let!(:update_product){
+      let!(:update_product) do
         reference_product.renewal_product = product
         reference_product.save!
-      }
+      end
 
       let(:renewal_benefit_sponsor_catalog) { benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date) }
       let!(:renewal_application)             { initial_application.renew }
@@ -576,7 +578,8 @@ module BenefitSponsors
         end
 
         before do
-          allow(renewal_sponsored_benefit).to receive(:products).and_return(renewal_product_package.products.reject{ |prod| prod.id == hbx_enrollment.product.renewal_product.id })#removing hbx_enrollment.product.renewal_product from renewal_product_package
+          #removing hbx_enrollment.product.renewal_product from renewal_product_package
+          allow(renewal_sponsored_benefit).to receive(:products).and_return(renewal_product_package.products.reject{ |prod| prod.id == hbx_enrollment.product.renewal_product.id })
           allow(current_enrolled_product).to receive(:renewal_product).and_return(nil)
           allow(renewal_benefit_package).to receive(:sponsored_benefit_for).and_return(renewal_sponsored_benefit)
         end
@@ -628,7 +631,7 @@ module BenefitSponsors
       end
 
       context "when renewal product not offered by employer" do
-        let(:product) {FactoryGirl.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile)}
+        let(:product) {FactoryBot.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile)}
         let(:hbx_enrollment) { double(product: current_benefit_package.sponsored_benefits.first.reference_product, coverage_kind: :health, is_coverage_waived?: false, coverage_termination_pending?: false) }
         let(:sponsored_benefit) { renewal_benefit_package.sponsored_benefits.build(product_package_kind: :single_issuer) }
 
@@ -711,53 +714,55 @@ module BenefitSponsors
       end
 
       let(:benefit_package)  { initial_application.benefit_packages.first }
-      let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
-      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-      let(:census_employee) { FactoryGirl.create(:census_employee,
-        employer_profile: benefit_sponsorship.profile,
-        benefit_sponsorship: benefit_sponsorship,
-        benefit_group_assignments: [benefit_group_assignment]
-      )}
-      let(:person)       { FactoryGirl.create(:person, :with_family) }
+      let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let(:person)       { FactoryBot.create(:person, :with_family) }
       let!(:family)       { person.primary_family }
-      let!(:hbx_enrollment) {
-        hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                            household: family.active_household,
-                            aasm_state: "coverage_selected",
-                            effective_on: initial_application.start_on,
-                            rating_area_id: initial_application.recorded_rating_area_id,
-                            sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                            sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                            benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                            employee_role_id: employee_role.id)
+      let!(:hbx_enrollment) do
+        hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                           household: family.active_household,
+                                           aasm_state: "coverage_selected",
+                                           effective_on: initial_application.start_on,
+                                           rating_area_id: initial_application.recorded_rating_area_id,
+                                           sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                           sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                           benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                           employee_role_id: employee_role.id)
         hbx_enrollment.benefit_sponsorship = benefit_sponsorship
         hbx_enrollment.save!
         hbx_enrollment
-      }
+      end
 
-      let(:benefit_group_assignment_1) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
-      let(:employee_role_1) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person_1, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee_1.id) }
-      let(:census_employee_1) { FactoryGirl.create(:census_employee,
-        employer_profile: benefit_sponsorship.profile,
-        benefit_sponsorship: benefit_sponsorship,
-        benefit_group_assignments: [benefit_group_assignment_1]
-      )}
-      let(:person_1)       { FactoryGirl.create(:person, :with_family) }
+      let(:benefit_group_assignment_1) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
+      let(:employee_role_1) { FactoryBot.create(:benefit_sponsors_employee_role, person: person_1, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee_1.id) }
+      let(:census_employee_1) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment_1])
+      end
+      let(:person_1)       { FactoryBot.create(:person, :with_family) }
       let!(:family_1)       { person_1.primary_family }
-      let!(:hbx_enrollment_1) {
-        hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                            household: family_1.active_household,
-                            aasm_state: "coverage_selected",
-                            effective_on: TimeKeeper.date_of_record.next_month,
-                            rating_area_id: initial_application.recorded_rating_area_id,
-                            sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                            sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                            benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                            employee_role_id: employee_role_1.id)
+      let!(:hbx_enrollment_1) do
+        hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                           household: family_1.active_household,
+                                           aasm_state: "coverage_selected",
+                                           effective_on: TimeKeeper.date_of_record.next_month,
+                                           rating_area_id: initial_application.recorded_rating_area_id,
+                                           sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                           sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                           benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                           employee_role_id: employee_role_1.id)
         hbx_enrollment.benefit_sponsorship = benefit_sponsorship
         hbx_enrollment.save!
         hbx_enrollment
-      }
+      end
 
       let(:end_on) { TimeKeeper.date_of_record.prev_month }
 
@@ -786,31 +791,31 @@ module BenefitSponsors
 
       context 'when multiple active enrollments exists on a family' do
         let!(:current_enrollment) do
-          hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                                              household: family.active_household,
-                                              aasm_state: "coverage_termination_pending",
-                                              terminated_on: TimeKeeper.date_of_record.next_month.end_of_month,
-                                              effective_on: initial_application.start_on,
-                                              rating_area_id: initial_application.recorded_rating_area_id,
-                                              sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                                              sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
-                                              benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
-                                              employee_role_id: employee_role.id)
+          hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                             household: family.active_household,
+                                             aasm_state: "coverage_termination_pending",
+                                             terminated_on: TimeKeeper.date_of_record.next_month.end_of_month,
+                                             effective_on: initial_application.start_on,
+                                             rating_area_id: initial_application.recorded_rating_area_id,
+                                             sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                             sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                             benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                             employee_role_id: employee_role.id)
           hbx_enrollment.benefit_sponsorship = benefit_sponsorship
           hbx_enrollment.save!
           hbx_enrollment
         end
 
         let!(:future_enrollment) do
-          hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                                              household: family.active_household,
-                                              aasm_state: "inactive",
-                                              effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
-                                              rating_area_id: initial_application.recorded_rating_area_id,
-                                              sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                                              sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
-                                              benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
-                                              employee_role_id: employee_role.id)
+          hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                             household: family.active_household,
+                                             aasm_state: "inactive",
+                                             effective_on: TimeKeeper.date_of_record.next_month.beginning_of_month,
+                                             rating_area_id: initial_application.recorded_rating_area_id,
+                                             sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                             sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                             benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                             employee_role_id: employee_role.id)
           hbx_enrollment.benefit_sponsorship = benefit_sponsorship
           hbx_enrollment.save!
           hbx_enrollment
@@ -845,7 +850,7 @@ module BenefitSponsors
           initial_application.update_attributes!(aasm_state: :terminated)
           initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: hbx_enrollment_terminated_on)
-          hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: end_on+2.months)
+          hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: end_on + 2.months)
           benefit_package.terminate_member_benefits
           hbx_enrollment.reload
           hbx_enrollment_1.reload
@@ -879,7 +884,7 @@ module BenefitSponsors
           initial_application.update_attributes!(aasm_state: :terminated)
           initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_terminated", terminated_on: hbx_enrollment_terminated_on)
-          hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_terminated", terminated_on: end_on+2.months)
+          hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_terminated", terminated_on: end_on + 2.months)
           benefit_package.terminate_member_benefits
           hbx_enrollment.reload
           hbx_enrollment_1.reload
@@ -920,27 +925,27 @@ module BenefitSponsors
       let(:ibp){ia.benefit_packages.first}
       let(:roster_size) { 5 }
       let!(:census_employees) { create_list(:census_employee, roster_size, :with_active_assignment, benefit_sponsorship: bs, employer_profile: bs.profile, benefit_group: cbp) }
-      let!(:person) { FactoryGirl.create(:person) }
-      let!(:family) {FactoryGirl.create(:family, :with_primary_family_member, person: person)}
-      let!(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person)}
+      let!(:person) { FactoryBot.create(:person) }
+      let!(:family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
+      let!(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person)}
       let!(:census_employee) { census_employees.first }
-      let(:active_bga) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee, is_active: true)}
-      let(:renewal_bga) {FactoryGirl.build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee, is_active: false)}
+      let(:active_bga) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: ibp, census_employee: census_employee, is_active: true)}
+      let(:renewal_bga) {FactoryBot.build(:benefit_sponsors_benefit_group_assignment, benefit_group: rbp, census_employee: census_employee, is_active: false)}
 
       let!(:census_update) do
         census_employee.benefit_group_assignments = [active_bga, renewal_bga]
         census_employee.save!
       end
       let(:hbx_enrollment) do
-        FactoryGirl.create(:hbx_enrollment, :shop,
-                           household: family.active_household,
-                           product: cbp.sponsored_benefits.first.reference_product,
-                           coverage_kind: :health,
-                           effective_on: predecessor_application.start_on,
-                           employee_role_id: census_employee.employee_role.id,
-                           sponsored_benefit_package_id: cbp.id,
-                           benefit_sponsorship: bs,
-                           benefit_group_assignment: active_bga)
+        FactoryBot.create(:hbx_enrollment, :shop,
+                          household: family.active_household,
+                          product: cbp.sponsored_benefits.first.reference_product,
+                          coverage_kind: :health,
+                          effective_on: predecessor_application.start_on,
+                          employee_role_id: census_employee.employee_role.id,
+                          sponsored_benefit_package_id: cbp.id,
+                          benefit_sponsorship: bs,
+                          benefit_group_assignment: active_bga)
       end
 
 
@@ -1007,29 +1012,30 @@ module BenefitSponsors
       end
 
       let(:benefit_package)  { initial_application.benefit_packages.first }
-      let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
-      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-      let(:census_employee) { FactoryGirl.create(:census_employee,
-                                                 employer_profile: benefit_sponsorship.profile,
-                                                 benefit_sponsorship: benefit_sponsorship,
-                                                 benefit_group_assignments: [benefit_group_assignment]
-      )}
-      let(:person)       { FactoryGirl.create(:person, :with_family) }
+      let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let(:person)       { FactoryBot.create(:person, :with_family) }
       let!(:family)       { person.primary_family }
-      let!(:hbx_enrollment) {
-        hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                                            household: family.active_household,
-                                            aasm_state: "coverage_selected",
-                                            effective_on: initial_application.start_on,
-                                            rating_area_id: initial_application.recorded_rating_area_id,
-                                            sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                                            sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                                            benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                                            employee_role_id: employee_role.id)
+      let!(:hbx_enrollment) do
+        hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                           household: family.active_household,
+                                           aasm_state: "coverage_selected",
+                                           effective_on: initial_application.start_on,
+                                           rating_area_id: initial_application.recorded_rating_area_id,
+                                           sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                           sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                           benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                           employee_role_id: employee_role.id)
         hbx_enrollment.benefit_sponsorship = benefit_sponsorship
         hbx_enrollment.save!
         hbx_enrollment
-      }
+      end
 
       let(:end_on) { TimeKeeper.date_of_record.prev_month }
 
@@ -1083,53 +1089,55 @@ module BenefitSponsors
       end
 
       let(:benefit_package)  { initial_application.benefit_packages.first }
-      let(:benefit_group_assignment) {FactoryGirl.build(:benefit_group_assignment, benefit_group: benefit_package)}
-      let(:employee_role) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
-      let(:census_employee) { FactoryGirl.create(:census_employee,
-        employer_profile: benefit_sponsorship.profile,
-        benefit_sponsorship: benefit_sponsorship,
-        benefit_group_assignments: [benefit_group_assignment]
-      )}
-      let(:person)       { FactoryGirl.create(:person, :with_family) }
+      let(:benefit_group_assignment) {FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package)}
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let(:person)       { FactoryBot.create(:person, :with_family) }
       let!(:family)       { person.primary_family }
-      let!(:hbx_enrollment) {
-        hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                            household: family.active_household,
-                            aasm_state: "coverage_selected",
-                            effective_on: initial_application.start_on,
-                            rating_area_id: initial_application.recorded_rating_area_id,
-                            sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                            sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                            benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                            employee_role_id: employee_role.id)
+      let!(:hbx_enrollment) do
+        hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                           household: family.active_household,
+                                           aasm_state: "coverage_selected",
+                                           effective_on: initial_application.start_on,
+                                           rating_area_id: initial_application.recorded_rating_area_id,
+                                           sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                           sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                           benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                           employee_role_id: employee_role.id)
         hbx_enrollment.benefit_sponsorship = benefit_sponsorship
         hbx_enrollment.save!
         hbx_enrollment
-      }
+      end
 
-      let(:employee_role_1) { FactoryGirl.create(:benefit_sponsors_employee_role, person: person_1, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee_1.id) }
-      let(:census_employee_1) { FactoryGirl.create(:census_employee,
-        employer_profile: benefit_sponsorship.profile,
-        benefit_sponsorship: benefit_sponsorship,
-        benefit_group_assignments: [benefit_group_assignment]
-      )}
-      let!(:benefit_group_assignment_1) {FactoryGirl.create(:benefit_group_assignment, benefit_group: benefit_package, census_employee: census_employee_1)}
-      let(:person_1)       { FactoryGirl.create(:person, :with_family) }
+      let(:employee_role_1) { FactoryBot.create(:benefit_sponsors_employee_role, person: person_1, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee_1.id) }
+      let(:census_employee_1) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let!(:benefit_group_assignment_1) {FactoryBot.create(:benefit_group_assignment, benefit_group: benefit_package, census_employee: census_employee_1)}
+      let(:person_1)       { FactoryBot.create(:person, :with_family) }
       let!(:family_1)       { person_1.primary_family }
-      let!(:hbx_enrollment_1) {
-        hbx_enrollment = FactoryGirl.create(:hbx_enrollment, :with_enrollment_members, :with_product,
-                            household: family_1.active_household,
-                            aasm_state: "coverage_selected",
-                            effective_on: initial_application.start_on,
-                            rating_area_id: initial_application.recorded_rating_area_id,
-                            sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
-                            sponsored_benefit_package_id:initial_application.benefit_packages.first.id,
-                            benefit_sponsorship_id:initial_application.benefit_sponsorship.id,
-                            employee_role_id: employee_role_1.id)
+      let!(:hbx_enrollment_1) do
+        hbx_enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                           household: family_1.active_household,
+                                           aasm_state: "coverage_selected",
+                                           effective_on: initial_application.start_on,
+                                           rating_area_id: initial_application.recorded_rating_area_id,
+                                           sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                           sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                           benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                           employee_role_id: employee_role_1.id)
         hbx_enrollment.benefit_sponsorship = benefit_sponsorship
         hbx_enrollment.save!
         hbx_enrollment
-      }
+      end
 
       let(:end_on) { TimeKeeper.date_of_record.next_month }
 
@@ -1164,7 +1172,7 @@ module BenefitSponsors
             state: :termination_pending
           )
           hbx_enrollment.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: hbx_enrollment_terminated_on)
-          hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: end_on+2.months)
+          hbx_enrollment_1.update_attributes!(effective_on: initial_application.start_on, aasm_state: "coverage_termination_pending", terminated_on: end_on + 2.months)
           benefit_package.termination_pending_member_benefits
           hbx_enrollment.reload
           hbx_enrollment_1.reload

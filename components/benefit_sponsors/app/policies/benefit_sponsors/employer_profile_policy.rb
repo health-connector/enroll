@@ -3,8 +3,25 @@ module BenefitSponsors
 
     def show?
       return false unless user.present?
-      return true if user.has_hbx_staff_role? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+      return true if shop_market_admin? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+
       is_staff_role_for_employer?
+    end
+
+    def show_invoice?
+      show?
+    end
+
+    def download_invoice?
+      show?
+    end
+
+    def estimate_cost?
+      show?
+    end
+
+    def bulk_employee_upload?
+      show?
     end
 
     def can_download_document?
@@ -27,6 +44,70 @@ module BenefitSponsors
     end
 
     def inbox?
+      show?
+    end
+
+    def employer_attestation_create?
+      show?
+    end
+
+    def employer_attestation_edit?
+      shop_market_admin?
+    end
+
+    def employer_attestation_update?
+      shop_market_admin?
+    end
+
+    def authorized_download?
+      shop_market_admin?
+    end
+
+    def delete_attestation_documents?
+      show?
+    end
+
+    def verify_attestation?
+      shop_market_admin?
+    end
+
+    def new?
+      show?
+    end
+
+    def edit?
+      show?
+    end
+
+    def update?
+      show?
+    end
+
+    def cobra?
+      show?
+    end
+
+    def confirm_effective_date?
+      show?
+    end
+
+    def cobra_reinstate?
+      show?
+    end
+
+    def delink?
+      show?
+    end
+
+    def benefit_group?
+      show?
+    end
+
+    def change_expected_selection?
+      show?
+    end
+
+    def rehire?
       show?
     end
 
@@ -76,6 +157,32 @@ module BenefitSponsors
       return true if is_staff_role_for_employer?
 
       false
+    end
+
+    def index?
+      return false unless account_holder_person
+      return true if shop_market_admin?
+      return true if is_staff_role_for_employer?
+      return true if is_broker_for_employer?(record)
+      return true if is_general_agency_staff_for_employer?(record)
+
+      false
+    end
+
+    def create?
+      index?
+    end
+
+    def terminate?
+      index?
+    end
+
+    def active_broker?
+      index?
+    end
+
+    def new_document?
+      index?
     end
 
     def employer_attestation_document_download?

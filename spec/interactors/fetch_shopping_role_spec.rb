@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe FetchShoppingRole, :dbclean => :after_each do
   context "when a person with employee_role exist" do
-    let!(:person) {FactoryGirl.create(:person, :with_employee_role, :with_family)}
+    let!(:person) {FactoryBot.create(:person, :with_employee_role, :with_family)}
     let!(:employee_role) { person.employee_roles.first }
 
     it "should fetch employee_role" do
@@ -15,7 +15,7 @@ describe FetchShoppingRole, :dbclean => :after_each do
   end
 
   context "when a person without employee_role exist" do
-    let(:person) {FactoryGirl.create(:person)}
+    let(:person) {FactoryBot.create(:person)}
 
     subject do
       described_class.call(person: person)

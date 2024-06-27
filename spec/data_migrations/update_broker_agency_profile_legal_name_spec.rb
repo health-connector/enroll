@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_broker_agency_profile_legal_name")
 
@@ -5,6 +7,12 @@ describe UpdateBrokerAgencyProfileLegalName, dbclean: :after_each do
 
   let(:given_task_name) { "update_broker_agency_profile_legal_name" }
   subject { UpdateBrokerAgencyProfileLegalName.new(given_task_name, double(:current_scope => nil)) }
+
+  around :each do |example|
+    ClimateControl.modify fein: nil, new_legal_name: nil do
+      example.run
+    end
+  end
 
   describe "given a task name" do
     it "has the given task name" do
@@ -15,12 +23,13 @@ describe UpdateBrokerAgencyProfileLegalName, dbclean: :after_each do
   describe "update the legal name of the broker agency profile" do
 
 
-    let(:broker_agency_profile) { FactoryGirl.create(:broker_agency_profile) }
+    let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
     let(:organization) { broker_agency_profile.organization }
 
-    before(:each) do
-      allow(ENV).to receive(:[]).with("fein").and_return organization.fein
-      allow(ENV).to receive(:[]).with("new_legal_name").and_return "agency2"
+    around(:each) do |example|
+      ClimateControl.modify fein: organization.fein, new_legal_name: "agency2" do
+        example.run
+      end
     end
 
     context "change the legal name of broker agency profile", dbclean: :after_each do

@@ -29,15 +29,15 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
   context '.process' do
     let(:source_effective_on) { current_effective_date }
     let(:other_effective_on) { current_effective_date + 2.months }
-    let!(:issuer_profile)  { FactoryGirl.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
-    let(:other_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
-    let(:source_plan) { FactoryGirl.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
-    let!(:spouse) { FactoryGirl.create(:person) }
-    let!(:child1) { FactoryGirl.create(:person) }
-    let!(:child2) { FactoryGirl.create(:person) }
+    let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
+    let(:other_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
+    let(:source_plan) { FactoryBot.create(:benefit_markets_products_health_products_health_product, benefit_market_kind: :aca_shop, issuer_profile: issuer_profile) }
+    let!(:spouse) { FactoryBot.create(:person) }
+    let!(:child1) { FactoryBot.create(:person) }
+    let!(:child2) { FactoryBot.create(:person) }
 
     let!(:person) do
-      p = FactoryGirl.build(:person)
+      p = FactoryBot.build(:person)
       p.person_relationships.build(relative: spouse, kind: "spouse")
       p.person_relationships.build(relative: child1, kind: "child")
       p.person_relationships.build(relative: child2, kind: "child")
@@ -61,29 +61,29 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
     end
 
     let(:hired_on) {TimeKeeper.date_of_record - 2.days}
-    let(:employee_role1) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
+    let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
     let(:census_employee) do
-      census_employee = FactoryGirl.create(:census_employee, :with_active_assignment, first_name: person.first_name,
-                                           last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
-                                           employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
-                                           employee_role_id: employee_role1.id)
+      census_employee = FactoryBot.create(:census_employee, :with_active_assignment, first_name: person.first_name,
+                                                                                     last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
+                                                                                     employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
+                                                                                     employee_role_id: employee_role1.id)
       census_employee.update_attributes(ssn: person.ssn, dob: person.dob, hired_on: hired_on)
       employee_role1.update_attributes(census_employee_id: census_employee.id)
       census_employee
     end
 
     let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-    let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id:hbx_enrollment_member.id, product_price:BigDecimal(100),sponsor_contribution:BigDecimal(100))}
-    let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: product, member_enrollments:[member_enrollment], product_cost_total:'')}
+    let(:member_enrollment) {BenefitSponsors::Enrollments::MemberEnrollment.new(member_id: hbx_enrollment_member.id, product_price: BigDecimal(100),sponsor_contribution: BigDecimal(100))}
+    let(:group_enrollment) {BenefitSponsors::Enrollments::GroupEnrollment.new(product: product, member_enrollments: [member_enrollment], product_cost_total: '')}
     let(:address){ Address.new(kind: 'home', address_1: "1111 spalding ct", address_2: "apt 444", city: "atlanta", state: "ga", zip: "30338") }
 
     let(:other_enrollment) do
-      other_enrollment = other_family.active_household.hbx_enrollments.build( sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                        hbx_id: '1000006', kind: 'employer_sponsored', product: other_plan, effective_on: other_effective_on,
-                        household: household,
-                        coverage_kind: "health",
-                        external_enrollment: false,
-                        terminated_on: other_effective_on.end_of_month)
+      other_enrollment = other_family.active_household.hbx_enrollments.build(sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                                             hbx_id: '1000006', kind: 'employer_sponsored', product: other_plan, effective_on: other_effective_on,
+                                                                             household: household,
+                                                                             coverage_kind: "health",
+                                                                             external_enrollment: false,
+                                                                             terminated_on: other_effective_on.end_of_month)
       other_enrollment.hbx_enrollment_members.build({applicant_id: other_family.primary_applicant.id, is_subscriber: true, coverage_start_on: other_effective_on, eligibility_date: other_effective_on})
       other_enrollment.hbx_enrollment_members.build({applicant_id: dependent1.id, is_subscriber: false, coverage_start_on: other_effective_on, eligibility_date: other_effective_on})
       other_enrollment.hbx_enrollment_members.build({applicant_id: dependent2.id, is_subscriber: false, coverage_start_on: other_effective_on, eligibility_date: other_effective_on})
@@ -281,12 +281,12 @@ RSpec.describe Importers::Transcripts::EnrollmentTranscript, type: :model, dbcle
       end
 
       context 'with multiple employee roles' do
-        let(:employee_role_2) {FactoryGirl.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
+        let(:employee_role_2) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: abc_profile)}
         let!(:census_employee_2) do
-          census_employee = FactoryGirl.create(:census_employee, :with_active_assignment, first_name: person.first_name,
-                                                                                          last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
-                                                                                          employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
-                                                                                          employee_role_id: employee_role_2.id)
+          census_employee = FactoryBot.create(:census_employee, :with_active_assignment, first_name: person.first_name,
+                                                                                         last_name: person.last_name, benefit_sponsorship: benefit_sponsorship,
+                                                                                         employer_profile: benefit_sponsorship.profile, benefit_group: current_benefit_package,
+                                                                                         employee_role_id: employee_role_2.id)
           census_employee.update_attributes(ssn: person.ssn, dob: person.dob, hired_on: hired_on)
           employee_role_2.update_attributes(census_employee_id: census_employee.id)
           census_employee

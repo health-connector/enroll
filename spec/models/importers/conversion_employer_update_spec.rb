@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Importers::ConversionEmployerUpdate, :dbclean => :after_each do
 
-  let(:employer_profile) { FactoryGirl.create(:employer_profile, profile_source: 'conversion') }
-  let(:carrier_profile) { FactoryGirl.create(:carrier_profile) }
-  let(:broker_agency_profile){ FactoryGirl.create(:broker_agency_profile) }
-  let(:broker_role) { FactoryGirl.create(:broker_role, broker_agency_profile_id: broker_agency_profile.id) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile, profile_source: 'conversion') }
+  let(:carrier_profile) { FactoryBot.create(:carrier_profile) }
+  let(:broker_agency_profile){ FactoryBot.create(:broker_agency_profile) }
+  let(:broker_role) { FactoryBot.create(:broker_role, broker_agency_profile_id: broker_agency_profile.id) }
 
-  let(:record_attrs) {
+  let(:record_attrs) do
     {
       action: "Update",
       fein: employer_profile.fein,
@@ -23,7 +25,7 @@ describe Importers::ConversionEmployerUpdate, :dbclean => :after_each do
       legal_name: "xyz llc",
       registered_on: TimeKeeper.date_of_record.beginning_of_month
     }
-  }
+  end
 
   context ".save" do
 

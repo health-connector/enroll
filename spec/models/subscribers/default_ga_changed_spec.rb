@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Subscribers::DefaultGaChanged do
@@ -6,13 +8,13 @@ describe Subscribers::DefaultGaChanged do
   end
 
   describe "given a message to handle" do
-    let(:organization) { FactoryGirl.create(:organization) }
-    let(:broker_agency_profile) { FactoryGirl.create(:broker_agency_profile, organization: organization) }
-    let(:general_agency_profile) { FactoryGirl.create(:general_agency_profile, organization: organization) }
-    let(:person) { FactoryGirl.create(:person, :with_broker_role) }
+    let(:organization) { FactoryBot.create(:organization) }
+    let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile, organization: organization) }
+    let(:general_agency_profile) { FactoryBot.create(:general_agency_profile, organization: organization) }
+    let(:person) { FactoryBot.create(:person, :with_broker_role) }
     let(:broker_role) { person.broker_role }
     let(:hbx_id) { person.hbx_id }
-    let(:employer_profile) { FactoryGirl.create(:employer_profile, organization: organization) }
+    let(:employer_profile) { FactoryBot.create(:employer_profile, organization: organization) }
 
     before :each do
       broker_role.approve
@@ -46,7 +48,7 @@ describe Subscribers::DefaultGaChanged do
 
     context "that has a hbx_id with default_ga" do
       let(:message) { { "broker_id" => hbx_id, "pre_default_ga_id" => general_agency_profile.id.to_s } }
-      let(:new_ga) { FactoryGirl.create(:general_agency_profile) }
+      let(:new_ga) { FactoryBot.create(:general_agency_profile) }
       let(:orgs) { [organization] }
       before :each do
         broker_agency_profile.default_general_agency_profile = new_ga
@@ -60,7 +62,7 @@ describe Subscribers::DefaultGaChanged do
         expect(Organization).to receive(:by_broker_agency_profile).with(broker_agency_profile.id)
         expect(subject).to receive(:send_general_agency_assign_msg)
         subject.call(nil, nil, nil, nil, message)
-        expect(employer_profile.active_general_agency_account.general_agency_profile).to eq new_ga 
+        expect(employer_profile.active_general_agency_account.general_agency_profile).to eq new_ga
       end
 
       it "should do not change when employer_profile have active general_agency_profile" do

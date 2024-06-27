@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "import_counties" do
@@ -7,7 +9,7 @@ describe "import_counties" do
     Rake.application.rake_require 'tasks/migrations/plans/import_counties'
     Rake::Task.define_task(:environment)
 
-    file =  File.join(Rails.root, "spec", "test_data/plan_data", "rating_areas","2019/SHOP_ZipCode_CY2019_FINAL.xlsx")
+    file = File.join(Rails.root, "spec", "test_data/plan_data", "rating_areas","2019/SHOP_ZipCode_CY2019_FINAL.xlsx")
     @files = Dir.glob(file)
     result = Roo::Spreadsheet.open(file)
     sheet_data = result.sheet("Master Zip Code List")

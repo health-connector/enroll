@@ -1,25 +1,27 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe EmployerGroupSizeRatingFactorSet do
-  let(:validation_errors) {
+  let(:validation_errors) do
     subject.valid?
     subject.errors
-  }
+  end
 
   it "requires a carrier profile" do
-    expect(validation_errors.has_key?(:carrier_profile_id)).to be_truthy  
+    expect(validation_errors.key?(:carrier_profile_id)).to be_truthy
   end
 
   it "requires a default factor value" do
-    expect(validation_errors.has_key?(:default_factor_value)).to be_truthy  
+    expect(validation_errors.key?(:default_factor_value)).to be_truthy
   end
 
   it "requires an active year" do
-    expect(validation_errors.has_key?(:active_year)).to be_truthy  
+    expect(validation_errors.key?(:active_year)).to be_truthy
   end
 
   it "requires a max_integer_factor_key" do
-    expect(validation_errors.has_key?(:max_integer_factor_key)).to be_truthy  
+    expect(validation_errors.key?(:max_integer_factor_key)).to be_truthy
   end
 end
 
@@ -37,11 +39,11 @@ describe EmployerGroupSizeRatingFactorSet, "given
 
   subject do
     EmployerGroupSizeRatingFactorSet.new({
-      :default_factor_value => default_factor_value,
-      :active_year => active_year,
-      :carrier_profile_id => carrier_profile_id,
-      :max_integer_factor_key => 3
-    })
+                                           :default_factor_value => default_factor_value,
+                                           :active_year => active_year,
+                                           :carrier_profile_id => carrier_profile_id,
+                                           :max_integer_factor_key => 3
+                                         })
   end
 
   it "is valid" do
@@ -61,14 +63,14 @@ describe EmployerGroupSizeRatingFactorSet, "given
 
   subject do
     EmployerGroupSizeRatingFactorSet.new({
-      :rating_factor_entries => [
-        RatingFactorEntry.new({
-          :factor_key => '23',
-          :factor_value => 1.345
-        })
-      ],
-      :max_integer_factor_key => 30
-    })
+                                           :rating_factor_entries => [
+                                             RatingFactorEntry.new({
+                                                                     :factor_key => '23',
+                                                                     :factor_value => 1.345
+                                                                   })
+                                           ],
+                                           :max_integer_factor_key => 30
+                                         })
   end
 
   it "returns the '1.345' for a lookup of 23" do
@@ -84,14 +86,14 @@ describe EmployerGroupSizeRatingFactorSet, "given
 
   subject do
     EmployerGroupSizeRatingFactorSet.new({
-      :rating_factor_entries => [
-        RatingFactorEntry.new({
-          :factor_key => '23',
-          :factor_value => 1.345
-        })
-      ],
-      :max_integer_factor_key => 30
-    })
+                                           :rating_factor_entries => [
+                                             RatingFactorEntry.new({
+                                                                     :factor_key => '23',
+                                                                     :factor_value => 1.345
+                                                                   })
+                                           ],
+                                           :max_integer_factor_key => 30
+                                         })
   end
 
   it "returns the '1.345' for a lookup of 24" do
@@ -106,14 +108,14 @@ describe EmployerGroupSizeRatingFactorSet, "given
 
   subject do
     EmployerGroupSizeRatingFactorSet.new({
-      :rating_factor_entries => [
-        RatingFactorEntry.new({
-          :factor_key => '1',
-          :factor_value => 1.345
-        })
-      ],
-      :max_integer_factor_key => 30
-    })
+                                           :rating_factor_entries => [
+                                             RatingFactorEntry.new({
+                                                                     :factor_key => '1',
+                                                                     :factor_value => 1.345
+                                                                   })
+                                           ],
+                                           :max_integer_factor_key => 30
+                                         })
   end
 
   it "returns the '1.345' for a lookup of 0" do

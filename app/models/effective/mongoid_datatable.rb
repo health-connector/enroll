@@ -13,5 +13,15 @@ module Effective
     def active_record_collection?
       @active_record_collection ||= true
     end
+
+    def l10n(translation_key, interpolated_keys = {})
+      I18n.t(translation_key, interpolated_keys.merge(raise: true)).html_safe
+    rescue I18n::MissingTranslationData
+      translation_key.gsub(/\W+/, '').titleize
+    end
+
+    def authorized?(_current_user, _controller, _action, _resource)
+      false
+    end
   end
 end

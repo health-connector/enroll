@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "insured/consumer_roles/search.html.haml" do
 
-  let(:person) { FactoryGirl.create(:person) }
-  let(:current_user) { FactoryGirl.create(:user, person: person) }
+  let(:person) { FactoryBot.create(:person) }
+  let(:current_user) { FactoryBot.create(:user, person: person) }
 
   before :each do
     sign_in current_user

@@ -4,7 +4,6 @@ class DocumentsController < ApplicationController
   before_action :fetch_record, only: [:authorized_download]
   before_action :set_document, only: [:destroy]
   respond_to :html, :js
-  rescue_from ActionController::RedirectBackError, with: :redirect_to_default
 
   def authorized_download
     authorize @record, :can_download_document?
@@ -28,6 +27,8 @@ class DocumentsController < ApplicationController
       end
     end
     redirect_to verification_insured_families_path
+  rescue StandardError => e
+    redirect_to(:back, :flash => {error: e.message})
   end
 
   def destroy
@@ -149,7 +150,4 @@ class DocumentsController < ApplicationController
     file.original_filename
   end
 
-  def redirect_to_default
-    redirect_to root_path
-  end
 end

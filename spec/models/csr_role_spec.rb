@@ -5,8 +5,8 @@ require 'aasm/rspec'
 
 describe CsrRole, type: :model, dbclean: :after_each do
 
-  let!(:person1) { FactoryGirl.create(:person, :with_csr_role, first_name: 'Jaxon', last_name: 'Perry') }
-  let!(:person2) { FactoryGirl.create(:person, :with_csr_role, first_name: 'Quinn', last_name: 'Perry') }
+  let!(:person1) { FactoryBot.create(:person, :with_csr_role, first_name: 'Jaxon', last_name: 'Perry') }
+  let!(:person2) { FactoryBot.create(:person, :with_csr_role, first_name: 'Quinn', last_name: 'Perry') }
 
   describe "find_by_name" do
     let(:first_name) { 'Quinn' }

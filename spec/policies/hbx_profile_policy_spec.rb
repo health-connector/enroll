@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe HbxProfilePolicy do
   subject { described_class }
   let(:hbx_profile){ hbx_staff_person.hbx_staff_role.hbx_profile }
-  let(:permission) { FactoryGirl.create(:permission, modify_family: true)}
-  let(:hbx_staff_person) { FactoryGirl.create(:person, :with_hbx_staff_role) }
-  let(:assister_person) { FactoryGirl.create(:person, :with_assister_role) }
-  let(:csr_person) { FactoryGirl.create(:person, :with_csr_role) }
-  let(:employee_person) { FactoryGirl.create(:person, :with_employee_role)}
+  let(:hbx_staff_person) { FactoryBot.create(:person, :with_hbx_staff_role) }
+  let(:assister_person) { FactoryBot.create(:person, :with_assister_role) }
+  let(:csr_person) { FactoryBot.create(:person, :with_csr_role) }
+  let(:employee_person) { FactoryBot.create(:person, :with_employee_role)}
+  let(:permission) { FactoryBot.create(:permission, modify_family: true)}
   let(:hbx_staff_role) { hbx_staff_person.hbx_staff_role }
 
   before do
@@ -16,19 +18,19 @@ describe HbxProfilePolicy do
 
   permissions :show? do
     it "grants access when hbx_staff" do
-      expect(subject).to permit(FactoryGirl.build(:user, :hbx_staff, person: hbx_staff_person), HbxProfile)
+      expect(subject).to permit(FactoryBot.build(:user, :hbx_staff, person: hbx_staff_person), HbxProfile)
     end
 
     it "grants access when csr" do
-      expect(subject).to permit(FactoryGirl.build(:user, :csr, person: csr_person), HbxProfile)
+      expect(subject).to permit(FactoryBot.build(:user, :csr, person: csr_person), HbxProfile)
     end
 
     it "grants access when assister" do
-      expect(subject).to permit(FactoryGirl.build(:user, :assister, person: assister_person), HbxProfile)
+      expect(subject).to permit(FactoryBot.build(:user, :assister, person: assister_person), HbxProfile)
     end
 
     it "denies access when employee" do
-      expect(subject).not_to permit(FactoryGirl.build(:user, :employee, person: employee_person), HbxProfile)
+      expect(subject).not_to permit(FactoryBot.build(:user, :employee, person: employee_person), HbxProfile)
     end
 
     it "denies access when normal user" do
@@ -38,11 +40,11 @@ describe HbxProfilePolicy do
 
   permissions :index? do
     it "grants access when hbx_staff" do
-      expect(subject).to permit(FactoryGirl.build(:user, :hbx_staff, person: hbx_staff_person), HbxProfile)
+      expect(subject).to permit(FactoryBot.build(:user, :hbx_staff, person: hbx_staff_person), HbxProfile)
     end
 
     it "denies access when csr" do
-      expect(subject).not_to permit(FactoryGirl.build(:user, :csr, person: csr_person), HbxProfile)
+      expect(subject).not_to permit(FactoryBot.build(:user, :csr, person: csr_person), HbxProfile)
     end
 
     it "denies access when normal user" do
@@ -52,7 +54,7 @@ describe HbxProfilePolicy do
 
   permissions :edit? do
     it "denies access when csr" do
-      expect(subject).not_to permit(FactoryGirl.build(:user, :csr, person: csr_person), HbxProfile)
+      expect(subject).not_to permit(FactoryBot.build(:user, :csr, person: csr_person), HbxProfile)
     end
 
     it "denies access when normal user" do
@@ -60,7 +62,7 @@ describe HbxProfilePolicy do
     end
 
     context "when hbx_staff" do
-      let(:user) { FactoryGirl.create(:user, :hbx_staff, person: hbx_staff_person) }
+      let(:user) { FactoryBot.create(:user, :hbx_staff, person: hbx_staff_person) }
 
       it "grants access" do
         expect(subject).to permit(user, hbx_profile)
@@ -76,14 +78,14 @@ end
 describe HbxProfilePolicy do
 
   describe "given an HbxStaffRole with permissions" do
-    let(:person){FactoryGirl.create(:person, user: user)}
-    let(:user){FactoryGirl.create(:user)}
-    let(:hbx_staff_role) { FactoryGirl.create(:hbx_staff_role, person: person)}
+    let(:person){FactoryBot.create(:person, user: user)}
+    let(:user){FactoryBot.create(:user)}
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person)}
     let(:policy){HbxProfilePolicy.new(user,hbx_profile)}
-    let(:hbx_profile) {FactoryGirl.create(:hbx_profile)}
+    let(:hbx_profile) {FactoryBot.create(:hbx_profile)}
 
     it 'hbx_staff' do
-      allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :hbx_staff))
+      allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_staff))
       expect(policy.modify_admin_tabs?).to be true
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be true
@@ -94,7 +96,7 @@ describe HbxProfilePolicy do
     end
 
     it 'hbx_read_only' do
-      allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :hbx_read_only))
+      allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_read_only))
       expect(policy.modify_admin_tabs?).to be false
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be false
@@ -105,7 +107,7 @@ describe HbxProfilePolicy do
     end
 
     it 'hbx_csr_supervisor' do
-      allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :hbx_csr_supervisor))
+      allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_csr_supervisor))
       expect(policy.modify_admin_tabs?).to be false
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
@@ -116,7 +118,7 @@ describe HbxProfilePolicy do
     end
 
     it 'hbx_csr_tier2' do
-      allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :hbx_csr_tier2))
+      allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_csr_tier2))
       expect(policy.modify_admin_tabs?).to be false
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
@@ -127,7 +129,7 @@ describe HbxProfilePolicy do
     end
 
     it 'csr_tier1' do
-      allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :hbx_csr_tier1))
+      allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :hbx_csr_tier1))
       expect(policy.modify_admin_tabs?).to be false
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
@@ -138,7 +140,7 @@ describe HbxProfilePolicy do
     end
 
     it 'super_admin' do
-      allow(hbx_staff_role).to receive(:permission).and_return(FactoryGirl.create(:permission, :super_admin))
+      allow(hbx_staff_role).to receive(:permission).and_return(FactoryBot.create(:permission, :super_admin))
       expect(policy.modify_admin_tabs?).to be true
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be true
@@ -149,10 +151,10 @@ describe HbxProfilePolicy do
   end
 
   describe "given no staff role" do
-    let(:person) { FactoryGirl.create(:person, user: user) }
-    let(:user) { FactoryGirl.create(:user) }
+    let(:person) { FactoryBot.create(:person, user: user) }
+    let(:user) { FactoryBot.create(:user) }
     let(:policy) { HbxProfilePolicy.new(user,hbx_profile) }
-    let(:hbx_profile) { FactoryGirl.create(:hbx_profile) }
+    let(:hbx_profile) { FactoryBot.create(:hbx_profile) }
 
     before :each do
       person
@@ -261,15 +263,15 @@ end
 
 describe HbxProfilePolicy do
   context '.can_create_benefit_application?' do
-    let!(:user10)                  { FactoryGirl.create(:user) }
-    let!(:person)                  { FactoryGirl.create(:person, :with_hbx_staff_role, user: user10) }
+    let!(:user10)                  { FactoryBot.create(:user) }
+    let!(:person)                  { FactoryBot.create(:person, :with_hbx_staff_role, user: user10) }
 
     subject                        { HbxProfilePolicy.new(user10, nil) }
 
 
     (Permission::PERMISSION_KINDS - ['super_admin', 'hbx_tier3']).each do |kind|
       context "for permissions which doesn't allow the user" do
-        let(:bad_permission) { FactoryGirl.create(:permission, kind.to_sym) }
+        let(:bad_permission) { FactoryBot.create(:permission, kind.to_sym) }
 
         it 'should return false' do
           person.hbx_staff_role.update_attributes!(permission_id: bad_permission.id)
@@ -280,7 +282,7 @@ describe HbxProfilePolicy do
 
     ['super_admin', 'hbx_tier3'].each do |kind|
       context "for permissions which doesn't allow the user" do
-        let(:good_permission) { FactoryGirl.create(:permission, kind.to_sym) }
+        let(:good_permission) { FactoryBot.create(:permission, kind.to_sym) }
 
         it 'should return true' do
           person.hbx_staff_role.update_attributes!(permission_id: good_permission.id)
@@ -290,16 +292,16 @@ describe HbxProfilePolicy do
       end
     end
   end
-    describe HbxProfilePolicy do
-      context 'super admin can view config tab?' do
-        let!(:user10)                  { FactoryGirl.create(:user) }
-        let!(:person)                  { FactoryGirl.create(:person, :with_hbx_staff_role, user: user10) }
+  describe HbxProfilePolicy do
+    context 'super admin can view config tab?' do
+      let!(:user10)                  { FactoryBot.create(:user) }
+      let!(:person)                  { FactoryBot.create(:person, :with_hbx_staff_role, user: user10) }
 
-        subject                        { HbxProfilePolicy.new(user10, nil) }
+      subject                        { HbxProfilePolicy.new(user10, nil) }
 
       ['super_admin'].each do |kind|
         context "for permissions which doesn't allow the user" do
-          let(:good_permission) { FactoryGirl.create(:permission, kind.to_sym) }
+          let(:good_permission) { FactoryBot.create(:permission, kind.to_sym) }
 
           it 'should return true' do
             person.hbx_staff_role.update_attributes!(permission_id: good_permission.id)
@@ -316,15 +318,15 @@ end
 
 describe HbxProfilePolicy do
   context '.can_update_enrollment_end_date? .can_reinstate_enrollment?' do
-    let!(:user)                  { FactoryGirl.create(:user) }
-    let!(:person)                  { FactoryGirl.create(:person, :with_hbx_staff_role, user: user) }
+    let!(:user)                  { FactoryBot.create(:user) }
+    let!(:person)                  { FactoryBot.create(:person, :with_hbx_staff_role, user: user) }
 
     subject                        { HbxProfilePolicy.new(user, nil) }
 
 
     (Permission::PERMISSION_KINDS - ['super_admin', 'hbx_tier3']).each do |kind|
       context "for permissions which doesn't allow the user" do
-        let(:bad_permission) { FactoryGirl.create(:permission, kind.to_sym) }
+        let(:bad_permission) { FactoryBot.create(:permission, kind.to_sym) }
 
         it 'should return false' do
           person.hbx_staff_role.update_attributes!(permission_id: bad_permission.id)
@@ -336,7 +338,7 @@ describe HbxProfilePolicy do
 
     ['super_admin', 'hbx_tier3'].each do |kind|
       context "for permissions which allow the user" do
-        let(:good_permission) { FactoryGirl.create(:permission, kind.to_sym) }
+        let(:good_permission) { FactoryBot.create(:permission, kind.to_sym) }
 
         it 'should return true' do
           person.hbx_staff_role.update_attributes!(permission_id: good_permission.id)
