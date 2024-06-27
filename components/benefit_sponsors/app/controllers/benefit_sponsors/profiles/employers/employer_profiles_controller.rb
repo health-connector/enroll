@@ -109,6 +109,8 @@ module BenefitSponsors
         end
 
         def show_invoice
+          authorize @employer_profile
+
           options = {}
           options[:filename] = @invoice.title
           options[:type] = 'application/pdf'
@@ -117,7 +119,7 @@ module BenefitSponsors
         end
 
         def bulk_employee_upload
-          authorize @employer_profile, :show?
+          authorize @employer_profile
 
           if params[:file] && !validate_file_upload(params[:file], (FileUploadValidator::CSV_TYPES + FileUploadValidator::XLS_TYPES))
             render :partial => (@roster_upload_form.redirection_url || default_url)
@@ -150,6 +152,8 @@ module BenefitSponsors
         end
 
         def download_invoice
+          authorize @employer_profile
+
           options={}
           options[:content_type] = @invoice.type
           options[:filename] = @invoice.title
@@ -162,6 +166,8 @@ module BenefitSponsors
         end
 
         def estimate_cost
+          authorize @employer_profile
+
           find_benefit_package
           estimate_hash = {}
           if @benefit_package.present?

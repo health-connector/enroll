@@ -3,73 +3,100 @@
 require 'rails_helper'
 
 RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
+  let(:user) { FactoryBot.create(:user) }
+  let(:admin_user) { FactoryBot.create(:user, :with_hbx_staff_role) }
+  let!(:hbx_person) { FactoryBot.create(:person, user: admin_user)}
+  let!(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: hbx_person) }
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
+  before do
+    allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_employer: true))
+  end
 
   describe "GET index"  do
-
-    let(:user) { double("user") }
-
     it 'should redirect' do
-      sign_in(user)
+      sign_in(admin_user)
       get :index
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
     end
 
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
+    end
   end
 
   describe "GET new" do
-
-    let(:user) { double("user") }
-
     it "should redirect" do
-      sign_in(user)
+      sign_in(admin_user)
       get :new
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
   end
 
   describe "GET show_profile" do
-
-    let(:user) { double("user") }
-    let(:employer_profile) { FactoryBot.create(:employer_profile) }
-
     it "should redirect" do
-      sign_in(user)
+      sign_in(admin_user)
       get :show_profile, params: { employer_profile_id: employer_profile }
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
   end
 
   describe "GET show" do
-
-    let(:user) { double("user") }
-    let(:employer_profile) { FactoryBot.create(:employer_profile) }
-
     it "should redirect" do
-      sign_in(user)
+      sign_in(admin_user)
       get :show, params: { id: employer_profile }
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
   end
 
   describe "GET welcome", dbclean: :after_each do
-    let(:user) { double("user") }
-
     it "should redirect" do
-      sign_in(user)
+      sign_in(admin_user)
       get :welcome
       expect(response).to redirect_to("/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor")
     end
 
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
+    end
   end
 
 
   describe "GET search", dbclean: :after_each do
-    let(:user) { double("user")}
-    let(:person) { double("Person")}
     before(:each) do
-      allow(user).to receive(:person).and_return(person)
-      sign_in user
+      sign_in admin_user
       get :search
     end
 
@@ -78,33 +105,50 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
       expect(response).to render_template("search")
       expect(assigns[:employer_profile]).to be_a(Forms::EmployerCandidate)
     end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
+    end
   end
 
 
   describe "GET export_census_employees", dbclean: :after_each do
-    let(:user) { FactoryBot.create(:user) }
-    let(:employer_profile) { FactoryBot.create(:employer_profile) }
-
     it "should export cvs" do
-      sign_in(user)
+      sign_in(admin_user)
       get :export_census_employees, params: { employer_profile_id: employer_profile}, format: :csv
       expect(response).to have_http_status(:success)
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
   end
 
   describe "GET new Document", dbclean: :after_each do
-    let(:user) { FactoryBot.create(:user) }
-    let(:employer_profile) { FactoryBot.create(:employer_profile) }
     it "should load upload Page" do
-      sign_in(user)
+      sign_in(admin_user)
       get :new_document, params: {id: employer_profile}, format: :js
       expect(response).to have_http_status(:success)
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
   end
 
   describe "POST Upload Document", dbclean: :after_each do
-    let(:user) { FactoryBot.create(:user) }
-    let(:employer_profile) { FactoryBot.create(:employer_profile) }
     #let(:params) { { id: employer_profile.id, file:'test/JavaScript.pdf', subject: 'JavaScript.pdf' } }
 
     let(:subject){"Employee Attestation"}
@@ -124,21 +168,34 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
 
     context "upload document", dbclean: :after_each do
       it "redirects to document list page" do
-        sign_in user
+        sign_in admin_user
         post :upload_document, params: {:id => employer_profile.id, :file => file, :subject => subject}
         expect(response).to have_http_status(:redirect)
+      end
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
       end
     end
   end
 
   describe "Delete Document", dbclean: :after_each do
-    let(:user) { FactoryBot.create(:user) }
-    let(:employer_profile) { FactoryBot.create(:employer_profile) }
-
     it "should delete documents" do
-      sign_in(user)
+      sign_in(admin_user)
       get :delete_documents, params: {id: employer_profile.id, ids: [1]}, format: :js
       expect(response).to have_http_status(:success)
+    end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
   end
 end

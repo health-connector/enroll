@@ -13,6 +13,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def publish_quote
+    authorize @broker
     if @quote.may_publish?
       @quote.publish!
       flash[:notice] = "Quote Published"
@@ -25,6 +26,7 @@ class BrokerAgencies::QuotesController < ApplicationController
 
   # displays index page of quotes
   def my_quotes
+    authorize @broker
     @all_quotes = Quote.where("broker_role_id" => @broker.id)
     Effective::Datatables::QuoteDatatable.broker_role_id = @broker.id
     @datatable = Effective::Datatables::QuoteDatatable.new
@@ -34,14 +36,11 @@ class BrokerAgencies::QuotesController < ApplicationController
     end
   end
 
-  def show 
+  def show
+    authorize @broker
     @q = Quote.find(params[:id])
     @benefit_groups = @q.quote_benefit_groups
     @quote_benefit_group = (params[:benefit_group_id] && @q.quote_benefit_groups.find(params[:benefit_group_id])) || @benefit_groups.first
-
-    #active_year = Date.today.year
-    @coverage_kind = "health"
-    @section = !params[:section].present?
     @index = params[:row].to_i
 
     @health_plans = Plan.shop_health_plans @q.plan_year
@@ -53,29 +52,27 @@ class BrokerAgencies::QuotesController < ApplicationController
     @dental_plans_count = @dental_plans.count
 
     @bp_hash = {'employee':50, 'spouse': 0, 'domestic_partner': 0, 'child_under_26': 0, 'child_26_and_over': 0}
-    @benefit_pcts_json = @bp_hash.to_json
     @quote_criteria = []
 
     @quote_benefit_group.quote_relationship_benefits.each{|bp| @bp_hash[bp.relationship] = bp.premium_pct}
-    roster_premiums = @quote_benefit_group.roster_cost_all_plans
-    @roster_premiums_json = roster_premiums.to_json
-    dental_roster_premiums =  @quote_benefit_group.roster_cost_all_plans('dental')
-    @dental_roster_premiums = dental_roster_premiums.to_json
+    @roster_premiums_json = @quote_benefit_group.roster_cost_all_plans.to_json
+    @dental_roster_premiums = @quote_benefit_group.roster_cost_all_plans('dental').to_json
     @quote_criteria = @quote_benefit_group.criteria_for_ui
-    @benefit_pcts_json = @bp_hash.to_json
-    unless @section
+    return unless params[:section].present?
+
     respond_to do |format|
         format.js
-    end
     end
   end
 
   def health_cost_comparison
+    authorize @broker
     get_health_cost_comparison({quote_id: params[:quote_id], benefit_id: params[:benefit_id], plan_ids: params['plans']})
     render partial: 'health_cost_comparison'
   end
 
   def dental_cost_comparison
+    authorize @broker
     get_dental_cost_comparison({quote_id: params[:quote_id], benefit_id: params[:benefit_id], plan_ids: params['plans']})
     render partial: 'dental_cost_comparison', layout: false
   end
@@ -90,6 +87,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   # end
 
   def edit
+    authorize @broker
     #find quote to edit
     @quote = Quote.find(params[:id])
     broker_role_id = @quote.broker_role.id
@@ -134,6 +132,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def new
+    authorize @broker
     quote = Quote.new
     # Build Default Quote Benefit Group
     qbg = QuoteBenefitGroup.new
@@ -147,6 +146,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def update
+    authorize @broker
     @quote = Quote.find(params[:id])
 
     sanitize_quote_roster_params
@@ -191,6 +191,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def create
+    authorize @broker
     @quote = Quote.new(quote_params)
     @quote.broker_role_id= @broker.id
     if @format_errors.present?
@@ -206,6 +207,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def plan_comparison
+    authorize @broker
     standard_component_ids = get_standard_component_ids
     @qhps = Products::QhpCostShareVariance.find_qhp_cost_share_variances(standard_component_ids, @active_year, "Health")
     @sort_by = params[:sort_by].rstrip
@@ -225,6 +227,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def build_employee_roster
+    authorize @broker
     @employee_roster = parse_employee_roster_file
     @quote= Quote.find(params[:id])
     broker_role_id = @quote.broker_role.id
@@ -247,12 +250,14 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def upload_employee_roster
+    authorize @broker
     @quote = Quote.find(params[:id])
     emp = params[:type] == 'prospect' ? { employer_name: params[:name] } : {employer_profile_id: params[:profile_id]}
     @quote.update_attributes({employer_type: params[:type], start_on: params[:effective_date], quote_name: params[:quote_name]}.merge(emp))
   end
 
   def download_employee_roster
+    authorize @broker
     @quote = Quote.find(params[:id])
     @employee_roster = @quote.quote_households.map(&:quote_members).flatten
     send_data(csv_for(@employee_roster), :type => 'text/csv; charset=iso-8859-1; header=present',
@@ -260,6 +265,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def delete_quote_modal
+    authorize @broker
     @row = params[:row]
     @quote = Quote.find(params[:id])
     respond_to do |format|
@@ -270,6 +276,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def delete_quote
+    authorize @broker
     @quote = Quote.find(params[:id])
     if @quote.destroy
       flash[:notice] = "Successfully deleted #{@quote.quote_name}."
@@ -282,6 +289,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def delete_member
+    authorize @broker
     if @quote.is_complete?
       render :text => "false", :format => :js
       return
@@ -297,6 +305,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def delete_household
+    authorize @broker
     #render :text => "false", :format => :js if @quote.is_complete?
     @qh = @quote.quote_households.find(params[:household_id])
     if @qh.destroy
@@ -307,7 +316,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def delete_benefit_group
-
+    authorize @broker
     quote_benefit_group = QuoteBenefitGroup.find(params[:quote_benefit_group_id])
 
     if quote_benefit_group.is_assigned?
@@ -323,11 +332,13 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def new_household
+    authorize @broker
     @quote = Quote.new
     @quote.quote_households.build
   end
 
   def update_benefits
+    authorize @broker
     benefit_group = Quote.find(params[:quote_id]).quote_benefit_groups.find(params[:benefit_id])
     return false if benefit_group.quote.is_complete?
     benefits = params[:benefits]
@@ -337,6 +348,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def get_quote_info
+    authorize @broker
     bp_hash = {}
     bp_dental_hash = {}
     quote = Quote.find(params[:quote_id])
@@ -359,6 +371,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def set_plan
+    authorize @broker
     @q = Quote.find(params[:quote_id])
 
     bg = (params[:benefit_group_id] && @q.quote_benefit_groups.find(params[:benefit_group_id]))
@@ -414,11 +427,13 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def copy
+    authorize @broker
     @q = Quote.find(params[:quote_id])
     @q.clone
   end
 
   def publish
+    authorize @broker
     @q = Quote.find(params[:quote_id])
     @benefit_groups = @q.quote_benefit_groups
     respond_to do |format|
@@ -431,6 +446,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def criteria
+    authorize @broker
     benefit_group = Quote.find(params[:quote_id]).quote_benefit_groups.find(params[:benefit_id])
     return false if benefit_group.quote.is_complete?
     criteria_for_ui = params[:criteria_for_ui]
@@ -441,6 +457,7 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def download_pdf
+    authorize @broker
     standard_component_ids = get_standard_component_ids
     @qhps = Products::QhpCostShareVariance.find_qhp_cost_share_variances(standard_component_ids, @active_year, "Health")
     render pdf: 'plan_comparison_export',
@@ -450,12 +467,13 @@ class BrokerAgencies::QuotesController < ApplicationController
   end
 
   def dental_plans_data
+    authorize @broker
     set_dental_plans
     render partial: 'my_dental_plans'
   end
 
   def employees_list
- 
+    authorize @broker
     employer_profile = EmployerProfile.find(params[:employer_profile_id])
     quote = Quote.find(params[:quote_id])
     @quote_benefit_group_dropdown = quote.quote_benefit_groups
@@ -478,12 +496,13 @@ class BrokerAgencies::QuotesController < ApplicationController
       @employee_present = false
     end
     respond_to do |format|
-      # format.html 
+      # format.html
       format.js
-    end  
+    end
   end
 
   def employee_type
+    authorize @broker
     @quote= Quote.find(params[:id])
     broker_role_id = @quote.broker_role.id
     @orgs = Organization.by_broker_role(broker_role_id)
