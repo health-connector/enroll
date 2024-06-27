@@ -1,7 +1,7 @@
 disable-version-check: false
 log-level: info
 report:
-    fail-on-severity: critical,high,medium
+    fail-on-severity: critical,high
     format: ""
     no-color: false
     output: ""

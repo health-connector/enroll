@@ -24,11 +24,11 @@ jobs:
             sudo apt-get install bearer
         - name: run bearer
           run: |
-            BEARER_DIFF_BASE_BRANCH=master bearer scan --quiet --config-file ./bearer.yml --diff . --severity critical,high
+            BEARER_DIFF_BASE_BRANCH=master bearer scan --quiet --config-file ./bearer.yml --diff .
         - name: build bearer report
           if: failure() 
           run: |
-            BEARER_DIFF_BASE_BRANCH=master bearer scan --quiet --config-file ./bearer.yml --diff . --severity critical,high > bearer_full.txt
+            BEARER_DIFF_BASE_BRANCH=master bearer scan --quiet --config-file ./bearer.yml --diff . > bearer_full.txt
         - name: upload bearer failure report
           uses: actions/upload-artifact@v4
           if: failure() 
