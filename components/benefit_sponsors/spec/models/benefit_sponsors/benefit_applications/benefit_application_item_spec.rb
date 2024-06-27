@@ -4,6 +4,10 @@ require 'rails_helper'
 
 RSpec.describe BenefitSponsors::BenefitApplications::BenefitApplicationItem, type: :model, :dbclean => :after_each do
   describe "new model instance" do
+    before :all do
+      DatabaseCleaner.clean
+    end
+
     it { is_expected.to be_mongoid_document }
     it { is_expected.to have_field(:effective_period).of_type(Range)}
     it { is_expected.to have_field(:action_type).of_type(Symbol)}
