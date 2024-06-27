@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe BenefitSponsors::BenefitApplications::BenefitApplicationItem, type: :model, :dbclean => :after_each do
   describe "new model instance" do
-    before :all do
-      DatabaseCleaner.clean
+    before do
+      allow(TimeKeeper).to receive(:date_of_record).and_call_original
     end
 
     it { is_expected.to be_mongoid_document }
