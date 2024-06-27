@@ -3,6 +3,43 @@
 module SponsoredBenefits
   # Policy for Broker Agency Plan Design Organization
   class PlanDesignOrganizationPolicy < Policy
+
+    def plan_design_proposal_index?
+      view_proposals?
+    end
+
+    def plan_design_proposal_claim?
+      view_proposals?
+    end
+
+    def plan_design_proposal_create?
+      view_proposals?
+    end
+
+    def plan_design_proposal_new?
+      view_proposals?
+    end
+
+    def plan_design_proposal_edit?
+      view_proposals?
+    end
+
+    def plan_design_proposal_update?
+      view_proposals?
+    end
+
+    def plan_design_proposal_publish?
+      view_proposals?
+    end
+
+    def plan_design_proposal_show?
+      view_proposals?
+    end
+
+    def plan_design_proposal_destroy?
+      view_proposals?
+    end
+
     def view_proposals?
       return true if user.has_hbx_staff_role?
       return false unless user.person
