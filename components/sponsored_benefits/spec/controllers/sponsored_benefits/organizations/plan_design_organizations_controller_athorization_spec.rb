@@ -17,14 +17,14 @@ module SponsoredBenefits
           person.broker_role.update_attributes(broker_agency_profile_id: broker_agency_profile.id.to_s)
         end
       end
-      let(:valid_attributes) {
-          {
-            "legal_name"  =>  "Some Name",
-            "dba"         =>  "",
-            "entity_kind" =>  "",
-            "sic_code"    =>  "0116"
-          }
-      }
+      let(:valid_attributes) do
+        {
+          "legal_name" => "Some Name",
+          "dba" => "",
+          "entity_kind" => "",
+          "sic_code" => "0116"
+        }
+      end
 
       it "redirects to the root path and displays an error message" do
         sign_in(fake_user)
