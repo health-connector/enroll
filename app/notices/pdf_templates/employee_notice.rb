@@ -7,6 +7,7 @@ module PdfTemplates
     attribute :first_name, String
     attribute :last_name, String
     attribute :primary_fullname, String
+    attribute :primary_email, String
     attribute :primary_identifier, String
     attribute :mpi_indicator, String
     attribute :primary_address, PdfTemplates::NoticeAddress
