@@ -299,17 +299,7 @@ Rails.application.routes.draw do
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
     match '/' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
-    post 'search', to: 'employers#search'
-
     resources :premium_statements, :only => [:show]
-
-    #TODO REFACTOR
-    resources :people do
-      collection do
-        get 'search'
-        post 'match'
-      end
-    end
 
     resources :employer_attestations do
       get 'authorized_download'
