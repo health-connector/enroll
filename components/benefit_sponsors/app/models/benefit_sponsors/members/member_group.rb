@@ -76,7 +76,7 @@ module BenefitSponsors
       {
         members: members.serializable_hash,
         group_id: group_id,
-        group_enrollment: group_enrollment.serializable_hash,
+        group_enrollment: group_enrollment.serializable_hash
       }
     end
 
