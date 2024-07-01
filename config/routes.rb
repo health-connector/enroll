@@ -300,8 +300,6 @@ Rails.application.routes.draw do
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
     match '/' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
-    post 'search', to: 'employers#search'
-
     resources :premium_statements, :only => [:show]
 
     #TODO REFACTOR
