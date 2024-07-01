@@ -3,7 +3,8 @@ module BenefitSponsors
 
     def show?
       return false unless user.present?
-      return true if user.has_hbx_staff_role? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+      return true if shop_market_admin? || is_broker_for_employer?(record) || is_general_agency_staff_for_employer?(record)
+
       is_staff_role_for_employer?
     end
 

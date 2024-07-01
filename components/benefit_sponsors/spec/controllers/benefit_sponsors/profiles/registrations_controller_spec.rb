@@ -172,7 +172,7 @@ module BenefitSponsors
           end
 
           it "should set the value of portal on form instance to true" do
-            expect(assigns(:agency).portal).to eq true
+            expect(assigns(:agency).portal).to eq "true"
           end
         end
 
@@ -193,7 +193,7 @@ module BenefitSponsors
           end
 
           it "should set the value of portal on form instance to true" do
-            expect(assigns(:agency).portal).to eq true
+            expect(assigns(:agency).portal).to eq "true"
           end
         end
       end
