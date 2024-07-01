@@ -2,10 +2,12 @@
 
 module SponsoredBenefits
   class ApplicationController < ActionController::Base
+    include Pundit
     include ::L10nHelper
     include ::FileUploadHelper
 
     before_action :set_broker_agency_profile_from_user
+    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
     rescue_from ActionController::InvalidAuthenticityToken, :with => :bad_token_due_to_session_expired
 
     private
@@ -18,6 +20,15 @@ module SponsoredBenefits
         format.html { redirect_to root_path}
         format.js   { render text: "window.location.assign('#{root_path}');"}
         format.json { render json: { :token_expired => root_url }, status: :unauthorized }
+      end
+    end
+
+    def user_not_authorized(exception)
+      flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)"
+      respond_to do |format|
+        format.json { render nothing: true, status: :forbidden }
+        format.html { redirect_to(request.referrer || main_app.root_path)}
+        format.js   { render nothing: true, status: :forbidden }
       end
     end
 
