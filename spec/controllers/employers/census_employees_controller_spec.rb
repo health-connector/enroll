@@ -264,7 +264,6 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
                 }
               }
             }
-          }
           post :update, params: { id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params }
         end
 
