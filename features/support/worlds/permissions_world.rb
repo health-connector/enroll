@@ -95,3 +95,7 @@ module PermissionsWorld
 end
 
 World(PermissionsWorld)
+
+Given(/all permissions are present$/) do
+  make_all_permissions
+end
