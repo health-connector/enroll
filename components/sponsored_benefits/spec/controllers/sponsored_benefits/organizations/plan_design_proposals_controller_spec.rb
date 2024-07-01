@@ -1,16 +1,21 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+
 module DataTablesAdapter
 end
 
 module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignProposalsController, type: :controller, dbclean: :around_each do
     routes { SponsoredBenefits::Engine.routes }
+
     let(:broker_double) { double(id: '12345') }
     let(:current_person) { double(:current_person) }
     let(:datatable) { double(:datatable) }
     let(:sponsor) { double(:sponsor, id: '5ac4cb58be0a6c3ef400009a', sic_code: '1111') }
-    let(:active_user) { double(:has_hbx_staff_role? => false) }
-
+    let(:active_user) { double(:active_user, person: current_person) }
     let!(:plan_design_organization) {
         create(:sponsored_benefits_plan_design_organization, sponsor_profile_id: sponsor.id, owner_profile_id: '5ac4cb58be0a6c3ef400009b', plan_design_proposals: [ plan_design_proposal ], sic_code: sponsor.sic_code )
     }
@@ -83,12 +88,19 @@ module SponsoredBenefits
     # in order to pass any filters (e.g. authentication) defined in
     # BenefitApplications::BenefitApplicationsController. Be sure to keep this updated too.
     let(:valid_session) { {} }
+    let(:fake_user) { FactoryBot.create(:user, person: fake_person) }
+    let(:fake_person) do
+      FactoryBot.create(:person, :with_broker_role).tap do |person|
+        person.broker_role.update_attributes(broker_agency_profile_id: broker_agency_profile.id.to_s)
+      end
+    end
 
     before do
       allow(plan_design_organization).to receive(:is_renewing_employer?).and_return false
       benefit_application
       allow(subject).to receive(:current_person).and_return(current_person)
       allow(subject).to receive(:active_user).and_return(active_user)
+      allow(active_user).to receive(:has_hbx_staff_role?).and_return(true)
       allow(current_person).to receive(:broker_role).and_return(broker_role)
       allow(broker_role).to receive(:broker_agency_profile_id).and_return(broker_agency_profile.id)
       allow(subject).to receive(:effective_datatable).and_return(datatable)
@@ -97,54 +109,145 @@ module SponsoredBenefits
       allow(controller).to receive(:set_broker_agency_profile_from_user).and_return(broker_agency_profile)
       allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(BSON::ObjectId.from_string(broker_agency_profile.id)).and_return(broker_agency_profile)
       allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(BSON::ObjectId.from_string(sponsor.id)).and_return(sponsor)
+      sign_in(active_user)
     end
 
     describe "GET #index" do
-      it "returns a success response" do
-        get :index, params: { plan_design_organization_id: plan_design_organization.id }
-        expect(response).to be_success
+      context "when user has authorization" do
+        it "returns a success response" do
+          get :index, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(response).to be_successful
+        end
       end
     end
 
     describe "GET #show" do
-      it "returns a success response" do
-        get :show, params: { id: plan_design_proposal.to_param }
-        expect(response).to be_success
+      context "when user has authorization" do
+        it "returns a success response" do
+          get :show, params: { id: plan_design_proposal.to_param }
+
+          expect(response).to be_successful
+        end
       end
     end
 
     describe "GET #new" do
-      it "returns a success response" do
-        get :new, params: { plan_design_organization_id: plan_design_organization.id }
-        expect(response).to be_success
+      context "when user has authorization" do
+        it "returns a success response" do
+          get :new, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(response).to be_successful
+        end
       end
     end
 
     describe "GET #edit" do
-      it "returns a success response" do
-        get :edit, params: { id: plan_design_proposal.to_param, plan_design_organization_id: plan_design_organization.id }
-        expect(response).to be_success
+      context "when user has authorization" do
+        it "returns a success response" do
+          get :edit, params: { id: plan_design_proposal.to_param, plan_design_organization_id: plan_design_organization.id }
+
+          expect(response).to be_successful
+        end
       end
     end
 
     describe "POST #create" do
       context "with valid params" do
-        it "creates a new Organizations::PlanDesignProposal" do
+        it "creates a new PlanDesignProposal and renders the create template" do
           expect {
             post :create, params: { plan_design_organization_id: plan_design_organization.to_param, forms_plan_design_proposal: valid_attributes }, format: :js
           }.to change { plan_design_organization.reload.plan_design_proposals.count }.by(1)
-        end
 
-        it "redirects to the created benefit_application" do
-          post :create, params: { plan_design_organization_id: plan_design_organization.to_param, forms_plan_design_proposal: valid_attributes }, format: :js
           expect(response).to render_template('create')
         end
       end
 
       context "with invalid params" do
-        it "returns a success response (i.e. to display the 'new' template)" do
+        it "returns a success response to display the 'new' template" do
           post :create, params: { plan_design_organization_id: plan_design_organization.to_param, forms_plan_design_proposal: invalid_attributes }, format: :js
-          expect(response).to be_success
+
+          expect(response).to be_successful
+        end
+      end
+    end
+
+
+    describe "authorization failure" do
+      context "when user does not have authorization for index action" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          get :index, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_index?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization for show action" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          get :show, params: { id: plan_design_proposal.to_param }
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_show?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          get :new, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_new?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          get :edit, params: { id: plan_design_proposal.to_param, plan_design_organization_id: plan_design_organization.id }
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_edit?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          post :create, params: { plan_design_organization_id: plan_design_organization.to_param, forms_plan_design_proposal: invalid_attributes }, format: :js
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_create?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          delete :destroy, params: {:id => plan_design_proposal.to_param}
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_destroy?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        it "returns a failure response" do
+          sign_in(fake_user)
+          post :publish, params: {plan_design_proposal_id: plan_design_proposal.to_param}
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_publish?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        include_context 'setup benefit market with market catalogs and product packages'
+        include_context 'setup initial benefit application'
+
+        let(:plan_design_proposal) { build(:plan_design_proposal, profile: abc_profile) }
+
+        it "returns a failure response" do
+          sign_in(fake_user)
+          get :claim, params: {employer_profile_id: abc_profile.id}
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_claim?, (Pundit policy)")
         end
       end
     end
