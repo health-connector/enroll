@@ -455,7 +455,3 @@ module Employers
   end
 end
 # rubocop:enable Metrics/ClassLength
-<<<<<<< HEAD
-
-=======
->>>>>>> 187839320-update-ce-export
