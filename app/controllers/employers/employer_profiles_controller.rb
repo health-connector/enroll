@@ -172,13 +172,6 @@ module Employers
       redirect_to family_account_path
     end
 
-    def export_census_employees
-      authorize @employer_profile
-      respond_to do |format|
-        format.csv { send_data CensusEmployee.download_census_employees_roster(@employer_profile.id), filename: "#{@employer_profile.legal_name.parameterize.underscore}_census_employees_#{TimeKeeper.date_of_record}.csv" }
-      end
-    end
-
     def bulk_employee_upload_form; end
 
     def generate_checkbook_urls
@@ -462,4 +455,7 @@ module Employers
   end
 end
 # rubocop:enable Metrics/ClassLength
+<<<<<<< HEAD
 
+=======
+>>>>>>> 187839320-update-ce-export

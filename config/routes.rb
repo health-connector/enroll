@@ -309,7 +309,6 @@ Rails.application.routes.draw do
       get 'show_profile'
       get 'link_from_quote'
       get 'consumer_override'
-      get 'export_census_employees'
       get 'bulk_employee_upload_form'
       post 'bulk_employee_upload'
 
@@ -617,20 +616,20 @@ Rails.application.routes.draw do
         get :show_resident_dependent, on: :member
       end
 
-      namespace :exchanges do
-        resources :agents do
-          collection do
-            get :begin_consumer_enrollment
-          end
-        end
-      end
-
       namespace :insured do
         get 'verification_documents/upload', to: 'verification_documents#upload'
         post 'verification_documents/upload', to: 'verification_documents#upload'
         get 'verification_documents/download/:key', to: 'verification_documents#download'
 
         resources :interactive_identity_verifications, only: [:create, :new, :update]
+      end
+
+      namespace :exchanges do
+        resources :agents do
+          collection do
+            get :begin_consumer_enrollment
+          end
+        end
       end
     end
   end
