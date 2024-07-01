@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
@@ -19,7 +21,8 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employers", "sample_conversion_employers.xlsx") }
 
     let(:employer_data) do
-      {:action=>"Add", :default_plan_year_start=> default_plan_year_start, :fein=>"931100000", :enrolled_employee_count=>"14", :new_coverage_policy=>"Date of Hire equal to Effective Date", :carrier=>"United Healtcare", :plan_selection=>"Single Plan from Carrier", :single_plan_hios_id=>"41842DC0010068-01", :coverage_start=>"07/01/2016"}
+      {:action => "Add", :default_plan_year_start => default_plan_year_start, :fein => "931100000", :enrolled_employee_count => "14", :new_coverage_policy => "Date of Hire equal to Effective Date", :carrier => "United Healtcare",
+       :plan_selection => "Single Plan from Carrier", :single_plan_hios_id => "41842DC0010068-01", :coverage_start => "07/01/2016"}
     end
 
 
@@ -31,7 +34,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported,\"\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end
 
@@ -40,7 +43,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
       let(:record_errors) { {"some_errors" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
       end
     end
 
@@ -49,7 +52,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
       let(:record_warnings) { {"some_warnings" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
       end
     end
   end
@@ -58,7 +61,8 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
     let(:file_name) { File.join(Rails.root, "spec", "test_data", "conversion_employers", "sample_conversion_employers.csv") }
 
     let(:employer_data) do
-      {:action=>"Add", :default_plan_year_start=> default_plan_year_start, :fein=>"521782000", :enrolled_employee_count=>"3", :carrier=>"CareFirst BlueCross BlueShield", :plan_selection=>"Single Plan from Carrier",:most_common_hios_id=>"86052DC0480005-01",:single_plan_hios_id =>"86052DC0480005-01" , :coverage_start=>"07/01/2016"}
+      {:action => "Add", :default_plan_year_start => default_plan_year_start, :fein => "521782000", :enrolled_employee_count => "3", :carrier => "CareFirst BlueCross BlueShield", :plan_selection => "Single Plan from Carrier",
+       :most_common_hios_id => "86052DC0480005-01",:single_plan_hios_id => "86052DC0480005-01", :coverage_start => "07/01/2016"}
     end
 
     let(:base_output_result) do
@@ -69,7 +73,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported,\"\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end
 
@@ -78,7 +82,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
       let(:record_errors) { {"some_errors" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},\"[\"\"import failed\"\", \"\"{\\\"\"some_errors\\\"\":\\\"\"about_a_thing\\\"\"}\"\"]\"\n")
       end
     end
 
@@ -87,7 +91,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
       let(:record_warnings) { {"some_warnings" => "about_a_thing" } }
 
       it "should write the initial data and the results to the output stream" do
-        expect(out_stream.string).to eql(base_output_result + ",imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
+        expect(out_stream.string).to eql("#{base_output_result},imported with warnings,\"{\"\"some_warnings\"\":\"\"about_a_thing\"\"}\"\n")
       end
     end
   end

@@ -1,2 +1,4 @@
-# Enable factory_girl
-World(FactoryGirl::Syntax::Methods)
+# frozen_string_literal: true
+
+# Enable factory_bot
+World(FactoryBot::Syntax::Methods)

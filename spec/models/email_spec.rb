@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Email, :dbclean => :after_each do
-  let(:person) {FactoryGirl.create(:person, gender: "male", dob: "10/10/1974", ssn: "123456789" )}
+  let(:person) {FactoryBot.create(:person, gender: "male", dob: "10/10/1974", ssn: "123456789")}
   let(:valid_params) do
     {
       kind: "home",
@@ -76,9 +78,9 @@ describe Email, :dbclean => :after_each do
 
     describe 'presence' do
       [:address].each do |missing|
-        it('is invalid without ' + missing.to_s) do
-          trait = 'without_email_' + missing.to_s
-          email = FactoryGirl.build(:email, trait.to_sym)
+        it("is invalid without #{missing}") do
+          trait = "without_email_#{missing}"
+          email = FactoryBot.build(:email, trait.to_sym)
           expect(email).to be_invalid
         end
       end

@@ -87,7 +87,7 @@ module BenefitSponsors
       end
 
       context "and an employer sponsors benefits" do
-        let(:employer_organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: hbx_site) }
+        let(:employer_organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: hbx_site) }
         let(:employer_profile)        { employer_organization.employer_profile }
 
         before { employer_organization.sponsor_benefits_for(employer_profile) }
@@ -110,7 +110,7 @@ module BenefitSponsors
 
     context "on legal name change or fein change" do
       let(:site)            { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-      let(:organization)   { FactoryGirl.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:organization)   { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)        { organization.employer_profile }
 
       let!(:plan_design_organization) do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV["RAILS_ENV"] ||= 'test'
 
 require File.expand_path("../dummy/config/environment", __FILE__)
@@ -8,7 +10,7 @@ require 'factory_girl_rails'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f }
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each {|f| require f }
 
 RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
@@ -20,12 +22,14 @@ RSpec.configure do |config|
   config.order = 'random'
 end
 
-class ActiveRecord::Base
-  mattr_accessor :shared_connection
-  @@shared_connection = nil
+module ActiveRecord
+  class Base
+    mattr_accessor :shared_connection
+    @@shared_connection = nil
 
-  def self.connection
-    @@shared_connection || retrieve_connection
+    def self.connection
+      @@shared_connection || retrieve_connection
+    end
   end
 end
 

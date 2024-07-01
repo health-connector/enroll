@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Events::PoliciesController do
@@ -16,8 +18,9 @@ describe Events::PoliciesController do
       allow(HbxEnrollment).to receive(:by_hbx_id).with(policy_id).and_return(found_policys)
       allow(controller).to receive(:render_to_string).with(
         "events/enrollment_event", {:formats => ["xml"], :locals => {
-         :hbx_enrollment => policy
-        }}).and_return(rendered_template)
+          :hbx_enrollment => policy
+        }}
+      ).and_return(rendered_template)
     end
 
     describe "for an existing policy" do
@@ -30,13 +33,13 @@ describe Events::PoliciesController do
 
       it "should send out a message to the bus with the rendered policy object" do
         expect(exchange).to receive(:publish).with(rendered_template, {
-          :routing_key => reply_to_key,
-          :headers => {
-            :policy_id => policy_id,
-            :return_status => "200",
-            :eligibility_event_kind => eligibility_event_kind
-          }       
-        })
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :policy_id => policy_id,
+                                                       :return_status => "200",
+                                                       :eligibility_event_kind => eligibility_event_kind
+                                                     }
+                                                   })
         controller.resource(connection, di, props, "")
       end
     end
@@ -50,21 +53,22 @@ describe Events::PoliciesController do
         allow(controller).to receive(:render_to_string).with(
           "events/enrollment_event", {:formats => ["xml"], :locals => {
             :hbx_enrollment => policy
-          }}).and_raise(exception)
+          }}
+        ).and_raise(exception)
         allow(exception).to receive(:backtrace).and_return(exception_backtrace)
       end
 
       it "should send out a message to the bus with the error code and exception" do
         expect(exchange).to receive(:publish).with(JSON.dump({
-           exception: exception.inspect,
-           backtrace: exception_backtrace.inspect 
-          }), {
-          :routing_key => reply_to_key,
-          :headers => {
-            :policy_id => policy_id,
-            :return_status => "500"
-          }       
-        })
+                                                               exception: exception.inspect,
+                                                               backtrace: exception_backtrace.inspect
+                                                             }), {
+                                                               :routing_key => reply_to_key,
+                                                               :headers => {
+                                                                 :policy_id => policy_id,
+                                                                 :return_status => "500"
+                                                               }
+                                                             })
         controller.resource(connection, di, props, "")
       end
     end
@@ -74,12 +78,12 @@ describe Events::PoliciesController do
 
       it "should send out a message to the bus with no policy object" do
         expect(exchange).to receive(:publish).with("", {
-          :routing_key => reply_to_key,
-          :headers => {
-            :policy_id => policy_id,
-            :return_status => "404"
-          }       
-        })
+                                                     :routing_key => reply_to_key,
+                                                     :headers => {
+                                                       :policy_id => policy_id,
+                                                       :return_status => "404"
+                                                     }
+                                                   })
         controller.resource(connection, di, props, "")
       end
     end

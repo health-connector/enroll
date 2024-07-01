@@ -1,49 +1,51 @@
-FactoryGirl.define do
+# frozen_string_literal: true
+
+FactoryBot.define do
   factory :plan do
-    sequence(:hbx_id)    { |n| n + 12345 }
+    sequence(:hbx_id)    { |n| n + 12_345 }
     sequence(:name)      { |n| "BlueChoice Silver#{n} 2,000" }
-    abbrev              "BC Silver $2k"
+    abbrev              { "BC Silver $2k" }
     sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }
     active_year         { TimeKeeper.date_of_record.year }
-    coverage_kind       "health"
-    metal_level         "silver"
-    plan_type           "pos"
-    market              "shop"
-    ehb                 0.9943
-    carrier_profile     { FactoryGirl.create(:carrier_profile)  } #{ BSON::ObjectId.from_time(DateTime.now) }
-    minimum_age         19
-    maximum_age         66
-    deductible          "$500"
-    family_deductible   "$500 per person | $1000 per group"
+    coverage_kind       { "health" }
+    metal_level         { "silver" }
+    plan_type           { "pos" }
+    market              { "shop" }
+    ehb                 { 0.9943 }
+    carrier_profile     { FactoryBot.create(:carrier_profile)  } #{ BSON::ObjectId.from_time(DateTime.now) }
+    minimum_age         { 19 }
+    maximum_age         { 66 }
+    deductible          { "$500" }
+    family_deductible   { "$500 per person | $1000 per group" }
 
     # association :premium_tables, strategy: :build
     #
     trait :with_rating_factors do
-      after :create do |plan, evaluator|
+      after :create do |plan, _evaluator|
         active_year = plan.active_year
         carrier_id = plan.carrier_profile_id
         [active_year + 1, active_year, active_year - 1].each do |year|
           SicCodeRatingFactorSet.create!({
-            :carrier_profile_id => carrier_id,
-            :active_year => year,
-            :default_factor_value => 1.0
-          })
+                                           :carrier_profile_id => carrier_id,
+                                           :active_year => year,
+                                           :default_factor_value => 1.0
+                                         })
           EmployerGroupSizeRatingFactorSet.create!({
-            :carrier_profile_id => carrier_id,
-            :active_year => year,
-            :default_factor_value => 1.0,
-            :max_integer_factor_key => 1
-          })
+                                                     :carrier_profile_id => carrier_id,
+                                                     :active_year => year,
+                                                     :default_factor_value => 1.0,
+                                                     :max_integer_factor_key => 1
+                                                   })
           EmployerParticipationRateRatingFactorSet.create!({
-            :carrier_profile_id => carrier_id,
-            :active_year => year,
-            :default_factor_value => 1.0
-          })
+                                                             :carrier_profile_id => carrier_id,
+                                                             :active_year => year,
+                                                             :default_factor_value => 1.0
+                                                           })
           crtf = CompositeRatingTierFactorSet.new({
-            :carrier_profile_id => carrier_id,
-            :active_year => year,
-            :default_factor_value => 1.0
-            })
+                                                    :carrier_profile_id => carrier_id,
+                                                    :active_year => year,
+                                                    :default_factor_value => 1.0
+                                                  })
           CompositeRatingTier::NAMES.each do |name|
             crtf.rating_factor_entries << RatingFactorEntry.new(factor_key: name, factor_value: 1.0)
           end
@@ -53,108 +55,108 @@ FactoryGirl.define do
     end
 
     trait :with_dental_coverage do
-      coverage_kind "dental"
-       metal_level "dental"
-      dental_level "high"
+      coverage_kind { "dental" }
+      metal_level { "dental" }
+      dental_level { "high" }
     end
 
     trait :with_premium_tables do
       transient do
-        premium_tables_count 6
+        premium_tables_count { 6 }
       end
 
       after(:create) do |plan, evaluator|
         start_on = Date.new(plan.active_year,1,1)
         end_on = start_on + 1.year - 1.day
 
-        unless Settings.aca.rating_areas.empty?
+        if Settings.aca.rating_areas.empty?
+          create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on)
+        else
           plan.service_area_id = CarrierServiceArea.for_issuer(plan.carrier_profile.issuer_hios_ids).first.service_area_id
           plan.save!
-          rating_area = RatingArea.first.try(:rating_area) || FactoryGirl.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
+          rating_area = RatingArea.first.try(:rating_area) || FactoryBot.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
           create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on, rating_area: rating_area)
-        else
-          create_list(:premium_table, evaluator.premium_tables_count, plan: plan, start_on: start_on, end_on: end_on)
         end
       end
     end
 
     trait :with_complex_premium_tables do
       transient do
-        premium_tables_count 1
+        premium_tables_count { 1 }
       end
 
       after(:create) do |plan, evaluator|
         start_on = Date.new(plan.active_year,1,1)
         end_on = start_on + 1.year - 1.day
 
-        unless Settings.aca.rating_areas.empty?
-          plan.service_area_id = CarrierServiceArea.for_issuer(plan.carrier_profile.issuer_hios_ids).first.service_area_id
-          plan.save!
-          rating_area = RatingArea.first.try(:rating_area) || FactoryGirl.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
-          (14..65).each do |age|
-            create_list(:premium_table, evaluator.premium_tables_count, plan: plan, age: age, start_on: start_on, end_on: end_on, rating_area: rating_area)
-          end
-        else
+        if Settings.aca.rating_areas.empty?
           (14..65).each do |age|
             create_list(:premium_table, evaluator.premium_tables_count, plan: plan, age: age, start_on: start_on, end_on: end_on)
+          end
+        else
+          plan.service_area_id = CarrierServiceArea.for_issuer(plan.carrier_profile.issuer_hios_ids).first.service_area_id
+          plan.save!
+          rating_area = RatingArea.first.try(:rating_area) || FactoryBot.create(:rating_area, rating_area: Settings.aca.rating_areas.first).rating_area
+          (14..65).each do |age|
+            create_list(:premium_table, evaluator.premium_tables_count, plan: plan, age: age, start_on: start_on, end_on: end_on, rating_area: rating_area)
           end
         end
       end
     end
 
     trait :csr_00 do
-      coverage_kind   "health"
-      metal_level     "silver"
-      market          "individual"
-      csr_variant_id  "00"
+      coverage_kind   { "health" }
+      metal_level     { "silver" }
+      market          { "individual" }
+      csr_variant_id  { "00" }
     end
 
     trait :csr_87 do
-      coverage_kind   "health"
-      metal_level     "silver"
-      market          "individual"
-      csr_variant_id  "87"
+      coverage_kind   { "health" }
+      metal_level     { "silver" }
+      market          { "individual" }
+      csr_variant_id  { "87" }
     end
 
     trait :catastrophic do
-      coverage_kind   "health"
-      metal_level     "catastrophic"
-      market          "individual"
+      coverage_kind   { "health" }
+      metal_level     { "catastrophic" }
+      market          { "individual" }
     end
 
     trait :individual_health do
-      coverage_kind   "health"
-      market          "individual"
+      coverage_kind   { "health" }
+      market          { "individual" }
     end
 
     trait :individual_dental do
-      coverage_kind   "dental"
-      market          "individual"
-      metal_level     "low"
+      coverage_kind   { "dental" }
+      market          { "individual" }
+      metal_level     { "low" }
     end
 
     trait :shop_health do
-      coverage_kind   "health"
-      market          "shop"
+      coverage_kind   { "health" }
+      market          { "shop" }
     end
 
     trait :shop_dental do
-      coverage_kind   "dental"
-      market          "shop"
-      metal_level     "high"
+      coverage_kind   { "dental" }
+      market          { "shop" }
+      metal_level     { "high" }
     end
 
     trait :this_year do
-      active_year Time.now.year
+      active_year { Time.now.year }
     end
 
     trait :next_year do
-      active_year Time.now.year
+      active_year { Time.now.year }
     end
 
     trait :premiums_for_2015 do
       transient do
-        premium_tables_count 6
+        premium_tables_count { 6 }
       end
 
       after :create do |plan, evaluator|
@@ -165,7 +167,7 @@ FactoryGirl.define do
 
     trait :with_next_year_premium_tables do
       transient do
-        next_year_premium_tables_count 6
+        next_year_premium_tables_count { 6 }
       end
       active_year {TimeKeeper.date_of_record.next_year.year}
       after(:create) do |plan, evaluator|
@@ -192,8 +194,8 @@ FactoryGirl.define do
 
   factory :premium_table do
     sequence(:age, (19..66).cycle)
-    start_on  TimeKeeper.date_of_record.beginning_of_year
-    end_on  TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day
+    start_on  { TimeKeeper.date_of_record.beginning_of_year }
+    end_on  { TimeKeeper.date_of_record.beginning_of_year.next_year - 1.day }
     cost {(age * 1001.00) / 100.00}
 
     after :create do |pt|
@@ -202,9 +204,9 @@ FactoryGirl.define do
         silver: 100.00,
         gold: 90.00,
         platinum: 80.00,
-        dental: 10.00,
+        dental: 10.00
       }
-      pt.update_attribute(:cost, (pt.age * 1001.00) / metal_hash[:"#{pt.plan.metal_level}"] )
+      pt.update_attribute(:cost, (pt.age * 1001.00) / metal_hash[:"#{pt.plan.metal_level}"])
     end
   end
 
@@ -220,44 +222,44 @@ FactoryGirl.define do
         silver: 100.00,
         gold: 90.00,
         platinum: 80.00,
-        dental: 10.00,
+        dental: 10.00
       }
-      pt.update_attribute(:cost, (pt.age * 1500.50) / (metal_hash[:"#{pt.plan.metal_level}"] || 110.0)  )
+      pt.update_attribute(:cost, (pt.age * 1500.50) / (metal_hash[:"#{pt.plan.metal_level}"] || 110.0))
     end
   end
 end
 
-FactoryGirl.define do
+FactoryBot.define do
   factory(:plan_template, {class: Plan}) do
-    name "Some plan name"
+    name { "Some plan name" }
     carrier_profile_id { BSON::ObjectId.new }
-    sequence(:hios_id, (100000..999999).cycle)  { |n| "#{n}-01" }
-    active_year Date.today.year
+    sequence(:hios_id, (100_000..999_999).cycle)  { |n| "#{n}-01" }
+    active_year { Date.today.year }
     metal_level { ["bronze","silver","gold","platinum"].shuffle.sample }
 
     trait :shop_health do
-      market "shop"
-      coverage_kind "health"
+      market { "shop" }
+      coverage_kind { "health" }
     end
     trait :ivl_health do
-      market "individual"
-      coverage_kind "health"
+      market { "individual" }
+      coverage_kind { "health" }
     end
     trait :shop_dental do
-      market "shop"
-      coverage_kind "dental"
-      metal_level "dental"
-      dental_level "high"
+      market { "shop" }
+      coverage_kind { "dental" }
+      metal_level { "dental" }
+      dental_level { "high" }
     end
 
     trait :ivl_dental do
-      market "individual"
-      coverage_kind "dental"
-      metal_level "dental"
-      dental_level "high"
+      market { "individual" }
+      coverage_kind { "dental" }
+      metal_level { "dental" }
+      dental_level { "high" }
     end
     trait :unoffered do
-      sequence(:hios_id, (100000..999999).cycle)  { |n| "#{n}-00" }
+      sequence(:hios_id, (100_000..999_999).cycle)  { |n| "#{n}-00" }
     end
   end
 end

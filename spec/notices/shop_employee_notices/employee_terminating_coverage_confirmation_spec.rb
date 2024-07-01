@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
@@ -6,37 +8,44 @@ RSpec.describe ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation, :db
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup renewal application"
 
-  let(:person) {FactoryGirl.create(:person, :with_family)}
+  let(:person) {FactoryBot.create(:person, :with_family)}
   let(:family){ person.primary_family }
   let(:household){ family.active_household }
-  let!(:census_employee) { FactoryGirl.create(:census_employee, :with_active_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package ) }
-  let!(:employee_role) { FactoryGirl.create(:employee_role, person: person, employer_profile: abc_profile) }
+  let!(:census_employee) { FactoryBot.create(:census_employee, :with_active_assignment, employee_role_id: employee_role.id, benefit_sponsorship: benefit_sponsorship, employer_profile: benefit_sponsorship.profile, benefit_group: benefit_package) }
+  let!(:employee_role) { FactoryBot.create(:employee_role, person: person, employer_profile: abc_profile) }
   let!(:sponsored_benefit) { renewal_application.benefit_packages.first.sponsored_benefits.first }
   let(:benefit_group_assignment) { census_employee.active_benefit_group_assignment }
-  let(:hbx_enrollment_member) { FactoryGirl.build(:hbx_enrollment_member, is_subscriber:true,  applicant_id: family.family_members.first.id, coverage_start_on: (TimeKeeper.date_of_record).beginning_of_month, eligibility_date: (TimeKeeper.date_of_record).beginning_of_month) }
-  let!(:hbx_enrollment) { FactoryGirl.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
-                                            household: household,
-                                            hbx_enrollment_members: [hbx_enrollment_member],
-                                            external_enrollment: false,
-                                            sponsored_benefit_id: sponsored_benefit.id,
-                                            rating_area_id: rating_area.id )
-  }
+  let(:hbx_enrollment_member) do
+    FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
+  end
+  let!(:hbx_enrollment) do
+    FactoryBot.create(:hbx_enrollment, :with_product, sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+                                                      household: household,
+                                                      hbx_enrollment_members: [hbx_enrollment_member],
+                                                      external_enrollment: false,
+                                                      sponsored_benefit_id: sponsored_benefit.id,
+                                                      rating_area_id: rating_area.id)
+  end
 
-  let(:application_event){ double("ApplicationEventKind",{
-                            :name =>'Employee must be notified when they successfully match to their employer',
-                            :notice_template => 'notices/shop_employee_notices/employee_terminating_coverage_confirmation',
-                            :notice_builder => 'ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation',
-                            :event_name => 'notify_employee_confirming_coverage_termination',
-                            :mpi_indicator => 'SHOP_D042',
-                            :title => "Confirmation of Election To Terminate Coverage"})
-                          }
-  let(:valid_params) {{
+  let(:application_event) do
+    double("ApplicationEventKind",{
+             :name => 'Employee must be notified when they successfully match to their employer',
+             :notice_template => 'notices/shop_employee_notices/employee_terminating_coverage_confirmation',
+             :notice_builder => 'ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation',
+             :event_name => 'notify_employee_confirming_coverage_termination',
+             :mpi_indicator => 'SHOP_D042',
+             :title => "Confirmation of Election To Terminate Coverage"
+           })
+  end
+  let(:valid_params) do
+    {
       :subject => application_event.title,
       :mpi_indicator => application_event.mpi_indicator,
       :event_name => application_event.event_name,
       :template => application_event.notice_template,
       :options => { :hbx_enrollment_hbx_id => hbx_enrollment.hbx_id.to_s }
-  }}
+    }
+  end
 
   describe "New" do
     before do
@@ -87,14 +96,14 @@ RSpec.describe ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation, :db
       expect(@employee_notice.notice.enrollment.terminated_on).to eq hbx_enrollment.terminated_on
     end
   end
-  
+
   describe "Rendering terminating_coverage_notice template and generate pdf" do
     before do
       allow(census_employee.employer_profile).to receive_message_chain("staff_roles.first").and_return(person)
       @employee_notice = ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation.new(census_employee, valid_params)
       allow(hbx_enrollment).to receive(:aasm_state).and_return("coverage_termination_pending")
       allow(hbx_enrollment).to receive(:coverage_kind).and_return("dental")
-      allow(census_employee).to receive(:published_benefit_group_assignment).and_return benefit_group_assignment  
+      allow(census_employee).to receive(:published_benefit_group_assignment).and_return benefit_group_assignment
       allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return [hbx_enrollment]
     end
 
@@ -116,6 +125,6 @@ RSpec.describe ShopEmployeeNotices::EmployeeTerminatingCoverageConfirmation, :db
       file = @employee_notice.generate_pdf_notice
       expect(File.exist?(file.path)).to be true
     end
-  end 
+  end
 
 end

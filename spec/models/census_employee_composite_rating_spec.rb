@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe CensusEmployee, "given a combination of dependents" do
@@ -6,7 +8,7 @@ describe CensusEmployee, "given a combination of dependents" do
 
     let(:census_dependents) do
       relationships.map do |rel|
-        CensusDependent.new(:employee_relationship => rel) 
+        CensusDependent.new(:employee_relationship => rel)
       end
     end
 

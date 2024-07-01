@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe UnassistedPlanCostDecorator, dbclean: :after_each do
@@ -9,21 +11,21 @@ RSpec.describe UnassistedPlanCostDecorator, dbclean: :after_each do
     let!(:member_provider) {double("member_provider", effective_on: 10.days.ago, hbx_enrollment_members: [father, mother, one, two, three, four, five])}
     let!(:father)          {double("father", dob: 55.years.ago, age_on_effective_date: 55, employee_relationship: "self")}
     let!(:mother)          {double("mother", dob: 45.years.ago, age_on_effective_date: 45, employee_relationship: "spouse")}
-    let!(:one)             {double("one"   , dob: 20.years.ago, age_on_effective_date: 20, employee_relationship: "child")}
-    let!(:two)             {double("two"   , dob: 18.years.ago, age_on_effective_date: 18, employee_relationship: "child")}
-    let!(:three)           {double("three" , dob: 13.years.ago, age_on_effective_date: 13, employee_relationship: "child")}
-    let!(:four)            {double("four"  , dob: 11.years.ago, age_on_effective_date: 11, employee_relationship: "child")}
-    let!(:five)            {double("five"  , dob: 4.years.ago , age_on_effective_date: 4, employee_relationship: "child")}
+    let!(:one)             {double("one", dob: 20.years.ago, age_on_effective_date: 20, employee_relationship: "child")}
+    let!(:two)             {double("two", dob: 18.years.ago, age_on_effective_date: 18, employee_relationship: "child")}
+    let!(:three)           {double("three", dob: 13.years.ago, age_on_effective_date: 13, employee_relationship: "child")}
+    let!(:four)            {double("four", dob: 11.years.ago, age_on_effective_date: 11, employee_relationship: "child")}
+    let!(:five)            {double("five", dob: 4.years.ago, age_on_effective_date: 4, employee_relationship: "child")}
     let!(:relationship_benefit_for) do
       {
-        "self"   => double("self", :offered? => true),
+        "self" => double("self", :offered? => true),
         "spouse" => double("spouse", :offered? => true),
-        "child"  => double("child", :offered? => true)
+        "child" => double("child", :offered? => true)
       }
     end
 
     before do
-      allow(Caches::PlanDetails).to receive(:lookup_rate) {|id, start, age| age * 1.0}
+      allow(Caches::PlanDetails).to receive(:lookup_rate) {|_id, _start, age| age * 1.0}
     end
 
     it "should be possible to construct a new plan cost decorator" do

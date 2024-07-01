@@ -3,16 +3,16 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :benefit_application, class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication"
+    belongs_to :benefit_application, class_name: "::BenefitSponsors::BenefitApplications::BenefitApplication", optional: true
 
     field :effective_date,          type: Date
     field :effective_period,        type: Range
     field :open_enrollment_period,  type: Range
     field :probation_period_kinds,  type: Array, default: []
 
-    has_and_belongs_to_many  :service_areas,
-                class_name: "BenefitMarkets::Locations::ServiceArea",
-                :inverse_of => nil
+    has_and_belongs_to_many :service_areas,
+                            class_name: "BenefitMarkets::Locations::ServiceArea",
+                            :inverse_of => nil
 
     embeds_one  :sponsor_market_policy,
                 class_name: "::BenefitMarkets::MarketPolicies::SponsorMarketPolicy"
@@ -21,8 +21,8 @@ module BenefitMarkets
                 class_name: "::BenefitMarkets::MarketPolicies::MemberMarketPolicy"
 
     embeds_many :product_packages, as: :packagable,
-                class_name: "::BenefitMarkets::Products::ProductPackage",
-                validate: false  # validation disabled to improve performance during catalog creation
+                                   class_name: "::BenefitMarkets::Products::ProductPackage",
+                                   validate: false  # validation disabled to improve performance during catalog creation
 
 
     validates_presence_of :effective_date, :probation_period_kinds, :effective_period, :open_enrollment_period,
@@ -32,13 +32,15 @@ module BenefitMarkets
 
 
     def benefit_application=(benefit_application)
-      raise "Expected Benefit Application" unless benefit_application.kind_of?(BenefitSponsors::BenefitApplications::BenefitApplication)
+      raise "Expected Benefit Application" unless benefit_application.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
+
       self.benefit_application_id = benefit_application._id
       @benefit_application = benefit_application
     end
 
     def benefit_application
       return @benefit_application if defined? @benefit_application
+
       @benefit_application = BenefitSponsors::BenefitApplications::BenefitApplication.find(benefit_application_id)
     end
 
@@ -73,7 +75,7 @@ module BenefitMarkets
           :service_area_ids,
           :probation_period_kinds,
           :sponsor_market_policy,
-          :member_market_policy,
+          :member_market_policy
         ]
     end
 

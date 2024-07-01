@@ -300,23 +300,7 @@ Rails.application.routes.draw do
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
     match '/' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
-    post 'search', to: 'employers#search'
-
     resources :premium_statements, :only => [:show]
-
-    resources :employer_staff_roles, :only => [:create, :destroy] do
-      member do
-        get :approve
-      end
-    end
-
-    #TODO REFACTOR
-    resources :people do
-      collection do
-        get 'search'
-        post 'match'
-      end
-    end
 
     resources :employer_attestations do
       get 'authorized_download'
@@ -324,7 +308,7 @@ Rails.application.routes.draw do
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
     end
-    resources :inboxes, only: [:new, :create, :show, :destroy]
+
     resources :employer_profiles do
       get 'new'
       get 'my_account'
@@ -373,13 +357,6 @@ Rails.application.routes.draw do
         get 'employee_costs', on: :collection
         get 'reference_plan_summary', on: :collection
 
-      end
-
-      resources :broker_agency, only: [:index, :show, :create] do
-        collection do
-          get :active_broker
-        end
-        get :terminate
       end
 
       resources :census_employees, only: [:new, :create, :edit, :update, :show] do

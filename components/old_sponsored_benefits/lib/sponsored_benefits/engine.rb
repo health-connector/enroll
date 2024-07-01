@@ -6,7 +6,7 @@ module SponsoredBenefits
       g.orm :mongoid
       g.template_engine :slim
       g.test_framework :rspec, :fixture => false
-      g.fixture_replacement :factory_girl, :dir => 'spec/factories'
+      g.fixture_replacement :Factory_bot, :dir => 'spec/factories'
       g.assets false
       g.helper false
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def question_attrs
   { title: 'Updated security question', visible: false }
 end
@@ -20,15 +22,13 @@ Then(/^there is (\d+) questions available in the list$/) do |num|
 end
 
 When(/^Hbx Admin clicks on (.*?) Question link$/) do |link|
-  link_title =  if link.eql?('Security')
-                  'Security Question'
-                elsif link.eql?('New')
-                  'New Question'
-                elsif link.eql?('Edit')
-                  'Edit'
-                elsif link.eql?('Delete')
-                  'Delete'
-                end
+  link_titles = {
+    'Security' => 'Security Question',
+    'New' => 'New Question',
+    'Edit' => 'Edit',
+    'Delete' => 'Delete'
+  }
+  link_title = link_titles[link]
   click_link(link_title)
 end
 
@@ -56,9 +56,9 @@ When(/^Hbx Admin submit the question form$/) do
   page.find_button('submit').click
 end
 
-Then(/^there (is|are) (\d+) preloaded security questions$/) do |text, num|
+Then(/^there (is|are) (\d+) preloaded security questions$/) do |_text, num|
   (0...num.to_i).each do |int|
-    FactoryGirl.create(:security_question, title: "Security Question #{int.to_i + 1}")
+    FactoryBot.create(:security_question, title: "Security Question #{int.to_i + 1}")
   end
 end
 
@@ -87,7 +87,7 @@ When(/^Hbx Admin click on Delete Question link$/) do
   find(:xpath, "(//a[text()='Delete'])[2]").click
 end
 
-When /^Hbx Admin confirm popup$/ do
+When(/^Hbx Admin confirm popup$/) do
   page.driver.browser.switch_to.alert.accept
 end
 
@@ -112,7 +112,7 @@ Then(/^I select the all security question and give the answer$/) do
 
     # page.all('div.selectric-wrapper.selectric-security-question-select', visible: false)[num].find('.selectric-scroll').click
     # page.all('.security-question-select', visible: false)[num].set("Security Question #{num + 1}") #TODO verify why we are setting question here.
-    page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num+1}")
+    page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num + 1}")
   end
 end
 
@@ -126,7 +126,7 @@ When(/^user fills out the security questions modal$/) do
       all('li')[-1].click
       sleep 1
     end
-    page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num+1}")
+    page.all('.interaction-field-control-security-question-response-question-answer', visible: false)[num].set("Answer #{num + 1}")
   end
 end
 

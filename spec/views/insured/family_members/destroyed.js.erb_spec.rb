@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe "insured/family_members/destroyed.js.erb" do
-  let(:person) { FactoryGirl.create(:person) }
-  let(:user) { FactoryGirl.create(:user, person: person) }
+  let(:person) { FactoryBot.create(:person) }
+  let(:user) { FactoryBot.create(:user, person: person) }
   let(:family) { Family.new }
   let(:family_member) { family.family_members.new }
 
@@ -21,9 +23,9 @@ describe "insured/family_members/destroyed.js.erb" do
     end
 
     it "should display qle_flow" do
-      expect(rendered).to match /qle_flow_info/
-      expect(rendered).to match /dependent_buttons/
-      expect(rendered).to match /add_member_list_/
+      expect(rendered).to match(/qle_flow_info/)
+      expect(rendered).to match(/dependent_buttons/)
+      expect(rendered).to match(/add_member_list_/)
     end
   end
 end

@@ -20,6 +20,7 @@ module BenefitSponsors
 
       embeds_many :sponsored_benefits,
                   class_name: "BenefitSponsors::SponsoredBenefits::SponsoredBenefit",
+                  inverse_of: :benefit_package,
                   cascade_callbacks: true, validate: true
 
       accepts_nested_attributes_for :sponsored_benefits

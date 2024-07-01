@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "insured/consumer_roles/_form.html.erb" do
   let(:person) { Person.new }
-  let(:current_user) {FactoryGirl.create(:user)}
+  let(:current_user) {FactoryBot.create(:user)}
 
   #before do
     #Translation.create(key: "en.required_field", value: "\"required field\"")
@@ -25,7 +27,7 @@ RSpec.describe "insured/consumer_roles/_form.html.erb" do
   end
 
   it "should have title" do
-    expect(rendered).to match /Personal Information/
+    expect(rendered).to match(/Personal Information/)
   end
 
   it "should display hint for asterisks" do
@@ -37,10 +39,11 @@ RSpec.describe "insured/consumer_roles/_form.html.erb" do
   end
 
   it "should display the is_applying_coverage field option" do
-    expect(rendered).to match /Is this person applying for coverage?/
+    expect(rendered).to match(/Is this person applying for coverage?/)
   end
 
   it "should display the affirmative message" do
-    expect(rendered).to match /Even if you don’t want health coverage for yourself, providing your SSN can be helpful since it can speed up the application process. We use SSNs to check income and other information to see who’s eligible for help with health coverage costs./
+    expect(rendered).to match(/Even if you don’t want health coverage for yourself, providing your SSN can be helpful since it can speed up the application process./)
+    expect(rendered).to match(/We use SSNs to check income and other information to see who’s eligible for help with health coverage costs./)
   end
 end

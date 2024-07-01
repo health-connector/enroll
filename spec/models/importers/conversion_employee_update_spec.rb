@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Importers::ConversionEmployeeUpdate, :dbclean => :after_each do
-  # TODO Fix in DC new model after udpdating class ConversionEmployeeUpdate
+  # TODO: Fix in DC new model after udpdating class ConversionEmployeeUpdate
   xdescribe "an employee without dependents is updated" do
     context "and the sponsor employer is not found" do
       let(:bogus_employer_fein) { "000093939" }
@@ -20,67 +22,65 @@ describe Importers::ConversionEmployeeUpdate, :dbclean => :after_each do
     context "and the sponsor employer is found" do
 
 
-      let(:employer_profile) { FactoryGirl.create(:employer_profile, profile_source: 'conversion') }
+      let(:employer_profile) { FactoryBot.create(:employer_profile, profile_source: 'conversion') }
 
-      let(:carrier_profile) { FactoryGirl.create(:carrier_profile) }
+      let(:carrier_profile) { FactoryBot.create(:carrier_profile) }
 
-      let(:renewal_health_plan)   {
-        FactoryGirl.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: 2016, carrier_profile_id: carrier_profile.id)
-      }
+      let(:renewal_health_plan)   do
+        FactoryBot.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: 2016, carrier_profile_id: carrier_profile.id)
+      end
 
-      let(:current_health_plan)   {
-        FactoryGirl.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: 2015, renewal_plan_id: renewal_health_plan.id, carrier_profile_id: carrier_profile.id)
-      }
+      let(:current_health_plan)   do
+        FactoryBot.create(:plan, :with_premium_tables, coverage_kind: "health", active_year: 2015, renewal_plan_id: renewal_health_plan.id, carrier_profile_id: carrier_profile.id)
+      end
 
-      let(:plan_year)            {
-        py = FactoryGirl.create(:plan_year,
-          start_on: Date.new(2015, 7, 1),
-          end_on: Date.new(2016, 6, 30),
-          open_enrollment_start_on: Date.new(2015, 6, 1),
-          open_enrollment_end_on: Date.new(2015, 6, 10),
-          employer_profile: employer_profile
-          )
+      let(:plan_year)            do
+        py = FactoryBot.create(:plan_year,
+                               start_on: Date.new(2015, 7, 1),
+                               end_on: Date.new(2016, 6, 30),
+                               open_enrollment_start_on: Date.new(2015, 6, 1),
+                               open_enrollment_end_on: Date.new(2015, 6, 10),
+                               employer_profile: employer_profile)
 
         py.benefit_groups = [
-          FactoryGirl.build(:benefit_group,
-            title: "blue collar",
-            plan_year: py,
-            reference_plan_id: current_health_plan.id,
-            elected_plans: [current_health_plan]
-            )
+          FactoryBot.build(:benefit_group,
+                           title: "blue collar",
+                           plan_year: py,
+                           reference_plan_id: current_health_plan.id,
+                           elected_plans: [current_health_plan])
         ]
         py.save(:validate => false)
         py.update_attributes({:aasm_state => 'active'})
         py
-      }
+      end
 
-      let(:employer_fein) {
+      let(:employer_fein) do
         employer_profile.fein
-      }
+      end
 
-      let(:benefit_group_assignment) { FactoryGirl.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: plan_year.benefit_groups.first) }
+      let(:benefit_group_assignment) { FactoryBot.create(:benefit_group_assignment, census_employee: census_employee, benefit_group: plan_year.benefit_groups.first) }
 
-      let(:census_employee) {
-        FactoryGirl.create(:census_employee, :employer_profile => employer_profile)
-      }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee, :employer_profile => employer_profile)
+      end
 
       context "and a pre-existing employee record is found" do
 
         let(:conversion_employee_props) do
-           {
-              :fein => employer_fein,
-              :subscriber_ssn => census_employee.ssn,
-              :subscriber_dob => census_employee.dob.strftime("%m/%d/%Y"),
-              :subscriber_name_first => census_employee.first_name,
-              :subscriber_name_last => census_employee.last_name,
-              :hire_date => census_employee.hired_on.strftime("%m/%d/%Y"),
-              :subscriber_gender => census_employee.gender
-           }
+          {
+            :fein => employer_fein,
+            :subscriber_ssn => census_employee.ssn,
+            :subscriber_dob => census_employee.dob.strftime("%m/%d/%Y"),
+            :subscriber_name_first => census_employee.first_name,
+            :subscriber_name_last => census_employee.last_name,
+            :hire_date => census_employee.hired_on.strftime("%m/%d/%Y"),
+            :subscriber_gender => census_employee.gender
+          }
         end
 
-        let(:updated_census_employee) {
-           CensusEmployee.find(census_employee.id)
-        }
+        let(:updated_census_employee) do
+          CensusEmployee.find(census_employee.id)
+        end
 
         let(:conversion_employee_update) { Importers::ConversionEmployeeUpdate.new(changed_props) }
 
@@ -104,13 +104,13 @@ describe Importers::ConversionEmployeeUpdate, :dbclean => :after_each do
 
         context "and the employee's name is changed" do
 
-          let(:new_employee_f_name) {
-             census_employee.first_name + "dkfjklasdf"
-          }
+          let(:new_employee_f_name) do
+            "#{census_employee.first_name}dkfjklasdf"
+          end
 
-          let(:changed_props) {
-             conversion_employee_props.merge(:subscriber_name_first => new_employee_f_name)
-          }
+          let(:changed_props) do
+            conversion_employee_props.merge(:subscriber_name_first => new_employee_f_name)
+          end
 
           context "and the employee's record has not changed since import" do
             it "should save succesfully" do
@@ -118,35 +118,34 @@ describe Importers::ConversionEmployeeUpdate, :dbclean => :after_each do
             end
 
             it "should change the employee name" do
-               conversion_employee_update.save
-               expect(updated_census_employee.first_name).to eq new_employee_f_name
+              conversion_employee_update.save
+              expect(updated_census_employee.first_name).to eq new_employee_f_name
             end
           end
         end
 
         context "and the employee's gender and dob are changed" do
-          let(:changed_props) {
+          let(:changed_props) do
             conversion_employee_props.merge({subscriber_gender: "female", subscriber_dob: (census_employee.dob + 777.days).strftime("%m/%d/%Y") })
-          }
+          end
 
           context "and the employee's record has not changed since import" do
             it "should change the employee gender and dob" do
               conversion_employee_update.save
               expect(updated_census_employee.gender).to eq "female"
-              expect(updated_census_employee.dob).to eq (census_employee.dob + 777.days)
+              expect(updated_census_employee.dob).to eq(census_employee.dob + 777.days)
             end
           end
         end
 
         context "and the employee's address and email is changed" do
-          let(:changed_props) {
-            conversion_employee_props.merge( {subscriber_address_1: "1007 Mountain Drive",
-                                              subscriber_city: "Gotham",
-                                              subscriber_state: "NJ",
-                                              subscriber_zip: "07974",
-                                              subscriber_email: "batman@batcave.com"
-                                              })
-          }
+          let(:changed_props) do
+            conversion_employee_props.merge({subscriber_address_1: "1007 Mountain Drive",
+                                             subscriber_city: "Gotham",
+                                             subscriber_state: "NJ",
+                                             subscriber_zip: "07974",
+                                             subscriber_email: "batman@batcave.com"})
+          end
 
           context "and the employee's address record has not changed since import" do
             it "should change the employee address" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Analytics::AggregateEvent, type: :model, dbclean: :after_each do
@@ -26,10 +28,10 @@ describe Analytics::AggregateEvent, type: :model, dbclean: :after_each do
 
     context "and an event is sent to increment_time method with a time stamp value" do
       let(:result) { Analytics::AggregateEvent.increment_time(topic: event_topic, moment: time_stamp) }
-      let(:hour_field)      { "h" + time_stamp.hour.to_s }
-      let(:minute_field)    { "m" + time_stamp.minute.to_s }
-      let(:week_day_field)  { "d" + week_day.to_s }
-      let(:month_day_field) { "d" + month_day.to_s }
+      let(:hour_field)      { "h#{time_stamp.hour}" }
+      let(:minute_field)    { "m#{time_stamp.minute}" }
+      let(:week_day_field)  { "d#{week_day}" }
+      let(:month_day_field) { "d#{month_day}" }
       let(:week_day)        { time_stamp.wday }
       let(:calendar_month)  { time_stamp.month }
       let(:calendar_year)   { time_stamp.year }
@@ -105,11 +107,12 @@ describe Analytics::AggregateEvent, type: :model, dbclean: :after_each do
     let(:max_end_at)    { Time.new(2016, 1, 31, 23, 59, 59).to_i }
 
     before do
-      (1..event_count).each { |i| Analytics::AggregateEvent.increment_time( 
-                                                                              topic: event_topic,
-                                                                              moment: Time.at(rand(min_start_at..max_end_at))
-                                                                            ) 
-                                                                          }
+      (1..event_count).each do |_i|
+        Analytics::AggregateEvent.increment_time(
+          topic: event_topic,
+          moment: Time.at(rand(min_start_at..max_end_at))
+        )
+      end
     end
 
     it "should find all events" do

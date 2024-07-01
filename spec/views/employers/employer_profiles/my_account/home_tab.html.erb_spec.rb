@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
@@ -21,8 +23,8 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
       instance_double(
         "OfficeLocation",
         address: new_address(random_value),
-        phone: new_phone(random_value),
-        )
+        phone: new_phone(random_value)
+      )
     end
 
     def new_address(random_value)
@@ -30,14 +32,14 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         "Address",
         kind: "test#{random_value}",
         to_html: "test"
-        )
+      )
     end
 
     def new_phone(random_value)
       double(
         "Phone",
         kind: "test#{random_value}"
-        )
+      )
     end
 
     def broker_agency_account
@@ -45,7 +47,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         "BrokerAgencyAccount",
         is_active: true,
         writing_agent: broker_role
-        )
+      )
     end
 
     def employer_profile
@@ -57,7 +59,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         entity_kind: "my entity kind",
         broker_agency_profile: new_broker_agency_profile,
         published_plan_year: plan_year
-        )
+      )
     end
 
     def new_broker_agency_profile
@@ -65,7 +67,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         "BrokerAgencyProfile",
         legal_name: "my broker legal name",
         primary_broker_role: broker_role
-        )
+      )
     end
 
     def carrier_profile
@@ -73,7 +75,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
       double(
         "CarrierProfile",
         legal_name: "legal_name#{random_value}"
-        )
+      )
     end
 
     def reference_plan_1
@@ -86,7 +88,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         coverage_kind: 'health',
         active_year: TimeKeeper.date_of_record.beginning_of_year,
         dental_level: 'high'
-        )
+      )
     end
 
     def reference_plan_2
@@ -99,7 +101,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         coverage_kind: 'dental',
         active_year: TimeKeeper.date_of_record.beginning_of_year,
         dental_level: 'high'
-        )
+      )
     end
 
     def benefit_group_1
@@ -125,8 +127,8 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         elected_dental_plan_ids: [],
         elected_dental_plans: [],
         dental_relationship_benefits: [relationship_benefits],
-        sole_source?: false,
-        )
+        sole_source?: false
+      )
     end
 
     def benefit_group_2
@@ -152,18 +154,18 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         elected_dental_plan_ids: [],
         elected_dental_plans: [],
         dental_relationship_benefits: [relationship_benefits],
-        sole_source?: false,
-        )
+        sole_source?: false
+      )
     end
 
     def relationship_benefits
       random_value = rand(0..100)
       double(
         "RelationshipBenefit",
-        offered: "#{(random_value % 2) == 0}",
+        offered: random_value.even?.to_s,
         relationship: "relationship;#{random_value}",
         premium_pct: random_value
-        )
+      )
     end
 
     def plan_year
@@ -196,8 +198,8 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
       instance_double(
         "BrokerRole",
         person: new_person,
-        npn: 7232323
-        )
+        npn: 7_232_323
+      )
     end
 
     def new_person
@@ -207,14 +209,14 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         full_name: "my full name",
         phones: [new_phone(random_value)],
         emails: [new_email]
-        )
+      )
     end
 
     def new_email
       instance_double(
         "Email",
         address: "test@example.com"
-        )
+      )
     end
 
     def hbx_enrollment
@@ -223,7 +225,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         total_premium: double("total_premium"),
         total_employer_contribution: double("total_employer_contribution"),
         total_employee_cost: double("total_employee_cost")
-        )
+      )
     end
 
     def sponsored_benefit
@@ -237,30 +239,29 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
 
     def sponsored_contribution
       double("SponsoredContributoon",
-             contribution_levels: [double("RelationShipBenefits", is_offered: true, display_name: "rspec_display_name", contribution_pct: 200.00)]
-      )
+             contribution_levels: [double("RelationShipBenefits", is_offered: true, display_name: "rspec_display_name", contribution_pct: 200.00)])
     end
 
     def reference_product
-     double("BenefitMarkets::Products::Product",
-            kind: :metal_level,
-            name: "rspec-name",
-            product_type: "rspec-product",
-            metal_level: "Rspec-level",
-            issuer_profile: double("BenefitSponsors::Organizations::IssuerProfile", legal_name: "rspec_legal_name"))
-
+      double("BenefitMarkets::Products::Product",
+             kind: :metal_level,
+             name: "rspec-name",
+             product_type: "rspec-product",
+             metal_level: "Rspec-level",
+             issuer_profile: double("BenefitSponsors::Organizations::IssuerProfile", legal_name: "rspec_legal_name"))
     end
 
     let(:new_office_locations){[office_location,office_location]}
     let(:current_plan_year){employer_profile.published_plan_year}
     let(:benefit_groups){ [benefit_group_1, benefit_group_2] }
     let(:cost_estimator) { double("BenefitSponsors::Services::SponsoredBenefitCostEstimationService")}
-    let(:estimator) {{
+    let(:estimator) do
+      {
         estimated_total_cost: 100,
         estimated_enrollee_minimum: 33,
         estimated_enrollee_maximum: 100
-    }
-    }
+      }
+    end
 
     before :each do
       allow(::BenefitSponsors::Services::SponsoredBenefitCostEstimationService).to receive(:new).and_return(cost_estimator)
@@ -272,7 +273,7 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
       assign :hbx_enrollments, [hbx_enrollment]
       assign :current_plan_year, employer_profile.published_plan_year
       assign :participation_minimum, 0
-      assign :broker_agency_accounts, [ broker_agency_account ]
+      assign :broker_agency_accounts, [broker_agency_account]
       controller.request.path_parameters[:id] = "11111111"
       render partial: "employers/employer_profiles/my_account/home_tab"
     end
@@ -290,14 +291,14 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
     end
 
     it "should not display minimum participation requirement" do
-        assign :end_on, end_on_negative
-        expect(rendered).to_not match(/or more needed by/i)
+      assign :end_on, end_on_negative
+      expect(rendered).to_not match(/or more needed by/i)
     end
 
   end
 
   context "employer profile without current plan year", :pending => "This Route is no longer used since similar view is there in engine" do
-    let(:employer_profile){ FactoryGirl.create(:employer_profile) }
+    let(:employer_profile){ FactoryBot.create(:employer_profile) }
 
     before :each do
       allow(view).to receive(:pundit_class).and_return(double("EmployerProfilePolicy", updateable?: true))

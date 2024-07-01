@@ -104,7 +104,7 @@
         </div>
 
         <script type="text/javascript">
-          $(document).ready(function(){
+          $(document).on("ready turbolinks:load", function() {
             $(".interaction-choice-control-value-agreement-terminate-confirm-yes").click(function(){
               $(".interaction-click-control-terminate").attr("disabled", false);
               $("#term-date-confirm-date").attr("hidden", false);

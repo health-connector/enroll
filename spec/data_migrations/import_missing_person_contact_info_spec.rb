@@ -1,21 +1,23 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "import_missing_person_contact_info")
 
 describe ImportMissingPersonContactInfo, dbclean: :after_each do
   subject { ImportMissingPersonContactInfo.new("import_missing_person_Contact_info", double(current_scope: nil)) }
 
-  let(:census_employee) { FactoryGirl.create(:census_employee) }
-  let(:employer_profile){ FactoryGirl.create(:employer_profile) }
+  let(:census_employee) { FactoryBot.create(:census_employee) }
+  let(:employer_profile){ FactoryBot.create(:employer_profile) }
 
-  let(:employee_role_params){
+  let(:employee_role_params) do
     {
       employer_profile_id: employer_profile.id,
       census_employee_id: census_employee.id,
       hired_on: 20.days.ago
     }
-  }
+  end
 
-  let(:person_params) {
+  let(:person_params) do
     {
       ssn: "444555999",
       first_name: "John",
@@ -23,7 +25,7 @@ describe ImportMissingPersonContactInfo, dbclean: :after_each do
       dob: 20.years.ago,
       gender: "male"
     }
-  }
+  end
 
   context "update person contact information from census employee" do
     it "should update the person addresses and email objects." do

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "welcome/index.html.slim", :type => :view, dbclean: :after_each  do
-  let(:user) { FactoryGirl.create(:user, oim_id: "test@enroll.com") }
+  let(:user) { FactoryBot.create(:user, oim_id: "test@enroll.com") }
 
   unless Settings.site.key == :cca
     describe "a signed in user" do
@@ -10,9 +12,9 @@ RSpec.describe "welcome/index.html.slim", :type => :view, dbclean: :after_each  
       end
       it "should has current_user oim_id" do
         render
-        expect(rendered).to match /#{user.oim_id}/
-        expect(rendered).not_to match /Broker Registration/
-        expect(rendered).not_to match /General Agency Registration/
+        expect(rendered).to match(/#{user.oim_id}/)
+        expect(rendered).not_to match(/Broker Registration/)
+        expect(rendered).not_to match(/General Agency Registration/)
       end
     end
   end
@@ -25,8 +27,8 @@ RSpec.describe "welcome/index.html.slim", :type => :view, dbclean: :after_each  
         render
       end
       it "shows registration if not signed in" do
-        expect(rendered).to match /Broker Registration/
-        expect(rendered).to match /General Agency Registration/
+        expect(rendered).to match(/Broker Registration/)
+        expect(rendered).to match(/General Agency Registration/)
       end
     end
 
@@ -36,8 +38,8 @@ RSpec.describe "welcome/index.html.slim", :type => :view, dbclean: :after_each  
         render
       end
       it "does not show general agency related links" do
-        expect(rendered).not_to match /General Agency Registration/
-        expect(rendered).not_to match /General Agency Portal/
+        expect(rendered).not_to match(/General Agency Registration/)
+        expect(rendered).not_to match(/General Agency Portal/)
       end
     end
 

@@ -1,24 +1,26 @@
-Then (/^Employer Staff should see dialog with Attestation warning$/) do
+# frozen_string_literal: true
+
+Then(/^Employer Staff should see dialog with Attestation warning$/) do
   wait_for_ajax(3,2)
   expect(page).to have_content('Publish Anyways')
   expect(page).to have_content('Cancel')
 end
 
-Then (/^Employer Staff should not see force publish$/) do
+Then(/^Employer Staff should not see force publish$/) do
   wait_for_ajax(3,2)
   expect(page).not_to have_content('Force Publish')
   expect(page).to have_content('Cancel')
 end
 
-Then (/^Employer Staff clicks cancel button in Attestation warning dialog$/) do
+Then(/^Employer Staff clicks cancel button in Attestation warning dialog$/) do
   find('.interaction-click-control-cancel').click
 end
 
-Then (/^Employer Staff clicks go back button in Attestation warning dialog$/) do
+Then(/^Employer Staff clicks go back button in Attestation warning dialog$/) do
   find('#publishPlanYear .interaction-click-control-go-back').click
 end
 
-Then (/^Employer Staff should redirect to plan year edit page$/) do
+Then(/^Employer Staff should redirect to plan year edit page$/) do
   wait_for_ajax
   expect(page).to have_content('Edit Plan Year')
 end
@@ -28,15 +30,15 @@ Then(/^Plan Year should be moved to (.*)$/) do |state|
   expect(page).to have_content(state)
 end
 
-When (/I click Iam Admin button/) do
+When(/I click Iam Admin button/) do
   find(".interaction-click-control-i'm-an-admin").click
 end
 
-When (/^I visit sign up page$/) do
+When(/^I visit sign up page$/) do
   visit('/users/sign_up')
 end
 
-When (/^I click HBX portal$/) do
+When(/^I click HBX portal$/) do
   visit('/exchanges/hbx_profiles')
   #find('.interaction-click-control-hbx-portal').click
 end
@@ -45,59 +47,59 @@ When(/^Admin click all employers link/) do
   find('.interaction-click-control-employers').click
 end
 
-When (/^Admin clicks employer attestation filter$/) do
+When(/^Admin clicks employer attestation filter$/) do
   wait_for_ajax
   find_by_id('Tab:employer_attestations').click
 end
 
-And(/^Admin clicks (.*) filter in employer attestation$/) do|state|
+And(/^Admin clicks (.*) filter in employer attestation$/) do |state|
   wait_for_ajax
   find_by_id("Tab:employer_attestations-#{state}").click
 end
 
-Then (/^Admin should see Employer with (.*) status$/) do |state|
+Then(/^Admin should see Employer with (.*) status$/) do |state|
   wait_for_ajax
   expect(find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[10]')).to have_content state
 end
 
-When (/^Admin clicks attestation action$/) do
+When(/^Admin clicks attestation action$/) do
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[11]/div').click
   wait_for_ajax
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[11]/div/ul/li[3]/a').click
 end
 
-Then (/^Admin should see attestation document$/)do
+Then(/^Admin should see attestation document$/) do
   expect(find(:xpath, '//*[@id="attestation_documents_table"]/div/table/tbody/tr[1]/td[1]')).to have_content "Submitted"
   expect(find(:xpath, '//*[@id="attestation_documents_table"]/div/table/tbody/tr[1]/td[2]')).to have_content "JavaScript.pdf"
 end
 
-When (/^Admin clicks view attestation document$/) do
+When(/^Admin clicks view attestation document$/) do
   find(:xpath, '//*[@id="attestation_documents_table"]/div/table/tbody/tr[1]/td[6]/a').click
 end
 
-Then (/^Admin should see preview and attestation form$/) do
+Then(/^Admin should see preview and attestation form$/) do
   wait_for_ajax
   expect(find(:xpath, '//*[@id="attestation_documents_table"]')).to have_content "Approve"
   expect(find(:xpath, '//*[@id="attestation_documents_table"]')).to have_content "Reject"
   expect(find(:xpath, '//*[@id="attestation_documents_table"]')).to have_content "Request Additional Information"
 end
 
-When (/^Admin clicks submit in employer attestation form$/) do
+When(/^Admin clicks submit in employer attestation form$/) do
   accept_alert do
-    first('#attestation_documents_table .btn-primary',:text=>/SUBMIT/i).click
+    first('#attestation_documents_table .btn-primary',:text => /SUBMIT/i).click
   end
 end
 
-Then (/^Admin should see attestation updated message$/) do
+Then(/^Admin should see attestation updated message$/) do
   wait_for_ajax
   expect(page).to have_content "Employer attestation updated successfully"
 end
 
-When (/^Admin clicks employer in employers_attestation filter$/) do
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[1]').click()
+When(/^Admin clicks employer in employers_attestation filter$/) do
+  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[1]').click
 end
 
-Then (/^Employer Staff should see attestation status (.*)$/) do |state|
+Then(/^Employer Staff should see attestation status (.*)$/) do |state|
   wait_for_ajax
 
   expect(page).to have_content state
@@ -123,11 +125,11 @@ When(/^Employer staff clicks employees tab$/) do
   find('.interaction-click-control-employees').click
 end
 
-Then (/^Employer staff should employees coverage status as canceled$/) do
+Then(/^Employer staff should employees coverage status as canceled$/) do
   expect(page).to have_content "Canceled"
 end
 
-When (/^Employer Staff clicks documents tab$/) do
+When(/^Employer Staff clicks documents tab$/) do
   wait_for_ajax
   find('.interaction-click-control-documents').click
 end
@@ -137,8 +139,7 @@ def enter_plan_year_info
   rating_area
   wait_for_ajax(2,2)
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
-  find('.interaction-choice-control-bastartdate-1', wait: 3).click
-  find('.interaction-field-control-fteemployee').click
+  find('.selectric-scroll ul li:nth-child(2)', wait: 3).click
   fill_in 'benefit_application[fte_count]', with: '3'
   fill_in 'benefit_application[pte_count]', with: '3'
   fill_in 'benefit_application[msp_count]', with: '3'
@@ -182,7 +183,7 @@ When(/^.+ try to create plan year with less than 33% contribution for spouse, do
   wait_for_ajax
 end
 
-Then (/^.+ can not create plan year$/) do
+Then(/^.+ can not create plan year$/) do
   find('.interaction-click-control-create-plan-year').has_css?('.disabled')
 end
 
@@ -247,12 +248,12 @@ end
 
 Then(/^Employer should see disabled delete button in actions$/) do
   find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]').click
- find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]/div/ul/li[2]/a')['disabled'] == "disabled"
+  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]/div/ul/li[2]/a')['disabled'] == "disabled"
 end
 
 Then(/^Employer should not see submitted document$/) do
-   find('.interaction-click-control-documents').click
-   expect(page).to have_content('No data available in table')
+  find('.interaction-click-control-documents').click
+  expect(page).to have_content('No data available in table')
 end
 
 Then(/^Employer should see Accepted document$/) do

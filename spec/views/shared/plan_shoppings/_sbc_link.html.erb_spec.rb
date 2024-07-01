@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "shared/plan_shoppings/_sbc_link.html.erb" do
 
-  let(:aws_env) { ENV['AWS_ENV'] || "qa" }
+  let(:aws_env) { ENV.fetch('AWS_ENV', "qa") }
   let(:mock_carrier_profile) { instance_double("CarrierProfile", :dba => "a carrier name", :legal_name => "name") }
   let(:mock_plan) { double("Plan",
       :name => "A Plan Name",
@@ -42,7 +44,7 @@ RSpec.describe "shared/plan_shoppings/_sbc_link.html.erb" do
     end
 
     it "should have the sbc link with dental text" do
-      expect(rendered).to have_selector('a', text:'Plan Summary')
+      expect(rendered).to have_selector('a', text: 'Plan Summary')
     end
 
   end

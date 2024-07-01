@@ -116,7 +116,26 @@
           }
         end
 
+        def authorized?(current_user, _controller, _action, _resource)
+          return false unless current_user
+          return true if current_user.has_hbx_staff_role?
+          return false unless current_user.person
 
+          broker_agency = BenefitSponsors::Organizations::BrokerAgencyProfile.find(attributes[:profile_id])
+          broker_agency_staff_roles = current_user.person.broker_agency_staff_roles.select(&:is_active?)
+
+          allowed_as_staff = broker_agency_staff_roles.any? do |basr|
+            basr.benefit_sponsors_broker_agency_profile_id == broker_agency.id
+          end
+
+          return true if allowed_as_staff
+
+          broker_role = current_user.person.broker_role
+          return false unless broker_role
+          return false unless broker_role.active?
+
+          broker_role.benefit_sponsors_broker_agency_profile_id == broker_agency.id
+        end
       end
     end
   end

@@ -1,40 +1,45 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Employers::PremiumStatementsController do
   let(:user) { double("User") }
-  let(:person) { FactoryGirl.create(:person)}
-  let(:employer_profile) { FactoryGirl.create(:employer_profile) }
+  let(:person) { FactoryBot.create(:person)}
+  let(:employer_profile) { FactoryBot.create(:employer_profile) }
   let(:current_plan_year) { double("PlanYear", enrolled: []) }
   let(:subscriber) { double("HbxEnrollmentMember") }
   let(:carrier_profile){ double("CarrierProfile", legal_name: "my legal name") }
   let(:employee_roles) { [double("EmployeeRole")] }
   let(:benefit_group){ double("BenefitGroup", title: "my benefit group") }
 
-  let(:plan){ double(
-    "Plan",
-    name: "my plan",
-    carrier_profile: carrier_profile,
-    coverage_kind: "my coverage kind"
-    ) }
+  let(:plan) do
+    double(
+      "Plan",
+      name: "my plan",
+      carrier_profile: carrier_profile,
+      coverage_kind: "my coverage kind"
+    )
+  end
 
-  let(:hbx_enrollments) { [
+  let(:hbx_enrollments) do
+    [
     double("HbxEnrollment",
-      plan: plan,
-      humanized_members_summary: 2,
-      total_employer_contribution: 200,
-      total_employee_cost: 781.2,
-      total_premium: 981.2,
-      )] }
+           plan: plan,
+           humanized_members_summary: 2,
+           total_employer_contribution: 200,
+           total_employee_cost: 781.2,
+           total_premium: 981.2)
+  ]
+  end
 
-  let(:census_employee) {
+  let(:census_employee) do
     double("CensusEmployee",
-      full_name: "my full name",
-      ssn: "my ssn",
-      dob: "my dob",
-      hired_on: "my hired_on",
-      published_benefit_group: benefit_group
-      )
-  }
+           full_name: "my full name",
+           ssn: "my ssn",
+           dob: "my dob",
+           hired_on: "my hired_on",
+           published_benefit_group: benefit_group)
+  end
 
   context "GET show" do
     let(:query_result) { double(:hbx_enrollments => hbx_enrollments) }
@@ -53,7 +58,7 @@ RSpec.describe Employers::PremiumStatementsController do
 
     it "should return contribution" do
       sign_in(user)
-      xhr :get, :show, id: "test"
+      get :show, params: { id: "test"}, xhr: true
       expect(response).to have_http_status(:success)
     end
   end
@@ -80,14 +85,14 @@ RSpec.describe Employers::PremiumStatementsController do
 
     it "returns a text/csv content type" do
       sign_in(user)
-      xhr :get, :show, id: "test", format: :csv
+      get :show, params: { id: "test"}, xhr: true, format: :csv
       expect(response.headers['Content-Type']).to have_content 'text/csv'
     end
 
     it "returns csv content in the file" do
       sign_in(user)
-      xhr :get, :show, id: "test", format: :csv
-      expect(response.header["Content-Disposition"]).to match /DCHealthLink_Premium_Billing_Report/
+      get :show, params: { id: "test"}, xhr: true, format: :csv
+      expect(response.header["Content-Disposition"]).to match(/DCHealthLink_Premium_Billing_Report/)
       expect(response.body).to have_content(/#{census_employee.full_name}/)
       expect(response.body).to have_content(/#{census_employee.dob}/)
       expect(response.body).to have_content(/#{census_employee.hired_on}/)

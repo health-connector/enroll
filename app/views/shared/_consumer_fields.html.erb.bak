@@ -177,7 +177,7 @@
 <%= f.hidden_field :is_consumer_role, value: 'true' %>
 
 <script type="text/javascript">
-  $(document).ready(function () {
+  $(document).on('ready turbolinks:load', function () {
     demographicsNew.init();
     $('form.edit_person').submit(function(e){
       var tribal_val = $('#tribal_id').val();
