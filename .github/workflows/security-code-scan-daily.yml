@@ -1,0 +1,67 @@
+name: Security Checks (daily code-scan)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * *'
+
+concurrency:
+  group: qb-${{ github.ref }}-code-scan-daily
+  cancel-in-progress: true  
+
+jobs:
+  bearer:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: ruby/setup-ruby@v1
+          with:
+            bundler-cache: true
+        - name: install bearer
+          run: |
+            sudo apt-get install apt-transport-https
+            echo "deb [trusted=yes] https://apt.fury.io/bearer/ /" | sudo tee -a /etc/apt/sources.list.d/fury.list
+            sudo apt-get update
+            sudo apt-get install bearer
+        - name: build bearer sarif report
+          continue-on-error: true
+          run: |
+            bearer scan . --format sarif --output bearer-sarif-report.sarif --config-file ./bearer.yml
+        - uses: github/codeql-action/upload-sarif@v3
+          with:
+            sarif_file: bearer-sarif-report.sarif
+        - name: build bearer text report
+          continue-on-error: true
+          run: |
+            bearer scan --quiet --config-file ./bearer.yml .  > bearer_full.txt
+        - name: upload bearer text report
+          uses: actions/upload-artifact@v4
+          with:
+            name: bearer-report
+            path: bearer_full.txt
+        - name: Write to Job Summary
+          run: grep -A 10 '=====================================' bearer_full.txt >> $GITHUB_STEP_SUMMARY
+  
+  brakeman:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Brakeman code scanning
+          continue-on-error: true
+          run: docker run -v "$(pwd)":/code presidentbeef/brakeman -o /dev/stdout -o brakeman.text -o daily_run.json -o brakeman.sarif
+        - name: upload Brakeman report
+          uses: actions/upload-artifact@v4
+          with:
+            name: brakeman-text-report
+            path: brakeman.text
+        - name: upload Brakeman report
+          uses: actions/upload-artifact@v4
+          with:
+            name: brakeman-json-report
+            path: daily_run.json
+        - uses: github/codeql-action/upload-sarif@v3
+          with:
+            sarif_file: brakeman.sarif
+        - name: Write to Job Summary
+          run: cat brakeman.text >> $GITHUB_STEP_SUMMARY
+
+
