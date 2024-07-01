@@ -151,7 +151,6 @@ Rails.application.routes.draw do
     resources :agents do
       collection do
         get :home
-        get :begin_consumer_enrollment
         get :begin_employee_enrollment
         get :resume_enrollment
         get :show
@@ -174,9 +173,6 @@ Rails.application.routes.draw do
   end
 
   namespace :insured do
-    get 'verification_documents/upload', to: 'verification_documents#upload'
-    post 'verification_documents/upload', to: 'verification_documents#upload'
-    get 'verification_documents/download/:key', to: 'verification_documents#download'
     get 'paper_applications/upload', to: 'paper_applications#upload'
     post 'paper_applications/upload', to: 'paper_applications#upload'
     get 'paper_applications/download/:key', to: 'paper_applications#download'
@@ -193,8 +189,6 @@ Rails.application.routes.draw do
         post 'set_elected_aptc'
       end
     end
-
-    resources :interactive_identity_verifications, only: [:create, :new, :update]
 
     resources :inboxes, only: [:new, :create, :show, :destroy]
     resources :families, only: [:show] do
@@ -300,17 +294,7 @@ Rails.application.routes.draw do
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
     match '/' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
-    post 'search', to: 'employers#search'
-
     resources :premium_statements, :only => [:show]
-
-    #TODO REFACTOR
-    resources :people do
-      collection do
-        get 'search'
-        post 'match'
-      end
-    end
 
     resources :employer_attestations do
       get 'authorized_download'
@@ -630,6 +614,22 @@ Rails.application.routes.draw do
         get :new_resident_dependent, on: :collection
         get :edit_resident_dependent, on: :member
         get :show_resident_dependent, on: :member
+      end
+
+      namespace :insured do
+        get 'verification_documents/upload', to: 'verification_documents#upload'
+        post 'verification_documents/upload', to: 'verification_documents#upload'
+        get 'verification_documents/download/:key', to: 'verification_documents#download'
+
+        resources :interactive_identity_verifications, only: [:create, :new, :update]
+      end
+
+      namespace :exchanges do
+        resources :agents do
+          collection do
+            get :begin_consumer_enrollment
+          end
+        end
       end
     end
   end
