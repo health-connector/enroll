@@ -16,13 +16,45 @@ module SponsoredBenefits
         plan_design_organization_access?
       end
 
+      def plan_design_proposal_index?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_publish?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_new?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_show?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_edit?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_create?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_update?
+        plan_design_organization_access?
+      end
+
+      def plan_design_proposal_destroy?
+        plan_design_organization_access?
+      end
+
       private
 
       def plan_design_organization_access?
-        return true if user.has_hbx_staff_role?
-        return false unless user.person
+        return true if user&.has_hbx_staff_role?
 
-        person = user.person
+        person = user&.person
+        return false unless person
 
         return true if broker_owns_plan_design_organization_via_broker_agency?(person)
 
