@@ -2,10 +2,11 @@ class Employers::PlanYearsController < ApplicationController
   include Config::AcaConcern
   before_action :find_employer, expect: [:late_rates_check]
   before_action :generate_carriers_and_plans, only: [:create, :reference_plan_options, :update, :edit]
-  before_action :updateable?, only: [:new, :edit, :create, :update, :revert, :publish, :force_publish, :make_default_benefit_group]
   layout "two_column"
 
   def new
+    authorize @employer_profile
+
     @plan_year = build_plan_year
     if @employer_profile.constrain_service_areas? && @employer_profile.service_areas.blank?
       redirect_to employers_employer_profile_path(@employer_profile, :tab => "benefits"), :flash => { :error => no_products_message(@plan_year) }
@@ -20,6 +21,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def dental_reference_plans
+    authorize @employer_profile
+
     @location_id = params[:location_id]
     @carrier_profile = params[:carrier_id]
     @benefit_group = params[:benefit_group]
@@ -37,6 +40,8 @@ class Employers::PlanYearsController < ApplicationController
 
 
   def reference_plans
+    authorize @employer_profile
+
     @benefit_group = params[:benefit_group]
     @plan_year = PlanYear.find(params[:plan_year_id])
     @location_id = params[:location_id]
@@ -69,6 +74,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def reference_plan_summary
+    authorize @employer_profile
+
     @details = params[:details]
     @reference_plan_id = params[:ref_plan_id]
     @start_on = params[:start_on]
@@ -85,6 +92,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def plan_details
+    authorize @employer_profile
+
     @plan = Plan.find(params[:reference_plan_id])
     respond_to do |format|
       format.js
@@ -92,6 +101,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def delete_benefit_group
+    authorize @employer_profile
+
     plan_year = PlanYear.find(params[:plan_year_id])
     if plan_year.benefit_groups.count > 1
       benefit_group = plan_year.benefit_groups.find(params[:benefit_group_id])
@@ -107,6 +118,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def make_default_benefit_group
+    authorize @employer_profile
+
     plan_year = @employer_profile.plan_years.where(_id: params[:plan_year_id]).first
     if plan_year && benefit_group = plan_year.benefit_groups.where(_id: params[:benefit_group_id]).first
 
@@ -132,6 +145,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def create
+    authorize @employer_profile
+
     @plan_year = ::Forms::PlanYearForm.build(@employer_profile, plan_year_params)
 
     if Plan.has_rates_for_all_carriers?(plan_year_params[:start_on].to_date) == false
@@ -182,6 +197,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def reference_plan_options
+    authorize @employer_profile
+
     @kind = params[:kind]
     @key = params[:key]
     @target = params[:target]
@@ -197,12 +214,16 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def search_reference_plan
+    authorize @employer_profile
+
     @location_id = params[:location_id]
     @plan = Plan.find(params[:reference_plan_id])
     @premium_tables = @plan.premium_table_for(Date.parse(params[:start_on]))
   end
 
   def calc_employer_contributions
+    authorize @employer_profile
+
     @benefit_group_index = params[:benefit_group_index].to_i
     @location_id = params[:location_id]
     @plan = Plan.find(params[:reference_plan_id])
@@ -226,6 +247,7 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def calc_offered_plan_contributions
+    authorize @employer_profile
 
     @is_edit = params[:is_edit]
     @location_id = params[:location_id]
@@ -257,6 +279,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def edit
+    authorize @employer_profile
+
     plan_year = @employer_profile.find_plan_year(params[:id])
     unless plan_year.products_offered_in_service_area
       redirect_to employers_employer_profile_path(@employer_profile, :tab => "benefits"), :flash => { :error => no_products_message(plan_year) }
@@ -286,6 +310,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def update
+    authorize @employer_profile
+
     plan_year = @employer_profile.plan_years.where(id: params[:id]).last
     if Plan.has_rates_for_all_carriers?(plan_year_params[:start_on].to_date) == false
       params["plan_year"]["benefit_groups_attributes"] = {}
@@ -318,6 +344,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def recommend_dates
+    authorize @employer_profile
+
     if params[:start_on].present?
       start_on = params[:start_on].to_date
       @result = PlanYear.check_start_on(start_on)
@@ -377,6 +405,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def publish
+    authorize @employer_profile
+
     @plan_year = @employer_profile.find_plan_year(params[:plan_year_id])
 
     if @plan_year.application_eligibility_warnings.present?
@@ -402,6 +432,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def force_publish
+    authorize @employer_profile
+
     plan_year = @employer_profile.find_plan_year(params[:plan_year_id])
     plan_year.force_publish!
     flash[:error] = "As submitted, this application is ineligible for coverage under the #{site_short_name} exchange. If information that you provided leading to this determination is inaccurate, you have 30 days from this notice to request a review by #{site_short_name} officials."
@@ -409,6 +441,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def employee_costs
+    authorize @employer_profile
+
     @benefit_group_index = params[:benefit_group_index].to_i
     @coverage_type = params[:coverage_type]
     @location_id = params[:location_id]
@@ -445,6 +479,7 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def generate_dental_carriers_and_plans
+    authorize @employer_profile
 
     @location_id = params[:location_id]
     @plan_year_id = params[:plan_year_id]
@@ -457,6 +492,8 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   def generate_health_carriers_and_plans
+    authorize @employer_profile
+
     @plan_year = build_plan_year
     @benefit_group = params[:benefit_group]
     @location_id = params[:location_id]
@@ -476,10 +513,6 @@ class Employers::PlanYearsController < ApplicationController
   end
 
   private
-
-  def updateable?
-    authorize EmployerProfile, :updateable?
-  end
 
   def build_employee_costs_for_benefit_group
     plan = @benefit_group.reference_plan
