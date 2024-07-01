@@ -139,7 +139,7 @@ class User
 
     if has_role?(:assister)
       "In Person Assister (IPA)"
-    elsif person.csr_role.cac == true
+    elsif person&.csr_role&.cac == true
       "Certified Applicant Counselor (CAC)"
     else
       "Customer Service Representative (CSR)"
