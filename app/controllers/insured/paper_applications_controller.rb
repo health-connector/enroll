@@ -2,9 +2,10 @@ class Insured::PaperApplicationsController < ApplicationController
   include ApplicationHelper
 
   before_action :get_family
-  before_action :updateable?, only: [:upload]
 
   def upload
+    authorize @family, :upload_paper_application_coverall?
+
     if params[:file].nil?
       flash[:error] = "File not uploaded. Please select the file to upload."
       redirect_to upload_application_insured_families_path
@@ -30,6 +31,8 @@ class Insured::PaperApplicationsController < ApplicationController
   end
 
   def download
+    authorize @family, :download_paper_application_coverall?
+
     document = get_document(params[:key])
     if document.present?
       bucket = env_bucket_name('id-verification')
@@ -43,9 +46,6 @@ class Insured::PaperApplicationsController < ApplicationController
   end
 
   private
-  def updateable?
-    authorize Family, :updateable?
-  end
 
   def get_family
     set_current_person

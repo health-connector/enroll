@@ -69,6 +69,10 @@ class ApplicationPolicy
     # permission.modify_employer
   end
 
+  def coverall_market_admin?
+    shop_market_admin?
+  end
+
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists
 
   def active_associated_shop_market_family_broker?
