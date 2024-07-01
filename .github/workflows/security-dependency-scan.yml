@@ -1,0 +1,42 @@
+name: Security Checks (daily dependency-scan)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * *'
+
+concurrency:
+  group: qb-${{ github.ref }}-dependency-scan-daily
+  cancel-in-progress: true
+
+jobs:  
+  bundler-audit:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: ruby/setup-ruby@v1
+          with:
+            bundler-cache: true
+        - name: install bundler-audit
+          run: |
+            gem install bundler-audit && bundle-audit update
+        - name: run bundler-audit
+          continue-on-error: true
+          run: |
+            bundle-audit --output=bundler_audit.txt
+        - name: upload bundler-audit failure report
+          uses: actions/upload-artifact@v4
+          # if: failure()
+          with:
+            name: Bundler Report
+            path: bundler_audit.txt
+        - name: Write to Job Summary
+          run: |
+            echo "Critical:" >> $GITHUB_STEP_SUMMARY 
+            cat bundler_audit.txt | grep Critical | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "High:" >> $GITHUB_STEP_SUMMARY 
+            cat bundler_audit.txt | grep High | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Medium:" >> $GITHUB_STEP_SUMMARY
+            cat bundler_audit.txt | grep Medium | wc -l >> $GITHUB_STEP_SUMMARY
+            echo "Low:" >> $GITHUB_STEP_SUMMARY
+            cat bundler_audit.txt | grep Low | wc -l >> $GITHUB_STEP_SUMMARY
+    

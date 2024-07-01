@@ -43,7 +43,7 @@ module Enroll
     config.assets.paths << "#{Rails.root}/app/assets/info"
 
     I18n::Backend::Simple.include I18n::Backend::Fallbacks
-    config.i18n.fallbacks = {'am' => 'en', 'es' => 'en', 'ja' => 'en'}
+    config.i18n.fallbacks = [I18n.default_locale, {'am' => 'en', 'es' => 'en', 'ja' => 'en'}]
     config.paths.add "app/api", glob: "**/*.rb"
     config.autoload_paths += Dir["#{Rails.root}/app/api/api/*/*"]
 

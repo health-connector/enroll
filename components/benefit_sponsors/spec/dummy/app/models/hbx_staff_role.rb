@@ -7,7 +7,7 @@ class HbxStaffRole
   field :hbx_profile_id, type: BSON::ObjectId
   field :job_title, type: String, default: ""
   field :department, type: String, default: ""
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   validates_presence_of :hbx_profile_id
 

@@ -75,7 +75,7 @@ class HbxEnrollment
   # TODO need to understand these two fields
   field :elected_aptc_pct, type: Float, default: 0.0
   field :applied_aptc_amount, type: Money, default: 0.0
-  field :changing, type: Boolean, default: false
+  field :changing, type: Mongoid::Boolean, default: false
 
   field :effective_on, type: Date
   field :terminated_on, type: Date
@@ -115,7 +115,7 @@ class HbxEnrollment
   field :aasm_state, type: String
   field :aasm_state_date, type: Date    # Deprecated
   field :updated_by, type: String
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :waiver_reason, type: String
   field :published_to_bus_at, type: DateTime
   field :review_status, type: String, default: "incomplete"
@@ -127,7 +127,7 @@ class HbxEnrollment
   # An external enrollment is one which we keep for recording purposes,
   # but did not originate with the exchange.  'External' enrollments
   # should not be transmitted to carriers nor reported in metrics.
-  field :external_enrollment, type: Boolean, default: false
+  field :external_enrollment, type: Mongoid::Boolean, default: false
 
   track_history :modifier_field_optional => true,
                 :on => [:kind,

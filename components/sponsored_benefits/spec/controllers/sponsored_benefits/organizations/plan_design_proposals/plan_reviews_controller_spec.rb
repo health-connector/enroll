@@ -109,7 +109,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
         format: :js
       }
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(assigns(:employee_costs)).not_to be_nil
       expect(assigns(:employee_costs).size).to eq 5
     end
@@ -118,7 +118,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
   describe "POST #estimated_employee_cost_details" do
     it "returns success response and renders right template" do
       get :estimated_employee_cost_details, params: { plan_design_proposal_id: plan_design_proposal }
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response).to render_template('estimated_employee_cost_details')
     end
   end

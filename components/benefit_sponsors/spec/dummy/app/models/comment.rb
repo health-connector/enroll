@@ -10,7 +10,7 @@ class Comment
   before_save :set_priority
 
   field :content, type: String
-  field :is_priority, type: Boolean, default: false
+  field :is_priority, type: Mongoid::Boolean, default: false
   field :priority, type: String, default: "normal"
   field :user, type: String
 

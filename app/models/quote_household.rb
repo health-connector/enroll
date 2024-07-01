@@ -11,7 +11,7 @@ class QuoteHousehold
 
   # Quote Benefit Group ID for this employee on the roster
   field :quote_benefit_group_id, type: BSON::ObjectId
-  field :is_cobra_status?, type: Boolean, default: false
+  field :is_cobra_status?, type: Mongoid::Boolean, default: false
   validates_uniqueness_of :family_id
   validate :one_employee_per_family, :one_spouse_or_domestic_partner_per_family
 

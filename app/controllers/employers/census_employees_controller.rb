@@ -1,13 +1,16 @@
 class Employers::CensusEmployeesController < ApplicationController
   before_action :find_employer
   before_action :find_census_employee, only: [:edit, :update, :show, :delink, :terminate, :rehire, :benefit_group, :cobra ,:cobra_reinstate, :confirm_effective_date]
-  before_action :updateable?, except: [:edit, :show, :update, :benefit_group]
   layout "two_column"
   def new
+    authorize @employer_profile
+
     @census_employee = build_census_employee
   end
 
   def create
+    authorize @employer_profile
+
     @census_employee = CensusEmployee.new(census_employee_params.merge!({
       benefit_sponsorship_id: @benefit_sponsorship.id,
       benefit_sponsors_employer_profile_id: @employer_profile.id,
@@ -32,13 +35,16 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def edit
+    authorize @employer_profile
+
     @census_employee.build_address unless @census_employee.address.present?
     @census_employee.build_email unless @census_employee.email.present?
     @census_employee.benefit_group_assignments.build unless @census_employee.benefit_group_assignments.present?
   end
 
   def update
-    authorize @employer_profile, :updateable?
+    authorize @employer_profile
+
     @status = params[:status]
 
     # @census_employee.assign_benefit_packages(benefit_group_id: benefit_group_id, renewal_benefit_group_id: renewal_benefit_group_id)
@@ -88,7 +94,8 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def terminate
-    authorize EmployerProfile, :updateable?
+    authorize @employer_profile
+
     status = params[:status]
     termination_date = params["termination_date"]
 
@@ -118,7 +125,8 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def rehire
-    authorize EmployerProfile, :updateable?
+    authorize @employer_profile
+
     status = params[:status]
     rehiring_date = params["rehiring_date"]
     if rehiring_date.present?
@@ -156,6 +164,8 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def cobra
+    authorize @employer_profile
+
     cobra_date = params["cobra_date"]
 
     if cobra_date.present?
@@ -169,6 +179,8 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def confirm_effective_date
+    authorize @employer_profile
+
     confirmation_type = params[:type]
     return unless CensusEmployee::CONFIRMATION_EFFECTIVE_DATE_TYPES.include?(confirmation_type)
 
@@ -176,6 +188,8 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def cobra_reinstate
+    authorize @employer_profile
+
     if @census_employee.reinstate_eligibility!
       flash[:notice] = "Successfully update Census Employee."
     else
@@ -184,12 +198,16 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def show
+    authorize @employer_profile
+
     @family = @census_employee.employee_role.person.primary_family if @census_employee.employee_role.present?
     @hbx_enrollments = @census_employee.enrollments_for_display
     @status = params[:status] || ''
   end
 
   def delink
+    authorize @employer_profile
+
     employee_role = @census_employee.employee_role
     if employee_role.present?
       employee_role.census_employee_id = nil
@@ -217,10 +235,14 @@ class Employers::CensusEmployeesController < ApplicationController
   end
 
   def benefit_group
+    authorize @employer_profile
+
     @census_employee.benefit_group_assignments.build unless @census_employee.benefit_group_assignments.present?
   end
 
   def change_expected_selection
+    authorize @employer_profile
+
     if params[:ids]
       begin
         census_employees = CensusEmployee.find(params[:ids])
@@ -234,18 +256,14 @@ class Employers::CensusEmployeesController < ApplicationController
     end
   end
 
+  private
+
   def notify_employee_of_termination
     begin
       ShopNoticesNotifierJob.perform_later(@census_employee.id.to_s, "employee_termination_notice")
     rescue Exception => e
       (Rails.logger.error { "Unable to deliver termination notice to #{@census_employee.full_name} due to #{e.inspect}" }) unless Rails.env.test?
     end
-  end
-
-  private
-
-  def updateable?
-    authorize ::EmployerProfile, :updateable?
   end
 
   def benefit_group_id

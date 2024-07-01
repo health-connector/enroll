@@ -128,7 +128,7 @@
 <%= render 'devise/passwords/edit' %>
 <%= render 'users/security_question_responses/edit_modal', action: 'replace', method: 'POST', edit_mode: true %>
 <script>
-  $(document).ready(function(){
+  $(document).on('ready turbolinks:load', function(){
     $('.change-password-link').on('click', function(){
       $('#passwordChangeModal').modal('show');
     });
