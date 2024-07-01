@@ -173,9 +173,6 @@ Rails.application.routes.draw do
   end
 
   namespace :insured do
-    get 'verification_documents/upload', to: 'verification_documents#upload'
-    post 'verification_documents/upload', to: 'verification_documents#upload'
-    get 'verification_documents/download/:key', to: 'verification_documents#download'
     get 'paper_applications/upload', to: 'paper_applications#upload'
     post 'paper_applications/upload', to: 'paper_applications#upload'
     get 'paper_applications/download/:key', to: 'paper_applications#download'
@@ -620,6 +617,12 @@ Rails.application.routes.draw do
         get :new_resident_dependent, on: :collection
         get :edit_resident_dependent, on: :member
         get :show_resident_dependent, on: :member
+      end
+
+      namespace :insured do
+        get 'verification_documents/upload', to: 'verification_documents#upload'
+        post 'verification_documents/upload', to: 'verification_documents#upload'
+        get 'verification_documents/download/:key', to: 'verification_documents#download'
       end
 
       namespace :exchanges do
