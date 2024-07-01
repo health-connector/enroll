@@ -302,14 +302,6 @@ Rails.application.routes.draw do
 
     resources :premium_statements, :only => [:show]
 
-    #TODO REFACTOR
-    resources :people do
-      collection do
-        get 'search'
-        post 'match'
-      end
-    end
-
     resources :employer_attestations do
       get 'authorized_download'
       get 'verify_attestation'
