@@ -309,7 +309,6 @@ Rails.application.routes.draw do
       get 'show_profile'
       get 'link_from_quote'
       get 'consumer_override'
-      get 'export_census_employees'
       get 'bulk_employee_upload_form'
       post 'bulk_employee_upload'
 
