@@ -20,6 +20,7 @@ module SponsoredBenefits
       # TODO FIXME: Raghuram suggested to move this action into employer_profiles_controller.rb in main app as the button exists in the employer portal.
       employer_profile_id = params.fetch(:employer_profile_id, nil)
       organization =  BenefitSponsors::Organizations::Organization.where(:"profiles._id" => BSON::ObjectId.from_string(employer_profile_id)).first
+      authorize organization.employer_profile, :plan_design_proposal_claim?
 
       quote_claim_code = params.fetch(:claim_code, nil).try(:upcase)
 

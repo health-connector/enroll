@@ -1,4 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+
 module DataTablesAdapter
 end
 
@@ -229,6 +234,20 @@ module SponsoredBenefits
           post :publish, params: {plan_design_proposal_id: plan_design_proposal.to_param}
 
           expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_publish?, (Pundit policy)")
+        end
+      end
+
+      context "when user does not have authorization" do
+        include_context 'setup benefit market with market catalogs and product packages'
+        include_context 'setup initial benefit application'
+
+        let(:plan_design_proposal) { build(:plan_design_proposal, profile: abc_profile) }
+
+        it "returns a failure response" do
+          sign_in(fake_user)
+          get :claim, params: {employer_profile_id: abc_profile.id}
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposal_claim?, (Pundit policy)")
         end
       end
     end
