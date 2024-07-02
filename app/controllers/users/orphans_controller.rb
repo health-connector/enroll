@@ -3,7 +3,7 @@ class Users::OrphansController < ApplicationController
   before_action :set_orphan, only: [:show, :destroy]
 
   def index
-    authorize User, :can_access_user_account_tab?
+    authorize User, :staff_can_access_user_account_tab?
     @orphans = User.orphans
   end
 
@@ -11,7 +11,7 @@ class Users::OrphansController < ApplicationController
   end
 
   def destroy
-    authorize User, :can_access_user_account_tab?
+    authorize User, :staff_can_access_user_account_tab?
     @orphan.destroy
     respond_to do |format|
       format.html { redirect_to exchanges_hbx_profiles_path, notice: 'Orphan user account was successfully deleted.' }

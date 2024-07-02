@@ -18,5 +18,5 @@ Then(/^the user navigates directly to the orphan accounts page$/) do
 end
 
 Then(/^the user should not see the orphan accounts page$/) do
-  expect(page).to have_content('user_policy.can_access_user_account_tab?')
+  expect(page).to have_content('user_policy.staff_can_access_user_account_tab?')
 end
