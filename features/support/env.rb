@@ -78,7 +78,7 @@ end
 
 Capybara.register_driver :selenium_chrome_custom do |app|
   options = Selenium::WebDriver::Chrome::Options.new
-  options.add_argument("headless")
+  # options.add_argument("headless")
   options.add_argument("--window-size=1920,1080")
 
   if RUBY_PLATFORM =~ /darwin/
