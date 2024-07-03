@@ -35,6 +35,7 @@ Feature: Create Benefit Application by admin UI
       And the user has clicked the Create Plan Year button
       And the user has a valid input for all required fields
       When the admin clicks SUBMIT
+      And the user clicks on Confirm button
       Then the user will see a <message> message
       And staff role person logged in
       And ABC Widgets goes to the benefits tab I should see plan year information

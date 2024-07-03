@@ -1002,4 +1002,5 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       expect(husbands_family.active_household.immediate_family_coverage_household.coverage_household_members.size).to eq(3)
     end
   end
+  end
 end
