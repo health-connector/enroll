@@ -98,7 +98,6 @@ Then(/^the text in the username and email address fields will be cleared$/) do
 end
 
 Then(/^the page should display user account updated message$/) do
-  binding.irb
   expect(page).to have_content('User Account Updated Successfully')
 end
 
