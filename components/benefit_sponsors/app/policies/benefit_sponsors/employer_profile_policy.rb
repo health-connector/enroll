@@ -71,6 +71,45 @@ module BenefitSponsors
       shop_market_admin?
     end
 
+    def new?
+      show?
+    end
+
+    def edit?
+      show?
+    end
+
+    def update?
+      show?
+    end
+
+    def cobra?
+      show?
+    end
+
+    def confirm_effective_date?
+      show?
+    end
+
+    def cobra_reinstate?
+      show?
+    end
+
+    def delink?
+      show?
+    end
+
+    def benefit_group?
+      show?
+    end
+
+    def change_expected_selection?
+      show?
+    end
+
+    def rehire?
+      show?
+    end
 
     def is_staff_role_for_employer?
       active_staff_roles = user.person.employer_staff_roles.active
