@@ -65,4 +65,5 @@ class UserPolicy < ApplicationPolicy
 
     false
   end
+
 end
