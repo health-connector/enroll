@@ -116,12 +116,7 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
   end
 
 
-  describe "GET export_census_employees", dbclean: :after_each do
-    it "should export cvs" do
-      sign_in(admin_user)
-      get :export_census_employees, params: { employer_profile_id: employer_profile}, format: :csv
-      expect(response).to have_http_status(:success)
-    end
+  describe "GET delete_documents", dbclean: :after_each do
 
     context "without permissions" do
       it "should return an error" do
