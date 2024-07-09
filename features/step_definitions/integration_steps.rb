@@ -965,7 +965,7 @@ Then(/^.+ should see the coverage summary page$/) do
 end
 
 When(/^.+ clicks? on Confirm button on the coverage summary page$/) do
-  find('.interaction-click-control-confirm').click
+  find('.interaction-click-control-confirm', wait: 2).click
 end
 
 Then(/^.+ should see the receipt page$/) do

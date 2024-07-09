@@ -457,3 +457,16 @@ strong {
     }
   }
 }
+
+// Upgrading Bootstrap 3 to 4 breaks modals with top level fade class
+.modal.fade {
+  transition: opacity 0.15s linear;
+}
+
+.modal.fade.show {
+  opacity: 1;
+}
+
+.modal.fade:not(.show) {
+  opacity: 0;
+}
