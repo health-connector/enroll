@@ -77,4 +77,14 @@ RSpec.describe Insured::MembersSelectionController, type: :controller, dbclean: 
       it_behaves_like 'logged in user has no authorization roles for MembersSelectionController', :fetch
     end
   end
+
+  context "with two employee roles" do
+    let(:census_employee_2){FactoryBot.build(:census_employee)}
+    let!(:employee_role_2){FactoryBot.build(:employee_role, person: ee_person, :census_employee => census_employee_2)}
+
+    it "return http success" do
+      get :new, params: {person_id: ee_person.id, employee_role_id: employee_role_2.id}
+      expect(response).to have_http_status(:success)
+    end
+  end
 end
