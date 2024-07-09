@@ -6,12 +6,14 @@ require "#{SponsoredBenefits::Engine.root}/spec/shared_contexts/sponsored_benefi
 RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, type: :controller, dbclean: :around_each do
   routes { SponsoredBenefits::Engine.routes }
 
-  let(:broker_double) { double(id: '12345') }
-  let(:current_person) { double(:current_person) }
-  let(:broker_role) { double(:broker_role, broker_agency_profile_id: '5ac4cb58be0a6c3ef400009b') }
+  let(:current_person) { FactoryBot.create(:person) }
   let(:datatable) { double(:datatable) }
   let(:sponsor) { double(:sponsor, id: '5ac4cb58be0a6c3ef400009a', sic_code: '1111') }
-  let(:active_user) { double(:has_hbx_staff_role? => false) }
+  let(:active_user) { FactoryBot.create(:user, person: current_person) }
+  let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+  let!(:broker_agency_organization1) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_broker_agency_profile, legal_name: 'First Legal Name', site: site) }
+  let!(:broker_agency_profile) { broker_agency_organization1.broker_agency_profile}
+  let!(:broker_role) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, person: current_person) }
 
   before do
     allow(TimeKeeper).to receive(:date_of_record).and_return(Date.new(TimeKeeper.date_of_record.year, 10,1))
@@ -19,6 +21,7 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     allow(subject).to receive(:current_person).and_return(current_person)
     allow(subject).to receive(:active_user).and_return(active_user)
     allow(current_person).to receive(:broker_role).and_return(broker_role)
+    allow(active_user).to receive(:has_hbx_staff_role?).and_return(false)
     allow(broker_role).to receive(:broker_agency_profile_id).and_return(plan_design_organization.owner_profile_id)
     allow(subject).to receive(:effective_datatable).and_return(datatable)
     allow(subject).to receive(:employee_datatable).and_return(datatable)
@@ -151,6 +154,8 @@ RSpec.describe SponsoredBenefits::Organizations::PlanDesignProposalsController, 
     end
 
     before :each do
+      sponsor_profile.broker_agency_accounts << BenefitSponsors::Accounts::BrokerAgencyAccount.new(benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id, writing_agent_id: broker_role.id, start_on: Time.now, is_active: true)
+      sign_in(active_user)
       get :claim, params: { employer_profile_id: organization.employer_profile.id, claim_code: published_plan_design_proposal.claim_code}
     end
 
