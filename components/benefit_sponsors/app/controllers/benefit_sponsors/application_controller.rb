@@ -91,7 +91,7 @@ module BenefitSponsors
 
     def create_sso_account(user, personish, timeout, account_role = "individual")
       @logger = Logger.new("#{Rails.root}/log/registrations_controller_sso.log")
-      @logger.info("*** creating SSO account is idp verified - #{!user.idp_verified?} ***")
+      @logger.info("*** creating SSO account is idp verified - #{!user.idp_verified?}, oim_id - #{user.oim_id} ***")
       if !user.idp_verified?
         IdpAccountManager.create_account(user.email, user.oim_id, stashed_user_password, personish, account_role, timeout)
         @logger.info("*** creating SSO account successful ***")
