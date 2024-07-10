@@ -27,10 +27,14 @@ module BenefitSponsors
       end
 
       def create
+        @logger = Logger.new("#{Rails.root}/log/registrations_controller.log")
         @agency = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_create(registration_params)
+        @logger.info("*** Registration Params: #{registration_params.inspect} ***")
         authorize @agency
+        @logger.info("*** Auth successful***")
         begin
           saved, result_url = @agency.save
+          @logger.info("*** Registration Saved: #{saved}, result_url: #{result_url} ***")
           result_url = send(result_url)
           if saved
             if is_employer_profile?
@@ -44,9 +48,11 @@ module BenefitSponsors
             return
           end
         rescue Exception => e
+          @logger.info("*** Exception in registrations controller: #{e.backtrace.join("\n")} ***")
           flash[:error] = e.message
         end
         params[:profile_type] = profile_type
+        @logger.info("*** Errors in registrations controller: #{@agency.errors.full_messages} ***")
         render default_template, :flash => { :error => @agency.errors.full_messages }
       end
 
