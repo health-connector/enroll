@@ -90,11 +90,15 @@ module BenefitSponsors
     end
 
     def create_sso_account(user, personish, timeout, account_role = "individual")
+      @logger = Logger.new("#{Rails.root}/log/registrations_controller_sso.log")
+      @logger.info("*** creating SSO account is idp verified - #{!user.idp_verified?} ***")
       if !user.idp_verified?
         IdpAccountManager.create_account(user.email, user.oim_id, stashed_user_password, personish, account_role, timeout)
+        @logger.info("*** creating SSO account successful ***")
         session[:person_id] = personish.id
         session.delete("stashed_password")
         user.switch_to_idp!
+        @logger.info("*** user switched to IDP ***")
       end
       #TODO TREY KEVIN JIM CSR HAS NO SSO_ACCOUNT
       session[:person_id] = personish.id if user.person && user.person.agent?
