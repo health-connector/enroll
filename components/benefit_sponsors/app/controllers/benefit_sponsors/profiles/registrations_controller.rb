@@ -40,6 +40,7 @@ module BenefitSponsors
             @logger.info("*** is_employer_profile?: #{is_employer_profile?} ***")
             if is_employer_profile?
               person = current_person
+              @logger.info("*** creating SSO account user - #{current_user&.id} ***")
               create_sso_account(current_user, current_person, 15, "employer") do
               end
             else
