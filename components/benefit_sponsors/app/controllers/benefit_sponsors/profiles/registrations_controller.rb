@@ -48,7 +48,7 @@ module BenefitSponsors
             return
           end
         rescue Exception => e
-          @logger.info("*** Exception in registrations controller: #{e.backtrace.join("\n")} ***")
+          @logger.info("*** Exception in registrations controller: message: #{e.message} and backtrace: #{e.backtrace&.join("\n")} ***")
           flash[:error] = e.message
         end
         params[:profile_type] = profile_type
