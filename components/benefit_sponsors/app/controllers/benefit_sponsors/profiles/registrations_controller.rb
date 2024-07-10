@@ -37,6 +37,7 @@ module BenefitSponsors
           @logger.info("*** Registration Saved: #{saved}, result_url: #{result_url} ***")
           result_url = send(result_url)
           if saved
+            @logger.info("*** is_employer_profile?: #{is_employer_profile?} ***")
             if is_employer_profile?
               person = current_person
               create_sso_account(current_user, current_person, 15, "employer") do
@@ -44,6 +45,7 @@ module BenefitSponsors
             else
               flash[:notice] = "Your registration has been submitted. A response will be sent to the email address you provided once your application is reviewed."
             end
+            @logger.info("*** Action complete, final result_url #{result_url} ***")
             redirect_to result_url
             return
           end
