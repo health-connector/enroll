@@ -27,35 +27,26 @@ module BenefitSponsors
       end
 
       def create
-        @logger = Logger.new("#{Rails.root}/log/registrations_controller.log")
         @agency = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_create(registration_params)
-        @logger.info("*** Registration Params: #{registration_params.inspect} ***")
         authorize @agency
-        @logger.info("*** Auth successful***")
         begin
           saved, result_url = @agency.save
-          @logger.info("*** Registration Saved: #{saved}, result_url: #{result_url} ***")
           result_url = send(result_url)
           if saved
-            @logger.info("*** is_employer_profile?: #{is_employer_profile?} ***")
             if is_employer_profile?
               person = current_person
-              @logger.info("*** creating SSO account user - #{current_user&.id} ***")
               create_sso_account(current_user, current_person, 15, "employer") do
               end
             else
               flash[:notice] = "Your registration has been submitted. A response will be sent to the email address you provided once your application is reviewed."
             end
-            @logger.info("*** Action complete, final result_url #{result_url} ***")
             redirect_to result_url
             return
           end
         rescue Exception => e
-          @logger.info("*** Exception in registrations controller: message: #{e.message} and backtrace: #{e.backtrace&.join("\n")} ***")
           flash[:error] = e.message
         end
         params[:profile_type] = profile_type
-        @logger.info("*** Errors in registrations controller: #{@agency.errors.full_messages} ***")
         render default_template, :flash => { :error => @agency.errors.full_messages }
       end
 
