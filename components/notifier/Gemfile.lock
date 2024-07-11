@@ -4,7 +4,7 @@ PATH
     notifier (0.0.1)
       aasm (~> 4.8.0)
       acapi
-      ckeditor (= 5.0.0)
+      ckeditor (= 4.2.4)
       combine_pdf
       config
       curl
@@ -83,7 +83,8 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
-    ckeditor (5.0.0)
+    ckeditor (4.2.4)
+      cocaine
       orm_adapter (~> 0.5.0)
     climate_control (0.2.0)
     cocaine (0.6.0)

@@ -18,6 +18,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       When the user clicks Action for that Employer
       And the user clicks the Plan Years button
       Then the user will select benefit application to terminate
+      When the user clicks Actions for current benefit application
       When the user clicks Actions for that benefit application
       Then the user will see Terminate button
       When the user enters any_day and other details for voluntary termination
@@ -75,6 +76,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       When the user clicks Action for that Employer
       And the user clicks the Plan Years button
       Then the user will select benefit application to terminate
+      When the user clicks Actions for current benefit application
       When the user clicks Actions for that benefit application
       Then the user will see Terminate button
       When the user enters any_day and other details for voluntary termination
@@ -120,3 +122,4 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       Then Employee should see the receipt page
       Then Employee should see the "my account" page
       And employee Patrick Doe of employer ABC Widgets most recent HBX Enrollment should be under the off cycle benefit application
+      
