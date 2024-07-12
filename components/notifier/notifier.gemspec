@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 6.0.6.1"
+  s.add_dependency "rails", "~> 6.1.7.8"
   s.add_dependency "slim", "3.0.9"
   s.add_dependency "mongoid", '~> 7.5.4'
   s.add_dependency "virtus", "~> 1.0.5"
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'aasm', '~> 4.8.0'
   s.add_dependency 'acapi'
   s.add_dependency 'config'
-  s.add_dependency 'money-rails', '~> 1.10.0'
+  s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'pundit'
 
   s.add_development_dependency 'rspec-rails', '~> 5.0.1'
