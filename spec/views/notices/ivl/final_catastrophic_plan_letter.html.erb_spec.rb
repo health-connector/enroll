@@ -31,7 +31,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     before :each do
       catastrophic_plan_notice.append_hbe
       catastrophic_plan_notice.build
-      render file: "notices/ivl/final_catastrophic_plan_letter", locals: {notice: notice}
+      render template: "notices/ivl/final_catastrophic_plan_letter", locals: {notice: notice}
     end
 
     it "should display the text" do

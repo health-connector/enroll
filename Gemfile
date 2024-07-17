@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.7.6'
+ruby '3.0.6'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -14,7 +16,7 @@ gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
 gem 'addressable', '2.8.0'
 gem 'animate-rails', '~> 1.0.10'
-gem 'aws-sdk', '2.2.4'
+gem 'aws-sdk', '~> 3.2'
 gem 'bcrypt', '~> 3.1'
 gem 'bootstrap-multiselect-rails', '~> 0.9.9'
 # TODO Validate this gem if it's being used.
@@ -46,7 +48,7 @@ gem 'language_list', '~> 1.1.0'
 gem 'mail', '~> 2.7'
 gem 'maskedinput-rails'
 gem 'money-rails', '~> 1.13'
-# gem 'mongo', '2.19.3'
+gem 'mongo', '2.19.3'
 gem 'mongo_session_store', '~> 3.1'
 gem 'mongoid', '~> 7.5.4'
 gem 'mongoid-autoinc', '~> 6.0'
@@ -121,6 +123,7 @@ group :development do
   gem 'rubocop-rspec'
   gem 'rubocop-git'
   gem 'web-console', '2.3.0'
+  gem 'next_rails'
 end
 
 group :development, :test do
@@ -157,7 +160,7 @@ group :test do
   gem 'ruby-progressbar', '~> 1.7'
   gem 'shoulda-matchers', '3.1.1'
   gem 'simplecov', '0.14.1', :require => false
-  gem 'test-prof', '0.5.0'
+  gem 'test-prof', '~> 1.3'
   gem 'warden'
   gem 'watir',                        '~> 6.18.0'
   gem 'webdrivers', '~> 5.3.1'

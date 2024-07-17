@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require "active_support/core_ext/integer/time"
+
 Rails.application.configure do
   # Verifies that versions and hashed value of the package contents in the project's package.json
   config.webpacker.check_yarn_integrity = true
@@ -24,6 +28,11 @@ Rails.application.configure do
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
+  # Raise exceptions for disallowed deprecations.
+  config.active_support.disallowed_deprecation = :raise
+  # Tell Active Support which deprecation messages to disallow.
+  config.active_support.disallowed_deprecation_warnings = []
+
   config.webpacker.check_yarn_integrity = false
 
   # Raise an error on page load if there are pending migrations.

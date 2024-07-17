@@ -53,7 +53,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'database_cleaner-mongoid'
   s.add_development_dependency 'capybara', '2.6.2'
   s.add_development_dependency 'factory_bot_rails',         '~> 4'
-  s.add_development_dependency 'test-prof', '0.5.0'
+  s.add_development_dependency 'test-prof', '~> 1.3'
   s.add_development_dependency 'forgery'
   s.add_development_dependency 'mongoid_rails_migrations'
   s.add_development_dependency 'rails-perftest'
