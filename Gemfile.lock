@@ -2200,6 +2200,8 @@ GEM
     nio4r (2.7.3)
     nokogiri (1.15.6-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.15.6-x86_64-linux)
+      racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
     non-stupid-digest-assets (1.0.11)
@@ -2535,6 +2537,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-23
+  x86_64-linux
 
 DEPENDENCIES
   aasm (~> 4.8.0)
