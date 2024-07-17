@@ -17,7 +17,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
   end
@@ -77,7 +77,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
     context 'reinstate benefit application' do
       it 'should reinstate benefit application' do
         expect(benefit_application.aasm_state).to eq :terminated
-        subject.call(params)
+        subject.call(**params)
         item = benefit_application.reload.latest_benefit_application_item
 
         expect(benefit_application.aasm_state).to eq :active
@@ -91,7 +91,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       it 'should reinstate benefit group assignments' do
         bga = census_employees.first.benefit_group_assignments[0]
         expect(bga.end_on).not_to eq nil
-        subject.call(params)
+        subject.call(**params)
 
         expect(benefit_application.aasm_state).to eq :active
         expect(bga.reload.end_on).to eq nil
@@ -104,7 +104,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           "acapi.info.events.employer.benefit_coverage_period_reinstated",
           {:employer_id => benefit_application.sponsor_profile.hbx_id, :is_trading_partner_publishable => true, :event_name => "benefit_coverage_period_reinstated"}
         )
-        subject.call(params)
+        subject.call(**params)
       end
     end
 
@@ -166,7 +166,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         it 'should reinstate enrollment' do
           enrollments = family.active_household.hbx_enrollments
           expect(enrollments.size).to eq 1
-          subject.call(params).value!
+          subject.call(**params).value!
           enrollments = family.reload.active_household.hbx_enrollments
           expect(benefit_application.aasm_state).to eq :active
           expect(enrollments.size).to eq 2
@@ -174,7 +174,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should send enrollment event' do
           expect_any_instance_of(HbxEnrollment).to receive(:notify)
-          subject.call(params)
+          subject.call(**params)
         end
       end
 
@@ -186,7 +186,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         it 'should reinstate enrollment' do
           enrollments = family.active_household.hbx_enrollments
           expect(enrollments.size).to eq 1
-          subject.call(params).value!
+          subject.call(**params).value!
           enrollments = family.reload.active_household.hbx_enrollments
           expect(benefit_application.aasm_state).to eq :active
           expect(enrollments.size).to eq 2
@@ -195,7 +195,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should send enrollment event' do
           expect_any_instance_of(HbxEnrollment).to receive(:notify)
-          subject.call(params)
+          subject.call(**params)
         end
       end
 
@@ -207,7 +207,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         it 'should reinstate enrollment as waiver' do
           enrollments = family.active_household.hbx_enrollments
           expect(enrollments.size).to eq 1
-          subject.call(params).value!
+          subject.call(**params).value!
           enrollments = family.reload.active_household.hbx_enrollments
           expect(benefit_application.aasm_state).to eq :active
           expect(enrollments.map(&:aasm_state).sort).to eq ["coverage_terminated", "inactive"]
@@ -215,7 +215,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should not send enrollment event' do
           expect_any_instance_of(HbxEnrollment).not_to receive(:notify)
-          subject.call(params)
+          subject.call(**params)
         end
       end
 
@@ -233,7 +233,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should call service to renew application' do
           expect_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
-          subject.call(params).value!
+          subject.call(**params).value!
         end
       end
 
@@ -245,7 +245,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'should not reinstate enrollment as terminated' do
             enrollments = family.active_household.hbx_enrollments
             expect(enrollments.size).to eq 1
-            subject.call(params).value!
+            subject.call(**params).value!
             enrollments = family.reload.active_household.hbx_enrollments
             expect(benefit_application.aasm_state).to eq :active
             expect(enrollments.size).to eq 1
@@ -257,7 +257,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'should not send enrollment event' do
             expect_any_instance_of(HbxEnrollment).not_to receive(:notify_enrollment_cancel_or_termination_event)
             expect_any_instance_of(HbxEnrollment).not_to receive(:notify)
-            subject.call(params)
+            subject.call(**params)
           end
         end
 
@@ -280,7 +280,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'should reinstate enrollment as terminated' do
             enrollments = family.active_household.hbx_enrollments
             expect(enrollments.size).to eq 1
-            subject.call(params).value!
+            subject.call(**params).value!
             enrollments = family.reload.active_household.hbx_enrollments
             expect(benefit_application.aasm_state).to eq :active
             expect(enrollments.size).to eq 2
@@ -291,7 +291,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
           it 'should send enrollment event' do
             expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
-            subject.call(params)
+            subject.call(**params)
           end
         end
 
@@ -302,7 +302,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'should reinstate enrollment as term pending' do
             enrollments = family.active_household.hbx_enrollments
             expect(enrollments.size).to eq 1
-            subject.call(params).value!
+            subject.call(**params).value!
             enrollments = family.reload.active_household.hbx_enrollments
             expect(benefit_application.aasm_state).to eq :active
             expect(enrollments.size).to eq 2
@@ -314,7 +314,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
           it 'should send enrollment event' do
             expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
-            subject.call(params)
+            subject.call(**params)
           end
         end
       end
@@ -376,7 +376,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         it 'should reinstate enrollment as enrolled' do
           enrollments = family.active_household.hbx_enrollments
           expect(enrollments.size).to eq 1
-          subject.call(params).value!
+          subject.call(**params).value!
           enrollments = family.reload.active_household.hbx_enrollments
           expect(benefit_application.aasm_state).to eq :active
           expect(enrollments.size).to eq 2
@@ -387,7 +387,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should send enrollment event' do
           expect_any_instance_of(HbxEnrollment).to receive(:notify)
-          subject.call(params)
+          subject.call(**params)
         end
       end
 
@@ -400,7 +400,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'should reinstate enrollment' do
             enrollments = family.active_household.hbx_enrollments
             expect(enrollments.size).to eq 1
-            subject.call(params).value!
+            subject.call(**params).value!
             enrollments = family.reload.active_household.hbx_enrollments
             expect(benefit_application.aasm_state).to eq :active
             expect(enrollments.size).to eq 2
@@ -412,7 +412,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
           it 'should send enrollment event' do
             expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
-            subject.call(params)
+            subject.call(**params)
           end
         end
 
@@ -423,7 +423,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'should reinstate enrollment as term pending' do
             enrollments = family.active_household.hbx_enrollments
             expect(enrollments.size).to eq 1
-            subject.call(params).value!
+            subject.call(**params).value!
             enrollments = family.reload.active_household.hbx_enrollments
             expect(benefit_application.aasm_state).to eq :active
             expect(enrollments.size).to eq 2
@@ -435,7 +435,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
           it 'should send enrollment event' do
             expect_any_instance_of(HbxEnrollment).to receive(:notify).twice
-            subject.call(params)
+            subject.call(**params)
           end
         end
       end
@@ -448,7 +448,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         it 'should reinstate enrollment as waiver' do
           enrollments = family.active_household.hbx_enrollments
           expect(enrollments.size).to eq 1
-          subject.call(params).value!
+          subject.call(**params).value!
           enrollments = family.reload.active_household.hbx_enrollments
           expect(benefit_application.aasm_state).to eq :active
           expect(enrollments.size).to eq 2
@@ -457,7 +457,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
         it 'should not send enrollment event' do
           expect_any_instance_of(HbxEnrollment).not_to receive(:notify)
-          subject.call(params)
+          subject.call(**params)
         end
       end
     end
@@ -476,7 +476,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
 
       it 'should reinstate benefit application if there is no overlapping application' do
         expect(benefit_application.aasm_state).to eq :terminated
-        subject.call(params)
+        subject.call(**params)
         item = benefit_application.reload.latest_benefit_application_item
 
         expect(benefit_application.aasm_state).to eq :active
@@ -500,7 +500,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       context "with draft overlapping application" do
         let(:overlapping_state) { :draft }
         it 'returns failure ' do
-          result = subject.call(params)
+          result = subject.call(**params)
           expect(result.failure?).to eq true
           expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
         end
@@ -509,7 +509,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       context "with terminated overlapping application" do
         let(:overlapping_state) { :terminated }
         it 'returns failure ' do
-          result = subject.call(params)
+          result = subject.call(**params)
           expect(result.failure?).to eq true
           expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
         end
@@ -520,7 +520,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
         let(:overlapping_state) { :draft }
 
         it 'should return failure ' do
-          result = subject.call(params)
+          result = subject.call(**params)
           expect(result.failure?).to eq true
           expect(result.failure).to eq ["Reinstate failed due to overlapping benefit applications"]
         end
@@ -533,7 +533,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       let(:benefit_application) { initial_application }
 
       it 'returns failure ' do
-        result = subject.call(params)
+        result = subject.call(**params)
         expect(result.failure?).to eq true
         expect(result.failure).to eq ["Reinstate can only occur on current year benefit application"]
       end
@@ -543,7 +543,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       let(:reinstate_on) { (benefit_application.end_on + 45.days).beginning_of_month }
 
       it 'returns failure ' do
-        result = subject.call(params)
+        result = subject.call(**params)
         expect(result.failure?).to eq true
         expect(result.failure).to eq ["Reinstate on will result gap in coverage which is not allowed"]
       end

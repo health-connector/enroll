@@ -4,7 +4,6 @@ module BenefitSponsors
   module Profiles
     class RegistrationsController < ::BenefitSponsors::ApplicationController
       include BenefitSponsors::Concerns::ProfileRegistration
-      include Pundit
 
       rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 

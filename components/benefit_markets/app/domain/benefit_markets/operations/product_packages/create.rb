@@ -8,7 +8,7 @@ module BenefitMarkets
     module ProductPackages
       class Create
         # include Dry::Monads::Do.for(:call)
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
         # @param [ Hash ] params Product Package attributes
         # @param [ Array<BenefitMarkets::Entities::Product> ] products Product

@@ -17,7 +17,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure?).to eq true
+        expect(subject.call(**params).failure?).to eq true
       end
     end
   end
@@ -126,7 +126,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
         end
 
         it 'should return enrollment details' do
-          employee_details = subject.call(params).value![:employee_details]
+          employee_details = subject.call(**params).value![:employee_details]
           expect(employee_details.map {|detail| detail[:enrollment_details] }.reject(&:empty?)).to eq [enrollment.hbx_id]
         end
       end

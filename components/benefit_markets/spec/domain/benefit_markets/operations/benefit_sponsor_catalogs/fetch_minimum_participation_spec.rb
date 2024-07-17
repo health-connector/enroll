@@ -37,7 +37,7 @@ RSpec.describe BenefitMarkets::Operations::BenefitSponsorCatalogs::FetchMinimumP
       end
 
       it 'should return three fourth minimum contribution' do
-        result = subject.call(params)
+        result = subject.call(**params)
         expect(result.success?).to be_truthy
         expect(result.success).to eq(3 / 4.0)
       end
@@ -49,7 +49,7 @@ RSpec.describe BenefitMarkets::Operations::BenefitSponsorCatalogs::FetchMinimumP
       end
 
       it 'should return zero minimum contribution' do
-        result = subject.call(params)
+        result = subject.call(**params)
         expect(result.success?).to be_truthy
         expect(result.success).to eq 0
       end
@@ -59,7 +59,7 @@ RSpec.describe BenefitMarkets::Operations::BenefitSponsorCatalogs::FetchMinimumP
       let(:contribution_model) { double(key: nil) }
 
       it 'should return failure' do
-        result = subject.call(params)
+        result = subject.call(**params)
 
         expect(result.failure?).to be_truthy
         expect(result.failure).to eq "contribution key missing."
@@ -70,7 +70,7 @@ RSpec.describe BenefitMarkets::Operations::BenefitSponsorCatalogs::FetchMinimumP
       let(:contribution_model) { double(key: :list_bill_contribution_model) }
 
       it 'should return failure' do
-        result = subject.call(params)
+        result = subject.call(**params)
 
         expect(result.failure?).to be_truthy
         expect(result.failure).to eq "unable to find minimum contribution for given contribution model."

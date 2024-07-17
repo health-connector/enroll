@@ -59,7 +59,7 @@ module TransportGateway
 
       begin
         Net::SFTP.start(target_uri.host, @user, default_options.merge(credential_options)) do |sftp|
-          sftp.download!(URI.decode(target_uri.path), source_stream)
+          sftp.download!(CGI.unescape(target_uri.path), source_stream)
         end
         Sources::TempfileSource.new(source_stream)
       rescue Exception => e
@@ -92,9 +92,9 @@ module TransportGateway
 
       begin
         Net::SFTP.start(target_uri.host, @user, default_options.merge(@credential_options)) do |sftp|
-          find_or_create_target_folder_for(sftp, URI.decode(target_uri.path))
+          find_or_create_target_folder_for(sftp, CGI.unescape(target_uri.path))
 
-          sftp.upload!(source.stream, URI.decode(target_uri.path))
+          sftp.upload!(source.stream, CGI.unescape(target_uri.path))
         end
       rescue Exception => e
         log(:error, "transport_gateway.sftp_adapter") { e }

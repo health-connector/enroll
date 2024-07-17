@@ -12,12 +12,12 @@ RSpec.describe BenefitMarkets::Operations::BenefitMarkets::FindModel, dbclean: :
   context 'sending required parameters' do
 
     it 'should find BenefitMarket instance' do
-      expect(subject.call(params).success?).to be_truthy
-      expect(subject.call(params).success).to be_a BenefitMarkets::BenefitMarket
+      expect(subject.call(**params).success?).to be_truthy
+      expect(subject.call(**params).success).to be_a BenefitMarkets::BenefitMarket
     end
 
     it 'should return object' do
-      expect(subject.call(params).success).to eq benefit_market
+      expect(subject.call(**params).success).to eq benefit_market
     end
   end
 end

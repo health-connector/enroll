@@ -1,10 +1,12 @@
-# Used to load conversion employer plan year through script
-#
-# @return nil if data imported and put the results in conversion_employer_results file
-# @raise exception if file is not excel or csv or error raised during data import
+# frozen_string_literal: true
+
 module BenefitSponsors
   class ConversionEmployerPlanYears
 
+    # Used to load conversion employer plan year through script
+    #
+    # @return nil if data imported and put the results in conversion_employer_results file
+    # @raise exception if file is not excel or csv or error raised during data import
     def import_employer(in_file)
       begin
         config = YAML.load_file("#{Rails.root}/conversions.yml")
@@ -32,7 +34,7 @@ end
 
 dir_glob = File.join(Rails.root, "conversion_employer_plan_years", "*.{xlsx,csv}")
 
-Dir.glob(dir_glob).sort.each do |file|
+Dir.glob(dir_glob).each do |file|
   puts "started processing the file : #{file}"
   conversion_object = BenefitSponsors::ConversionEmployerPlanYears.new
   conversion_object.import_employer(file)

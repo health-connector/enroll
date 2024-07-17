@@ -54,12 +54,12 @@ module Analytics
         day_of_month = new_date.day
 
         # Use the Mongoid increment (inc) function
-        inc(("d" + day_of_month.to_s).to_sym => 1)
+        inc("d#{day_of_month}".to_sym => 1)
         self
       end
 
       def sum
-        (1..31).map { |i| eval("d" + i.to_s) }
+        (1..31).map { |i| public_send("d#{i}") }
       end
 
     private

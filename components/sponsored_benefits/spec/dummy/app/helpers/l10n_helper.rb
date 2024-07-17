@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'html_scrubber_util'
+
 module L10nHelper
   include ActionView::Helpers::TranslationHelper
   include HtmlScrubberUtil
@@ -42,3 +42,4 @@ module L10nHelper
     translation_key.to_s&.gsub(/\W+/, '')&.titleize
   end
 end
+

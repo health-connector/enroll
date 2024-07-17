@@ -5,6 +5,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Pundit
   include ::SepAll
   include ::Config::AcaHelper
+  include HtmlScrubberUtil
+  include StringScrubberUtil
 
   before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
@@ -789,11 +791,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def benefit_application_error_messages(obj)
-    obj.errors.full_messages.collect { |error| "<li>#{error}</li>".html_safe }
+    obj.errors.full_messages.collect { |error| sanitize_html("<li>#{error}</li>") }
   end
 
   def new_ba_params
-    params.merge!({ admin_datatable_action: true }).permit(:benefit_sponsorship_id, :admin_datatable_action)
+    { benefit_sponsorship_id: sanitize_to_hex(params[:benefit_sponsorship_id]), admin_datatable_action: true }
   end
 
   def create_ba_params

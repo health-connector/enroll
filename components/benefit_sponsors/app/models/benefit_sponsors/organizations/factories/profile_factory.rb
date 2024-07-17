@@ -4,6 +4,7 @@ module BenefitSponsors
     module Factories
       class ProfileFactory
         include BenefitSponsors::RegistrationHelper
+        include ::L10nHelper
         include ActiveModel::Validations
         include BenefitSponsors::Forms::NpnField
 

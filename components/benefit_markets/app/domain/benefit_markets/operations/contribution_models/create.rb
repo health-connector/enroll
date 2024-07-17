@@ -8,7 +8,7 @@ module BenefitMarkets
     module ContributionModels
       class Create
         # include Dry::Monads::Do.for(:call)
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
         # @param [ Hash ] params Benefit Sponsor Catalog attributes
         # @param [ Array<BenefitMarkets::Entities::ProductPackage> ] product_packages ProductPackage

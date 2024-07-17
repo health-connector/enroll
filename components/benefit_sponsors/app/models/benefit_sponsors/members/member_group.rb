@@ -65,10 +65,8 @@ module BenefitSponsors
     def clone_for_coverage(new_product)
       self.class.new(
         members,
-        {
-          group_id: @group_id,
-          group_enrollment: group_enrollment.clone_for_coverage(new_product)
-        }
+        group_id: @group_id,
+        group_enrollment: group_enrollment.clone_for_coverage(new_product)
       )
     end
 

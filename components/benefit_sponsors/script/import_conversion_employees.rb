@@ -1,8 +1,10 @@
-# Used to load conversion employer through script
-#
-# @return nil if data imported and put the results in conversion_employer_results file
-# @raise exception if file is not excel or csv or error raised during data import
+# frozen_string_literal: true
+
 module BenefitSponsors
+  # Used to load conversion employer through script
+  #
+  # @return nil if data imported and put the results in conversion_employer_results file
+  # @raise exception if file is not excel or csv or error raised during data import
   class ConversionEmployees
 
     def import_employee(in_file)
@@ -26,7 +28,7 @@ end
 
 dir_glob = File.join(Rails.root, "conversion_employees", "*.{xlsx,csv}")
 
-Dir.glob(dir_glob).sort.each do |file|
+Dir.glob(dir_glob).each do |file|
   puts "started processing the file : #{file}"
   conversion_object = BenefitSponsors::ConversionEmployees.new
   conversion_object.import_employee(file)
