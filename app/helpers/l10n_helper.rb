@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 require 'html_scrubber_util'
 module L10nHelper
-  include ActionView::Helpers::TranslationHelper
+  # TODO had to comment this for translations to work
+  # include ActionView::Helpers::TranslationHelper
   include HtmlScrubberUtil
 
   # @note Due to a caching issue in Rails 6.1, the `MISSING_TRANSLATION` object from
