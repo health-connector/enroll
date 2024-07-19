@@ -84,6 +84,7 @@ module BenefitMarkets
         end
 
         def find_benefit_market_catalog(enrollment_eligibility)
+          @enrollment_eligibility = enrollment_eligibility
           market_catalog = ::BenefitMarkets::Operations::BenefitMarketCatalogs::FindModel.new.call(effective_date: enrollment_eligibility.effective_date, market_kind: enrollment_eligibility.market_kind)
 
           Success(market_catalog)
