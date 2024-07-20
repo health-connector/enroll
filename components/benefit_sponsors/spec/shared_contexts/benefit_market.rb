@@ -9,7 +9,11 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
 
   let(:current_effective_date)  { (TimeKeeper.date_of_record + 2.months).beginning_of_month.prev_year }
   let(:renewal_effective_date)  { current_effective_date.next_year }
+  let(:catalog_health_package_kinds) { [:single_issuer, :metal_level, :single_product] }
+  let(:catalog_dental_package_kinds) { [:single_product] }
 
+
+  #
   let!(:prior_rating_area)   { create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year - 1) }
   let!(:current_rating_area) { create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year) }
   let!(:renewal_rating_area) { create(:benefit_markets_locations_rating_area, active_year: renewal_effective_date.year) }
@@ -20,11 +24,11 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
     county_zip_id = create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id
     create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
   }
-
+  #
   let(:renewal_service_area) {
     create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year + 1)
   }
-
+  #
   let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:health_products) do
     create_list(
@@ -53,7 +57,7 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
       metal_level_kind: :dental
     )
   end
-
+  #
   let!(:current_benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,
@@ -64,7 +68,7 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
     )
   end
-
+  #
   let!(:renewal_benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,
@@ -75,21 +79,23 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
       application_period: (renewal_effective_date.beginning_of_year..renewal_effective_date.end_of_year)
     )
   end
-
-  before do
-    map_products
-  end
-
-  def map_products
-    current_benefit_market_catalog.product_packages.each do |product_package|
-      if renewal_product_package = renewal_benefit_market_catalog.product_packages.detect{ |p|
-        p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind }
-
-        renewal_product_package.products.each_with_index do |renewal_product, i|
-          current_product = product_package.products[i]
-          current_product.update(renewal_product_id: renewal_product.id)
-        end
-      end
-    end
-  end
+  #
+  # before do
+  #   map_products
+  # end
+  #
+  # def map_products
+  #   current_benefit_market_catalog.product_packages.each do |product_package|
+  #     if renewal_product_package = renewal_benefit_market_catalog.product_packages.detect{ |p|
+  #       p.package_kind == product_package.package_kind && p.product_kind == product_package.product_kind }
+  #
+  #       renewal_product_package.products.each_with_index do |renewal_product, i|
+  #         current_product = product_package.products[i]
+  #         current_product.update(renewal_product_id: renewal_product.id)
+  #       rescue StandardError => ex
+  #         binding.irb
+  #       end
+  #     end
+  #   end
+  # end
 end
