@@ -24,7 +24,7 @@ module L10nHelper
   def fetch_translation(translation_key, interpolated_keys)
     options = interpolated_keys.present? ? interpolated_keys.merge(default: default_translation(translation_key)) : {}
 
-    t(translation_key, **options, raise: true)
+    I18n.t(translation_key, **options, raise: true)
   end
 
   def sanitize_result(result, translation_key)
