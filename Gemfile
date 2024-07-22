@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+Gemfile# frozen_string_literal: true
 
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
@@ -90,7 +90,7 @@ gem 'holidays', '~> 8.6'
 gem 'ffi', '1.14.0'
 gem 'kostya-sigar', '2.0.10'
 # gem 'mini_racer', '0.6.4'
-gem 'bigdecimal', '3.0.0'
+gem 'bigdecimal', '~> 3.0'
 gem 'loofah', '~>2.19.1'
 gem 'dry-container', '0.9'
 gem 'haml-rails', '~> 2.0'
@@ -158,7 +158,7 @@ group :test do
   gem 'rspec-instafail'
   gem 'rspec-benchmark'
   gem 'ruby-progressbar', '~> 1.7'
-  gem 'shoulda-matchers', '3.1.1'
+  gem 'shoulda-matchers', '>= 4.0.0'
   gem 'simplecov', '0.14.1', :require => false
   gem 'test-prof', '~> 1.3'
   gem 'warden'
