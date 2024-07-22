@@ -1822,7 +1822,7 @@ GEM
     benchmark-malloc (0.2.0)
     benchmark-perf (0.6.0)
     benchmark-trend (0.4.0)
-    bigdecimal (1.3.5)
+    bigdecimal (3.0.0)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
     bootsnap (1.18.3)
@@ -2549,6 +2549,7 @@ DEPENDENCIES
   bcrypt (~> 3.1)
   benefit_markets!
   benefit_sponsors!
+  bigdecimal (= 3.0.0)
   bootstrap-multiselect-rails (~> 0.9.9)
   brakeman
   browser (= 2.7.0)
@@ -2567,7 +2568,6 @@ DEPENDENCIES
   config (~> 2.0)
   cucumber (= 3.1.2)
   cucumber-rails (= 2.0)
-  curl
   database_cleaner-mongoid (~> 2.0, >= 2.0.1)
   devise (~> 4.5)
   dry-container (= 0.9)
