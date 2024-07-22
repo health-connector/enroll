@@ -1766,7 +1766,8 @@ class HbxEnrollment
     benefit_group.blank? || (benefit_group.present? && benefit_group.end_on <= TimeKeeper.date_of_record)
   end
 
-  def can_select_coverage?(qle: false)
+  def can_select_coverage?(arg = {})
+    qle = arg[:qle] || false
     return true if is_cobra_status?
 
     if is_shop?

@@ -106,7 +106,7 @@ RSpec.describe ::SponsoredBenefits::Organizations::PlanDesignProposals::PlanRevi
             relationship: relationship_benefit.relationship
           }]
         },
-        format: :js
+        xhr: true
       }
 
       expect(response).to be_successful
