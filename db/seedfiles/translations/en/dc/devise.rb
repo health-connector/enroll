@@ -11,4 +11,5 @@ DEVISE_TRANSLATIONS = {
   "en.devise.shared.links.create_account" => "Create account",
   "en.devise.shared.links.did_not_receive_confirmation_instructions" => "Didn't receive confirmation instructions",
   "en.devise.shared.links.sign_in_with_provider" => "Sign in with %{provider}",
+  "en.devise.passwords.new.generic_forgot_password_text" => "You will receive an email with instructions on how to reset your password in a few minutes if an account associated to this email exists."
 }
