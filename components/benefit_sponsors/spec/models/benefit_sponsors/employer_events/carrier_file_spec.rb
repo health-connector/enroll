@@ -12,7 +12,7 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
 
     let(:event_time) { double }
     let(:employer_profile_id) { "employer hbx_id" }
-    let(:employer_profile) { FactoryGirl.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_initial_benefit_application, hbx_id: employer_profile_id)}
+    let(:employer_profile) { FactoryBot.create(:benefit_sponsors_benefit_sponsorship, :with_benefit_market, :with_organization_cca_profile, :with_initial_benefit_application, hbx_id: employer_profile_id)}
     let(:employer) { employer_profile.organization }
     let(:employer_id) { employer.hbx_id }
     let(:old_plan_year) { employer_profile.benefit_applications.last }
