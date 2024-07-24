@@ -116,11 +116,14 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
   end
 
 
-  describe "GET export_census_employees", dbclean: :after_each do
-    it "should export cvs" do
-      sign_in(admin_user)
-      get :export_census_employees, params: { employer_profile_id: employer_profile}, format: :csv
-      expect(response).to have_http_status(:success)
+  describe "GET delete_documents", dbclean: :after_each do
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
     end
 
     context "without permissions" do

@@ -11,6 +11,8 @@ module SponsoredBenefits
     before_action :claimed_quotes_are_view_only, only: [:edit]
 
     def index
+      authorize @plan_design_organization, :plan_design_proposal_index?
+
       @datatable = effective_datatable
     end
 
@@ -18,6 +20,7 @@ module SponsoredBenefits
       # TODO FIXME: Raghuram suggested to move this action into employer_profiles_controller.rb in main app as the button exists in the employer portal.
       employer_profile_id = params.fetch(:employer_profile_id, nil)
       organization =  BenefitSponsors::Organizations::Organization.where(:"profiles._id" => BSON::ObjectId.from_string(employer_profile_id)).first
+      authorize organization.employer_profile, :plan_design_proposal_claim?
 
       quote_claim_code = params.fetch(:claim_code, nil).try(:upcase)
 
@@ -44,6 +47,9 @@ module SponsoredBenefits
     end
 
     def publish
+      plan_design_organization = @plan_design_proposal.plan_design_organization
+      authorize plan_design_organization, :plan_design_proposal_publish?
+
       if @plan_design_proposal.may_publish?
         @plan_design_proposal.publish!
         flash[:notice] = "Quote Published"
@@ -57,6 +63,8 @@ module SponsoredBenefits
     end
 
     def new
+      authorize @plan_design_organization, :plan_design_proposal_new?
+
       if @plan_design_organization.employer_profile.present?
         begin
           saved, plan_design_proposal = @plan_design_organization.valid_plan_design_organization
@@ -81,6 +89,8 @@ module SponsoredBenefits
 
     def show
       @plan_design_organization = @plan_design_proposal.plan_design_organization
+      authorize @plan_design_organization, :plan_design_proposal_show?
+
       @benefit_group = @plan_design_proposal.active_benefit_group
       sponsorship = @plan_design_proposal.profile.benefit_sponsorships.first
       @census_employees = sponsorship.census_employees
@@ -98,11 +108,15 @@ module SponsoredBenefits
     end
 
     def edit
+      authorize @plan_design_organization, :plan_design_proposal_edit?
+
       @plan_design_proposal = SponsoredBenefits::Forms::PlanDesignProposal.new(organization: @plan_design_organization, proposal_id: params[:id])
       init_employee_datatable
     end
 
     def create
+      authorize @plan_design_organization, :plan_design_proposal_create?
+
       @plan_design_proposal = SponsoredBenefits::Forms::PlanDesignProposal.new({
           organization: @plan_design_organization
         }.merge(plan_design_proposal_params))
@@ -119,6 +133,8 @@ module SponsoredBenefits
     end
 
     def update
+      authorize @plan_design_organization, :plan_design_proposal_update?
+
       @plan_design_proposal = SponsoredBenefits::Forms::PlanDesignProposal.new({
         organization: @plan_design_organization, proposal_id: params[:id]
         }.merge(plan_design_proposal_params))
@@ -135,6 +151,9 @@ module SponsoredBenefits
     end
 
     def destroy
+      plan_design_organization = @plan_design_proposal.plan_design_organization
+      authorize plan_design_organization, :plan_design_proposal_destroy?
+
       @plan_design_proposal.destroy!
       redirect_to organizations_plan_design_organization_plan_design_proposals_path(@plan_design_proposal.plan_design_organization._id)
     end

@@ -114,4 +114,80 @@ class EmployerProfilePolicy < ApplicationPolicy
     active_staff_roles = user.person.employer_staff_roles.active
     active_staff_roles.any? {|role| role.benefit_sponsor_employer_profile_id == record.id }
   end
+
+  def new?
+    has_modify_permissions?
+  end
+
+  def edit?
+    has_modify_permissions?
+  end
+
+  def late_rates_check?
+    has_modify_permissions?
+  end
+
+  def reference_plans?
+    has_modify_permissions?
+  end
+
+  def dental_reference_plans?
+    has_modify_permissions?
+  end
+
+  def generate_dental_carriers_and_plans?
+    has_modify_permissions?
+  end
+
+  def generate_health_carriers_and_plans?
+    has_modify_permissions?
+  end
+
+  def plan_details?
+    has_modify_permissions?
+  end
+
+  def recommend_dates?
+    has_modify_permissions?
+  end
+
+  def reference_plan_options?
+    has_modify_permissions?
+  end
+
+  def publish?
+    has_modify_permissions?
+  end
+
+  def force_publish?
+    has_modify_permissions?
+  end
+
+  def search_reference_plan?
+    has_modify_permissions?
+  end
+
+  def make_default_benefit_group?
+    has_modify_permissions?
+  end
+
+  def delete_benefit_group?
+    has_modify_permissions?
+  end
+
+  def calc_employer_contributions?
+    has_modify_permissions?
+  end
+
+  def calc_offered_plan_contributions?
+    has_modify_permissions?
+  end
+
+  def employee_costs?
+    has_modify_permissions?
+  end
+
+  def reference_plan_summary?
+    has_modify_permissions?
+  end
 end
