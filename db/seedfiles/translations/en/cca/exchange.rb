@@ -55,5 +55,6 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.swal_title" => "Please Hold!",
   "en.exchange.employer_applications.swal_text" => "Admin action is in-progress",
   "en.exchange.download_failed" => "Failed to download.",
-  "en.exchange.not_authorized" => "You are not authorized to perform this action."
+  "en.exchange.not_authorized" => "You are not authorized to perform this action.",
+  "en.exchange.agent.not_authorized" => "You must be an Agent: CSR, CAC, IPA or a Broker"
 }.freeze

@@ -1,9 +1,9 @@
 class Users::OrphansController < ApplicationController
   layout "two_column"
-  before_action :check_agent_role
   before_action :set_orphan, only: [:show, :destroy]
 
   def index
+    authorize User, :staff_can_access_user_account_tab?
     @orphans = User.orphans
   end
 
@@ -11,6 +11,7 @@ class Users::OrphansController < ApplicationController
   end
 
   def destroy
+    authorize User, :staff_can_access_user_account_tab?
     @orphan.destroy
     respond_to do |format|
       format.html { redirect_to exchanges_hbx_profiles_path, notice: 'Orphan user account was successfully deleted.' }
@@ -19,12 +20,6 @@ class Users::OrphansController < ApplicationController
   end
 
 private
-  def check_agent_role
-    unless current_user.has_hbx_staff_role? 
-      redirect_to root_path, :flash => { :error => "You must be an HBX Administrator" }
-    end
-  end
-
     # Use callbacks to share common setup or constraints between actions.
     def set_orphan
       @orphan = User.find(params[:id])

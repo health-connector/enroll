@@ -68,6 +68,14 @@ module BenefitSponsors
         access_to_broker_agency_profile?
       end
 
+      def plan_design_org_new?
+        access_to_broker_agency_profile?
+      end
+
+      def plan_design_org_create?
+        access_to_broker_agency_profile?
+      end
+
       protected
 
       def has_matching_broker_agency_staff_role?

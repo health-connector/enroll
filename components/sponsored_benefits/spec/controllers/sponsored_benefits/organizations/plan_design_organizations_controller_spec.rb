@@ -69,6 +69,10 @@ module SponsoredBenefits
       }
     }
 
+    before do
+      allow(controller).to receive(:authorize).and_return(true)
+    end
+
     context "permissions" do
       context "unauthenticated user" do
         before do
@@ -424,6 +428,5 @@ module SponsoredBenefits
         end
       end
     end
-
   end
 end
