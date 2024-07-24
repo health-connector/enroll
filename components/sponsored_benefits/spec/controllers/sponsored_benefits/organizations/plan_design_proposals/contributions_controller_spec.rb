@@ -13,6 +13,7 @@ module SponsoredBenefits
   RSpec.describe Organizations::PlanDesignProposals::ContributionsController, type: :controller, dbclean: :around_each do
     render_views
     routes { SponsoredBenefits::Engine.routes }
+    let(:valid_session) { {} }
     let(:current_person) { double(:current_person) }
     let(:active_user) { double(:has_hbx_staff_role? => false) }
     let(:broker_role) { double(:broker_role, id: 3) }
