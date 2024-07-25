@@ -74,6 +74,7 @@ describe PersonPolicy do
     end
   end
 
+
   context "for broker login" do
     let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:broker_organization) { FactoryBot.build(:benefit_sponsors_organizations_general_organization, site: site) }
@@ -102,6 +103,41 @@ describe PersonPolicy do
 
         it 'broker should not be able to update' do
           expect(policy.can_download_document?).to be false
+        end
+      end
+    end
+
+    context 'modify family permissions' do
+      let(:organization) {FactoryBot.build(:organization)}
+      let(:employer_profile) {FactoryBot.create(:employer_profile, organization: organization)}
+      let(:person_2) {FactoryBot.create(:person, :with_family, :with_employee_role)}
+      let(:employee_role) {person_2.employee_roles.first}
+      let(:census_employee) {FactoryBot.create(:census_employee)}
+
+      let(:broker_organization_3) { FactoryBot.build(:benefit_sponsors_organizations_general_organization, site: site) }
+      let(:broker_agency_profile_3) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization_3, market_kind: 'shop', legal_name: 'Legal Name 3') }
+      let(:writing_agent) { FactoryBot.create(:broker_role, aasm_state: 'active', benefit_sponsors_broker_agency_profile_id: broker_agency_profile_3.id) }
+      let!(:broker_role_3) { FactoryBot.create(:broker_role, benefit_sponsors_broker_agency_profile_id: broker_agency_profile_3.id, aasm_state: :active) }
+      let!(:broker_role_user_3) {FactoryBot.create(:user, :person => broker_role_3.person, roles: ['broker_role'])}
+      let!(:broker_agency_account) { FactoryBot.create(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile_3) }
+
+      context 'family has associated active broker agency account' do
+        let(:policy) {PersonPolicy.new(broker_role_user_3, person_2)}
+
+        before do
+          person_2.primary_family.broker_agency_accounts = [broker_agency_account]
+        end
+
+        it 'should allow broker to update' do
+          expect(policy.can_update?).to be true
+        end
+      end
+
+      context 'unauthorized broker' do
+        let(:policy) {PersonPolicy.new(broker_role_user_2, person_2)}
+
+        it 'should not allow broker to update' do
+          expect(policy.can_update?).to be false
         end
       end
     end
