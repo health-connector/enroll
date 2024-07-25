@@ -132,32 +132,8 @@ module Employers
       if (current_user.has_employer_staff_role? && @employer_profile.staff_roles.include?(current_user.person)) || current_user.person.agent?
         @organization.assign_attributes(organization_profile_params)
 
-  def update
-    sanitize_employer_profile_params
-    @organization = Organization.find(params.permit(:id))
-
-    #save duplicate office locations as json in case we need to refresh
-    @organization_dup = @organization.office_locations.serializable_hash
-    @employer_profile = @organization.employer_profile
-    authorize @employer_profile
-    @employer = @employer_profile.match_employer(current_user)
-    if (current_user.has_employer_staff_role? && @employer_profile.staff_roles.include?(current_user.person)) || current_user.person.agent?
-      @organization.assign_attributes(organization_profile_params)
-
-      #clear office_locations, don't worry, we will recreate
-      @organization.assign_attributes(:office_locations => [])
-      @organization.save(validate: false)
-
-      if @organization.update_attributes(employer_profile_params)
-        @organization.notify_legal_name_or_fein_change
-        @organization.notify_address_change(@organization_dup,employer_profile_params)
-        flash[:notice] = 'Employer successfully Updated.'
-        redirect_to edit_employers_employer_profile_path(@organization)
-      else
-        org_error_msg = @organization.errors.full_messages.join(",").humanize if @organization.errors.present?
-
-        #in case there was an error, reload from saved json
-        @organization.assign_attributes(:office_locations => @organization_dup)
+        #clear office_locations, don't worry, we will recreate
+        @organization.assign_attributes(:office_locations => [])
         @organization.save(validate: false)
 
         if @organization.update_attributes(employer_profile_params)
@@ -262,7 +238,7 @@ module Employers
       doc = @employer_profile.documents.find(params[:ids][0])
       send_file doc.identifier, file_name: doc.title,content_type: doc.format
 
-        #render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
+      #render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
       #rescue => e
       #  render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
       #end
@@ -460,13 +436,13 @@ module Employers
     end
 
     def wrap_in_benefit_group_cache
-  #    prof_result = RubyProf.profile do
+      #    prof_result = RubyProf.profile do
       Caches::RequestScopedCache.allocate(:employer_calculation_cache_for_benefit_groups)
       yield
       Caches::RequestScopedCache.release(:employer_calculation_cache_for_benefit_groups)
-  #    end
-  #    printer = RubyProf::MultiPrinter.new(prof_result)
-  #    printer.print(:path => File.join(Rails.root, "rprof"), :profile => "profile")
+      #    end
+      #    printer = RubyProf::MultiPrinter.new(prof_result)
+      #    printer.print(:path => File.join(Rails.root, "rprof"), :profile => "profile")
     end
 
     def employer_params
