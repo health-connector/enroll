@@ -6,7 +6,7 @@ class CarrierServiceArea
   field :issuer_hios_id, type: String
   field :service_area_id, type: String
   field :service_area_name, type: String
-  field :serves_entire_state, type: Mongoid::Boolean, default: false
+  field :serves_entire_state, type: Boolean, default: false
   field :county_name, type: String
   field :county_code, type: String
   field :state_code, type: String
