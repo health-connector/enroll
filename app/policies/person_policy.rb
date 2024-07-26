@@ -85,16 +85,17 @@ class PersonPolicy < ApplicationPolicy
   end
 
   def broker_agency_profile_matches?
-    agency_id = role.benefit_sponsors_broker_agency_profile_id
+    agency_id = role&.benefit_sponsors_broker_agency_profile_id
 
     family_active_broker = associated_family&.active_broker_agency_account
-    family_active_broker_matches = family_active_broker.present? && family_active_broker.benefit_sponsors_broker_agency_profile_id == agency_id
-
     active_er = associated_family.primary_person&.active_employee_roles&.first
     employer_active_broker = active_er&.employer_profile&.active_broker_agency_account
-    employer_active_broker_matches = employer_active_broker.present? && employer_active_broker.benefit_sponsors_broker_agency_profile_id == agency_id
 
-    family_active_broker_matches || employer_active_broker_matches
+    broker_matches?(family_active_broker, agency_id) || broker_matches?(employer_active_broker, agency_id)
+  end
+
+  def broker_matches?(broker, agency_id)
+    broker.present? && broker.benefit_sponsors_broker_agency_profile_id == agency_id
   end
 
   def role
