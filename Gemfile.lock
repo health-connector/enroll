@@ -803,7 +803,7 @@ GEM
     rspec-mocks (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (5.0.3)
+    rspec-rails (5.1.2)
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       railties (>= 5.2)
@@ -1058,7 +1058,6 @@ DEPENDENCIES
   mail (~> 2.7)
   maskedinput-rails
   money-rails (~> 1.10.0)
-  mongo (= 2.19.3)
   mongo_session_store (~> 3.1)
   mongoid (~> 7.5.4)
   mongoid-autoinc (~> 6.0)
@@ -1090,7 +1089,7 @@ DEPENDENCIES
   roo (~> 2.1.0)
   rspec-benchmark
   rspec-instafail
-  rspec-rails (= 5.0.3)
+  rspec-rails (~> 5.1.2)
   rspec_junit_formatter (= 0.2.3)
   rubocop
   rubocop-git
