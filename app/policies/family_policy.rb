@@ -131,6 +131,14 @@ class FamilyPolicy < ApplicationPolicy
     admin_show?
   end
 
+  def upload_paper_application_coverall?
+    coverall_market_admin?
+  end
+
+  def download_paper_application_coverall?
+    coverall_market_admin?
+  end
+
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def legacy_show?
     user_person = @user.person
