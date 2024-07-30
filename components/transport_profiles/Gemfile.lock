@@ -130,7 +130,6 @@ GEM
     marcel (1.0.4)
     method_source (1.1.0)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.7)
     minitest (5.24.1)
     mongo (2.20.1)
       bson (>= 4.14.1, < 6.0.0)
@@ -151,10 +150,9 @@ GEM
       net-protocol
     net-ssh (4.2.0)
     nio4r (2.7.3)
-    nokogiri (1.15.6)
-      mini_portile2 (~> 2.8.2)
+    nokogiri (1.16.6-arm64-darwin)
       racc (~> 1.4)
-    public_suffix (5.1.1)
+    public_suffix (6.0.1)
     racc (1.8.0)
     rack (2.2.9)
     rack-test (2.1.0)
@@ -187,7 +185,7 @@ GEM
       method_source
       rake (>= 0.8.7)
       thor (>= 0.20.3, < 2.0)
-    rake (13.2.1)
+    rake (12.3.3)
     rbtree (0.4.6)
     rexml (3.3.2)
       strscan
@@ -214,17 +212,17 @@ GEM
     rspec-support (3.13.1)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
-    serverengine (2.0.7)
+    serverengine (2.1.1)
       sigdump (~> 0.2.2)
-    set (1.0.4)
-    shoulda-matchers (5.3.0)
+    set (1.1.0)
+    shoulda-matchers (6.2.0)
       activesupport (>= 5.2.0)
     sigdump (0.2.5)
-    sneakers (2.11.0)
-      bunny (~> 2.12)
+    sneakers (2.12.0)
+      bunny (~> 2.14)
       concurrent-ruby (~> 1.0)
-      rake
-      serverengine (~> 2.0.5)
+      rake (~> 12.3)
+      serverengine (~> 2.1.0)
       thor
     sorted_set (1.0.3)
       rbtree
@@ -254,7 +252,7 @@ GEM
     zeitwerk (2.6.16)
 
 PLATFORMS
-  ruby
+  arm64-darwin-23
 
 DEPENDENCIES
   acapi!
@@ -266,4 +264,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.1.4
+   2.4.22

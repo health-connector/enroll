@@ -238,7 +238,7 @@ module Employers
       doc = @employer_profile.documents.find(params[:ids][0])
       send_file doc.identifier, file_name: doc.title,content_type: doc.format
 
-        #render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
+      #render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
       #rescue => e
       #  render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
       #end
@@ -436,13 +436,13 @@ module Employers
     end
 
     def wrap_in_benefit_group_cache
-  #    prof_result = RubyProf.profile do
+      #    prof_result = RubyProf.profile do
       Caches::RequestScopedCache.allocate(:employer_calculation_cache_for_benefit_groups)
       yield
       Caches::RequestScopedCache.release(:employer_calculation_cache_for_benefit_groups)
-  #    end
-  #    printer = RubyProf::MultiPrinter.new(prof_result)
-  #    printer.print(:path => File.join(Rails.root, "rprof"), :profile => "profile")
+      #    end
+      #    printer = RubyProf::MultiPrinter.new(prof_result)
+      #    printer.print(:path => File.join(Rails.root, "rprof"), :profile => "profile")
     end
 
     def employer_params

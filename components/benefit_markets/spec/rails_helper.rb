@@ -7,7 +7,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 require 'shoulda/matchers'
-require 'database_cleaner'
+require 'database_cleaner/mongoid'
 require 'capybara/rails'
 require 'capybara/rspec'
 require 'forgery'
@@ -48,7 +48,7 @@ RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   #config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
-  DatabaseCleaner.strategy = :truncation, {:except => %w[translations]}
+  DatabaseCleaner.strategy = :deletion, {:except => %w[translations]}
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.

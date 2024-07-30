@@ -16,7 +16,7 @@ class ResidentRole
   field :is_applicant, type: Boolean  # Consumer is applying for benefits coverage
   field :is_active, type: Boolean, default: true
   field :bookmark_url, type: String, default: nil
-  field :is_state_resident, type: Boolean, default:true
+  field :is_state_resident, type: Boolean, default: true
   field :residency_determined_at, type: DateTime
 
   field :contact_method, type: String, default: "Paper and Electronic communications"
