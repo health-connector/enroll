@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'html_scrubber_util'
 module L10nHelper
-  # TODO had to comment this for translations to work
+  # TODO: had to comment this for translations to work
   # include ActionView::Helpers::TranslationHelper
   include HtmlScrubberUtil
 
@@ -34,7 +35,7 @@ module L10nHelper
   end
 
   def handle_missing_translation(translation_key, error)
-    Rails.logger.error {"#L10nHelper missing translation for key: #{translation_key}, error: #{error.inspect}"}
+    # Rails.logger.error {"#L10nHelper missing translation for key: #{translation_key}, error: #{error.inspect}"}
 
     sanitize_result(default_translation(translation_key), translation_key)
   end

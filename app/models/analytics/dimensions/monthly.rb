@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 module Analytics
-  class Dimensions::Monthly
-    include Mongoid::Document
+  module Dimensions
+    class Monthly
+      include Mongoid::Document
 
       field :title, type: String
       field :site,  type: String, default: "dchbx"
@@ -54,7 +57,7 @@ module Analytics
         day_of_month = new_date.day
 
         # Use the Mongoid increment (inc) function
-        inc("d#{day_of_month}".to_sym => 1)
+        inc(:"d#{day_of_month}" => 1)
         self
       end
 
@@ -62,11 +65,13 @@ module Analytics
         (1..31).map { |i| public_send("d#{i}") }
       end
 
-    private
+      private
+
       def pre_allocate_document
         self.month = date.month
         self.year  = date.year
       end
 
+    end
   end
 end

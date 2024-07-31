@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.join(File.dirname(__FILE__), "..", "support/benefit_sponsors_site_spec_helpers")
 
 RSpec.shared_context "setup benefit market with market catalogs and product packages", :shared_context => :metadata do
@@ -13,22 +15,19 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
   let(:catalog_dental_package_kinds) { [:single_product] }
 
 
-  #
   let!(:prior_rating_area)   { create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year - 1) }
   let!(:current_rating_area) { create(:benefit_markets_locations_rating_area, active_year: current_effective_date.year) }
   let!(:renewal_rating_area) { create(:benefit_markets_locations_rating_area, active_year: renewal_effective_date.year) }
 
   let(:product_kinds)  { [:health] }
 
-  let(:service_area) {
+  let(:service_area) do
     county_zip_id = create(:benefit_markets_locations_county_zip, county_name: 'Middlesex', zip: '01754', state: 'MA').id
     create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip_id], active_year: current_effective_date.year)
-  }
-  #
-  let(:renewal_service_area) {
+  end
+  let(:renewal_service_area) do
     create(:benefit_markets_locations_service_area, county_zip_ids: service_area.county_zip_ids, active_year: service_area.active_year + 1)
-  }
-  #
+  end
   let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
   let!(:health_products) do
     create_list(
@@ -57,7 +56,6 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
       metal_level_kind: :dental
     )
   end
-  #
   let!(:current_benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,
@@ -68,7 +66,6 @@ RSpec.shared_context "setup benefit market with market catalogs and product pack
       application_period: (current_effective_date.beginning_of_year..current_effective_date.end_of_year)
     )
   end
-  #
   let!(:renewal_benefit_market_catalog) do
     create(
       :benefit_markets_benefit_market_catalog,

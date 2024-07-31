@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitMarkets
   class BenefitMarket
     include Mongoid::Document
@@ -17,7 +19,7 @@ module BenefitMarkets
 
     embeds_one :configuration, class_name: "BenefitMarkets::Configurations::Configuration"
     embeds_one :contact_center_setting, class_name: "BenefitMarkets::ContactCenterConfiguration",
-               autobuild: true
+                                        autobuild: true
 
   end
 end
