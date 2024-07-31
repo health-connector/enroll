@@ -16,8 +16,8 @@ module L10nHelper
     result = fetch_translation(translation_key.to_s, interpolated_keys)
 
     sanitize_result(result, translation_key)
-  rescue I18n::MissingTranslationData, RuntimeError => e
-    handle_missing_translation(translation_key, e)
+  rescue I18n::MissingTranslationData, RuntimeError => _
+    handle_missing_translation(translation_key)
   end
 
   private
@@ -34,9 +34,7 @@ module L10nHelper
     sanitize_html(result)
   end
 
-  def handle_missing_translation(translation_key, _error)
-    # Rails.logger.error {"#L10nHelper missing translation for key: #{translation_key}, error: #{error.inspect}"}
-
+  def handle_missing_translation(translation_key)
     sanitize_result(default_translation(translation_key), translation_key)
   end
 
