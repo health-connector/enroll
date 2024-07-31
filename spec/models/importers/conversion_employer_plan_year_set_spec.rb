@@ -75,8 +75,19 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
     end
 
     let(:base_output_result) do
-      "Action,FEIN,Doing Business As,Legal Name,Physical Address 1,Physical Address 2,City,State,Zip,County,Mailing Address 1,Mailing Address 2,City,State,Zip,Contact First Name,Contact Last Name,Contact Email,Contact Phone,Enrolled Employee Count,New Hire Coverage Policy,Contact Address 1,Contact Address 2,City,State,Zip,Broker Name,Broker NPN,TPA Name,TPA FEIN,Coverage Start Date,Carrier Selected,Plan Selection Category,Plan Name,Plan HIOS Id,Most Enrollees - Plan Name,Most Enrollees - Plan HIOS Id,Reference Plan - Name,Reference Plan - HIOS Id,Employer Contribution -  Employee,Employer Contribution - Spouse,Employer Contribution - Domestic Partner,Employer Contribution - Child under 26,Employer Contribution - Child over 26,Employer Contribution - Disabled child over 26,Import Status,Import Details\nAdd,521782000,MCP DBA,MCP LEGAL,3001 P Street N.W., ,Washington,DC,20007,County,3001 P Street N.W., ,Washington,DC,20007,The,Contact,thecontact@mcp.com,2025554100,3, ,3001 P Street N.W., ,Washington,DC,20007,The Broker,629000, , ,07/01/2016,CareFirst BlueCross BlueShield,Single Plan from Carrier ,BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01,BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
+      "Action,FEIN,Doing Business As,Legal Name,Physical Address 1,Physical Address 2,City,State,Zip,County,Mailing Address 1," \
+        "Mailing Address 2,City,State,Zip,Contact First Name,Contact Last Name,Contact Email,Contact Phone,Enrolled Employee Count," \
+        "New Hire Coverage Policy,Contact Address 1,Contact Address 2,City,State,Zip,Broker Name,Broker NPN,TPA Name,TPA FEIN," \
+        "Coverage Start Date,Carrier Selected,Plan Selection Category,Plan Name,Plan HIOS Id,Most Enrollees - Plan Name,Most Enrollees - " \
+        "Plan HIOS Id,Reference Plan - Name,Reference Plan - HIOS Id,Employer Contribution -  Employee,Employer Contribution - Spouse," \
+        "Employer Contribution - Domestic Partner,Employer Contribution - Child under 26,Employer Contribution - Child over 26," \
+        "Employer Contribution - Disabled child over 26,Import Status,Import Details\n" \
+        "Add,521782000,MCP DBA,MCP LEGAL,3001 P Street N.W., ,Washington,DC,20007,County,3001 P Street N.W., ,Washington,DC,20007,The," \
+        "Contact,thecontact@mcp.com,2025554100,3, ,3001 P Street N.W., ,Washington,DC,20007,The Broker,629000, , ,07/01/2016," \
+        "CareFirst BlueCross BlueShield,Single Plan from Carrier ,BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01," \
+        "BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
     end
+
 
     describe "with a valid employer record" do
       let(:record_save_result) { true }
