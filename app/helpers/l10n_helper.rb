@@ -34,7 +34,7 @@ module L10nHelper
     sanitize_html(result)
   end
 
-  def handle_missing_translation(translation_key, error)
+  def handle_missing_translation(translation_key, _error)
     # Rails.logger.error {"#L10nHelper missing translation for key: #{translation_key}, error: #{error.inspect}"}
 
     sanitize_result(default_translation(translation_key), translation_key)
