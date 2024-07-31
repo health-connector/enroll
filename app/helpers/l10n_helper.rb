@@ -16,7 +16,7 @@ module L10nHelper
     result = fetch_translation(translation_key.to_s, interpolated_keys)
 
     sanitize_result(result, translation_key)
-  rescue I18n::MissingTranslationData, RuntimeError => _
+  rescue I18n::MissingTranslationData, RuntimeError => _e
     handle_missing_translation(translation_key)
   end
 
