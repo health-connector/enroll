@@ -117,5 +117,29 @@ module BenefitSponsors
         end
       end
     end
+
+    context 'for a user with broker role' do
+      let(:user) { FactoryBot.create(:user, person: person, roles: ["broker"]) }
+      let(:person) { FactoryBot.create(:person) }
+      let(:broker_role) { FactoryBot.create(:broker_role, person: person) }
+      let!(:broker_organization)    { FactoryBot.build(:benefit_sponsors_organizations_general_organization, site: site)}
+      let!(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, organization: broker_organization, market_kind: 'shop', legal_name: 'Legal Name1', primary_broker_role: broker_role) }
+      let(:employer_profile) {benefit_sponsorship.organization.employer_profile}
+      let!(:broker_agency_account) {FactoryBot.build(:benefit_sponsors_accounts_broker_agency_account, broker_agency_profile: broker_agency_profile, writing_agent_id: broker_role.id, is_active: true)}
+
+      shared_examples_for 'should permit for a user with broker role' do |policy_type|
+        before do
+          employer_profile.broker_agency_accounts << broker_agency_account
+          employer_profile.save
+        end
+
+        it 'should permit' do
+          expect(policy.send(policy_type)).to be true
+        end
+      end
+
+      it_behaves_like 'should permit for a user with broker role', :show?
+      it_behaves_like 'should permit for a user with broker role', :consumer_override?
+    end
   end
 end
