@@ -12,6 +12,12 @@ RSpec.describe WelcomeController, :type => :controller do
       it "renders welcome index" do
         expect(response).to render_template("index")
       end
+
+      it "has Cookie attributes" do
+        expect(response.headers["Set-Cookie"]).to match(/SameSite=Strict/)
+        expect(response.headers["Set-Cookie"]).to match(/HttpOnly/)
+        expect(response.headers["Strict-Transport-Security"]).to match(/max-age=31536000; includeSubDomains; preload/)
+      end
     end
 
     context "when not signed in" do
