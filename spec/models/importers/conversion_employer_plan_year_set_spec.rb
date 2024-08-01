@@ -84,7 +84,7 @@ describe ::Importers::ConversionEmployerPlanYearSet, dbclean: :around_each do
         "Employer Contribution - Disabled child over 26,Import Status,Import Details\n" \
         "Add,521782000,MCP DBA,MCP LEGAL,3001 P Street N.W., ,Washington,DC,20007,County,3001 P Street N.W., ,Washington,DC,20007,The," \
         "Contact,thecontact@mcp.com,2025554100,3, ,3001 P Street N.W., ,Washington,DC,20007,The Broker,629000, , ,07/01/2016," \
-        "CareFirst BlueCross BlueShield,Single Plan from Carrier ,BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01," \
+        "CareFirst BlueCross BlueShield,Single Plan from Carrier,BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01," \
         "BC HMO Ref  500 Gold Trad Dental Drug,86052DC0480005-01,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
     end
 
