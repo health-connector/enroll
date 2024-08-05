@@ -28,7 +28,6 @@ gem 'chosen-rails'
 gem 'ckeditor'
 gem 'coffee-rails', '~> 5.0.0'
 gem 'combine_pdf'
-# gem 'curl'
 gem 'devise',  '~> 4.5'
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
 gem 'haml'
@@ -122,7 +121,6 @@ group :development do
   gem 'rubocop-rspec'
   gem 'rubocop-git'
   gem 'web-console', '2.3.0'
-  gem 'next_rails'
 end
 
 group :development, :test do
@@ -137,7 +135,7 @@ group :development, :test do
   gem 'rails-controller-testing'
   gem 'puma', '~> 5.6', '>= 5.6.8'
   gem 'railroady', '~> 1.5.2'
-  gem 'rspec-rails', '5.0.3'
+  gem 'rspec-rails', '~> 5.1.2'
   gem 'rspec_junit_formatter', '0.2.3'
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false
