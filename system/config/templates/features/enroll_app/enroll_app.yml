@@ -49,3 +49,9 @@ registry:
       - key: :upload_file_size_limit_in_mb
         item: <%= ENV['UPLOAD_FILE_SIZE_LIMIT_IN_MB'] || 10 %>
         is_enabled: true
+      - key: :generic_forgot_password_text
+        item: :generic_forgot_password_text
+        is_enabled: <%= ENV['GENERIC_FORGOT_PASSWORD_TEXT_IS_ENABLED'] || false %>
+      - key: :prevent_concurrent_sessions
+        item: :prevent_concurrent_sessions
+        is_enabled: <%= ENV['PREVENT_CONCURRENT_SESSIONS_IS_ENABLED'] || false %>
