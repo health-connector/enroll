@@ -3,13 +3,16 @@
 
 <div class="content landing">
   <%= render "exchanges/agents/primary_nav", :active_tab => "home-tab" %>
-  <div class="container top-pd">
-    <div aria-labelledby="inbox-tab" id="inbox" class="tab-pane-hbx" role="tabpanel">
-      <div class="col-xs-12">
-          <%= render 'consumer_application_links' %>
+
+  <% if Settings.aca.market_kinds.include?("individual") %>
+    <div class="container top-pd">
+      <div aria-labelledby="inbox-tab" id="inbox" class="tab-pane-hbx" role="tabpanel">
+        <div class="col-xs-12">
+            <%= render 'consumer_application_links' %>
+        </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <% else %>

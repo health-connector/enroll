@@ -8,11 +8,12 @@ module SponsoredBenefits
     before_action :load_broker_agency_profile, only: [:new, :create]
 
     def new
+      authorize @broker_agency_profile, :plan_design_org_new?
       init_organization
     end
 
     def create
-      # old_broker_agency_profile = ::BrokerAgencyProfile.find(params[:broker_agency_id])
+      authorize @broker_agency_profile, :plan_design_org_create?
       broker_agency_profile = SponsoredBenefits::Organizations::BrokerAgencyProfile.find_or_initialize_broker_profile(@broker_agency_profile).broker_agency_profile
       broker_agency_profile.save unless broker_agency_profile.persisted?
 
@@ -28,6 +29,7 @@ module SponsoredBenefits
 
     def edit
       @organization = SponsoredBenefits::Organizations::PlanDesignOrganization.find(params[:id])
+      authorize @organization
 
       if @organization.is_prospect?
         get_sic_codes
@@ -39,6 +41,7 @@ module SponsoredBenefits
 
     def update
       pdo = SponsoredBenefits::Organizations::PlanDesignOrganization.find(params[:id])
+      authorize pdo
 
       if pdo.is_prospect?
         pdo.assign_attributes(organization_params)
@@ -57,6 +60,7 @@ module SponsoredBenefits
 
     def destroy
       organization = SponsoredBenefits::Organizations::PlanDesignOrganization.find(params[:id])
+      authorize organization
 
       if organization.is_prospect?
         if organization.plan_design_proposals.blank?

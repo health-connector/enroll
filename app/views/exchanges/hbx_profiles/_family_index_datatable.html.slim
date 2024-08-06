@@ -13,9 +13,9 @@ div
           = link_to 'New Employee Paper Application', begin_employee_enrollment_exchanges_agents_path(original_application_type: 'paper'), class: 'new_employee_paper_application'
       - if individual_market_is_enabled?
         li
-          = link_to 'New Consumer Phone Application', begin_consumer_enrollment_exchanges_agents_path(original_application_type: 'phone')
+          = link_to 'New Consumer Phone Application', begin_consumer_enrollment_individual_market_exchanges_agents_path(original_application_type: 'phone')
         li
-          = link_to 'New Consumer Paper Application', begin_consumer_enrollment_exchanges_agents_path(original_application_type: 'paper')
+          = link_to 'New Consumer Paper Application', begin_consumer_enrollment_individual_market_exchanges_agents_path(original_application_type: 'paper')
       - if individual_market_is_enabled? && policy(:family).hbx_super_admin_visible?
         li
           = link_to 'New DC Resident Application', begin_resident_enrollment_exchanges_residents_path(original_application_type: 'paper')
