@@ -240,5 +240,20 @@ module BenefitSponsors
         expect(JSON.parse(response.body, symoblize_names: true)).to include("business_rule" => "validated successfully")
       end
     end
+
+    describe "GET export_census_employees", dbclean: :after_each do
+      include_context "setup benefit market with market catalogs and product packages"
+      include_context "setup initial benefit application"
+
+      let(:admin_user) { FactoryBot.create(:user, :with_hbx_staff_role, :person => person)}
+      let(:employer_profile) { abc_profile }
+
+      it "should export cvs" do
+        sign_in(admin_user)
+        get :export_census_employees, params: {employer_profile_id: employer_profile}, format: :csv
+        expect(response).to have_http_status(:success)
+        expect(response).not_to have_content("SSN")
+      end
+    end
   end
 end

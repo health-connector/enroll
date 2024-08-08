@@ -115,6 +115,10 @@ module BenefitSponsors
       show?
     end
 
+    def consumer_override?
+      show?
+    end
+
     def is_staff_role_for_employer?
       active_staff_roles = user.person.employer_staff_roles.active
       active_staff_roles.any? {|role| role.benefit_sponsor_employer_profile_id == record.id }
