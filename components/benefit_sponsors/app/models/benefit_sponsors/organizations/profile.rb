@@ -11,7 +11,7 @@ module BenefitSponsors
       embedded_in :organization,  class_name: "BenefitSponsors::Organizations::Organization"
 
       # Profile subclass may sponsor benefits
-      field :is_benefit_sponsorship_eligible, type: Boolean,  default: false
+      field :is_benefit_sponsorship_eligible, type: Mongoid::Boolean,  default: false
       field :contact_method,                  type: Symbol,   default: :paper_and_electronic
 
       # TODO: Add logic to manage benefit sponsorships for Gapped coverage, early termination, banned employers

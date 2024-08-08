@@ -13,8 +13,8 @@ class ResidentRole
   embeds_one :lawful_presence_determination, as: :ivl_role
   embeds_many :paper_applications, as: :documentable
 
-  field :is_applicant, type: Boolean  # Consumer is applying for benefits coverage
-  field :is_active, type: Boolean, default: true
+  field :is_applicant, type: Mongoid::Boolean  # Consumer is applying for benefits coverage
+  field :is_active, type: Mongoid::Boolean, default: true
   field :bookmark_url, type: String, default: nil
   field :is_state_resident, type: Boolean, default: true
   field :residency_determined_at, type: DateTime

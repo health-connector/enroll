@@ -592,6 +592,7 @@ When(/^(.*) logs? out$/) do |_someone|
 end
 
 When(/^.+ go(?:es)? to register as an employee$/) do
+  sleep 1
   find('.interaction-click-control-continue').click
 end
 
@@ -758,8 +759,7 @@ And(/^.+ selects the first plan available$/) do
 end
 
 Then(/^.+ should see the dependents page$/) do
-  expect(page).to have_content('Add Member')
-  screenshot("dependents_page")
+  expect(page).to have_content('Add New Member')
 end
 
 When(/^.+ clicks? edit on baby Soren$/) do

@@ -76,7 +76,7 @@ class QualifyingLifeEventKind
   field :post_event_sep_in_days, type: Integer
   field :ordinal_position, type: Integer
 
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :event_on, type: Date
   field :coverage_effective_on, type: Date
   field :start_on, type: Date

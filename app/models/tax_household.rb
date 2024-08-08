@@ -17,7 +17,7 @@ class TaxHousehold
   increments :hbx_assigned_id, seed: 9999
 
   field :allocated_aptc, type: Money, default: 0.00
-  field :is_eligibility_determined, type: Boolean, default: false
+  field :is_eligibility_determined, type: Mongoid::Boolean, default: false
 
   field :effective_starting_on, type: Date
   field :effective_ending_on, type: Date

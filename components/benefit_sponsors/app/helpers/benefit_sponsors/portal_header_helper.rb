@@ -1,6 +1,6 @@
 module BenefitSponsors
   module PortalHeaderHelper
-    include L10nHelper
+    include ::L10nHelper
     def benefit_sponsors_portal_display_name(controller)
       if current_user.nil?
         "<a class='portal'>#{l10n("welcome.index.byline")}</a>".html_safe

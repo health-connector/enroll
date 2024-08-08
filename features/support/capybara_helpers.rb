@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module CapybaraHelpers
+  include L10nHelper
   include HtmlScrubberUtil
 
   # Perform an action then wait for the page to reload before proceeding
@@ -76,11 +77,6 @@ module CapybaraHelpers
     page.evaluate_script('jQuery.active').zero?
   end
 
-  def l10n(translation_key, interpolated_keys = {})
-    sanitize_html(I18n.t(translation_key, interpolated_keys.merge(raise: true)))
-  rescue I18n::MissingTranslationData
-    translation_key.gsub(/\W+/, '').titleize
-  end
 end
 
 World(CapybaraHelpers)
