@@ -176,6 +176,7 @@ jobs:
         with:
           rubygems: 3.3.26
           bundler-cache: true
+          cache-version: 1
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v1
         if: matrix.command_configs.skip_js != 'true'
