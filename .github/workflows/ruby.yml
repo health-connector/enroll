@@ -23,6 +23,7 @@ jobs:
             skip_js: "true"
             test_command: |
               git fetch --no-tags origin
+              ls -lha vendor/bundle
               bundle exec rubocop-git origin/master | grep "no offenses detected"
           # - name: Brakeman In Main app
           #   skip_js: 'true'
