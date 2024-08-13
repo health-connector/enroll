@@ -31,14 +31,11 @@ module Eligible
       eligible_periods = []
       date_range = {}
       state_histories.non_initial.each do |state_history|
-        if state_history.to_state ==
-           active_state
-          date_range[
-            :start_on
-          ] ||= state_history.effective_on
-        end
+
+        date_range[:start_on] ||= state_history.effective_on if state_history.to_state == active_state
 
         next unless date_range.present? && state_history.to_state == inactive_state
+
         date_range[:end_on] = state_history.effective_on.prev_day
         eligible_periods << date_range
         date_range = {}

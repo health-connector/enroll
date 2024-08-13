@@ -110,18 +110,16 @@ module Eligible
       end
 
       def create_objects(collection, type)
-        collection
-          .map do |item|
-            resource_name = send("#{type}_resource_for", item.key)
-            item_class =
-              RESOURCE_KINDS.find do |kind|
-                kind.name == (resource_name.sub(/^::/, ""))
-              end
-
-            next unless item_class
-            item_class.new(item.to_h)
+        collection.map do |item|
+          resource_name = send("#{type}_resource_for", item.key)
+          item_class = RESOURCE_KINDS.find do |kind|
+            kind.name == (resource_name.sub(/^::/, ""))
           end
-          .compact
+
+          next unless item_class
+
+          item_class.new(item.to_h)
+        end.compact
       end
     end
   end
