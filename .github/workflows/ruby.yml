@@ -192,13 +192,13 @@ jobs:
       - name: Set up Chromedriver
         if: matrix.command_configs.needs_chromedriver
         uses: nanasess/setup-chromedriver@master
-      - name: Cache Gems
-        uses: actions/cache@v1
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+      # - name: Cache Gems
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: vendor/bundle
+      #     key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
       - name: Cache Node Modules
         id: npm-cache
         if: matrix.command_configs.skip_js != 'true'
