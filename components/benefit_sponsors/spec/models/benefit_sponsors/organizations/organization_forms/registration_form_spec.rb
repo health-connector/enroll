@@ -128,6 +128,15 @@ module BenefitSponsors
       end
     end
 
+    it 'should error out create when county is nil' do
+        if profile_type == "benefit_sponsor"
+          params["organization"]["profile_attributes"]["office_locations_attributes"]["0"]["address_attributes"]["county"] = nil
+          create_form_no_county = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_create params
+          create_form_no_county.save
+          expect(create_form_no_county.errors.full_messages).to include(/must have a valid County for their primary office location/)
+        end
+      end
+
     describe '##for_create' do
 
       it_behaves_like "should validate create_form and save profile", "benefit_sponsor"
