@@ -51,13 +51,8 @@ module BenefitSponsors
       end
 
       def employee_person_ids
-        benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
-          :broker_agency_accounts => {"$elemMatch" => {:benefit_sponsors_broker_agency_profile_id => @broker_agency_profile_id, is_active: true}}
-        )
-
-        @census_employee_ids ||= benefit_sponsorships.map { |bs| bs.census_employees.distinct(:_id) }.flatten
-
-        employee_person_ids ||= Person.unscoped.where("employee_roles.census_employee_id" => {"$in" => @census_employee_ids}).pluck(:_id)
+        @census_employee_ids ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.includes(:census_employees).where(:broker_agency_accounts => {"$elemMatch" => {:benefit_sponsors_broker_agency_profile_id => @broker_agency_profile_id, is_active: true}}).map(&:census_employees).flatten.map(&:_id).uniq
+        Person.unscoped.where("employee_roles.census_employee_id" => {"$in" => @census_employee_ids}).pluck(:_id)
       end
 
       def build_people_id_criteria(s_string)
