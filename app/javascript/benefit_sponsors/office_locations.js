@@ -6,7 +6,7 @@ function checkOLKind(element) {
     row.find('#inputCounty').attr('disabled', true);
     row.find('#inputCounty').attr('data-target','zip-check.countySelect');
     row.find('#inputZip').attr('required', true);
-    row.find('#inputZip').attr('data-action', 'change->zip-check#zipChange');
+    row.find('#inputZip').attr('data-action', 'change->zip-check#zipChange click->zip-check#zipChange');
   } else {
     row.find('#inputCounty').removeAttr('required');
     row.find('#inputCounty').removeProp('required');
