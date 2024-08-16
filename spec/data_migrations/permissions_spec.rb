@@ -41,17 +41,33 @@ describe DefinePermissions, dbclean: :after_each do
     end
 
     context 'update can change username and email for super admin hbx staff role', dbclean: :before_each do
-      let(:given_task_name) {':hbx_admin_can_change_username_and_email'}
-      let(:person) { FactoryBot.create(:person) }
-      let(:permission) { FactoryBot.create(:permission, :super_admin) }
-      let(:role) { FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: permission.id) }
 
       before do
         subject.hbx_admin_can_change_username_and_email
       end
 
-      it "updates hbx_admin_can_change_username_and_email to true" do
-        expect(permission.reload.can_change_username_and_email).to be true
+      context "of an hbx super admin" do
+        let(:hbx_super_admin) do
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          end
+        end
+
+        it 'returns true' do
+          expect(hbx_super_admin.hbx_staff_role.permission.can_change_username_and_email).to be true
+        end
+      end
+
+      context "of an hbx tier3" do
+        let(:hbx_tier3) do
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          end
+        end
+
+        it 'returns true' do
+          expect(hbx_tier3.hbx_staff_role.permission.can_change_username_and_email).to be true
+        end
       end
     end
 
