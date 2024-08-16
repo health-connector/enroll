@@ -126,14 +126,14 @@ module BenefitSponsors
         expect(create_form.organization.profile_type).to eq profile_type
         expect(create_form.organization.profile.profile_type).to eq profile_type
       end
-    end
 
-    it 'should error out create when county is nil' do
-      if profile_type == "benefit_sponsor"
-        params["organization"]["profile_attributes"]["office_locations_attributes"]["0"]["address_attributes"]["county"] = nil
-        create_form_no_county = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_create params
-        create_form_no_county.save
-        expect(create_form_no_county.errors.full_messages).to include(/must have a valid County for their primary office location/)
+      it 'should error out create when county is nil' do
+        if profile_type == "benefit_sponsor"
+          params["organization"]["profile_attributes"]["office_locations_attributes"]["0"]["address_attributes"]["county"] = nil
+          create_form_no_county = BenefitSponsors::Organizations::OrganizationForms::RegistrationForm.for_create params
+          create_form_no_county.save
+          expect(create_form_no_county.errors.full_messages).to include(/must have a valid County for their primary office location/)
+        end
       end
     end
 
