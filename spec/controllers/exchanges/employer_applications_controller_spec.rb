@@ -163,6 +163,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     context 'Success' do
       before :each do
         allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_reinstate).and_return(true)
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:prevent_concurrent_sessions).and_return(false)
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
         initial_application.update_attributes!(:aasm_state => :terminated)
@@ -225,6 +226,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       context 'when feature enabled' do
         before :each do
           allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(true)
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:prevent_concurrent_sessions).and_return(false)
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
           put :application_history, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
@@ -239,6 +241,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       context 'when feature disabled' do
         before :each do
           allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(false)
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:prevent_concurrent_sessions).and_return(false)
           allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
           sign_in(user)
           put :application_history, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id }
