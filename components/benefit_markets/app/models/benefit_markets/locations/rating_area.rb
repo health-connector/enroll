@@ -13,6 +13,9 @@ module BenefitMarkets
     # specify which here.
     field :covered_states, type: Array
 
+    has_many :premium_value_products,
+             class_name: "BenefitMarkets::Products::PremiumValueProduct"
+
     validates_presence_of :active_year, allow_blank: false
     validates_presence_of :exchange_provided_code, allow_nil: false
 
