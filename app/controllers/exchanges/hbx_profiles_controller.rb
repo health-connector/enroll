@@ -455,7 +455,17 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def issuer_index
-    @issuers = CarrierProfile.all
+    @marketplaces = [{
+      name: "SHOP",
+      plans_number: Plan.all.size,
+      enrollments_number: Family.all_enrollments.size,
+      products_number: BenefitMarkets::Products::Product
+        .all
+        .map(:kind)
+        .uniq
+        .map { |kind| kind.to_s.capitalize }
+        .join(", ")
+    }]
 
     respond_to do |format|
       format.html { render "issuer_index" }

@@ -1,1 +1,23 @@
-h1.heading-text Issuers
+p#notice = notice
+
+#message_form
+
+.top-pd.row#inbox_provider_form
+  .col-lg-12.col-md-12.col-sm-12.col-xs-12
+    h1.heading-text Marketplaces
+  .col-lg-12.col-md-12.col-sm-12.col-xs-12
+    .table-responsive
+      table.table.table-wrapper style="opacity: 1;"
+        thead
+          tr
+            th Type
+            th # Plans
+            th Enrollments
+            th Products
+        tbody
+          - @marketplaces.each do |marketplace|
+            tr
+              td= link_to marketplace[:name], "#"
+              td= marketplace[:plans_number]
+              td= marketplace[:enrollments_number]
+              td= marketplace[:products_number]
