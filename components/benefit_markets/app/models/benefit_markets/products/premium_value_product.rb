@@ -12,6 +12,10 @@ module BenefitMarkets
       belongs_to :product, class_name: "BenefitMarkets::Products::Product"
       belongs_to :rating_area, class_name: "BenefitMarkets::Locations::RatingArea"
 
+      validates :product_id, :rating_area_id, presence: true
+
+      embeds_many :eligibilities, class_name: '::Eligible::Eligibility', as: :eligible, cascade_callbacks: true
+
     end
   end
 end
