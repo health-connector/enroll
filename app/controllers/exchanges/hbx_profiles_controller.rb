@@ -455,11 +455,12 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def issuer_index
+    authorize HbxProfile, :index?
     @marketplaces = [{
       name: "SHOP",
       plans_number: Plan.all.size,
       enrollments_number: Family.all_enrollments.size,
-      products_number: BenefitMarkets::Products::Product
+      products: BenefitMarkets::Products::Product
         .all
         .map(:kind)
         .uniq
