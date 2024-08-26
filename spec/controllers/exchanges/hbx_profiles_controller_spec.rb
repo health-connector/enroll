@@ -35,7 +35,6 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "renders issuer_index" do
-
       get :issuer_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/issuer_index")
