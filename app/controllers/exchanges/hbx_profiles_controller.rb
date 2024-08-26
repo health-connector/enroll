@@ -457,7 +457,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def issuer_index
     authorize HbxProfile, :view_admin_tabs?
     @marketplaces = [{
-      name: "SHOP",
+      name: l10n("marketplaces.shop_type"),
       plans_number: Plan.all.size,
       enrollments_number: Family.actual_enrollments_number,
       products: BenefitMarkets::Products::Product
