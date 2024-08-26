@@ -459,7 +459,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @marketplaces = [{
       name: "SHOP",
       plans_number: Plan.all.size,
-      enrollments_number: Family.all_enrollments.size,
+      enrollments_number: Family.actual_enrollments_number,
       products: BenefitMarkets::Products::Product
         .all
         .map(:kind)

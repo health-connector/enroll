@@ -32,3 +32,9 @@ en:
         employee_and_spouse: "Employee and Spouse"
         employee_and_one_or_more_dependents: "Employee and Child(ren)"
         family: "Family"
+  marketplaces:
+    index_title: "Marketplaces"
+    column_type: "Type"
+    column_plans: "# Plans"
+    column_enrollments: "Enrollments"
+    column_products: "Products"
