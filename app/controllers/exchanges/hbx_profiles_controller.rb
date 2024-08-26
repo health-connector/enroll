@@ -455,7 +455,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def issuer_index
-    authorize HbxProfile, :index?
+    authorize HbxProfile, :view_admin_tabs?
     @marketplaces = [{
       name: "SHOP",
       plans_number: Plan.all.size,

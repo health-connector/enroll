@@ -10,7 +10,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   describe "various index" do
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
     let(:person) { double("person")}
-    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:permission) { double(view_admin_tabs: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission)}
     let(:hbx_profile) { double("HbxProfile")}
 
     before :each do
@@ -18,7 +19,6 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
-      allow(hbx_staff_role).to receive(:hbx_profile).and_return(double('hbx_profile', index: true))
 
       sign_in(user)
     end
@@ -36,13 +36,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "renders issuer_index" do
-
       get :issuer_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/issuer_index")
     end
 
-    it "renders issuer_index" do
+    it "renders product_index" do
       get :product_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/product_index")
