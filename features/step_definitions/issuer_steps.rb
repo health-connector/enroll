@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When(/^the user will see Marketplaces table$/) do
   expect(page).to have_text('Type')
   expect(page).to have_text('# Plans')
