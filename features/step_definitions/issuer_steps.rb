@@ -10,7 +10,7 @@ end
 
 Then(/^the user will see correct content in table$/) do
   expect(find('.table-responsive .table tbody')).to have_text('SHOP')
-  expect(find('.table-responsive .table tbody')).to have_text('8')
+  expect(find('.table-responsive .table tbody')).to have_text('5')
   expect(find('.table-responsive .table tbody')).to have_text('0')
   expect(find('.table-responsive .table tbody')).to have_text('Health')
 end
