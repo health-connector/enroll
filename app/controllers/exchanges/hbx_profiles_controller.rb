@@ -458,12 +458,10 @@ class Exchanges::HbxProfilesController < ApplicationController
     authorize HbxProfile, :view_admin_tabs?
     @marketplaces = [{
       name: l10n("marketplaces.shop_type"),
-      plans_number: Plan.all.size,
+      plans_number: BenefitMarkets::Products::Product.count,
       enrollments_number: Family.actual_enrollments_number,
       products: BenefitMarkets::Products::Product
-        .all
-        .map(:kind)
-        .uniq
+        .distinct(:kind)
         .map { |kind| kind.to_s.capitalize }
         .join(", ")
     }]

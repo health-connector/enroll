@@ -1,13 +1,9 @@
-p#notice = notice
-
-#message_form
-
 .top-pd.row#inbox_provider_form
-  .col-lg-12.col-md-12.col-sm-12.col-xs-12
+  .col-lg-12
     h1.heading-text= l10n('marketplaces.index_title')
-  .col-lg-12.col-md-12.col-sm-12.col-xs-12
+  .col-lg-12
     .table-responsive
-      table.table.table-wrapper style="opacity: 1;"
+      table.table.table-wrapper
         thead
           tr
             th= l10n('marketplaces.column_type')
@@ -17,7 +13,7 @@ p#notice = notice
         tbody
           - @marketplaces.each do |marketplace|
             tr
-              td= link_to marketplace[:name], "#"
+              td= link_to marketplace[:name], "#", aria: { label: marketplace[:name] }
               td= marketplace[:plans_number]
               td= marketplace[:enrollments_number]
               td= marketplace[:products]
