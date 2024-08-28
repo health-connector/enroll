@@ -14,7 +14,6 @@ module BenefitMarkets
         # @param [ Hash ] params evidence_key, evidence_value, effective_date,
         # subject_global_id and current user.
         # In this case subject_global_id id PremiumValueProduct instants global_id
-        # @param [ Hash ] params sub, evidence_value, effective_date
         # @return [ BenefitMarkets::PvpEligibilities::PvpEligibility ]
         def call(params)
           values = yield validate(params)
