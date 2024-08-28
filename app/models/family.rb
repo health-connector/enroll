@@ -971,7 +971,6 @@ class Family
                              }
                            ]).first.try(:[], "hbx_enrollments") || 0
     end
-
   end
 
   def build_consumer_role(family_member, opts = {})
