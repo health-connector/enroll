@@ -39,3 +39,10 @@ en:
     column_enrollments: "Enrollments"
     column_products: "Products"
     shop_type: "SHOP"
+    years:
+      title: "SHOP Marketplace Plan Year Index"
+      column_year: "Year"
+      column_plans: "Plans"
+      column_pvp: "PVP Plans"
+      column_enrollments: "Enrollments"
+      column_products: "Products"

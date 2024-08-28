@@ -1,0 +1,21 @@
+.top-pd.row#inbox_provider_form
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.years.title')
+  .col-lg-12
+    .table-responsive
+      table.table.table-wrapper
+        thead
+          tr
+            th= l10n('marketplaces.years.column_year')
+            th= l10n('marketplaces.years.column_plans')
+            th= l10n('marketplaces.years.column_pvp')
+            th= l10n('marketplaces.years.column_enrollments')
+            th= l10n('marketplaces.years.column_products')
+        tbody
+          - @years_data.each do |year_data|
+            tr
+              td= link_to year_data[:name], "#", aria: { label: year_data[:name] }
+              td= year_data[:plans_number]
+              td= year_data[:enrollments_number]
+              td= year_data[:products]
+              td= year_data[:products]

@@ -13,7 +13,7 @@
         tbody
           - @marketplaces.each do |marketplace|
             tr
-              td= link_to marketplace[:name], "#", aria: { label: marketplace[:name] }
+              td= link_to marketplace[:name], marketplace_plan_years_exchanges_hbx_profiles_path(market: marketplace[:name]), remote: true, aria: { label: marketplace[:name] }
               td= marketplace[:plans_number]
               td= marketplace[:enrollments_number]
               td= marketplace[:products]
