@@ -15,7 +15,7 @@ module BenefitMarkets
         eligibility_result = {}
 
         @args[:rating_areas].each do |rating_area_id, evidence_value|
-          pvp = get_premium_value_product(rating_area_id)
+          pvp = find_or_create_pvp(rating_area_id)
           effective_date = @args[:effective_date] || TimeKeeper.date_of_record
           current_eligibility = pvp.latest_active_pvp_eligibility_on(effective_date)
           next if current_eligibility.present?.to_s == evidence_value.to_s
@@ -28,7 +28,7 @@ module BenefitMarkets
         grouped_eligibilities.transform_values { |items| items.map(&:first) }
       end
 
-      def get_premium_value_product(rating_area_id)
+      def find_or_create_pvp(rating_area_id)
         ::BenefitMarkets::Operations::Pvp::FindOrCreate.new.call(
           product_id: @product.id,
           rating_area_id: rating_area_id

@@ -5,14 +5,14 @@ require "dry/monads/do"
 
 module Operations
   module Eligible
-    # Operation to support eligibility creation
+    # Operation to build a grant in support of eligibility creation
     class BuildGrant
       include Dry::Monads[:do, :result]
 
       # @param [Hash] opts Options to build eligibility
       # @option opts [<Symbol>]   :grant_key required
       # @option opts [<String>]   :grant_value required
-      # @return [Dry::Monad] result
+      # @return [Dry::Monad] Hash
       def call(params)
         values = yield validate(params)
         grant_options = yield build(values)

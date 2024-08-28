@@ -11,6 +11,11 @@ module BenefitMarkets
 
         attr_accessor :subject
 
+        # @param [ Hash ] params evidence_key, evidence_value, effective_date,
+        # subject_global_id and current user.
+        # In this case subject_global_id id PremiumValueProduct instants global_id
+        # @param [ Hash ] params sub, evidence_value, effective_date
+        # @return [ BenefitMarkets::PvpEligibilities::PvpEligibility ]
         def call(params)
           values = yield validate(params)
           eligibility_record = yield find_eligibility
@@ -31,7 +36,7 @@ module BenefitMarkets
 
           @subject = GlobalID::Locator.locate(params[:subject])
           errors << "subject missing or not found for #{params[:subject]}" unless @subject.present?
-          errors << "current_user missing or not found for #{params[:current_user]}" unless params[:current_user].present?
+          errors << "current_user is missing #{params[:current_user]}" unless params[:current_user].present?
 
           errors.empty? ? Success(params) : Failure(errors)
         end
@@ -83,6 +88,8 @@ module BenefitMarkets
           end
         end
 
+        # Here eligibility_record is persested record and
+        # eligibility is the new one that got built
         def update_eligibility_record(eligibility_record, eligibility)
           evidence = eligibility.evidences.last
           evidence_history_params = build_history_params_for(evidence)

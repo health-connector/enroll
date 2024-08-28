@@ -13,7 +13,7 @@ module Operations
       end
 
       def grants
-        %i[default_grant]
+        [["default_grant", "Default Grant"]]
       end
 
       def to_state_for(evidences_options)

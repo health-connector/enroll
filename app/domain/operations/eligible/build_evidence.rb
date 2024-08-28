@@ -17,9 +17,9 @@ module Operations
       # @option opts [<String>]   :evidence_key required
       # @option opts [<String>]   :evidence_value required
       # @option opts [Date]       :effective_date required
-      # @option opts [Date]       :evidence_record optional
+      # @option opts [Hash]       :evidence_record optional
       # @option opts [Hash]       :timestamps optional timestamps for data migrations purposes
-      # @return [Dry::Monad] result
+      # @return [Dry::Monad] Hash
       def call(params)
         values = yield validate(params)
         evidence_options = yield build(values)

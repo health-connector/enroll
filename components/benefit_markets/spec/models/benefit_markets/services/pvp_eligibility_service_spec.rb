@@ -75,12 +75,12 @@ module BenefitMarkets
       end
     end
 
-    describe '#get_premium_value_product' do
+    describe '#find_or_create_pvp' do
       context 'when successful' do
         it 'returns Success with the PVP' do
           pvp = BenefitMarkets::Products::PremiumValueProduct.create(product_id: product.id, rating_area_id: rating_area_1.id)
           service = described_class.new(product, user)
-          result = service.get_premium_value_product(rating_area_1.id)
+          result = service.find_or_create_pvp(rating_area_1.id)
           expect(result).to eq(pvp)
         end
       end
@@ -88,7 +88,7 @@ module BenefitMarkets
       context 'when fails' do
         it 'returns Failure with errors if rating_area_id is missing' do
           service = described_class.new(product, user)
-          result = service.get_premium_value_product(nil)
+          result = service.find_or_create_pvp(nil)
           expect(result).to be_nil
         end
       end
