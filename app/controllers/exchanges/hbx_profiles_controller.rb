@@ -455,7 +455,16 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def issuer_index
-    @issuers = CarrierProfile.all
+    authorize HbxProfile, :view_admin_tabs?
+    @marketplaces = [{
+      name: l10n("marketplaces.shop_type"),
+      plans_number: BenefitMarkets::Products::Product.count,
+      enrollments_number: Family.actual_enrollments_number,
+      products: BenefitMarkets::Products::Product
+        .distinct(:kind)
+        .map { |kind| kind.to_s.capitalize }
+        .join(", ")
+    }]
 
     respond_to do |format|
       format.html { render "issuer_index" }
