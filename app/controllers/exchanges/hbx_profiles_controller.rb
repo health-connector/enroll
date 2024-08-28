@@ -523,6 +523,16 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
+  def marketplace_plan_years
+    authorize HbxProfile, :view_admin_tabs?
+    @years_data = [{}]
+
+    respond_to do |format|
+      format.html { render "marketplace_plan_years" }
+      format.js {}
+    end
+  end
+
   def verification_index
     #@families = Family.by_enrollment_individual_market.where(:'households.hbx_enrollments.aasm_state' => "enrolled_contingent").page(params[:page]).per(15)
     # @datatable = Effective::Datatables::DocumentDatatable.new
