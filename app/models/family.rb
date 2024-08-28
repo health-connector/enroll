@@ -917,6 +917,27 @@ class Family
     def find_by_case_id(id)
       where({"e_case_id" => id}).to_a
     end
+
+    def actual_enrollments_number
+      collection.aggregate([
+        {
+          "$unwind": "$households"
+        },
+        {
+          "$unwind": "$households.hbx_enrollments"
+        },
+        {
+          "$match": {
+            "households.hbx_enrollments.aasm_state": {
+              "$nin": [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
+            }
+          }
+        },
+        {
+          "$count": "hbx_enrollments"
+        }
+      ]).first.try(:[], "hbx_enrollments") || 0
+    end
   end
 
   def build_consumer_role(family_member, opts = {})
