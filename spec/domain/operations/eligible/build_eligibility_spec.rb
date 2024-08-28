@@ -88,4 +88,40 @@ RSpec.describe Operations::Eligible::BuildEligibility, type: :model, dbclean: :a
       expect(evidence[:is_satisfied]).to be_truthy
     end
   end
+
+  context "when existing evidence present" do
+    let(:evidence_value) { "false" }
+    let(:event) { :move_to_ineligible }
+    let(:eligibility_record) { pvp_eligibility }
+
+    let!(:pvp_eligibility) do
+      service = BenefitMarkets::Services::PvpEligibilityService.new(
+        product, user, {rating_areas: {rating_area.id => true}}
+      )
+      service.create_or_update_pvp_eligibilities
+
+      pvp.reload.eligibilities.first
+    end
+
+    let(:evidence_record) { pvp_eligibility.evidences.last }
+
+    it "should create state history in tandem with existing evidence" do
+      eligibility = described_class.new.call(required_params).success
+
+      evidence = eligibility[:evidences].last
+      eligibility_state_history = eligibility[:state_histories].last
+      evidence_state_history = evidence[:state_histories].last
+
+      expect(eligibility_state_history[:event]).to eq(:move_to_ineligible)
+      expect(eligibility_state_history[:from_state]).to eq(:eligible)
+      expect(eligibility_state_history[:to_state]).to eq(:ineligible)
+      expect(eligibility_state_history[:is_eligible]).to be_falsy
+
+      expect(evidence_state_history[:event]).to eq(:move_to_denied)
+      expect(evidence_state_history[:from_state]).to eq(:approved)
+      expect(evidence_state_history[:to_state]).to eq(:denied)
+      expect(evidence_state_history[:is_eligible]).to be_falsy
+      expect(evidence[:is_satisfied]).to be_falsy
+    end
+  end
 end

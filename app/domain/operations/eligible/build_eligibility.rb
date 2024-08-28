@@ -77,7 +77,7 @@ module Operations
         end
 
         options[:state_histories] ||= []
-        new_state_history = build_elgibility_state_history(values, options[:evidences])
+        new_state_history = build_eligibility_state_history(values, options[:evidences])
         options[:state_histories] << new_state_history
         options[:current_state] = new_state_history[:to_state]
 
@@ -105,7 +105,7 @@ module Operations
         end
       end
 
-      def build_elgibility_state_history(values, evidences_options)
+      def build_eligibility_state_history(values, evidences_options)
         to_state = configuration.to_state_for(evidences_options)
         from_state = values[:eligibility_record]&.state_histories&.last&.to_state
 

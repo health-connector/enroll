@@ -38,7 +38,7 @@ module BenefitMarkets
       def store_pvp_eligibility(pvp, evidence_value, effective_date)
         ::BenefitMarkets::Operations::Pvp::CreatePvpEligibility.new.call(
           subject: pvp.to_global_id,
-          evidence_key: :pvp_evidence,
+          evidence_key: :shop_pvp_evidence,
           evidence_value: evidence_value.to_s,
           effective_date: effective_date,
           current_user: current_user.to_global_id
