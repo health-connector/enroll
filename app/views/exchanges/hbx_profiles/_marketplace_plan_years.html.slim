@@ -14,8 +14,8 @@
         tbody
           - @years_data.each do |year_data|
             tr
-              td= link_to year_data[:name], "#", aria: { label: year_data[:name] }
+              td= link_to year_data[:year], "#", aria: { label: year_data[:year] }
               td= year_data[:plans_number]
+              td= year_data[:pvp_numbers]
               td= year_data[:enrollments_number]
-              td= year_data[:products]
               td= year_data[:products]
