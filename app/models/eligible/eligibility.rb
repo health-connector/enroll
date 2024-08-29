@@ -48,7 +48,7 @@ module Eligible
     scope :ineligible, -> { where(current_state: :ineligible) }
 
     def latest_state_history
-      state_histories.last
+      state_histories.max_by(&:created_at)
     end
 
     def active_state
@@ -75,6 +75,8 @@ module Eligible
       ResourceReference = Struct.new(:class_name, :optional, :meta)
 
       RESOURCE_KINDS = [
+        BenefitMarkets::PvpEligibilities::AdminAttestedEvidence,
+        BenefitMarkets::PvpEligibilities::PvpGrant,
         Eligible::Evidence,
         Eligible::Grant
       ].freeze
