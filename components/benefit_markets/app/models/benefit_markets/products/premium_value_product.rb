@@ -5,6 +5,7 @@ module BenefitMarkets
     class PremiumValueProduct
       include Mongoid::Document
       include Mongoid::Timestamps
+      include GlobalID::Identification
 
       field :hios_id,     type: String
       field :active_year, type: Integer
@@ -16,6 +17,18 @@ module BenefitMarkets
 
       embeds_many :eligibilities, class_name: '::Eligible::Eligibility', as: :eligible, cascade_callbacks: true
 
+
+      def pvp_eligibilities
+        eligibilities.by_key(:cca_shop_pvp_eligibility)
+      end
+
+      def active_pvp_eligibilities_on(date = TimeKeeper.date_of_record)
+        pvp_eligibilities.select{|eligibility| eligibility.is_eligible_on?(date) }
+      end
+
+      def latest_active_pvp_eligibility_on(date = TimeKeeper.date_of_record)
+        active_pvp_eligibilities_on(date).max_by(&:created_at)
+      end
     end
   end
 end

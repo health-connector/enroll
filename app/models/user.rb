@@ -11,6 +11,8 @@ class User
   include AuthorizationConcern
   include Mongoid::History::Trackable
   include PermissionsConcern
+  include GlobalID::Identification
+
   attr_accessor :login, :invitation_id
 
   validates_presence_of :oim_id
