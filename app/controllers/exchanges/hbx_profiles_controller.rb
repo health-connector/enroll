@@ -468,7 +468,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     respond_to do |format|
       format.html { render "issuer_index" }
-      format.js {}
+      format.js
     end
   end
 
@@ -482,7 +482,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     respond_to do |format|
       format.html { render "marketplace_plan_years" }
-      format.js {}
+      format.js
     end
   end
 
