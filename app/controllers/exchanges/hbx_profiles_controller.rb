@@ -525,7 +525,11 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def marketplace_plan_years
     authorize HbxProfile, :view_admin_tabs?
-    @years_data = [{}]
+    years = BenefitMarkets::Products::Product.pluck(:application_period).flat_map do |application_period|
+      (application_period['min']&.year..application_period['max']&.year).to_a
+    end.uniq.sort.reverse
+
+    @years_data = years.map { |year| year_plan_data(year) }
 
     respond_to do |format|
       format.html { render "marketplace_plan_years" }
@@ -790,6 +794,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       :"application_period.max".gte => Date.new(year, 1, 1)
     )
     product_ids = product_query.pluck(:_id)
+
     {
       year: year,
       plans_number: product_query.count,
