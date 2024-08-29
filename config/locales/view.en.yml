@@ -33,6 +33,9 @@ en:
         employee_and_one_or_more_dependents: "Employee and Child(ren)"
         family: "Family"
   marketplaces:
+    breadcrumb:
+      marketplace: "Marketplace"
+      plan_year: "Plan Year"
     index_title: "Marketplaces"
     column_type: "Type"
     column_plans: "# Plans"

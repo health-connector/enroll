@@ -2,9 +2,9 @@
   .col-lg-12
     nav[aria-label="breadcrumb"]
       ol.breadcrumb
-        li.breadcrumb-item= link_to "Marketplace", main_app.issuer_index_exchanges_hbx_profiles_path, remote: true
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path, remote: true
         li.breadcrumb-item.active[aria-current="page"]
-          | Plan Year
+          = l10n('marketplaces.breadcrumb.plan_year')
   .col-lg-12
     h1.heading-text= l10n('marketplaces.years.title')
   .col-lg-12
