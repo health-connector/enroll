@@ -23,6 +23,10 @@ module BenefitMarkets
 
     index({county_zip_ids: 1})
     index({covered_state_codes: 1})
+    index(
+      {active_year: 1, exchange_provided_code: 1},
+      {name: "rating_areas_exchange_provided_code_index"}
+    )
 
     def location_specified
       if county_zip_ids.blank? && covered_states.blank?
