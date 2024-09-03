@@ -475,7 +475,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def marketplace_plan_year
     authorize HbxProfile, :view_admin_tabs?
     year = params[:year].to_i
-    carriers = BenefitSponsors::Organizations::ExemptOrganization.all.issuer_profiles.group_by(&:legal_name).transform_values do |orgs|
+    carriers = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.group_by(&:legal_name).transform_values do |orgs|
       orgs.map{|org| org.profiles.map(&:_id) }.flatten
     end
 
