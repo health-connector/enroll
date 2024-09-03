@@ -738,6 +738,38 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
+  def year_plan_data(year)
+    product_query = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1)
+    )
+    {
+      year: year,
+      plans_number: product_query.count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
+      enrollments_number: Family.actual_enrollments_number(year: year),
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+    }
+  end
+
+  def carrier_data(carrier_data, year)
+    carrier_name = carrier_data[0]
+    carrier_ids = carrier_data[1]
+    product_query = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => carrier_ids
+    )
+    product_ids = product_query.pluck(:_id)
+    {
+      carrier: carrier_name,
+      plans_number: product_query.count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
+      enrollments_number: Family.actual_enrollments_number(year: year, product_ids: product_ids),
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+    }
+  end
+
   def update_setting
     authorize HbxProfile, :modify_admin_tabs?
     setting_record = Setting.where(name: setting_params[:name]).last
