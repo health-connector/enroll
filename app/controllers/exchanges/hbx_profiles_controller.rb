@@ -752,38 +752,6 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   private
 
-  def carrier_data(carrier_data, year)
-    carrier_name = carrier_data[0]
-    carrier_ids = carrier_data[1]
-    product_query = BenefitMarkets::Products::Product.where(
-      :"application_period.min".lte => Date.new(year, 12, 31),
-      :"application_period.max".gte => Date.new(year, 1, 1),
-      :issuer_profile_id.in => carrier_ids
-    )
-    product_ids = product_query.pluck(:_id)
-    {
-      carrier: carrier_name,
-      plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
-      enrollments_number: Family.actual_enrollments_number(year: year, product_ids: product_ids),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
-    }
-  end
-
-  def year_plan_data(year)
-    product_query = BenefitMarkets::Products::Product.where(
-      :"application_period.min".lte => Date.new(year, 12, 31),
-      :"application_period.max".gte => Date.new(year, 1, 1)
-    )
-    {
-      year: year,
-      plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
-      enrollments_number: Family.actual_enrollments_number(year: year),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
-    }
-  end
-
   def uniq_terminate_params
     params.keys.map { |key| key.match(/terminate_hbx_.*/) || key.match(/termination_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
   end
@@ -963,7 +931,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def authorize_for_instance
-    authorize @hbx_profile, :"#{action_name}?"
+    authorize @hbx_profile, "#{action_name}?".to_sym
   end
 
   def call_customer_service(first_name, last_name)

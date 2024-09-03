@@ -46,6 +46,50 @@
 javascript:
   function checkKind(element) {
     checkOLKind(element)
+    updateCounty(element)
+  }
+
+  function updateCounty(element) {
+    var value = element.value;
+    var zip = document.getElementById('inputZip');
+    if (value === 'primary' && zip.value.length > 4) {
+      var county = document.getElementById('inputCounty');
+      var zipValue = zip.value;
+      var countyNames = fetchCounty(zipValue);
+      if (countyNames.length >= 1) {
+        county.removeAttribute('disabled');
+        county.setAttribute('required', 'true');
+        for (let option of countyNames) {
+          let newOption = document.createElement("option")
+          newOption.text = option;
+          newOption.value = option;
+          county.add(newOption);
+        }
+      } else {
+        county.setAttribute('disabled', true);
+        county.options.length = 0;
+        let newOption = document.createElement("option")
+        newOption.text = "Zipcode outside of MA";
+        newOption.value = "Zipcode outside of MA";
+        county.add(newOption);
+        zip.parentElement.classList.add('was-validated');
+        zip.setCustomValidity("Zipcode outside of MA");
+      }
+    };
+  }
+
+  function fetchCounty(zip) {
+    var county = '';
+    $.ajax({
+      method: 'POST',
+      url: '/benefit_sponsors/profiles/registrations/counties_for_zip_code',
+      data: { zip_code: zip },
+      async: false,
+      success: function (data) {
+        county = data;
+      }
+    });
+    return county;
   }
 
   document.addEventListener('DOMContentLoaded', function () {
