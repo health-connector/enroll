@@ -36,6 +36,7 @@ en:
     breadcrumb:
       marketplace: "Marketplace"
       plan_year: "Plan Year"
+      carrier: "Carrier"
     index_title: "Marketplaces"
     column_type: "Type"
     column_plans: "# Plans"
