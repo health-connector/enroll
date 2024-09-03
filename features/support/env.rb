@@ -86,8 +86,8 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   end
 
   client = Selenium::WebDriver::Remote::Http::Default.new
-  client.open_timeout = 120 # instead of the default 60
-  client.read_timeout = 120 # instead of the default 60
+  client.open_timeout = 240 # instead of the default 60
+  client.read_timeout = 240 # instead of the default 60
 
   Capybara::Selenium::Driver.new(app,
     browser: :chrome,
