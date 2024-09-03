@@ -918,27 +918,6 @@ class Family
       where({"e_case_id" => id}).to_a
     end
 
-    def actual_enrollments_number
-      collection.aggregate([
-        {
-          "$unwind": "$households"
-        },
-        {
-          "$unwind": "$households.hbx_enrollments"
-        },
-        {
-          "$match": {
-            "households.hbx_enrollments.aasm_state": {
-              "$nin": [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
-            }
-          }
-        },
-        {
-          "$count": "hbx_enrollments"
-        }
-      ]).first.try(:[], "hbx_enrollments") || 0
-    end
-
     def actual_enrollments_number(year: nil, product_ids: nil)
       match_criteria = {
         "households.hbx_enrollments.aasm_state" => {
