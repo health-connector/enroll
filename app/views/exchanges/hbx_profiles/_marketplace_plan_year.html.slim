@@ -1,0 +1,27 @@
+.top-pd.row#inbox_provider_form
+  .col-lg-12
+    nav[aria-label="breadcrumb"]
+      ol.breadcrumb
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path, remote: true
+        li.breadcrumb-item.active[aria-current="page"]
+          = l10n('marketplaces.breadcrumb.plan_year')
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.carriers.title', year: 2024)
+  .col-lg-12
+    .table-responsive
+      table.table.table-wrapper
+        thead
+          tr
+            th= l10n('marketplaces.carriers.column_carrier')
+            th= l10n('marketplaces.carriers.column_plans')
+            th= l10n('marketplaces.carriers.column_pvp')
+            th= l10n('marketplaces.carriers.column_enrollments')
+            th= l10n('marketplaces.carriers.column_products')
+        tbody
+          - @carriers.each do |carrier|
+            tr
+              td= link_to carrier[:carrier], "#", aria: { label: carrier[:carrier] }
+              td= carrier[:plans_number]
+              td= carrier[:pvp_numbers]
+              td= carrier[:enrollments_number]
+              td= carrier[:products]

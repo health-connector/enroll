@@ -49,3 +49,10 @@ en:
       column_pvp: "PVP Plans"
       column_enrollments: "Enrollments"
       column_products: "Products"
+    carriers:
+      title: "%{year} Carrier Index"
+      column_carrier: "Carrier"
+      column_plans: "Plans"
+      column_pvp: "PVP Plans"
+      column_enrollments: "Active Enrollments"
+      column_products: "Products"

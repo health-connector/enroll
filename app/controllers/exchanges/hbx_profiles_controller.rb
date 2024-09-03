@@ -472,6 +472,21 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
+  def marketplace_plan_year
+    authorize HbxProfile, :view_admin_tabs?
+    year = params[:year].to_i
+    carriers = BenefitSponsors::Organizations::ExemptOrganization.all.issuer_profiles.group_by(&:legal_name).transform_values do |orgs|
+      orgs.map{|org| org.profiles.map(&:_id) }.flatten
+    end
+
+    @carriers = carriers.map { |carrier| carrier_data(carrier, year) }
+
+    respond_to do |format|
+      format.html { render "marketplace_plan_year" }
+      format.js
+    end
+  end
+
   def marketplace_plan_years
     authorize HbxProfile, :view_admin_tabs?
     years = BenefitMarkets::Products::Product.pluck(:application_period).flat_map do |application_period|
@@ -737,6 +752,24 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   private
 
+  def carrier_data(carrier_data, year)
+    carrier_name = carrier_data[0]
+    carrier_ids = carrier_data[1]
+    product_query = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => carrier_ids
+    )
+    product_ids = product_query.pluck(:_id)
+    {
+      carrier: carrier_name,
+      plans_number: product_query.count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
+      enrollments_number: Family.actual_enrollments_number(year: year, product_ids: product_ids),
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+    }
+  end
+
   def year_plan_data(year)
     product_query = BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
@@ -746,7 +779,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       year: year,
       plans_number: product_query.count,
       pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
-      enrollments_number: Family.actual_enrollments_number_by_year(year),
+      enrollments_number: Family.actual_enrollments_number(year: year),
       products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
     }
   end
@@ -930,7 +963,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def authorize_for_instance
-    authorize @hbx_profile, "#{action_name}?".to_sym
+    authorize @hbx_profile, :"#{action_name}?"
   end
 
   def call_customer_service(first_name, last_name)
