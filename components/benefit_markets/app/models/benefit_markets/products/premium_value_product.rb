@@ -17,6 +17,10 @@ module BenefitMarkets
 
       embeds_many :eligibilities, class_name: '::Eligible::Eligibility', as: :eligible, cascade_callbacks: true
 
+      index(
+        { "eligibilities.key" => 1 },
+        {name: "premium_value_products_eligibilities_key_index"}
+      )
 
       def pvp_eligibilities
         eligibilities.by_key(:cca_shop_pvp_eligibility)

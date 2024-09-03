@@ -47,6 +47,8 @@ module BenefitSponsors
         inclusion: { in: ::BenefitMarkets::CONTACT_METHOD_KINDS, message: "%{value} is not a valid contact method" },
         allow_blank: false
 
+      validate :employer_profile_county
+
       after_save :publish_profile_event
 
       def publish_profile_event
@@ -139,6 +141,15 @@ module BenefitSponsors
 
       # Subclasses may extend this method
       def build_nested_models
+      end
+
+      def employer_profile_county
+        return unless _type.match(/.*CcaEmployerProfile$/)
+        return unless primary_office_location.present?
+        return unless primary_office_location.address.kind == 'primary'
+        return unless primary_office_location.address.county.blank?
+
+        organization.errors.add(:base, 'must have a valid County for their primary office location')
       end
     end
   end
