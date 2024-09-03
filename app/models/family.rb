@@ -944,38 +944,42 @@ class Family
                            ]).first.try(:[], "hbx_enrollments") || 0
     end
 
-    def actual_enrollments_number_by_year(year)
+    def actual_enrollments_number(year: nil, product_ids: nil)
+      match_criteria = {
+        "households.hbx_enrollments.aasm_state" => {
+          "$nin" => [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
+        }
+      }
+
+      if year
+        match_criteria["$and"] ||= []
+        match_criteria["$and"] << {
+          "households.hbx_enrollments.effective_on" => {
+            "$lte" => Date.new(year, 12, 31)
+          }
+        }
+        match_criteria["$and"] << {
+          "$or" => [
+            { "households.hbx_enrollments.terminated_on" => { "$gte" => Date.new(year, 1, 1) } },
+            { "households.hbx_enrollments.terminated_on" => nil }
+          ]
+        }
+      end
+
+      if product_ids
+        match_criteria["$and"] ||= []
+        match_criteria["$and"] << {
+          "households.hbx_enrollments.product_id" => { "$in" => product_ids }
+        }
+      end
+
       collection.aggregate([
-                             {
-                               "$unwind": "$households"
-                             },
-                             {
-                               "$unwind": "$households.hbx_enrollments"
-                             },
-                             {
-                               "$match": {
-                                 "households.hbx_enrollments.aasm_state": {
-                                   "$nin": [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
-                                 },
-                                 "$and": [
-                                   {
-                                     "households.hbx_enrollments.effective_on": {
-                                       "$lte": Date.new(year, 12, 31)
-                                     },
-                                     "$or": [
-                                       { "households.hbx_enrollments.terminated_on": { "$gte": Date.new(year, 1, 1) } },
-                                       { "households.hbx_enrollments.terminated_on": nil }
-                                     ]
-                                   }
-                                 ]
-                               }
-                             },
-                             {
-                               "$count": "hbx_enrollments"
-                             }
+                             { "$unwind" => "$households" },
+                             { "$unwind" => "$households.hbx_enrollments" },
+                             { "$match" => match_criteria },
+                             { "$count" => "hbx_enrollments" }
                            ]).first.try(:[], "hbx_enrollments") || 0
     end
-
   end
 
   def build_consumer_role(family_member, opts = {})
@@ -1158,7 +1162,7 @@ class Family
     if timekeeper_date >= start_date.to_date && timekeeper_date <= end_date.to_date
       self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date}).or(:"min_verification_due_date" => nil)
     else
-     self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date})
+      self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date})
     end
   end
 
