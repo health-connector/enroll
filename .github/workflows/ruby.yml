@@ -13,7 +13,7 @@ env: # https://stackoverflow.com/questions/59867124/how-can-i-access-github-acti
   TB_RSPEC_FORMATTER: "progress"
 
 jobs:
-  cucumber:
+  rspec:
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -30,12 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          [
-            1,
-            2,
-            3,
-            4
-          ]
+          [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
     steps:
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
@@ -56,18 +51,52 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
-      # - uses: browser-actions/setup-chrome@v1
-      #   id: setup-chrome
-      #   with:
-      #     chrome-version: 124.0.6367.207
-      #     install-chromedriver: true
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
-        # env:
-        #   COVERAGE: 'true'
-        #   WD_VERSION: "124.0.6367.207"
-        #   WD_CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+        run: rspec_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
+
+  cucumber:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --name "mongo"
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      fail-fast: false
+      matrix:
+        group:
+          [ 1, 2, 3, 4, 5, 6 ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          rubygems: 3.3.26
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '12' 
+      - name: Restore Node Modules
+        id: npm-cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+      - name: Install node dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: yarn install
+      - name: Install Test boosters gem
+        run: gem install treye-semaphore_test_boosters --version '2.5.2'
+      - name: Run tests
         run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
 
   # testing_matrix:
