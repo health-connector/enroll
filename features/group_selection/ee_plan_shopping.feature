@@ -220,6 +220,7 @@ Feature: EE plan purchase
     Then the Employee will see a Metal Level Filter
     And the Employee will have the ability to filter plans by metal level
     Then the Employee will see a Plan Type Filter
+    Then the employee will see standard plan and pvp filters
     And the Employee will have the ability to filter plans by plan type
     Then the Employee will see a Carrier dropdown
     And the Employee will have the ability to view plans by carrier

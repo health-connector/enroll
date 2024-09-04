@@ -34,7 +34,7 @@
                     a.btn.btn-default data-sort-by='plan-metal-deductible' onclick="filterBy(this)" = l10n("deductible")
                     a.btn.btn-default data-sort-by='plan-carrier' onclick="filterBy(this)" = l10n("carrier")
                 #plans
-                 = render partial: "insured/product_shoppings/plan_details", collection: @context.member_groups, as: :product
+                  = render partial: "insured/product_shoppings/plan_details", collection: @context.member_groups, as: :product
                 #filteredPlans data-enrollments="#{json_for_plan_shopping_member_groups(@context.member_groups)}"
 
       .no-buffer
@@ -209,15 +209,25 @@ javascript:
   }
 
   function filterByPlanTypes(planTypes, dataArray) {
-      var resultsData = [];
-      planTypes.forEach(function (plan) {
-          dataArray.forEach(function (enrollment) {
-              if (enrollment.product.health_plan_kind.toLowerCase() == plan.toLowerCase()) {
-                  resultsData.push(enrollment);
-              }
-          })
-      })
-      return resultsData;
+    var resultsData = [];
+
+    planTypes.forEach(function (plan) {
+      dataArray.forEach(function (enrollment) {
+        var planLower = plan.toLowerCase();
+
+        if (planLower === 'premium_value_plan' && enrollment.is_pvp_eligible) {
+            resultsData.push(enrollment);
+        }
+        else if (planLower === 'standard_plan' && enrollment.product.is_standard_plan) {
+            resultsData.push(enrollment);
+        }
+        else if (enrollment.product.health_plan_kind.toLowerCase() === planLower) {
+            resultsData.push(enrollment);
+        }
+      });
+    });
+
+    return resultsData;
   }
 
   function filterByCarrier(carrier, dataArray) {
@@ -377,8 +387,13 @@ javascript:
       `
       <div class="module plan-row panel panel-default" data-cuke="filtered-plan">
               <div class="panel-body">
-                <div class="row ${result.product.is_standard_plan? '' : 'hidden'}">
-                  <span class="ml-1 text-uppercase" style="color:green"><i class="fas fa-bookmark"></i> Standard Plan</span>
+                <div class="row">
+                  <span class=" ${result.is_pvp_eligible? '' : 'hidden'} pvp-plan-indicator ml-1">
+                    <i class="fas fa-lg fa-square"></i> Premium Value Plan
+                  </span>
+                  <span class=" ${result.product.is_standard_plan? '' : 'hidden'} standard-plan-indicator ml-1">
+                    <i class="fas fa-lg fa-square"></i> Standard Plan
+                  </span>
                 </div>
                 <div class="row mt-1">
                   <div class="col-sm-2 col-md-2">

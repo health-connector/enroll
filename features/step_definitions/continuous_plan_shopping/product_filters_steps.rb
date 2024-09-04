@@ -17,6 +17,11 @@ Then(/the Employee will see a Plan Type Filter/) do
   expect(find_all(EmployeeEnrollInAPlan.plan_type_filter).present?).to eq true
 end
 
+Then(/the employee will see standard plan and pvp filters/) do
+  type_filters = find_all(EmployeeEnrollInAPlan.plan_type_filter).map(&:text)
+  expect(type_filters).to include("PREMIUM VALUE PLAN", "STANDARD PLAN")
+end
+
 Then(/the Employee will have the ability to filter plans by plan type/) do
   expect(find_all(EmployeeEnrollInAPlan.select_plan_btn).count).to be > 1
   find_all(EmployeeEnrollInAPlan.plan_type_filter).first.click

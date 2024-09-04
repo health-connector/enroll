@@ -387,6 +387,13 @@ module BenefitMarkets
       kind == :dental
     end
 
+    def is_pvp_in_rating_area(code, date = TimeKeeper.date_of_record)
+      pvp = premium_value_products.by_rating_area_code_and_year(code, date.year).first
+      return false unless pvp.present?
+
+      pvp.latest_active_pvp_eligibility_on(date)&.eligible?
+    end
+
     private
 
     # self.class.new(attrs_without_tuples)

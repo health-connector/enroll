@@ -33,6 +33,7 @@ class FetchShoppingProducts
       context.plan_types = []
       context.metal_levels = []
     end
+    context.plan_types += ["premium_value_plan", "standard_plan"]
   end
 
   def hbx_enrollment
