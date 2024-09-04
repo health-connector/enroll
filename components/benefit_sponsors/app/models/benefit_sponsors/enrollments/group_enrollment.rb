@@ -61,6 +61,8 @@ module BenefitSponsors
     end
 
     def is_pvp?(new_product)
+      return false unless new_product.present?
+
       new_product.is_pvp_in_rating_area(@rating_area, @coverage_start_on)
     end
 

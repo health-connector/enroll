@@ -209,25 +209,25 @@ javascript:
   }
 
   function filterByPlanTypes(planTypes, dataArray) {
-    var resultsData = [];
+    var resultsData = new Set();
 
     planTypes.forEach(function (plan) {
       dataArray.forEach(function (enrollment) {
         var planLower = plan.toLowerCase();
 
         if (planLower === 'premium_value_plan' && enrollment.is_pvp_eligible) {
-            resultsData.push(enrollment);
+          resultsData.add(enrollment);
         }
         else if (planLower === 'standard_plan' && enrollment.product.is_standard_plan) {
-            resultsData.push(enrollment);
+          resultsData.add(enrollment);
         }
         else if (enrollment.product.health_plan_kind.toLowerCase() === planLower) {
-            resultsData.push(enrollment);
+          resultsData.add(enrollment);
         }
       });
     });
 
-    return resultsData;
+    return Array.from(resultsData);
   }
 
   function filterByCarrier(carrier, dataArray) {
@@ -388,10 +388,10 @@ javascript:
       <div class="module plan-row panel panel-default" data-cuke="filtered-plan">
               <div class="panel-body">
                 <div class="row">
-                  <span class=" ${result.is_pvp_eligible? '' : 'hidden'} pvp-plan-indicator ml-1">
+                  <span class="${result.is_pvp_eligible ? '' : 'hidden'} pvp-plan-indicator ml-1 text-uppercase">
                     <i class="fas fa-lg fa-square"></i> Premium Value Plan
                   </span>
-                  <span class=" ${result.product.is_standard_plan? '' : 'hidden'} standard-plan-indicator ml-1">
+                  <span class="${result.product.is_standard_plan ? '' : 'hidden'} standard-plan-indicator ml-1 text-uppercase">
                     <i class="fas fa-lg fa-square"></i> Standard Plan
                   </span>
                 </div>
