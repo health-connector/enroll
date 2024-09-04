@@ -35,7 +35,6 @@ When(/^the user will see Marketplace Plan Year Index table$/) do
 end
 
 When(/^the user will see Marketplace Carrier table$/) do
-  sleep 50
   expect(page).to have_text('Carrier')
   expect(page).to have_text('Plans')
   expect(page).to have_text('PVP Plans')
