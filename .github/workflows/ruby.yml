@@ -56,18 +56,18 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
-      - uses: browser-actions/setup-chrome@v1
-        id: setup-chrome
-        with:
-          chrome-version: 124.0.6367.207
-          install-chromedriver: true
+      # - uses: browser-actions/setup-chrome@v1
+      #   id: setup-chrome
+      #   with:
+      #     chrome-version: 124.0.6367.207
+      #     install-chromedriver: true
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
-        env:
-          COVERAGE: 'true'
-          WD_VERSION: "124.0.6367.207"
-          WD_CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+        # env:
+        #   COVERAGE: 'true'
+        #   WD_VERSION: "124.0.6367.207"
+        #   WD_CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
 
   # testing_matrix:
