@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "0 6 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true 
+
 env: # https://stackoverflow.com/questions/59867124/how-can-i-access-github-action-environment-variables-within-a-bash-script-run-by
   TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: "{spec,components/benefit_markets/spec,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb"
   TB_RSPEC_FORMATTER: "progress"
@@ -52,10 +56,10 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install Legacy Chrome
-        run: |
-          wget https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.207/linux64/chrome-linux64.zip
-          unzip chrome-linux64.zip
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 124
+          install-chromedriver: true
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
