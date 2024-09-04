@@ -59,7 +59,7 @@ jobs:
       - uses: browser-actions/setup-chrome@v1
         id: setup-chrome
         with:
-          chrome-version: 124
+          chrome-version: 124.0.6367.207
           install-chromedriver: true
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
