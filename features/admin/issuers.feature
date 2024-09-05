@@ -1,4 +1,4 @@
-Feature: Visit Issuer page
+Feature: Visit Issuer and nested pages
 
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market and exempt organization
