@@ -2,7 +2,7 @@
 
 module SiteWorld
   def site
-    @site ||= FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key)
+    @site ||= FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :with_owner_exempt_organization,  Settings.site.key)
   end
 
   def site_with_exempt_organization
@@ -28,4 +28,3 @@ Given(/^a (.*?) site exists with a benefit market and exempt organization$/) do 
   make_all_permissions
   generate_sic_codes
 end
-
