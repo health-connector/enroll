@@ -19,7 +19,7 @@ jobs:
           rubygems: 3.3.26
       - name: Run rubocop
         run: |
-          bundle exec rubocop-git origin/master > results.txt
+          bundle exec rubocop-git origin/master
       - name: Print results
         run: |
           cat results.txt
