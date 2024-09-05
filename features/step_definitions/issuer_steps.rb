@@ -54,7 +54,7 @@ And(/^the user visit the Marketplace Plan Year Index page$/) do
 end
 
 And(/^the user visit the Marketplace Carrier page$/) do
-  year = Time.now.year
+  year = Time.now.year + 1
   find("a[aria-label='#{year}']").click
 end
 
@@ -78,14 +78,12 @@ When(/^the user will see Marketplace Carrier table$/) do
   expect(page).to have_css('.table-responsive .table thead')
 end
 
-
 Then('the table should have {string} in the {string} column') do |value, column_name|
   table = find('.table-responsive table.table-wrapper')
   column_index = table.find('thead tr th', text: column_name, exact_text: true).path.split('/')[-1][/\d+/].to_i
 
   expect(table).to have_xpath(".//tbody/tr/td[#{column_index}]", text: value)
 end
-
 
 Given(/^Admin_issuers_tab_display is on$/) do
   EnrollRegistry[:admin_issuers_tab_display].feature.stub(:is_enabled).and_return(true)
