@@ -332,7 +332,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
   #     it "should create an employee_role"
   #   end
-  end
+  # end
 
   describe 'scopes' do
     context ".covered" do
