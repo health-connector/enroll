@@ -12,3 +12,5 @@ registry:
         is_enabled: <%= ENV['BENEFIT_APPLICATION_HISTORY'] || true %>
       - key: :restrict_benefit_application_admin_actions_24_hours
         is_enabled: <%= ENV['RESTRICT_APPLICATION_ADMIN_ACTIONS_24_HOURS'] || true %>
+      - key: :premium_value_products
+        is_enabled: <%= ENV['PREMIUM_VALUE_PRODUCTS_IS_ENABLED'] || true %>

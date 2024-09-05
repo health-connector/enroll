@@ -22,6 +22,15 @@ Then(/the employee will see standard plan and pvp filters/) do
   expect(type_filters).to include("PREMIUM VALUE PLAN", "STANDARD PLAN")
 end
 
+Given(/^premium value plans feature is disabled$/) do
+  EnrollRegistry[:premium_value_products].feature.stub(:is_enabled).and_return(false)
+end
+
+Then(/the employee will not see standard plan and pvp filters/) do
+  type_filters = find_all(EmployeeEnrollInAPlan.plan_type_filter).map(&:text)
+  expect(type_filters).not_to include("PREMIUM VALUE PLAN", "STANDARD PLAN")
+end
+
 Then(/the Employee will have the ability to filter plans by plan type/) do
   expect(find_all(EmployeeEnrollInAPlan.select_plan_btn).count).to be > 1
   find_all(EmployeeEnrollInAPlan.plan_type_filter).first.click

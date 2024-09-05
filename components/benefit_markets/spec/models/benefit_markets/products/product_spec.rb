@@ -314,8 +314,18 @@ module BenefitMarkets
       let(:date) { TimeKeeper.date_of_record }
       let(:pvp_product) { double('PremiumValueProduct') }
 
+
+      context 'when premium_value_products feature is disabled' do
+        it 'returns false' do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(false)
+
+          expect(subject.is_pvp_in_rating_area(code)).to be_falsey
+        end
+      end
+
       context 'when no premium value product is found' do
         it 'returns false' do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
           allow(subject.premium_value_products).to receive(:by_rating_area_code_and_year).with(code, date.year).and_return([])
 
           expect(subject.is_pvp_in_rating_area(code)).to be_falsey
@@ -324,6 +334,7 @@ module BenefitMarkets
 
       context 'when a premium value product is found' do
         before do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
           allow(subject.premium_value_products).to receive(:by_rating_area_code_and_year).with(code, date.year).and_return([pvp_product])
         end
 

@@ -230,3 +230,22 @@ Feature: EE plan purchase
     And the Employee will have the ability to enter a premium amount number range
     Then the Employee will see deductible amount fields
     And the Employee will have the ability to enter a deductible amount number range
+
+  Scenario: EE should not see pvp filter when feature is disabled
+    Given Continuous plan shopping is enabled
+    Given premium value plans feature is disabled
+    Given there is an employer Acme Inc.
+    And Acme Inc. employer has a staff role
+    When staff role person logged in
+    And employer Acme Inc. has active benefit application
+    And Acme Inc. employer visit the Employee Roster
+    And there is a census employee record for Patrick Doe for employer Acme Inc.
+    Then Employer logs out
+    And Employee has not signed up as an HBX user
+    And Patrick Doe visits the employee portal
+    And Patrick Doe has a matched employee role
+    And Employee sees the Household Info: Family Members page and clicks Continue
+    Then Employee should not see the ineligible for dental coverage message if dental is not offered
+    And Employee sees the Choose Coverage for your Household page and clicks Confirm your Selections button
+    Then the Employee will see a Plan Type Filter
+    Then the employee will not see standard plan and pvp filters

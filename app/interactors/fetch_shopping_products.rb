@@ -33,6 +33,8 @@ class FetchShoppingProducts
       context.plan_types = []
       context.metal_levels = []
     end
+    return unless EnrollRegistry[:premium_value_products].feature.is_enabled
+
     context.plan_types += ["premium_value_plan", "standard_plan"]
   end
 
