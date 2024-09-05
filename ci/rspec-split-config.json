@@ -1,5 +1,6 @@
 [
     { "files": ["spec/models/census_employee_spec.rb"]},
-    { "files": ["spec/models/census_employee_part2_spec.rb"]}
-
+    { "files": ["spec/models/census_employee_part2_spec.rb"]},
+    { "files": ["spec/models/census_employee_part3_spec.rb"]},
+    { "files": ["spec/models/census_employee_part4_spec.rb"]}
 ]  
