@@ -918,27 +918,12 @@ class Family
       where({"e_case_id" => id}).to_a
     end
 
-    def actual_enrollments_number(year: nil, product_ids: nil)
+    def actual_enrollments_number( product_ids: nil)
       match_criteria = {
         "households.hbx_enrollments.aasm_state" => {
           "$nin" => [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
         }
       }
-
-      if year
-        match_criteria["$and"] ||= []
-        match_criteria["$and"] << {
-          "households.hbx_enrollments.effective_on" => {
-            "$lte" => Date.new(year, 12, 31)
-          }
-        }
-        match_criteria["$and"] << {
-          "$or" => [
-            { "households.hbx_enrollments.terminated_on" => { "$gte" => Date.new(year, 1, 1) } },
-            { "households.hbx_enrollments.terminated_on" => nil }
-          ]
-        }
-      end
 
       if product_ids
         match_criteria["$and"] ||= []

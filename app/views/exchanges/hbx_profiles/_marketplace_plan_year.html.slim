@@ -1,4 +1,4 @@
-.top-pd.row#inbox_provider_form
+.top-pd.row
   .col-lg-12
     nav[aria-label="breadcrumb"]
       ol.breadcrumb
@@ -7,7 +7,7 @@
         li.breadcrumb-item.active[aria-current="page"]
           = l10n('marketplaces.breadcrumb.carrier')
   .col-lg-12
-    h1.heading-text= l10n('marketplaces.carriers.title', year: 2024)
+    h1.heading-text= l10n('marketplaces.carriers.title', year: params[:year])
   .col-lg-12
     .table-responsive
       table.table.table-wrapper
