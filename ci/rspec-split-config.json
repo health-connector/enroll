@@ -5,4 +5,5 @@
     "spec/views/shared/_dependents_list_modal.html.erb_spec.rb",
     "spec/views/insured/consumer_roles/immigration_document_options.js.erb_spec.rb",
     "spec/views/shared/plan_shoppings/_provider_directory_url.html.erb_spec.rb"
+    ]}
 ]  
