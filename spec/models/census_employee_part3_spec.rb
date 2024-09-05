@@ -496,7 +496,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: ce)
       ce.active_benefit_group_assignment.update_attributes!(benefit_package_id: initial_application.benefit_packages.first.id)
       ce.update_attributes({employee_role: employee_role})
-      family = Family.find_or_build_from_employee_role(employee_role)
+      Family.find_or_build_from_employee_role(employee_role)
       ce
     end
 
@@ -732,7 +732,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       employee_role = build(:benefit_sponsors_employee_role, person: person, census_employee: ce, employer_profile: employer_profile)
       create(:benefit_sponsors_benefit_group_assignment, benefit_group: renewal_application.benefit_packages.first, census_employee: ce)
       ce.update_attributes({employee_role: employee_role})
-      family = Family.find_or_build_from_employee_role(employee_role)
+      Family.find_or_build_from_employee_role(employee_role)
       ce
     end
 
