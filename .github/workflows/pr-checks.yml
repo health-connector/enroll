@@ -19,10 +19,10 @@ jobs:
           rubygems: 3.3.26
       - name: Run rubocop
         run: |
-          bundle exec rubocop-git origin/master
-      - name: Print results
-        run: |
-          cat results.txt
+          bundle exec rubocop-git origin/master | tee results.txt
+      # - name: Print results
+      #   run: |
+      #     cat results.txt
       - name: Evaluate results
         run: |
           cat results.txt | grep "no offenses detected"
