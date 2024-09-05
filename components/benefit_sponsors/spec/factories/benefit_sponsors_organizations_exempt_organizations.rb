@@ -34,7 +34,10 @@ FactoryBot.define do
       end
     end
 
+    trait :with_issuer_profile do
+      after :build do |organization, _evaluator|
+        organization.profiles << build(:sponsored_benefits_organizations_issuer_profile)
+      end
+    end
   end
-
-
 end
