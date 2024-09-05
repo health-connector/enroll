@@ -8,10 +8,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true 
 
-env: # https://stackoverflow.com/questions/59867124/how-can-i-access-github-action-environment-variables-within-a-bash-script-run-by
-  TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: "{spec,components/benefit_markets/spec,components/benefit_sponsors,components/notifier,components/sponsored_benefits,components/transport_gateway,components/transport_profiles}/**/*_spec.rb"
-  TB_RSPEC_FORMATTER: "progress"
-
 jobs:
   rspec:
     runs-on: ubuntu-latest
@@ -32,7 +28,7 @@ jobs:
         group:
           [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -55,6 +51,9 @@ jobs:
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
         run: rspec_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
+        env:
+          TEST_BOOSTERS_RSPEC_TEST_FILE_PATTERN: "{spec,components/benefit_markets/spec,components/benefit_sponsors/spec,components/notifier/spec,components/sponsored_benefits/spec,components/transport_gateway/spec,components/transport_profiles/spec}/**/*_spec.rb"
+          TB_RSPEC_FORMATTER: "progress"
 
   cucumber:
     runs-on: ubuntu-latest
