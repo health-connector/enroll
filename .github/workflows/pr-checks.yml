@@ -10,12 +10,14 @@ jobs:
   rubocop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
           rubygems: 3.3.26
       - run: |
-          git config diff.renameLimit 800
-          git fetch --no-tags --depth=1 origin master
-          bundle exec rubocop-git origin/master | grep "no offenses detected"
+          bundle exec rubocop-git origin/master > results.txt
+          cat results.txt
+          cat results.txt | grep "no offenses detected"
