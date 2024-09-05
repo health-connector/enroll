@@ -918,7 +918,7 @@ class Family
       where({"e_case_id" => id}).to_a
     end
 
-    def actual_enrollments_number( product_ids: nil)
+    def actual_enrollments_number(product_ids: nil)
       match_criteria = {
         "households.hbx_enrollments.aasm_state" => {
           "$nin" => [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
