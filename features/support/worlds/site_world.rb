@@ -6,8 +6,9 @@ module SiteWorld
   end
 
   def site_with_exempt_organization
-    FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :with_owner_exempt_organization,  Settings.site.key)
+    FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :with_owner_exempt_organization_and_issuer_profile,  Settings.site.key)
   end
+
   def reset_product_cache
     BenefitMarkets::Products::ProductFactorCache.initialize_factor_cache!
     BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
