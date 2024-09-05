@@ -17,7 +17,12 @@ jobs:
         with:
           bundler-cache: true
           rubygems: 3.3.26
-      - run: |
+      - name: Run rubocop
+        run: |
           bundle exec rubocop-git origin/master > results.txt
+      - name: Print results
+        run: |
           cat results.txt
+      - name: Evaluate results
+        run: |
           cat results.txt | grep "no offenses detected"
