@@ -1,9 +1,3 @@
 [
-    { "files": ["spec/models/census_employee_spec.rb", 
-    "components/benefit_sponsors/spec/models/benefit_sponsors/organizations/plan_design_proposal_builder_spec.rb",
-    "spec/views/shared/_search.html.erb_spec.rb",
-    "spec/views/shared/_dependents_list_modal.html.erb_spec.rb",
-    "spec/views/insured/consumer_roles/immigration_document_options.js.erb_spec.rb",
-    "spec/views/shared/plan_shoppings/_provider_directory_url.html.erb_spec.rb"
-    ]}
+    { "files": ["spec/models/census_employee_spec.rb"]}
 ]  
