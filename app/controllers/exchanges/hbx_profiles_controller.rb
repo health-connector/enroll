@@ -760,16 +760,31 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
+  def update_setting
+    authorize HbxProfile, :modify_admin_tabs?
+    setting_record = Setting.where(name: setting_params[:name]).last
+
+    begin
+      setting_record.update(value: setting_params[:value]) if setting_record.present?
+    rescue StandardError => e
+      flash[:error] = "Failed to update setting, " + e.message
+    end
+    redirect_to exchanges_hbx_profiles_root_path
+  end
+
+  private
+
   def year_plan_data(year)
     product_query = BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
       :"application_period.max".gte => Date.new(year, 1, 1)
     )
+    product_ids = product_query.pluck(:_id)
     {
       year: year,
       plans_number: product_query.count,
       pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
-      enrollments_number: Family.actual_enrollments_number(year: year),
+      enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
       products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
     }
   end
@@ -787,7 +802,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       carrier: carrier_name,
       plans_number: product_query.count,
       pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
-      enrollments_number: Family.actual_enrollments_number(year: year, product_ids: product_ids),
+      enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
       products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
     }
   end
