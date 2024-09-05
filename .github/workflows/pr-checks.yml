@@ -1,0 +1,28 @@
+name: pull request checks
+on:
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          rubygems: 3.3.26
+      - name: Run rubocop
+        run: |
+          bundle exec rubocop-git origin/master | tee results.txt
+      # - name: Print results
+      #   run: |
+      #     cat results.txt
+      - name: Evaluate results
+        run: |
+          cat results.txt | grep "no offenses detected"
