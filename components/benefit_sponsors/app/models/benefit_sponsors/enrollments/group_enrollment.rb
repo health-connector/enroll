@@ -5,7 +5,7 @@ module BenefitSponsors
     attr_accessor :coverage_start_on, :product, :previous_product,
                   :product_cost_total, :benefit_sponsor,
                   :sponsor_contribution_total, :member_enrollments, :group_id,
-                  :rating_area,
+                  :rating_area, :is_pvp_eligible,
                   :rate_schedule_date, :sponsor_contribution_prohibited,
                   :medical_individual_deductible,
                   :medical_family_deductible,
@@ -30,6 +30,7 @@ module BenefitSponsors
       @member_enrollments         = []
       @rate_schedule_date = nil
       @rating_area = nil
+      @is_pvp_eligible = false
       super(opts)
     end
 
@@ -53,9 +54,17 @@ module BenefitSponsors
         rx_individual_deductible: new_product&.rx_individual_deductible,
         rx_family_deductible: new_product&.rx_family_deductible,
         rating_area: @rating_area,
+        is_pvp_eligible: is_pvp?(new_product),
         member_enrollments: member_enrollments.map(&:clone_for_coverage),
         sponsor_contribution_prohibited: @sponsor_contribution_prohibited
       })
+    end
+
+    def is_pvp?(new_product)
+      return false unless ::EnrollRegistry.feature_enabled?(:premium_value_products)
+      return false unless new_product.present?
+
+      new_product.is_pvp_in_rating_area(@rating_area, @coverage_start_on)
     end
 
     def employee_cost_total

@@ -140,7 +140,6 @@ module BenefitMarkets
       end
     end
 
-
     context "Comparing Products" do
       let(:base_product)      { described_class.new(**params) }
 
@@ -185,7 +184,6 @@ module BenefitMarkets
         end
       end
     end
-
 
     context "Given a Product with out-of-date PremiumTables" do
       let(:quarter_2)           { Date.new(this_year, 4, 1)..Date.new(this_year, 6, 30) }
@@ -308,6 +306,63 @@ module BenefitMarkets
 
       it "should retrieve highest cost" do
         expect(subject.max_cost_for_application_period(quarter_1.min)).to eq 111
+      end
+    end
+
+    describe '#is_pvp_in_rating_area' do
+      let(:code) { 'R-MA001' }
+      let(:date) { TimeKeeper.date_of_record }
+      let(:pvp_product) { double('PremiumValueProduct') }
+
+
+      context 'when premium_value_products feature is disabled' do
+        it 'returns false' do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(false)
+
+          expect(subject.is_pvp_in_rating_area(code)).to be_falsey
+        end
+      end
+
+      context 'when no premium value product is found' do
+        it 'returns false' do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
+          allow(subject.premium_value_products).to receive(:by_rating_area_code_and_year).with(code, date.year).and_return([])
+
+          expect(subject.is_pvp_in_rating_area(code)).to be_falsey
+        end
+      end
+
+      context 'when a premium value product is found' do
+        before do
+          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
+          allow(subject.premium_value_products).to receive(:by_rating_area_code_and_year).with(code, date.year).and_return([pvp_product])
+        end
+
+        context 'and the latest active pvp eligibility is not present' do
+          it 'returns false' do
+            allow(pvp_product).to receive(:latest_active_pvp_eligibility_on).with(date).and_return(nil)
+
+            expect(subject.is_pvp_in_rating_area(code)).to be_falsey
+          end
+        end
+
+        context 'and the latest active pvp eligibility is present but not eligible' do
+          it 'returns false' do
+            eligibility = double('Eligibility', eligible?: false)
+            allow(pvp_product).to receive(:latest_active_pvp_eligibility_on).with(date).and_return(eligibility)
+
+            expect(subject.is_pvp_in_rating_area(code)).to be_falsey
+          end
+        end
+
+        context 'and the latest active pvp eligibility is present and eligible' do
+          it 'returns true' do
+            eligibility = double('Eligibility', eligible?: true)
+            allow(pvp_product).to receive(:latest_active_pvp_eligibility_on).with(date).and_return(eligibility)
+
+            expect(subject.is_pvp_in_rating_area(code)).to be_truthy
+          end
+        end
       end
     end
   end
