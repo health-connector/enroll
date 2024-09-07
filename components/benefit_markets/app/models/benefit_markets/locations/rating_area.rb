@@ -57,5 +57,9 @@ module BenefitMarkets
         ]
       ).first
     end
+
+    def human_exchange_provided_code
+      exchange_provided_code.match(/(\d+)/)[1].to_i
+    end
   end
 end

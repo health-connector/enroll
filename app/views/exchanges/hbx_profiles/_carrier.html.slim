@@ -1,0 +1,31 @@
+.top-pd.row
+  .col-lg-12
+    nav[aria-label="breadcrumb"]
+      ol.breadcrumb
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path, remote: true
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year]), remote: true
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.carrier'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop'), remote: true
+        li.breadcrumb-item.active[aria-current="page"]
+          = l10n('marketplaces.breadcrumb.plan')
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.carriers.title', year: params[:year])
+  .col-lg-12
+    .table-responsive
+      table.table.table-wrapper
+        thead
+          tr
+            th= l10n('marketplaces.carrier.column_plan_name')
+            th= l10n('marketplaces.carrier.column_plan_type')
+            th= l10n('marketplaces.carrier.column_pvp_areas')
+            th= l10n('marketplaces.carrier.column_plan_id')
+            th= l10n('marketplaces.carrier.column_network')
+            th= l10n('marketplaces.carrier.column_plan_area')
+        tbody
+          - @products_data.each do |plan|
+            tr
+              td= link_to plan[:plan_name], "#", aria: { label: plan[:plan_name] }
+              td= plan[:plan_type]
+              td= plan[:pvp_areas]
+              td= plan[:plan_id]
+              td= plan[:network]
+              td= plan[:metal_level_kind]
