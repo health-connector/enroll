@@ -8,7 +8,7 @@
         li.breadcrumb-item.active[aria-current="page"]
           = l10n('marketplaces.breadcrumb.plan')
   .col-lg-12
-    h1.heading-text= l10n('marketplaces.carriers.title', year: params[:year])
+    h1.heading-text= l10n('marketplaces.carrier.title', year: params[:year], carrier_name: @carrier.legal_name)
   .col-lg-12
     .table-responsive
       table.table.table-wrapper

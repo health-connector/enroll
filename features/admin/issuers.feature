@@ -22,14 +22,21 @@ Feature: Visit Issuer and nested pages
     Then the table should have "0" in the "Enrollments" column
     Then the table should have "Health" in the "Products" column
 
-  Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
+  Scenario: HBX Staff with Super Admin subroles should see Marketplace Carriers page
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Issuers Index of the Admin Dashboard
     And the user visit the Marketplace Plan Year Index page
-    Then the user visit the Marketplace Carrier page
-    And the user will see Marketplace Carrier table
+    Then the user visit the Marketplace Carriers page
+    And the user will see Marketplace Carriers table
     Then the table should have "Health Agency Authority" in the "Carrier" column
     Then the table should have "0" in the "Plans" column
     Then the table should have "0" in the "PVP Plans" column
     Then the table should have "0" in the "Active Enrollments" column
     Then the table should have "" in the "Products" column
+
+  Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user is on the Issuers Index of the Admin Dashboard
+    And the user visit the Marketplace Plan Year Index page
+    Then the user visit the Marketplace Carriers page
+    And the user visit the Marketplace Carrier page

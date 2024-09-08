@@ -508,11 +508,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   def carrier
     authorize HbxProfile, :view_admin_tabs?
     year = params[:year].to_i
-    carrier = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.find(params[:id])
+    @carrier = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.find(params[:id])
     products = BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
       :"application_period.max".gte => Date.new(year, 1, 1),
-      :issuer_profile_id.in => carrier.profiles.map(&:_id)
+      :issuer_profile_id.in => @carrier.profiles.map(&:_id)
     )
 
     @products_data = products.map { |product| product_data(product) }
