@@ -59,7 +59,7 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
 
   it "should display standard plan indicator" do
     render "ui-components/v1/cards/summary", :qhp => mock_qhp_cost_share_variance
-    expect(rendered).to have_selector('i', text: 'STANDARD PLAN')
+    expect(rendered).to have_selector('span', text: 'STANDARD PLAN')
   end
 
   context "with no rx_formulary_url and provider urls for coverage_kind = dental" do

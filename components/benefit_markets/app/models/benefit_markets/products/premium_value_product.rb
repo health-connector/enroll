@@ -22,6 +22,15 @@ module BenefitMarkets
         {name: "premium_value_products_eligibilities_key_index"}
       )
 
+      scope :by_rating_area_code_and_year, lambda { |code, year|
+        rating_area_ids = BenefitMarkets::Locations::RatingArea.where(
+          exchange_provided_code: code,
+          active_year: year
+        ).pluck(:id)
+
+        where(:rating_area_id.in => rating_area_ids)
+      }
+
       def pvp_eligibilities
         eligibilities.by_key(:cca_shop_pvp_eligibility)
       end
