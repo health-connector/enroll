@@ -54,7 +54,7 @@ And(/^the user visit the Marketplace Plan Year Index page$/) do
 end
 
 And(/^the user visit the Marketplace Carriers page$/) do
-  year = Time.now.year + 1
+  year = Time.now.year
   find("a[aria-label='#{year}']").click
 end
 
@@ -77,7 +77,6 @@ When(/^the user will see Marketplace Carriers table$/) do
 end
 
 Then('the table should have {string} in the {string} column') do |value, column_name|
-  sleep 50
   table = find('.table-responsive table.table-wrapper')
   column_index = table.find('thead tr th', text: column_name, exact_text: true).path.split('/')[-1][/\d+/].to_i
 
