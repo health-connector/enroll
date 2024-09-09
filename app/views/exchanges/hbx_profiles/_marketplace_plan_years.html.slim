@@ -20,7 +20,7 @@
         tbody
           - @years_data.each do |year_data|
             tr
-              td= link_to year_data[:year], "#", aria: { label: year_data[:year] }
+              td= link_to year_data[:year], marketplace_plan_year_exchanges_hbx_profiles_path(year: year_data[:year], market: 'shop'), remote: true, aria: { label: year_data[:year] }
               td= year_data[:plans_number]
               td= year_data[:pvp_numbers]
               td= year_data[:enrollments_number]

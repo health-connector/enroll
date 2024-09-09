@@ -1,7 +1,7 @@
 Feature: Visit Issuer and nested pages
 
   Background: Setup site, employer, and benefit application
-    Given a CCA site exists with a benefit market
+    Given a CCA site exists with a benefit market and exempt organization
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
     And Admin_issuers_tab_display is on
 
@@ -21,3 +21,15 @@ Feature: Visit Issuer and nested pages
     Then the table should have "0" in the "PVP Plans" column
     Then the table should have "0" in the "Enrollments" column
     Then the table should have "Health" in the "Products" column
+
+  Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user is on the Issuers Index of the Admin Dashboard
+    And the user visit the Marketplace Plan Year Index page
+    Then the user visit the Marketplace Carrier page
+    And the user will see Marketplace Carrier table
+    Then the table should have "Health Agency Authority" in the "Carrier" column
+    Then the table should have "0" in the "Plans" column
+    Then the table should have "0" in the "PVP Plans" column
+    Then the table should have "0" in the "Active Enrollments" column
+    Then the table should have "" in the "Products" column

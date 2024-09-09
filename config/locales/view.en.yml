@@ -36,6 +36,7 @@ en:
     breadcrumb:
       marketplace: "Marketplace"
       plan_year: "Plan Year"
+      carrier: "Carrier"
     index_title: "Marketplaces"
     column_type: "Type"
     column_plans: "# Plans"
@@ -48,4 +49,11 @@ en:
       column_plans: "Plans"
       column_pvp: "PVP Plans"
       column_enrollments: "Enrollments"
+      column_products: "Products"
+    carriers:
+      title: "%{year} Carrier Index"
+      column_carrier: "Carrier"
+      column_plans: "Plans"
+      column_pvp: "PVP Plans"
+      column_enrollments: "Active Enrollments"
       column_products: "Products"

@@ -19,8 +19,23 @@ And(/^the user visit the Marketplace Plan Year Index page$/) do
   find('a[aria-label="SHOP"]').click
 end
 
+And(/^the user visit the Marketplace Carrier page$/) do
+  year = Time.now.year + 1
+  find("a[aria-label='#{year}']").click
+end
+
+
 When(/^the user will see Marketplace Plan Year Index table$/) do
   expect(page).to have_text('Type')
+  expect(page).to have_text('Plans')
+  expect(page).to have_text('PVP Plans')
+  expect(page).to have_text('Enrollments')
+  expect(page).to have_text('Products')
+  expect(page).to have_css('.table-responsive .table thead')
+end
+
+When(/^the user will see Marketplace Carrier table$/) do
+  expect(page).to have_text('Carrier')
   expect(page).to have_text('Plans')
   expect(page).to have_text('PVP Plans')
   expect(page).to have_text('Enrollments')
@@ -34,7 +49,6 @@ Then('the table should have {string} in the {string} column') do |value, column_
 
   expect(table).to have_xpath(".//tbody/tr/td[#{column_index}]", text: value)
 end
-
 
 Given(/^Admin_issuers_tab_display is on$/) do
   EnrollRegistry[:admin_issuers_tab_display].feature.stub(:is_enabled).and_return(true)
