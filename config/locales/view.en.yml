@@ -59,7 +59,7 @@ en:
       column_enrollments: "Active Enrollments"
       column_products: "Products"
     carrier:
-      title: "%{year} %{carrier_name}"
+      title: "%{year} %{carrier_name} Plans"
       column_plan_name: "Plan name"
       column_plan_type: "Plan type"
       column_pvp_areas: "PVP rating areas"
