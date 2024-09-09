@@ -8,6 +8,7 @@ FactoryBot.define do
       Date.new(TimeKeeper.date_of_record.year, 1, 1)..
                           Date.new(TimeKeeper.date_of_record.year, 12, 31)
     end
+    sequence(:hios_id, (10..99).cycle) { |n| "41842DC04000#{n}-01" }
 
     hbx_id do
       deductable = Forgery('basic').text(
