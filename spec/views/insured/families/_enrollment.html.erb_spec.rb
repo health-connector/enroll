@@ -37,18 +37,21 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       product_type: "A plan type",
       id: "Productid",
       hios_id: "producthiosid",
+      is_standard_plan: true,
       health_plan_kind: :hmo,
       sbc_document: sbc_document,
       medical_individual_deductible: '$200.00',
       medical_family_deductible: '$200.00',
       rx_individual_deductible: '$200.00',
-      rx_family_deductible: '$200.00'
+      rx_family_deductible: '$200.00',
+      is_pvp_in_rating_area: is_pvp
     )
   end
 
   let(:plan_active_year) { 2018 }
   let(:plan_coverage_kind) { "health" }
   let(:sbc_document) { nil }
+  let(:is_pvp) { true }
 
   before(:each) do
     allow(view).to receive(:policy_helper).and_return(family)
@@ -88,7 +91,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         is_ivl_by_kind?: false,
         covered_members_first_names: [],
         display_make_changes_for_ivl?: false,
-        :is_active_renewal_purchase? => false
+        :is_active_renewal_purchase? => false,
+        rating_area: instance_double(BenefitMarkets::Locations::RatingArea, exchange_provided_code: 'R-MA001')
       )
     end
 
@@ -160,7 +164,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         is_ivl_by_kind?: false,
         future_enrollment_termination_date: future_enrollment_termination_date,
         covered_members_first_names: [],
-        :is_active_renewal_purchase? => false
+        :is_active_renewal_purchase? => false,
+        rating_area: instance_double(BenefitMarkets::Locations::RatingArea, exchange_provided_code: 'R-MA001')
       )
     end
 
@@ -179,12 +184,14 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         product_type: "A plan type",
         id: "productid",
         hios_id: "producthiosid",
+        is_standard_plan: true,
         health_plan_kind: :hmo,
         medical_individual_deductible: '$200.00',
         medical_family_deductible: '$200.00',
         rx_individual_deductible: '$200.00',
         rx_family_deductible: '$200.00',
-        sbc_document: sbc_document
+        sbc_document: sbc_document,
+        is_pvp_in_rating_area: is_pvp
       )
     end
 
@@ -201,6 +208,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       )
     end
 
+    let(:is_pvp_enabled) { true }
+
     before :each do
       allow(hbx_enrollment).to receive(:is_reinstated_enrollment?).and_return(false)
       allow(hbx_enrollment).to receive(:kind).and_return('employer_sponsored')
@@ -211,6 +220,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       allow(sponsored_benefit_package).to receive(:open_enrollment_contains?).with(TimeKeeper.date_of_record)
       allow(hbx_enrollment).to receive(:display_make_changes_for_shop?).and_return(true)
       allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: true))
+      EnrollRegistry[:premium_value_products].feature.stub(:is_enabled).and_return(is_pvp_enabled)
       render partial: "insured/families/enrollment", collection: [hbx_enrollment], as: :hbx_enrollment, locals: { read_only: false }
     end
 
@@ -256,6 +266,33 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
     it "should not show a Plan End if cobra" do
       allow(hbx_enrollment).to receive(:is_cobra_status?).and_return(true)
       expect(rendered).not_to match(/plan ending/i)
+    end
+
+    it 'should display standard plan on the tile' do
+      expect(rendered).to match(/STANDARD PLAN/i)
+    end
+
+    it 'should display PVP on the tile' do
+      expect(rendered).to match(/PREMIUM VALUE PLAN/i)
+    end
+
+    context 'when product is not a pvp' do
+      let(:is_pvp) { false }
+      it 'should display PVP on the tile' do
+        expect(rendered).not_to match(/PREMIUM VALUE PLAN/i)
+      end
+    end
+
+    context 'when premium_value_products feature is disabled' do
+      let(:is_pvp_enabled) { false }
+
+      it 'should not display standard plan on the tile' do
+        expect(rendered).not_to match(/STANDARD PLAN/i)
+      end
+
+      it 'should not display PVP on the tile' do
+        expect(rendered).not_to match(/PREMIUM VALUE PLAN/i)
+      end
     end
 
     context "coverage_termination_pending" do
@@ -389,7 +426,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         future_enrollment_termination_date: "",
         display_make_changes_for_shop?: false,
         display_make_changes_for_ivl?: false,
-        covered_members_first_names: []
+        covered_members_first_names: [],
+        rating_area: instance_double(BenefitMarkets::Locations::RatingArea, exchange_provided_code: 'R-MA001')
       )
     end
 
@@ -445,7 +483,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         future_enrollment_termination_date: "",
         display_make_changes_for_shop?: false,
         display_make_changes_for_ivl?: false,
-        covered_members_first_names: []
+        covered_members_first_names: [],
+        rating_area: instance_double(BenefitMarkets::Locations::RatingArea, exchange_provided_code: 'R-MA001')
       )
     end
 
@@ -511,7 +550,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         covered_members_first_names: [],
         display_make_changes_for_shop?: false,
         display_make_changes_for_ivl?: false,
-        parent_enrollment: nil
+        parent_enrollment: nil,
+        rating_area: instance_double(BenefitMarkets::Locations::RatingArea, exchange_provided_code: 'R-MA001')
       )
     end
 
