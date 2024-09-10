@@ -124,10 +124,13 @@ h1,h2,h3,h4,h5,h6 {
   ul {
     margin: 20px 0;
     text-align: left;
+
+    li.show {
+      display: inline-block !important;
+    }
   }
 
   ul li {
-
   }
 
   ul li a {
