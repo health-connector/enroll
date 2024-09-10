@@ -14,7 +14,7 @@
               = l10n("premium_value_plan").to_s.upcase
           - if product.try(:is_standard_plan)
             span.standard-plan-indicator
-              i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+              i.fas.fa-lg.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
               = l10n("standard_plan").to_s.upcase
         - else
           - if product.try(:is_standard_plan)

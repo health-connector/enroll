@@ -6,34 +6,34 @@
   br/
   br/
 - if qhp.present?
-  .row.plan.module style=("margin-top: 0;")
+  .row.plan.module.mt-0
+    .col-xs-12.row
+      - if ::EnrollRegistry.feature_enabled?(:premium_value_products)
+        - if member_enrollment.is_pvp_eligible
+          span.pvp-plan-indicator.ml-1
+            i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"
+            = l10n("premium_value_plan").to_s.upcase
+        - if @plan.try(:is_standard_plan)
+          span.standard-plan-indicator.ml-1
+            i.fas.fa-lg.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+            = l10n("standard_plan").to_s.upcase
+      - else
+        - if @plan.try(:is_standard_plan)
+          span.ml-2 style="color:green"
+            i.fas.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+            = l10n("standard_plan").to_s.upcase
     .col-xs-12
-      .col-xs-6
-        span.pull-left
-          = display_carrier_logo(Maybe.new(@plan), {width: 180})
-      .col-xs-6
-        span.pull-right
-          span style=("font-size: 24px;")
+      .col-xs-2
+        span.pull-left.mt-2
+          = display_carrier_logo(Maybe.new(@plan), {width: 100})
+      .col-xs-8
+        .h3.text-blue= @plan.title
+      .col-xs-2
+        span.pull-right.mt-2
+          span style=("font-size: 20px;")
             = number_to_currency(member_enrollment.product_cost_total - member_enrollment.sponsor_contribution_total)
           br/
           span.lg per month
-      .col-xs-12
-        h3.text-blue= @plan.title
-      div
-        - if ::EnrollRegistry.feature_enabled?(:premium_value_products)
-          - if member_enrollment.is_pvp_eligible
-            span.pvp-plan-indicator.mr-1
-              i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"
-              = l10n("premium_value_plan").to_s.upcase
-          - if @plan.try(:is_standard_plan)
-            span.standard-plan-indicator
-              i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
-              = l10n("standard_plan").to_s.upcase
-        - else
-          - if @plan.try(:is_standard_plan)
-            span.ml-2 style="color:green"
-              i.fas.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
-              = l10n("standard_plan").to_s.upcase
       .col-xs-12
         .row
           .col-xs-7

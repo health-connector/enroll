@@ -41,14 +41,16 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
                                                       household: household,
                                                       hbx_enrollment_members: [hbx_enrollment_member],
                                                       coverage_kind: "health",
-                                                      external_enrollment: false)
+                                                      external_enrollment: false,
+                                                      rating_area_id: rating_area.id)
   end
   let(:hbx_enrollment_two) do
     FactoryBot.create(:hbx_enrollment, :with_product,
                       household: household,
                       hbx_enrollment_members: [hbx_enrollment_member],
                       coverage_kind: "dental",
-                      external_enrollment: false)
+                      external_enrollment: false,
+                      rating_area_id: rating_area.id)
   end
   let(:decorated_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '', sponsor_contribution_total: '', employee_cost_total: 100.00) }
   let(:user) { FactoryBot.create(:user) }
@@ -272,7 +274,8 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
           household: household,
           benefit_group: current_benefit_package,
           coverage_kind: 'dental',
-          sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id
+          sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
+          rating_area_id: rating_area.id
         )
       end
       let(:carrier_profile) { FactoryBot.build_stubbed(:carrier_profile) }
@@ -282,7 +285,8 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
           household: household,
           benefit_group: current_benefit_package,
           coverage_kind: 'dental',
-          aasm_state: 'coverage_terminated'
+          aasm_state: 'coverage_terminated',
+          rating_area_id: rating_area.id
         )
       end
 
