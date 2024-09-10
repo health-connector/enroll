@@ -21,7 +21,7 @@
     <div class="panel-body">
       <% if ::EnrollRegistry.feature_enabled?(:premium_value_products) %>
         <% is_pvp = product.is_pvp_in_rating_area(hbx_enrollment.rating_area.exchange_provided_code, hbx_enrollment.effective_on)%>
-        <div class="row">
+        <div class="row <%= read_only ? 'col-xs-8': 'col-xs-12'  %>">
           <% if is_pvp %>
             <div class='col-xs-4 enr-pvp-indicator'>
               <i class="fas fa-lg fa-square mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"></i>
@@ -36,7 +36,7 @@
           <% end %>
         </div>
       <% end %>
-      <div class="row">
+      <div class="row col-xs-12">
         <span class="col-xs-2">
           <%= display_carrier_logo(Maybe.new(product), {width: 82}) %>
         </span>
@@ -133,17 +133,17 @@
             <div class="col-xs-12 vertically-aligned-row mt-2">
               <% names = hbx_enrollment.covered_members_first_names %>
               <% if names.present? %>
-              <div class="col-xs-7 family-members info vertical-align-top">
-                <div class='col-xs-6'><strong><%= l10n("covered") %></strong></div>
-                <div class="col-xs-6">
-                  <span class="separator">
-                    <a href="#"><%= names.delete_at(0).camelcase %></a>
-                    <% names.each do |name| %>
-                      <a href="#"><%= name.camelcase %></a>
-                    <% end %>
-                  </span>
+                <div class="col-xs-7 family-members info vertical-align-top">
+                  <div class='col-xs-6'><strong><%= l10n("covered") %></strong></div>
+                  <div class="col-xs-6">
+                    <span class="separator">
+                      <a href="#"><%= names.delete_at(0).camelcase %></a>
+                      <% names.each do |name| %>
+                        <a href="#"><%= name.camelcase %></a>
+                      <% end %>
+                    </span>
+                  </div>
                 </div>
-              </div>
               <% end %>
             </div>
           </div>
@@ -186,12 +186,14 @@
           </div>
         </div>
       </div>
-      <% if read_only == true %>
-        <% if !hbx_enrollment.is_coverage_waived? %>
-          <br/>
-          <%= render partial: "employers/census_employees/enrollment_details", locals: { enrollment:  hbx_enrollment} %>
+      <div class="row col-xs-12 pl-2">
+        <% if read_only == true %>
+          <% if !hbx_enrollment.is_coverage_waived? %>
+            <br/>
+            <%= render partial: "employers/census_employees/enrollment_details", locals: { enrollment:  hbx_enrollment} %>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
     </div>
 
     <div class="panel-footer">
