@@ -22,14 +22,26 @@ Feature: Visit Issuer and nested pages
     Then the table should have "0" in the "Enrollments" column
     Then the table should have "Health" in the "Products" column
 
+  Scenario: HBX Staff with Super Admin subroles should see Marketplace Carriers page
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user is on the Issuers Index of the Admin Dashboard
+    And the user visit the Marketplace Plan Year Index page
+    Then the user visit the Marketplace Carriers page
+    And the user will see Marketplace Carriers table
+    Then the table should have "Health Agency Authority" in the "Carrier" column
+    Then the table should have "2" in the "Plans" column
+    Then the table should have "0" in the "PVP Plans" column
+    Then the table should have "0" in the "Active Enrollments" column
+    Then the table should have "Dental, Health" in the "Products" column
+
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Issuers Index of the Admin Dashboard
     And the user visit the Marketplace Plan Year Index page
-    Then the user visit the Marketplace Carrier page
-    And the user will see Marketplace Carrier table
-    Then the table should have "Health Agency Authority" in the "Carrier" column
-    Then the table should have "0" in the "Plans" column
-    Then the table should have "0" in the "PVP Plans" column
-    Then the table should have "0" in the "Active Enrollments" column
-    Then the table should have "" in the "Products" column
+    Then the user visit the Marketplace Carriers page
+    And the user visit the Marketplace Carrier page
+    Then the table should have "BlueChoice bronze 2,000" in the "Plan name" column
+    Then the table should have "Health" in the "Plan type" column
+    Then the table should have "N/A" in the "PVP rating areas" column
+    Then the table should have "network" in the "Network" column
+    Then the table should have "Gold" in the "Metal level" column
