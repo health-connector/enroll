@@ -105,8 +105,8 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
       allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_reinstate).and_return(false)
       expect(rendered).not_to match(/cancel/)
       expect(rendered).not_to match(/terminate/)
-      expect(rendered).not_to match /reinstate/
-      expect(rendered).not_to match /generate_v2_xml/
+      expect(rendered).not_to match(/reinstate/)
+      expect(rendered).not_to match(/generate_v2_xml/)
     end
   end
 end
