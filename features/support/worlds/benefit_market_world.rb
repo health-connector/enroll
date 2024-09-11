@@ -162,6 +162,19 @@ module BenefitMarketWorld
     reset_product_cache
   end
 
+  def mark_premium_value_products_in_rating_areas
+    BenefitMarkets::Products::Product.each do |product|
+      r_codes = product.premium_tables.map(&:rating_area).map(&:exchange_provided_code)
+      r_codes.each do |code|
+        params = {
+          active_year: product.active_year, hios_id: product.hios_id, rating_area_code: code[-1],
+          evidence_value: "true", updated_by: User.last.email, effective_date: Date.new(product.active_year, 1, 1)
+        }
+        ::BenefitMarkets::Operations::Pvp::MarkPvpEligibleInRatingArea.new.call(params)
+      end
+    end
+  end
+
   def renewal_health_products(effective_date = current_effective_date)
     create_list(:benefit_markets_products_health_products_health_product,
                 5,
@@ -262,6 +275,10 @@ Given(/^benefit market catalog exists for (.*) initial employer that has both he
   set_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
+end
+
+Given(/^products marked as premium value products$/) do
+  mark_premium_value_products_in_rating_areas
 end
 
 # Addresses certain cucumbers failing in Nov/Dec

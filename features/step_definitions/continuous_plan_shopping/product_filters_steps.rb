@@ -26,6 +26,14 @@ Given(/^premium value plans feature is disabled$/) do
   EnrollRegistry[:premium_value_products].feature.stub(:is_enabled).and_return(false)
 end
 
+Then(/^employer should see pvp indicator$/) do
+  expect(page).not_to have_content(/PREMIUM VALUE PLAN/)
+end
+
+Then(/^employer should not see pvp indicator$/) do
+  expect(page).not_to have_content(/PREMIUM VALUE PLAN/)
+end
+
 Then(/the employee will not see standard plan and pvp filters/) do
   type_filters = find_all(EmployeeEnrollInAPlan.plan_type_filter).map(&:text)
   expect(type_filters).not_to include("PREMIUM VALUE PLAN", "STANDARD PLAN")

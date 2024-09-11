@@ -223,7 +223,8 @@
    padding:0px 20px 20px 20px;
   }
   p.reference-plan-title {
-    font-size:12px;
+    font-size:16px;
+    font-weight: bold;
   }
   .rp-info {
     min-height:140px;
@@ -231,21 +232,15 @@
   #yourPlans {
     padding-top:10px;
     width:100%;
-    height:310px;
+    height:350px;
     background-color:$primary-white;
     overflow-y: scroll;
-    .col-xs-12 {
-      min-height:170px;
-      border-bottom:1px solid $primary-dark-gray;
-    }
-    .col-xs-12:hover {
-      border-bottom:1px solid $mhc-dark-blue;
-    }
     .col-xs-12:hover .rp-view-summary {
       display:block;
       color:$mhc-blue;
       font-size:12px;
       font-weight:bold;
+      padding-top: 20px;
     }
     .rp-view-summary {
       display:none;
@@ -429,6 +424,7 @@
    input[type=range] {border:none !important;}
 
 .reference-plans {
+  padding: 0 5px 0 5px;
   min-height:200px;
   .panel-heading {
     border-bottom: 1px solid transparent;
@@ -447,11 +443,17 @@
       line-height: 1.6em;
     }
   }
+
   .plan-label {
-    color: #b7b7b7;
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
     font-weight:bold;
+  }
+
+  .plan-label-value {
+    font-size:12px;
+    text-transform: uppercase;
+    font-weight: normal;
   }
 }
 #employee-enrollments, #employer-plan-year, #employer-benefit-groups {
@@ -483,10 +485,11 @@
 #yourPlans {
   /* The container */
   .container {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
     display: block;
     position: relative;
-    padding-left: 35px;
-    margin-bottom: 12px;
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -500,41 +503,53 @@
     cursor: pointer;
   }
 
-  /* Create a custom radio button */
+  .checkmark-container {
+    text-align: right;
+  }
+
   .checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
+    display: inline-block;
     height: 25px;
     width: 25px;
     background-color: #eee;
     border-radius: 50%;
+    margin-right: 5px;
+  }
+
+  .checkmark-text {
+    display: inline-block;
+    position: relative;
+    top: -7px
   }
 
   /* On mouse-over, add a grey background color */
-  .container:hover input ~ .checkmark {
+  .container:hover .checkmark-container .checkmark {
     background-color: #ccc;
   }
 
   /* When the radio button is checked, add a blue background */
-  .container input:checked ~ .checkmark {
+  .container input:checked ~ .checkmark-container .checkmark,
+  .checkmark-container input[type="radio"]:checked ~ .checkmark {
     background-color: $mhc-dark-blue;
   }
 
   /* Create the indicator (the dot/circle - hidden when not checked) */
-  .checkmark:after {
+  .checkmark-container .checkmark:after {
     content: "";
     position: absolute;
     display: none;
   }
 
   /* Show the indicator (dot/circle) when checked */
-  .container input:checked ~ .checkmark:after {
+  .container input:checked ~ .checkmark-container .checkmark:after,
+  .checkmark-container input[type="radio"]:checked ~ .checkmark:after {
     display: block;
   }
 
   /* Style the indicator (dot/circle) */
   .container .checkmark:after {
+    position: absolute;
     top: 9px;
     left: 9px;
     width: 8px;
