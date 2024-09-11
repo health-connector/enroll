@@ -19,7 +19,7 @@ describe MarkPremiumValueProductsInRatingAreas, dbclean: :after_each do
 
   let!(:rating_area) do
     r = product.premium_tables.first.rating_area
-    r.update!(exchange_provided_code: "R-MA001")
+    r.update!(exchange_provided_code: "R-MA002")
     r
   end
 
@@ -31,7 +31,7 @@ describe MarkPremiumValueProductsInRatingAreas, dbclean: :after_each do
     headers = ["ActiveYear", "HiosId", "RatingAreaCode", "PvpEligibility", "UserEmail"]
     CSV.open(file_name, "w", force_quotes: true) do |csv|
       csv << headers
-      csv << [product.active_year, product.hios_id, 1, true, user.email]
+      csv << [product.active_year, product.hios_id, rating_area.exchange_provided_code[-1], true, user.email]
     end
   end
 
