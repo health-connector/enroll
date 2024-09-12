@@ -831,8 +831,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def product_data(product)
     {
       plan_name: product.title,
-      plan_type: product&.health_plan_kind.to_s.upcase,
-      # plan_type: [product&.health_plan_kind.to_s.capitalize, product&.dental_plan_kind.to_s.capitalize].uniq.compact.join(','),
+      plan_type: product&.health_plan_kind.to_s.upcase ||  product&.dental_plan_kind.to_s.upcase,
       pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.join(',').presence || 'N/A',
       plan_id: product.hios_id,
       network: 'network',
