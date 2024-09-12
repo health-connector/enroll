@@ -126,6 +126,10 @@ class Family
   index({"households.tax_households.eligibility_determinations.determined_on" => 1})
   index({"households.tax_households.eligibility_determinations.determined_at" => 1})
   index({"households.tax_households.eligibility_determinations.max_aptc.cents" => 1})
+  index({
+          "households.hbx_enrollments.aasm_state" => 1,
+          "households.hbx_enrollments.product_id" => 1
+        }, {name: "hbx_enrollment_state_and_product"})
 
   index({"irs_groups.hbx_assigned_id" => 1})
 
