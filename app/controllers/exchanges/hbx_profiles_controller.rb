@@ -517,6 +517,14 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     @products_data = products.map { |product| product_data(product) }
 
+    @filter_options = {
+      plan_types: { hmo: 'HMO', ppo: 'PPO', epo: 'EPO', pos: 'POS', pvp: 'PVP', standard: 'Standard' },
+      rating_areas: pvp_rating_area_options(products),
+      metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h,
+      networks: { metro: "Metro", nationwide: "Nationwide", '3': "3", '4': 4}
+    }
+
+
     respond_to do |format|
       format.html { render "carrier" }
       format.js
@@ -774,6 +782,17 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   private
 
+  def pvp_rating_area_options(products)
+    products.map do |p|
+      p.premium_value_products.map do |pvp|
+        [
+          pvp.rating_area.exchange_provided_code, # key
+          pvp.rating_area.human_exchange_provided_code # value
+        ]
+      end
+    end.flatten(1).uniq.to_h
+  end
+
   def year_plan_data(year)
     product_query = BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
@@ -812,7 +831,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   def product_data(product)
     {
       plan_name: product.title,
-      plan_type: product.kind.to_s.capitalize,
+      plan_type: product&.health_plan_kind.to_s.upcase,
+      # plan_type: [product&.health_plan_kind.to_s.capitalize, product&.dental_plan_kind.to_s.capitalize].uniq.compact.join(','),
       pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.join(',').presence || 'N/A',
       plan_id: product.hios_id,
       network: 'network',
