@@ -5084,3 +5084,82 @@ input:required:valid {
   margin-top: -2rem;
 }
 
+.carrier-filter{
+  h4 {
+    font-weight: bold;
+  }
+
+  .row {
+    h5 {
+      font-size: 1.4rem;
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      label {
+        font-size: 1.5rem;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 8px;
+        margin-top: -2px;
+        vertical-align: middle;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .btn {
+    &.clean-btn {
+      margin-right: 10px;
+
+      &:hover {
+        background-color: #5a6268;
+      }
+    }
+    i {
+      margin-right: 5px;
+    }
+    &.search-btn{
+      margin: 0 !important;
+    }
+  }
+
+  .form-control {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  .fa-search {
+    margin-right: 5px;
+  }
+
+
+  .input-group {
+    .form-control {
+      padding-right: 2.5rem;
+    }
+
+    .input-group-append {
+      .input-group-text {
+        background-color: #fff;
+        border-left: 0;
+        cursor: pointer;
+
+        i.fa-search {
+          font-size: 1.2rem;
+          color: #aaa;
+        }
+      }
+    }
+  }
+}
