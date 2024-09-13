@@ -167,13 +167,13 @@ javascript:
       document.getElementById('changeReferencePlan').classList.remove('hidden');
     }
 
-    if(isStandardPlan === 'true') {
+    if(isStandardPlan) {
       document.getElementById('rpStandardPlanIndicator').classList.remove('hidden')
     } else {
       document.getElementById('rpStandardPlanIndicator').classList.add('hidden')
     }
 
-    if(isPvpEligible === 'true') {
+    if(isPvpEligible) {
       document.getElementById('rpPvpIndicator').classList.remove('hidden')
     } else {
       document.getElementById('rpPvpIndicator').classList.add('hidden')
