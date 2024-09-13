@@ -186,7 +186,7 @@ javascript:
   var sponsorContributions = #{@benefit_package_form.catalog.sponsor_contributions(@benefit_package_form.id).to_json.html_safe};
   var minContributions = #{f.object.sponsor_contribution.min_contributions_map.to_json.html_safe};
 	var productsTotal;
-  const isPvpFeatureEnabled = "#{::EnrollRegistry.feature_enabled?(:premium_value_products)}";
+  const isPvpFeatureEnabled = #{::EnrollRegistry.feature_enabled?(:premium_value_products)};
   const pvpTooltipValue = "#{l10n('insured.plan_shoppings.pvp_title_info')}";
   const standardPlanTooltipValue = "#{l10n('insured.plan_shoppings.standard_plan_title_info')}";
 
@@ -267,11 +267,11 @@ javascript:
               <label class="container">
                 <p class="heading-text reference-plan-title mt-1"> ${plan.title}</p>
                 <div class="row mt-n2">
-                  <div class="${(plan.is_pvp_eligible && isPvpFeatureEnabled === 'true') ? 'pvp-ref-plan-indicator' : 'hidden'}">
+                  <div class="${(plan.is_pvp_eligible && isPvpFeatureEnabled) ? 'pvp-ref-plan-indicator' : 'hidden'}">
                     <i class="fas fa-lg fa-square" data-toggle="tooltip" data-placement="top" data-container="body" title="${pvpTooltipValue}"></i> Premium Value Plan
                   </div>
-                  <div class="${plan.is_standard_plan ? (isPvpFeatureEnabled === 'true' ? 'standard-ref-plan-indicator' : 'text-uppercase') : 'hidden'} ml-1" style="${isPvpFeatureEnabled === 'true' ? '' : 'color:green'}">
-                    <i class="${isPvpFeatureEnabled === 'true' ? 'fas fa-lg fa-square' : 'fas fa-bookmark'}" data-toggle="tooltip" data-placement="top" data-container="body" title="${standardPlanTooltipValue}"></i> Standard Plan
+                  <div class="${plan.is_standard_plan ? (isPvpFeatureEnabled ? 'standard-ref-plan-indicator' : 'text-uppercase') : 'hidden'} ml-1" style="${isPvpFeatureEnabled === 'true' ? '' : 'color:green'}">
+                    <i class="fas fa-bookmark" data-toggle="tooltip" data-placement="top" data-container="body" title="${standardPlanTooltipValue}"></i> Standard Plan
                   </div>
                 </div>
                 <span class="plan-label col-xs-4 pl-0">Type:</span> <span class="plan-label-value col-xs-8" id="plan-type-value">${plan.product_type}</span><br>
@@ -381,13 +381,13 @@ javascript:
 
     document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
 
-    if(isStandardPlan === 'true') {
+    if(isStandardPlan) {
       document.getElementById('rpStandardPlanIndicator').classList.remove('hidden')
     } else {
       document.getElementById('rpStandardPlanIndicator').classList.add('hidden')
     }
 
-    if(isPvpEligible === 'true') {
+    if(isPvpEligible) {
       document.getElementById('rpPvpIndicator').classList.remove('hidden')
     } else {
       document.getElementById('rpPvpIndicator').classList.add('hidden')
@@ -788,8 +788,8 @@ javascript:
         carrierName: "#{@benefit_package_form.sponsored_benefits.first.reference_product.issuer_name}",
         planType: "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}",
         referencePlanID: "#{@benefit_package_form.sponsored_benefits.first.reference_plan_id}",
-        isStandardPlan: "#{@benefit_package_form.sponsored_benefits.first.reference_product.is_standard_plan}",
-        isPvpEligible: "#{@benefit_package_form.sponsored_benefits.first.reference_product.is_pvp_eligible}",
+        isStandardPlan: @benefit_package_form.sponsored_benefits.first.reference_product.is_standard_plan,
+        isPvpEligible: @benefit_package_form.sponsored_benefits.first.reference_product.is_pvp_eligible,
       });
     });
 
