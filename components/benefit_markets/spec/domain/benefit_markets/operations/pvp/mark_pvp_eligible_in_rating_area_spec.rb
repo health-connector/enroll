@@ -11,7 +11,7 @@ RSpec.describe BenefitMarkets::Operations::Pvp::MarkPvpEligibleInRatingArea, typ
 
   let(:rating_area) do
     r = product.premium_tables.first.rating_area
-    r.update!(exchange_provided_code: "R-MA001")
+    r.update!(exchange_provided_code: "R-MA002")
     r
   end
 
