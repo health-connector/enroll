@@ -196,6 +196,7 @@ GEM
     case_transform (0.2)
       activesupport
     ckeditor (5.0.0)
+      cocaine
       orm_adapter (~> 0.5.0)
     climate_control (0.2.0)
     cocaine (0.6.0)
