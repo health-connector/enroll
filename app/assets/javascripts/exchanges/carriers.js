@@ -41,7 +41,7 @@ $(document).ajaxComplete(function() {
             const planType = $(this).data('plan-type').toLowerCase();
             const pvpAreas = $(this).data('pvp-areas').toLowerCase();
             // const network = $(this).data('network').toLowerCase();
-            const metalLevel = $(this).data('metal-level-kind').toLowerCase();
+            const metalLevel = $(this).data('metal-level').toLowerCase();
             const planId = $(this).data('plan-id').toLowerCase();
             const planName = $(this).data('plan-name').toLowerCase();
 

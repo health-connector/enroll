@@ -365,5 +365,23 @@ module BenefitMarkets
         end
       end
     end
+
+    describe '#plan_types' do
+      context 'when premium value products are present' do
+        before do
+          allow(subject).to receive(:premium_value_products).and_return(double(:present? => true))
+        end
+
+        it 'includes :pvp in the plan types' do
+          expect(subject.plan_types).to include(:pvp)
+        end
+      end
+
+      context 'when neither health nor dental plan kinds are present and premium value products are absent' do
+        it 'returns an empty array' do
+          expect(subject.plan_types).to be_empty
+        end
+      end
+    end
   end
 end

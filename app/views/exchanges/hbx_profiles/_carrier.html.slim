@@ -81,7 +81,7 @@ br
             th= l10n('marketplaces.carrier.column_metal_level_kind')
         tbody
           - @products_data.each do |plan|
-            tr data-plan-type=plan[:plan_type] data-plan-id=plan[:plan_id] data-metal-level-kind=plan[:metal_level_kind] data-network=plan[:network] data-pvp-areas=plan[:pvp_areas] data-plan-name=plan[:plan_name]
+            tr data-plan-type=plan[:plan_type] data-plan-id=plan[:plan_id] data-metal-level=plan[:metal_level_kind] data-network=plan[:network] data-pvp-areas=plan[:pvp_areas] data-plan-name=plan[:plan_name]
               td= link_to plan[:plan_name], "#", aria: { label: plan[:plan_name] }
               td= plan[:plan_type]
               td= plan[:pvp_areas]

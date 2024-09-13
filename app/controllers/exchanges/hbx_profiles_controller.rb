@@ -831,12 +831,16 @@ class Exchanges::HbxProfilesController < ApplicationController
   def product_data(product)
     {
       plan_name: product.title,
-      plan_type: product&.health_plan_kind.to_s.upcase ||  product&.dental_plan_kind.to_s.upcase,
+      plan_type: transform_and_join(product.plan_types),
       pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.join(',').presence || 'N/A',
       plan_id: product.hios_id,
       network: 'network',
       metal_level_kind: product.metal_level_kind.to_s.capitalize
     }
+  end
+
+  def transform_and_join(symbols)
+    symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }.join(', ')
   end
 
   def uniq_terminate_params

@@ -396,6 +396,14 @@ module BenefitMarkets
       pvp.latest_active_pvp_eligibility_on(date)&.eligible?
     end
 
+    def plan_types
+      plan_types = []
+      plan_types << health_plan_kind if respond_to?(:health_plan_kind)
+      plan_types << dental_plan_kind if respond_to?(:dental_plan_kind)
+      plan_types << :pvp if premium_value_products.present?
+      plan_types.compact
+    end
+
     private
 
     # self.class.new(attrs_without_tuples)

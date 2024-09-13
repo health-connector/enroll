@@ -66,3 +66,33 @@ When(/^the user will see Marketplace Carrier table$/) do
   expect(page).to have_text('Metal level')
   expect(page).to have_css('.table-responsive .table thead')
 end
+
+When('check the {string} filter {string}') do |value, column_name|
+  find("input[name='#{value.parameterize(separator: '_')}[]'][value='#{column_name.downcase}']").check
+end
+
+When('click on {string}') do |button_text|
+  click_button(button_text)
+end
+
+Then('should see plans with the following:') do |table|
+  expected_results = table.rows_hash
+  check_filtered_results(expected_results)
+end
+
+And('search for {string}') do |search_prompt|
+  fill_in 'search', with: search_prompt
+end
+
+def check_filtered_results(expected_results)
+  within('table tbody') do
+    rows = all('tr')
+
+    rows.each do |row|
+      expected_results.each do |attribute, value|
+        css_attribute = attribute.parameterize(separator: '-')
+        expect(row[:"data-#{css_attribute}"]).to include(value)
+      end
+    end
+  end
+end
