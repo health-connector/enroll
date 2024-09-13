@@ -270,7 +270,7 @@ javascript:
                   <div class="${(plan.is_pvp_eligible && isPvpFeatureEnabled) ? 'pvp-ref-plan-indicator' : 'hidden'}">
                     <i class="fas fa-lg fa-square" data-toggle="tooltip" data-placement="top" data-container="body" title="${pvpTooltipValue}"></i> Premium Value Plan
                   </div>
-                  <div class="${plan.is_standard_plan ? (isPvpFeatureEnabled ? 'standard-ref-plan-indicator' : 'text-uppercase') : 'hidden'} ml-1" style="${isPvpFeatureEnabled === 'true' ? '' : 'color:green'}">
+                  <div class="${plan.is_standard_plan ? (isPvpFeatureEnabled ? 'standard-ref-plan-indicator' : 'text-uppercase') : 'hidden'} ml-1" style="${isPvpFeatureEnabled ? '' : 'color:green'}">
                     <i class="fas fa-bookmark" data-toggle="tooltip" data-placement="top" data-container="body" title="${standardPlanTooltipValue}"></i> Standard Plan
                   </div>
                 </div>
@@ -364,6 +364,7 @@ javascript:
   }
 
   function displayReferencePlanDetails(element, options) {
+    debugger;
     if(!(element || options)) {
       return
     }
@@ -374,8 +375,8 @@ javascript:
     planType = options.planType || element.dataset.planType;
     referencePlanID = options.referencePlanID || element.id;
     sponsoredBenefitId = options.sponsoredBenefitId;
-    isStandardPlan = options.isStandardPlan || element.dataset.isStandardPlan;
-    isPvpEligible = options.isPvpEligible || element.dataset.isPvp;
+    isStandardPlan = options.hasOwnProperty('isStandardPlan') ? options.isStandardPlan : element.dataset.isStandardPlan;
+    isPvpEligible = options.hasOwnProperty('isPvpEligible') ? options.isPvpEligible : element.dataset.isPvp;
 
     showFormButtons();
 
@@ -788,8 +789,8 @@ javascript:
         carrierName: "#{@benefit_package_form.sponsored_benefits.first.reference_product.issuer_name}",
         planType: "#{@benefit_package_form.sponsored_benefits.first.product_package_kind}",
         referencePlanID: "#{@benefit_package_form.sponsored_benefits.first.reference_plan_id}",
-        isStandardPlan: @benefit_package_form.sponsored_benefits.first.reference_product.is_standard_plan,
-        isPvpEligible: @benefit_package_form.sponsored_benefits.first.reference_product.is_pvp_eligible,
+        isStandardPlan: #{@benefit_package_form.sponsored_benefits.first.reference_product.is_standard_plan},
+        isPvpEligible: #{@benefit_package_form.sponsored_benefits.first.reference_product.is_pvp_eligible},
       });
     });
 
