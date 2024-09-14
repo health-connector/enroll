@@ -43,12 +43,14 @@
         br
         .row
           .col-md-4
-            button.btn.btn-secondary.clean-btn#clear-filters type="button"= l10n('marketplaces.carrier.clear_button')
+            button.btn.btn-outline-primary.clean-btn#clear-filters type="button"= l10n('marketplaces.carrier.clear_button')
             button.btn.btn-primary type="submit"= l10n('marketplaces.carrier.apply_button')
         .row.mt-3
           .col-md-4
             .form-group
-              input.form-control type="text" name="search"
+              #search-input-box
+                input.form-control type="text" placeholder="Search" name="search"
+                i.fa.fa-search
           .col-md-2
             button.btn.btn-primary.search-btn type="submit"= l10n('marketplaces.carrier.search_button')
     .row

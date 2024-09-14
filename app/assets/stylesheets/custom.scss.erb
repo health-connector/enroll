@@ -5065,45 +5065,41 @@ input:required:valid {
         margin-right: 8px;
         margin-top: -2px;
         vertical-align: middle;
-      }
-
-      input[type="text"] {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
+        line-height: normal;
+        width: 20px;
+        height: 20px;
       }
     }
   }
 
+  #search-input-box{
+    display: flex;
+    align-items: center;
+    input{
+      flex: 1;
+    }
+    i{
+      margin-left: -25px;
+      color: #247dc5
+    }
+  }
   .btn {
+    &.btn-outline-primary{
+      background: none;
+      color: #247dc5;
+      border: 1px solid #247dc5;
+    }
     &.clean-btn {
       margin-right: 10px;
 
       &:hover {
-        background-color: #5a6268;
+        background-color: white;
       }
-    }
-    i {
-      margin-right: 5px;
     }
     &.search-btn{
       margin: 0 !important;
     }
   }
-
-  .form-control {
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 10px;
-    font-size: 1rem;
-  }
-
-  .fa-search {
-    margin-right: 5px;
-  }
-
 
   .input-group {
     .form-control {
