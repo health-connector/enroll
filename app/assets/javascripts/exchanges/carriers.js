@@ -15,7 +15,6 @@ $(document).ajaxComplete(function() {
     function filterPlans() {
         const planTypes = [];
         const pvpRatingAreas = [];
-        // const networks = [];
         const metalLevels = [];
         const searchPlan = $('input[name="search"]').val().toLowerCase();
 
@@ -23,13 +22,9 @@ $(document).ajaxComplete(function() {
             planTypes.push($(this).val().toLowerCase());
         });
 
-        $('input[name="pvp_rating_area[]"]:checked').each(function() {
+        $('input[name="pvp_rating_areas[]"]:checked').each(function() {
             pvpRatingAreas.push($(this).val().toLowerCase());
         });
-
-        // $('input[name="network[]"]:checked').each(function() {
-        //     networks.push($(this).val().toLowerCase());
-        // });
 
         $('input[name="metal_level[]"]:checked').each(function() {
             metalLevels.push($(this).val().toLowerCase());
@@ -38,26 +33,21 @@ $(document).ajaxComplete(function() {
         let visiblePlansCount = 0;
 
         $('tbody tr').each(function() {
-            const planType = $(this).data('plan-type').toLowerCase();
-            const pvpAreas = $(this).data('pvp-areas').toLowerCase();
-            // const network = $(this).data('network').toLowerCase();
+            const planType = $(this).data('plan-type').toString().toLowerCase();
+            const pvpAreas = $(this).data('pvp-areas').toString().toLowerCase();
             const metalLevel = $(this).data('metal-level').toLowerCase();
             const planId = $(this).data('plan-id').toLowerCase();
             const planName = $(this).data('plan-name').toLowerCase();
 
             let showRow = true;
 
-            if (planTypes.length > 0 && !planTypes.includes(planType)) {
+            if (planTypes.length > 0 && !planTypes.some(pt => planType.includes(pt))) {
                 showRow = false;
             }
 
-            if (pvpRatingAreas.length > 0 && !pvpRatingAreas.some(area => pvpAreas.includes(area))) {
+            if (pvpRatingAreas.length > 0 && !pvpRatingAreas.includes(pvpAreas)) {
                 showRow = false;
             }
-
-            // if (networks.length > 0 && !networks.includes(network)) {
-            //     showRow = false;
-            // }
 
             if (metalLevels.length > 0 && !metalLevels.includes(metalLevel)) {
                 showRow = false;

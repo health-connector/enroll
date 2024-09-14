@@ -49,40 +49,6 @@ Then('the table should have {string} in the {string} column') do |value, column_
   expect(table).to have_xpath(".//tbody/tr/td[#{column_index}]", text: value)
 end
 
-And(/^the user visit the Marketplace Plan Year Index page$/) do
-  find('a[aria-label="SHOP"]').click
-end
-
-And(/^the user visit the Marketplace Carriers page$/) do
-  year = Time.now.year
-  find("a[aria-label='#{year}']").click
-end
-
-When(/^the user will see Marketplace Plan Year Index table$/) do
-  expect(page).to have_text('Type')
-  expect(page).to have_text('Plans')
-  expect(page).to have_text('PVP Plans')
-  expect(page).to have_text('Enrollments')
-  expect(page).to have_text('Products')
-  expect(page).to have_css('.table-responsive .table thead')
-end
-
-When(/^the user will see Marketplace Carriers table$/) do
-  expect(page).to have_text('Carrier')
-  expect(page).to have_text('Plans')
-  expect(page).to have_text('PVP Plans')
-  expect(page).to have_text('Enrollments')
-  expect(page).to have_text('Products')
-  expect(page).to have_css('.table-responsive .table thead')
-end
-
-Then('the table should have {string} in the {string} column') do |value, column_name|
-  table = find('.table-responsive table.table-wrapper')
-  column_index = table.find('thead tr th', text: column_name, exact_text: true).path.split('/')[-1][/\d+/].to_i
-
-  expect(table).to have_xpath(".//tbody/tr/td[#{column_index}]", text: value)
-end
-
 Given(/^Admin_issuers_tab_display is on$/) do
   EnrollRegistry[:admin_issuers_tab_display].feature.stub(:is_enabled).and_return(true)
 end

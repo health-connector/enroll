@@ -27,19 +27,11 @@
             .col-md-3
               h5= l10n('marketplaces.carrier.filter_rating')
               .form-group
-                - @filter_options[:rating_areas].each do |key, value|
+                - @filter_options[:rating_areas].each do |_key, value|
                   label
-                    input type="checkbox" name="pvp_rating_area[]" value="#{key}" checked=params[:pvp_rating_area]&.include?(key.to_s)
+                    input type="checkbox" name="pvp_rating_areas[]" value="#{value}" checked=params[:pvp_rating_areas]&.include?(key.to_s)
                       | #{value}
                   br
-          .col-md-3
-            h5= l10n('marketplaces.carrier.filter_network')
-            .form-group
-              - @filter_options[:networks].each do |key, value|
-                label
-                  input type="checkbox" name="network[]" value="#{key}" checked=params[:network]&.include?(key.to_s)
-                    | #{value}
-                br
           .col-md-3
             h5= l10n('marketplaces.carrier.filter_metal_level')
             .form-group
@@ -77,7 +69,6 @@ br
             th= l10n('marketplaces.carrier.column_plan_type')
             th= l10n('marketplaces.carrier.column_pvp_areas')
             th= l10n('marketplaces.carrier.column_plan_id')
-            th= l10n('marketplaces.carrier.column_network')
             th= l10n('marketplaces.carrier.column_metal_level_kind')
         tbody
           - @products_data.each do |plan|
@@ -86,5 +77,4 @@ br
               td= plan[:plan_type]
               td= plan[:pvp_areas]
               td= plan[:plan_id]
-              td= plan[:network]
               td= plan[:metal_level_kind]
