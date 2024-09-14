@@ -229,6 +229,15 @@ Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefi
   end
 end
 
+Given(/^products have PVP$/) do
+  rating_area_2024 =  FactoryBot.create(:benefit_markets_locations_rating_area, exchange_provided_code: 'R-MA001', active_year: 2024)
+  product_number = BenefitMarkets::Products::HealthProducts::HealthProduct.count / 2
+  BenefitMarkets::Products::HealthProducts::HealthProduct.limit(product_number).each do |hp|
+    hp.premium_value_products << FactoryBot.create(:benefit_markets_products_premium_value_product, product: hp, rating_area: rating_area_2024)
+    hp.save!
+  end
+end
+
 # Addresses certain cucumbers failing in Nov/Dec
 Given(/^SAFE benefit market catalog exists for (.*) initial employer with health benefits$/) do |status|
   safe_initial_application_dates(status.to_sym)

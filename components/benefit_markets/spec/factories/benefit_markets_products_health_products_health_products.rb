@@ -50,13 +50,10 @@ FactoryBot.define do
       end
     end
 
-
     # association :service_area, factory: :benefit_markets_locations_service_area, strategy: :create
 
     after(:build) do |product, _evaluator|
       product.premium_tables << build_list(:benefit_markets_products_premium_table, 1, effective_period: product.application_period, rating_area: create(:benefit_markets_locations_rating_area))
     end
-
-
   end
 end

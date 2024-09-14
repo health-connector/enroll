@@ -463,6 +463,8 @@ class Exchanges::HbxProfilesController < ApplicationController
       products: BenefitMarkets::Products::Product
         .distinct(:kind)
         .map { |kind| kind.to_s.capitalize }
+        .sort
+        .reverse
         .join(", ")
     }]
 
@@ -802,9 +804,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     {
       year: year,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
       enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
 
@@ -822,9 +824,9 @@ class Exchanges::HbxProfilesController < ApplicationController
       carrier: carrier_name,
       organization_id: organization_id,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
       enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
 
@@ -832,9 +834,8 @@ class Exchanges::HbxProfilesController < ApplicationController
     {
       plan_name: product.title,
       plan_type: transform_and_join(product.plan_types),
-      pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.join(',').presence || 'N/A',
+      pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact.join(',').presence || 'N/A',
       plan_id: product.hios_id,
-      network: 'network',
       metal_level_kind: product.metal_level_kind.to_s.capitalize
     }
   end

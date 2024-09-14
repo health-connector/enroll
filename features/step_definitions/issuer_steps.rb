@@ -12,7 +12,7 @@ Then(/^the user will see correct content in table$/) do
   expect(find('.table-responsive .table tbody')).to have_text('SHOP')
   expect(find('.table-responsive .table tbody')).to have_text('17')
   expect(find('.table-responsive .table tbody')).to have_text('0')
-  expect(find('.table-responsive .table tbody')).to have_text('Dental, Health')
+  expect(find('.table-responsive .table tbody')).to have_text('Health, Dental')
 end
 
 And(/^the user visit the Marketplace Plan Year Index page$/) do
@@ -91,7 +91,7 @@ def check_filtered_results(expected_results)
     rows.each do |row|
       expected_results.each do |attribute, value|
         css_attribute = attribute.parameterize(separator: '-')
-        expect(row[:"data-#{css_attribute}"]).to include(value)
+        expect(row[:"data-#{css_attribute}"].to_s).to include(value)
       end
     end
   end
