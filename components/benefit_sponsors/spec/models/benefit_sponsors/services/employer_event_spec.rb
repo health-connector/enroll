@@ -87,7 +87,6 @@ RSpec.describe BenefitSponsors::Services::EmployerEvent, :dbclean => :after_each
 
     context 'when issuer profiles exist but have no profiles' do
       let(:issuer_profile_organization) { create(:benefit_sponsors_organizations_exempt_organization, :with_hbx_profile) }
-      # let(:issuer_profile) { create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 20_001) }
 
       before do
         allow(BenefitSponsors::Organizations::ExemptOrganization).to receive(:issuer_profiles).and_return([issuer_profile_organization])
