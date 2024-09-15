@@ -19,6 +19,7 @@ FactoryBot.define do
     sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }
     hios_base_id          { hios_id.split('-')[0] }
 
+    is_standard_plan      { true }
     service_area { create(:benefit_markets_locations_service_area) }
 
     transient do
