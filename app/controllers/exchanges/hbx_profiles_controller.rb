@@ -469,7 +469,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     }]
 
     respond_to do |format|
-      format.html { render "issuer_index" }
+      format.html { render "issuer_index", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -488,7 +488,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @carriers = carriers.map { |carrier| carrier_data(carrier, year) }
 
     respond_to do |format|
-      format.html { render "marketplace_plan_year" }
+      format.html { render "marketplace_plan_year", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -502,7 +502,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @years_data = years.map { |year| year_plan_data(year) }
 
     respond_to do |format|
-      format.html { render "marketplace_plan_years" }
+      format.html { render "marketplace_plan_years", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -528,7 +528,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
 
     respond_to do |format|
-      format.html { render "carrier" }
+      format.html { render "carrier", layout: 'exchanges_base' }
       format.js
     end
   end
