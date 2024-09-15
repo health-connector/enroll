@@ -1,4 +1,4 @@
-$(document).ajaxComplete(function() {
+$(document).on('turbolinks:load', function() {
     $('.filter-form button[type="submit"]').on('click', function(event) {
         event.preventDefault();
 
