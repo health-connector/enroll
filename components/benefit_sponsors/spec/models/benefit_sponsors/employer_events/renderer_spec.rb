@@ -1122,12 +1122,20 @@ RSpec.describe BenefitSponsors::EmployerEvents::Renderer, dbclean: :after_each d
       let(:old_plan_year_end_date) { previous_end_date.strftime("%Y%m%d")}
 
       it "updates the renewal event to be an initial event" do
-        old_plan_year.update_attributes(:effective_period => previous_start_date..previous_end_date)
+        old_plan_year.benefit_application_items.create(
+          effective_period: previous_start_date..previous_end_date,
+          sequence_id: 1,
+          state: old_plan_year.aasm_state
+        )
         expect(subject.update_event_name(carrier, employer_event)).to eq first_time_employer_event_name
       end
 
       it "keeps the initial event as an initial event" do
-        old_plan_year.update_attributes(:effective_period => previous_start_date..previous_end_date)
+        old_plan_year.benefit_application_items.create(
+          effective_period: previous_start_date..previous_end_date,
+          sequence_id: 1,
+          state: old_plan_year.aasm_state
+        )
         expect(subject.update_event_name(old_carrier, first_time_employer_event)).to eq first_time_employer_event_name
       end
     end
