@@ -2045,7 +2045,6 @@ GEM
       mail (~> 2.7)
     equalizer (0.0.11)
     erubi (1.13.0)
-    erubis (2.7.0)
     execjs (2.9.1)
     eye (0.10.0)
       celluloid (~> 0.17.3)
@@ -2185,8 +2184,9 @@ GEM
       easy_diff
       mongoid (>= 3.0)
       mongoid-compatibility (>= 0.5.1)
-    mongoid-rspec (4.2.0)
-      mongoid (>= 3.0, < 10.0)
+    mongoid-rspec (4.1.0)
+      activesupport (>= 3.0.0)
+      mongoid (>= 3.1)
       mongoid-compatibility (>= 0.5.1)
       rspec-core (~> 3.3)
       rspec-expectations (~> 3.3)
@@ -2222,6 +2222,10 @@ GEM
     nio4r (2.7.3)
     nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nokogiri (1.16.7-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
@@ -2446,7 +2450,7 @@ GEM
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
     semantic_range (3.0.0)
-    serverengine (2.1.1)
+    serverengine (2.0.7)
       sigdump (~> 0.2.2)
     set (1.1.0)
     shoulda-matchers (6.2.0)
@@ -2472,11 +2476,11 @@ GEM
       actionpack (>= 3.1)
       railties (>= 3.1)
       slim (>= 3.0, < 6.0, != 5.0.0)
-    sneakers (2.12.0)
-      bunny (~> 2.14)
+    sneakers (2.11.0)
+      bunny (~> 2.12)
       concurrent-ruby (~> 1.0)
-      rake (~> 12.3)
-      serverengine (~> 2.1.0)
+      rake
+      serverengine (~> 2.0.5)
       thor
     sorted_set (1.0.3)
       rbtree
@@ -2647,6 +2651,7 @@ DEPENDENCIES
   overcommit
   parallel_tests (= 2.26.2)
   prawn!
+  pry-byebug
   puma (~> 5.6, >= 5.6.8)
   pundit (~> 1.0.1)
   rack-cors
