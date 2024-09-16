@@ -1,0 +1,27 @@
+.top-pd.row#inbox_provider_form
+  .col-lg-12
+    nav[aria-label="breadcrumb"]
+      ol.breadcrumb
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path
+        li.breadcrumb-item.active[aria-current="page"]
+          = l10n('marketplaces.breadcrumb.plan_year')
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.years.title')
+  .col-lg-12
+    .table-responsive
+      table.table.table-wrapper
+        thead
+          tr
+            th= l10n('marketplaces.years.column_year')
+            th= l10n('marketplaces.years.column_plans')
+            th= l10n('marketplaces.years.column_pvp')
+            th= l10n('marketplaces.years.column_enrollments')
+            th= l10n('marketplaces.years.column_products')
+        tbody
+          - @years_data.each do |year_data|
+            tr
+              td= link_to year_data[:year], marketplace_plan_year_exchanges_hbx_profiles_path(year: year_data[:year], market: 'shop'), aria: { label: year_data[:year] }
+              td= year_data[:plans_number]
+              td= year_data[:pvp_numbers]
+              td= year_data[:enrollments_number]
+              td= year_data[:products]
