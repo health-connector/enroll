@@ -1123,9 +1123,9 @@ class Family
   def self.min_verification_due_date_range(start_date,end_date)
     timekeeper_date = TimeKeeper.date_of_record + 95.days
     if timekeeper_date >= start_date.to_date && timekeeper_date <= end_date.to_date
-      self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date}).or(:"min_verification_due_date" => nil)
+      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date}).or(:min_verification_due_date => nil)
     else
-      self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date})
+      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date})
     end
   end
 
