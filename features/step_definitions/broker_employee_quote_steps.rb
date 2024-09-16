@@ -328,3 +328,21 @@ end
 When(/^the broker clicks Dental Features$/) do
   find('.interaction-click-control-dental-features-and-cost-criteria').click
 end
+
+Then(/^broker should see standard plan indicator$/) do
+  expect(page).to have_content(/STANDARD PLAN/)
+end
+
+Then(/^broker should not see standard plan indicator$/) do
+  expect(page).not_to have_content(/STANDARD PLAN/)
+end
+
+Then(/^broker should see pvp filter$/) do
+  type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
+  expect(type_filters).to include("PREMIUM VALUE PLAN")
+end
+
+Then(/^broker should not see pvp filter$/) do
+  type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
+  expect(type_filters).not_to include("PREMIUM VALUE PLAN")
+end

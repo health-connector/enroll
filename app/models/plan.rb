@@ -443,6 +443,14 @@ class Plan
                                                     .first
   end
 
+  def is_pvp_in_rating_area(code, date = TimeKeeper.date_of_record)
+    return false unless ::EnrollRegistry.feature_enabled?(:premium_value_products)
+    return false unless product
+
+    product.is_pvp_in_rating_area(code, date)
+  end
+
+
   def medical_individual_deductible
     product.medical_individual_deductible
   end
@@ -611,6 +619,7 @@ class Plan
           options[option] = collected
         end
       end
+      options.merge!({'is_pvp': ["Yes", "No"]}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
       options
     end
 

@@ -70,6 +70,7 @@ function fetchCarriers() {
   var quote_effective_date = $("#forms_plan_design_proposal_effective_date").val();
   var selected_carrier_level = $(this).siblings('input').val();
   var plan_design_organization_id = $('#plan_design_organization_id').val();
+  var plan_design_proposal_id = $('#plan_design_proposal_id').val();
   var kind = $("#benefits_kind").val();
   $(this).closest('.plan-design').find('.nav-tabs li').removeClass('active');
   $(this).closest('li').addClass('active');
@@ -80,7 +81,8 @@ function fetchCarriers() {
       active_year: active_year,
       quote_effective_date: quote_effective_date,
       selected_carrier_level: selected_carrier_level,
-      kind: kind
+      kind: kind,
+      plan_design_proposal_id: plan_design_proposal_id
     },
     success: function() {
       //Do something
@@ -688,7 +690,7 @@ function viewComparisons() {
 function clearComparisons() {
   $('.reference-plan').each(function() {
     var checkboxes = $(this).find('input[type=checkbox]');
-    //checkboxes.attr('checked', false);
+    checkboxes.attr('checked', false);
     removeA($.unique(selected_rpids), checkboxes.val());
     disableCompareButton();
   });
@@ -747,6 +749,7 @@ function sortPlans() {
     }
   });
   plans.parent().removeClass('hidden');
+  plans.parent().parent().removeClass('hidden');
   plans.each(function(index) {
     var plan = $(this);
     var plan_matches = [];
@@ -757,6 +760,7 @@ function sortPlans() {
     if(plan_matches.every(function(option){ return option; })) {
     } else {
       plan.parent().addClass('hidden');
+      plan.parent().parent().addClass('hidden');
     }
   });
 }
