@@ -24,13 +24,13 @@
         <div class="row <%= read_only ? 'col-xs-8': 'col-xs-12'  %>">
           <% if is_pvp %>
             <div class='col-xs-4 enr-pvp-indicator'>
-              <i class="fas fa-lg fa-square mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"></i>
+              <i class="fas fa-lg fa-square mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= l10n('insured.plan_shoppings.pvp_title_info') %>"></i>
               <%= l10n("premium_value_plan") %>
             </div>
           <% end %>
           <% if product.try(:is_standard_plan) %>
             <div class='col-xs-3 enr-standard-plan-indicator'>
-              <i class="fas fa-lg fa-bookmark mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"></i>
+              <i class="fas fa-lg fa-bookmark mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= l10n('insured.plan_shoppings.standard_plan_title_info') %>"></i>
               <%= l10n("standard_plan") %>
             </div>
           <% end %>
