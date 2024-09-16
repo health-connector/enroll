@@ -163,13 +163,18 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def upload_v2_xml
     file = params[:file]
-    xml_file_path = file.tempfile.path
-    v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path)
-    result, errors = v2_xml_uploader.upload
-    if result
-      redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully uploaded V2 digest XML for employer_fein: #{@benefit_sponsorship.organization.fein}" }
+
+    if file.is_a?(ActionDispatch::Http::UploadedFile)
+      xml_file_path = file.tempfile.path
+      v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path)
+      result, errors = v2_xml_uploader.upload
+      if result
+        redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully uploaded V2 digest XML for employer_fein: #{@benefit_sponsorship.organization.fein}" }
+      else
+        redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => errors }
+      end
     else
-      redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => errors }
+      redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => "Invalid file upload" }
     end
   end
 
