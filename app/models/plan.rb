@@ -619,7 +619,7 @@ class Plan
           options[option] = collected
         end
       end
-      options.merge!({'is_pvp': ["Yes", "No"]}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
+      options.merge!({is_pvp: ["Yes", "No"]}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
       options
     end
 

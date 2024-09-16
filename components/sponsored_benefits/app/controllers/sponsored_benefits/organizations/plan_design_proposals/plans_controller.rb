@@ -23,7 +23,7 @@ module SponsoredBenefits
                 'plan_deductible': 'Individual deductible (in network)'
               }
 
-        @search_option_titles.merge!({'is_pvp': "Premium Value Plan"}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
+        @search_option_titles.merge!({is_pvp: "Premium Value Plan"}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
         @plan_deductibles = plan_deductible_values(@plans)
       end
 

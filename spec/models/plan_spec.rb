@@ -673,7 +673,7 @@ RSpec.describe Plan, dbclean: :after_each do
 
       context 'when premium_value_products feature is disabled' do
         before do
-          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(false)
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(false)
         end
 
         it 'returns false' do
@@ -683,7 +683,7 @@ RSpec.describe Plan, dbclean: :after_each do
 
       context 'when premium_value_products feature is enabled' do
         before do
-          allow(::EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
         end
 
         context 'when product exists' do
