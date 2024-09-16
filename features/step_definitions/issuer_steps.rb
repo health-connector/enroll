@@ -55,7 +55,6 @@ end
 
 And(/^the user visit the Marketplace Carrier page$/) do
   find("a[aria-label='Health Agency Authority']").click
-  sleep 100
 end
 
 When(/^the user will see Marketplace Carrier table$/) do
