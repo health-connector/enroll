@@ -452,19 +452,19 @@ class Plan
 
 
   def medical_individual_deductible
-    product.medical_individual_deductible
+    product&.medical_individual_deductible
   end
 
   def medical_family_deductible
-    product.medical_family_deductible
+    product&.medical_family_deductible
   end
 
   def rx_individual_deductible
-    product.rx_individual_deductible
+    product&.rx_individual_deductible
   end
 
   def rx_family_deductible
-    product.rx_family_deductible
+    product&.rx_family_deductible
   end
 
   def ehb

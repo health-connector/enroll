@@ -110,8 +110,8 @@ And(/^.+ sees quote for (.*) employer$/) do |employer_name|
 end
 
 And(/^the broker clicks on Select Health Benefits button$/) do
-  find('.interaction-click-control-select-health-benefits').click
-  find('.interaction-click-control-select-health-benefits').click
+  find('.interaction-click-control-select-health-benefits', wait: 10).click
+  find('.interaction-click-control-select-health-benefits', wait: 10).click
 end
 
 When(/^.+ clicks Actions for that Employer$/) do
@@ -260,11 +260,11 @@ end
 Given(/^the Plans exist$/) do
   open_enrollment_start_on = TimeKeeper.date_of_record.end_of_month + 1.day
   start_on = open_enrollment_start_on + 2.months
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'bronze', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
   Caches::PlanDetails.load_record_cache!
 end
 
@@ -339,10 +339,10 @@ end
 
 Then(/^broker should see pvp filter$/) do
   type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
-  expect(type_filters).to include("PREMIUM VALUE PLAN")
+  expect(type_filters).to include("Premium Value Plan")
 end
 
 Then(/^broker should not see pvp filter$/) do
   type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
-  expect(type_filters).not_to include("PREMIUM VALUE PLAN")
+  expect(type_filters).not_to include("Premium Value Plan")
 end
