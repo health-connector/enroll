@@ -457,11 +457,71 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def issuer_index
-    @issuers = CarrierProfile.all
+    authorize HbxProfile, :view_admin_tabs?
+    @marketplaces = [{
+      name: l10n("marketplaces.shop_type"),
+      plans_number: BenefitMarkets::Products::Product.count,
+      enrollments_number: Family.actual_enrollments_number,
+      products: BenefitMarkets::Products::Product
+        .distinct(:kind)
+        .map { |kind| kind.to_s.capitalize }
+        .join(", ")
+    }]
 
     respond_to do |format|
       format.html { render "issuer_index" }
-      format.js {}
+      format.js
+    end
+  end
+
+  def marketplace_plan_year
+    authorize HbxProfile, :view_admin_tabs?
+    year = params[:year].to_i
+    carriers = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map do |org|
+      {
+        legal_name: org[:legal_name],
+        organization_id: org._id,
+        profile_ids: org.profiles.map(&:_id)
+      }
+    end
+
+    @carriers = carriers.map { |carrier| carrier_data(carrier, year) }
+
+    respond_to do |format|
+      format.html { render "marketplace_plan_year" }
+      format.js
+    end
+  end
+
+  def marketplace_plan_years
+    authorize HbxProfile, :view_admin_tabs?
+    years = BenefitMarkets::Products::Product.pluck(:application_period).flat_map do |application_period|
+      (application_period['min']&.year..application_period['max']&.year).to_a
+    end.uniq.sort.reverse
+
+    @years_data = years.map { |year| year_plan_data(year) }
+
+    respond_to do |format|
+      format.html { render "marketplace_plan_years" }
+      format.js
+    end
+  end
+
+  def carrier
+    authorize HbxProfile, :view_admin_tabs?
+    year = params[:year].to_i
+    @carrier = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.find(params[:id])
+    products = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => @carrier.profiles.map(&:_id)
+    )
+
+    @products_data = products.map { |product| product_data(product) }
+
+    respond_to do |format|
+      format.html { render "carrier" }
+      format.js
     end
   end
 
@@ -715,6 +775,52 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   private
+
+  def year_plan_data(year)
+    product_query = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1)
+    )
+    product_ids = product_query.pluck(:_id)
+    {
+      year: year,
+      plans_number: product_query.count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
+      enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+    }
+  end
+
+  def carrier_data(carrier_data, year)
+    carrier_name = carrier_data[:legal_name]
+    profile_ids = carrier_data[:profile_ids]
+    organization_id = carrier_data[:organization_id]
+    product_query = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => profile_ids
+    )
+    product_ids = product_query.pluck(:_id)
+    {
+      carrier: carrier_name,
+      organization_id: organization_id,
+      plans_number: product_query.count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
+      enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+    }
+  end
+
+  def product_data(product)
+    {
+      plan_name: product.title,
+      plan_type: product.kind.to_s.capitalize,
+      pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.join(',').presence || 'N/A',
+      plan_id: product.hios_id,
+      network: 'network',
+      metal_level_kind: product.metal_level_kind.to_s.capitalize
+    }
+  end
 
   def uniq_terminate_params
     params.keys.map { |key| key.match(/terminate_hbx_.*/) || key.match(/termination_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)

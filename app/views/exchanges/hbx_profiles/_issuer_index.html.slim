@@ -1,1 +1,19 @@
-h1.heading-text Issuers
+.top-pd.row#inbox_provider_form
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.index_title')
+  .col-lg-12
+    .table-responsive
+      table.table.table-wrapper
+        thead
+          tr
+            th= l10n('marketplaces.column_type')
+            th= l10n('marketplaces.column_plans')
+            th= l10n('marketplaces.column_enrollments')
+            th= l10n('marketplaces.column_products')
+        tbody
+          - @marketplaces.each do |marketplace|
+            tr
+              td= link_to marketplace[:name], marketplace_plan_years_exchanges_hbx_profiles_path(market: marketplace[:name]), remote: true, aria: { label: marketplace[:name] }
+              td= marketplace[:plans_number]
+              td= marketplace[:enrollments_number]
+              td= marketplace[:products]

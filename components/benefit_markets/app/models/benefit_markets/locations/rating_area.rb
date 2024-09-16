@@ -13,6 +13,9 @@ module BenefitMarkets
     # specify which here.
     field :covered_states, type: Array
 
+    has_many :premium_value_products,
+             class_name: "BenefitMarkets::Products::PremiumValueProduct"
+
     validates_presence_of :active_year, allow_blank: false
     validates_presence_of :exchange_provided_code, allow_nil: false
 
@@ -20,6 +23,10 @@ module BenefitMarkets
 
     index({county_zip_ids: 1})
     index({covered_state_codes: 1})
+    index(
+      {active_year: 1, exchange_provided_code: 1},
+      {name: "rating_areas_exchange_provided_code_index"}
+    )
 
     def location_specified
       if county_zip_ids.blank? && covered_states.blank?
@@ -49,6 +56,10 @@ module BenefitMarkets
           {"covered_states" => state_abbrev}
         ]
       ).first
+    end
+
+    def human_exchange_provided_code
+      exchange_provided_code.match(/(\d+)/)[1].to_i
     end
   end
 end

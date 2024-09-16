@@ -5019,3 +5019,68 @@ input:required:valid {
   padding-left: 15px;
   padding-right: 15px;
 }
+
+%standard-plan-indicator-styles {
+  border: 2px solid #377D22;
+  background-color: #377D221A;
+  border-radius: 0.5em;
+  padding: 0.3em;
+  color: #377D22;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+%pvp-indicator-styles {
+  border: 2px solid #247dc5;
+  background-color: #247dc51a;
+  border-radius: 0.5em;
+  padding: 0.3em;
+  color: #247dc5;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.pvp-plan-indicator {
+  @extend %pvp-indicator-styles;
+  font-size: 16px;
+}
+
+.enr-pvp-indicator {
+  @extend %pvp-indicator-styles;
+  width: 30%;
+  font-size: 12px;
+  margin: -0.7em 0 0.5em 1.2em;
+}
+
+.pvp-ref-plan-indicator {
+  @extend %pvp-indicator-styles;
+  width: 62%;
+  font-size: 12px;
+  margin: 0 0 10px 10px;
+}
+
+.standard-plan-indicator {
+  @extend %standard-plan-indicator-styles;
+  font-size: 16px;
+}
+
+.enr-standard-plan-indicator {
+  @extend %standard-plan-indicator-styles;
+  width: 24%;
+  font-size: 12px;
+  margin: -0.7em 0 0.5em 1.2em;
+}
+
+.standard-ref-plan-indicator {
+  @extend %standard-plan-indicator-styles;
+  width: 50%;
+  font-size: 12px;
+  margin: 0 0 10px 10px;
+}
+
+.mt-n2 {
+  margin-top: -2rem;
+}
+

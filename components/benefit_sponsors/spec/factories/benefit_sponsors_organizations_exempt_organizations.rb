@@ -34,7 +34,14 @@ FactoryBot.define do
       end
     end
 
+    trait :with_issuer_profile do
+      after :build do |organization, _evaluator|
+        issuer_profile = create(:benefit_sponsors_organizations_issuer_profile)
+        organization.profiles << issuer_profile
+
+        create(:benefit_markets_products_health_products_health_product, issuer_profile_id: issuer_profile.id, title: 'BlueChoice bronze 2,000', metal_level_kind: :gold)
+        create(:benefit_markets_products_dental_products_dental_product, issuer_profile_id: issuer_profile.id)
+      end
+    end
   end
-
-
 end

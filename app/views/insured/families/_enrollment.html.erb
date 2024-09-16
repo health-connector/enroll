@@ -19,20 +19,39 @@
       <%= render partial: "insured/families/enrollment_progress", locals: {step: hbx_enrollment.enroll_step, hbx_enrollment: hbx_enrollment} %>
     </div>
     <div class="panel-body">
-      <div class="row">
+      <% if ::EnrollRegistry.feature_enabled?(:premium_value_products) %>
+        <% is_pvp = product.is_pvp_in_rating_area(hbx_enrollment.rating_area.exchange_provided_code, hbx_enrollment.effective_on)%>
+        <div class="row <%= read_only ? 'col-xs-8': 'col-xs-12'  %>">
+          <% if is_pvp %>
+            <div class='col-xs-4 enr-pvp-indicator'>
+              <i class="fas fa-lg fa-square mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"></i>
+              <%= l10n("premium_value_plan") %>
+            </div>
+          <% end %>
+          <% if product.try(:is_standard_plan) %>
+            <div class='col-xs-3 enr-standard-plan-indicator'>
+              <i class="fas fa-lg fa-bookmark mr-1" data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"></i>
+              <%= l10n("standard_plan") %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      <div class="row col-xs-12">
         <span class="col-xs-2">
           <%= display_carrier_logo(Maybe.new(product), {width: 82}) %>
         </span>
         <div class="col-xs-10">
-          <h5 class="mt-0">
+          <h4 class="mt-0">
             <%= link_to product.title, summary_products_plans_path({:standard_component_id => product.hios_id, hbx_enrollment_id: hbx_enrollment.id, active_year: product.active_year}), remote: true %>
-          </h5>
+          </h4>
+        </div>
+        <div class="ml-2 col-xs-12">
           <div class="col-xs-7 mt-1">
             <div class="enrollment-premium info vertical-align-top">
               <div class='col-xs-6'><strong><%= l10n("premium") %></strong></div>
               <div class='col-xs-6'><%= number_to_currency(current_premium(hbx_enrollment), precision: 2) %>/month</div>
             </div>
-            <div class="col-xs-12 vertically-aligned-row">
+            <div class="vertically-aligned-row">
               <% unless hide_policy_selected_date?(hbx_enrollment) %>
                 <div class="col-xs-7 enrollment-created-at info vertical-align-top">
                   <div class='col-xs-6'><strong><%= l10n("plan_selected") %></strong></div>
@@ -42,7 +61,7 @@
               <% end %>
             </div>
             <% if read_only == true %>
-              <div class="col-xs-12 vertically-aligned-row">
+              <div class="vertically-aligned-row">
                 <div class="benefit-group info vertical-align-top">
                   <strong><%= l10n("benefit_group") %></strong>
                   <%= @benefit_group.try(:title) %>
@@ -56,7 +75,7 @@
               </div>
             <% end %>
             <% if hbx_enrollment.is_coverage_waived? %>
-              <div class="col-xs-12 vertically-aligned-row">
+              <div class="vertically-aligned-row">
                 <div class="benefit-group info vertical-align-top">
                   <strong><%= l10n("enrollment_status") %></strong>
                   <%= l10n("coverage_waived") %>
@@ -70,14 +89,14 @@
               </div>
             <% end %>
             <% if hbx_enrollment.coverage_termination_pending? %>
-              <div class="col-xs-12 vertically-aligned-row">
+              <div class="vertically-aligned-row">
                 <div class="info">
                   <strong><%= l10n("insured.families.future_enrollment_termination_date") %></strong>
                   <%= hbx_enrollment.terminated_on %>
                 </div>
               </div>
             <% end %>
-            <div class="col-xs-12 enrollment-type info vertically-aligned-row">
+            <div class="enrollment-type info vertically-aligned-row">
               <div class="info">
                 <p class="mb-0">
                   <div class='col-xs-6'><strong><%= l10n("market_type") %> </strong></div>
@@ -90,7 +109,7 @@
                 </div>
               <%end%>
             </div>
-            <div class="col-xs-12 vertically-aligned-row">
+            <div class="vertically-aligned-row">
               <div class="enrollment-type info vertical-align-top">
                 <div class="col-xs-6 bullet-separator">
                   <strong>
@@ -98,7 +117,7 @@
                     <%= l10n("hbx_id") %>
                   </strong>
                 </div>
-                <div class='col-xs-6' style="padding-right: 0; padding-left: 2px"><%= hbx_enrollment.hbx_id %><br><br><br></div>
+                <div class='col-xs-6'><%= hbx_enrollment.hbx_id %></div>
               </div>
               <div>
                 <% if hbx_enrollment.consumer_role.present? && (hbx_enrollment.applied_aptc_amount > 0) %>
@@ -111,20 +130,20 @@
                 <% end %>
               </div>
             </div>
-            <div class="col-xs-12 vertically-aligned-row">
+            <div class="col-xs-12 vertically-aligned-row mt-2">
               <% names = hbx_enrollment.covered_members_first_names %>
               <% if names.present? %>
-              <div class="col-xs-7 family-members info vertical-align-top">
-                <div class='col-xs-6'><strong><%= l10n("covered") %></strong></div>
-                <div class="col-xs-6">
-                  <span class="separator">
-                    <a href="#"><%= names.delete_at(0).camelcase %></a>
-                    <% names.each do |name| %>
-                      <a href="#"><%= name.camelcase %></a>
-                    <% end %>
-                  </span>
+                <div class="col-xs-7 family-members info vertical-align-top">
+                  <div class='col-xs-6'><strong><%= l10n("covered") %></strong></div>
+                  <div class="col-xs-6">
+                    <span class="separator">
+                      <a href="#"><%= names.delete_at(0).camelcase %></a>
+                      <% names.each do |name| %>
+                        <a href="#"><%= name.camelcase %></a>
+                      <% end %>
+                    </span>
+                  </div>
                 </div>
-              </div>
               <% end %>
             </div>
           </div>
@@ -167,12 +186,14 @@
           </div>
         </div>
       </div>
-      <% if read_only == true %>
-        <% if !hbx_enrollment.is_coverage_waived? %>
-          <br/>
-          <%= render partial: "employers/census_employees/enrollment_details", locals: { enrollment:  hbx_enrollment} %>
+      <div class="row col-xs-12 pl-2">
+        <% if read_only == true %>
+          <% if !hbx_enrollment.is_coverage_waived? %>
+            <br/>
+            <%= render partial: "employers/census_employees/enrollment_details", locals: { enrollment:  hbx_enrollment} %>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
     </div>
 
     <div class="panel-footer">
@@ -243,6 +264,8 @@
   // For when families home page is refreshed when user on it
   document.addEventListener("DOMContentLoaded", function() {
     var enrollmentToggleCheckbox = document.getElementById("display_all_enrollments");
-    enrollmentToggleCheckbox.addEventListener('click', toggleDisplayEnrollments);
+    if (enrollmentToggleCheckbox != null || enrollmentToggleCheckbox != undefined) {
+      enrollmentToggleCheckbox.addEventListener('click', toggleDisplayEnrollments);
+    };
   })
 </script>
