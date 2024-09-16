@@ -139,6 +139,9 @@ Given(/^.+ clicks on Employers tab$/) do
 end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
+  if page.has_css?('.interaction-click-control-select-health-benefits')
+    find('.interaction-click-control-select-health-benefits').click
+  end
   sleep(10)
   find(:xpath, "//*[@id='pdp-bms']/div/ul/li[3]/label/div").click
   expect(page).to have_content("Gold")
