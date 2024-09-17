@@ -1,0 +1,65 @@
+.top-pd.row
+  .col-lg-12
+    nav[aria-label="breadcrumb"]
+      ol.breadcrumb
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year])
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.carrier'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
+        li.breadcrumb-item.active[aria-current="page"]
+          = "Detail"
+  .col-lg-12
+    h1.heading-text Plan Details
+  .container
+    h4 Aetna Standard Super Gold: Aetna Health Net Plan Gold B
+    .row
+      .col-md-2
+        | Benefit:
+      .col-md-9
+        | Health
+    .row
+      .col-md-2
+        | Market:
+      .col-md-9
+        | Employer Sponsored
+    .row
+      .col-md-2
+        | Metal Tier:
+      .col-md-9
+        | Silver
+    .row
+      .col-md-2
+        | Rating Area(s):
+      .col-md-9
+        | 1, 2, 3, 4, 5, 6
+    .row
+      .col-md-2
+        | PVP Area(s):
+      .col-md-9
+        | 1, 2
+
+  .container
+    h4 Availability
+    .row.justify-content-center
+      .col-md-5
+        table.table
+          thead
+            tr
+              th Rating Area
+              th Active
+              th PVP Active
+          tbody
+            - rating_areas = [1, 2, 3, 4, 5, 6]
+            - active_areas = [1, 2, 3, 4, 5, 6]
+            - pvp_active_areas = [1, 3]
+            - rating_areas.each do |area|
+              tr
+                td = area
+                td
+                  = check_box_tag "rating_area_active_#{area}", area, active_areas.include?(area), class: "form-check-input"
+                td
+                  = check_box_tag "pvp_area_active_#{area}", area, pvp_active_areas.include?(area), class: "form-check-input"
+
+    .mt-3
+      = button_tag 'Discard Changes', type: 'button', class: 'btn btn-outline-secondary'
+      = button_tag 'Save Changes', type: 'submit', class: 'btn btn-primary'

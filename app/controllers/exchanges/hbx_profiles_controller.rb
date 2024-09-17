@@ -533,6 +533,15 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
+  def plan_detailed
+    authorize HbxProfile, :view_admin_tabs?
+    @product = BenefitMarkets::Products::Product.find(params[:product_id])
+    respond_to do |format|
+      format.html { render "plan_detailed", layout: 'exchanges_base' }
+      format.js
+    end
+  end
+
   def verification_index
     #@families = Family.by_enrollment_individual_market.where(:'households.hbx_enrollments.aasm_state' => "enrolled_contingent").page(params[:page]).per(15)
     # @datatable = Effective::Datatables::DocumentDatatable.new
@@ -832,6 +841,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def product_data(product)
     {
+      product_id: product.id,
       plan_name: product.title,
       plan_type: transform_and_join(product.plan_types),
       pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact.join(',').presence || 'N/A',
