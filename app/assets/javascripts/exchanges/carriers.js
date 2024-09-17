@@ -65,6 +65,6 @@ $(document).on('turbolinks:load', function() {
             }
         });
 
-        $('.plans-count').text(visiblePlansCount + ' plans');
+        $('.plans-count').text(visiblePlansCount);
     }
 });

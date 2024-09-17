@@ -523,7 +523,6 @@ class Exchanges::HbxProfilesController < ApplicationController
       plan_types: { hmo: 'HMO', ppo: 'PPO', epo: 'EPO', pos: 'POS', pvp: 'PVP', standard: 'Standard' },
       rating_areas: pvp_rating_area_options(products),
       metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h,
-      networks: { metro: "Metro", nationwide: "Nationwide", '3': "3", '4': 4}
     }
 
 
