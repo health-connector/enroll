@@ -17,7 +17,7 @@ module DeviseHelper
       </div>
       <br/>
       <strong>
-        #{l10n("devise.errors.message")}
+        #{l10n('devise.errors.message')}
       </strong>
       <ul>#{messages}</ul>
     </div>
