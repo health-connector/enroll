@@ -522,7 +522,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @filter_options = {
       plan_types: { hmo: 'HMO', ppo: 'PPO', epo: 'EPO', pos: 'POS', pvp: 'PVP', standard: 'Standard' },
       rating_areas: pvp_rating_area_options(products),
-      metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h,
+      metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h
     }
 
 
