@@ -63,3 +63,13 @@ Feature: Visit Issuer and nested pages
     And click on "Search"
     Then should see plans with the following:
       | Plan name | bronze |
+
+  Scenario: HBX Staff with Super Admin subroles should see Detail Plan Page
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user visit the Detail Plan page
+    Then the user should see Plan title
+    Then the user should see Plan benefit type
+    Then the user should see Plan metal tier
+    Then the user should see Plan PVP areas
+    Then the user should see Availability table
+    Then the user should see Estimated Cost table
