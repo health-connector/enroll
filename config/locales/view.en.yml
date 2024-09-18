@@ -76,6 +76,7 @@ en:
       search_button: "Search"
       search_placeholder: "Search"
       search_result: "Search result: "
+      search_result_plans: "plans"
     plan:
       title: "Plan Details"
       summary:
@@ -97,4 +98,3 @@ en:
         services: "Services You May Need"
         provider: "Your Cost At Participating Provider Co-Pay"
         network: "(In Network) Coinsurance"
-

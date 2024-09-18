@@ -404,6 +404,13 @@ module BenefitMarkets
       plan_types.compact
     end
 
+    def self.types
+      values = EnrollRegistry[:product_type_values].settings
+      values.each_with_object({}) do |value, hash|
+        hash[value.key] = value.item
+      end
+    end
+
     private
 
     # self.class.new(attrs_without_tuples)

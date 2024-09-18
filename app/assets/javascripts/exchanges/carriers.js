@@ -16,7 +16,7 @@ $(document).on('turbolinks:load', function() {
         const planTypes = [];
         const pvpRatingAreas = [];
         const metalLevels = [];
-        const searchPlan = $('input[name="search"]').val().toLowerCase();
+        const searchPlan = $('input[name="search"]').val().trim().toLowerCase();
 
         $('input[name="plan_type[]"]:checked').each(function() {
             planTypes.push($(this).val().toLowerCase());
@@ -65,6 +65,6 @@ $(document).on('turbolinks:load', function() {
             }
         });
 
-        $('.plans-count').text(visiblePlansCount + ' plans');
+        $('.plans-count').text(visiblePlansCount);
     }
 });
