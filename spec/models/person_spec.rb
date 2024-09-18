@@ -733,17 +733,35 @@ describe Person, :dbclean => :after_each do
     end
 
     context "notify change event" do
-      let(:person){FactoryBot.build(:person)}
+      let(:person) { FactoryBot.build(:person) }
+
       it "when new record" do
-        #      expect(person).to receive(:notify_change_event).exactly(1).times
         person.save
       end
 
       it "when change record" do
-        #      expect(person).to receive(:notify_change_event).exactly(1).times
         first_name = person.first_name
         person.first_name = "Test"
         person.save
+      end
+
+      it "calls notify_updated when record is changed" do
+        person = FactoryBot.create(:person)
+        allow(person).to receive(:notify_updated).and_call_original
+
+        person.first_name = "NewName"
+        person.save
+
+        expect(person).to have_received(:notify_updated)
+      end
+
+      it "does not call notify_updated when record is not changed" do
+        person = FactoryBot.create(:person)
+        allow(person).to receive(:notify_updated)
+
+        person.save
+
+        expect(person).not_to have_received(:notify_updated)
       end
     end
   end
