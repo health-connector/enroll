@@ -41,7 +41,7 @@
     <%= render 'users/security_question_responses/modal' %>
 
     <div class="content <%= controller_name %> content-bottom">
-      <%= content_for?(:pages_layout) ? yield(:pages_layout) : yield %>
+      <%= content_for?(:exchanges_layout) ? yield(:exchanges_layout) : yield %>
     </div>
 
     <%= render partial: './ui-components/v1/layouts/footer' %>
