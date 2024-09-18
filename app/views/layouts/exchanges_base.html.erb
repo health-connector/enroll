@@ -1,7 +1,7 @@
-<div class="content landing">
+<% content_for :pages_layout do %>
   <%= render partial: "./ui-components/v1/navs/primary_nav", :active_tab => "home-tab" %>
   <div class="container top-pd">
     <%= yield %>
   </div>
-</div>
-<% parent_layout 'single_column' %>
+<% end %>
+<%= render template: 'layouts/single_column' %>
