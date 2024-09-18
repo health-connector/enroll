@@ -518,8 +518,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     )
 
     @products_data = products.map { |product| product_data(product) }
+    products_types = products.map(&:plan_types).flatten.uniq
     @filter_options = {
-      plan_types: BenefitMarkets::Products::Product.types,
+      plan_types: BenefitMarkets::Products::Product.types.slice(*products_types),
       rating_areas: pvp_rating_area_options(products),
       metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h
     }
@@ -831,15 +832,15 @@ class Exchanges::HbxProfilesController < ApplicationController
   def product_data(product)
     {
       plan_name: product.title,
-      plan_type: transform_and_join(product.plan_types),
+      plan_type: capitalize_value(product.plan_types).join(', '),
       pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact.join(',').presence || 'N/A',
       plan_id: product.hios_id,
       metal_level_kind: product.metal_level_kind.to_s.capitalize
     }
   end
 
-  def transform_and_join(symbols)
-    symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }.join(', ')
+  def capitalize_value(symbols)
+    symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }
   end
 
   def uniq_terminate_params
