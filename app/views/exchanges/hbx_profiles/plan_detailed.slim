@@ -10,11 +10,10 @@
   .col-lg-12
     h1.heading-text= l10n('marketplaces.plan.title')
   .container
-    h4
-      b= @product.title
+    h4= @product.title
     .row
       .col-md-2= l10n('marketplaces.plan.summary.benefit')
-      .col-md-9= @product.kind
+      .col-md-9= @product.kind.capitalize
     .row
       .col-md-2= l10n('marketplaces.plan.summary.market')
       .col-md-9= l10n('marketplaces.plan.summary.market_type')
@@ -51,7 +50,7 @@
       button.btn.btn-outline-primary.discard-btn= l10n('marketplaces.plan.discard_button')
       button.btn.btn-primary.save-btn= l10n('marketplaces.plan.save_button')
   .container
-    h2= l10n('marketplaces.plan.cost_title')
+    h3= l10n('marketplaces.plan.cost_title')
     .details
       table.table
         thead
