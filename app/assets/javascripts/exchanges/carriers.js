@@ -32,7 +32,7 @@ $(document).on('turbolinks:load', function() {
 
         let visiblePlansCount = 0;
 
-        $('tbody tr').each(function() {
+        $('#carriers-table tbody tr').each(function() {
             const planType = $(this).data('plan-type').toString().toLowerCase();
             const pvpAreas = $(this).data('pvp-areas').toString().toLowerCase();
             const metalLevel = $(this).data('metal-level').toLowerCase();
@@ -45,11 +45,11 @@ $(document).on('turbolinks:load', function() {
                 showRow = false;
             }
 
-            if (pvpRatingAreas.length > 0 && !pvpRatingAreas.includes(pvpAreas)) {
+            if (pvpRatingAreas.length > 0 && !pvpRatingAreas.some(pra => pvpAreas.includes(pra))) {
                 showRow = false;
             }
 
-            if (metalLevels.length > 0 && !metalLevels.includes(metalLevel)) {
+            if (metalLevels.length > 0 && !metalLevels.some(ml => metalLevel.includes(ml))) {
                 showRow = false;
             }
 
