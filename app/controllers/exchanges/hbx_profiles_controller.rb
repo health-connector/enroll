@@ -536,6 +536,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   def plan_detailed
     authorize HbxProfile, :view_admin_tabs?
     @product = BenefitMarkets::Products::Product.find(params[:product_id])
+    @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind).first
+    @rating_areas = BenefitMarkets::Locations::RatingArea.distinct(:exchange_provided_code).to_h do |rac|
+      [rac, rac.match(/(\d+)/)[1].to_i]
+    end
+    @product_pvp_ras = @product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact
     respond_to do |format|
       format.html { render "plan_detailed", layout: 'exchanges_base' }
       format.js

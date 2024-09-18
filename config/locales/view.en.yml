@@ -38,6 +38,7 @@ en:
       plan_year: "Plan Year"
       carrier: "Carrier"
       plan: "Plan"
+      detail: "Detail"
     index_title: "Marketplaces"
     column_type: "Type"
     column_plans: "# Plans"
@@ -75,3 +76,25 @@ en:
       search_button: "Search"
       search_placeholder: "Search"
       search_result: "Search result: "
+    plan:
+      title: "Plan Details"
+      summary:
+        benefit: "Benefit:"
+        market: "Market:"
+        market_type: "Employer Sponsored"
+        metal_tier: "Metal Tier:"
+        rating_area: "Rating Area(s):"
+        pvp_area: "PVP Area(s):"
+      availability: "Availability"
+      availability_table:
+        rating_area: "Rating Area"
+        active: "Active"
+        pvp_active: "PVP Active"
+      discard_button: "Discard Changes"
+      save_button: "Save Changes"
+      cost_title: "Enrollment Services & Estimated Cost"
+      cost_table:
+        services: "Services You May Need"
+        provider: "Your Cost At Participating Provider Co-Pay"
+        network: "(In Network) Coinsurance"
+
