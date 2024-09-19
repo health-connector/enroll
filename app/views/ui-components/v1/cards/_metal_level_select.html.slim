@@ -265,8 +265,8 @@ javascript:
           `<div class="col-xs-4 reference-plans plan-tile">
             <div class="col-xs-12 p0 mb-1">
               <label class="container">
-                <p class="heading-text reference-plan-title mt-1"> ${plan.title}</p>
-                <div class="row mt-n2">
+                <p class="heading-text plan-title mt-1"> ${plan.title}</p>
+                <div class="row">
                   <div class="${(plan.is_pvp_eligible && isPvpFeatureEnabled) ? 'pvp-ref-plan-indicator' : 'hidden'}">
                     <i class="fas fa-lg fa-square" data-toggle="tooltip" data-placement="top" data-container="body" title="${pvpTooltipValue}"></i> Premium Value Plan
                   </div>
@@ -300,7 +300,7 @@ javascript:
                     <span class="plan-label col-xs-4">Network:</span> <span class="plan-label-value col-xs-8 pl-2" id="plan-network-value">${network}</span>
                   </div>
                   <span class="plan-label rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}" data-plan-type="${plan.product_type}" data-plan-carrier="${plan.carrier_name}" data-plan-level="${plan.metal_level_kind}" data-plan-ded-ind="${plan.deductible_value}" data-plan-ded-fam="${plan.family_deductible_value}" data-plan-ded-rx-ind="${plan.rx_deductible_value}" data-plan-ded-rx-fam="${plan.rx_family_deductible_value}">View Summary</span>
-                  <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan="${plan.is_standard_plan}" data-is-pvp="${plan.is_pvp_eligible}">
+                  <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan=${plan.is_standard_plan} data-is-pvp=${plan.is_pvp_eligible}>
                   <div class="checkmark-container mt-1">
                     <span class="checkmark"></span>
                     <span class="checkmark-text">Select</span>
@@ -315,13 +315,16 @@ javascript:
         document.getElementById('yourPlans').append(div);
     }
 
-    runGlossary();
-
     setTimeout(function() {
       buildSponsorContributions(sponsorContribution)
       disableEmployeeContributionLevel();
       newContributionAmounts();
     },400);
+
+    $(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+      runGlossary();
+    });
   }
 
   function buildSponsorContributions(contributions) {
@@ -375,8 +378,8 @@ javascript:
     planType = options.planType || element.dataset.planType;
     referencePlanID = options.referencePlanID || element.id;
     sponsoredBenefitId = options.sponsoredBenefitId;
-    isStandardPlan = options.hasOwnProperty('isStandardPlan') ? options.isStandardPlan : element.dataset.isStandardPlan;
-    isPvpEligible = options.hasOwnProperty('isPvpEligible') ? options.isPvpEligible : element.dataset.isPvp;
+    isStandardPlan = options.hasOwnProperty('isStandardPlan') ? options.isStandardPlan : (element.dataset.isStandardPlan === 'true');
+    isPvpEligible = options.hasOwnProperty('isPvpEligible') ? options.isPvpEligible : (element.dataset.isPvp === 'true');
 
     showFormButtons();
 
@@ -394,6 +397,7 @@ javascript:
       document.getElementById('rpPvpIndicator').classList.add('hidden')
     }
 
+    $('[data-toggle="tooltip"]').tooltip();
     document.getElementById('referencePlanTitle').append(planTitle);
     document.getElementById('rpType').append(planType);
     document.getElementById('rpCarrier').append(carrierName);
