@@ -1,0 +1,7 @@
+<% content_for :exchanges_layout do %>
+  <%= render partial: "./ui-components/v1/navs/primary_nav", :active_tab => "home-tab" %>
+  <div class="container top-pd">
+    <%= yield %>
+  </div>
+<% end %>
+<%= render template: 'layouts/single_column' %>

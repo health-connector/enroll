@@ -2,8 +2,8 @@
   .col-lg-12
     nav[aria-label="breadcrumb"]
       ol.breadcrumb
-        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path, remote: true
-        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year]), remote: true
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year])
         li.breadcrumb-item.active[aria-current="page"]
           = l10n('marketplaces.breadcrumb.carrier')
   .col-lg-12
@@ -21,7 +21,7 @@
         tbody
           - @carriers.each do |carrier|
             tr
-              td= link_to carrier[:carrier], carrier_exchanges_hbx_profiles_path(year: params[:year], market: 'shop', id: carrier[:organization_id]), remote: true, aria: { label: carrier[:carrier] }
+              td= link_to carrier[:carrier], carrier_exchanges_hbx_profiles_path(year: params[:year], market: 'shop', id: carrier[:organization_id]), aria: { label: carrier[:carrier] }
               td= carrier[:plans_number]
               td= carrier[:pvp_numbers]
               td= carrier[:enrollments_number]

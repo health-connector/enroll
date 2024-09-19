@@ -463,11 +463,13 @@ class Exchanges::HbxProfilesController < ApplicationController
       products: BenefitMarkets::Products::Product
         .distinct(:kind)
         .map { |kind| kind.to_s.capitalize }
+        .sort
+        .reverse
         .join(", ")
     }]
 
     respond_to do |format|
-      format.html { render "issuer_index" }
+      format.html { render "issuer_index", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -486,7 +488,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @carriers = carriers.map { |carrier| carrier_data(carrier, year) }
 
     respond_to do |format|
-      format.html { render "marketplace_plan_year" }
+      format.html { render "marketplace_plan_year", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -500,7 +502,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @years_data = years.map { |year| year_plan_data(year) }
 
     respond_to do |format|
-      format.html { render "marketplace_plan_years" }
+      format.html { render "marketplace_plan_years", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -516,9 +518,16 @@ class Exchanges::HbxProfilesController < ApplicationController
     )
 
     @products_data = products.map { |product| product_data(product) }
+    products_types = products.map(&:plan_types).flatten.uniq
+    @filter_options = {
+      plan_types: BenefitMarkets::Products::Product.types.slice(*products_types),
+      rating_areas: pvp_rating_area_options(products),
+      metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h
+    }
+
 
     respond_to do |format|
-      format.html { render "carrier" }
+      format.html { render "carrier", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -774,6 +783,17 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   private
 
+  def pvp_rating_area_options(products)
+    products.map do |p|
+      p.premium_value_products.map do |pvp|
+        [
+          pvp.rating_area.exchange_provided_code, # key
+          pvp.rating_area.human_exchange_provided_code # value
+        ]
+      end
+    end.flatten(1).uniq.to_h
+  end
+
   def year_plan_data(year)
     product_query = BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
@@ -783,9 +803,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     {
       year: year,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
       enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
 
@@ -803,21 +823,24 @@ class Exchanges::HbxProfilesController < ApplicationController
       carrier: carrier_name,
       organization_id: organization_id,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year, :product_id.in => product_ids).count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
       enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
 
   def product_data(product)
     {
       plan_name: product.title,
-      plan_type: product.kind.to_s.capitalize,
-      pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.join(',').presence || 'N/A',
+      plan_type: capitalize_value(product.plan_types).join(', '),
+      pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact.join(',').presence || 'N/A',
       plan_id: product.hios_id,
-      network: 'network',
       metal_level_kind: product.metal_level_kind.to_s.capitalize
     }
+  end
+
+  def capitalize_value(symbols)
+    symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }
   end
 
   def uniq_terminate_params

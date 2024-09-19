@@ -1,0 +1,82 @@
+.top-pd.row
+  .col-lg-12
+    nav[aria-label="breadcrumb"]
+      ol.breadcrumb
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year])
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.carrier'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
+        li.breadcrumb-item.active[aria-current="page"]
+          = l10n('marketplaces.breadcrumb.plan')
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.carrier.title', year: params[:year], carrier_name: @carrier.legal_name)
+  .container.carrier-filter
+    .row.filter-form
+      .col-md-12
+        h3= l10n('marketplaces.carrier.filter_title')
+        .row
+          .col-md-3
+            h5= l10n('marketplaces.carrier.filter_type')
+            - params[:plan_type]
+            .form-group
+              - @filter_options[:plan_types].each do |key, value|
+                label
+                  input type="checkbox" name="plan_type[]" value="#{key}" checked=params[:plan_type]&.include?(key.to_s)
+                  | #{value}
+                br
+          - if @filter_options[:rating_areas].present?
+            .col-md-3
+              h5= l10n('marketplaces.carrier.filter_rating')
+              .form-group
+                - @filter_options[:rating_areas].each do |_key, value|
+                  label
+                    input type="checkbox" name="pvp_rating_areas[]" value="#{value}" checked=params[:pvp_rating_areas]&.include?(key.to_s)
+                      | #{value}
+                  br
+          .col-md-3
+            h5= l10n('marketplaces.carrier.filter_metal_level')
+            .form-group
+              - @filter_options[:metal_levels].each do |key, value|
+                label
+                  input type="checkbox" name="metal_level[]" value="#{key}" checked=params[:metal_level]&.include?(key.to_s)
+                    | #{value}
+                br
+        br
+        .row
+          .col-md-4
+            button.btn.btn-outline-primary.clean-btn#clear-filters type="button"= l10n('marketplaces.carrier.clear_button')
+            button.btn.btn-primary type="submit"= l10n('marketplaces.carrier.apply_button')
+        .row.mt-3
+          .col-md-4
+            .form-group
+              #search-input-box
+                input.form-control type="text" placeholder="Search" name="search"
+                i.fa.fa-search
+          .col-md-2
+            button.btn.btn-primary.search-btn type="submit"= l10n('marketplaces.carrier.search_button')
+    .row
+      .col-md-12
+        h3= l10n('marketplaces.carrier.plans_title')
+      .col-md-12
+        span= l10n('marketplaces.carrier.search_result')
+        span.plans-count= "#{@products_data.count} "
+        span= " #{l10n('marketplaces.carrier.search_result_plans')}"
+br
+br
+  .col-lg-12
+    .table-responsive
+      table.table.table-wrapper#carriers-table
+        thead
+          tr
+            th= l10n('marketplaces.carrier.column_plan_name')
+            th= l10n('marketplaces.carrier.column_plan_type')
+            th= l10n('marketplaces.carrier.column_pvp_areas')
+            th= l10n('marketplaces.carrier.column_plan_id')
+            th= l10n('marketplaces.carrier.column_metal_level_kind')
+        tbody
+          - @products_data.each do |plan|
+            tr data-plan-type=plan[:plan_type] data-plan-id=plan[:plan_id] data-metal-level=plan[:metal_level_kind] data-network=plan[:network] data-pvp-areas=plan[:pvp_areas] data-plan-name=plan[:plan_name]
+              td= link_to plan[:plan_name], "#", aria: { label: plan[:plan_name] }
+              td= plan[:plan_type]
+              td= plan[:pvp_areas]
+              td= plan[:plan_id]
+              td= plan[:metal_level_kind]
