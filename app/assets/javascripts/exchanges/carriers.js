@@ -45,7 +45,7 @@ $(document).on('turbolinks:load', function() {
                 showRow = false;
             }
 
-            if (pvpRatingAreas.length > 0 && !pvpRatingAreas.some(pra => pvpAreas.includes(pra))) {
+            if (pvpRatingAreas.length > 0 && !pvpRatingAreas.some(pra => pvpAreas.split(/, ?/).includes(pra))) {
                 showRow = false;
             }
 
