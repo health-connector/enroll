@@ -126,6 +126,10 @@ class Family
   index({"households.tax_households.eligibility_determinations.determined_on" => 1})
   index({"households.tax_households.eligibility_determinations.determined_at" => 1})
   index({"households.tax_households.eligibility_determinations.max_aptc.cents" => 1})
+  index({
+          "households.hbx_enrollments.aasm_state" => 1,
+          "households.hbx_enrollments.product_id" => 1
+        }, {name: "hbx_enrollment_state_and_product"})
 
   index({"irs_groups.hbx_assigned_id" => 1})
 
@@ -1119,9 +1123,9 @@ class Family
   def self.min_verification_due_date_range(start_date,end_date)
     timekeeper_date = TimeKeeper.date_of_record + 95.days
     if timekeeper_date >= start_date.to_date && timekeeper_date <= end_date.to_date
-      self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date}).or(:"min_verification_due_date" => nil)
+      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date}).or(:min_verification_due_date => nil)
     else
-     self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date})
+      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date})
     end
   end
 

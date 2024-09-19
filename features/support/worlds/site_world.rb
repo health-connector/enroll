@@ -28,4 +28,3 @@ Given(/^a (.*?) site exists with a benefit market and exempt organization$/) do 
   make_all_permissions
   generate_sic_codes
 end
-

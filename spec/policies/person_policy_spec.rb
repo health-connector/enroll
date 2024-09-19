@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-describe PersonPolicy do
+describe PersonPolicy, dbclean: :after_each do
   let(:person){FactoryBot.create(:person, user: user)}
   let(:user){FactoryBot.create(:user)}
   let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person)}
