@@ -531,7 +531,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
   end
 
-  def plan_detailed
+  def plan_details
     authorize HbxProfile, :view_admin_tabs?
     @product = BenefitMarkets::Products::Product.find(params[:product_id])
     @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind).first
@@ -540,7 +540,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     end
     @product_pvp_ras = @product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact
     respond_to do |format|
-      format.html { render "plan_detailed", layout: 'exchanges_base' }
+      format.html { render "plan_details", layout: 'exchanges_base' }
       format.js
     end
   end
