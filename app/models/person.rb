@@ -251,7 +251,7 @@ class Person
   validate :consumer_fields_validations
 
   after_create :notify_created
-  after_update :notify_updated
+  after_update :notify_updated, if: :changed?
 
   def active_general_agency_staff_roles
     general_agency_staff_roles.select(&:active?)
