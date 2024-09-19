@@ -3,7 +3,6 @@ Feature: Visit Issuer and nested pages
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market and exempt organization
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
-    Given products have PVP
     And Admin_issuers_tab_display is on
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace page
@@ -17,7 +16,7 @@ Feature: Visit Issuer and nested pages
     And the user is on the Issuers Index of the Admin Dashboard
     Then the user visit the Marketplace Plan Year Index page
     And the user will see Marketplace Plan Year Index table
-    Then the table should have "2024" in the "Year" column
+    Then the table should have "current_year" in the "Year" column
     Then the table should have "5" in the "Plans" column
     Then the table should have "1" in the "PVP Plans" column
     Then the table should have "0" in the "Enrollments" column

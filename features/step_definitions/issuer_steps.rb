@@ -34,6 +34,7 @@ When(/^the user will see Marketplace Carriers table$/) do
 end
 
 Then('the table should have {string} in the {string} column') do |value, column_name|
+  value = Date.today.year if column_name == 'Year' && value == "current_year"
   table = find('.table-responsive table.table-wrapper')
   column_index = table.find('thead tr th', text: column_name, exact_text: true).path.split('/')[-1][/\d+/].to_i
 
@@ -111,7 +112,6 @@ And(/^the user should see Plan PVP areas$/) do
   expect(page).to have_css(".pvp-areas", text: '1')
 end
 
-
 And(/^the user should see Availability table$/) do
   expect(page).to have_css('table.table.availability-table')
 
@@ -119,7 +119,6 @@ And(/^the user should see Availability table$/) do
   expect(page).to have_css('thead tr th', text: "Active")
   expect(page).to have_css('thead tr th', text: "PVP Active")
 end
-
 
 And(/^the user should see Estimated Cost table$/) do
   within '.details' do
@@ -132,7 +131,6 @@ And(/^the user should see Estimated Cost table$/) do
     end
   end
 end
-
 
 def check_filtered_results(expected_results)
   within('table tbody') do
