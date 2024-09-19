@@ -796,6 +796,17 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   private
 
+  def pvp_rating_area_options(products)
+    products.map do |p|
+      p.premium_value_products.map do |pvp|
+        [
+          pvp.rating_area.exchange_provided_code, # key
+          pvp.rating_area.human_exchange_provided_code # value
+        ]
+      end
+    end.flatten(1).uniq.to_h
+  end
+
   def year_plan_data(year)
     product_query = BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
@@ -805,9 +816,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     {
       year: year,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(active_year: year).count,
+      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
       enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.join(", ")
+      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
 
