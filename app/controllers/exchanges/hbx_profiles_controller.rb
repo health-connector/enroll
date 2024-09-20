@@ -819,9 +819,10 @@ class Exchanges::HbxProfilesController < ApplicationController
   private
 
   def pvp_rating_area_options(products)
-    products.map do |product|
+    eligible_pvps = products.map do |product|
       fetch_eligible_pvp_for(product)
-    end.reduce({}) { |acc, hash| acc.merge(hash) }.sort
+    end
+    eligible_pvps.reduce({}) { |acc, hash| acc.merge(hash) }.sort
   end
 
   def year_plan_data(year)
