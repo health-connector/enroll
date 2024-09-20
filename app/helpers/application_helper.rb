@@ -293,7 +293,7 @@ module ApplicationHelper
           rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => m}) unless m.blank?
         end
       else
-        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank? || !messages.respond_to(:empty?)
+        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank? || !messages.respond_to?(:empty?)
       end
     end
     rendered.join('').html_safe
