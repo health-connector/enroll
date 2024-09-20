@@ -71,12 +71,10 @@ $(document).on('turbolinks:load', function() {
 
 $(document).on('turbolinks:request-start', function() {
     $('#exchanges-loading-spinner').show();
-    $('#main-exchanges-content').hide();
 });
 
 $(document).on('turbolinks:load', function() {
     $('#exchanges-loading-spinner').hide();
-    $('#main-exchanges-content').show();
 });
 $(document).ready(function() {
     $('#exchanges-loading-spinner').hide();
