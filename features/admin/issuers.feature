@@ -3,7 +3,6 @@ Feature: Visit Issuer and nested pages
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market and exempt organization
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
-    Given products have PVP
     And Admin_issuers_tab_display is on
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace page
@@ -63,3 +62,13 @@ Feature: Visit Issuer and nested pages
     And click on "Search"
     Then should see plans with the following:
       | Plan name | bronze |
+
+  Scenario: HBX Staff with Super Admin subroles should see Detail Plan Page
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user visit the Detail Plan page
+    Then the user should see Plan title
+    Then the user should see Plan benefit type
+    Then the user should see Plan metal tier
+    Then the user should see Plan PVP areas
+    Then the user should see Availability table
+    Then the user should see Estimated Cost table

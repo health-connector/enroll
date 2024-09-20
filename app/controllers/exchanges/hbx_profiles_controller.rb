@@ -525,9 +525,22 @@ class Exchanges::HbxProfilesController < ApplicationController
       metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h
     }
 
-
     respond_to do |format|
       format.html { render "carrier", layout: 'exchanges_base' }
+      format.js
+    end
+  end
+
+  def plan_details
+    authorize HbxProfile, :view_admin_tabs?
+    @product = BenefitMarkets::Products::Product.find(params[:product_id])
+    @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind).first
+    @rating_areas = BenefitMarkets::Locations::RatingArea.distinct(:exchange_provided_code).to_h do |rac|
+      [rac, rac.match(/(\d+)/)[1].to_i]
+    end
+    @product_pvp_ras = @product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact
+    respond_to do |format|
+      format.html { render "plan_details", layout: 'exchanges_base' }
       format.js
     end
   end
@@ -831,6 +844,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def product_data(product)
     {
+      product_id: product.id,
       plan_name: product.title,
       plan_type: capitalize_value(product.plan_types).join(', '),
       pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact.join(',').presence || 'N/A',
