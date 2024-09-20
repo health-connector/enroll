@@ -16,12 +16,16 @@ module BenefitMarkets
 
         @args[:rating_areas].each do |rating_area_id, evidence_value|
           pvp = find_or_create_pvp(rating_area_id)
-          effective_date = @args[:effective_date] || TimeKeeper.date_of_record
-          current_eligibility = pvp.latest_active_pvp_eligibility_on(effective_date)
-          next if current_eligibility.present?.to_s == evidence_value.to_s
+          if pvp.present?
+            current_eligibility = pvp.latest_active_pvp_eligibility_on(TimeKeeper.date_of_record)
+            next if current_eligibility.present?.to_s == evidence_value.to_s
 
-          result = store_pvp_eligibility(pvp, evidence_value, effective_date)
-          eligibility_result[rating_area_id] = result.success? ? "Success" : "Failure"
+            effective_date = get_effective_date(evidence_value)
+            result = store_pvp_eligibility(pvp, evidence_value, effective_date)
+            eligibility_result[rating_area_id] = result.success? ? "Success" : "Failure"
+          else
+            eligibility_result[rating_area_id] = "Failure"
+          end
         end
 
         grouped_eligibilities = eligibility_result.group_by { |_year, value| value }
@@ -33,6 +37,16 @@ module BenefitMarkets
           product_id: @product.id,
           rating_area_id: rating_area_id
         ).success
+      end
+
+      def get_effective_date(evidence_value)
+        return @args[:effective_date] if @args[:effective_date].present?
+
+        if evidence_value.to_s == "true"
+          @product.application_period.min.to_date
+        else
+          TimeKeeper.date_of_record
+        end
       end
 
       def store_pvp_eligibility(pvp, evidence_value, effective_date)

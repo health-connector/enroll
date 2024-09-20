@@ -1,4 +1,4 @@
-.top-pd.row
+.issuers-top-pd.row
   .col-lg-12
     nav[aria-label="breadcrumb"]
       ol.breadcrumb
@@ -8,7 +8,7 @@
         li.breadcrumb-item.active[aria-current="page"]
           = l10n('marketplaces.breadcrumb.plan')
   .col-lg-12
-    h1.heading-text= l10n('marketplaces.carrier.title', year: params[:year], carrier_name: @carrier.legal_name)
+    h1.mt-0.heading-text= l10n('marketplaces.carrier.title', year: params[:year], carrier_name: @carrier.legal_name)
   .container.carrier-filter
     .row.filter-form
       .col-md-12
@@ -27,10 +27,10 @@
             .col-md-3
               h5= l10n('marketplaces.carrier.filter_rating')
               .form-group
-                - @filter_options[:rating_areas].each do |_key, value|
+                - @filter_options[:rating_areas].each do |key, value|
                   label
-                    input type="checkbox" name="pvp_rating_areas[]" value="#{value}" checked=params[:pvp_rating_areas]&.include?(key.to_s)
-                      | #{value}
+                    input type="checkbox" name="pvp_rating_areas[]" value="#{key}" checked=params[:pvp_rating_areas]&.include?(key.to_s)
+                      | #{format_rating_area_codes([key])}
                   br
           .col-md-3
             h5= l10n('marketplaces.carrier.filter_metal_level')
@@ -74,9 +74,9 @@ br
             th= l10n('marketplaces.carrier.column_metal_level_kind')
         tbody
           - @products_data.each do |plan|
-            tr data-plan-type=plan[:plan_type] data-plan-id=plan[:plan_id] data-metal-level=plan[:metal_level_kind] data-network=plan[:network] data-pvp-areas=plan[:pvp_areas] data-plan-name=plan[:plan_name]
+            tr data-plan-type=plan[:plan_type] data-plan-id=plan[:plan_id] data-metal-level=plan[:metal_level_kind] data-network=plan[:network] data-pvp-areas=plan[:pvp_areas].keys data-plan-name=plan[:plan_name]
               td= link_to plan[:plan_name], plan_details_exchanges_hbx_profiles_path(year: params[:year], market: 'shop', id: params[:id], product_id: plan[:product_id]), aria: { label: plan[:plan_name] }
               td= plan[:plan_type]
-              td= plan[:pvp_areas]
+              td= plan[:pvp_areas].present? ? format_rating_area_codes(plan[:pvp_areas].keys) : "N/A"
               td= plan[:plan_id]
               td= plan[:metal_level_kind]

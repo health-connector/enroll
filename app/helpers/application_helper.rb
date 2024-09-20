@@ -285,20 +285,6 @@ module ApplicationHelper
             '#', class: "add_fields #{classes}", data: {id: id, fields: fields.gsub("\n", "")})
   end
 
-  def render_flash
-    rendered = []
-    flash.each do |type, messages|
-      if messages.respond_to?(:each)
-        messages.each do |m|
-          rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => m}) unless m.blank?
-        end
-      else
-        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank?
-      end
-    end
-    rendered.join('').html_safe
-  end
-
   def dd_value(val)
     val.blank? ? "&nbsp;" : val
   end
@@ -838,5 +824,9 @@ module ApplicationHelper
 
   def benefit_application_external_link_enabled?
     add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:benefit_application_display).item
+  end
+
+  def format_rating_area_codes(codes)
+    codes.map {|c| c.match(/(\d+)/)[1].to_i}.join(', ')
   end
 end
