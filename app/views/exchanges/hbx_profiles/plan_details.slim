@@ -1,0 +1,62 @@
+.top-pd.row.detail-page
+  .col-lg-12
+    nav[aria-label="breadcrumb"]
+      ol.breadcrumb
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year])
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.carrier'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
+        li.breadcrumb-item.active[aria-current="page"]= l10n('marketplaces.breadcrumb.detail')
+  .col-lg-12
+    h1.heading-text= l10n('marketplaces.plan.title')
+  .container
+    h4= @product.title
+    .row
+      .col-md-2= l10n('marketplaces.plan.summary.benefit')
+      .col-md-9.benefit= @product.kind.capitalize
+    .row
+      .col-md-2= l10n('marketplaces.plan.summary.market')
+      .col-md-9= l10n('marketplaces.plan.summary.market_type')
+    .row
+      .col-md-2= l10n('marketplaces.plan.summary.metal_tier')
+      .col-md-9.metal-tier= @product.metal_level_kind.to_s.capitalize
+    .row
+      .col-md-2= l10n('marketplaces.plan.summary.rating_area')
+      .col-md-9= "TODO"
+    .row
+      .col-md-2= l10n('marketplaces.plan.summary.pvp_area')
+      .col-md-9.pvp-areas= @product_pvp_ras.join(',')
+  .container
+    h4= l10n('marketplaces.plan.availability')
+    .row.justify-content-center
+      .col-md-5
+        table.table.availability-table
+          thead
+            tr
+              th= l10n('marketplaces.plan.availability_table.rating_area')
+              th= l10n('marketplaces.plan.availability_table.active')
+              th= l10n('marketplaces.plan.availability_table.pvp_active')
+          tbody
+            - rating_areas = @rating_areas.values
+            - active_areas = [1, 2, 3, 4, 5, 6, 7]
+            - rating_areas.each do |area|
+              tr
+                td= area
+                td
+                  = check_box_tag "rating_area_active_#{area}", area, active_areas.include?(area), class: "form-check-input"
+                td
+                  = check_box_tag "pvp_area_active_#{area}", area, @product_pvp_ras.include?(area), class: "form-check-input"
+    .mt-3
+      button.btn.btn-outline-primary.discard-btn= l10n('marketplaces.plan.discard_button')
+      button.btn.btn-primary.save-btn= l10n('marketplaces.plan.save_button')
+  .container
+    h3= l10n('marketplaces.plan.cost_title')
+    .details
+      table.table
+        thead
+          tr
+            th= l10n('marketplaces.plan.cost_table.services')
+            th= l10n('marketplaces.plan.cost_table.provider')
+            th= l10n('marketplaces.plan.cost_table.network')
+        tbody
+          = render partial: "shared/service_visit_details", locals: { qhp: @qhp }

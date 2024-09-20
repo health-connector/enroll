@@ -5159,6 +5159,25 @@ input:required:valid {
     }
   }
 }
+.detail-page {
+  h4, h3 {
+    font-weight: bold;
+  }
+  .btn {
+    &.btn-outline-primary {
+      background: none;
+      color: #247dc5;
+      border: 1px solid #247dc5;
+    }
+    &.discard-btn {
+      margin-right: 10px;
+
+      &:hover {
+        background-color: white;
+      }
+    }
+  }
+}
 
 #exchanges-loading-spinner {
   position: fixed;
