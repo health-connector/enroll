@@ -90,6 +90,7 @@ end
 And(/^Primary Broker enters quote name$/) do
   find('#forms_plan_design_proposal_title').click
   fill_in 'forms_plan_design_proposal[title]', :with => "Test Quote"
+  find('body').click
   expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
   wait_for_ajax(3, 2)
   sleep(2)
@@ -110,7 +111,6 @@ And(/^.+ sees quote for (.*) employer$/) do |employer_name|
 end
 
 And(/^the broker clicks on Select Health Benefits button$/) do
-  find('.interaction-click-control-select-health-benefits', wait: 10).click
   find('.interaction-click-control-select-health-benefits', wait: 10).click
 end
 
@@ -140,10 +140,9 @@ end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
   sleep(10)
-  find(:xpath, "//*[@id='pdp-bms']/div/ul/li[3]/label/div").click
+  find('label[for="forms_plan_design_proposal_plan_option_kind_metal_level"]', wait: 10).click
   expect(page).to have_content("Gold")
   find('#metal_level_for_elected_plan_gold').click
-  # find(:xpath, "//*[@id='metalLevelCarrierList']/div[3]/div[2]/label/h3").click
   wait_for_ajax(3, 2)
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][0][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][1][premium_pct]", with: int.to_i
