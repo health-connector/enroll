@@ -5,6 +5,9 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe GroupSelectionPrevaricationAdapter, dbclean: :after_each do
+  before :each do
+    DatabaseCleaner.clean
+  end
 
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
