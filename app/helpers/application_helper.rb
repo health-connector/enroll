@@ -290,10 +290,10 @@ module ApplicationHelper
     flash.each do |type, messages|
       if messages.respond_to?(:each)
         messages.each do |m|
-          rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => m}) unless m.blank?
+          rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => m}) unless m.blank? || !m.respond_to?(:empty?)
         end
       else
-        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank?
+        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank? || !messages.respond_to?(:empty?)
       end
     end
     rendered.join('').html_safe
