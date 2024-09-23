@@ -13,7 +13,7 @@
             - @rating_areas.each do |k, v|
               tr
                 td
-                  .ml-3= k.match(/(\d+)/)[1].to_i
+                  .ml-3= format_rating_area_codes([k])
                 td
                   .ml-1= check_box_tag "rating_area_active_#{v}", v, @product_rating_areas.keys.include?(k), class: "form-check-input", disabled: true
                 td
@@ -31,8 +31,6 @@
     .modal-content
       .modal-header
         h4.modal-title#pvpConfirmModalLabel= @product.title
-        button.close type="button" data-dismiss="modal" aria-label=l10n('hbx_profiles.cancel')
-          span aria-hidden="true"
       .modal-body
         = l10n('hbx_profiles.pvp_confirmation_question')
       .modal-footer

@@ -538,7 +538,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.to_h
     @product_rating_areas = @product.premium_tables.map(&:rating_area).pluck(:exchange_provided_code, :id).uniq.to_h
-    @product_pvp_eligible_ras = fetch_eligible_pvp_for(@product)
+    @product_pvp_eligible_ras = fetch_eligible_pvp_ras_for(@product)
 
     respond_to do |format|
       format.html { render "plan_details", layout: 'exchanges_base' }
@@ -820,7 +820,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def pvp_rating_area_options(products)
     eligible_pvps = products.map do |product|
-      fetch_eligible_pvp_for(product)
+      fetch_eligible_pvp_ras_for(product)
     end
     eligible_pvps.reduce({}) { |acc, hash| acc.merge(hash) }.sort
   end
@@ -865,7 +865,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       product_id: product.id,
       plan_name: product.title,
       plan_type: capitalize_value(product.plan_types).join(', '),
-      pvp_areas: fetch_eligible_pvp_for(product),
+      pvp_areas: fetch_eligible_pvp_ras_for(product),
       plan_id: product.hios_id,
       metal_level_kind: product.metal_level_kind.to_s.capitalize
     }
@@ -875,7 +875,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }
   end
 
-  def fetch_eligible_pvp_for(product)
+  def fetch_eligible_pvp_ras_for(product)
     product.premium_value_products.select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
            .map { |pvp| [pvp.rating_area.exchange_provided_code, pvp.rating_area.id] }.uniq.to_h
   end

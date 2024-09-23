@@ -118,7 +118,7 @@ end
 
 #RAILS_ENV=production bundle exec rake permissions:hbx_admin_can_update_pvp_eligibilities
 namespace :permissions do
-  desc 'hbx admin can edit notice templates'
+  desc 'hbx admin can mark pvp eligibilities'
   DefinePermissions.define_task :hbx_admin_can_update_pvp_eligibilities => :environment
 end
 
