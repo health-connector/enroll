@@ -166,7 +166,7 @@ module BenefitMarketWorld
     user = User.all.last
     BenefitMarkets::Products::Product.each do |product|
       r_ids = product.premium_tables.map(&:rating_area).pluck(:id)
-      args = { rating_areas: r_ids.map { |r| [r.to_s, "true"] }.to_h }
+      args = { rating_areas: r_ids.to_h { |r| [r.to_s, "true"] } }
       service = BenefitMarkets::Services::PvpEligibilityService.new(product, user, args)
       service.create_or_update_pvp_eligibilities
     end
