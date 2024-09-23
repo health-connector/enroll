@@ -167,7 +167,7 @@ module BenefitMarketWorld
       r_codes = product.premium_tables.map(&:rating_area).map(&:exchange_provided_code)
       r_codes.each do |code|
         params = {
-          active_year: product.active_year, hios_id: product.hios_id, rating_area_code: code[-1],
+          active_year: product.active_year, hios_id: product.hios_id, rating_area_code: code.last(2),
           evidence_value: "true", updated_by: User.last.email, effective_date: Date.new(product.active_year, 1, 1)
         }
         ::BenefitMarkets::Operations::Pvp::MarkPvpEligibleInRatingArea.new.call(params)
