@@ -68,3 +68,14 @@ $(document).on('turbolinks:load', function() {
         $('.plans-count').text(visiblePlansCount);
     }
 });
+
+$(document).on('turbolinks:request-start', function() {
+    $('#exchanges-loading-spinner').show();
+});
+
+$(document).on('turbolinks:load', function() {
+    $('#exchanges-loading-spinner').hide();
+});
+$(document).ready(function() {
+    $('#exchanges-loading-spinner').hide();
+});
