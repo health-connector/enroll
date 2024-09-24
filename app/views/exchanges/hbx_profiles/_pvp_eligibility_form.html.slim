@@ -1,0 +1,38 @@
+.container
+  h4= l10n('marketplaces.plan.availability')
+  .row.justify-content-center
+    = form_tag mark_pvp_eligibilities_exchanges_hbx_profiles_path(product_id: @product.id), method: :put, id: "pvp_eligibility_form" do
+      .col-md-5
+        table.table.availability-table
+          thead
+            tr
+              th= l10n('marketplaces.plan.availability_table.rating_area')
+              th= l10n('marketplaces.plan.availability_table.active')
+              th= l10n('marketplaces.plan.availability_table.pvp_active')
+          tbody
+            - @rating_areas.each do |k, v|
+              tr
+                td
+                  .ml-3= format_rating_area_codes([k])
+                td
+                  .ml-1= check_box_tag "rating_area_active_#{v}", v, @product_rating_areas.keys.include?(k), class: "form-check-input", disabled: true
+                td
+                  = hidden_field_tag "pvp_active_areas[#{v}]", 'false'
+                  .ml-3= check_box_tag "pvp_active_areas[#{v}]", 'true', @product_pvp_eligible_ras.keys.include?(k), class: "form-check-input change-tracker", disabled: @product_rating_areas.keys.exclude?(k)
+
+      .row.col-xs-12
+        .col-md-5
+          button.btn.btn-primary.save-btn type="button" data-toggle="modal" data-target="#pvpConfirmModal"
+            = l10n('save_changes')
+
+// Modal for confirmation
+.modal.fade#pvpConfirmModal tabindex="-1" role="dialog" aria-labelledby="pvpConfirmModalLabel" aria-hidden="true"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title#pvpConfirmModalLabel= @product.title
+      .modal-body
+        = l10n('hbx_profiles.pvp_confirmation_question')
+      .modal-footer
+        button.btn.btn-danger type="button" data-dismiss="modal" = l10n('hbx_profiles.cancel')
+        button.btn.btn-primary type="submit" form="pvp_eligibility_form" = l10n('hbx_profiles.confirm')

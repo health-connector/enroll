@@ -27,7 +27,6 @@ Given(/^premium value plans feature is disabled$/) do
 end
 
 Then(/^employer should see pvp indicator$/) do
-  wait_for_ajax(3, 2)
   expect(page).to have_content(/PREMIUM VALUE PLAN/)
 end
 

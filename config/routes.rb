@@ -88,6 +88,7 @@ Rails.application.routes.draw do
         match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get
         match "marketplace_plan_years/:market/:year/:id" => "hbx_profiles#carrier", as: :carrier, via: :get
         match "marketplace_plan_years/:market/:year/:id/:product_id" => "hbx_profiles#plan_details", as: :plan_details, via: :get
+        put :mark_pvp_eligibilities
         get :product_index
         get :configuration
         post :set_date

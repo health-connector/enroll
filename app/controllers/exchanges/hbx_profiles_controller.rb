@@ -485,7 +485,15 @@ class Exchanges::HbxProfilesController < ApplicationController
       }
     end
 
-    @carriers = carriers.map { |carrier| carrier_data(carrier, year) }
+    @carriers = if year >= TimeKeeper.date_of_record.prev_year.year
+                  carriers.map { |carrier| carrier_data(carrier, year) }
+                else
+                  carriers.map do |carrier|
+                    Rails.cache.fetch("issuers-tab-carrier_info-#{carrier[:organization_id]}-by-year-#{year}", expires_in: 1.week) do
+                      carrier_data(carrier, year)
+                    end
+                  end
+                end.compact
 
     respond_to do |format|
       format.html { render "marketplace_plan_year", layout: 'exchanges_base' }
@@ -499,7 +507,17 @@ class Exchanges::HbxProfilesController < ApplicationController
       (application_period['min']&.year..application_period['max']&.year).to_a
     end.uniq.sort.reverse
 
-    @years_data = years.map { |year| year_plan_data(year) }
+    new_years, old_years = years.partition { |year| year >= TimeKeeper.date_of_record.prev_year.year }
+
+    new_years_data = new_years.map { |year| year_plan_data(year) }
+
+    old_years_data = old_years.map do |year|
+      Rails.cache.fetch("issuers-marketplace-plan-years-by-year-#{year}", expires_in: 1.week) do
+        year_plan_data(year)
+      end
+    end
+
+    @years_data = new_years_data + old_years_data
 
     respond_to do |format|
       format.html { render "marketplace_plan_years", layout: 'exchanges_base' }
@@ -535,14 +553,35 @@ class Exchanges::HbxProfilesController < ApplicationController
     authorize HbxProfile, :view_admin_tabs?
     @product = BenefitMarkets::Products::Product.find(params[:product_id])
     @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind).first
-    @rating_areas = BenefitMarkets::Locations::RatingArea.distinct(:exchange_provided_code).to_h do |rac|
-      [rac, rac.match(/(\d+)/)[1].to_i]
-    end
-    @product_pvp_ras = @product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact
+    @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.to_h
+    @product_rating_areas = @product.premium_tables.map(&:rating_area).pluck(:exchange_provided_code, :id).uniq.to_h
+    @product_pvp_eligible_ras = fetch_eligible_pvp_ras_for(@product)
+
     respond_to do |format|
       format.html { render "plan_details", layout: 'exchanges_base' }
       format.js
     end
+  end
+
+  def mark_pvp_eligibilities
+    authorize HbxProfile, :can_mark_pvp_eligibilities?
+
+    permitted_params = params.permit(:product_id, :pvp_active_areas => {})
+    @product = BenefitMarkets::Products::Product.find(permitted_params[:product_id])
+    args = {rating_areas: permitted_params[:pvp_active_areas].to_h}
+    service = BenefitMarkets::Services::PvpEligibilityService.new(@product, current_user, args)
+    result = service.create_or_update_pvp_eligibilities
+
+    message = if result["Failure"].present?
+                { failure: l10n('hbx_profiles.mark_pvp_failure') }
+              else
+                { success: l10n('hbx_profiles.mark_pvp_success') }
+              end
+
+    redirect_to plan_details_exchanges_hbx_profiles_path(
+      year: @product.active_year, id: @product.issuer_profile.id, product_id: @product.id,
+      market: @product.benefit_market_kind.to_s.split('_').last
+    ), flash: message
   end
 
   def verification_index
@@ -797,14 +836,10 @@ class Exchanges::HbxProfilesController < ApplicationController
   private
 
   def pvp_rating_area_options(products)
-    products.map do |p|
-      p.premium_value_products.map do |pvp|
-        [
-          pvp.rating_area.exchange_provided_code, # key
-          pvp.rating_area.human_exchange_provided_code # value
-        ]
-      end
-    end.flatten(1).uniq.to_h
+    eligible_pvps = products.map do |product|
+      fetch_eligible_pvp_ras_for(product)
+    end
+    eligible_pvps.reduce({}) { |acc, hash| acc.merge(hash) }.sort
   end
 
   def year_plan_data(year)
@@ -831,6 +866,8 @@ class Exchanges::HbxProfilesController < ApplicationController
       :"application_period.max".gte => Date.new(year, 1, 1),
       :issuer_profile_id.in => profile_ids
     )
+    return unless product_query.count > 0
+
     product_ids = product_query.pluck(:_id)
     {
       carrier: carrier_name,
@@ -847,7 +884,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       product_id: product.id,
       plan_name: product.title,
       plan_type: capitalize_value(product.plan_types).join(', '),
-      pvp_areas: product.premium_value_products.map{ |pvp| pvp.rating_area.human_exchange_provided_code }.uniq.compact.join(',').presence || 'N/A',
+      pvp_areas: fetch_eligible_pvp_ras_for(product),
       plan_id: product.hios_id,
       metal_level_kind: product.metal_level_kind.to_s.capitalize
     }
@@ -855,6 +892,11 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def capitalize_value(symbols)
     symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }
+  end
+
+  def fetch_eligible_pvp_ras_for(product)
+    product.premium_value_products.select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
+           .map { |pvp| [pvp.rating_area.exchange_provided_code, pvp.rating_area.id] }.uniq.to_h
   end
 
   def uniq_terminate_params
