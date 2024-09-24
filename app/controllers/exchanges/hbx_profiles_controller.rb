@@ -566,9 +566,9 @@ class Exchanges::HbxProfilesController < ApplicationController
   def mark_pvp_eligibilities
     authorize HbxProfile, :can_mark_pvp_eligibilities?
 
-    permited_params = params.permit(:product_id, :pvp_active_areas => {})
-    @product = BenefitMarkets::Products::Product.find(permited_params[:product_id])
-    args = {rating_areas: permited_params[:pvp_active_areas].to_h}
+    permitted_params = params.permit(:product_id, :pvp_active_areas => {})
+    @product = BenefitMarkets::Products::Product.find(permitted_params[:product_id])
+    args = {rating_areas: permitted_params[:pvp_active_areas].to_h}
     service = BenefitMarkets::Services::PvpEligibilityService.new(@product, current_user, args)
     result = service.create_or_update_pvp_eligibilities
 
