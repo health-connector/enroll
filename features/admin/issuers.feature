@@ -37,6 +37,7 @@ Feature: Visit Issuer and nested pages
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    Given products marked as premium value products
     And the user is on the Issuers Index of the Admin Dashboard
     And the user visit the Marketplace Plan Year Index page
     Then the user visit the Marketplace Carriers page
@@ -49,7 +50,7 @@ Feature: Visit Issuer and nested pages
     And click on "Apply Filters"
     Then should see plans with the following:
       | Plan Type | POS |
-    And check the "PVP rating areas" filter "1"
+    And check the "PVP rating areas" filter "R-MA001"
     And click on "Apply Filters"
     Then should see plans with the following:
       | PVP areas | 1 |
@@ -66,6 +67,7 @@ Feature: Visit Issuer and nested pages
 
   Scenario: HBX Staff with Super Admin subroles should see Detail Plan Page
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    Given products marked as premium value products
     And the user visit the Detail Plan page
     Then the user should see Plan title
     Then the user should see Plan benefit type
