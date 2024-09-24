@@ -18,7 +18,7 @@ end
 When(/^the user will see Marketplace Plan Year Index table$/) do
   expect(page).to have_text('Type')
   expect(page).to have_text('Plans')
-  expect(page).to have_text('PVP Plans')
+  expect(page).to have_text('PVP Marking(s)')
   expect(page).to have_text('Enrollments')
   expect(page).to have_text('Products')
   expect(page).to have_css('.table-responsive .table thead')
@@ -27,7 +27,7 @@ end
 When(/^the user will see Marketplace Carriers table$/) do
   expect(page).to have_text('Carrier')
   expect(page).to have_text('Plans')
-  expect(page).to have_text('PVP Plans')
+  expect(page).to have_text('PVP Marking(s)')
   expect(page).to have_text('Enrollments')
   expect(page).to have_text('Products')
   expect(page).to have_css('.table-responsive .table thead')

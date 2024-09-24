@@ -19,7 +19,7 @@ Feature: Visit Issuer and nested pages
     And the user will see Marketplace Plan Year Index table
     Then the table should have "current_year" in the "Year" column
     Then the table should have "5" in the "Plans" column
-    Then the table should have "1" in the "PVP Plans" column
+    Then the table should have "1" in the "PVP Marking(s)" column
     Then the table should have "0" in the "Enrollments" column
     Then the table should have "Health" in the "Products" column
 
@@ -31,7 +31,7 @@ Feature: Visit Issuer and nested pages
     And the user will see Marketplace Carriers table
     Then the table should have "Health Agency Authority" in the "Carrier" column
     Then the table should have "2" in the "Plans" column
-    Then the table should have "1" in the "PVP Plans" column
+    Then the table should have "1" in the "PVP Marking(s)" column
     Then the table should have "0" in the "Active Enrollments" column
     Then the table should have "Health, Dental" in the "Products" column
 
