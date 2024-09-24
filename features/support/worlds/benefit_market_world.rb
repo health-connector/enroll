@@ -146,7 +146,7 @@ module BenefitMarketWorld
     health_products
     dental_products if coverage_kinds.include?(:dental)
     BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
-      qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id[0..13])
+      qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id)
       csr = FactoryBot.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
       qhp.qhp_cost_share_variances << csr
       qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
