@@ -3,6 +3,7 @@ Feature: Visit Issuer and nested pages
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market and exempt organization
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given products have PVP
     And Admin_issuers_tab_display is on
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace page
