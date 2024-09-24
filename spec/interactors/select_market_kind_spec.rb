@@ -19,7 +19,6 @@ describe SelectMarketKind, :dbclean => :after_each do
     let!(:employee_role_id) { employee_role.id.to_s}
 
     before :each do
-      DatabaseCleaner.clean
       ce.employee_role_id = ee_person.employee_roles.first.id
       ce.save
       ee_person.employee_roles.first.census_employee_id = ce.id
