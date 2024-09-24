@@ -512,7 +512,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     new_years_data = new_years.map { |year| year_plan_data(year) }
 
     old_years_data = old_years.map do |year|
-      Rails.cache.fetch("issuers-marketplace-plan-years-by-year-#{@year}", expires_in: 1.week) do
+      Rails.cache.fetch("issuers-marketplace-plan-years-by-year-#{year}", expires_in: 1.week) do
         year_plan_data(year)
       end
     end
