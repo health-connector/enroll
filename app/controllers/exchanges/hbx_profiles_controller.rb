@@ -849,8 +849,9 @@ class Exchanges::HbxProfilesController < ApplicationController
     )
     product_ids = product_query.pluck(:_id)
     enrollments_count = Rails.cache.fetch("issuers-tab-enrollment-count-by-year-#{year}", expires_in: 12.hours) do
-                          Family.actual_enrollments_number(product_ids: product_ids)
-                        end
+      Family.actual_enrollments_number(product_ids: product_ids)
+    end
+
     {
       year: year,
       plans_number: product_query.count,
@@ -873,8 +874,9 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     product_ids = product_query.pluck(:_id)
     enrollments_count = Rails.cache.fetch("issuers-tab-enrollment-count-by-carrier-#{organization_id}-by-year-#{year}", expires_in: 12.hours) do
-                          Family.actual_enrollments_number(product_ids: product_ids)
-                        end
+      Family.actual_enrollments_number(product_ids: product_ids)
+    end
+
     {
       carrier: carrier_name,
       organization_id: organization_id,

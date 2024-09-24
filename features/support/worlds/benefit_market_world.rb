@@ -166,6 +166,7 @@ module BenefitMarketWorld
     BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
       qhp = Products::Qhp.by_hios_ids_and_active_year([hp.hios_id], hp.active_year).first
       next unless qhp
+
       qhp.update!(standard_component_id: hp.hios_id[0..13])
     end
   end
