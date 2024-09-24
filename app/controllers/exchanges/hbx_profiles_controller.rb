@@ -485,7 +485,15 @@ class Exchanges::HbxProfilesController < ApplicationController
       }
     end
 
-    @carriers = carriers.map { |carrier| carrier_data(carrier, year) }
+    @carriers = if year >= TimeKeeper.date_of_record.prev_year.year
+                  carriers.map { |carrier| carrier_data(carrier, year) }
+                else
+                  carriers.map do |carrier|
+                    Rails.cache.fetch("issuers-tab-carrier_info-#{carrier[:organization_id]}-by-year-#{year}", expires_in: 1.week) do
+                      carrier_data(carrier, year)
+                    end
+                  end
+                end.compact
 
     respond_to do |format|
       format.html { render "marketplace_plan_year", layout: 'exchanges_base' }
@@ -499,7 +507,17 @@ class Exchanges::HbxProfilesController < ApplicationController
       (application_period['min']&.year..application_period['max']&.year).to_a
     end.uniq.sort.reverse
 
-    @years_data = years.map { |year| year_plan_data(year) }
+    new_years, old_years = years.partition { |year| year >= TimeKeeper.date_of_record.prev_year.year }
+
+    new_years_data = new_years.map { |year| year_plan_data(year) }
+
+    old_years_data = old_years.map do |year|
+      Rails.cache.fetch("issuers-marketplace-plan-years-by-year-#{@year}", expires_in: 1.week) do
+        year_plan_data(year)
+      end
+    end
+
+    @years_data = new_years_data + old_years_data
 
     respond_to do |format|
       format.html { render "marketplace_plan_years", layout: 'exchanges_base' }
@@ -535,7 +553,6 @@ class Exchanges::HbxProfilesController < ApplicationController
     authorize HbxProfile, :view_admin_tabs?
     @product = BenefitMarkets::Products::Product.find(params[:product_id])
     @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind).first
-
     @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.to_h
     @product_rating_areas = @product.premium_tables.map(&:rating_area).pluck(:exchange_provided_code, :id).uniq.to_h
     @product_pvp_eligible_ras = fetch_eligible_pvp_ras_for(@product)
@@ -849,6 +866,8 @@ class Exchanges::HbxProfilesController < ApplicationController
       :"application_period.max".gte => Date.new(year, 1, 1),
       :issuer_profile_id.in => profile_ids
     )
+    return unless product_query.count > 0
+
     product_ids = product_query.pluck(:_id)
     {
       carrier: carrier_name,
