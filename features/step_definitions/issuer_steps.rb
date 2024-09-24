@@ -93,7 +93,7 @@ And(/^the user visit the Detail Plan page$/) do
     :issuer_profile_id.in => carrier.profiles.map(&:_id),
     :kind => :health
   ).first
-  visit plan_detailed_exchanges_hbx_profiles_path(year: year, market: 'shop', id: carrier.id, product_id: product.id)
+  visit plan_details_exchanges_hbx_profiles_path(year: year, market: 'shop', id: carrier.id, product_id: product.id)
 end
 
 And(/^the user should see Plan title$/) do
