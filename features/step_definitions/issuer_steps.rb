@@ -84,6 +84,54 @@ And('search for {string}') do |search_prompt|
   fill_in 'search', with: search_prompt
 end
 
+And(/^the user visit the Detail Plan page$/) do
+  year = Time.now.year
+  carrier = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.first
+  product = BenefitMarkets::Products::Product.where(
+    :"application_period.min".lte => Date.new(year, 12, 31),
+    :"application_period.max".gte => Date.new(year, 1, 1),
+    :issuer_profile_id.in => carrier.profiles.map(&:_id),
+    :kind => :health
+  ).first
+  visit plan_details_exchanges_hbx_profiles_path(year: year, market: 'shop', id: carrier.id, product_id: product.id)
+end
+
+And(/^the user should see Plan title$/) do
+  expect(page).to have_css('h4', text: 'BlueChoice bronze 2,000')
+end
+
+And(/^the user should see Plan benefit type$/) do
+  expect(page).to have_css(".benefit", text: 'Health')
+end
+
+And(/^the user should see Plan metal tier$/) do
+  expect(page).to have_css(".metal-tier", text: 'Gold')
+end
+
+And(/^the user should see Plan PVP areas$/) do
+  expect(page).to have_css(".pvp-areas", text: '1')
+end
+
+And(/^the user should see Availability table$/) do
+  expect(page).to have_css('table.table.availability-table')
+
+  expect(page).to have_css('thead tr th', text: "Rating Area")
+  expect(page).to have_css('thead tr th', text: "Active")
+  expect(page).to have_css('thead tr th', text: "PVP Active")
+end
+
+And(/^the user should see Estimated Cost table$/) do
+  within '.details' do
+    expect(page).to have_css('table.table')
+
+    within 'table.table thead tr' do
+      expect(page).to have_css('th', text: "Services You May Need")
+      expect(page).to have_css('th', text: "Your Cost At Participating Provider Co-Pay")
+      expect(page).to have_css('th', text: "(In Network) Coinsurance")
+    end
+  end
+end
+
 def check_filtered_results(expected_results)
   within('table tbody') do
     rows = all('tr')
