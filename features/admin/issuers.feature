@@ -3,17 +3,16 @@ Feature: Visit Issuer and nested pages
   Background: Setup site, employer, and benefit application
     Given a CCA site exists with a benefit market and exempt organization
     Given benefit market catalog exists for enrollment_open initial employer with health benefits
-    Given products have PVP
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    Given products marked as premium value products
     And Admin_issuers_tab_display is on
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace page
-    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Issuers Index of the Admin Dashboard
     And the user will see Marketplaces table
     Then the user will see correct content in table
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Plan Year Index page
-    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Issuers Index of the Admin Dashboard
     Then the user visit the Marketplace Plan Year Index page
     And the user will see Marketplace Plan Year Index table
@@ -24,20 +23,17 @@ Feature: Visit Issuer and nested pages
     Then the table should have "Health" in the "Products" column
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Carriers page
-    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Issuers Index of the Admin Dashboard
     And the user visit the Marketplace Plan Year Index page
     Then the user visit the Marketplace Carriers page
     And the user will see Marketplace Carriers table
     Then the table should have "Health Agency Authority" in the "Carrier" column
     Then the table should have "2" in the "Plans" column
-    Then the table should have "1" in the "PVP Marking(s)" column
+    Then the table should have "2" in the "PVP Marking(s)" column
     Then the table should have "0" in the "Active Enrollments" column
     Then the table should have "Health, Dental" in the "Products" column
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
-    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
-    Given products marked as premium value products
     And the user is on the Issuers Index of the Admin Dashboard
     And the user visit the Marketplace Plan Year Index page
     Then the user visit the Marketplace Carriers page
@@ -66,8 +62,7 @@ Feature: Visit Issuer and nested pages
       | Plan name | bronze |
 
   Scenario: HBX Staff with Super Admin subroles should see Detail Plan Page
-    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
-    Given products marked as premium value products
+    Given all products has correct qhps
     And the user visit the Detail Plan page
     Then the user should see Plan title
     Then the user should see Plan benefit type

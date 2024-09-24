@@ -146,7 +146,7 @@ module BenefitMarketWorld
     health_products
     dental_products if coverage_kinds.include?(:dental)
     BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
-      qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id[0..13])
+      qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id)
       csr = FactoryBot.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
       qhp.qhp_cost_share_variances << csr
       qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
@@ -160,6 +160,14 @@ module BenefitMarketWorld
       doc.save!
     end
     reset_product_cache
+  end
+
+  def update_product_qhps
+    BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
+      qhp = Products::Qhp.by_hios_ids_and_active_year([hp.hios_id], hp.active_year).first
+      next unless qhp
+      qhp.update!(standard_component_id: hp.hios_id[0..13])
+    end
   end
 
   def mark_premium_value_products_in_rating_areas
@@ -286,6 +294,10 @@ end
 
 Given(/^products marked as premium value products$/) do
   mark_premium_value_products_in_rating_areas
+end
+
+Given(/^all products has correct qhps$/) do
+  update_product_qhps
 end
 
 # Addresses certain cucumbers failing in Nov/Dec
