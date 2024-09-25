@@ -540,7 +540,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @filter_options = {
       plan_types: BenefitMarkets::Products::Product.types.slice(*products_types),
       rating_areas: pvp_rating_area_options(products),
-      metal_levels: products.map { |p| [p.metal_level_kind, p.metal_level_kind.to_s.capitalize] }.uniq.to_h
+      metal_levels: products.map { |p| [p.metal_level, p.metal_level.to_s.capitalize] }.uniq.to_h
     }
 
     respond_to do |format|
@@ -894,7 +894,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       plan_type: capitalize_value(product.plan_types).join(', '),
       pvp_areas: fetch_eligible_pvp_ras_for(product),
       plan_id: product.hios_id,
-      metal_level_kind: product.metal_level_kind.to_s.capitalize
+      metal_level_kind: product.metal_level.to_s.capitalize
     }
   end
 
