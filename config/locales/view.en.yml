@@ -57,7 +57,7 @@ en:
       column_carrier: "Carrier"
       column_plans: "Plans"
       column_pvp: "PVP Marking(s)"
-      column_enrollments: "Active Enrollments"
+      column_enrollments: "Enrollments"
       column_products: "Products"
     carrier:
       title: "%{year} %{carrier_name} Plans"
@@ -74,7 +74,7 @@ en:
       clear_button: "Clear Filters"
       apply_button: "Apply Filters"
       search_button: "Search"
-      search_placeholder: "Search"
+      search_placeholder: "Plan name or HIOS/Plan ID"
       search_result: "Search result: "
       search_result_plans: "plans"
     plan:
