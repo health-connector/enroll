@@ -32,5 +32,8 @@ HBX_PROFILES_TRANSLATIONS = {
   :'en.hbx_profiles.cancel' => 'Cancel',
   :'en.hbx_profiles.publish_application' => 'Publish Application',
   :'en.hbx_profiles.force_publish_success' => 'Force Publish Successful',
-  :'en.hbx_profiles.force_published_application_review' => 'Force Published Application Under Review'
+  :'en.hbx_profiles.force_published_application_review' => 'Force Published Application Under Review',
+  :'en.hbx_profiles.mark_pvp_failure' => 'Failed to mark premium value product(s)',
+  :'en.hbx_profiles.mark_pvp_success' => 'Successfully marked premium value product(s)',
+  :'en.hbx_profiles.pvp_confirmation_question' => "Updating Premium Value Product Eligibilities, Are you sure?"
 }.freeze

@@ -68,7 +68,8 @@ When(/^the user will see Marketplace Carrier table$/) do
 end
 
 When('check the {string} filter {string}') do |value, column_name|
-  find("input[name='#{value.parameterize(separator: '_')}[]'][value='#{column_name.downcase}']").check
+  column_value = value == 'PVP rating areas' ? column_name : column_name.downcase
+  find("input[name='#{value.parameterize(separator: '_')}[]'][value='#{column_value}']").check
 end
 
 When('click on {string}') do |button_text|

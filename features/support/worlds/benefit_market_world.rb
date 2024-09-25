@@ -163,15 +163,12 @@ module BenefitMarketWorld
   end
 
   def mark_premium_value_products_in_rating_areas
+    user = User.all.last
     BenefitMarkets::Products::Product.each do |product|
-      r_codes = product.premium_tables.map(&:rating_area).map(&:exchange_provided_code)
-      r_codes.each do |code|
-        params = {
-          active_year: product.active_year, hios_id: product.hios_id, rating_area_code: code[-1],
-          evidence_value: "true", updated_by: User.last.email, effective_date: Date.new(product.active_year, 1, 1)
-        }
-        ::BenefitMarkets::Operations::Pvp::MarkPvpEligibleInRatingArea.new.call(params)
-      end
+      r_ids = product.premium_tables.map(&:rating_area).pluck(:id)
+      args = { rating_areas: r_ids.to_h { |r| [r.to_s, "true"] } }
+      service = BenefitMarkets::Services::PvpEligibilityService.new(product, user, args)
+      service.create_or_update_pvp_eligibilities
     end
   end
 

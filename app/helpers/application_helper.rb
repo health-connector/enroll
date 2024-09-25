@@ -290,10 +290,10 @@ module ApplicationHelper
     flash.each do |type, messages|
       if messages.respond_to?(:each)
         messages.each do |m|
-          rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => m}) unless m.blank?
+          rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => m}) unless m.blank? || !m.respond_to?(:empty?)
         end
       else
-        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank?
+        rendered << render(:partial => 'layouts/flash', :locals => {:type => type, :message => messages}) unless messages.blank? || !messages.respond_to?(:empty?)
       end
     end
     rendered.join('').html_safe
@@ -838,5 +838,9 @@ module ApplicationHelper
 
   def benefit_application_external_link_enabled?
     add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:benefit_application_display).item
+  end
+
+  def format_rating_area_codes(codes)
+    codes.map {|c| c.match(/(\d+)/)[1].to_i}.join(', ')
   end
 end

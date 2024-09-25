@@ -31,7 +31,7 @@ FactoryBot.define do
       dental_sponsored_benefit { false }
       predecessor_application_catalog { false }
       passed_benefit_sponsor_catalog { nil }
-      benefit_application_items nil
+      benefit_application_items { nil }
     end
 
     after(:build) do |benefit_application, evaluator|
