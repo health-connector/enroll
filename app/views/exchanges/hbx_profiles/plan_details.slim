@@ -29,14 +29,16 @@
 
   .pvp-eligibility-form-container
     = render "pvp_eligibility_form"
-  .container
-    h3= l10n('marketplaces.plan.cost_title')
-    .details
-      table.table
-        thead
-          tr
-            th= l10n('marketplaces.plan.cost_table.services')
-            th= l10n('marketplaces.plan.cost_table.provider')
-            th= l10n('marketplaces.plan.cost_table.network')
-        tbody
-          = render partial: "shared/service_visit_details", locals: { qhp: @qhp }
+
+  - if @qhp.present?
+    .container
+      h3= l10n('marketplaces.plan.cost_title')
+      .details
+        table.table
+          thead
+            tr
+              th= l10n('marketplaces.plan.cost_table.services')
+              th= l10n('marketplaces.plan.cost_table.provider')
+              th= l10n('marketplaces.plan.cost_table.network')
+          tbody
+            = render partial: "shared/service_visit_details", locals: { qhp: @qhp }

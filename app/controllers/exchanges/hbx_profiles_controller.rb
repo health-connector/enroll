@@ -836,10 +836,10 @@ class Exchanges::HbxProfilesController < ApplicationController
   private
 
   def pvp_rating_area_options(products)
-    eligible_pvps = products.map do |product|
+    eligible_pvp_ras = products.map do |product|
       fetch_eligible_pvp_ras_for(product)
     end
-    eligible_pvps.reduce({}) { |acc, hash| acc.merge(hash) }.sort
+    eligible_pvp_ras.reduce({}) { |acc, hash| acc.merge(hash) }.sort
   end
 
   def year_plan_data(year)
@@ -848,11 +848,15 @@ class Exchanges::HbxProfilesController < ApplicationController
       :"application_period.max".gte => Date.new(year, 1, 1)
     )
     product_ids = product_query.pluck(:_id)
+    enrollments_count = Rails.cache.fetch("issuers-tab-enrollment-count-by-year-#{year}", expires_in: 12.hours) do
+      Family.actual_enrollments_number(product_ids: product_ids)
+    end
+
     {
       year: year,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
-      enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
+      pvp_numbers: eligible_pvps(product_query).count,
+      enrollments_number: enrollments_count,
       products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
@@ -869,12 +873,16 @@ class Exchanges::HbxProfilesController < ApplicationController
     return unless product_query.count > 0
 
     product_ids = product_query.pluck(:_id)
+    enrollments_count = Rails.cache.fetch("issuers-tab-enrollment-count-by-carrier-#{organization_id}-by-year-#{year}", expires_in: 12.hours) do
+      Family.actual_enrollments_number(product_ids: product_ids)
+    end
+
     {
       carrier: carrier_name,
       organization_id: organization_id,
       plans_number: product_query.count,
-      pvp_numbers: BenefitMarkets::Products::PremiumValueProduct.where(:product_id.in => product_ids).count,
-      enrollments_number: Family.actual_enrollments_number(product_ids: product_ids),
+      pvp_numbers: eligible_pvps(product_query).count,
+      enrollments_number: enrollments_count,
       products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
     }
   end
@@ -897,6 +905,10 @@ class Exchanges::HbxProfilesController < ApplicationController
   def fetch_eligible_pvp_ras_for(product)
     product.premium_value_products.select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
            .map { |pvp| [pvp.rating_area.exchange_provided_code, pvp.rating_area.id] }.uniq.to_h
+  end
+
+  def eligible_pvps(products)
+    products.flat_map(&:premium_value_products).select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
   end
 
   def uniq_terminate_params
