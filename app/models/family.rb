@@ -925,7 +925,7 @@ class Family
     def actual_enrollments_number(product_ids: nil)
       match_criteria = {
         "households.hbx_enrollments.aasm_state" => {
-          "$nin" => [HbxEnrollment::WAIVED_STATUSES, HbxEnrollment::CANCELED_STATUSES, 'shopping']
+          "$nin" => HbxEnrollment::SHOPPING_WAVED_AND_CANCELED
         }
       }
 
