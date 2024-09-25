@@ -30,7 +30,7 @@ Feature: Visit Issuer and nested pages
     Then the table should have "Health Agency Authority" in the "Carrier" column
     Then the table should have "2" in the "Plans" column
     Then the table should have "2" in the "PVP Marking(s)" column
-    Then the table should have "0" in the "Active Enrollments" column
+    Then the table should have "0" in the "Enrollments" column
     Then the table should have "Health, Dental" in the "Products" column
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Carrier page
