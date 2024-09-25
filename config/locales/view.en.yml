@@ -74,7 +74,7 @@ en:
       clear_button: "Clear Filters"
       apply_button: "Apply Filters"
       search_button: "Search"
-      search_placeholder: "Plan name or HIOS/Plan ID"
+      search_placeholder: "Plan ID / Plan Name"
       search_result: "Search result: "
       search_result_plans: "plans"
     plan:
