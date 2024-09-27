@@ -55,6 +55,8 @@ module BenefitMarkets
     index({ hbx_id: 1 }, {name: "products_hbx_id_index"})
     index({ service_area_id: 1}, {name: "products_service_area_index"})
 
+    index({ "kind" => 1 }, {name: "products_kind_index"})
+
     index({ "application_period.min" => 1,
             "application_period.max" => 1,
             },

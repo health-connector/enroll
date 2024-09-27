@@ -836,7 +836,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       {
         year: year,
         plans_number: product_ids.count,
-        pvp_numbers: eligible_pvps(products_query).count,
+        pvp_numbers: eligible_pvps(product_ids).count,
         enrollments_number: enrollments_count,
         product_kinds: format_product_kinds(products_query.distinct(:kind))
       }
@@ -862,7 +862,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       organization_id: carrier[:organization_id],
       plans_number: products.count,
       enrollments_number: enrollments_count,
-      pvp_numbers: eligible_pvps(products).count,
+      pvp_numbers: eligible_pvps(products.map(&:_id)).count,
       product_kinds: format_product_kinds(products.map(&:kind))
     }
   end
@@ -906,8 +906,11 @@ class Exchanges::HbxProfilesController < ApplicationController
            .map { |pvp| [pvp.rating_area.exchange_provided_code, pvp.rating_area.id] }.uniq.to_h
   end
 
-  def eligible_pvps(products)
-    products.flat_map(&:premium_value_products).select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
+  def eligible_pvps(product_ids)
+    BenefitMarkets::Products::PremiumValueProduct.where(
+      :product_id.in => product_ids,
+      :eligibilities => {:$elemMatch => {key: :cca_shop_pvp_eligibility, current_state: :eligible}}
+    )
   end
 
   def uniq_terminate_params
