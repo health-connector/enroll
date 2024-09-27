@@ -849,7 +849,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def fetch_all_carriers_product_for(carriers, year)
     all_profile_ids = carriers.flat_map { |carrier| carrier[:profile_ids] }
-    product_query = BenefitMarkets::Products::Product.where(
+    BenefitMarkets::Products::Product.where(
       :"application_period.min".lte => Date.new(year, 12, 31),
       :"application_period.max".gte => Date.new(year, 1, 1),
       :issuer_profile_id.in => all_profile_ids
