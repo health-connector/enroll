@@ -251,7 +251,7 @@ class Person
   validate :consumer_fields_validations
 
   after_create :notify_created
-  after_update :notify_updated, if: :changed?
+  after_update :notify_updated, if: :attributes_changed?
 
   def active_general_agency_staff_roles
     general_agency_staff_roles.select(&:active?)
@@ -287,6 +287,7 @@ class Person
   end
 
   def notify_updated
+    Rails.logger.info "person update event is getting triggered"
     notify(PERSON_UPDATED_EVENT_NAME, {:individual_id => hbx_id })
   end
 
@@ -898,6 +899,13 @@ class Person
   end
 
   private
+
+  def attributes_changed?
+    changes = changed_attributes.stringify_keys
+    meaningful_changes = changes.except('updated_at', 'updated_by', 'updated_by_id')
+    Rails.logger.info "Meaningful changes: #{meaningful_changes}"
+    meaningful_changes.present?
+  end
 
   def update_census_dependent_relationship(existing_relationship)
     return unless existing_relationship.valid?
