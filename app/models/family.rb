@@ -943,6 +943,27 @@ class Family
                              { "$count" => "hbx_enrollments" }
                            ]).first.try(:[], "hbx_enrollments") || 0
     end
+
+    def actual_enrollment_counts_by_products(product_ids)
+      collection.aggregate([
+        { "$unwind" => "$households" },
+        { "$unwind" => "$households.hbx_enrollments" },
+        {
+          "$match" => {
+            "households.hbx_enrollments.aasm_state" => {
+              "$nin" => HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::CANCELED_STATUSES + ['shopping']
+            },
+            "households.hbx_enrollments.product_id" => { "$in" => product_ids }
+          }
+        },
+        {
+          "$group" => {
+            "_id" => "$households.hbx_enrollments.product_id",
+            "enrollment_count" => { "$sum" => 1 }
+          }
+        }
+      ]).to_a
+    end
   end
 
   def build_consumer_role(family_member, opts = {})
