@@ -735,19 +735,25 @@ describe Person, :dbclean => :after_each do
     context "notify change event" do
       let(:person) { FactoryBot.build(:person) }
 
-      it "when new record" do
+      it "calls notify_created when new record is saved" do
+        expect(person).to receive(:notify_created)
+
         person.save
       end
 
-      it "when change record" do
-        first_name = person.first_name
+      it "calls notify_updated when existing record is changed" do
+        person.save
+        allow(person).to receive(:notify_updated)
+
         person.first_name = "Test"
         person.save
+
+        expect(person).to have_received(:notify_updated)
       end
 
-      it "calls notify_updated when record is changed" do
+      it "calls notify_updated when meaningful changes are made" do
         person = FactoryBot.create(:person)
-        allow(person).to receive(:notify_updated).and_call_original
+        allow(person).to receive(:notify_updated)
 
         person.first_name = "NewName"
         person.save
@@ -755,7 +761,17 @@ describe Person, :dbclean => :after_each do
         expect(person).to have_received(:notify_updated)
       end
 
-      it "does not call notify_updated when record is not changed" do
+      it "does not call notify_updated when only non-meaningful attributes are changed" do
+        person = FactoryBot.create(:person)
+        allow(person).to receive(:notify_updated)
+
+        person.updated_at = Time.now
+        person.save
+
+        expect(person).not_to have_received(:notify_updated)
+      end
+
+      it "does not call notify_updated when no attributes are changed" do
         person = FactoryBot.create(:person)
         allow(person).to receive(:notify_updated)
 
