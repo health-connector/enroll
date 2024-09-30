@@ -556,7 +556,7 @@ class Exchanges::HbxProfilesController < ApplicationController
               else
                 { success: l10n('hbx_profiles.mark_pvp_success') }
               end
-    org = BenefitSponsors::Organizations::ExemptOrganization.by_employer_profile(@product.issuer_profile.id).last
+    org = BenefitSponsors::Organizations::ExemptOrganization.by_profile(@product.issuer_profile.id).last
 
     redirect_to plan_details_exchanges_hbx_profiles_path(
       year: @product.active_year,
