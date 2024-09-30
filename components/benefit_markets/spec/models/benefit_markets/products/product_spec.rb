@@ -369,7 +369,8 @@ module BenefitMarkets
     describe '#plan_types' do
       context 'when premium value products are present' do
         before do
-          allow(subject).to receive(:premium_value_products).and_return(double(:present? => true))
+          pvp_mock = double(:latest_active_pvp_eligibility_on => Date.today)
+          allow(subject).to receive(:premium_value_products).and_return([pvp_mock])
         end
 
         it 'includes :pvp in the plan types' do
