@@ -57,7 +57,7 @@ module BenefitSponsors
 
         @census_employee_ids ||= benefit_sponsorships.map { |bs| bs.census_employees.distinct(:_id) }.flatten
 
-        employee_person_ids ||= Person.unscoped.where("employee_roles.census_employee_id" => {"$in" => @census_employee_ids}).pluck(:_id)
+        Person.unscoped.where("employee_roles.census_employee_id" => {"$in" => @census_employee_ids}).pluck(:_id)
       end
 
       def build_people_id_criteria(s_string)

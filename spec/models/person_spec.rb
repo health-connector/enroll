@@ -741,7 +741,6 @@ describe Person, :dbclean => :after_each do
 
       it "when change record" do
         #      expect(person).to receive(:notify_change_event).exactly(1).times
-        first_name = person.first_name
         person.first_name = "Test"
         person.save
       end
