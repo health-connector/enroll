@@ -532,7 +532,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     authorize HbxProfile, :view_admin_tabs?
     @product = BenefitMarkets::Products::Product.find(params[:product_id])
     @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind.to_s).first
-    @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.to_h
+    @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.sort.to_h
     @product_rating_areas = @product.premium_tables.map(&:rating_area).pluck(:exchange_provided_code, :id).uniq.to_h
     @product_pvp_eligible_ras = fetch_eligible_pvp_ras_for(@product)
 
