@@ -22,7 +22,7 @@
       .col-xs-6.col-sm-6.col-md-9.metal-tier= @product.metal_level_kind.to_s.capitalize
     .row
       .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.plan_id')
-      .col-xs-6.col-sm-6.col-md-9.metal-tier= @product.hios_id
+      .col-xs-6.col-sm-6.col-md-9.plan_id= @product.hios_id
     .row
       .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.rating_area')
       .col-xs-6.col-sm-6.col-md-9= format_rating_area_codes(@product_rating_areas.keys)
