@@ -68,5 +68,6 @@ Feature: Visit Issuer and nested pages
     Then the user should see Plan benefit type
     Then the user should see Plan metal tier
     Then the user should see Plan PVP areas
+    Then the user should see HIOS id
     Then the user should see Availability table
     Then the user should see Estimated Cost table
