@@ -84,6 +84,7 @@ en:
         market: "Market:"
         market_type: "Employer Sponsored"
         metal_tier: "Metal Tier:"
+        plan_id: 'HIOS/Plan ID'
         rating_area: "Rating Area(s):"
         pvp_area: "PVP Area(s):"
       availability: "Availability"
