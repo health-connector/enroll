@@ -30,6 +30,7 @@ else {
 
 $('input[name=plan_year_radio]').click(function() {
   hidePlanYearActions();
+  hideV2XmlInputs();
   clearDatePickerValue();
   hideTerminationRadios();
   $('.py-btn-grp').addClass('disabled');
@@ -161,7 +162,7 @@ function hideV2XmlInputs() {
 }
 
 function showV2XmlInputs() {
-  $('.v2_xml_inputs').removeClass('hidden');
+  $(`#${applicationId}.v2_xml_inputs, #${applicationId} .v2_xml_inputs`).removeClass('hidden');
 }
 
 function hideCancelInputs() {
@@ -273,7 +274,7 @@ function pyAction(action, id, status, employer_id, end_on, start_on) {
   if (action == 'generate_v2_xml'){
     hideEndDateField(pyStartDate, applicationId);
     hidePlanYearActions();
-    showV2XmlInputs();
+    showV2XmlInputs(applicationId);
   }
 
   // Clears all end dates from previous rows
