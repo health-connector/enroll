@@ -4,7 +4,12 @@
      <div class="modal-header">
        <h4 class="modal-title" id="securityQuestionModalLabel">Please help us secure your account</h4>
      </div>
-     <%= form_for [:user, current_user.security_question_responses.build], url: main_app.user_security_question_responses_path(user_id: current_user.id.to_s), method: method, name: "user_security_question_responses[]", remote: true do |f| %>
+     <% if current_user.security_question_responses.present? %>
+       <% url = main_app.user_security_question_responses_replace_path(user_id: current_user.id.to_s)%>
+     <% else %>
+       <% url = main_app.user_security_question_responses_path(user_id: current_user.id.to_s)%>
+     <% end %>
+     <%= form_for [:user, current_user.security_question_responses.build], url: url, method: method, name: "user_security_question_responses[]", remote: true do |f| %>
        <div class="modal-body">
          <p>Please take a moment to provide security responses for three choices from our available options</p>
          <p>These questions help us confirm your identity if you forget your password, or if your account behaves suspiciously and is locked.</p>
