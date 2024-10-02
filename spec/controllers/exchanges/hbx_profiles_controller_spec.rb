@@ -1374,7 +1374,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       it "redirects to the plan detailed page with success message" do
         expect(response).to redirect_to(plan_details_exchanges_hbx_profiles_path(year: product.active_year,
-                                                                                 id: product.issuer_profile.id,
+                                                                                 id: product.issuer_profile.organization.id,
                                                                                  product_id: product.id,
                                                                                  market: product.benefit_market_kind.to_s.split('_').last))
         expect(flash[:success]).to eq("Successfully marked premium value product(s)")
@@ -1418,7 +1418,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it "redirects to the plan detailed page with failure message" do
         expect(response).to redirect_to(plan_details_exchanges_hbx_profiles_path(
                                           year: product.active_year,
-                                          id: product.issuer_profile.id,
+                                          id: product.issuer_profile.organization.id,
                                           product_id: product.id,
                                           market: product.benefit_market_kind.to_s.split('_').last
                                         ))
