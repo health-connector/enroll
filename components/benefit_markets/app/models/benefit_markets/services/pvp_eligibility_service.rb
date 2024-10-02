@@ -40,11 +40,7 @@ module BenefitMarkets
       def get_effective_date(evidence_value)
         return @args[:effective_date] if @args[:effective_date].present?
 
-        if evidence_value.to_s == "true"
-          @product.application_period.min.to_date
-        else
-          TimeKeeper.date_of_record
-        end
+        @product.application_period.min.to_date
       end
 
       def store_pvp_eligibility(pvp, evidence_value, effective_date)
